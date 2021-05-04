@@ -35,6 +35,7 @@ uniform mat4 gbufferModelView, gbufferModelViewInverse;
 uniform mat4 shadowModelView, shadowProjection;
 
 #include "/lib/Util/distort.glsl"
+#include "/lib/Util/dither.glsl"
 #include "/lib/Util/noise.glsl"
 #include "/lib/Util/math.glsl"
 #include "/lib/Util/transforms.glsl"

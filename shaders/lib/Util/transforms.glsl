@@ -2,20 +2,20 @@
 #define  projMAD(mat, v) (diag3(mat) * (v) + (mat)[3].xyz)
 
 vec3 screenToView(vec3 screenPos) {
-		screenPos = screenPos * 2.0f - 1.0f;
-		return projMAD(gbufferProjectionInverse, screenPos) / (screenPos.z * gbufferProjectionInverse[2].w + gbufferProjectionInverse[3].w);
+	screenPos = screenPos * 2.0f - 1.0f;
+	return projMAD(gbufferProjectionInverse, screenPos) / (screenPos.z * gbufferProjectionInverse[2].w + gbufferProjectionInverse[3].w);
 }
 
 vec3 viewToScreen(vec3 viewPos) {
-		return (diag3(gbufferProjection) * viewPos + gbufferProjection[3].xyz) / -viewPos.z * 0.5f + 0.5f;
+	return (diag3(gbufferProjection) * viewPos + gbufferProjection[3].xyz) / -viewPos.z * 0.5f + 0.5f;
 }
 
 vec3 worldToView(vec3 worldPos) {
-		return mat3(gbufferModelView) * (worldPos - cameraPosition);
+	return mat3(gbufferModelView) * (worldPos - cameraPosition);
 }
 
 vec3 viewToWorld(vec3 viewPos) {
-		return mat3(gbufferModelViewInverse) * viewPos;
+	return mat3(gbufferModelViewInverse) * viewPos;
 }
 
 // Written by n_r4h33m#7259

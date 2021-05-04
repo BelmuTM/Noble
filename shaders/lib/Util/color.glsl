@@ -14,31 +14,31 @@ vec3 blendOverlay(vec3 base, vec3 blend) {
 }
 
 vec3 blendOverlay(vec3 base, vec3 blend, float opacity) {
-	  return blendOverlay(base, blend) * opacity + base * (1.0f - opacity);
+	return blendOverlay(base, blend) * opacity + base * (1.0f - opacity);
 }
 
 vec4 lumaBasedReinhard(vec4 color) {
     float lum = luma(color.rgb);
-	  float white = 2.0f;
-	  float toneMappedLuma = lum * (1.0f + lum / (white * white)) / (1.0f + lum);
-	  color *= toneMappedLuma / lum;
-	  return color;
+	float white = 2.0f;
+	float toneMappedLuma = lum * (1.0f + lum / (white * white)) / (1.0f + lum);
+	color *= toneMappedLuma / lum;
+	return color;
 }
 
 vec4 uncharted2(vec4 color) {
-	  float A = 0.15f;
-	  float B = 0.50f;
-	  float C = 0.10f;
-	  float D = 0.20f;
-	  float E = 0.02f;
-	  float F = 0.30f;
-	  float W = 11.2f;
+	float A = 0.15f;
+	float B = 0.50f;
+	float C = 0.10f;
+	float D = 0.20f;
+	float E = 0.02f;
+	float F = 0.30f;
+	float W = 11.2f;
 
-	  color = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
-	  float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
-	  color /= white;
+	color = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
+	float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
+	color /= white;
 
-	  return color;
+	return color;
 }
 
 vec3 filmic(vec3 x) {
