@@ -24,7 +24,7 @@ vec3 computeVolumetric(vec3 viewPos) {
 
         volumetric += computeScattering(dot(normalize(currPos), normalize(sunPosition))) * skyColor;
 
-        currPos += rayDir * increment * jitter;
+        currPos += rayDir * increment * jitter;//aa
     }
     volumetric /= FOG_SAMPLES;
 
