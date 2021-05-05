@@ -20,7 +20,8 @@ vec4 computeDOF(float sceneDepth, vec3 viewPos) {
 
     if(sceneDepth == 1.0f) return texture2D(colortex0, TexCoords);
 
-    vec4 outOfFocusColor = gaussian(vec2(viewWidth, viewHeight));
+    vec4 outOfFocusColor = vec4(0.0f);
+    outOfFocusColor = fastGaussian(colortex0, vec2(viewWidth, viewHeight), outOfFocusColor);
     return mix(texture2D(colortex0, TexCoords), outOfFocusColor, blur);
 }
 
@@ -36,7 +37,7 @@ vec3 computeDOFHigh(vec3 color, float sceneDepth, vec3 viewPos) {
     float tot = 1.0f;
     float radius = RAD_SCALE;
 
-    if(sceneDepth == 1.0f) return texture2D(colortex0, TexCoords).rgb;
+    if(isHand(texture2D(depthtex0, TexCoords).r) || sceneDepth == 1.0f) return texture2D(colortex0, TexCoords).rgb;
 
     float sampleSize;
     for(float ang = 0.0f; radius < MAX_BLUR_SIZE; ang += GOLDEN_ANGLE) {

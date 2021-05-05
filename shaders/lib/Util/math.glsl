@@ -1,4 +1,5 @@
 #define PI 3.14159265358979323846
+#define PI2 6.28318530718
 #define EPS 0.001
 
 struct Ray {
@@ -6,6 +7,11 @@ struct Ray {
     vec3 dir;
     vec4 color;
 };
+/*
+mat3 calculateTBN(vec3 normal) {
+	vec3 tangent  = gl_NormalMatrix * (at_tangent.xyz / at_tangent.w);
+    return mat3(tangent, cross(tangent, normal), normal);
+}*/
 
 bool isNan(float x) {
     return (x < 0.0f || 0.0f < x || x == 0.0f) ? false : true;

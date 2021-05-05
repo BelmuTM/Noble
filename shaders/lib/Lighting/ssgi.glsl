@@ -2,8 +2,8 @@
   Author: Belmu (https://github.com/BelmuTM/)
   */
 
-#define SSGI_SCALE 1
-#define SSGI_SAMPLES 12 // [2 4 6 12 24 32 64]
+#define SSGI_SCALE 2
+#define SSGI_SAMPLES 12 // [2 4 6 12 24 32 48 64]
 #define SSGI_BIAS 0.035f
 
 vec3 computeSSGI(vec3 viewPos, vec3 normal) {
@@ -18,6 +18,8 @@ vec3 computeSSGI(vec3 viewPos, vec3 normal) {
 
     for(int i = 0; i < SSGI_SAMPLES; i++) {
         vec3 noise = hash33(vec3(TexCoords, i));
+        //noise = fract(noise + vec3(frameTimeCounter) * 17.0f);
+        
         //Sampling pos
         vec3 sampleDir = cosWeightedRandomHemisphereDirection(normal, noise.xy);
         float NdotD = dot(normal, sampleDir);
@@ -26,7 +28,6 @@ vec3 computeSSGI(vec3 viewPos, vec3 normal) {
         // Ray trace
         if(!rayTraceSSGI(sampleOrigin, sampleDir, prevPos)) continue;
 
-        // Compute Color
         vec3 sampleColor = texture2D(colortex0, prevPos.xy).rgb;
         // Temporal Accumulation
         vec2 offset = hash22(prevPos.xy + sin(frameTimeCounter));
@@ -35,5 +36,7 @@ vec3 computeSSGI(vec3 viewPos, vec3 normal) {
         illumination += sampleColor * NdotD * noise.x / PDF;
     }
     illumination /= SSGI_SAMPLES;
-    return illumination * SSGI_SCALE;
+    illumination *= SSGI_SCALE;
+
+    return illumination;
 }

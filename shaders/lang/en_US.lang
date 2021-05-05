@@ -61,10 +61,15 @@ value.SSAO_SAMPLES.32 = §632
 value.SSAO_SAMPLES.64 = §c64
 value.SSAO_SAMPLES.128 = §4128
 
-option.SSGI = SSGI §e§lBETA
+option.SSGI = SSGI
 option.SSGI.comment = Screen Space Global Illumination. It simulates light bounces.
 value.SSGI.0 = §cOFF
 value.SSGI.1 = §aON
+
+option.SSGI_BLUR = SSGI Blur
+option.SSGI_BLUR.comment = Blurs out Global Illumination to hide noise. §cReduces performance significantly.
+value.SSGI_BLUR.0 = §cOFF
+value.SSGI_BLUR.1 = §aON
 
 option.SSGI_SAMPLES = SSGI Samples
 option.SSGI_SAMPLES.comment = Influences SSGI's quality. §cHigher value gives smoother GI, but reduces §cperformance.
@@ -74,7 +79,8 @@ value.SSGI_SAMPLES.6 = §a6
 value.SSGI_SAMPLES.12 = §e12
 value.SSGI_SAMPLES.24 = §624
 value.SSGI_SAMPLES.32 = §c32
-value.SSGI_SAMPLES.64 = §464
+value.SSGI_SAMPLES.48 = §448
+value.SSGI_SAMPLES.64 = §564
 
 option.SPECULAR = Specular
 option.SPECULAR.comment = Adds shininess to certain blocks.

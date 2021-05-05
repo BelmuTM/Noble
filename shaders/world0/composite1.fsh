@@ -19,6 +19,7 @@ uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
+uniform sampler2D colortex6;
 uniform sampler2D depthtex0;
 
 uniform sampler2D shadowtex0, shadowtex1;
@@ -39,17 +40,14 @@ uniform mat4 shadowModelView, shadowProjection;
 void main() {
     vec3 viewPos = getViewPos();
     vec3 Normal = normalize(texture2D(colortex1, TexCoords).rgb * 2.0f - 1.0f);
-
     vec4 Result = texture2D(colortex0, TexCoords);
-    vec3 Albedo = texture2D(colortex5, TexCoords).rgb;
 
     vec3 GlobalIllumination = vec3(0.0f);
     #if SSGI == 1 && BLOOM != 1
         GlobalIllumination = computeSSGI(viewPos, Normal);
     #endif
 
-    Result.rgb += Albedo * GlobalIllumination;
-
-    /* DRAWBUFFERS:0 */
+    /* DRAWBUFFERS:06 */
     gl_FragData[0] = Result;
+    gl_FragData[1] = vec4(GlobalIllumination, 1.0f);
 }

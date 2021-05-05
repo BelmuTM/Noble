@@ -106,22 +106,6 @@ vec3 getLightmapColor(in vec2 Lightmap) {
     return vec3(TorchLighting + SkyLighting);
 }
 
-float visibility(in sampler2D ShadowMap, in vec3 SampleCoords) {
-    return step(SampleCoords.z - 0.001f, texture2D(ShadowMap, SampleCoords.xy).r);
-}
-
-vec3 transparentShadow(in vec3 SampleCoords) {
-    float ShadowVisibility0 = visibility(shadowtex0, SampleCoords);
-    float ShadowVisibility1 = visibility(shadowtex1, SampleCoords);
-    vec4 ShadowColor0 = texture2D(shadowcolor0, SampleCoords.xy);
-    vec3 TransmittedColor = ShadowColor0.rgb * (1.0f - ShadowColor0.a);
-    return mix((TransmittedColor * 1.2f) * ShadowVisibility1, vec3(1.0f), ShadowVisibility0);
-}
-
-#define SHADOW_SAMPLES 3
-const int shadowSamplesPerSize = 2 * SHADOW_SAMPLES + 1;
-const int totalSamples = shadowSamplesPerSize * shadowSamplesPerSize;
-
 vec3 shadowMap() {
     vec3 viewPos = getViewPos();
     vec4 shadowSpace = viewToShadow(viewPos);
@@ -132,17 +116,7 @@ vec3 shadowMap() {
     float sinTheta = sin(randomAngle);
     mat2 rotation =  mat2(cosTheta, -sinTheta, sinTheta, cosTheta) / shadowMapResolution;
 
-    vec3 shadowResult = vec3(0.0f);
-    for(int x = -SHADOW_SAMPLES; x <= SHADOW_SAMPLES; x++) {
-        for(int y = -SHADOW_SAMPLES; y <= SHADOW_SAMPLES; y++) {
-
-            vec2 offset = rotation * vec2(x, y);
-            vec3 currentSampleCoordinate = vec3(sampleCoords.xy + offset, sampleCoords.z);
-            shadowResult += transparentShadow(currentSampleCoordinate);
-        }
-    }
-    shadowResult /= totalSamples;
-    return shadowResult;
+    return blurShadows(rotation, sampleCoords);
 }
 
 void main() {
@@ -200,8 +174,8 @@ void main() {
     }
     #endif
 
-    Result = vec4((Diffuse * AmbientOcclusion) + Specular, 1.0f);
+    Result = vec4(Diffuse + Specular, 1.0f);
     /* DRAWBUFFERS:05 */
-    gl_FragData[0] = Result + vec4(computeVolumetric(viewPos), 1.0f);
-    gl_FragData[1] = vec4(Albedo, 1.0f);
+    gl_FragData[0] = Result + vec4(computeVolumetric(cameraPosition), 0.0f);
+    gl_FragData[1] = vec4(Albedo, AmbientOcclusion.r);
 }
