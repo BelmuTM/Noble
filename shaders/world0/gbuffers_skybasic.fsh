@@ -4,14 +4,12 @@
 
 #version 120
 
-varying vec2 TexCoords;
 varying vec4 Color;
 
 const int GL_LINEAR = 9729;
 const int GL_EXP = 2048;
 
 uniform int fogMode;
-uniform sampler2D colortex0;
 
 void main() {
   	gl_FragData[0] = Color;

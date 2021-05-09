@@ -21,7 +21,7 @@ vec3 DOF1(float sceneDepth, vec3 viewPos) {
     if(sceneDepth == 1.0f) return texture2D(colortex0, TexCoords).rgb;
 
     vec4 outOfFocusColor = vec4(0.0f);
-    outOfFocusColor = fastGaussian(colortex0, vec2(viewWidth, viewHeight), outOfFocusColor);
+    outOfFocusColor = fastGaussian(colortex0, vec2(viewWidth, viewHeight), 5.65f, 15.0f, 20.0f, outOfFocusColor);
     return mix(texture2D(colortex0, TexCoords).rgb, outOfFocusColor.rgb, blur);
 }
 

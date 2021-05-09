@@ -92,6 +92,22 @@ option.SPECULAR_MODE.comment = Two different ways to calculate specular reflecti
 value.SPECULAR_MODE.0 = §7Phong
 value.SPECULAR_MODE.1 = §7Blinn-Phong
 
+option.LIGHT_SHAFTS = Light Shafts
+option.LIGHT_SHAFTS.comment = Adds god rays to the scenery.
+value.LIGHT_SHAFTS.0 = §cOFF
+value.LIGHT_SHAFTS.1 = §aON
+
+option.LIGHT_SHAFTS_SAMPLES = Light Shafts Samples
+option.LIGHT_SHAFTS_SAMPLES.comment = Influences god rays' quality. §cHigher value gives smoother god rays, but reduces §cperformance.
+value.LIGHT_SHAFTS_SAMPLES.16 = §b16
+value.LIGHT_SHAFTS_SAMPLES.32 = §332
+value.LIGHT_SHAFTS_SAMPLES.48 = §248
+value.LIGHT_SHAFTS_SAMPLES.64 = §a64
+value.LIGHT_SHAFTS_SAMPLES.80 = §e80
+value.LIGHT_SHAFTS_SAMPLES.96 = §696
+value.LIGHT_SHAFTS_SAMPLES.112 = §c112
+value.LIGHT_SHAFTS_SAMPLES.128 = §4128
+
 ##################### POST-PROCESSING #####################
 
 option.BLOOM = Bloom
@@ -139,12 +155,15 @@ value.OUTLINE.1 = §aON
 
 option.TONEMAPPING = Tone Mapping
 option.TONEMAPPING.comment = Applies a color correction filter.
+value.TONEMAPPING.-1 = None
 value.TONEMAPPING.0 = Reinhard
 value.TONEMAPPING.1 = Uncharted
-value.TONEMAPPING.2 = Filmic
-value.TONEMAPPING.3 = Uchimura
-value.TONEMAPPING.4 = Lottes
-value.TONEMAPPING.5 = Burgess
+value.TONEMAPPING.2 = Uchimura
+value.TONEMAPPING.3 = Lottes
+value.TONEMAPPING.4 = Burgess
+
+option.EXPOSURE = Exposure
+option.EXPOSURE.comment = Influences the overall brightness or darkness of an image.
 
 option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.

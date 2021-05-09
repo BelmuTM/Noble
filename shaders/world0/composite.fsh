@@ -5,6 +5,7 @@
 #version 120
 
 #define SHADOWS 1 // [0 1]
+#define LIGHT_SHAFTS 1 // [0 1]
 
 #define SPECULAR 1 // [0 1]
 #define SPECULAR_MODE 1 // [0 1]
@@ -59,7 +60,7 @@ const float shadowDistanceRenderMul = 1.0f;
 const float ambientOcclusionLevel = 0.0f;
 
 const float shininess = 50.0f;
-const vec4 lightColor = vec4(0.9f, 0.7f, 0.1f, 1.0f);
+const vec4 lightColor = vec4(0.9f, 0.7f, 0.1f, 1.5f);
 
 vec3 getDayTimeColor() {
     float wTimeF = float(worldTime);
@@ -70,9 +71,9 @@ vec3 getDayTimeColor() {
 	float timeMidnight = ((clamp(wTimeF, 12500.0f, 12750.0f) - 12500.0f) / 250.0f) - ((clamp(wTimeF, 23000.0f, 24000.0f) - 23000.0f) / 1000.0f);
 
     const vec3 ambient_sunrise = vec3(0.843f, 0.772f, 0.586f) * 0.9f;
-    const vec3 ambient_noon = vec3(0.686f, 0.702f, 0.73f) * 0.725f;
+    const vec3 ambient_noon = vec3(0.786f, 0.802f, 0.73f);
     const vec3 ambient_sunset = vec3(0.943f, 0.772f, 0.247f) * 0.26f;
-    const vec3 ambient_midnight = vec3(0.06f, 0.088f, 0.117f) * 0.95f;
+    const vec3 ambient_midnight = vec3(0.16f, 0.188f, 0.217f);
 
     return ambient_sunrise * timeSunrise + ambient_noon * timeNoon + ambient_sunset * timeSunset + ambient_midnight * timeMidnight;
 }
@@ -125,13 +126,17 @@ void main() {
     vec3 viewDir = normalize(-viewPos);
     vec3 Normal = normalize(texture2D(colortex1, TexCoords).rgb * 2.0f - 1.0f);
     vec4 Result = texture2D(colortex0, TexCoords);
+    Result.rgb = srgbToLinear(Result.rgb); // Color Conversion
+
+    #if LIGHT_SHAFTS == 1
+        Result += VolumetricFog(viewPos) * vec4(0.5f);
+    #endif
 
     float Depth = texture2D(depthtex0, TexCoords).r;
     if(Depth == 1.0f) {
         gl_FragData[0] = Result;
         return;
     }
-    Result.rgb = decodeSRGB(Result.rgb); // Color Conversion
     vec3 Albedo = Result.rgb * getDayTimeColor();
 
     vec2 Lightmap = texture2D(colortex2, TexCoords).rg;
@@ -178,6 +183,6 @@ void main() {
     Result = vec4(Diffuse + Specular, 1.0f);
     
     /* DRAWBUFFERS:05 */
-    gl_FragData[0] = lightColor * computeVolumetric(viewPos) + Result;
+    gl_FragData[0] = Result;
     gl_FragData[1] = vec4(Albedo, AmbientOcclusion.r);
 }

@@ -30,6 +30,14 @@ float linearizeDepth(float depth) {
 	return (2.0f * near * far) / (far + near - depth * (far - near));
 }
 
+vec3 extractNormalMap(vec4 normal, mat3 TBN) {
+	vec3 normalMap = normal.xyz * 2.0f - 1.0f;
+	normalMap.z = sqrt(clamp(1.0f - dot(normalMap.xy, normalMap.xy), 0.0f, 1.0f));
+	normalMap = TBN * normalMap;
+	normalMap = mat3(gbufferModelViewInverse) * normalMap;
+	return normalMap;
+}
+
 /*
 // Written by Chocapic13
 vec2 reprojection(vec3 pos) {

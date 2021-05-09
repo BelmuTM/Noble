@@ -18,8 +18,8 @@ bool isNan(float x) {
 }
 
 float distanceSquared(vec3 v1, vec3 v2) {
-		vec3 u = v2 - v1;
-		return dot(u, u);
+	vec3 u = v2 - v1;
+	return dot(u, u);
 }
 
 float sdSphere(vec3 rayPos, vec3 spherePos, float radius)  {

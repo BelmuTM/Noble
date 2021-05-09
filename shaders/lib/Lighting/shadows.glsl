@@ -5,14 +5,14 @@
 vec4 viewToShadow(vec3 viewPos) {
 	vec4 worldPos = gbufferModelViewInverse * vec4(viewPos, 1.0f);
 	vec4 shadowSpace = shadowProjection * shadowModelView * worldPos;
-	shadowSpace.xy = distortPosition(shadowSpace.xy);
+	shadowSpace.xyz = distort(shadowSpace.xyz);
 
 	return shadowSpace;
 }
 
 vec4 worldToShadow(vec3 worldPos) {
 	vec4 shadowSpace = shadowProjection * shadowModelView * vec4(worldPos, 1.0f);
-	shadowSpace.xy = distortPosition(shadowSpace.xy);
+	shadowSpace.xyz = distort(shadowSpace.xyz);
 
 	return shadowSpace;
 }
@@ -34,7 +34,7 @@ const int shadowSamplesPerSize = 2 * SHADOW_SAMPLES + 1;
 const int totalSamples = shadowSamplesPerSize * shadowSamplesPerSize;
 
 vec3 blurShadows(mat2 rotation, vec3 sampleCoords) {
-		vec3 shadowResult = vec3(0.0f);
+	vec3 shadowResult = vec3(0.0f);
 
     for(int x = -SHADOW_SAMPLES; x <= SHADOW_SAMPLES; x++) {
         for(int y = -SHADOW_SAMPLES; y <= SHADOW_SAMPLES; y++) {

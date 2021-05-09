@@ -5,7 +5,7 @@
 // I AM NOT THE AUTHOR OF THE TONE MAPPING ALGORITHMS BELOW
 // Most sources are: Github, ShaderToy or Discord.
 
-#define TONEMAPPING 5 // [0 1 2 3 4 5]
+#define TONEMAPPING 0 // [-1 0 1 2 3 4]
 
 float luma(vec3 color) {
     return dot(color, vec3(0.299f, 0.587f, 0.114f));
@@ -50,12 +50,6 @@ vec3 uncharted2(vec3 color) {
 	float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
 	color /= white;
 	return color;
-}
-
-vec3 filmic(vec3 x) {
-    vec3 X = max(vec3(0.0f), x - 0.004f);
-    vec3 result = (X * (6.2f * X + 0.5f)) / (X * (6.2f * X + 1.7f) + 0.06f);
-    return pow(result, vec3(2.2f));
 }
 
 // Uchimura 2017, "HDR theory and practice"
@@ -135,23 +129,36 @@ vec3 brightness_contrast(vec3 color, float contrast, float brightness) {
     return (color - 0.5f) * contrast + 0.5f + brightness;
 }
 
-// Linear to SRGB
-vec3 encodeSRGB(vec3 linearRGB) {
-    vec3 a = 12.92f * linearRGB;
-    vec3 b = 1.055f * pow(linearRGB, vec3(1.0f / 2.4f)) - 0.055f;
-    vec3 c = step(vec3(0.0031308f), linearRGB);
-    return mix(a, b, c);
-}
-
 // SRGB to Linear
 vec3 decodeSRGB(vec3 screenRGB) {
     vec3 a = screenRGB / 12.92f;
     vec3 b = pow((screenRGB + 0.055f) / 1.055f, vec3(2.4f));
     vec3 c = step(vec3(0.04045f), screenRGB);
+    return mix(a, b, c);
+}
 
+// Linear to SRGB
+vec3 encodeSRGB(vec3 linearRGB) {
+    vec3 a = 12.92f * linearRGB;
+    vec3 b = 1.055f * pow(linearRGB, vec3(1.0f / 2.4f)) - 0.055f;
+    vec3 c = step(vec3(0.0031308f), linearRGB);
+    
     #if TONEMAPPING != 5
         return mix(a, b, c);
     #else
         return screenRGB;
     #endif
 }
+
+vec3 srgbToLinear(vec3 srgb) {
+    return pow(srgb, vec3(2.2f));
+}
+
+vec3 linearToSRGB(vec3 linear) {
+    #if TONEMAPPING != 4
+        return pow(linear, vec3(1.0f / 2.2f));
+    #else
+        return linear;
+    #endif
+}
+

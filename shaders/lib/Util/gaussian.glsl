@@ -19,20 +19,15 @@ vec4 gaussianOnePass(sampler2D tex, vec2 resolution, inout vec4 color) {
     return color;
 }
 
-#define FAST_GAUSS_DIRECTIONS 25.0f
-#define FAST_GAUSS_QUALITY 15.0f
-#define FAST_GAUSS_SIZE 5.65f
-
-vec4 fastGaussian(sampler2D tex, vec2 resolution, inout vec4 color) {
-    vec2 radius = FAST_GAUSS_SIZE / resolution;
-
+vec4 fastGaussian(sampler2D tex, vec2 resolution, float size, float quality, float directions, inout vec4 color) {
+    vec2 radius = size / resolution;
     int SAMPLES;
-    for(float d = 0.0f; d < PI2; d += PI2 / FAST_GAUSS_DIRECTIONS) {
-		    for(float i = 1.0f / FAST_GAUSS_QUALITY; i <= 1.0f; i += 1.0f / FAST_GAUSS_QUALITY) {
+    for(float d = 0.0f; d < PI2; d += PI2 / directions) {
+		    for(float i = 1.0f / quality; i <= 1.0f; i += 1.0f / quality) {
 			    color += texture2D(tex, TexCoords + vec2(cos(d), sin(d)) * radius * i);
             SAMPLES++;
         }
     }
     color /= SAMPLES;
-    return color / FAST_GAUSS_QUALITY * FAST_GAUSS_DIRECTIONS;
+    return color / quality * directions;
 }

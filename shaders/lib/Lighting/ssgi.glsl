@@ -2,7 +2,7 @@
   Author: Belmu (https://github.com/BelmuTM/)
   */
 
-#define SSGI_SCALE 0.5
+#define SSGI_SCALE 1
 #define SSGI_SAMPLES 12 // [2 4 6 12 24 32 48 64]
 #define SSGI_BIAS 0.007f
 

@@ -65,7 +65,7 @@ void main() {
     vec4 GlobalIllumination = texture2D(colortex6, TexCoords);
     // Blurring Global Illumination
     #if SSGI_BLUR == 1
-        GlobalIllumination = fastGaussian(colortex6, vec2(viewWidth, viewHeight), GlobalIllumination);
+        GlobalIllumination = fastGaussian(colortex6, vec2(viewWidth, viewHeight), 8.7f, 15.0f, 20.0f, GlobalIllumination);
     #endif
 
     Result.rgb += Albedo * GlobalIllumination.rgb;
