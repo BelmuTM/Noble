@@ -22,14 +22,11 @@ bool isReflective() {
 }
 
 bool isSpecular() {
-    return getBlockId() >= 1 && getBlockId() < 5;
-}
-
-float luma(vec3 color) {
-    return dot(color, vec3(0.299f, 0.587f, 0.114f));
+    return getBlockId() >= 1 && getBlockId() < 4;
 }
 
 bool isHand(float depth) {
     depth = linearizeDepth(depth);
     return depth < 0.56f;
 }
+

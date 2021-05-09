@@ -7,15 +7,13 @@
 #define ABOUT 0 // [0]
 
 #define DOF 1 // [0 1]
-#define DOF_QUALITY 1 // [0 1]
+#define DOF_QUALITY 0 // [0 1]
 
 #define BLOOM 1 // [0 1]
 #define BLOOM_INTENSITY 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 #define OUTLINE 0 // [0 1]
-#define TONEMAPPING 5 // [0 1 2 3 4 5]
-
-#define GAMMA 2.65 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
+#define EXPOSURE 0.35 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define VIBRANCE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
@@ -53,50 +51,47 @@ const vec4 fogColor = vec4(0.425f, 0.349f, 0.888f, 1.0f);
 void main() {
     vec4 Result = texture2D(colortex0, TexCoords);
     float Depth = texture2D(depthtex0, TexCoords).r;
+    bool isSky = Depth == 1.0f;
     vec3 viewPos = getViewPos();
+
+    if(!isSky) Result = Fog(Depth, Result, viewPos, vec4(0.0f), fogColor, rainStrength); // Applying Fog
 
     // Depth Of Field
     vec3 depthOfField = Result.rgb;
     #if DOF == 1
-        if(DOF_QUALITY == 0) depthOfField = computeDOF(Depth, viewPos).rgb;
-        else depthOfField = computeDOFHigh(depthOfField, Depth, viewPos);
+        if(DOF_QUALITY == 0) depthOfField = DOF1(Depth, viewPos);
+        else depthOfField = DOF2(depthOfField, Depth, viewPos);
     #endif
     Result = vec4(depthOfField, 1.0f);
-    Result = computeFog(Depth, Result, viewPos, vec4(0.0f), mix(fogColor, vec4(skyColor, 1.0f), 0.5f), rainStrength); // Applying Fog
-
-    if(Depth == 1.0f) {
-        gl_FragData[0] = Result;
-        return;
-    }
 
     // Bloom
     #if BLOOM == 1 && SSGI != 1
-        Result = mix(Result, computeBloom(Result.rgb, 4, 3), luma(Result.rgb) * BLOOM_INTENSITY);
+        if(!isSky) Result = mix(Result, Bloom(Result.rgb, 4, 3), luma(Result.rgb) * BLOOM_INTENSITY);
     #endif
 
+    vec3 exposureColor = Result.rgb * 0.3f;
     #if TONEMAPPING == 0
-        Result = lumaBasedReinhard(Result); // Reinhard
+        Result.rgb = reinhard_jodie(exposureColor); // Reinhard
     #elif TONEMAPPING == 1
-        Result = uncharted2(Result); // Uncharted 2
+        Result.rgb = uncharted2(exposureColor); // Uncharted 2
     #elif TONEMAPPING == 2
-        Result.rgb = filmic(Result.rgb); // Filmic
+        Result.rgb = filmic(exposureColor); // Filmic
     #elif TONEMAPPING == 3
-        Result.rgb = uchimura(Result.rgb); // Uchimura
+        Result.rgb = uchimura(exposureColor); // Uchimura
     #elif TONEMAPPING == 4
-        Result.rgb = lottes(Result.rgb); // Lottes
+        Result.rgb = lottes(exposureColor); // Lottes
     #elif TONEMAPPING == 5
-        Result.rgb = burgess(Result.rgb); // Burgess
+        Result.rgb = burgess(exposureColor); // Burgess
     #endif
 
     // Color Grading
-    Result.rgb = vibranceSaturation(Result.rgb, VIBRANCE, SATURATION);
-    Result.rgb = brightnessContrast(Result.rgb, CONTRAST, BRIGHTNESS);
-
-    Result = pow(Result, vec4(1.0f / GAMMA)); // Gamma Correction
+    Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
+    Result.rgb = brightness_contrast(Result.rgb, CONTRAST, BRIGHTNESS);
 
     #if OUTLINE == 1
         Result = mix(Result, vec4(0.0f), edgeDetection());
     #endif
 
+    Result.rgb = encodeSRGB(Result.rgb);
     gl_FragData[0] = Result;
 }

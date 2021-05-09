@@ -3,7 +3,13 @@
   */
 
 // I AM NOT THE AUTHOR OF THE TONE MAPPING ALGORITHMS BELOW
-// Most sources are: Github, ShaderToy, or Discord.
+// Most sources are: Github, ShaderToy or Discord.
+
+#define TONEMAPPING 5 // [0 1 2 3 4 5]
+
+float luma(vec3 color) {
+    return dot(color, vec3(0.299f, 0.587f, 0.114f));
+}
 
 float blendOverlay(float base, float blend) {
     return base < 0.5f ? (2.0f * base * blend) : (1.0f - 2.0f * (1.0f - base ) * (1.0f - blend));
@@ -17,15 +23,21 @@ vec3 blendOverlay(vec3 base, vec3 blend, float opacity) {
 	return blendOverlay(base, blend) * opacity + base * (1.0f - opacity);
 }
 
-vec4 lumaBasedReinhard(vec4 color) {
-    float lum = luma(color.rgb);
+vec3 luma_based_reinhard(vec3 color) {
+    float luma = luma(color.rgb);
 	float white = 2.0f;
-	float toneMappedLuma = lum * (1.0f + lum / (white * white)) / (1.0f + lum);
-	color *= toneMappedLuma / lum;
+	float toneMappedLuma = luma * (1.0f + luma / (white * white)) / (1.0f + luma);
+	color *= toneMappedLuma / luma;
 	return color;
 }
 
-vec4 uncharted2(vec4 color) {
+vec3 reinhard_jodie(vec3 color) {
+    float luma = luma(color);
+    vec3 tv = color / (1.0f + color);
+    return mix(color / (1.0f + luma), tv, tv);
+}
+
+vec3 uncharted2(vec3 color) {
 	float A = 0.15f;
 	float B = 0.50f;
 	float C = 0.10f;
@@ -37,7 +49,6 @@ vec4 uncharted2(vec4 color) {
 	color = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
 	float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
 	color /= white;
-
 	return color;
 }
 
@@ -107,19 +118,40 @@ vec3 burgess(vec3 color) {
     return retColor;
 }
 
-vec3 vibranceSaturation(vec3 color, float vibrance, float saturation) {
-    float lum = luma(color);
+vec3 vibrance_saturation(vec3 color, float vibrance, float saturation) {
+    float luma = luma(color);
     float mn = min(min(color.r, color.g), color.b);
     float mx = max(max(color.r, color.g), color.b);
-    float sat = (1.0f - saturate(mx - mn)) * saturate(1.0f - mx) * lum * 5.0f;
+    float sat = (1.0f - saturate(mx - mn)) * saturate(1.0f - mx) * luma * 5.0f;
     vec3 light = vec3((mn + mx) / 2.0f);
 
     color = mix(color, mix(light, color, vibrance), sat);
     color = mix(color, light, (1.0f - light) * (1.0f - vibrance) / 2.0f * abs(vibrance));
-    color = mix(vec3(lum), color, saturation);
+    color = mix(vec3(luma), color, saturation);
     return color;
 }
 
-vec3 brightnessContrast(vec3 color, float contrast, float brightness) {
+vec3 brightness_contrast(vec3 color, float contrast, float brightness) {
     return (color - 0.5f) * contrast + 0.5f + brightness;
+}
+
+// Linear to SRGB
+vec3 encodeSRGB(vec3 linearRGB) {
+    vec3 a = 12.92f * linearRGB;
+    vec3 b = 1.055f * pow(linearRGB, vec3(1.0f / 2.4f)) - 0.055f;
+    vec3 c = step(vec3(0.0031308f), linearRGB);
+    return mix(a, b, c);
+}
+
+// SRGB to Linear
+vec3 decodeSRGB(vec3 screenRGB) {
+    vec3 a = screenRGB / 12.92f;
+    vec3 b = pow((screenRGB + 0.055f) / 1.055f, vec3(2.4f));
+    vec3 c = step(vec3(0.04045f), screenRGB);
+
+    #if TONEMAPPING != 5
+        return mix(a, b, c);
+    #else
+        return screenRGB;
+    #endif
 }

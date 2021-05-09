@@ -29,3 +29,21 @@ vec3 tangentToWorld(vec3 N, vec3 H) {
 float linearizeDepth(float depth) {
 	return (2.0f * near * far) / (far + near - depth * (far - near));
 }
+
+/*
+// Written by Chocapic13
+vec2 reprojection(vec3 pos) {
+	pos = pos * 2.0f - 1.0f;
+
+	vec4 viewPosPrev = gbufferProjectionInverse * vec4(pos, 1.0f);
+	viewPosPrev /= viewPosPrev.w;
+	viewPosPrev = gbufferModelViewInverse * viewPosPrev;
+
+	vec3 cameraOffset = cameraPosition - previousCameraPosition;
+	cameraOffset *= float(pos.z > 0.56f);
+
+	vec4 previousPosition = viewPosPrev + vec4(cameraOffset, 0.0f);
+	previousPosition = gbufferPreviousModelView * previousPosition;
+	previousPosition = gbufferPreviousProjection * previousPosition;
+	return previousPosition.xy / previousPosition.w * 0.5f + 0.5f;
+}*/

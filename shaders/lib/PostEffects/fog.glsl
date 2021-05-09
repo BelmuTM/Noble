@@ -6,7 +6,7 @@
 #define OPACITY 0.09f
 #define DISTANCE 20.0f
 
-vec4 computeFog(float depth, vec4 color, vec3 viewPos, vec4 fogColorStart, vec4 fogColorEnd, float fogFactor) {
+vec4 Fog(float depth, vec4 color, vec3 viewPos, vec4 fogColorStart, vec4 fogColorEnd, float fogFactor) {
     float density = DENSITY;
     float dist = far;
 
@@ -14,7 +14,7 @@ vec4 computeFog(float depth, vec4 color, vec3 viewPos, vec4 fogColorStart, vec4 
         fogFactor = 1.0f;
         density = 0.175f;
         fogColorStart = vec4(0.0f);
-        fogColorEnd = vec4(skyColor, 1.0f) + vec4(0.365f, 0.3543f, 0.95f, 1.0f) * density;
+        fogColorEnd = vec4(0.1f, 0.15f, 0.6f, 1.0f) * density;
     }
 
     float fogDensity = clamp((-viewPos.z - near) * density, 0.0f, pow(far, OPACITY));

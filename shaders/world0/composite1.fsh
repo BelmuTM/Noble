@@ -4,7 +4,7 @@
 
 #version 120
 
-#define SSGI 0 // [0 1]
+#define SSGI 1 // [0 1]
 
 varying vec2 TexCoords;
 varying vec2 LightmapCoords;

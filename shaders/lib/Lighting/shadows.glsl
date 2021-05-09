@@ -34,7 +34,7 @@ const int shadowSamplesPerSize = 2 * SHADOW_SAMPLES + 1;
 const int totalSamples = shadowSamplesPerSize * shadowSamplesPerSize;
 
 vec3 blurShadows(mat2 rotation, vec3 sampleCoords) {
-	vec3 shadowResult = vec3(0.0f);
+		vec3 shadowResult = vec3(0.0f);
 
     for(int x = -SHADOW_SAMPLES; x <= SHADOW_SAMPLES; x++) {
         for(int y = -SHADOW_SAMPLES; y <= SHADOW_SAMPLES; y++) {

@@ -59,14 +59,15 @@ const float shadowDistanceRenderMul = 1.0f;
 const float ambientOcclusionLevel = 0.0f;
 
 const float shininess = 50.0f;
+const vec4 lightColor = vec4(0.9f, 0.7f, 0.1f, 1.0f);
 
 vec3 getDayTimeColor() {
     float wTimeF = float(worldTime);
 
-	  float timeSunrise = ((clamp(wTimeF, 23000.0f, 24000.0f) - 23000.0f) / 1000.0f) + (1.0f - (clamp(wTimeF, 0.0f, 2000.0f) / 2000.0f));
-	  float timeNoon = ((clamp(wTimeF, 0.0f, 2000.0f)) / 2000.0f) - ((clamp(wTimeF, 10000.0f, 12000.0f) - 10000.0f) / 2000.0f);
-	  float timeSunset = ((clamp(wTimeF, 10000.0f, 12000.0f) - 10000.0f) / 2000.0f) - ((clamp(wTimeF, 12500.0f, 12750.0f) - 12500.0f) / 250.0f);
-	  float timeMidnight = ((clamp(wTimeF, 12500.0f, 12750.0f) - 12500.0f) / 250.0f) - ((clamp(wTimeF, 23000.0f, 24000.0f) - 23000.0f) / 1000.0f);
+	float timeSunrise = ((clamp(wTimeF, 23000.0f, 24000.0f) - 23000.0f) / 1000.0f) + (1.0f - (clamp(wTimeF, 0.0f, 2000.0f) / 2000.0f));
+	float timeNoon = ((clamp(wTimeF, 0.0f, 2000.0f)) / 2000.0f) - ((clamp(wTimeF, 10000.0f, 12000.0f) - 10000.0f) / 2000.0f);
+	float timeSunset = ((clamp(wTimeF, 10000.0f, 12000.0f) - 10000.0f) / 2000.0f) - ((clamp(wTimeF, 12500.0f, 12750.0f) - 12500.0f) / 250.0f);
+	float timeMidnight = ((clamp(wTimeF, 12500.0f, 12750.0f) - 12500.0f) / 250.0f) - ((clamp(wTimeF, 23000.0f, 24000.0f) - 23000.0f) / 1000.0f);
 
     const vec3 ambient_sunrise = vec3(0.843f, 0.772f, 0.586f) * 0.9f;
     const vec3 ambient_noon = vec3(0.686f, 0.702f, 0.73f) * 0.725f;
@@ -130,8 +131,8 @@ void main() {
         gl_FragData[0] = Result;
         return;
     }
-    vec3 Albedo = pow(Result.rgb, vec3(2.2f));
-    Albedo *= getDayTimeColor();
+    Result.rgb = decodeSRGB(Result.rgb); // Color Conversion
+    vec3 Albedo = Result.rgb * getDayTimeColor();
 
     vec2 Lightmap = texture2D(colortex2, TexCoords).rg;
     vec3 LightmapColor = getLightmapColor(Lightmap);
@@ -152,7 +153,7 @@ void main() {
 
     vec3 Diffuse = Albedo * (LightmapColor + (NdotL * Shadow));
     vec3 Specular = vec3(0.0f);
-    vec3 specColor = specularFresnelSchlick(mix(Albedo, skyColor, 0.5f), NdotL) * Shadow;
+    vec3 specColor = specularFresnelSchlick(mix(Albedo, skyColor, 0.1f), NdotL) * Shadow;
 
     bool isSpecular = isSpecular();
     bool isRaining = rainStrength > 0.0f;
@@ -175,7 +176,8 @@ void main() {
     #endif
 
     Result = vec4(Diffuse + Specular, 1.0f);
+    
     /* DRAWBUFFERS:05 */
-    gl_FragData[0] = Result + vec4(computeVolumetric(cameraPosition), 0.0f);
+    gl_FragData[0] = lightColor * computeVolumetric(viewPos) + Result;
     gl_FragData[1] = vec4(Albedo, AmbientOcclusion.r);
 }

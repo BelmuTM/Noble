@@ -146,9 +146,6 @@ value.TONEMAPPING.3 = Uchimura
 value.TONEMAPPING.4 = Lottes
 value.TONEMAPPING.5 = Burgess
 
-option.GAMMA = Gamma
-option.GAMMA.comment = How smooth black transits to white on screen.
-
 option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.
 

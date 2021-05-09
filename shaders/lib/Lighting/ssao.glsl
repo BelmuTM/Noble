@@ -2,7 +2,7 @@
   Author: Belmu (https://github.com/BelmuTM/)
   */
 
-#define SSAO_SCALE 1.75
+#define SSAO_SCALE 1.35
 #define SSAO_SAMPLES 32 // [4 8 16 32 64 128]
 #define SSAO_RADIUS 1.0f
 #define SSAO_BIAS 0.325f

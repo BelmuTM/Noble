@@ -2,7 +2,7 @@
   Author: Belmu (https://github.com/BelmuTM/)
   */
 
-vec4 computeBloom(vec3 color, int widthMultiplier, int heightMultiplier) {
+vec4 Bloom(vec3 color, int widthMultiplier, int heightMultiplier) {
     vec4 bloom = vec4(0.0f);
 
     int SAMPLES;

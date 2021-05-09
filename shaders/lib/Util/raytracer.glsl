@@ -12,7 +12,7 @@
 #define MARCH_STEP_SIZE 0.0445f
 #define MARCH_THRESHOLD -5.0f
 
-vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
+vec3 BinarySearch(vec3 rayPos, vec3 rayDir) {
 
     for(int i = 0; i < BINARY_COUNT; i++) {
         float depth = linearizeDepth(texture2D(depthtex0, viewToScreen(rayPos).xy).r);
@@ -27,14 +27,14 @@ vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
     return rayPos;
 }
 
-bool rayTraceSSGI(vec3 viewPos, vec3 rayDir, out vec3 result) {
+bool RayTraceSSGI(vec3 viewPos, vec3 rayDir, out vec3 result) {
     vec3 startPos = viewPos;
     vec3 endPos = startPos + rayDir * ((far - near) * MARCH_DISTANCE);
 
     for(float currStep = MARCH_STEP_SIZE; currStep <= 1.0f; currStep += MARCH_STEP_SIZE) {
         vec3 currPos = mix(startPos, endPos, currStep);
         #if BINARY_REFINEMENT == 1
-            currPos = binarySearch(currPos, rayDir);
+            currPos = BinarySearch(currPos, rayDir);
         #endif
 
         vec3 currScreenPos = viewToScreen(currPos);
@@ -50,14 +50,14 @@ bool rayTraceSSGI(vec3 viewPos, vec3 rayDir, out vec3 result) {
     return false;
 }
 
-bool rayTraceSSR(vec3 viewPos, vec3 rayDir, out vec3 result) {
+bool RayTraceSSR(vec3 viewPos, vec3 rayDir, out vec3 result) {
     vec3 startPos = viewPos;
     vec3 endPos = startPos + rayDir * ((far - near) * MARCH_DISTANCE);
 
     for(float currStep = 0.005f; currStep <= 1.0f; currStep += 0.005f) {
         vec3 currPos = startPos + endPos * currStep;
         #if BINARY_REFINEMENT == 1
-            currPos = binarySearch(currPos, rayDir);
+            currPos = BinarySearch(currPos, rayDir);
         #endif
 
         vec3 currScreenPos = viewToScreen(currPos);

@@ -64,7 +64,7 @@ void main() {
 
     vec4 GlobalIllumination = texture2D(colortex6, TexCoords);
     // Blurring Global Illumination
-    #if SSGI == 1 && SSGI_BLUR == 1
+    #if SSGI_BLUR == 1
         GlobalIllumination = fastGaussian(colortex6, vec2(viewWidth, viewHeight), GlobalIllumination);
     #endif
 

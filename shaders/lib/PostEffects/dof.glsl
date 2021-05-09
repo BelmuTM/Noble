@@ -13,24 +13,24 @@
 #define MAX_BLUR_SIZE 20.0f
 #define RAD_SCALE 1.3f
 
-vec4 computeDOF(float sceneDepth, vec3 viewPos) {
+vec3 DOF1(float sceneDepth, vec3 viewPos) {
     float z = sceneDepth * far;
-	  float coc = min(abs(APERTURE * (FOCAL * (z - centerDepthSmooth)) / (z * (centerDepthSmooth - FOCAL))) * SIZEMULT, (1.0f / viewWidth) * 15.0f);
+	float coc = min(abs(APERTURE * (FOCAL * (z - centerDepthSmooth)) / (z * (centerDepthSmooth - FOCAL))) * SIZEMULT, (1.0f / viewWidth) * 15.0f);
     float blur = smoothstep(MIN_DISTANCE, DOF_DISTANCE, abs(-viewPos.z - coc));
 
-    if(sceneDepth == 1.0f) return texture2D(colortex0, TexCoords);
+    if(sceneDepth == 1.0f) return texture2D(colortex0, TexCoords).rgb;
 
     vec4 outOfFocusColor = vec4(0.0f);
     outOfFocusColor = fastGaussian(colortex0, vec2(viewWidth, viewHeight), outOfFocusColor);
-    return mix(texture2D(colortex0, TexCoords), outOfFocusColor, blur);
+    return mix(texture2D(colortex0, TexCoords).rgb, outOfFocusColor.rgb, blur);
 }
 
 float getBlurSize(float depth, float focusPoint, float focusScale) {
-	  float coc = clamp((1.0f / focusPoint - 1.0f / depth) * focusScale, -1.0f, 1.0f);
-	  return abs(coc) * MAX_BLUR_SIZE;
+	float coc = clamp((1.0f / focusPoint - 1.0f / depth) * focusScale, -1.0f, 1.0f);
+	return abs(coc) * MAX_BLUR_SIZE;
 }
 
-vec3 computeDOFHigh(vec3 color, float sceneDepth, vec3 viewPos) {
+vec3 DOF2(vec3 color, float sceneDepth, vec3 viewPos) {
     vec3 result = color;
     float focusPoint = 0.8f;
     float centerSize = getBlurSize(centerDepthSmooth, focusPoint, FOCAL);
