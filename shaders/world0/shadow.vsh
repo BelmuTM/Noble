@@ -1,10 +1,12 @@
 /*
-  Author: Belmu (https://github.com/BelmuTM/)
-  */
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
 
 #version 120
 
-#include "/lib/Util/distort.glsl"
+#include "/lib/util/distort.glsl"
 
 varying vec2 TexCoords;
 varying vec4 Color;

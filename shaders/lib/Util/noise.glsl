@@ -1,3 +1,9 @@
+/*
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
+
 float rand(vec2 x) {
 	  return fract(sin(dot(x, vec2(12.9898f, 4.1414f))) * 43758.5453f);
 }
@@ -31,4 +37,9 @@ float noise(vec2 p) {
 		   mix(rand(ip), rand(ip + vec2(1.0f, 0.0f)), u.x),
 		   mix(rand(ip + vec2(0.0f, 1.0f)), rand(ip + vec2(1.0f, 1.0f)), u.x), u.y);
 	  return res * res;
+}
+
+float interleavedGradientNoise(vec2 n) {
+    float f = 0.06711056f * n.x + 0.00583715f * n.y;
+    return fract(52.9829189f * fract(f));
 }

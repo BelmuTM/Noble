@@ -7,12 +7,12 @@ value.ABOUT.0 = §fMade by §b@Belmu_
 
 ##################### SCREENS #####################
 
-screen.LIGHTING = Lighting
+screen.LIGHTING = Light & Shadows
 screen.POST_PROCESSING = Post-Processing
 screen.COLOR_CORRECTION = Color Correction
 screen.RAYTRACING = Ray Tracing
 
-##################### LIGHTING #####################
+##################### LIGHTING & SHADOWS #####################
 
 option.SHADOWS = Shadows
 option.SHADOWS.comment = Adds shadows.
@@ -26,26 +26,17 @@ value.shadowMapResolution.1024 = §2Low §7| §21024
 value.shadowMapResolution.2048 = §eMedium §7| §e2048
 value.shadowMapResolution.3072 = §6High §7| §63072
 value.shadowMapResolution.4096 = §cVery High §7| §c4096
-value.shadowMapResolution.7200 = §dPsycho §7| §d7296
+value.shadowMapResolution.6144 = §dPsycho §7| §d6144
 
-option.SSR = SSR
-option.SSR.comment = Screen Space Reflections.
-value.SSR.0 = §cOFF
-value.SSR.1 = §aON
+option.SPECULAR = Specular
+option.SPECULAR.comment = Adds shininess to certain blocks.
+value.SPECULAR.0 = §cOFF
+value.SPECULAR.1 = §aON
 
-option.BINARY_REFINEMENT = Binary Refinement
-option.BINARY_REFINEMENT.comment = Refines the ray tracer's hit position. §cHigher value gives better result, but reduces §cperformance.
-value.BINARY_REFINEMENT.0 = §cOFF
-value.BINARY_REFINEMENT.1 = §aON
-
-option.BINARY_COUNT = Binary Count
-option.BINARY_COUNT.comment = Influences SSAO's quality. §cHigher value gives smoother AO, but reduces §cperformance.
-value.BINARY_COUNT.1 = §21
-value.BINARY_COUNT.2 = §a2
-value.BINARY_COUNT.3 = §e3
-value.BINARY_COUNT.4 = §64
-value.BINARY_COUNT.5 = §c5
-value.BINARY_COUNT.6 = §46
+option.SPECULAR_MODE = Specular Mode
+option.SPECULAR_MODE.comment = Two different ways to calculate specular reflections.
+value.SPECULAR_MODE.0 = §7Phong
+value.SPECULAR_MODE.1 = §7Blinn-Phong
 
 option.SSAO = SSAO
 option.SSAO.comment = Screen Space Ambient Occlusion. Adds pseudo-shadows that enhance scene's realism.
@@ -60,6 +51,35 @@ value.SSAO_SAMPLES.16 = §e16
 value.SSAO_SAMPLES.32 = §632
 value.SSAO_SAMPLES.64 = §c64
 value.SSAO_SAMPLES.128 = §4128
+
+option.sunPathRotation = Sun Path Rotation
+option.sunPathRotation.comment = Adjusts sun's rotation around the scene.
+
+option.VL = Light Shafts §e§lBETA
+option.VL.comment = Adds god rays to the scenery.
+value.VL.0 = §cOFF
+value.VL.1 = §aON
+
+option.VL_SAMPLES = Light Shafts Samples
+option.VL_SAMPLES.comment = Influences godrays quality. §cHigher value gives smoother godrays, but reduces §cperformance.
+value.VL_SAMPLES.16 = §b16
+value.VL_SAMPLES.32 = §332
+value.VL_SAMPLES.48 = §248
+value.VL_SAMPLES.64 = §a64
+value.VL_SAMPLES.80 = §e80
+value.VL_SAMPLES.96 = §696
+value.VL_SAMPLES.112 = §c112
+value.VL_SAMPLES.128 = §4128
+
+option.VL_BRIGHTNESS = Light Shafts Brightness
+option.VL_BRIGHTNESS.comment = Adjusts godrays brightness.
+
+##################### RAY TRACING #####################
+
+option.SSR = Screen Space Reflections
+option.SSR.comment = Adds reflections that can only be seen if they're on your screen.
+value.SSR.0 = §cOFF
+value.SSR.1 = §aON
 
 option.SSGI = SSGI
 option.SSGI.comment = Screen Space Global Illumination. It simulates light bounces.
@@ -82,31 +102,20 @@ value.SSGI_SAMPLES.32 = §c32
 value.SSGI_SAMPLES.48 = §448
 value.SSGI_SAMPLES.64 = §564
 
-option.SPECULAR = Specular
-option.SPECULAR.comment = Adds shininess to certain blocks.
-value.SPECULAR.0 = §cOFF
-value.SPECULAR.1 = §aON
+option.BINARY_REFINEMENT = Binary Refinement
+option.BINARY_REFINEMENT.comment = Refines the ray tracer's hit position. §cHigher value gives better result, but reduces §cperformance.
+value.BINARY_REFINEMENT.0 = §cOFF
+value.BINARY_REFINEMENT.1 = §aON
 
-option.SPECULAR_MODE = Specular Mode
-option.SPECULAR_MODE.comment = Two different ways to calculate specular reflections.
-value.SPECULAR_MODE.0 = §7Phong
-value.SPECULAR_MODE.1 = §7Blinn-Phong
-
-option.LIGHT_SHAFTS = Light Shafts
-option.LIGHT_SHAFTS.comment = Adds god rays to the scenery.
-value.LIGHT_SHAFTS.0 = §cOFF
-value.LIGHT_SHAFTS.1 = §aON
-
-option.LIGHT_SHAFTS_SAMPLES = Light Shafts Samples
-option.LIGHT_SHAFTS_SAMPLES.comment = Influences god rays' quality. §cHigher value gives smoother god rays, but reduces §cperformance.
-value.LIGHT_SHAFTS_SAMPLES.16 = §b16
-value.LIGHT_SHAFTS_SAMPLES.32 = §332
-value.LIGHT_SHAFTS_SAMPLES.48 = §248
-value.LIGHT_SHAFTS_SAMPLES.64 = §a64
-value.LIGHT_SHAFTS_SAMPLES.80 = §e80
-value.LIGHT_SHAFTS_SAMPLES.96 = §696
-value.LIGHT_SHAFTS_SAMPLES.112 = §c112
-value.LIGHT_SHAFTS_SAMPLES.128 = §4128
+option.BINARY_COUNT = Binary Count
+option.BINARY_COUNT.comment = Influences raytrace quality.
+value.BINARY_COUNT.8 = §38
+value.BINARY_COUNT.16 = §216
+value.BINARY_COUNT.32 = §a32
+value.BINARY_COUNT.48 = §e48
+value.BINARY_COUNT.64 = §664
+value.BINARY_COUNT.80 = §c80
+value.BINARY_COUNT.96 = §496
 
 ##################### POST-PROCESSING #####################
 
@@ -133,8 +142,8 @@ value.BLOOM_INTENSITY.130 = 130%
 value.BLOOM_INTENSITY.140 = 140%
 value.BLOOM_INTENSITY.150 = 150%
 
-option.DOF = DOF
-option.DOF.comment = Depth of Field.
+option.DOF = Depth of Field
+option.DOF.comment = Applies blur to objects far from you.
 value.DOF.0 = §cOFF
 value.DOF.1 = §aON
 

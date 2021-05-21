@@ -1,6 +1,8 @@
 /*
-  Author: Belmu (https://github.com/BelmuTM/)
-  */
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
 
 #version 120
 
@@ -10,5 +12,5 @@ varying vec4 Color;
 uniform sampler2D colortex0;
 
 void main() {
-    gl_FragData[0] = (texture2D(colortex0, TexCoords) * Color);
+    gl_FragData[0] = texture2D(colortex0, TexCoords) * Color;
 }

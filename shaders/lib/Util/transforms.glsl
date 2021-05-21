@@ -1,5 +1,20 @@
-#define diag3(mat) vec3((mat)[0].x, (mat)[1].y, mat[2].z)
-#define  projMAD(mat, v) (diag3(mat) * (v) + (mat)[3].xyz)
+/*
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
+
+vec3 diag3(mat4 mat) {
+	return vec3(mat[0].x, mat[1].y, mat[2].z);
+}
+
+vec3 projMAD(mat4 mat, vec3 v) {
+	return (diag3(mat) * v + mat[3].xyz);
+}
+
+vec3 viewToClip(vec3 viewPos) {
+	return diag3(gbufferProjection) * viewPos + gbufferProjection[3].xyz;
+}
 
 vec3 screenToView(vec3 screenPos) {
 	screenPos = screenPos * 2.0f - 1.0f;
@@ -27,7 +42,7 @@ vec3 tangentToWorld(vec3 N, vec3 H) {
 }
 
 float linearizeDepth(float depth) {
-	return (2.0f * near * far) / (far + near - depth * (far - near));
+	return (2.0f * near * far) / (far + near - (depth * 2.0f - 1.0f) * (far - near));
 }
 
 vec3 extractNormalMap(vec4 normal, mat3 TBN) {

@@ -1,11 +1,13 @@
 /*
-  Author: Belmu (https://github.com/BelmuTM/)
-  */
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
 
 #version 120
 
 #define SHADOWS 1 // [0 1]
-#define LIGHT_SHAFTS 1 // [0 1]
+#define VL 1 // [0 1]
 
 #define SPECULAR 1 // [0 1]
 #define SPECULAR_MODE 1 // [0 1]
@@ -35,17 +37,17 @@ uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 uniform mat4 shadowModelView, shadowProjection;
 
-#include "/lib/Util/distort.glsl"
-#include "/lib/Util/dither.glsl"
-#include "/lib/Util/noise.glsl"
-#include "/lib/Util/math.glsl"
-#include "/lib/Util/transforms.glsl"
-#include "/lib/Util/util.glsl"
-#include "/lib/Lighting/brdf.glsl"
-#include "/lib/Lighting/ssao.glsl"
-#include "/lib/Lighting/shadows.glsl"
-#include "/lib/Lighting/volumetric.glsl"
-#include "/lib/Util/color.glsl"
+#include "/lib/util/distort.glsl"
+#include "/lib/util/dither.glsl"
+#include "/lib/util/noise.glsl"
+#include "/lib/util/math.glsl"
+#include "/lib/util/transforms.glsl"
+#include "/lib/util/utils.glsl"
+#include "/lib/lighting/brdf.glsl"
+#include "/lib/lighting/ssao.glsl"
+#include "/lib/lighting/shadows.glsl"
+#include "/lib/atmospherics/volumetric.glsl"
+#include "/lib/util/color.glsl"
 
 /*
 const int colortex0Format = RGBA16F;
@@ -53,14 +55,13 @@ const int colortex1Format = RGB16;
 const int colortex2Format = RGB16;
 */
 
-const float sunPathRotation = -40.0f;
-const int shadowMapResolution = 2048; //[512 1024 2048 3072 4096 7200]
+const float sunPathRotation = -40.0f; // [80.0f 75.0f 70.0f 65.0f 60.0f 55.0f 50.0f 45.0f 40.0f 35.0f 30.0f 25.0f 20.0f 15.0f 10.0f 5.0f 0.0f -5.0f -10.0f -15.0f -20.0f -25.0f -30.0f -35.0f -40.0f -45.0f -50.0f -55.0f -60.0f -65.0f -70.0f -75.0f -80.0f]
+const int shadowMapResolution = 3072; //[512 1024 2048 3072 4096 6144]
 const int noiseTextureResolution = 64;
 const float shadowDistanceRenderMul = 1.0f;
 const float ambientOcclusionLevel = 0.0f;
 
 const float shininess = 50.0f;
-const vec4 lightColor = vec4(0.9f, 0.7f, 0.1f, 1.5f);
 
 vec3 getDayTimeColor() {
     float wTimeF = float(worldTime);
@@ -71,11 +72,27 @@ vec3 getDayTimeColor() {
 	float timeMidnight = ((clamp(wTimeF, 12500.0f, 12750.0f) - 12500.0f) / 250.0f) - ((clamp(wTimeF, 23000.0f, 24000.0f) - 23000.0f) / 1000.0f);
 
     const vec3 ambient_sunrise = vec3(0.843f, 0.772f, 0.586f) * 0.9f;
-    const vec3 ambient_noon = vec3(0.786f, 0.802f, 0.73f);
+    const vec3 ambient_noon = vec3(0.686f, 0.702f, 0.63f);
     const vec3 ambient_sunset = vec3(0.943f, 0.772f, 0.247f) * 0.26f;
-    const vec3 ambient_midnight = vec3(0.16f, 0.188f, 0.217f);
+    const vec3 ambient_midnight = vec3(0.06f, 0.088f, 0.097f);
 
     return ambient_sunrise * timeSunrise + ambient_noon * timeNoon + ambient_sunset * timeSunset + ambient_midnight * timeMidnight;
+}
+
+vec3 getDayTimeSunColor() {
+    float wTimeF = float(worldTime);
+
+	float timeSunrise = ((clamp(wTimeF, 23000.0f, 24000.0f) - 23000.0f) / 1000.0f) + (1.0f - (clamp(wTimeF, 0.0f, 2000.0f) / 2000.0f));
+	float timeNoon = ((clamp(wTimeF, 0.0f, 2000.0f)) / 2000.0f) - ((clamp(wTimeF, 10000.0f, 12000.0f) - 10000.0f) / 2000.0f);
+	float timeSunset = ((clamp(wTimeF, 10000.0f, 12000.0f) - 10000.0f) / 2000.0f) - ((clamp(wTimeF, 12500.0f, 12750.0f) - 12500.0f) / 250.0f);
+	float timeMidnight = ((clamp(wTimeF, 12500.0f, 12750.0f) - 12500.0f) / 250.0f) - ((clamp(wTimeF, 23000.0f, 24000.0f) - 23000.0f) / 1000.0f);
+
+    const vec3 sunColor_sunrise = vec3(0.89f, 0.655f, 0.224f);
+    const vec3 sunColor_noon = vec3(1.25f);
+    const vec3 sunColor_sunset = vec3(0.98f, 0.545f, 0.235f);
+    const vec3 sunColor_midnight = vec3(0.986f, 0.967f, 0.94f);
+
+    return sunColor_sunrise * timeSunrise + sunColor_noon * timeNoon + sunColor_sunset * timeSunset + sunColor_midnight * timeMidnight;
 }
 
 float adjustLightmapTorch(in float torch) {
@@ -100,10 +117,9 @@ vec2 adjustLightmap(in vec2 Lightmap) {
 vec3 getLightmapColor(in vec2 Lightmap) {
     Lightmap = adjustLightmap(Lightmap);
     vec3 TorchColor = vec3(1.5f, 0.85f, 0.88f);
-    vec3 SkyColor = vec3(0.05f, 0.15f, 0.3f);
 
     vec3 TorchLighting = Lightmap.x * TorchColor;
-    vec3 SkyLighting = Lightmap.y * SkyColor;
+    vec3 SkyLighting = Lightmap.y * getDayTimeColor();
 
     return vec3(TorchLighting + SkyLighting);
 }
@@ -125,11 +141,17 @@ void main() {
     vec3 viewPos = getViewPos();
     vec3 viewDir = normalize(-viewPos);
     vec3 Normal = normalize(texture2D(colortex1, TexCoords).rgb * 2.0f - 1.0f);
+
+    vec4 dayTimeSunColor = vec4(getDayTimeSunColor(), 1.0f);
+
     vec4 Result = texture2D(colortex0, TexCoords);
     Result.rgb = srgbToLinear(Result.rgb); // Color Conversion
 
-    #if LIGHT_SHAFTS == 1
-        Result += VolumetricFog(viewPos) * vec4(0.5f);
+    vec2 Lightmap = texture2D(colortex2, TexCoords).rg;
+    vec3 LightmapColor = getLightmapColor(Lightmap);
+
+    #if VL == 1
+        Result *= vec4(LightmapColor, 1.0f) + (mix(Result, vec4(computeVL(viewPos)), VL_BRIGHTNESS) * VL_INTENSITY);
     #endif
 
     float Depth = texture2D(depthtex0, TexCoords).r;
@@ -137,10 +159,7 @@ void main() {
         gl_FragData[0] = Result;
         return;
     }
-    vec3 Albedo = Result.rgb * getDayTimeColor();
-
-    vec2 Lightmap = texture2D(colortex2, TexCoords).rg;
-    vec3 LightmapColor = getLightmapColor(Lightmap);
+    vec3 Albedo = Result.rgb;
 
     vec3 lightPos = worldTime >= 12750 ? moonPosition : sunPosition;
     vec3 lightDir = normalize(lightPos);
@@ -158,7 +177,7 @@ void main() {
 
     vec3 Diffuse = Albedo * (LightmapColor + (NdotL * Shadow));
     vec3 Specular = vec3(0.0f);
-    vec3 specColor = specularFresnelSchlick(mix(Albedo, skyColor, 0.1f), NdotL) * Shadow;
+    vec3 specColor = mix(dayTimeSunColor.rgb, Albedo, 0.98f) * Shadow;
 
     bool isSpecular = isSpecular();
     bool isRaining = rainStrength > 0.0f;

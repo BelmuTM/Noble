@@ -1,6 +1,8 @@
 /*
-  Author: Belmu (https://github.com/BelmuTM/)
-  */
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
 
 vec3 specularFresnelSchlick(vec3 specColor, float NdotL) {
     return specColor + (1.0f - specColor) * pow((1.0f - NdotL), 5.0f);

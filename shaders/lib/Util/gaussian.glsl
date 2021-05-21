@@ -1,6 +1,8 @@
 /*
-  Author: Belmu (https://github.com/BelmuTM/)
-  */
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
 
 const vec2 off1 = vec2(1.411764705882353f);
 const vec2 off2 = vec2(3.2941176470588234f);

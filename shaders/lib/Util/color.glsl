@@ -5,7 +5,7 @@
 // I AM NOT THE AUTHOR OF THE TONE MAPPING ALGORITHMS BELOW
 // Most sources are: Github, ShaderToy or Discord.
 
-#define TONEMAPPING 0 // [-1 0 1 2 3 4]
+#define TONEMAPPING 4 // [-1 0 1 2 3 4]
 
 float luma(vec3 color) {
     return dot(color, vec3(0.299f, 0.587f, 0.114f));
@@ -160,5 +160,13 @@ vec3 linearToSRGB(vec3 linear) {
     #else
         return linear;
     #endif
+}
+
+vec3 toSRGB(vec3 color) {
+	return mix(color * 12.92f, 1.055f * pow(color, vec3(1.0f / 2.4f)) - 0.055f, vec3(greaterThan(color, vec3(0.0031308f))));
+}
+
+vec3 toLinear(vec3 color) {
+	return mix(color / 12.92f, pow((color + 0.055f) / 1.055f, vec3(2.4f)), vec3(greaterThan(color, vec3(0.04045f))));
 }
 

@@ -1,6 +1,8 @@
 /*
-  Author: Belmu (https://github.com/BelmuTM/)
-  */
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
 
 #version 120
 
@@ -30,12 +32,12 @@ uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 uniform mat4 shadowModelView, shadowProjection;
 
-#include "/lib/Util/noise.glsl"
-#include "/lib/Util/math.glsl"
-#include "/lib/Util/transforms.glsl"
-#include "/lib/Util/util.glsl"
-#include "/lib/Util/gaussian.glsl"
-#include "/lib/Util/raytracer.glsl"
+#include "/lib/util/noise.glsl"
+#include "/lib/util/math.glsl"
+#include "/lib/util/transforms.glsl"
+#include "/lib/util/utils.glsl"
+#include "/lib/util/gaussian.glsl"
+#include "/lib/lighting/raytracer.glsl"
 
 void main() {
     vec3 viewPos = getViewPos();

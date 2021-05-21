@@ -1,4 +1,10 @@
-#define PI 3.141592653589793238462
+/*
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
+
+#define PI 3.14159265358979323846
 #define PI2 6.28318530718
 #define EPS 0.001
 
@@ -39,8 +45,8 @@ float saturate(float x) {
 }
 
 /*
-		Thanks to the 2 people who gave me
-		their hemisphere sampling functions! <3
+	Thanks to the 2 people who gave me
+	their hemisphere sampling functions! <3
 */
 
 // Written by n_r4h33m#7259
@@ -54,14 +60,14 @@ vec3 hemisphereSample(float u, float v) {
 // Written by xirreal#0281
 vec3 cosWeightedRandomHemisphereDirection(vec3 n, inout vec2 seed) {
     vec2 r = hash22(seed);
-    vec3  uu = normalize(cross(n, vec3(0.0f, 1.0f, 1.0f)));
-    vec3  vv = cross(uu, n);
+    vec3 uu = normalize(cross(n, vec3(0.0f, 1.0f, 1.0f)));
+    vec3 vv = cross(uu, n);
 
     float ra = sqrt(r.y);
-    float rx = ra * cos(6.2831f * r.x);
-    float ry = ra * sin(6.2831f * r.x);
+    float rx = ra * cos(PI2 * r.x);
+    float ry = ra * sin(PI2 * r.x);
     float rz = sqrt(1.0f - r.y);
-    vec3  rr = vec3(rx * uu + ry * vv + rz * n);
+    vec3 rr = vec3(rx * uu + ry * vv + rz * n);
 
     return normalize(rr);
 }

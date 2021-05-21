@@ -1,6 +1,8 @@
 /*
-  Author: Belmu (https://github.com/BelmuTM/)
-  */
+    Noble SSRT - 2021
+    Made by Belmu
+    https://github.com/BelmuTM/
+*/
 
 #version 120
 
@@ -9,7 +11,7 @@
 #define DOF 1 // [0 1]
 #define DOF_QUALITY 1 // [0 1]
 
-#define BLOOM 1 // [0 1]
+#define BLOOM 0 // [0 1]
 #define BLOOM_INTENSITY 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 #define OUTLINE 0 // [0 1]
@@ -35,16 +37,16 @@ uniform int isEyeInWater;
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
-#include "/lib/Util/noise.glsl"
-#include "/lib/Util/math.glsl"
-#include "/lib/Util/transforms.glsl"
-#include "/lib/Util/util.glsl"
-#include "/lib/Util/gaussian.glsl"
-#include "/lib/PostEffects/dof.glsl"
-#include "/lib/PostEffects/outline.glsl"
-#include "/lib/PostEffects/fog.glsl"
-#include "/lib/PostEffects/bloom.glsl"
-#include "/lib/Util/color.glsl"
+#include "/lib/util/noise.glsl"
+#include "/lib/util/math.glsl"
+#include "/lib/util/transforms.glsl"
+#include "/lib/util/utils.glsl"
+#include "/lib/util/gaussian.glsl"
+#include "/lib/post/dof.glsl"
+#include "/lib/post/outline.glsl"
+#include "/lib/post/bloom.glsl"
+#include "/lib/atmospherics/fog.glsl"
+#include "/lib/util/color.glsl"
 
 const vec4 fogColor = vec4(0.425f, 0.349f, 0.888f, 1.0f);
 
