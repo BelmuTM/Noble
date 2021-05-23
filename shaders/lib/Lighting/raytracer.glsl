@@ -33,7 +33,6 @@ bool raytrace(vec3 viewPos, vec3 rayDir, float dither, inout vec2 hitCoord) {
     vec3 screenDir = normalize(viewToScreen(viewPos + rayDir) - screenPos) * invSteps;
 
     vec3 rayPos = screenPos + screenDir * dither;
-
     for(int i = 0; i < RAYTRACE_STEPS; i++) {
         rayPos += screenDir;
 
@@ -42,11 +41,9 @@ bool raytrace(vec3 viewPos, vec3 rayDir, float dither, inout vec2 hitCoord) {
 
         if(rayPos.z > depth) {
             hitCoord = rayPos.xy;
-
             #if BINARY_REFINEMENT == 1
                 hitCoord = binarySearch(rayPos, screenDir).xy;
             #endif
-
             return true;
         }
     }

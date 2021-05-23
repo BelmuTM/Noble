@@ -18,8 +18,12 @@ varying vec2 TexCoords;
 varying vec2 LightmapCoords;
 
 uniform vec3 sunPosition, moonPosition, cameraPosition, skyColor;
-uniform float viewWidth, viewHeight, rainStrength, near, far, aspectRatio, frameTimeCounter;
+uniform float rainStrength, aspectRatio, frameTimeCounter;
 uniform int isEyeInWater, worldTime;
+uniform float near;
+uniform float far;
+uniform float viewWidth;
+uniform float viewHeight;
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
@@ -27,6 +31,7 @@ uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
+uniform sampler2D colortex6;
 uniform sampler2D depthtex0;
 
 uniform sampler2D shadowtex0, shadowtex1;
@@ -151,7 +156,7 @@ void main() {
     vec3 LightmapColor = getLightmapColor(Lightmap);
 
     #if VL == 1
-        Result *= vec4(LightmapColor, 1.0f) + (mix(Result, vec4(computeVL(viewPos)), VL_BRIGHTNESS) * VL_INTENSITY);
+        Result *= Result + vec4(computeVL(viewPos) * getDayTimeColor(), 1.0f) * VL_BRIGHTNESS;
     #endif
 
     float Depth = texture2D(depthtex0, TexCoords).r;
@@ -171,7 +176,7 @@ void main() {
     #endif
 
     vec3 AmbientOcclusion = vec3(1.0f);
-    #if SSAO == 1
+    #if SSAO == 1 && SSGI != 1
         AmbientOcclusion = computeSSAO(viewPos, Normal);
     #endif
 
@@ -200,8 +205,9 @@ void main() {
     #endif
 
     Result = vec4(Diffuse + Specular, 1.0f);
-    
-    /* DRAWBUFFERS:05 */
+
+    /* DRAWBUFFERS:056 */
     gl_FragData[0] = Result;
     gl_FragData[1] = vec4(Albedo, AmbientOcclusion.r);
+    gl_FragData[2] = vec4(vec3(0.0f), Depth);
 }

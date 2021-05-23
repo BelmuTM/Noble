@@ -12,8 +12,12 @@ varying vec2 TexCoords;
 varying vec2 LightmapCoords;
 
 uniform vec3 sunPosition, moonPosition, cameraPosition, skyColor;
-uniform float viewWidth, viewHeight, rainStrength, near, far, aspectRatio, frameTimeCounter;
+uniform float rainStrength, aspectRatio, frameTimeCounter;
 uniform int isEyeInWater, worldTime;
+uniform float near;
+uniform float far;
+uniform float viewWidth;
+uniform float viewHeight;
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;

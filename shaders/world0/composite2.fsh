@@ -11,9 +11,14 @@
 varying vec2 TexCoords;
 varying vec2 LightmapCoords;
 
-uniform vec3 sunPosition, moonPosition, cameraPosition, skyColor;
-uniform float viewWidth, viewHeight, rainStrength, near, far, aspectRatio, frameTimeCounter;
+uniform vec3 sunPosition, moonPosition, skyColor;
+uniform vec3 cameraPosition;
+uniform float rainStrength, aspectRatio, frameTime;
 uniform int isEyeInWater, worldTime;
+uniform float near;
+uniform float far;
+uniform float viewWidth;
+uniform float viewHeight;
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
@@ -22,6 +27,7 @@ uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
 uniform sampler2D colortex6;
+uniform sampler2D colortex7;
 uniform sampler2D depthtex0;
 
 uniform sampler2D shadowtex0, shadowtex1;
@@ -38,6 +44,8 @@ uniform mat4 shadowModelView, shadowProjection;
 #include "/lib/util/utils.glsl"
 #include "/lib/util/gaussian.glsl"
 #include "/lib/lighting/raytracer.glsl"
+
+const bool colortex7Clear = false;
 
 void main() {
     vec3 viewPos = getViewPos();
@@ -64,13 +72,10 @@ void main() {
     }
     AmbientOcclusion /= SAMPLES;
 
-    vec4 GlobalIllumination = texture2D(colortex6, TexCoords);
-    // Blurring Global Illumination
-    #if SSGI_BLUR == 1
-        GlobalIllumination = fastGaussian(colortex6, vec2(viewWidth, viewHeight), 8.7f, 15.0f, 20.0f, GlobalIllumination);
-    #endif
-
-    Result.rgb += Albedo * GlobalIllumination.rgb;
+    vec3 GlobalIllumination = texture2D(colortex6, TexCoords).rgb;
+    vec3 reprojectedGlobalIllumination = texture2D(colortex7, TexCoords).rgb;
+    vec3 GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, 0.9f);
+    Result.rgb += Albedo * GlobalIlluminationResult;
 
     /* DRAWBUFFERS:0 */
     gl_FragData[0] = Result * AmbientOcclusion;

@@ -20,11 +20,11 @@ int getBlockId() {
 }
 
 bool isReflective() {
-    return getBlockId() >= 1 && getBlockId() < 4 || getBlockId() == 10;
+    return getBlockId() >= 1 && getBlockId() < 6;
 }
 
 bool isSpecular() {
-    return getBlockId() >= 1 && getBlockId() < 4 || getBlockId() == 10;
+    return getBlockId() >= 1 && getBlockId() < 6;
 }
 
 bool isHand(float depth) {

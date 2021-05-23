@@ -15,12 +15,11 @@ vec4 simpleReflections(vec4 color, vec3 viewPos, vec3 normal, float reflectivity
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec2 hitPos = vec2(0.0f);
 
-    if(isHand(texture2D(depthtex0, TexCoords).r)) return color;
-
     bool intersect = raytrace(viewPos, reflected, bayer64(TexCoords), hitPos);
     if(!intersect) return color;
 
-    vec4 hitColor = texture2D(colortex0, hitPos);
+    if(isHand(texture2D(depthtex0, hitPos).r)) return color;
 
+    vec4 hitColor = texture2D(colortex0, hitPos);
     return mix(color, hitColor, reflectivity * getAttenuation(hitPos, 3.25f));
 }

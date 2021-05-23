@@ -31,8 +31,12 @@ uniform sampler2D colortex5;
 uniform sampler2D depthtex0;
 
 uniform vec3 cameraPosition, skyColor;
-uniform float viewWidth, viewHeight, near, far, rainStrength, centerDepthSmooth;
+uniform float rainStrength, centerDepthSmooth;
 uniform int isEyeInWater;
+uniform float near;
+uniform float far;
+uniform float viewWidth;
+uniform float viewHeight;
 
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
@@ -48,15 +52,16 @@ uniform mat4 gbufferModelView, gbufferModelViewInverse;
 #include "/lib/atmospherics/fog.glsl"
 #include "/lib/util/color.glsl"
 
-const vec4 fogColor = vec4(0.425f, 0.349f, 0.888f, 1.0f);
+const vec4 fogColor = vec4(0.225f, 0.349f, 0.888f, 1.0f);
 
 void main() {
     vec4 Result = texture2D(colortex0, TexCoords);
     float Depth = texture2D(depthtex0, TexCoords).r;
     bool isSky = Depth == 1.0f;
+    vec4 skyColor4 = vec4(skyColor, 1.0f);
     vec3 viewPos = getViewPos();
 
-    if(!isSky) Result = Fog(Depth, Result, viewPos, vec4(0.0f), fogColor, rainStrength); // Applying Fog
+    Result = Fog(Depth, Result, viewPos, vec4(0.0f), mix(fogColor, skyColor4, 0.5f), rainStrength); // Applying Fog
 
     // Depth Of Field
     vec3 depthOfField = Result.rgb;

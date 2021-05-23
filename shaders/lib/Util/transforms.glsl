@@ -45,6 +45,7 @@ float linearizeDepth(float depth) {
 	return (2.0f * near * far) / (far + near - (depth * 2.0f - 1.0f) * (far - near));
 }
 
+/*
 vec3 extractNormalMap(vec4 normal, mat3 TBN) {
 	vec3 normalMap = normal.xyz * 2.0f - 1.0f;
 	normalMap.z = sqrt(clamp(1.0f - dot(normalMap.xy, normalMap.xy), 0.0f, 1.0f));
@@ -52,21 +53,4 @@ vec3 extractNormalMap(vec4 normal, mat3 TBN) {
 	normalMap = mat3(gbufferModelViewInverse) * normalMap;
 	return normalMap;
 }
-
-/*
-// Written by Chocapic13
-vec2 reprojection(vec3 pos) {
-	pos = pos * 2.0f - 1.0f;
-
-	vec4 viewPosPrev = gbufferProjectionInverse * vec4(pos, 1.0f);
-	viewPosPrev /= viewPosPrev.w;
-	viewPosPrev = gbufferModelViewInverse * viewPosPrev;
-
-	vec3 cameraOffset = cameraPosition - previousCameraPosition;
-	cameraOffset *= float(pos.z > 0.56f);
-
-	vec4 previousPosition = viewPosPrev + vec4(cameraOffset, 0.0f);
-	previousPosition = gbufferPreviousModelView * previousPosition;
-	previousPosition = gbufferPreviousProjection * previousPosition;
-	return previousPosition.xy / previousPosition.w * 0.5f + 0.5f;
-}*/
+*/
