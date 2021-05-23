@@ -6,20 +6,22 @@
 
 // Written by n_r4h33m#7259
 float getAttenuation(vec2 coords, float scale) {
-    float borderDist = min(1.0f - max(coords.x, coords.y), min(coords.x, coords.y));
-    float border = clamp(borderDist > scale ? 1.0f : borderDist / scale, 0.0f, 1.0f);
+    float borderDist = min(1.0 - max(coords.x, coords.y), min(coords.x, coords.y));
+    float border = clamp(borderDist > scale ? 1.0 : borderDist / scale, 0.0, 1.0);
     return border;
 }
 
 vec4 simpleReflections(vec4 color, vec3 viewPos, vec3 normal, float reflectivity) {
     vec3 reflected = reflect(normalize(viewPos), normal);
-    vec2 hitPos = vec2(0.0f);
+    vec2 hitPos = vec2(0.0);
 
-    bool intersect = raytrace(viewPos, reflected, bayer64(TexCoords), hitPos);
+    float jitter = fract((TexCoords.x + TexCoords.y) * 0.5);
+
+    bool intersect = raytrace(viewPos, reflected, jitter, hitPos);
     if(!intersect) return color;
 
     if(isHand(texture2D(depthtex0, hitPos).r)) return color;
 
     vec4 hitColor = texture2D(colortex0, hitPos);
-    return mix(color, hitColor, reflectivity * getAttenuation(hitPos, 3.25f));
+    return mix(color, hitColor, reflectivity * getAttenuation(hitPos, 3.25));
 }

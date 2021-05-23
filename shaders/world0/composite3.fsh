@@ -43,11 +43,11 @@ uniform mat4 shadowModelView, shadowProjection;
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ssr.glsl"
 
-float reflectivity = 0.9365f;
+float reflectivity = 0.9365;
 
 void main() {
     vec3 viewPos = getViewPos();
-    vec3 Normal = normalize(texture2D(colortex1, TexCoords).rgb * 2.0f - 1.0f);
+    vec3 Normal = normalize(texture2D(colortex1, TexCoords).rgb * 2.0 - 1.0);
     vec4 Result = texture2D(colortex0, TexCoords);
 
     int blockID = getBlockId();

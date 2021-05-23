@@ -86,10 +86,10 @@ option.SSGI.comment = Screen Space Global Illumination. It simulates light bounc
 value.SSGI.0 = §cOFF
 value.SSGI.1 = §aON
 
-option.SSGI_BLUR = SSGI Blur
-option.SSGI_BLUR.comment = Blurs out Global Illumination to hide noise. §cReduces performance significantly.
-value.SSGI_BLUR.0 = §cOFF
-value.SSGI_BLUR.1 = §aON
+option.SSGI_TEMPORAL_ACCUMULATION = Temporal Accumulation
+option.SSGI_TEMPORAL_ACCUMULATION.comment = Increases SSGI quality by reprojecting the last frame onto the current one.
+value.SSGI_TEMPORAL_ACCUMULATION.0 = §cOFF
+value.SSGI_TEMPORAL_ACCUMULATION.1 = §aON
 
 option.SSGI_SAMPLES = SSGI Samples
 option.SSGI_SAMPLES.comment = Influences SSGI's quality. §cHigher value gives smoother GI, but reduces §cperformance.

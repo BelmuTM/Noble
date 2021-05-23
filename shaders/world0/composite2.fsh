@@ -6,13 +6,13 @@
 
 #version 120
 
-#define SSGI_BLUR 1 // [0 1]
+#define SSGI_TEMPORAL_ACCUMULATION 1 // [0 1]
 
 varying vec2 TexCoords;
 varying vec2 LightmapCoords;
 
 uniform vec3 sunPosition, moonPosition, skyColor;
-uniform vec3 cameraPosition;
+uniform vec3 cameraPosition, previousCameraPosition;
 uniform float rainStrength, aspectRatio, frameTime;
 uniform int isEyeInWater, worldTime;
 uniform float near;
@@ -36,6 +36,7 @@ uniform sampler2D noisetex;
 
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
+uniform mat4 gbufferPreviousModelView, gbufferPreviousProjection;
 uniform mat4 shadowModelView, shadowProjection;
 
 #include "/lib/util/noise.glsl"
@@ -47,9 +48,26 @@ uniform mat4 shadowModelView, shadowProjection;
 
 const bool colortex7Clear = false;
 
+// Written by Chocapic13
+vec3 reprojection(vec3 pos) {
+    pos = pos * 2.0 - 1.0;
+
+    vec4 viewPosPrev = gbufferProjectionInverse * vec4(pos, 1.0);
+    viewPosPrev /= viewPosPrev.w;
+    viewPosPrev = gbufferModelViewInverse * viewPosPrev;
+
+    vec3 cameraOffset = cameraPosition - previousCameraPosition;
+    cameraOffset *= float(pos.z > 0.56);
+
+    vec4 previousPosition = viewPosPrev + vec4(cameraOffset, 0.0);
+    previousPosition = gbufferPreviousModelView * previousPosition;
+    previousPosition = gbufferPreviousProjection * previousPosition;
+    return previousPosition.xyz / previousPosition.w * 0.5 + 0.5;
+}
+
 void main() {
     vec3 viewPos = getViewPos();
-    vec3 Normal = normalize(texture2D(colortex1, TexCoords).rgb * 2.0f - 1.0f);
+    vec3 Normal = normalize(texture2D(colortex1, TexCoords).rgb * 2.0 - 1.0);
     vec4 Result = texture2D(colortex0, TexCoords);
 
     float Depth = texture2D(depthtex0, TexCoords).r;
@@ -59,24 +77,34 @@ void main() {
     }
 
     vec3 Albedo = texture2D(colortex5, TexCoords).rgb;
-    float AmbientOcclusion = 0.0f;
+    float AmbientOcclusion = 0.0;
 
     // Blurring Ambient Occlusion
     int SAMPLES;
     for(int i = -4 ; i <= 4; i++) {
         for(int j = -3; j <= 3; j++) {
-            vec2 offset = vec2((j * 1.0f / viewWidth), (i * 1.0f / viewHeight));
+            vec2 offset = vec2((j * 1.0 / viewWidth), (i * 1.0 / viewHeight));
             AmbientOcclusion += texture2D(colortex5, TexCoords + offset).a;
             SAMPLES++;
         }
     }
     AmbientOcclusion /= SAMPLES;
 
-    vec3 GlobalIllumination = texture2D(colortex6, TexCoords).rgb;
-    vec3 reprojectedGlobalIllumination = texture2D(colortex7, TexCoords).rgb;
-    vec3 GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, 0.9f);
-    Result.rgb += Albedo * GlobalIlluminationResult;
+    vec4 GlobalIllumination = texture2D(colortex6, TexCoords);
+    vec4 GlobalIlluminationResult = vec4(0.0);
+    
+    #if SSGI_TEMPORAL_ACCUMULATION == 1
+        // Thanks Stubman#8195 for the help!
+        vec3 reprojectedTexCoords = reprojection(vec3(TexCoords, texture2D(depthtex0, TexCoords).r));
+        vec4 reprojectedGlobalIllumination = texture2D(colortex7, reprojectedTexCoords.xy);
 
-    /* DRAWBUFFERS:0 */
+        GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, exp2(-1.0 * frameTime * 10.0));
+        GlobalIllumination = fastGaussian(colortex6, vec2(viewWidth, viewHeight), 3.3, 15.0, 15.0, GlobalIlluminationResult);
+    #endif
+
+    Result.rgb += Albedo * GlobalIllumination.rgb;
+
+    /* DRAWBUFFERS:07 */
     gl_FragData[0] = Result * AmbientOcclusion;
+    gl_FragData[1] = GlobalIlluminationResult;
 }

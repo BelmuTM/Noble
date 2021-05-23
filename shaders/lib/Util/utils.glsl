@@ -6,17 +6,17 @@
 
 vec3 getViewPos() {
     vec3 screenPos = vec3(TexCoords, texture2D(depthtex0, TexCoords).r);
-    vec3 clipPos = screenPos * 2.0f - 1.0f;
-    vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0f);
+    vec3 clipPos = screenPos * 2.0 - 1.0;
+    vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
     return tmp.xyz / tmp.w;
 }
 
 bool isHandOrEntity() {
-    return texture2D(colortex4, TexCoords).r != 0.0f;
+    return texture2D(colortex4, TexCoords).r != 0.0;
 }
 
 int getBlockId() {
-    return int(texture2D(colortex3, TexCoords).r * 255.0f + 0.5f);
+    return int(texture2D(colortex3, TexCoords).r * 255.0 + 0.5);
 }
 
 bool isReflective() {
@@ -29,6 +29,6 @@ bool isSpecular() {
 
 bool isHand(float depth) {
     depth = linearizeDepth(depth);
-    return depth < 0.56f;
+    return depth < 0.56;
 }
 

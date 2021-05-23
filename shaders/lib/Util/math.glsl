@@ -8,11 +8,6 @@
 #define PI2 6.28318530718
 #define EPS 0.001
 
-struct Ray {
-    vec3 pos;
-    vec3 dir;
-    vec4 color;
-};
 /*
 mat3 calculateTBN(vec3 normal) {
 	vec3 tangent  = gl_NormalMatrix * (at_tangent.xyz / at_tangent.w);
@@ -20,7 +15,7 @@ mat3 calculateTBN(vec3 normal) {
 }*/
 
 bool isNan(float x) {
-    return (x < 0.0f || 0.0f < x || x == 0.0f) ? false : true;
+    return (x < 0.0 || 0.0 < x || x == 0.0) ? false : true;
 }
 
 float distanceSquared(vec3 v1, vec3 v2) {
@@ -33,7 +28,7 @@ float sdSphere(vec3 rayPos, vec3 spherePos, float radius)  {
 }
 
 float cdist(vec2 coord) {
-	return max(abs(coord.x - 0.5f), abs(coord.y - 0.5f)) * 1.85f;
+	return max(abs(coord.x - 0.5), abs(coord.y - 0.5)) * 1.85;
 }
 
 float distx(float dist) {
@@ -41,7 +36,7 @@ float distx(float dist) {
 }
 
 float saturate(float x) {
-	return clamp(x, 0.0f, 1.0f);
+	return clamp(x, 0.0, 1.0);
 }
 
 /*
@@ -51,22 +46,22 @@ float saturate(float x) {
 
 // Written by n_r4h33m#7259
 vec3 hemisphereSample(float u, float v) {
-    float phi = v * 2.0f * PI;
-    float cosTheta = 1.0f - u;
-    float sinTheta = sqrt(1.0f - cosTheta * cosTheta);
+    float phi = v * 2.0 * PI;
+    float cosTheta = 1.0 - u;
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
 }
 
 // Written by xirreal#0281
 vec3 cosWeightedRandomHemisphereDirection(vec3 n, inout vec2 seed) {
     vec2 r = hash22(seed);
-    vec3 uu = normalize(cross(n, vec3(0.0f, 1.0f, 1.0f)));
+    vec3 uu = normalize(cross(n, vec3(0.0, 1.0, 1.0)));
     vec3 vv = cross(uu, n);
 
     float ra = sqrt(r.y);
     float rx = ra * cos(PI2 * r.x);
     float ry = ra * sin(PI2 * r.x);
-    float rz = sqrt(1.0f - r.y);
+    float rz = sqrt(1.0 - r.y);
     vec3 rr = vec3(rx * uu + ry * vv + rz * n);
 
     return normalize(rr);
