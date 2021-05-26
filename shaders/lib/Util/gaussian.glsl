@@ -11,13 +11,13 @@ const vec2 ph = vec2(0.0, 1.0);
 
 vec4 gaussianOnePass(sampler2D tex, vec2 resolution, inout vec4 color) {
 
-    color += texture2D(tex, TexCoords) * 0.1964825501511404;
-    color += texture2D(tex, TexCoords + (off1 * ph / resolution)) * 0.2969069646728344;
-    color += texture2D(tex, TexCoords - (off1 * ph / resolution)) * 0.2969069646728344;
-    color += texture2D(tex, TexCoords + (off2 * ph / resolution)) * 0.09447039785044732;
-    color += texture2D(tex, TexCoords - (off2 * ph / resolution)) * 0.09447039785044732;
-    color += texture2D(tex, TexCoords + (off3 * ph / resolution)) * 0.010381362401148057;
-    color += texture2D(tex, TexCoords - (off3 * ph / resolution)) * 0.010381362401148057;
+    color += texture2D(tex, texCoords) * 0.1964825501511404;
+    color += texture2D(tex, texCoords + (off1 * ph / resolution)) * 0.2969069646728344;
+    color += texture2D(tex, texCoords - (off1 * ph / resolution)) * 0.2969069646728344;
+    color += texture2D(tex, texCoords + (off2 * ph / resolution)) * 0.09447039785044732;
+    color += texture2D(tex, texCoords - (off2 * ph / resolution)) * 0.09447039785044732;
+    color += texture2D(tex, texCoords + (off3 * ph / resolution)) * 0.010381362401148057;
+    color += texture2D(tex, texCoords - (off3 * ph / resolution)) * 0.010381362401148057;
     return color;
 }
 
@@ -26,7 +26,7 @@ vec4 fastGaussian(sampler2D tex, vec2 resolution, float size, float quality, flo
     int SAMPLES;
     for(float d = 0.0; d < PI2; d += PI2 / directions) {
 		    for(float i = 1.0 / quality; i <= 1.0; i += 1.0 / quality) {
-			    color += texture2D(tex, TexCoords + vec2(cos(d), sin(d)) * radius * i);
+			    color += texture2D(tex, texCoords + vec2(cos(d), sin(d)) * radius * i);
             SAMPLES++;
         }
     }

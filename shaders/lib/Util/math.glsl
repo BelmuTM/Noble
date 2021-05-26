@@ -6,13 +6,9 @@
 
 #define PI 3.14159265358979323846
 #define PI2 6.28318530718
-#define EPS 0.001
+#define invPI 0.31831
 
-/*
-mat3 calculateTBN(vec3 normal) {
-	vec3 tangent  = gl_NormalMatrix * (at_tangent.xyz / at_tangent.w);
-    return mat3(tangent, cross(tangent, normal), normal);
-}*/
+#define EPS 0.001
 
 bool isNan(float x) {
     return (x < 0.0 || 0.0 < x || x == 0.0) ? false : true;

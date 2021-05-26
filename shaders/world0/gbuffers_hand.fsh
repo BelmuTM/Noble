@@ -6,20 +6,4 @@
 
 #version 120
 
-varying vec2 TexCoords;
-varying vec2 LightmapCoords;
-varying vec3 Normal;
-varying vec4 Color;
-
-uniform sampler2D colortex0;
-uniform sampler2D colortex4;
-
-void main() {
-    vec4 Albedo = texture2D(colortex0, TexCoords) * Color;
-
-    /*DRAWBUFFERS:0124*/
-    gl_FragData[0] = Albedo;
-    gl_FragData[1] = vec4(Normal * 0.5 + 0.5, 1.0);
-    gl_FragData[2] = vec4(LightmapCoords, 0.0, 1.0);
-    gl_FragData[3] = vec4(1.0);
-}
+#include "/gbuffers/gbuffers_fsh.glsl"

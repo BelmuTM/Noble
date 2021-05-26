@@ -8,11 +8,11 @@ float edgeDetection() {
     float w = 1.0f / viewWidth;
     float h = 1.0f / viewHeight;
 
-    float depth = texture2D(depthtex0, TexCoords).r;
-    float depthW0 = texture2D(depthtex0, TexCoords + vec2(w, 0.0)).r;
-    float depthH0 = texture2D(depthtex0, TexCoords + vec2(0.0, -h)).r;
-    float depthW1 = texture2D(depthtex0, TexCoords + vec2(-w, 0.0)).r;
-    float depthH1 = texture2D(depthtex0, TexCoords + vec2(0.0, h)).r;
+    float depth = texture2D(depthtex0, texCoords).r;
+    float depthW0 = texture2D(depthtex0, texCoords + vec2(w, 0.0)).r;
+    float depthH0 = texture2D(depthtex0, texCoords + vec2(0.0, -h)).r;
+    float depthW1 = texture2D(depthtex0, texCoords + vec2(-w, 0.0)).r;
+    float depthH1 = texture2D(depthtex0, texCoords + vec2(0.0, h)).r;
 
     float ddx = abs((depthW0 - depth) - (depth - depthW1));
     float ddy = abs((depthH0 - depth) - (depth - depthH1));

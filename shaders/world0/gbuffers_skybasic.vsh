@@ -6,13 +6,13 @@
 
 #version 120
 
-varying vec2 TexCoords;
-varying vec4 Color;
+varying vec2 texCoords;
+varying vec4 color;
 
 void main() {
-	  gl_Position = ftransform();
-		TexCoords = gl_MultiTexCoord0.st;
+	gl_Position = ftransform();
+	texCoords = gl_MultiTexCoord0.st;
 
-	  Color = gl_Color;
-	  gl_FogFragCoord = gl_Position.z;
+	color = gl_Color;
+	gl_FogFragCoord = gl_Position.z;
 }

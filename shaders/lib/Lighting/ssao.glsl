@@ -9,18 +9,14 @@
 #define SSAO_RADIUS 1.0
 #define SSAO_BIAS 0.325
 
-/*
-		Thanks n_r4h33m#7259 for helping
-		me with hemisphere sampling!
-*/
 vec3 computeSSAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
 	// Avoid affecting hand
-	if(isHand(texture2D(depthtex0, TexCoords).r)) return vec3(occlusion);
+	if(isHand(texture2D(depthtex0, texCoords).r)) return vec3(occlusion);
 
 	vec3 sampleOrigin = viewPos + normal * 0.01;
 	for(int i = 0; i <= SSAO_SAMPLES; i++) {
-		vec3 noise = hash33(vec3(TexCoords, i));
+		vec3 noise = hash33(vec3(texCoords, i));
 		vec3 sampleDir = cosWeightedRandomHemisphereDirection(normal, noise.xy) * SSAO_BIAS;
 
 		vec3 samplePos = sampleOrigin + sampleDir * SSAO_RADIUS;

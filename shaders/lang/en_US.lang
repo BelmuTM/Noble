@@ -33,11 +33,6 @@ option.SPECULAR.comment = Adds shininess to certain blocks.
 value.SPECULAR.0 = §cOFF
 value.SPECULAR.1 = §aON
 
-option.SPECULAR_MODE = Specular Mode
-option.SPECULAR_MODE.comment = Two different ways to calculate specular reflections.
-value.SPECULAR_MODE.0 = §7Phong
-value.SPECULAR_MODE.1 = §7Blinn-Phong
-
 option.SSAO = SSAO
 option.SSAO.comment = Screen Space Ambient Occlusion. Adds pseudo-shadows that enhance scene's realism.
 value.SSAO.0 = §cOFF
@@ -55,7 +50,7 @@ value.SSAO_SAMPLES.128 = §4128
 option.sunPathRotation = Sun Path Rotation
 option.sunPathRotation.comment = Adjusts sun's rotation around the scene.
 
-option.VL = Light Shafts §e§lBETA
+option.VL = Light Shafts
 option.VL.comment = Adds god rays to the scenery.
 value.VL.0 = §cOFF
 value.VL.1 = §aON
@@ -90,6 +85,11 @@ option.SSGI_TEMPORAL_ACCUMULATION = Temporal Accumulation
 option.SSGI_TEMPORAL_ACCUMULATION.comment = Increases SSGI quality by reprojecting the last frame onto the current one.
 value.SSGI_TEMPORAL_ACCUMULATION.0 = §cOFF
 value.SSGI_TEMPORAL_ACCUMULATION.1 = §aON
+
+option.SSGI_BLUR = SSGI Blur
+option.SSGI_BLUR.comment = Blurs out SSGI to hide noise.
+value.SSGI_BLUR.0 = §cOFF
+value.SSGI_BLUR.1 = §aON
 
 option.SSGI_SAMPLES = SSGI Samples
 option.SSGI_SAMPLES.comment = Influences SSGI's quality. §cHigher value gives smoother GI, but reduces §cperformance.

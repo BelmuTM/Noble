@@ -8,12 +8,12 @@
 
 #include "/lib/util/distort.glsl"
 
-varying vec2 TexCoords;
+varying vec2 texCoords;
 varying vec4 Color;
 
 void main(){
     gl_Position = ftransform();
     gl_Position.xyz = distort(gl_Position.xyz);
-    TexCoords = gl_MultiTexCoord0.st;
+    texCoords = gl_MultiTexCoord0.st;
     Color = gl_Color;
 }

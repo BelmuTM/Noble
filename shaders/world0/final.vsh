@@ -6,9 +6,9 @@
 
 #version 120
 
-varying vec2 TexCoords;
+varying vec2 texCoords;
 
 void main() {
     gl_Position = ftransform();
-    TexCoords = gl_MultiTexCoord0.st;
+    texCoords = gl_MultiTexCoord0.st;
 }

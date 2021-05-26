@@ -7,9 +7,10 @@
 #version 120
 
 #define SSGI_TEMPORAL_ACCUMULATION 1 // [0 1]
+#define SSGI_BLUR 1 // [0 1]
 
-varying vec2 TexCoords;
-varying vec2 LightmapCoords;
+varying vec2 texCoords;
+varying vec2 lmCoords;
 
 uniform vec3 sunPosition, moonPosition, skyColor;
 uniform vec3 cameraPosition, previousCameraPosition;
@@ -44,39 +45,23 @@ uniform mat4 shadowModelView, shadowProjection;
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/gaussian.glsl"
+#include "/lib/util/reprojection.glsl"
 #include "/lib/lighting/raytracer.glsl"
 
 const bool colortex7Clear = false;
 
-// Written by Chocapic13
-vec3 reprojection(vec3 pos) {
-    pos = pos * 2.0 - 1.0;
-
-    vec4 viewPosPrev = gbufferProjectionInverse * vec4(pos, 1.0);
-    viewPosPrev /= viewPosPrev.w;
-    viewPosPrev = gbufferModelViewInverse * viewPosPrev;
-
-    vec3 cameraOffset = cameraPosition - previousCameraPosition;
-    cameraOffset *= float(pos.z > 0.56);
-
-    vec4 previousPosition = viewPosPrev + vec4(cameraOffset, 0.0);
-    previousPosition = gbufferPreviousModelView * previousPosition;
-    previousPosition = gbufferPreviousProjection * previousPosition;
-    return previousPosition.xyz / previousPosition.w * 0.5 + 0.5;
-}
-
 void main() {
     vec3 viewPos = getViewPos();
-    vec3 Normal = normalize(texture2D(colortex1, TexCoords).rgb * 2.0 - 1.0);
-    vec4 Result = texture2D(colortex0, TexCoords);
+    vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb);
+    vec4 Result = texture2D(colortex0, texCoords);
 
-    float Depth = texture2D(depthtex0, TexCoords).r;
+    float Depth = texture2D(depthtex0, texCoords).r;
     if(Depth == 1.0f) {
         gl_FragData[0] = Result;
         return;
     }
 
-    vec3 Albedo = texture2D(colortex5, TexCoords).rgb;
+    vec3 Albedo = texture2D(colortex5, texCoords).rgb;
     float AmbientOcclusion = 0.0;
 
     // Blurring Ambient Occlusion
@@ -84,25 +69,27 @@ void main() {
     for(int i = -4 ; i <= 4; i++) {
         for(int j = -3; j <= 3; j++) {
             vec2 offset = vec2((j * 1.0 / viewWidth), (i * 1.0 / viewHeight));
-            AmbientOcclusion += texture2D(colortex5, TexCoords + offset).a;
+            AmbientOcclusion += texture2D(colortex5, texCoords + offset).a;
             SAMPLES++;
         }
     }
     AmbientOcclusion /= SAMPLES;
 
-    vec4 GlobalIllumination = texture2D(colortex6, TexCoords);
-    vec4 GlobalIlluminationResult = vec4(0.0);
+    vec4 GlobalIllumination = texture2D(colortex6, texCoords);
+    vec4 GlobalIlluminationResult = GlobalIllumination;
     
     #if SSGI_TEMPORAL_ACCUMULATION == 1
         // Thanks Stubman#8195 for the help!
-        vec3 reprojectedTexCoords = reprojection(vec3(TexCoords, texture2D(depthtex0, TexCoords).r));
+        vec3 reprojectedTexCoords = reprojection(vec3(texCoords, texture2D(depthtex0, texCoords).r));
         vec4 reprojectedGlobalIllumination = texture2D(colortex7, reprojectedTexCoords.xy);
 
-        GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, exp2(-1.0 * frameTime * 10.0));
-        GlobalIllumination = fastGaussian(colortex6, vec2(viewWidth, viewHeight), 3.3, 15.0, 15.0, GlobalIlluminationResult);
+        GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, exp2(-1.0 * frameTime * 6.0f));
+    #endif
+    #if SSGI_BLUR == 1
+        GlobalIlluminationResult = clamp(fastGaussian(colortex6, vec2(viewWidth, viewHeight), 2.45, 20.0, 15.0, GlobalIlluminationResult), 0.0f, 1.0f);
     #endif
 
-    Result.rgb += Albedo * GlobalIllumination.rgb;
+    Result.rgb += Albedo * GlobalIlluminationResult.rgb;
 
     /* DRAWBUFFERS:07 */
     gl_FragData[0] = Result * AmbientOcclusion;

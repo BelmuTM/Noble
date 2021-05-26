@@ -6,11 +6,11 @@
 
 #version 120
 
-varying vec2 TexCoords;
+varying vec2 texCoords;
 varying vec4 Color;
 
 uniform sampler2D colortex0;
 
 void main() {
-    gl_FragData[0] = texture2D(colortex0, TexCoords) * Color;
+    gl_FragData[0] = texture2D(colortex0, texCoords) * Color;
 }

@@ -4,8 +4,6 @@
     https://github.com/BelmuTM/
 */
 
-#define DELTA_EPS 0.001
-
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT 48 // [8 16 32 48 64 80 96]
 #define BINARY_DECREASE 0.5
@@ -24,20 +22,19 @@ vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
     return rayPos;
 }
 
-#define RAYTRACE_STEPS 8
-bool raytrace(vec3 viewPos, vec3 rayDir, float jitter, inout vec2 hitCoord) {
-    float invSteps = 1.0 / RAYTRACE_STEPS;
+bool raytrace(vec3 viewPos, vec3 rayDir, int steps, inout vec2 hitCoord) {
+    float invSteps = 1.0 / steps;
     vec3 screenPos = viewToScreen(viewPos);
     vec3 screenDir = normalize(viewToScreen(viewPos + rayDir) - screenPos) * invSteps;
 
-    vec3 rayPos = screenPos + screenDir * jitter;
-    for(int i = 0; i < RAYTRACE_STEPS; i++) {
+    vec3 rayPos = screenPos + screenDir;
+    for(int i = 0; i < steps; i++) {
         rayPos += screenDir;
 
         if(clamp(rayPos.xy, vec2(0.0), vec2(1.0)) != rayPos.xy) break;
         float depth = texture2D(depthtex0, rayPos.xy).r;
 
-        if(rayPos.z > depth) {
+        if(rayPos.z > depth && rayPos.z - depth > 0.0) {
             hitCoord = rayPos.xy;
             #if BINARY_REFINEMENT == 1
                 hitCoord = binarySearch(rayPos, screenDir).xy;

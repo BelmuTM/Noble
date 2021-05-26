@@ -20,11 +20,11 @@ vec3 DOF1(float sceneDepth, vec3 viewPos) {
 	float coc = min(abs(APERTURE * (FOCAL * (z - centerDepthSmooth)) / (z * (centerDepthSmooth - FOCAL))) * SIZEMULT, (1.0f / viewWidth) * 15.0f);
     float blur = smoothstep(MIN_DISTANCE, DOF_DISTANCE, abs(-viewPos.z - coc));
 
-    if(sceneDepth == 1.0) return texture2D(colortex0, TexCoords).rgb;
+    if(sceneDepth == 1.0) return texture2D(colortex0, texCoords).rgb;
 
     vec4 outOfFocusColor = vec4(0.0);
     outOfFocusColor = fastGaussian(colortex0, vec2(viewWidth, viewHeight), 5.65, 15.0, 20.0, outOfFocusColor);
-    return mix(texture2D(colortex0, TexCoords).rgb, outOfFocusColor.rgb, blur);
+    return mix(texture2D(colortex0, texCoords).rgb, outOfFocusColor.rgb, blur);
 }
 
 float getBlurSize(float depth, float focusPoint, float focusScale) {
@@ -39,11 +39,11 @@ vec3 DOF2(vec3 color, float sceneDepth, vec3 viewPos) {
     float tot = 1.0;
     float radius = RAD_SCALE;
 
-    if(isHand(texture2D(depthtex0, TexCoords).r) || sceneDepth == 1.0) return texture2D(colortex0, TexCoords).rgb;
+    if(isHand(texture2D(depthtex0, texCoords).r) || sceneDepth == 1.0) return texture2D(colortex0, texCoords).rgb;
 
     float sampleSize;
     for(float ang = 0.0; radius < MAX_BLUR_SIZE; ang += GOLDEN_ANGLE) {
-        vec2 tc = TexCoords + vec2(cos(ang), sin(ang)) * vec2(1.0 / viewWidth, 1.0 / viewHeight) * radius;
+        vec2 tc = texCoords + vec2(cos(ang), sin(ang)) * vec2(1.0 / viewWidth, 1.0 / viewHeight) * radius;
         vec3 sampleColor = texture2D(colortex0, tc).rgb;
 
         float sampleDepth = texture2D(depthtex0, tc).r * far;

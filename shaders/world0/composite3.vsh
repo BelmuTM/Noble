@@ -6,13 +6,13 @@
 
 #version 120
 
-varying vec2 TexCoords;
-varying vec2 LightmapCoords;
+varying vec2 texCoords;
+varying vec2 lmCoords;
 
 void main() {
     gl_Position = ftransform();
-    TexCoords = gl_MultiTexCoord0.st;
+    texCoords = gl_MultiTexCoord0.st;
 
-    LightmapCoords = mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.st;
-    LightmapCoords = (LightmapCoords * 33.05 / 32.0) - (1.05 / 32.0);
+    lmCoords = mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.st;
+    lmCoords = (lmCoords * 33.05 / 32.0) - (1.05 / 32.0);
 }
