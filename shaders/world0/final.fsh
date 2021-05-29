@@ -55,13 +55,14 @@ uniform mat4 gbufferModelView, gbufferModelViewInverse;
 const vec4 fogColor = vec4(0.225, 0.349, 0.888, 1.0);
 
 void main() {
+    vec3 viewPos = getViewPos();
     vec4 Result = texture2D(colortex0, texCoords);
     float Depth = texture2D(depthtex0, texCoords).r;
+
     bool isSky = Depth == 1.0;
     vec4 skyColor4 = vec4(skyColor, 1.0);
-    vec3 viewPos = getViewPos();
 
-    Result = Fog(Depth, Result, viewPos, vec4(0.0), mix(fogColor, skyColor4, 0.5), rainStrength); // Applying Fog
+    Result = Fog(Depth, Result, viewPos, vec4(0.0), fogColor * skyColor4, rainStrength); // Applying Fog
 
     // Depth Of Field
     vec3 depthOfField = Result.rgb;

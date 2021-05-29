@@ -61,15 +61,17 @@ void main() {
         return;
     }
     float F0 = texture2D(colortex2, texCoords).g;
+    float roughness = texture2D(colortex2, texCoords).r;
     float NdotV = max(dot(Normal, viewDir), 0.0);
 
-    vec4 ssrt = vec4(0.0);
+    vec4 reflections = vec4(0.0);
     #if MC_VERSION >= 11300 && SSR == 1
     if(!isHandOrEntity()) {
-        ssrt = simpleReflections(Result, viewPos, Normal, NdotV, F0);
+        reflections = simpleReflections(Result, viewPos, Normal, NdotV, F0);
     }
     #endif
+    // vec4 refraction = simpleRefraction(Result, viewPos, Normal, NdotV, F0);
 
     /* DRAWBUFFERS:0 */
-    gl_FragData[0] = Result + ssrt;
+    gl_FragData[0] = Result + reflections;
 }

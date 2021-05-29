@@ -14,9 +14,9 @@ vec4 Fog(float depth, vec4 color, vec3 viewPos, vec4 fogColorStart, vec4 fogColo
 
     if(isEyeInWater == 1) {
         fogFactor = 1.0;
-        density = 0.175;
+        density = 0.125;
         fogColorStart = vec4(0.0);
-        fogColorEnd = vec4(0.1, 0.15, 0.6, 1.0) * density;
+        fogColorEnd = vec4(0.345, 0.58, 0.62, 0.65) * density;
     }
 
     float fogDensity = clamp((-viewPos.z - near) * density, 0.0, pow(far, OPACITY));

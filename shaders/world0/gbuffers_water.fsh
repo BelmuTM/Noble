@@ -6,4 +6,5 @@
 
 #version 120
 
+#define WATER
 #include "/gbuffers/gbuffers_fsh.glsl"

@@ -11,21 +11,37 @@ float getAttenuation(vec2 coords, float scale) {
     return border;
 }
 
-vec4 simpleReflections(vec4 color, vec3 viewPos, vec3 normal, float LdotH, float F0) {
+vec4 simpleReflections(vec4 color, vec3 viewPos, vec3 normal, float NdotV, float F0) {
     /*
     float jitter = fract((texCoords.x + texCoords.y) * 0.5);
     float noise = hash12(texCoords);
     noise = fract(noise + (frameTime * 17.0));
     */
-
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec2 hitPos = vec2(0.0);
-    bool intersect = raytrace(viewPos, reflected, 160, hitPos);
+    bool intersect = raytrace(viewPos, reflected, 100, hitPos);
 
     if(!intersect) return color;
     if(isHand(texture2D(depthtex0, hitPos).r)) return color;
 
-    float fresnel = F0 + (1.0 - F0) * pow(1.0 - LdotH, 5.0);
+    float fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0);
     vec4 hitColor = texture2D(colortex0, hitPos);
-    return mix(color, hitColor, fresnel) * getAttenuation(hitPos, 3.25);
+    return mix(color, hitColor, fresnel * getAttenuation(hitPos, 1.5));
 }
+
+/*
+vec4 simpleRefraction(vec4 color, vec3 viewPos, vec3 normal, float NdotV, float F0) {
+
+    float eta = 1.0 / 1.333;
+    vec3 refracted = refract(normalize(viewPos), normal, eta);
+    vec2 hitPos = vec2(0.0);
+    bool intersect = raytrace(viewPos, refracted, 60, hitPos);
+
+    if(!intersect) return color;
+    if(isHand(texture2D(depthtex0, hitPos).r)) return color;
+
+    float fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0);
+    vec4 hitColor = texture2D(colortex0, hitPos);
+    return hitColor;
+}
+*/

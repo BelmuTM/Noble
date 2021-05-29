@@ -52,7 +52,7 @@ const bool colortex7Clear = false;
 
 void main() {
     vec3 viewPos = getViewPos();
-    vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb);
+    vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
     vec4 Result = texture2D(colortex0, texCoords);
 
     float Depth = texture2D(depthtex0, texCoords).r;
@@ -86,7 +86,8 @@ void main() {
         GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, exp2(-1.0 * frameTime * 6.0f));
     #endif
     #if SSGI_BLUR == 1
-        GlobalIlluminationResult = clamp(fastGaussian(colortex6, vec2(viewWidth, viewHeight), 2.45, 20.0, 15.0, GlobalIlluminationResult), 0.0f, 1.0f);
+        GlobalIlluminationResult = smartDeNoise(colortex6, texCoords, 5.0, 2.0, 0.5);
+        GlobalIlluminationResult = clamp(fastGaussian(colortex6, vec2(viewWidth, viewHeight), 5.0, 20.0, 15.0, GlobalIlluminationResult), 0.0f, 1.0f);
     #endif
 
     Result.rgb += Albedo * GlobalIlluminationResult.rgb;

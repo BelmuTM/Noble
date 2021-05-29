@@ -5,7 +5,7 @@
 */
 
 #define SSGI_SCALE 2
-#define SSGI_SAMPLES 12 // [2 4 6 12 24 32 48 64]
+#define SSGI_SAMPLES 12 // [2 4 6 12 24 32 48 64 80]
 
 vec3 computeSSGI(vec3 viewPos, vec3 normal) {
     vec3 illumination = vec3(0.0);
@@ -25,10 +25,10 @@ vec3 computeSSGI(vec3 viewPos, vec3 normal) {
 
         //Sampling pos
         vec3 sampleDir = cosWeightedRandomHemisphereDirection(normal, noise.xy);
-        float NdotD = dot(normal, sampleDir);
+        float NdotD = max(dot(normal, sampleDir), 0.001);
 
         // Ray trace
-        if(!raytrace(sampleOrigin, sampleDir, 16, prevPos)) continue;
+        if(!raytrace(sampleOrigin, sampleDir, 26, prevPos)) continue;
         // Avoids affecting hand
 	    if(isHand(texture2D(depthtex0, prevPos).r)) return vec3(0.0);
 

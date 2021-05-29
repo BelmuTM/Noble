@@ -70,40 +70,35 @@ const float shadowDistanceRenderMul = 1.0;
 const float ambientOcclusionLevel = 0.0;
 
 /////////////// WATER ABSORPTION ///////////////
-const float absorptionCoef = 0.9f;
-const vec3 waterColor = vec3(0.1, 0.35f, 0.425f);
+const float absorptionCoef = 3.0;
+const vec3 waterColor = vec3(0.1, 0.35, 0.425);
+
+/////////////// WORLD TIME ///////////////
+float wTimeF = float(worldTime);
+float timeSunrise = ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTimeF, 0.0, 2000.0) / 2000.0));
+float timeNoon = ((clamp(wTimeF, 0.0, 2000.0)) / 2000.0) - ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0);
+float timeSunset = ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0) - ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0);
+float timeMidnight = ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0);
 
 vec3 getDayTimeColor() {
-    float wTimeF = float(worldTime);
-
-	float timeSunrise = ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTimeF, 0.0, 2000.0) / 2000.0));
-	float timeNoon = ((clamp(wTimeF, 0.0, 2000.0)) / 2000.0) - ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0);
-	float timeSunset = ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0) - ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0);
-	float timeMidnight = ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0);
-
-    const vec3 ambient_sunrise = vec3(0.443, 0.572, 0.486);
-    const vec3 ambient_noon = vec3(0.386, 0.502, 0.53);
-    const vec3 ambient_sunset = vec3(0.943, 0.572, 0.247) * 0.26;
-    const vec3 ambient_midnight = vec3(0.06, 0.088, 0.097);
+    const vec3 ambient_sunrise = vec3(0.543, 0.272, 0.147);
+    const vec3 ambient_noon = vec3(0.445, 0.402, 0.23);
+    const vec3 ambient_sunset = vec3(0.543, 0.272, 0.147);
+    const vec3 ambient_midnight = vec3(0.02, 0.1, 0.15);
 
     return ambient_sunrise * timeSunrise + ambient_noon * timeNoon + ambient_sunset * timeSunset + ambient_midnight * timeMidnight;
 }
 
 vec3 getDayTimeSunColor() {
-    float wTimeF = float(worldTime);
-
-	float timeSunrise = ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTimeF, 0.0, 2000.0) / 2000.0));
-	float timeNoon = ((clamp(wTimeF, 0.0, 2000.0)) / 2000.0) - ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0);
-	float timeSunset = ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0) - ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0);
-	float timeMidnight = ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0);
-
-    const vec3 sunColor_sunrise = vec3(0.49, 0.25, 0.024);
-    const vec3 sunColor_noon = vec3(0.29, 0.255, 0.224);
-    const vec3 sunColor_sunset = vec3(0.38, 0.18, 0.035);
-    const vec3 sunColor_midnight = vec3(0.0);
+    const vec3 sunColor_sunrise = vec3(0.30, 0.17, 0.045);
+    const vec3 sunColor_noon = vec3(0.23, 0.26, 0.33);
+    const vec3 sunColor_sunrise = vec3(0.30, 0.17, 0.045);
+    const vec3 sunColor_midnight = vec3(0.005, 0.05, 0.1);
 
     return sunColor_sunrise * timeSunrise + sunColor_noon * timeNoon + sunColor_sunset * timeSunset + sunColor_midnight * timeMidnight;
 }
+
+/////////////// LIGHTMAP ///////////////
 
 float adjustLightmapTorch(in float torch) {
     const float K = 2.0;
@@ -131,20 +126,22 @@ vec3 getLightmapColor(in vec2 Lightmap) {
     vec3 TorchLighting = Lightmap.x * TorchColor;
     vec3 SkyLighting = Lightmap.y * getDayTimeColor();
 
-    return vec3(TorchLighting + SkyLighting + 0.026);
+    return vec3(TorchLighting + SkyLighting);
 }
+
+/////////////// SHADOWMAPPING ///////////////
 
 vec3 shadowMap() {
     vec3 viewPos = getViewPos();
     vec4 shadowSpace = viewToShadow(viewPos);
     vec3 sampleCoords = shadowSpace.xyz * 0.5 + 0.5;
 
-    float randomAngle = texture2D(noisetex, texCoords * 20.0).r * 100.0;
+    float randomAngle = texture2D(noisetex, texCoords * 10.0).r;
     float cosTheta = cos(randomAngle);
     float sinTheta = sin(randomAngle);
     mat2 rotation =  mat2(cosTheta, -sinTheta, sinTheta, cosTheta) / shadowMapResolution;
 
-    return blurShadows(rotation, sampleCoords);
+    return blurShadows(sampleCoords, rotation);
 }
 
 void main() {
@@ -186,26 +183,15 @@ void main() {
     vec3 Lighting = BRDF_Lighting(Normal, viewDir, lightDir, data.albedo, data.roughness, data.F0, 
                     getDayTimeColor(), LightmapColor, Shadow, VolumetricLighting);
 
+    vec4 Result = vec4(Lighting, 1.0);
+
     /////////////// AMBIENT OCCLUSION ///////////////
     vec3 AmbientOcclusion = vec3(1.0);
     #if SSAO == 1 && SSGI != 1
         AmbientOcclusion = computeSSAO(viewPos, Normal);
     #endif
 
-    /////////////// WATER ABSORPTION ///////////////
-    /*
-    if(isWater()) {
-        float terrainDepth = Depth * 2.0 - 1.0;
-        vec4 depthClipPos = gbufferProjectionInverse * vec4(texCoords * 2.0 - 1.0, terrainDepth, 1.0);
-        float waterAlpha = 1.0 - exp2(-(absorptionCoef / log(2.0)) * distance(depthClipPos.xyz, viewToScreen(viewPos) * 2.0 - 1.0));
-        
-        vec4 waterResult = vec4(waterColor, waterAlpha);
-        Result = waterResult;
-        Albedo = waterResult.rgb;
-    }
-    */
-
     /* DRAWBUFFERS:05 */
-    gl_FragData[0] = vec4(Lighting, 1.0f);
+    gl_FragData[0] = Result;
     gl_FragData[1] = vec4(data.albedo, AmbientOcclusion.r);
 }

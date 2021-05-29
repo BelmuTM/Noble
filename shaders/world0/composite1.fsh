@@ -49,16 +49,16 @@ uniform mat4 shadowModelView, shadowProjection;
 
 void main() {
     vec3 viewPos = getViewPos();
-    vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb);
+    vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
     vec4 Result = texture2D(colortex0, texCoords);
 
     vec3 GlobalIllumination = vec3(0.0f);
-    #if SSGI == 1
+    #if SSGI == 1 && SSAO != 1
         GlobalIllumination = computeSSGI(viewPos, Normal);
     #endif
 
     /* DRAWBUFFERS:06 */
     gl_FragData[0] = Result;
-    gl_FragData[1] = vec4(GlobalIllumination, 1.0f);
+    gl_FragData[1] = vec4(GlobalIllumination, 1.0);
 }
 

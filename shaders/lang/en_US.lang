@@ -26,7 +26,7 @@ value.shadowMapResolution.1024 = §2Low §7| §21024
 value.shadowMapResolution.2048 = §eMedium §7| §e2048
 value.shadowMapResolution.3072 = §6High §7| §63072
 value.shadowMapResolution.4096 = §cVery High §7| §c4096
-value.shadowMapResolution.6144 = §dPsycho §7| §d6144
+value.shadowMapResolution.6144 = §4Extreme §7| §46144
 
 option.SPECULAR = Specular
 option.SPECULAR.comment = Adds shininess to certain blocks.
@@ -101,6 +101,7 @@ value.SSGI_SAMPLES.24 = §624
 value.SSGI_SAMPLES.32 = §c32
 value.SSGI_SAMPLES.48 = §448
 value.SSGI_SAMPLES.64 = §564
+value.SSGI_SAMPLES.80 = §580
 
 option.BINARY_REFINEMENT = Binary Refinement
 option.BINARY_REFINEMENT.comment = Refines the ray tracer's hit position. §cHigher value gives better result, but reduces §cperformance.
