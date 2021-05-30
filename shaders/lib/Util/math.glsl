@@ -51,8 +51,7 @@ vec3 hemisphereSample(float u, float v) {
 }
 
 // Written by xirreal#0281
-vec3 cosWeightedRandomHemisphereDirection(vec3 n, inout vec2 seed) {
-    vec2 r = hash22(seed);
+vec3 cosWeightedRandomHemisphereDirection(vec3 n, vec2 r) {
     vec3 uu = normalize(cross(n, vec3(0.0, 1.0, 1.0)));
     vec3 vv = cross(uu, n);
 

@@ -7,7 +7,6 @@
 #version 120
 
 #define SSGI_TEMPORAL_ACCUMULATION 1 // [0 1]
-#define SSGI_BLUR 1 // [0 1]
 
 varying vec2 texCoords;
 varying vec2 lmCoords;
@@ -61,9 +60,7 @@ void main() {
         return;
     }
 
-    vec3 Albedo = texture2D(colortex5, texCoords).rgb;
     float AmbientOcclusion = 0.0;
-
     // Blurring Ambient Occlusion
     int SAMPLES;
     for(int i = -4 ; i <= 4; i++) {
@@ -80,17 +77,11 @@ void main() {
     
     #if SSGI_TEMPORAL_ACCUMULATION == 1
         // Thanks Stubman#8195 for the help!
-        vec3 reprojectedTexCoords = reprojection(vec3(texCoords, texture2D(depthtex0, texCoords).r));
-        vec4 reprojectedGlobalIllumination = texture2D(colortex7, reprojectedTexCoords.xy);
+        vec2 reprojectedTexCoords = reprojection(vec3(texCoords, texture2D(depthtex0, texCoords).r));
+        vec4 reprojectedGlobalIllumination = texture2D(colortex7, reprojectedTexCoords);
 
-        GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, exp2(-1.0 * frameTime * 6.0f));
+        GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, 0.8);
     #endif
-    #if SSGI_BLUR == 1
-        GlobalIlluminationResult = smartDeNoise(colortex6, texCoords, 5.0, 2.0, 0.5);
-        GlobalIlluminationResult = clamp(fastGaussian(colortex6, vec2(viewWidth, viewHeight), 5.0, 20.0, 15.0, GlobalIlluminationResult), 0.0f, 1.0f);
-    #endif
-
-    Result.rgb += Albedo * GlobalIlluminationResult.rgb;
 
     /* DRAWBUFFERS:07 */
     gl_FragData[0] = Result * AmbientOcclusion;

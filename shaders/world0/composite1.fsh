@@ -52,9 +52,14 @@ void main() {
     vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
     vec4 Result = texture2D(colortex0, texCoords);
 
-    vec3 GlobalIllumination = vec3(0.0f);
-    #if SSGI == 1 && SSAO != 1
-        GlobalIllumination = computeSSGI(viewPos, Normal);
+    float F0 = texture2D(colortex2, texCoords).g;
+    bool is_metal = (F0 * 255.0) > 229.5;
+
+    vec3 GlobalIllumination = vec3(0.0);
+    #if SSGI == 1
+        #if SSAO == 0
+            !is_metal ? GlobalIllumination = computeSSGI(viewPos, Normal) : GlobalIllumination = vec3(0.0);
+        #endif
     #endif
 
     /* DRAWBUFFERS:06 */

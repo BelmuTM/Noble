@@ -5,7 +5,7 @@
 */
 
 #define SSGI_SCALE 2
-#define SSGI_SAMPLES 12 // [2 4 6 12 24 32 48 64 80]
+#define SSGI_SAMPLES 24 // [2 4 6 12 24 32 48 64 80]
 
 vec3 computeSSGI(vec3 viewPos, vec3 normal) {
     vec3 illumination = vec3(0.0);
@@ -19,16 +19,23 @@ vec3 computeSSGI(vec3 viewPos, vec3 normal) {
 
     for(int i = 0; i < SSGI_SAMPLES; i++) {
         vec3 noise = hash33(vec3(texCoords, i));
-        #if SSGI_TEMPORAL_ACCUMULATION == 1
-            noise = fract(noise + vec3(frameTime * 17.0));
-        #endif
+        noise = fract(noise + vec3(frameTime * 17.0));
+
+        /*
+        vec3 tangent = normalize(noise - normal * dot(noise, normal));
+        vec3 bitangent = cross(normal, tangent);
+        mat3 TBN = mat3(tangent, bitangent, normal);
+        vec3 sampleDir = TBN * hemisphereSample(noise.x, noise.y);
+        */
+
+        // vec3 sampleDir = cosWeightedRandomHemisphereDirection(normal, noise.xy);
 
         //Sampling pos
         vec3 sampleDir = cosWeightedRandomHemisphereDirection(normal, noise.xy);
         float NdotD = max(dot(normal, sampleDir), 0.001);
 
         // Ray trace
-        if(!raytrace(sampleOrigin, sampleDir, 26, prevPos)) continue;
+        if(!raytrace(sampleOrigin, sampleDir, 24, prevPos)) continue;
         // Avoids affecting hand
 	    if(isHand(texture2D(depthtex0, prevPos).r)) return vec3(0.0);
 

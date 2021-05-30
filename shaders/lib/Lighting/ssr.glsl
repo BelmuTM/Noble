@@ -11,22 +11,28 @@ float getAttenuation(vec2 coords, float scale) {
     return border;
 }
 
-vec4 simpleReflections(vec4 color, vec3 viewPos, vec3 normal, float NdotV, float F0) {
-    /*
-    float jitter = fract((texCoords.x + texCoords.y) * 0.5);
-    float noise = hash12(texCoords);
-    noise = fract(noise + (frameTime * 17.0));
-    */
+// https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true
+vec4 EnvBRDFApprox(vec4 specular, float NdotV, float roughness) {
+    const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
+    const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
+    vec4 r = roughness * c0 + c1;
+    float a004 = min(r.x * r.x, pow(1.0 - NdotV, 5.0)) * r.x + r.y;
+    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+    return specular * AB.x + AB.y;
+}
+
+vec4 simpleReflections(vec4 color, vec3 viewPos, vec3 normal, float NdotV, float F0, float roughness) {
+    viewPos += normal * 0.01;
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec2 hitPos = vec2(0.0);
-    bool intersect = raytrace(viewPos, reflected, 100, hitPos);
+    bool intersect = raytrace(viewPos, reflected, 160, hitPos);
 
     if(!intersect) return color;
     if(isHand(texture2D(depthtex0, hitPos).r)) return color;
 
     float fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0);
     vec4 hitColor = texture2D(colortex0, hitPos);
-    return mix(color, hitColor, fresnel * getAttenuation(hitPos, 1.5));
+    return mix(color, hitColor, fresnel * getAttenuation(hitPos, 5.5));
 }
 
 /*

@@ -73,8 +73,10 @@ void main() {
     Result = vec4(depthOfField, 1.0);
 
     // Bloom
-    #if BLOOM == 1 && SSGI != 1
-        if(!isSky) Result = mix(Result, Bloom(Result.rgb, 4, 3), luma(Result.rgb) * BLOOM_INTENSITY);
+    #if BLOOM == 1
+        #if SSGI == 0
+            if(!isSky) Result = mix(Result, Bloom(Result.rgb, 4, 3), luma(Result.rgb) * BLOOM_INTENSITY);
+        #endif
     #endif
     
     vec3 exposureColor = Result.rgb * EXPOSURE;

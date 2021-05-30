@@ -49,16 +49,6 @@ vec3 Fresnel_Schlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-// https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true
-vec3 EnvBRDFApprox(vec3 specular, float NdotV, float roughness) {
-    const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
-    const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
-    vec4 r = roughness * c0 + c1;
-    float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
-    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
-    return specular * AB.x + AB.y;
-}
-
 /*
     Props to LVutner for sharing resources 
     and helping me learn more about Physically 
@@ -84,9 +74,7 @@ vec3 BRDF_Lighting(vec3 N, vec3 V, vec3 L, vec3 albedo, float roughness, float F
     vec3 SpecularLight = vec3(0.0);
     #if SPECULAR == 1
         float DistributionGGX = Trowbridge_Reitz_GGX(NdotH, roughness); // NDF (Normal Distribution Function)
-        vec3 Fresnel = EnvBRDFApprox(Specular, NdotV, roughness); // Fresnel
-        // vec3 Fresnel = Fresnel_Schlick(NdotV, Specular);
-        // vec3 Fresnel = EnvBRDFApprox(Specular, NdotV, roughness);
+        vec3 Fresnel = Fresnel_Schlick(NdotV, Specular); // Fresnel
         float Visibility = Geometry_Smith(NdotV, NdotL, roughness); // Geometry Smith
         
         SpecularLight = (DistributionGGX * Fresnel * Visibility) * shadowmap;

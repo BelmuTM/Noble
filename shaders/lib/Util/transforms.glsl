@@ -45,12 +45,10 @@ float linearizeDepth(float depth) {
 	return (2.0f * near * far) / (far + near - (depth * 2.0 - 1.0) * (far - near));
 }
 
-/*
-vec3 extractNormalMap(vec4 normal, mat3 TBN) {
+/*vec3 extractNormalMap(vec4 normal, mat3 TBN) {
 	vec3 normalMap = normal.xyz * 2.0 - 1.0;
 	normalMap.z = sqrt(clamp(1.0 - dot(normalMap.xy, normalMap.xy), 0.0, 1.0));
 	normalMap = TBN * normalMap;
 	normalMap = mat3(gbufferModelViewInverse) * normalMap;
 	return normalMap;
-}
-*/
+}*/

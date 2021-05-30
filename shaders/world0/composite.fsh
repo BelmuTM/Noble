@@ -8,10 +8,7 @@
 
 #define SHADOWS 1 // [0 1]
 #define VL 1 // [0 1]
-
 #define SPECULAR 1 // [0 1]
-#define SPECULAR_BRDF 2 // [0 1 2]
-
 #define SSAO 1 // [0 1]
 
 varying vec2 texCoords;
@@ -19,7 +16,8 @@ varying vec2 LightmapCoords;
 
 uniform vec3 sunPosition, moonPosition, cameraPosition, skyColor;
 uniform float rainStrength, aspectRatio, frameTimeCounter;
-uniform int isEyeInWater, worldTime;
+uniform int worldTime;
+uniform int isEyeInWater;
 uniform float near;
 uniform float far;
 uniform float viewWidth;
@@ -61,7 +59,6 @@ const int colortex1Format = RGB16;
 const int colortex2Format = RGB16;
 */
 
-
 /////////////// SETTINGS ///////////////
 const float sunPathRotation = -40.0; // [80.0f 75.0f 70.0f 65.0f 60.0f 55.0f 50.0f 45.0f 40.0f 35.0f 30.0f 25.0f 20.0f 15.0f 10.0f 5.0f 0.0f -5.0f -10.0f -15.0f -20.0f -25.0f -30.0f -35.0f -40.0f -45.0f -50.0f -55.0f -60.0f -65.0f -70.0f -75.0f -80.0f]
 const int shadowMapResolution = 4096; //[512 1024 2048 3072 4096 6144]
@@ -69,16 +66,12 @@ const int noiseTextureResolution = 64;
 const float shadowDistanceRenderMul = 1.0;
 const float ambientOcclusionLevel = 0.0;
 
-/////////////// WATER ABSORPTION ///////////////
-const float absorptionCoef = 3.0;
-const vec3 waterColor = vec3(0.1, 0.35, 0.425);
-
 /////////////// WORLD TIME ///////////////
 float wTimeF = float(worldTime);
-float timeSunrise = ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTimeF, 0.0, 2000.0) / 2000.0));
-float timeNoon = ((clamp(wTimeF, 0.0, 2000.0)) / 2000.0) - ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0);
-float timeSunset = ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0) - ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0);
-float timeMidnight = ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0);
+    float timeSunrise = ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTimeF, 0.0, 2000.0) / 2000.0));
+    float timeNoon = ((clamp(wTimeF, 0.0, 2000.0)) / 2000.0) - ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0);
+    float timeSunset = ((clamp(wTimeF, 10000.0, 12000.0) - 10000.0) / 2000.0) - ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0);
+    float timeMidnight = ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTimeF, 23000.0, 24000.0) - 23000.0) / 1000.0);
 
 vec3 getDayTimeColor() {
     const vec3 ambient_sunrise = vec3(0.543, 0.272, 0.147);
@@ -92,7 +85,7 @@ vec3 getDayTimeColor() {
 vec3 getDayTimeSunColor() {
     const vec3 sunColor_sunrise = vec3(0.30, 0.17, 0.045);
     const vec3 sunColor_noon = vec3(0.23, 0.26, 0.33);
-    const vec3 sunColor_sunrise = vec3(0.30, 0.17, 0.045);
+    const vec3 sunColor_sunset = vec3(0.30, 0.17, 0.045);
     const vec3 sunColor_midnight = vec3(0.005, 0.05, 0.1);
 
     return sunColor_sunrise * timeSunrise + sunColor_noon * timeNoon + sunColor_sunset * timeSunset + sunColor_midnight * timeMidnight;
@@ -150,12 +143,12 @@ void main() {
     vec3 lightPos = worldTime >= 12750 ? moonPosition : sunPosition;
     vec3 lightDir = normalize(lightPos);
 
-    vec4 tex1 = texture2D(colortex0, texCoords);
-    vec4 tex2 = texture2D(colortex1, texCoords);
-    vec4 tex3 = texture2D(colortex2, texCoords);
-    tex1.rgb = srgbToLinear(tex1.rgb);
+    vec4 tex0 = texture2D(colortex0, texCoords);
+    vec4 tex1 = texture2D(colortex1, texCoords);
+    vec4 tex2 = texture2D(colortex2, texCoords);
+    tex0.rgb = srgbToLinear(tex0.rgb);
 
-    material data = getMaterial(tex1, tex2, tex3);
+    material data = getMaterial(tex0, tex1, tex2);
 
     vec3 Normal = normalize(data.normal.xyz);
     float Depth = texture2D(depthtex0, texCoords).r;
@@ -187,8 +180,10 @@ void main() {
 
     /////////////// AMBIENT OCCLUSION ///////////////
     vec3 AmbientOcclusion = vec3(1.0);
-    #if SSAO == 1 && SSGI != 1
-        AmbientOcclusion = computeSSAO(viewPos, Normal);
+    #if SSAO == 1
+        #if SSGI == 0
+            AmbientOcclusion = computeSSAO(viewPos, Normal);
+        #endif
     #endif
 
     /* DRAWBUFFERS:05 */

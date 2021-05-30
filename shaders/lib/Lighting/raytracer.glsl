@@ -5,7 +5,7 @@
 */
 
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT 48 // [8 16 32 48 64 80 96]
+#define BINARY_COUNT 16 // [8 16 32 48 64 80 96]
 #define BINARY_DECREASE 0.5
 
 vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
@@ -33,8 +33,9 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int steps, inout vec2 hitCoord) {
 
         if(clamp(rayPos.xy, vec2(0.0), vec2(1.0)) != rayPos.xy) break;
         float depth = texture2D(depthtex0, rayPos.xy).r;
+        float delta = rayPos.z - depth;
 
-        if(rayPos.z > depth && rayPos.z - depth > 0.0) {
+        if(delta < 0.01 && delta >= 0.0) {
             hitCoord = rayPos.xy;
             #if BINARY_REFINEMENT == 1
                 hitCoord = binarySearch(rayPos, screenDir).xy;
