@@ -57,7 +57,7 @@ vec3 Fresnel_Schlick(float cosTheta, vec3 F0) {
     https://github.com/LVutner
     https://gist.github.com/LVutner/c07a3cc4fec338e8fe3fa5e598787e47
 */
-vec3 BRDF_Lighting(vec3 N, vec3 V, vec3 L, vec3 albedo, float roughness, float F0, vec3 dayTimeColor, vec3 lightmapColor, vec3 shadowmap, vec3 vl) {
+vec3 BRDF_Lighting(vec3 N, vec3 V, vec3 L, vec3 albedo, float roughness, float F0, vec3 dayTimeColor, vec3 lightmapColor, vec3 shadowmap) {
     bool is_metal = (F0 * 255.0) > 229.5;
     vec3 Diffuse = is_metal ? vec3(0.0) : albedo;
     vec3 Specular = is_metal ? albedo : vec3(F0);
@@ -84,8 +84,8 @@ vec3 BRDF_Lighting(vec3 N, vec3 V, vec3 L, vec3 albedo, float roughness, float F
     vec3 F_NdotL = 1.0 - Fresnel_Schlick(NdotL, SpecularLight);
     vec3 F_NdotV = 1.0 - Fresnel_Schlick(NdotV, SpecularLight);
     */
-    
-    vec3 DiffuseLight = Diffuse * dayTimeColor;
-    vec3 Lighting = ((DiffuseLight + SpecularLight + vl) * (lightmapColor + (NdotL * shadowmap))) * INV_PI;
+    vec3 DiffuseLight = Diffuse;
+
+    vec3 Lighting = ((DiffuseLight + SpecularLight) * (lightmapColor + (NdotL * shadowmap))) * INV_PI;
     return Lighting;
 }

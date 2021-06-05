@@ -7,10 +7,10 @@
 #define PI 3.14159265358979323846
 #define PI2 6.28318530718
 
-#define WATER_WAVE_SPEED 0.185
-#define WATER_WAVE_COEF 0.05
+#define WATER_WAVE_SPEED 0.7
+#define WATER_WAVE_COEF 0.03
 #define WATER_WAVE_LENGTH 2.5
-#define WATER_WAVE_AMOUNT 3
+#define WATER_WAVE_AMOUNT 5
 
 attribute vec4 at_tangent;
 attribute vec4 mc_Entity;
@@ -40,11 +40,19 @@ vec2 hash22(vec2 p) {
     return fract((p3.xx + p3.yz) * p3.zy);
 }
 
+float rand(vec2 x) {
+	return fract(sin(dot(x, vec2(12.9898, 4.1414))) * 43758.5453);
+}
+
 float wave(int i, vec2 pos) {
-    float frequency = PI2 / WATER_WAVE_LENGTH;
-    float phase = WATER_WAVE_SPEED * frequency;
-    float theta = dot(hash22(vec2(0.5)), pos);
-    return WATER_WAVE_COEF * sin(theta * frequency + frameTimeCounter * phase);
+    float randLength = clamp(WATER_WAVE_LENGTH - rand(pos) * i, 0.05, WATER_WAVE_LENGTH);
+    float randSpeed = clamp(WATER_WAVE_SPEED - rand(pos) * i, 0.05, WATER_WAVE_SPEED);
+    float randCoef = clamp(WATER_WAVE_COEF - rand(pos) * i, 0.05, WATER_WAVE_COEF);
+
+    float frequency = PI2 / randLength;
+    float phase = randSpeed * frequency;
+    float theta = dot(vec2(rand(pos) * i), pos);
+    return randCoef * sin(theta * frequency + frameTimeCounter * phase);
 }
 
 float waveHeight(vec2 pos) {
@@ -55,10 +63,12 @@ float waveHeight(vec2 pos) {
 
 void main() {
 	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+	lmCoords = mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.st;
+    lmCoords = (lmCoords * 33.05 / 32.0) - (1.05 / 32.0);
+	
 	color = gl_Color;
-
     vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
+	
     viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
     vec4 clipPos = gl_ProjectionMatrix * vec4(viewPos, 1.0);
 	
@@ -67,14 +77,18 @@ void main() {
 	tbn_matrix = mat3(tangent, binormal, normal);	
 
 	blockId = mc_Entity.x - 1000.0;
-    /*
-    vec3 worldPos = (mat3(gbufferModelViewInverse) * (gl_ModelViewMatrix * gl_Vertex).xyz) + (cameraPosition + gbufferModelViewInverse[3].xyz);
+
+    vec4 position = gl_ModelViewMatrix * gl_Vertex;
+    position = gbufferModelViewInverse * position;
 
     /////////////// WAVING WATER ///////////////
-    if(int(blockId) == 6) worldPos.y += waveHeight(worldPos.xz);
-    vec3 worldToViewPos = mat3(gbufferModelView) * (worldPos - cameraPosition);
-    vec4 viewToClipPos = gl_ProjectionMatrix * vec4(worldToViewPos, 1.0);
+    /*
+    if(int(blockId) == 6) {
+        vec3 cameraPos = cameraPosition + gbufferModelViewInverse[3].xyz;
+        vec3 worldPos = position.xyz + cameraPos;
+        position.y += waveHeight(worldPos.xz);
+    }
     */
 
-    gl_Position = ftransform();
+    gl_Position = gl_ProjectionMatrix * (gbufferModelView * position);
 }

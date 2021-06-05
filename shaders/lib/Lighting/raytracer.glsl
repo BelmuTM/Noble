@@ -5,7 +5,7 @@
 */
 
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT 16 // [8 16 32 48 64 80 96]
+#define BINARY_COUNT 8 // [8 16 32 48 64 80 96]
 #define BINARY_DECREASE 0.5
 
 vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
@@ -22,20 +22,42 @@ vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
     return rayPos;
 }
 
-bool raytrace(vec3 viewPos, vec3 rayDir, int steps, inout vec2 hitCoord) {
+bool raytrace(vec3 viewPos, vec3 rayDir, int steps, float jitter, inout vec2 hitCoord) {
     float invSteps = 1.0 / steps;
     vec3 screenPos = viewToScreen(viewPos);
     vec3 screenDir = normalize(viewToScreen(viewPos + rayDir) - screenPos) * invSteps;
 
-    vec3 rayPos = screenPos + screenDir;
+    vec3 rayPos = screenPos + screenDir * jitter;
     for(int i = 0; i < steps; i++) {
         rayPos += screenDir;
 
         if(clamp(rayPos.xy, vec2(0.0), vec2(1.0)) != rayPos.xy) break;
         float depth = texture2D(depthtex0, rayPos.xy).r;
-        float delta = rayPos.z - depth;
 
-        if(delta < 0.01 && delta >= 0.0) {
+        if(rayPos.z > depth && rayPos.z - depth > 0.0) {
+            hitCoord = rayPos.xy;
+            #if BINARY_REFINEMENT == 1
+                hitCoord = binarySearch(rayPos, screenDir).xy;
+            #endif
+            return true;
+        }
+    }
+    return false;
+}
+
+bool raytraceRefraction(vec3 viewPos, vec3 rayDir, int steps, float jitter, inout vec2 hitCoord) {
+    float invSteps = 1.0 / steps;
+    vec3 screenPos = viewToScreen(viewPos);
+    vec3 screenDir = normalize(viewToScreen(viewPos + rayDir) - screenPos) * invSteps;
+
+    vec3 rayPos = screenPos + screenDir * jitter;
+    for(int i = 0; i < steps; i++) {
+        rayPos += screenDir;
+
+        if(clamp(rayPos.xy, vec2(0.0), vec2(1.0)) != rayPos.xy) break;
+        float depth = texture2D(depthtex1, rayPos.xy).r;
+
+        if(rayPos.z > depth && rayPos.z - depth > 0.0) {
             hitCoord = rayPos.xy;
             #if BINARY_REFINEMENT == 1
                 hitCoord = binarySearch(rayPos, screenDir).xy;

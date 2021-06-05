@@ -33,6 +33,6 @@ bool isWater() {
 
 bool isHand(float depth) {
     depth = linearizeDepth(depth);
-    return depth < 0.56;
+    return depth < MC_HAND_DEPTH;
 }
 

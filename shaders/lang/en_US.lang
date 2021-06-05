@@ -29,17 +29,17 @@ value.shadowMapResolution.4096 = §cVery High §7| §c4096
 value.shadowMapResolution.6144 = §4Extreme §7| §46144
 
 option.SPECULAR = Specular
-option.SPECULAR.comment = Adds shininess to certain blocks.
+option.SPECULAR.comment = Adds a certain shininess to blocks.
 value.SPECULAR.0 = §cOFF
 value.SPECULAR.1 = §aON
 
 option.SSAO = SSAO
-option.SSAO.comment = Screen Space Ambient Occlusion. Adds pseudo-shadows that enhance scene's realism.
+option.SSAO.comment = §bScreen Space Ambient Occlusion. §fAdds pseudo-shadows that enhance a scene's depth perception.
 value.SSAO.0 = §cOFF
 value.SSAO.1 = §aON
 
 option.SSAO_SAMPLES = SSAO Samples
-option.SSAO_SAMPLES.comment = Influences SSAO's quality. §cHigher value gives smoother AO, but reduces §cperformance.
+option.SSAO_SAMPLES.comment = Influences §bSSAO§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
 value.SSAO_SAMPLES.4 = §24
 value.SSAO_SAMPLES.8 = §a8
 value.SSAO_SAMPLES.16 = §e16
@@ -48,15 +48,15 @@ value.SSAO_SAMPLES.64 = §c64
 value.SSAO_SAMPLES.128 = §4128
 
 option.sunPathRotation = Sun Path Rotation
-option.sunPathRotation.comment = Adjusts sun's rotation around the scene.
+option.sunPathRotation.comment = Adjusts sun's rotation.
 
-option.VL = Light Shafts
-option.VL.comment = Adds god rays to the scenery.
+option.VL = Volumetric Lighting (VL)
+option.VL.comment = Simulates physical light fog (godrays / light shafts).
 value.VL.0 = §cOFF
 value.VL.1 = §aON
 
-option.VL_SAMPLES = Light Shafts Samples
-option.VL_SAMPLES.comment = Influences godrays quality. §cHigher value gives smoother godrays, but reduces §cperformance.
+option.VL_SAMPLES = VL Samples
+option.VL_SAMPLES.comment = Influences §bVL§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
 value.VL_SAMPLES.16 = §b16
 value.VL_SAMPLES.32 = §332
 value.VL_SAMPLES.48 = §248
@@ -66,33 +66,38 @@ value.VL_SAMPLES.96 = §696
 value.VL_SAMPLES.112 = §c112
 value.VL_SAMPLES.128 = §4128
 
-option.VL_BRIGHTNESS = Light Shafts Brightness
-option.VL_BRIGHTNESS.comment = Adjusts godrays brightness.
+option.VL_BRIGHTNESS = VL Brightness
+option.VL_BRIGHTNESS.comment = Adjusts §bVL§f's brightness.
 
 ##################### RAY TRACING #####################
 
-option.SSR = Screen Space Reflections
-option.SSR.comment = Adds reflections that can only be seen if they're on your screen.
+option.SSR = Screen Space Reflections (SSR)
+option.SSR.comment = Adds reflections that §ccan only display if they're showing §con your screen.
 value.SSR.0 = §cOFF
 value.SSR.1 = §aON
 
+option.SSR_TYPE = SSR Type
+option.SSR_TYPE.comment = §bSimple reflections §fdo not consider a material's roughness. §bRough reflections §fdo consider it, §cthey give a better §cresult but reduce performance.
+value.SSR_TYPE.0 = §eSimple Reflections
+value.SSR_TYPE.1 = §eRough Reflections
+
 option.SSGI = SSGI
-option.SSGI.comment = Screen Space Global Illumination. It simulates light bounces.
+option.SSGI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it.
 value.SSGI.0 = §cOFF
 value.SSGI.1 = §aON
 
 option.SSGI_TEMPORAL_ACCUMULATION = Temporal Accumulation
-option.SSGI_TEMPORAL_ACCUMULATION.comment = Increases SSGI quality by reprojecting the last frame onto the current one.
+option.SSGI_TEMPORAL_ACCUMULATION.comment = Accumulates previous frames and adds them to the current one to give better §bSSGI §fresults.
 value.SSGI_TEMPORAL_ACCUMULATION.0 = §cOFF
 value.SSGI_TEMPORAL_ACCUMULATION.1 = §aON
 
-option.SSGI_BLUR = SSGI Blur
-option.SSGI_BLUR.comment = Blurs out SSGI to hide noise.
-value.SSGI_BLUR.0 = §cOFF
-value.SSGI_BLUR.1 = §aON
+option.SSGI_FILTER = Spatial Filter
+option.SSGI_FILTER.comment = Reduces §bSSGI§f's noise.
+value.SSGI_FILTER.0 = §cOFF
+value.SSGI_FILTER.1 = §aON
 
 option.SSGI_SAMPLES = SSGI Samples
-option.SSGI_SAMPLES.comment = Influences SSGI's quality. §cHigher value gives smoother GI, but reduces §cperformance.
+option.SSGI_SAMPLES.comment = Influences §bSSGI§f's quality. §cHigher value gives better results, but reduces §cperformance.
 value.SSGI_SAMPLES.2 = §32
 value.SSGI_SAMPLES.4 = §24
 value.SSGI_SAMPLES.6 = §a6
@@ -104,12 +109,12 @@ value.SSGI_SAMPLES.64 = §564
 value.SSGI_SAMPLES.80 = §580
 
 option.BINARY_REFINEMENT = Binary Refinement
-option.BINARY_REFINEMENT.comment = Refines the ray tracer's hit position. §cHigher value gives better result, but reduces §cperformance.
+option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make it more accurate. §cHigher value gives better results, but reduces §cperformance.
 value.BINARY_REFINEMENT.0 = §cOFF
 value.BINARY_REFINEMENT.1 = §aON
 
 option.BINARY_COUNT = Binary Count
-option.BINARY_COUNT.comment = Influences raytrace quality.
+option.BINARY_COUNT.comment = Influences §bBinary Refinement§f's quality. §cHigher value gives better results, but reduces §cperformance.
 value.BINARY_COUNT.8 = §38
 value.BINARY_COUNT.16 = §216
 value.BINARY_COUNT.32 = §a32
@@ -126,7 +131,7 @@ value.BLOOM.0 = §cOFF
 value.BLOOM.1 = §aON
 
 option.BLOOM_INTENSITY = Bloom Intensity
-option.BLOOM_INTENSITY.comment = Adjusts bloom intensity.
+option.BLOOM_INTENSITY.comment = Adjusts §bBloom§f's intensity.
 value.BLOOM_INTENSITY.10 = 10%
 value.BLOOM_INTENSITY.20 = 20%
 value.BLOOM_INTENSITY.30 = 30%
@@ -149,17 +154,20 @@ value.DOF.0 = §cOFF
 value.DOF.1 = §aON
 
 option.DOF_QUALITY = DOF Quality
-option.DOF_QUALITY.comment = Depth of Field's quality.
+option.DOF_QUALITY.comment = §bDepth of Field§f's quality.
 value.DOF_QUALITY.0 = §aLow
 value.DOF_QUALITY.1 = §cHigh
 
 option.DOF_DISTANCE = DOF Distance
-option.DOF_DISTANCE.comment = Adjusts Depth of Field's distance.
+option.DOF_DISTANCE.comment = Adjusts §bDepth of Field§f's minimum distance.
 
 option.OUTLINE = Outline
 option.OUTLINE.comment = Adds a cartoon-ish outline to edges.
 value.OUTLINE.0 = §cOFF
 value.OUTLINE.1 = §aON
+
+option.OUTLINE_DARKNESS = Outline Darkness
+option.OUTLINE_DARKNESS.comment = Adjusts §bOutline§f's darkness.
 
 ##################### COLOR CORRECTION #####################
 

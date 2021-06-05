@@ -28,6 +28,7 @@ uniform sampler2D colortex4;
 uniform sampler2D colortex5;
 uniform sampler2D colortex6;
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 
 uniform sampler2D shadowtex0, shadowtex1;
 uniform sampler2D shadowcolor0;
@@ -48,9 +49,15 @@ uniform mat4 shadowModelView, shadowProjection;
 #include "/lib/lighting/ssgi.glsl"
 
 void main() {
+    vec4 Result = texture2D(colortex0, texCoords);
+    
+    float Depth = texture2D(depthtex0, texCoords).r;
+    if(Depth == 1.0) {
+        gl_FragData[0] = Result;
+        return;
+    }
     vec3 viewPos = getViewPos();
     vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
-    vec4 Result = texture2D(colortex0, texCoords);
 
     float F0 = texture2D(colortex2, texCoords).g;
     bool is_metal = (F0 * 255.0) > 229.5;
@@ -58,7 +65,7 @@ void main() {
     vec3 GlobalIllumination = vec3(0.0);
     #if SSGI == 1
         #if SSAO == 0
-            !is_metal ? GlobalIllumination = computeSSGI(viewPos, Normal) : GlobalIllumination = vec3(0.0);
+            GlobalIllumination = is_metal ? vec3(0.0) : computeSSGI(viewPos, Normal);
         #endif
     #endif
 

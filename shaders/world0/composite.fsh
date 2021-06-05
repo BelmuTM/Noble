@@ -7,7 +7,7 @@
 #version 120
 
 #define SHADOWS 1 // [0 1]
-#define VL 1 // [0 1]
+#define VL 0 // [0 1]
 #define SPECULAR 1 // [0 1]
 #define SSAO 1 // [0 1]
 
@@ -30,7 +30,9 @@ uniform sampler2D colortex3;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
 uniform sampler2D colortex6;
+
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 
 uniform sampler2D shadowtex0, shadowtex1;
 uniform sampler2D shadowcolor0;
@@ -50,6 +52,7 @@ uniform mat4 shadowModelView, shadowProjection;
 #include "/lib/material/brdf.glsl"
 #include "/lib/lighting/ssao.glsl"
 #include "/lib/lighting/shadows.glsl"
+#include "/lib/atmospherics/fog.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
 #include "/lib/util/color.glsl"
 
@@ -61,10 +64,13 @@ const int colortex2Format = RGB16;
 
 /////////////// SETTINGS ///////////////
 const float sunPathRotation = -40.0; // [80.0f 75.0f 70.0f 65.0f 60.0f 55.0f 50.0f 45.0f 40.0f 35.0f 30.0f 25.0f 20.0f 15.0f 10.0f 5.0f 0.0f -5.0f -10.0f -15.0f -20.0f -25.0f -30.0f -35.0f -40.0f -45.0f -50.0f -55.0f -60.0f -65.0f -70.0f -75.0f -80.0f]
-const int shadowMapResolution = 4096; //[512 1024 2048 3072 4096 6144]
+const int shadowMapResolution = 3072; //[512 1024 2048 3072 4096 6144]
 const int noiseTextureResolution = 64;
 const float shadowDistanceRenderMul = 1.0;
 const float ambientOcclusionLevel = 0.0;
+
+/////////////// WATER ABSORPTION SETTINGS ///////////////
+vec3 coefficients = vec3(0.5, 0.27, 0.24);
 
 /////////////// WORLD TIME ///////////////
 float wTimeF = float(worldTime);
@@ -152,8 +158,18 @@ void main() {
 
     vec3 Normal = normalize(data.normal.xyz);
     float Depth = texture2D(depthtex0, texCoords).r;
+    vec4 Result = vec4(0.0);
+    
+    /////////////// VOLUMETRIC LIGHTING ///////////////
+    vec3 VolumetricLighting = vec3(0.0);
+    #if VL == 1
+        vec4 lightRays = vec4(getDayTimeSunColor() * computeVL(viewPos) * VL_BRIGHTNESS, 1.0);
+        VolumetricLighting = clamp(Fog(Depth, viewPos, vec4(0.0), lightRays, 1.0, 0.1, 0.1).rgb - rainStrength, 0.0, 1.0);
+    #endif
+    Result += vec4(VolumetricLighting, 1.0);
+
     if(Depth == 1.0) {
-        gl_FragData[0] = vec4(data.albedo, 1.0);
+        gl_FragData[0] = vec4(data.albedo, 1.0) + Result;
         return;
     }
 
@@ -166,18 +182,6 @@ void main() {
         Shadow = shadowMap();
     #endif
 
-    /////////////// VOLUMETRIC LIGHTING ///////////////
-    vec3 VolumetricLighting = vec3(0.0);
-    #if VL == 1
-        VolumetricLighting = getDayTimeSunColor() * computeVL(viewPos) * VL_BRIGHTNESS;
-    #endif
-
-    /////////////// BRDF LIGHTING ///////////////
-    vec3 Lighting = BRDF_Lighting(Normal, viewDir, lightDir, data.albedo, data.roughness, data.F0, 
-                    getDayTimeColor(), LightmapColor, Shadow, VolumetricLighting);
-
-    vec4 Result = vec4(Lighting, 1.0);
-
     /////////////// AMBIENT OCCLUSION ///////////////
     vec3 AmbientOcclusion = vec3(1.0);
     #if SSAO == 1
@@ -185,6 +189,23 @@ void main() {
             AmbientOcclusion = computeSSAO(viewPos, Normal);
         #endif
     #endif
+
+    /////////////// BRDF LIGHTING ///////////////
+    vec3 Lighting = BRDF_Lighting(Normal, viewDir, lightDir, data.albedo, data.roughness, data.F0, 
+                    getDayTimeColor(), LightmapColor, Shadow);
+
+    Result += vec4(Lighting, 1.0);
+
+    /////////////// WATER ABSORPTION ///////////////
+    if(getBlockId() == 6) {
+		float absorptionDepth = distance(
+			linearizeDepth(texture2D(depthtex0, texCoords).r),
+			linearizeDepth(texture2D(depthtex1, texCoords).r)
+		);
+		vec3 absorption = exp(-absorptionDepth * coefficients);
+        Result.rgb *= absorption;
+        data.albedo = Result.rgb;
+    }
 
     /* DRAWBUFFERS:05 */
     gl_FragData[0] = Result;

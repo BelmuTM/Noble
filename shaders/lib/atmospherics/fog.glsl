@@ -4,12 +4,7 @@
     https://github.com/BelmuTM/
 */
 
-#define DENSITY 0.68
-#define OPACITY 0.09
-#define DISTANCE 20.0
-
-vec4 Fog(float depth, vec4 color, vec3 viewPos, vec4 fogColorStart, vec4 fogColorEnd, float fogFactor) {
-    float density = DENSITY;
+vec4 Fog(float depth, vec3 viewPos, vec4 fogColorStart, vec4 fogColorEnd, float fogFactor, float density, float opacity) {
     float dist = far;
 
     if(isEyeInWater == 1) {
@@ -19,8 +14,8 @@ vec4 Fog(float depth, vec4 color, vec3 viewPos, vec4 fogColorStart, vec4 fogColo
         fogColorEnd = vec4(0.345, 0.58, 0.62, 0.65) * density;
     }
 
-    float fogDensity = clamp((-viewPos.z - near) * density, 0.0, pow(far, OPACITY));
-    vec4 fogCol = mix(fogColorStart, fogColorEnd, clamp(-viewPos.z / dist, 0.0, 1.0));
+    float fogDensity = clamp((-viewPos.z - near) * density, 0.0, pow(far, opacity));
+    vec4 fogCol = mix(fogColorStart, fogColorEnd, fogDensity);
 
-    return (fogCol * fogFactor) * fogDensity + color;
+    return fogCol * fogFactor;
 }
