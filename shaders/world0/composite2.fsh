@@ -1,46 +1,22 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
+/***********************************************/
+/*       Copyright (C) Noble SSRT - 2021       */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
 
-#version 120
-
-#define SSGI_TEMPORAL_ACCUMULATION 1 // [0 1]
+#version 400 compatibility
 
 varying vec2 texCoords;
-varying vec2 lmCoords;
 
-uniform vec3 sunPosition, moonPosition, skyColor;
-uniform vec3 cameraPosition, previousCameraPosition;
-uniform float rainStrength, aspectRatio, frameTime;
-uniform int isEyeInWater, worldTime;
-uniform float near;
-uniform float far;
-uniform float viewWidth;
-uniform float viewHeight;
+uniform vec3 previousCameraPosition;
+uniform mat4 gbufferPreviousModelView;
+uniform mat4 gbufferPreviousProjection;
 
-uniform sampler2D colortex0;
-uniform sampler2D colortex1;
-uniform sampler2D colortex2;
-uniform sampler2D colortex3;
-uniform sampler2D colortex4;
-uniform sampler2D colortex5;
-uniform sampler2D colortex6;
-uniform sampler2D colortex7;
-uniform sampler2D depthtex0;
-
-uniform sampler2D shadowtex0, shadowtex1;
-uniform sampler2D shadowcolor0;
-uniform sampler2D noisetex;
-
-uniform mat4 gbufferProjection, gbufferProjectionInverse;
-uniform mat4 gbufferModelView, gbufferModelViewInverse;
-uniform mat4 gbufferPreviousModelView, gbufferPreviousProjection;
-uniform mat4 shadowModelView, shadowProjection;
-
-#include "/lib/util/noise.glsl"
-#include "/lib/util/math.glsl"
+#include "/settings.glsl"
+#include "/lib/composite_uniforms.glsl"
+#include "/lib/frag/noise.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/gaussian.glsl"
@@ -92,23 +68,19 @@ void main() {
     vec4 GlobalIllumination = texture2D(colortex6, texCoords);
     vec4 GlobalIlluminationResult = GlobalIllumination;
     
-    #if SSGI_TEMPORAL_ACCUMULATION == 1
-        // Thanks Stubman#8195 and swr#1899 for the help!
-        vec2 reprojectedTexCoords = reprojection(vec3(texCoords, texture2D(depthtex0, texCoords).r));
-        vec4 reprojectedGlobalIllumination = getNeighborClampedColor(colortex6, texture2D(colortex7, reprojectedTexCoords));
+    // Thanks Stubman#8195 and swr#1899 for the help!
+    vec2 reprojectedTexCoords = reprojection(vec3(texCoords, texture2D(depthtex0, texCoords).r));
+    vec4 reprojectedGlobalIllumination = getNeighborClampedColor(colortex6, texture2D(colortex7, reprojectedTexCoords));
+    vec2 velocity = (texCoords - reprojectedTexCoords) * vec2(viewWidth, viewHeight); // Get velocity between frames
 
-        vec2 velocity = (texCoords - reprojectedTexCoords) * vec2(viewWidth, viewHeight);
+    float blendFactor = float(
+        !any(greaterThan(reprojectedTexCoords.xy, vec2(1.0)))
+    ); // If the reprojected texture coordinates are inside the screen
+        
+    blendFactor *= exp(-length(velocity)) * 0.35; // Make the blend factor depend on the velocity
+    blendFactor = clamp(blendFactor + 0.85, 0.01, 0.9790); // The mix factor influences the amount of reprojected frames. 0.979 is around 23 frames
 
-        float blendFactor = float(
-            reprojectedTexCoords.x > 0.0 && reprojectedTexCoords.x < 1.0 &&
-            reprojectedTexCoords.y > 0.0 && reprojectedTexCoords.y < 1.0
-        );
-        blendFactor *= exp(-length(velocity)) * 0.35;
-        blendFactor += 0.85;
-        blendFactor = clamp(blendFactor, 0.01, 0.9790);
-
-        GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, blendFactor);
-    #endif
+    GlobalIlluminationResult = mix(GlobalIllumination, reprojectedGlobalIllumination, blendFactor); // Mix GI with reprojected GI depending on the blend factor
 
     /* DRAWBUFFERS:07 */
     gl_FragData[0] = Result * AmbientOcclusion;

@@ -1,20 +1,10 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
-
-#define PI 3.14159265358979323846
-#define PI2 6.28318530718
-
-#define INV_SQRT_OF_2PI 0.39894228040143267793994605993439
-#define INV_PI 0.31831
-
-#define EPS 0.001
-
-bool isNan(float x) {
-    return (x < 0.0 || 0.0 < x || x == 0.0) ? false : true;
-}
+/***********************************************/
+/*       Copyright (C) Noble SSRT - 2021       */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
 
 float distanceSquared(vec3 v1, vec3 v2) {
 	vec3 u = v2 - v1;
@@ -51,7 +41,7 @@ vec3 hemisphereSample(float u, float v) {
 }
 
 // Written by xirreal#0281
-vec3 cosWeightedRandomHemisphereDirection(vec3 n, vec2 r) {
+vec3 randomHemisphereDirection(vec3 n, vec2 r) {
     vec3 uu = normalize(cross(n, vec3(0.0, 1.0, 1.0)));
     vec3 vv = cross(uu, n);
 

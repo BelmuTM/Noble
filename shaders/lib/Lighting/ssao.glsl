@@ -1,13 +1,10 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
-
-#define SSAO_SCALE 1.35
-#define SSAO_SAMPLES 32 // [4 8 16 32 64 128]
-#define SSAO_RADIUS 1.0
-#define SSAO_BIAS 0.325
+/***********************************************/
+/*       Copyright (C) Noble SSRT - 2021       */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
 
 vec3 computeSSAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
@@ -17,7 +14,7 @@ vec3 computeSSAO(vec3 viewPos, vec3 normal) {
 	vec3 sampleOrigin = viewPos + normal * 0.01;
 	for(int i = 0; i <= SSAO_SAMPLES; i++) {
 		vec3 noise = hash33(vec3(texCoords, i));
-		vec3 sampleDir = cosWeightedRandomHemisphereDirection(normal, noise.xy) * SSAO_BIAS;
+		vec3 sampleDir = randomHemisphereDirection(normal, noise.xy) * SSAO_BIAS;
 
 		vec3 samplePos = sampleOrigin + sampleDir * SSAO_RADIUS;
     	vec2 sampleScreen = viewToScreen(samplePos).xy;
@@ -27,7 +24,5 @@ vec3 computeSSAO(vec3 viewPos, vec3 normal) {
         if(delta > 0.0 && delta < SSAO_RADIUS) occlusion += delta + SSAO_BIAS;
 	}
 	occlusion = pow(1.0 - (occlusion / SSAO_SAMPLES), SSAO_SCALE);
-
-	if(isNan(occlusion)) return vec3(saturate(occlusion));
-	return vec3(occlusion);
+	return vec3(saturate(occlusion));
 }

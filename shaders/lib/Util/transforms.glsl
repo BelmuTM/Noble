@@ -1,8 +1,10 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
+/***********************************************/
+/*       Copyright (C) Noble SSRT - 2021       */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
 
 vec3 diag3(mat4 mat) {
 	return vec3(mat[0].x, mat[1].y, mat[2].z);
@@ -45,10 +47,11 @@ float linearizeDepth(float depth) {
 	return (2.0f * near * far) / (far + near - (depth * 2.0 - 1.0) * (far - near));
 }
 
-/*vec3 extractNormalMap(vec4 normal, mat3 TBN) {
-	vec3 normalMap = normal.xyz * 2.0 - 1.0;
-	normalMap.z = sqrt(clamp(1.0 - dot(normalMap.xy, normalMap.xy), 0.0, 1.0));
-	normalMap = TBN * normalMap;
-	normalMap = mat3(gbufferModelViewInverse) * normalMap;
-	return normalMap;
-}*/
+float F0toIOR(float F0) {
+	F0 = sqrt(F0) * 0.99999;
+	return (1.0 + F0) / (1.0 - F0);
+}
+
+float IORtoF0(float ior) {
+	return sqrt((ior - 1.0) / (ior + 1.0));
+}

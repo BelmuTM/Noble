@@ -1,9 +1,13 @@
+#              Noble SSRT - 2021
+#   Belmu | GNU General Public License V3.0
+#   Please do not claim my work as your own.
+
 #shaders/lang/en_US.lang
 
 ##################### ABOUT #####################
 option.ABOUT = Noble
-option.ABOUT.comment = §6Hey!§r I'm Belmu §dʕ•ᴥ•ʔ. I am a graphic designer and developer looking for some maths to break my brain. §aWanna contact me ? §3Discord: §bBelmu#4066
-value.ABOUT.0 = §fMade by §b@Belmu_
+option.ABOUT.comment = §f§lTwitter: §r§7@Belmu_. §f§lDiscord: §r§7Belmu#4066. §f§lPatreon: §r§6https://www.patreon.com/Belmu. §f§lGithub: §r§6https://www.github.com/BelmuTM.
+value.ABOUT.69.420 = §7r0.9.8 §f- §6Belmu
 
 ##################### SCREENS #####################
 
@@ -28,10 +32,53 @@ value.shadowMapResolution.3072 = §6High §7| §63072
 value.shadowMapResolution.4096 = §cVery High §7| §c4096
 value.shadowMapResolution.6144 = §4Extreme §7| §46144
 
+option.SHADOW_SAMPLES = Shadow Samples
+option.SHADOW_SAMPLES.comment = Influences §bShadows§f' quality. §cHigher value gives smoother results, but reduces §cperformance.
+value.SHADOW_SAMPLES.1 = §21
+value.SHADOW_SAMPLES.2 = §a2
+value.SHADOW_SAMPLES.3 = §e3
+value.SHADOW_SAMPLES.4 = §64
+value.SHADOW_SAMPLES.5 = §c5
+value.SHADOW_SAMPLES.6 = §46
+
+option.shadowDistance = Shadow Distance
+option.shadowDistance.comment = Adjusts §bShadow§f's maximum render distance.
+
 option.SPECULAR = Specular
 option.SPECULAR.comment = Adds a certain shininess to blocks.
 value.SPECULAR.0 = §cOFF
 value.SPECULAR.1 = §aON
+
+option.DIFFUSE_LIGHTING = Diffuse Lighting
+option.DIFFUSE_LIGHTING.comment = Different methods to calculate the §bDiffuse Lighting §fof a surface. §cOren-Nayar is the most accurate but the most §cexpensive.
+value.DIFFUSE_LIGHTING.0 = §f§lLambertian
+value.DIFFUSE_LIGHTING.1 = §f§lOren-Nayar
+
+option.sunPathRotation = Sun Path Rotation
+option.sunPathRotation.comment = Adjusts sun's rotation.
+
+option.VL = Volumetric Lighting (VL)
+option.VL.comment = Simulates physical light fog (godrays / light shafts).
+value.VL.0 = §cOFF
+value.VL.1 = §aON
+
+option.VL_SAMPLES = VL Samples
+option.VL_SAMPLES.comment = Influences §bVL§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
+value.VL_SAMPLES.4 = §34
+value.VL_SAMPLES.8 = §a8
+value.VL_SAMPLES.12 = §212
+value.VL_SAMPLES.16 = §e16
+value.VL_SAMPLES.24 = §624
+value.VL_SAMPLES.32 = §c32
+value.VL_SAMPLES.48 = §448
+
+option.VL_BRIGHTNESS = VL Brightness
+option.VL_BRIGHTNESS.comment = Adjusts §bVL§f's brightness.
+
+option.VL_BLUR = VL Blur
+option.VL_BLUR.comment = Blurs §bVL. §cGives a cleaner result, but reduces performance.
+value.VL_BLUR.0 = §cOFF
+value.VL_BLUR.1 = §aON
 
 option.SSAO = SSAO
 option.SSAO.comment = §bScreen Space Ambient Occlusion. §fAdds pseudo-shadows that enhance a scene's depth perception.
@@ -47,28 +94,6 @@ value.SSAO_SAMPLES.32 = §632
 value.SSAO_SAMPLES.64 = §c64
 value.SSAO_SAMPLES.128 = §4128
 
-option.sunPathRotation = Sun Path Rotation
-option.sunPathRotation.comment = Adjusts sun's rotation.
-
-option.VL = Volumetric Lighting (VL)
-option.VL.comment = Simulates physical light fog (godrays / light shafts).
-value.VL.0 = §cOFF
-value.VL.1 = §aON
-
-option.VL_SAMPLES = VL Samples
-option.VL_SAMPLES.comment = Influences §bVL§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
-value.VL_SAMPLES.16 = §b16
-value.VL_SAMPLES.32 = §332
-value.VL_SAMPLES.48 = §248
-value.VL_SAMPLES.64 = §a64
-value.VL_SAMPLES.80 = §e80
-value.VL_SAMPLES.96 = §696
-value.VL_SAMPLES.112 = §c112
-value.VL_SAMPLES.128 = §4128
-
-option.VL_BRIGHTNESS = VL Brightness
-option.VL_BRIGHTNESS.comment = Adjusts §bVL§f's brightness.
-
 ##################### RAY TRACING #####################
 
 option.SSR = Screen Space Reflections (SSR)
@@ -81,15 +106,10 @@ option.SSR_TYPE.comment = §bSimple reflections §fdo not consider a material's 
 value.SSR_TYPE.0 = §eSimple Reflections
 value.SSR_TYPE.1 = §eRough Reflections
 
-option.SSGI = SSGI
+option.SSGI = SSGI §e§lBETA
 option.SSGI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it.
 value.SSGI.0 = §cOFF
 value.SSGI.1 = §aON
-
-option.SSGI_TEMPORAL_ACCUMULATION = Temporal Accumulation
-option.SSGI_TEMPORAL_ACCUMULATION.comment = Accumulates previous frames and adds them to the current one to give better §bSSGI §fresults.
-value.SSGI_TEMPORAL_ACCUMULATION.0 = §cOFF
-value.SSGI_TEMPORAL_ACCUMULATION.1 = §aON
 
 option.SSGI_FILTER = Spatial Filter
 option.SSGI_FILTER.comment = Reduces §bSSGI§f's noise.
@@ -98,34 +118,39 @@ value.SSGI_FILTER.1 = §aON
 
 option.SSGI_SAMPLES = SSGI Samples
 option.SSGI_SAMPLES.comment = Influences §bSSGI§f's quality. §cHigher value gives better results, but reduces §cperformance.
-value.SSGI_SAMPLES.2 = §32
-value.SSGI_SAMPLES.4 = §24
-value.SSGI_SAMPLES.6 = §a6
-value.SSGI_SAMPLES.12 = §e12
-value.SSGI_SAMPLES.24 = §624
-value.SSGI_SAMPLES.32 = §c32
-value.SSGI_SAMPLES.48 = §448
-value.SSGI_SAMPLES.64 = §564
-value.SSGI_SAMPLES.80 = §580
+value.SSGI_SAMPLES.1 = §31
+value.SSGI_SAMPLES.2 = §22
+value.SSGI_SAMPLES.4 = §a4
+value.SSGI_SAMPLES.6 = §e6
+value.SSGI_SAMPLES.8 = §68
+value.SSGI_SAMPLES.10 = §c10
+value.SSGI_SAMPLES.12 = §412
+
+option.SSGI_BOUNCES = SSGI Bounces
+option.SSGI_BOUNCES.comment = Makes §bSSGI§f bounce §aX§f times to gather light. §cHigher value gives better results, but reduces §cperformance.
+value.SSGI_BOUNCES.1 = §21
+value.SSGI_BOUNCES.2 = §a2
+value.SSGI_BOUNCES.3 = §e3
+value.SSGI_BOUNCES.4 = §64
+value.SSGI_BOUNCES.5 = §c5
+value.SSGI_BOUNCES.6 = §46
 
 option.BINARY_REFINEMENT = Binary Refinement
 option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make it more accurate. §cHigher value gives better results, but reduces §cperformance.
 value.BINARY_REFINEMENT.0 = §cOFF
 value.BINARY_REFINEMENT.1 = §aON
 
-option.BINARY_COUNT = Binary Count
+option.BINARY_COUNT = Refinement Count
 option.BINARY_COUNT.comment = Influences §bBinary Refinement§f's quality. §cHigher value gives better results, but reduces §cperformance.
-value.BINARY_COUNT.8 = §38
-value.BINARY_COUNT.16 = §216
-value.BINARY_COUNT.32 = §a32
-value.BINARY_COUNT.48 = §e48
-value.BINARY_COUNT.64 = §664
-value.BINARY_COUNT.80 = §c80
-value.BINARY_COUNT.96 = §496
+value.BINARY_COUNT.4 = §a4
+value.BINARY_COUNT.8 = §e8
+value.BINARY_COUNT.16 = §616
+value.BINARY_COUNT.32 = §c32
+value.BINARY_COUNT.48 = §448
 
 ##################### POST-PROCESSING #####################
 
-option.BLOOM = Bloom
+option.BLOOM = Bloom §b§lWIP
 option.BLOOM.comment = Allows bright areas to glow.
 value.BLOOM.0 = §cOFF
 value.BLOOM.1 = §aON
@@ -153,11 +178,6 @@ option.DOF.comment = Applies blur to objects far from you.
 value.DOF.0 = §cOFF
 value.DOF.1 = §aON
 
-option.DOF_QUALITY = DOF Quality
-option.DOF_QUALITY.comment = §bDepth of Field§f's quality.
-value.DOF_QUALITY.0 = §aLow
-value.DOF_QUALITY.1 = §cHigh
-
 option.DOF_DISTANCE = DOF Distance
 option.DOF_DISTANCE.comment = Adjusts §bDepth of Field§f's minimum distance.
 
@@ -169,6 +189,14 @@ value.OUTLINE.1 = §aON
 option.OUTLINE_DARKNESS = Outline Darkness
 option.OUTLINE_DARKNESS.comment = Adjusts §bOutline§f's darkness.
 
+option.WATER_FOAM = Water Foam
+option.WATER_FOAM.comment = Simulates foam when water encounters an edge.
+value.WATER_FOAM.0 = §cOFF
+value.WATER_FOAM.1 = §aON
+
+option.FOAM_BRIGHTNESS = Foam Brightness
+option.FOAM_BRIGHTNESS.comment = Adjusts §bWater Foam§f's darkness.
+
 ##################### COLOR CORRECTION #####################
 
 option.TONEMAPPING = Tone Mapping
@@ -179,6 +207,7 @@ value.TONEMAPPING.1 = Uncharted
 value.TONEMAPPING.2 = Uchimura
 value.TONEMAPPING.3 = Lottes
 value.TONEMAPPING.4 = Burgess
+value.TONEMAPPING.5 = ACES
 
 option.EXPOSURE = Exposure
 option.EXPOSURE.comment = Influences the overall brightness or darkness of an image.
@@ -187,7 +216,7 @@ option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.
 
 option.SATURATION = Saturation
-option.SATURATION.comment = Color saturation refers to the intensity of color in an image.
+option.SATURATION.comment = Saturation refers to the intensity of color in an image.
 
 option.CONTRAST = Contrast
 option.CONTRAST.comment = Difference in luminance or color that makes an object.

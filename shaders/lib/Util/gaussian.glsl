@@ -1,8 +1,10 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
+/***********************************************/
+/*       Copyright (C) Noble SSRT - 2021       */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
 
 const vec2 off1 = vec2(1.411764705882353);
 const vec2 off2 = vec2(3.2941176470588234);
@@ -21,7 +23,8 @@ vec4 gaussianOnePass(sampler2D tex, vec2 resolution, inout vec4 color) {
     return color;
 }
 
-vec4 fastGaussian(sampler2D tex, vec2 resolution, float size, float quality, float directions, inout vec4 color) {
+vec4 fastGaussian(sampler2D tex, vec2 resolution, float size, float quality, float directions) {
+    vec4 color = vec4(0.0);
     vec2 radius = size / resolution;
     int SAMPLES;
     for(float d = 0.0; d < PI2; d += PI2 / directions) {

@@ -1,55 +1,37 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
+/***********************************************/
+/*       Copyright (C) Noble SSRT - 2021       */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
 
-#version 120
-
-#define SSGI 1 // [0 1]
+#version 400 compatibility
 
 varying vec2 texCoords;
-varying vec2 lmCoords;
 
-uniform vec3 sunPosition, moonPosition, skyColor;
-uniform vec3 cameraPosition, previousCameraPosition;
-uniform float rainStrength, aspectRatio, frameTime;
-uniform int isEyeInWater, worldTime;
-uniform float near;
-uniform float far;
-uniform float viewWidth;
-uniform float viewHeight;
-
-uniform sampler2D colortex0;
-uniform sampler2D colortex1;
-uniform sampler2D colortex2;
-uniform sampler2D colortex3;
-uniform sampler2D colortex4;
-uniform sampler2D colortex5;
-uniform sampler2D colortex6;
-uniform sampler2D depthtex0;
-uniform sampler2D depthtex1;
-
-uniform sampler2D shadowtex0, shadowtex1;
-uniform sampler2D shadowcolor0;
-uniform sampler2D noisetex;
-
-uniform mat4 gbufferProjection, gbufferProjectionInverse;
-uniform mat4 gbufferModelView, gbufferModelViewInverse;
-uniform mat4 gbufferPreviousModelView, gbufferPreviousProjection;
-uniform mat4 shadowModelView, shadowProjection;
-
-#include "/lib/util/dither.glsl"
-#include "/lib/util/noise.glsl"
+#include "/settings.glsl"
+#include "/lib/composite_uniforms.glsl"
+#include "/lib/frag/dither.glsl"
+#include "/lib/frag/noise.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
-#include "/lib/util/reprojection.glsl"
+#include "/lib/util/gaussian.glsl"
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ssgi.glsl"
 
 void main() {
     vec4 Result = texture2D(colortex0, texCoords);
+
+    #if VL == 1
+        vec4 VolumetricLighting = texture2D(colortex4, texCoords);
+        #if VL_BLUR == 1
+            VolumetricLighting = fastGaussian(colortex4, vec2(viewWidth, viewHeight), 5.65, 15.0, 20.0);
+        #endif
+
+        Result += VolumetricLighting;
+    #endif
     
     float Depth = texture2D(depthtex0, texCoords).r;
     if(Depth == 1.0) {
@@ -60,13 +42,11 @@ void main() {
     vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
 
     float F0 = texture2D(colortex2, texCoords).g;
-    bool is_metal = (F0 * 255.0) > 229.5;
+    bool isMetal = (F0 * 255.0) > 229.5;
 
     vec3 GlobalIllumination = vec3(0.0);
     #if SSGI == 1
-        #if SSAO == 0
-            GlobalIllumination = is_metal ? vec3(0.0) : computeSSGI(viewPos, Normal);
-        #endif
+        GlobalIllumination = isMetal ? vec3(0.0) : computeSSGI(viewToScreen(viewPos), Normal);
     #endif
 
     /* DRAWBUFFERS:06 */

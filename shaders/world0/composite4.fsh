@@ -1,47 +1,23 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
+/***********************************************/
+/*       Copyright (C) Noble SSRT - 2021       */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
 
-#version 120
-
-#define SSR 1 // [0 1]
-#define SSR_TYPE 1 // [0 1]
+#version 400 compatibility
 
 varying vec2 texCoords;
-varying vec2 lmCoords;
 
-uniform vec3 sunPosition, moonPosition, skyColor;
-uniform vec3 cameraPosition, previousCameraPosition;
-uniform float rainStrength, aspectRatio, frameTime, frameTimeCounter;
-uniform int isEyeInWater, worldTime;
-uniform float near;
-uniform float far;
-uniform float viewWidth;
-uniform float viewHeight;
+uniform vec3 previousCameraPosition;
+uniform mat4 gbufferPreviousModelView;
+uniform mat4 gbufferPreviousProjection;
 
-uniform sampler2D colortex0;
-uniform sampler2D colortex1;
-uniform sampler2D colortex2;
-uniform sampler2D colortex3;
-uniform sampler2D colortex4;
-uniform sampler2D colortex5;
-uniform sampler2D depthtex0;
-uniform sampler2D depthtex1;
-
-uniform sampler2D shadowtex0, shadowtex1;
-uniform sampler2D shadowcolor0;
-uniform sampler2D noisetex;
-
-uniform mat4 gbufferProjection, gbufferProjectionInverse;
-uniform mat4 gbufferModelView, gbufferModelViewInverse;
-uniform mat4 gbufferPreviousModelView, gbufferPreviousProjection;
-uniform mat4 shadowModelView, shadowProjection;
-
-#include "/lib/util/dither.glsl"
-#include "/lib/util/noise.glsl"
-#include "/lib/util/math.glsl"
+#include "/settings.glsl"
+#include "/lib/composite_uniforms.glsl"
+#include "/lib/frag/dither.glsl"
+#include "/lib/frag/noise.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/reprojection.glsl"
@@ -60,35 +36,31 @@ vec3 Env_BRDF_Approx(vec3 specular, float NdotV, float roughness) {
 
 void main() {
     vec4 Result = texture2D(colortex0, texCoords);
-    
     float Depth = texture2D(depthtex0, texCoords).r;
-    if(Depth == 1.0) {
+    if(texture2D(colortex8, texCoords).r != 0.0 || Depth == 1.0) {
         gl_FragData[0] = Result;
         return;
     }
-    vec3 viewPos = getViewPos();
-    vec3 viewDir = normalize(-viewPos);
-    vec3 lightPos = worldTime >= 12750 ? moonPosition : sunPosition;
-    vec3 lightDir = normalize(lightPos);
 
-    vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
-
-    float F0 = texture2D(colortex2, texCoords).g;
-    float roughness = texture2D(colortex2, texCoords).r;
-    float NdotV = max(dot(Normal, viewDir), 0.0);
-
-    vec3 reflections = vec3(0.0);
     #if SSR == 1
-        if(!isHandOrEntity()) {
-            #if SSR_TYPE == 1
-                reflections = prefilteredReflections(viewPos, Normal, roughness);
+        vec3 viewPos = getViewPos();
 
-                vec3 DFG = Env_BRDF_Approx(vec3(F0), roughness, NdotV);
-                Result.rgb = mix(Result.rgb, reflections, DFG);
-            #else
-                Result.rgb += simpleReflections(Result.rgb, viewPos, Normal, NdotV, F0);
-            #endif
-        }
+        vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
+        float F0 = texture2D(colortex2, texCoords).g;
+        bool isMetal = (F0 * 255.0) > 229.5;
+        float NdotV = max(dot(Normal, normalize(-viewPos)), 0.0);
+
+        vec3 specColor = isMetal ? texture2D(colortex5, texCoords).rgb : vec3(F0);
+
+        #if SSR_TYPE == 1
+            float roughness = texture2D(colortex2, texCoords).r;
+
+            vec3 reflections = prefilteredReflections(viewPos, Normal, roughness);
+            vec3 DFG = Env_BRDF_Approx(specColor, roughness, NdotV);
+            Result.rgb = mix(Result.rgb, reflections, DFG);
+        #else
+            Result.rgb += simpleReflections(Result.rgb, viewPos, Normal, NdotV, specColor);
+        #endif
     #endif
 
     /* DRAWBUFFERS:0 */

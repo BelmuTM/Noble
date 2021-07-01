@@ -1,38 +1,22 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
+/***********************************************/
+/*       Copyright (C) Noble SSRT - 2021       */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
 
 vec3 getViewPos() {
-    vec3 screenPos = vec3(texCoords, texture2D(depthtex0, texCoords).r);
-    vec3 clipPos = screenPos * 2.0 - 1.0;
+    vec3 clipPos = vec3(texCoords, texture2D(depthtex0, texCoords).r) * 2.0 - 1.0;
     vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
     return tmp.xyz / tmp.w;
 }
 
-bool isHandOrEntity() {
-    return texture2D(colortex4, texCoords).r != 0.0;
-}
-
-int getBlockId() {
-    return int(texture2D(colortex3, texCoords).r * 255.0 + 0.5);
-}
-
-bool isReflective() {
-    return getBlockId() >= 1 && getBlockId() < 5;
-}
-
-bool isSpecular() {
-    return getBlockId() >= 1 && getBlockId() < 5;
-}
-
-bool isWater() {
-    return getBlockId() == 6;
+int getBlockId(vec2 coords) {
+    return int(texture2D(colortex3, coords).r * 255.0 + 0.5);
 }
 
 bool isHand(float depth) {
     depth = linearizeDepth(depth);
     return depth < MC_HAND_DEPTH;
 }
-

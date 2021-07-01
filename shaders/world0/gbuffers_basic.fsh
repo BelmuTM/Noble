@@ -8,4 +8,11 @@
 
 #version 400 compatibility
 
-#include "/programs/gbuffers/gbuffers_vsh.glsl"
+varying vec2 texCoords;
+varying vec4 color;
+uniform sampler2D colortex0;
+
+void main() {
+    /*DRAWBUFFERS:0*/
+	gl_FragData[0] = texture2D(colortex0, texCoords) * color;
+}

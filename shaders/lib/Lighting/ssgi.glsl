@@ -1,47 +1,38 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
+/***********************************************/
+/*       Copyright (C) Noble SSRT - 2021       */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
 
-#define SSGI_SCALE 3
-#define SSGI_SAMPLES 24 // [2 4 6 12 24 32 48 64 80]
-
-vec3 computeSSGI(vec3 viewPos, vec3 normal) {
+vec3 computeSSGI(in vec3 screenPos, in vec3 normal) {
     vec3 illumination = vec3(0.0);
-    vec2 prevPos = vec2(0.0);
+    float jitter = bayer64(gl_FragCoord.xy);
 
-    // Avoids affecting hand
-	if(isHand(texture2D(depthtex0, texCoords).r)) return illumination;
+    vec3 hitPos = screenPos;
+    for(int i = 0; i < SSGI_BOUNCES; i++) {
+        //vec3 sampleOrigin = screenToView(hitPos) + normal * 0.01;
 
-    float PDF = 1.0 / PI2;
-    vec3 sampleOrigin = viewPos + normal * 0.01;
+        for(int j = 0; j < SSGI_SAMPLES; j++) {
+            hitPos = screenToView(hitPos);
+            vec3 noise = hash33(vec3(gl_FragCoord.xy, j));
+            noise = fract(vec3(frameTimeCounter) + noise);
 
-    for(int i = 0; i < SSGI_SAMPLES; i++) {
-        vec3 noise = hash33(vec3(texCoords, i));
-        noise = fract(noise + vec3(frameTime * 17.0));
-        /*
-        vec3 tangent = normalize(noise - normal * dot(noise, normal));
-        vec3 bitangent = cross(normal, tangent);
-        mat3 TBN = mat3(tangent, bitangent, normal);
-        vec3 sampleDir = TBN * hemisphereSample(noise.x, noise.y);
-        */
-        // vec3 sampleDir = cosWeightedRandomHemisphereDirection(normal, noise.xy);
+            //Sampling pos
+            vec3 sampleDir = randomHemisphereDirection(normal, noise.xy);
+            float NdotD = max(dot(normal, sampleDir), 0.0);
+            float PDF = NdotD * INV_PI;
 
-        //Sampling pos
-        vec3 sampleDir = cosWeightedRandomHemisphereDirection(normal, noise.xy);
-        float NdotD = max(dot(normal, sampleDir), 0.001);
+            // Ray trace
+            if(!raytrace(hitPos, sampleDir, 25, jitter, hitPos)) continue;
+            normal = texture2D(colortex1, hitPos.xy).xyz;
 
-        // Ray trace
-        if(!raytrace(sampleOrigin, sampleDir, 24, fract((texCoords.x + texCoords.y) * 0.5), prevPos)) continue;
-        // Avoids affecting hand
-	    if(isHand(texture2D(depthtex0, prevPos).r)) return vec3(0.0);
-
-        vec3 sampleColor = texture2D(colortex0, prevPos).rgb;
-        illumination += sampleColor * NdotD * noise.x / PDF;
+            vec3 sampleColor = texture2D(colortex0, hitPos.xy).rgb;
+            illumination += sampleColor * NdotD / PDF;
+        }
+        illumination /= SSGI_SAMPLES;
     }
-    illumination /= SSGI_SAMPLES;
     illumination *= SSGI_SCALE;
-
     return illumination;
 }

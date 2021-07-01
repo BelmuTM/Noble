@@ -8,4 +8,11 @@
 
 #version 400 compatibility
 
-#include "/programs/gbuffers/gbuffers_vsh.glsl"
+varying vec2 texCoords;
+varying vec4 color;
+
+void main() {
+	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    color = gl_Color;
+    gl_Position = ftransform();
+}

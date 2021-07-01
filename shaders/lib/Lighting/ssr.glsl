@@ -1,47 +1,44 @@
-/*
-    Noble SSRT - 2021
-    Made by Belmu
-    https://github.com/BelmuTM/
-*/
+/***********************************************/
+/*              Noble SSRT - 2021              */
+/*   Belmu | GNU General Public License V3.0   */
+/*   Please do not claim my work as your own.  */
+/***********************************************/
 
-#define ATTENUATION_FACTOR 0.6
-
-// LVutner's border attenuation
+// LVutner's Border Attenuation
 float LVutner_Attenuation(vec2 pos, float edgeFactor) {
     float borderDist = min(1.0 - max(pos.x, pos.y), min(pos.x, pos.y));
     float border = clamp(borderDist > edgeFactor ? 1.0 : borderDist / edgeFactor, 0.0, 1.0);
     return border;
 }
 
-// Belmu's border attenuation
+// Belmu's Border Attenuation
 float Belmu_Attenuation(vec2 pos, float edgeFactor) {
     vec2 att = 1.0 - smoothstep(vec2(edgeFactor), vec2(1.0), abs(pos));
     return att.x * att.y;
 }
 
-// Kneemund's border attenuation
+// Kneemund's Border Attenuation
 float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
     pos *= 1.0 - pos;
     return 1.0 - smoothstep(edgeFactor, 0.0, min(pos.x, pos.y));
 }
 
-/////////////// SIMPLE REFLECTIONS ///////////////
+/*------------------ SIMPLE REFLECTIONS ------------------*/
 
-vec3 simpleReflections(vec3 color, vec3 viewPos, vec3 normal, float NdotV, float F0) {
+vec3 simpleReflections(vec3 color, vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
     viewPos += normal * 0.01;
     vec3 reflected = reflect(normalize(viewPos), normal);
-    vec2 hitPos = vec2(0.0);
-    bool intersect = raytrace(viewPos, reflected, 36, fract((texCoords.x + texCoords.y) * 0.5), hitPos);
+    vec3 hitPos;
+    bool intersect = raytrace(viewPos, reflected, 28, bayer64(gl_FragCoord.xy), hitPos);
 
     if(!intersect) return color;
-    if(isHand(texture2D(depthtex0, hitPos).r)) return color;
 
-    float fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0);
-    vec3 hitColor = texture2D(colortex0, hitPos).rgb;
-    return mix(color, hitColor, fresnel * Kneemund_Attenuation(hitPos, ATTENUATION_FACTOR));
+    vec3 fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0) + rainStrength;
+    vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
+    return mix(color, hitColor, fresnel * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR));
 }
 
-/////////////// ROUGH REFLECTIONS ///////////////
+/*------------------ ROUGH REFLECTIONS ------------------*/
 
 vec3 Importance_Sample_GGX(vec2 Xi, float roughness) {	
 	// Importance sampling - UE4
@@ -63,9 +60,6 @@ vec3 Importance_Sample_GGX(vec2 Xi, float roughness) {
     Thanks LVutner.#7259 a lot for the help!
     Inspired of UE4, provided by LVutner and modified by Belmu.
 */
-#define BRDF_BIAS 0.26
-#define PREFILTER_SAMPLES 10
-
 vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 	vec3 filteredColor = vec3(0.0);
 	float totalWeight = 0.0;
@@ -77,22 +71,21 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
     mat3 t2v = mat3(vTangentX, vTangentY, normal);  
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-		vec3 noise = hash33(vec3(gl_FragCoord.xy, i));
+		vec3 noise = hash33(vec3(texCoords, i));
 		noise.y = mix(noise.y, 0.0, BRDF_BIAS);
 	
 		vec3 H = Importance_Sample_GGX(noise.xy, roughness);
 		H = t2v * H;
 		
 		vec3 reflected = reflect(normalize(viewPos), H);	
-		vec2 hitPos;
-		bool intersect = raytrace(viewPos, reflected, 16, noise.z, hitPos);
+		vec3 hitPos;
+		bool intersect = raytrace(viewPos, reflected, 18, noise.z, hitPos);
 
+        float NdotL = max(dot(normal, reflected), 0.0);
 		if(intersect) {
-			float NdotL = max(dot(normal, reflected), 0.0);
 			//hitPos = reprojection(vec3(hitPos, texture2D(depthtex0, hitPos).x));
-			
 			if(NdotL >= 0.0) {
-				filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * Kneemund_Attenuation(hitPos, ATTENUATION_FACTOR);
+				filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
 				totalWeight += NdotL;
 			}
 		}
@@ -100,20 +93,14 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 	return clamp(filteredColor / totalWeight, 0.0, 1.0);
 }
 
-/////////////// REFRACTION ///////////////
+/*------------------ SIMPLE REFRACTIONS ------------------*/
 
-vec3 simpleRefraction(vec3 color, vec3 viewPos, vec3 normal, float NdotV, float F0) {
-    float eta = 1.0 / 1.333; // Water
+vec3 simpleRefractions(vec3 color, vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
+    vec3 refracted = refract(normalize(viewPos), normal, 1.0 / 1.333);
+    vec3 hitPos;
+    bool intersect = raytrace(viewPos, refracted, 28, bayer64(gl_FragCoord.xy), hitPos);
 
-    viewPos += normal * 0.01;
-    vec3 refracted = refract(normalize(viewPos), normal, eta);
-    vec2 hitPos = vec2(0.0);
-    bool intersect = raytraceRefraction(viewPos, refracted, 8, fract((texCoords.x + texCoords.y) * 0.5), hitPos);
-
-    if(!intersect) return color;
-    if(isHand(texture2D(depthtex0, hitPos).r)) return color;
-
-    float fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0);
-    vec3 hitColor = texture2D(colortex0, hitPos).rgb;
+    vec3 fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0) + rainStrength;
+    vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
     return hitColor;
 }

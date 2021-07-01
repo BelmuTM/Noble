@@ -5,10 +5,8 @@
 // I AM NOT THE AUTHOR OF THE TONE MAPPING ALGORITHMS BELOW
 // Most sources are: Github, ShaderToy or Discord.
 
-#define TONEMAPPING 0 // [-1 0 1 2 3 4]
-
 float luma(vec3 color) {
-    return dot(color, vec3(0.299, 0.587, 0.114));
+    return dot(color, vec3(0.2125, 0.7154, 0.0721));
 }
 
 float blendOverlay(float base, float blend) {
@@ -112,6 +110,16 @@ vec3 burgess(vec3 color) {
     return retColor;
 }
 
+// Narkowicz 2015, "ACES Filmic Tone Mapping Curve"
+vec3 aces(vec3 x) {
+    const float a = 2.51;
+    const float b = 0.03;
+    const float c = 2.43;
+    const float d = 0.59;
+    const float e = 0.14;
+    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+}
+
 vec3 vibrance_saturation(vec3 color, float vibrance, float saturation) {
     float luma = luma(color);
     float mn = min(min(color.r, color.g), color.b);
@@ -129,6 +137,7 @@ vec3 brightness_contrast(vec3 color, float contrast, float brightness) {
     return (color - 0.5) * contrast + 0.5 + brightness;
 }
 
+/*
 // SRGB to Linear
 vec3 decodeSRGB(vec3 screenRGB) {
     vec3 a = screenRGB / 12.92;
@@ -143,10 +152,10 @@ vec3 encodeSRGB(vec3 linearRGB) {
     vec3 b = 1.055 * pow(linearRGB, vec3(1.0 / 2.4)) - 0.055;
     vec3 c = step(vec3(0.0031308), linearRGB);
     
-    #if TONEMAPPING != 5
+    #if TONEMAPPING != 4
         return mix(a, b, c);
     #else
-        return screenRGB;
+        return linearRGB;
     #endif
 }
 
@@ -161,12 +170,17 @@ vec3 linearToSRGB(vec3 linear) {
         return linear;
     #endif
 }
-
-vec3 toSRGB(vec3 color) {
-	return mix(color * 12.92, 1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055, vec3(greaterThan(color, vec3(0.0031308))));
-}
+*/
 
 vec3 toLinear(vec3 color) {
 	return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), vec3(greaterThan(color, vec3(0.04045))));
+}
+
+vec3 toSRGB(vec3 color) {
+    #if TONEMAPPING != 4
+	    return mix(color * 12.92, 1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055, vec3(greaterThan(color, vec3(0.0031308))));
+    #else
+        return color;
+    #endif
 }
 
