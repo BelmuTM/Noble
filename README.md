@@ -1,3 +1,4 @@
+[![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3DBelmu%26type%3Dpatrons&style=flat)](https://patreon.com/Belmu)
 [![Support Server](https://img.shields.io/discord/804772139344461834.svg?color=7289da&label=NobleDiscord&logo=discord&style=flat-square)](https://discord.gg/jjRrhpkH9e)
 [![GitHub Version](https://badge.fury.io/gh/BelmuTM%2FNobleSSRT.svg)](https://github.com/BelmuRM/NobleSSRT)
 [![GPLv3 License](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
