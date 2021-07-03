@@ -58,12 +58,19 @@ float noise(vec2 p) {
 
 float blueNoise(vec2 p) {
     vec2 coord = fract(p / 256.0) * 256.0;
-    return texture2D(noisetex, coord).a;
+    return texture2D(noisetex, p).a;
 }
 
+const vec3 interleavedConstants = vec3(0.06711056, 0.00583715, 52.9829189);
+
 float interleavedGradientNoise(vec2 p) {
-    float f = 0.06711056 * p.x + 0.00583715 * p.y;
-    return fract(52.9829189 * fract(f));
+    float f = interleavedConstants.x * p.x + interleavedConstants.y * p.y;
+    return fract(interleavedConstants.z * fract(f));
+}
+
+vec2 interleavedGradientNoise2D(vec2 p) {
+    vec2 x = vec2(dot(p, interleavedConstants.xy), dot(p, interleavedConstants.yx));
+    return fract(interleavedConstants.z * fract(x));
 }
 
 float FBM(vec2 p) {

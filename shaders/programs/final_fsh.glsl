@@ -17,23 +17,28 @@ uniform sampler2D colortex5;
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
-uniform vec3 cameraPosition, skyColor;
-uniform float rainStrength, centerDepthSmooth;
+uniform vec3 cameraPosition;
+uniform vec3 skyColor;
+uniform float rainStrength;
+uniform float centerDepthSmooth;
 uniform int isEyeInWater;
 uniform int worldTime;
 uniform float near;
 uniform float far;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float aspectRatio;
+uniform float frameTimeCounter;
 
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 
+#include "/lib/frag/dither.glsl"
 #include "/lib/frag/noise.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
-#include "/lib/util/gaussian.glsl"
+#include "/lib/util/blur.glsl"
 #include "/lib/util/color.glsl"
 #include "/lib/util/worldTime.glsl"
 #include "/lib/post/dof.glsl"

@@ -60,7 +60,7 @@ void main() {
 
 	float ao = normalTex.z;
 	
-    float roughness = pow(1.0 - specularTex.x, 2.0);
+    	float roughness = pow(1.0 - specularTex.x, 2.0);
 	float F0 = specularTex.y;
 	bool isMetal = (F0 * 255.0) > 229.5;
 	vec2 lightmap = lmCoords.xy;
@@ -78,7 +78,7 @@ void main() {
 		porosity = (specularTex.z * 255.0) > 64.0 ? 0.0 : specularTex.z;
 	}
 	
-    /* DRAWBUFFERS:0123 */
+	/*DRAWBUFFERS:0123*/
 	gl_FragData[0] = albedoTex;
 	gl_FragData[1] = vec4(normal * 0.5 + 0.5, ao);
 	gl_FragData[2] = vec4(clamp(roughness, 0.001, 1.0), F0, lightmap);

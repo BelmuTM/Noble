@@ -54,9 +54,6 @@ option.DIFFUSE_LIGHTING.comment = Different methods to calculate the §bDiffuse 
 value.DIFFUSE_LIGHTING.0 = §f§lLambertian
 value.DIFFUSE_LIGHTING.1 = §f§lOren-Nayar
 
-option.sunPathRotation = Sun Path Rotation
-option.sunPathRotation.comment = Adjusts sun's rotation.
-
 option.VL = Volumetric Lighting (VL)
 option.VL.comment = Simulates physical light fog (godrays / light shafts).
 value.VL.0 = §cOFF
@@ -94,6 +91,14 @@ value.SSAO_SAMPLES.32 = §632
 value.SSAO_SAMPLES.64 = §c64
 value.SSAO_SAMPLES.128 = §4128
 
+option.sunPathRotation = Sun Path Rotation
+option.sunPathRotation.comment = Adjusts sun's rotation.
+
+option.WHITE_WORLD = White World
+option.WHITE_WORLD.comment = §fSets all block colors to white.
+value.WHITE_WORLD.0 = §cOFF
+value.WHITE_WORLD.1 = §aON
+
 ##################### RAY TRACING #####################
 
 option.SSR = Screen Space Reflections (SSR)
@@ -111,21 +116,6 @@ option.SSGI.comment = §bScreen Space Global Illumination. §fIt simulates light
 value.SSGI.0 = §cOFF
 value.SSGI.1 = §aON
 
-option.SSGI_FILTER = Spatial Filter
-option.SSGI_FILTER.comment = Reduces §bSSGI§f's noise.
-value.SSGI_FILTER.0 = §cOFF
-value.SSGI_FILTER.1 = §aON
-
-option.SSGI_SAMPLES = SSGI Samples
-option.SSGI_SAMPLES.comment = Influences §bSSGI§f's quality. §cHigher value gives better results, but reduces §cperformance.
-value.SSGI_SAMPLES.1 = §31
-value.SSGI_SAMPLES.2 = §22
-value.SSGI_SAMPLES.4 = §a4
-value.SSGI_SAMPLES.6 = §e6
-value.SSGI_SAMPLES.8 = §68
-value.SSGI_SAMPLES.10 = §c10
-value.SSGI_SAMPLES.12 = §412
-
 option.SSGI_BOUNCES = SSGI Bounces
 option.SSGI_BOUNCES.comment = Makes §bSSGI§f bounce §aX§f times to gather light. §cHigher value gives better results, but reduces §cperformance.
 value.SSGI_BOUNCES.1 = §21
@@ -134,6 +124,16 @@ value.SSGI_BOUNCES.3 = §e3
 value.SSGI_BOUNCES.4 = §64
 value.SSGI_BOUNCES.5 = §c5
 value.SSGI_BOUNCES.6 = §46
+
+option.SSGI_TEMPORAL_ACCUMULATION = Temporal Accumulation
+option.SSGI_TEMPORAL_ACCUMULATION.comment = Accumulates §bSSGI §fover multiple frames to reduce noise and give a more precise result.
+value.SSGI_TEMPORAL_ACCUMULATION.0 = §cOFF
+value.SSGI_TEMPORAL_ACCUMULATION.1 = §aON
+
+option.SSGI_FILTER = Spatial Filtering
+option.SSGI_FILTER.comment = Reduces §bSSGI§f's noise.
+value.SSGI_FILTER.0 = §cOFF
+value.SSGI_FILTER.1 = §aON
 
 option.BINARY_REFINEMENT = Binary Refinement
 option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make it more accurate. §cHigher value gives better results, but reduces §cperformance.

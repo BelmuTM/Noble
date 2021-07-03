@@ -30,6 +30,7 @@ const bool shadowtex1Nearest = true;
 #define RADIUS 8 // Denoiser
 
 /*------------------ LIGHTING ------------------*/
+#define WHITE_WORLD 0 // [0 1]
 #define AMBIENT vec3(0.025, 0.025, 0.02) // If SSGI is ON
 
 #define TORCHLIGHT_MULTIPLIER 3.0
@@ -59,10 +60,9 @@ const bool shadowtex1Nearest = true;
 #define SHADOW_BIAS 0.1 // Increase this if you get shadow acne. Decrease this if you get peter panning.
 
 #define SSAO 0 // [0 1]
-#define SSAO_SCALE 1.0
 #define SSAO_SAMPLES 16 // [4 8 16 32 64 128]
 #define SSAO_RADIUS 1.0
-#define SSAO_BIAS 0.325
+#define SSAO_BIAS 0.5
 
 /*------------------ RAY TRACING ------------------*/
 #define BINARY_REFINEMENT 1 // [0 1]
@@ -70,10 +70,10 @@ const bool shadowtex1Nearest = true;
 #define BINARY_DECREASE 0.5
 
 #define SSGI 1 // [0 1]
-#define SSGI_FILTER 1 // [0 1]
-#define SSGI_SCALE 2.5
 #define SSGI_BOUNCES 2 // [1 2 3 4 5 6]
-#define SSGI_SAMPLES 1 // [1 2 4 6 8 10 12]
+#define SSGI_TEMPORAL_ACCUMULATION 1 // [0 1]
+#define SSGI_FILTER 1 // [0 1]
+#define SSGI_SCALE 1.0
 
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
@@ -103,6 +103,10 @@ const bool shadowtex1Nearest = true;
 #define APERTURE 0.3
 #define SIZEMULT 1.0
 
+// Bokeh
+#define BOKEH_SAMPLES 6
+#define BOKEH_RADIUS 0.03
+
 #define BLOOM 0 // [0 1]
 #define BLOOM_INTENSITY 0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5]
 
@@ -111,7 +115,7 @@ const bool shadowtex1Nearest = true;
 
 // Color Correction
 #define TONEMAPPING 0 // [-1 0 1 2 3 4 5]
-#define EXPOSURE 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
+#define EXPOSURE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define VIBRANCE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define CONTRAST 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]

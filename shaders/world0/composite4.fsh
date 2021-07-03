@@ -20,6 +20,7 @@ uniform mat4 gbufferPreviousProjection;
 #include "/lib/frag/noise.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
+#include "/lib/util/blur.glsl"
 #include "/lib/util/reprojection.glsl"
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ssr.glsl"
@@ -36,6 +37,20 @@ vec3 Env_BRDF_Approx(vec3 specular, float NdotV, float roughness) {
 
 void main() {
     vec4 Result = texture2D(colortex0, texCoords);
+
+    #if VL == 1
+        vec4 VolumetricLighting = texture2D(colortex4, texCoords);
+        #if VL_BLUR == 1
+            /* HIGH QUALITY - MORE EXPENSIVE */
+            //VolumetricLighting = fastGaussian(colortex4, vec2(viewWidth, viewHeight), 5.65, 15.0, 20.0);
+
+            /* DECENT QUALITY - LESS EXPENSIVE */
+            VolumetricLighting = bilateralBlur(colortex4);
+        #endif
+
+        Result += VolumetricLighting;
+    #endif
+
     float Depth = texture2D(depthtex0, texCoords).r;
     if(texture2D(colortex8, texCoords).r != 0.0 || Depth == 1.0) {
         gl_FragData[0] = Result;

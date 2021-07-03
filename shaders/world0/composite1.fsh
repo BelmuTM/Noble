@@ -17,36 +17,38 @@ varying vec2 texCoords;
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
-#include "/lib/util/gaussian.glsl"
+///////// REQUIRED FOR PTGI /////////
+#include "/lib/util/distort.glsl"
+#include "/lib/util/color.glsl"
+#include "/lib/util/worldTime.glsl"
+#include "/lib/material.glsl"
+#include "/lib/lighting/brdf.glsl"
+#include "/lib/lighting/shadows.glsl"
+/////////////////////////////////////
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ssgi.glsl"
 
 void main() {
     vec4 Result = texture2D(colortex0, texCoords);
 
-    #if VL == 1
-        vec4 VolumetricLighting = texture2D(colortex4, texCoords);
-        #if VL_BLUR == 1
-            VolumetricLighting = fastGaussian(colortex4, vec2(viewWidth, viewHeight), 5.65, 15.0, 20.0);
-        #endif
-
-        Result += VolumetricLighting;
-    #endif
-    
-    float Depth = texture2D(depthtex0, texCoords).r;
-    if(Depth == 1.0) {
-        gl_FragData[0] = Result;
-        return;
-    }
-    vec3 viewPos = getViewPos();
-    vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
-
-    float F0 = texture2D(colortex2, texCoords).g;
-    bool isMetal = (F0 * 255.0) > 229.5;
-
     vec3 GlobalIllumination = vec3(0.0);
     #if SSGI == 1
-        GlobalIllumination = isMetal ? vec3(0.0) : computeSSGI(viewToScreen(viewPos), Normal);
+        float Depth = texture2D(depthtex0, texCoords).r;
+        if(Depth == 1.0) {
+            gl_FragData[0] = Result;
+            return;
+        }
+        vec3 viewPos = getViewPos();
+        vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
+
+        vec3 lightPos = worldTime >= 12750 ? moonPosition : sunPosition;
+        vec3 lightDir = normalize(lightPos);
+
+        float F0 = texture2D(colortex2, texCoords).g;
+        bool isMetal = (F0 * 255.0) > 229.5;
+        
+        if(!isHand(Depth)) GlobalIllumination = isMetal ? vec3(0.0) : 
+        computeSSGI(viewToScreen(viewPos), Normal, lightDir, shadowMap(shadowMapResolution));
     #endif
 
     /* DRAWBUFFERS:06 */

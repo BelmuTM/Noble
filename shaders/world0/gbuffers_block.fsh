@@ -8,4 +8,5 @@
 
 #version 400 compatibility
 
+#define BLOCK
 #include "/programs/gbuffers/gbuffers_fsh.glsl"

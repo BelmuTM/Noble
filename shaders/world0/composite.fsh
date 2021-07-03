@@ -38,7 +38,7 @@ vec3 getLightmapColor(vec2 lightmap) {
     
     vec3 TorchLight = lightmap.x * TORCH_COLOR;
     vec3 SkyLight = lightmap.y * skyColor;
-    return vec3(TorchLight + clamp(SkyLight - rainStrength, rainMinAmbientBrightness, 1.0));
+    return vec3(TorchLight + clamp(SkyLight - rainStrength, 0.0, 1.0));
 }
 
 void main() {
@@ -60,8 +60,6 @@ void main() {
         return;
     }
     material data = getMaterial(tex0, tex1, tex2, tex3);
-    vec3 outAlbedo = texture2D(colortex0, texCoords).rgb;
-
     vec3 Normal = normalize(data.normal.xyz);
     float Depth = texture2D(depthtex0, texCoords).r;
     
@@ -77,6 +75,11 @@ void main() {
         gl_FragData[1] = VolumetricLighting;
         return;
     }
+
+    #if WHITE_WORLD == 1
+	    data.albedo = vec3(1.0);
+    #endif
+    vec3 outAlbedo = data.albedo;
 
     vec3 Shadow = vec3(1.0);
     #if SHADOWS == 1
@@ -96,8 +99,8 @@ void main() {
         ambient = getLightmapColor(lightmap);
     #endif
 
-    vec3 Lighting = BRDF_Lighting(Normal, viewDir, lightDir, data, getDayTimeColor(), ambient, Shadow);
-    Result += vec4(Lighting, 1.0);
+    vec3 Lighting = Cook_Torrance(Normal, viewDir, lightDir, data, ambient, Shadow);
+    Result.rgb += Lighting;
 
     if(getBlockId(texCoords) == 6) {
         float depthDist = distance(
@@ -126,6 +129,8 @@ void main() {
             }
         #endif
     }
+
+    Result.a = data.alpha;
 
     /*DRAWBUFFERS:054*/
     gl_FragData[0] = Result;

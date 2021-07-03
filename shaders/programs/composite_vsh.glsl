@@ -6,6 +6,9 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 400 compatibility
+varying vec2 texCoords;
 
-#include "/programs/composite_vsh.glsl"
+void main() {
+    gl_Position = ftransform();
+    texCoords = gl_MultiTexCoord0.st;
+}

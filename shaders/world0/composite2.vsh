@@ -8,10 +8,4 @@
 
 #version 400 compatibility
 
-varying vec2 texCoords;
-varying vec2 lmCoords;
-
-void main() {
-    gl_Position = ftransform();
-    texCoords = gl_MultiTexCoord0.st;
-}
+#include "/programs/composite_vsh.glsl"

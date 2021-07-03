@@ -14,6 +14,10 @@ vec3 computeDOF(float sceneDepth, vec3 viewPos) {
 
     if(sceneDepth == 1.0) return inFocusColor.rgb;
 
-    vec4 outOfFocusColor = fastGaussian(colortex0, vec2(viewWidth, viewHeight), 5.65, 12.5, 20.0);
+    /* GAUSSIAN - EXPENSIVE */
+    //vec4 outOfFocusColor = fastGaussian(colortex0, vec2(viewWidth, viewHeight), 5.65, 12.5, 20.0);
+    /* BOKEH - OPTIMIZED */
+    vec4 outOfFocusColor = bokeh(colortex0);
+    
     return mix(inFocusColor.rgb, outOfFocusColor.rgb, blur);
 }
