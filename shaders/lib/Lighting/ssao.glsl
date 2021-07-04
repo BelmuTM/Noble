@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 computeSSAO(vec3 viewPos, vec3 normal) {
+float computeSSAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
 	vec3 sampleOrigin = viewPos + normal * 0.01;
 	
@@ -22,5 +22,5 @@ vec3 computeSSAO(vec3 viewPos, vec3 normal) {
         	if(delta > 0.0 && delta < SSAO_RADIUS) occlusion += delta + SSAO_BIAS;
 	}
 	occlusion = 1.0 - (occlusion / SSAO_SAMPLES);
-	return vec3(saturate(occlusion));
+	return saturate(occlusion);
 }

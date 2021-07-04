@@ -106,6 +106,41 @@ float voronoise(in vec2 p, float u, float v) {
     return a.x / a.y;
 }
 
+/*
+#define KERNEL_RADIUS 25
+#define SHARPNESS 0.9
+
+vec4 blurFunction(vec2 uv, float r, vec4 color, float depth, inout float weight) {
+    vec4 c = texture2D(colortex0, uv);
+    float d = texture2D(colortex1, uv).r;
+  
+    float blurSigma = float(KERNEL_RADIUS) * 0.5;
+    float blurFalloff = 1.0 / (2.0 * blurSigma * blurSigma);
+  
+    float ddiff = (d - depth) * SHARPNESS;
+    float w = exp2(-r * r * blurFalloff - ddiff * ddiff);
+    weight += w;
+
+    return c * w;
+}
+
+vec4 bilateralBlur(vec4 color, float depth) {
+    float weight = 1.0;
+    vec2 resolution = vec2(1.0 / viewWidth, 0.0);
+  
+    for (float r = 0; r < KERNEL_RADIUS; r++) {
+        vec2 uv = texCoords + resolution * r;
+        color += blurFunction(uv, r, color, depth, weight);  
+    }
+  
+    for (float r = 0; r < KERNEL_RADIUS; r++) {
+        vec2 uv = texCoords - resolution * r;
+        color += blurFunction(uv, r, color, depth, weight);  
+    }
+    return color / weight;
+}
+*/
+
 /*------------------ DENOISER BY BRUTPITT ------------------*/
 // https://github.com/BrutPitt/glslSmartDeNoise/ //
 

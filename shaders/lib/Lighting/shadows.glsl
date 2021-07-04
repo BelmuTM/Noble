@@ -47,8 +47,7 @@ vec3 blurShadows(vec3 sampleCoords, mat2 rotation) {
     return shadowResult;
 }
 
-vec3 shadowMap(float shadowMapResolution) {
-    vec3 viewPos = getViewPos();
+vec3 shadowMap(vec3 viewPos, float shadowMapResolution) {
     vec4 shadowSpace = viewToShadow(viewPos);
     vec3 sampleCoords = shadowSpace.xyz * 0.5 + 0.5;
 

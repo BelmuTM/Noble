@@ -10,49 +10,67 @@
 
 varying vec2 texCoords;
 
+uniform vec3 previousCameraPosition;
+uniform mat4 gbufferPreviousModelView;
+uniform mat4 gbufferPreviousProjection;
+
 #include "/settings.glsl"
 #include "/lib/composite_uniforms.glsl"
 #include "/lib/frag/dither.glsl"
 #include "/lib/frag/noise.glsl"
-#include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
-///////// REQUIRED FOR PTGI /////////
-#include "/lib/util/distort.glsl"
-#include "/lib/util/color.glsl"
-#include "/lib/util/worldTime.glsl"
-#include "/lib/material.glsl"
-#include "/lib/lighting/brdf.glsl"
-#include "/lib/lighting/shadows.glsl"
-/////////////////////////////////////
-#include "/lib/lighting/raytracer.glsl"
-#include "/lib/lighting/ssgi.glsl"
+#include "/lib/util/reprojection.glsl"
 
-void main() {
-    vec4 Result = texture2D(colortex0, texCoords);
+vec2 neighborClampingOffsets[8] = vec2[8](
+	vec2( 1.0, 0.0),
+	vec2( 0.0, 1.0),
+	vec2(-1.0, 0.0),
+    vec2(0.0, -1.0),
+    vec2(1.0, -1.0),
+	vec2(-1.0, 1.0),
+    vec2( 1.0, 1.0),
+	vec2(-1.0, -1.0)
+);
 
-    vec3 GlobalIllumination = vec3(0.0);
-    #if SSGI == 1
-        float Depth = texture2D(depthtex0, texCoords).r;
-        if(Depth == 1.0) {
-            gl_FragData[0] = Result;
-            return;
-        }
-        vec3 viewPos = getViewPos();
-        vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
+vec4 NeighborClamping(sampler2D currColorTex, vec4 currColor, vec4 prevColor, vec2 resolution) {
+    vec4 minColor = currColor, maxColor = currColor;
 
-        vec3 lightPos = worldTime >= 12750 ? moonPosition : sunPosition;
-        vec3 lightDir = normalize(lightPos);
-
-        float F0 = texture2D(colortex2, texCoords).g;
-        bool isMetal = (F0 * 255.0) > 229.5;
-        
-        if(!isHand(Depth)) GlobalIllumination = isMetal ? vec3(0.0) : 
-        computeSSGI(viewToScreen(viewPos), Normal, lightDir, shadowMap(shadowMapResolution));
-    #endif
-
-    /* DRAWBUFFERS:06 */
-    gl_FragData[0] = Result;
-    gl_FragData[1] = vec4(GlobalIllumination, 1.0);
+    for(int i = 0; i < 8; i++) {
+        vec4 color = texture2D(currColorTex, texCoords + (neighborClampingOffsets[i] * resolution)); 
+        minColor = min(minColor, color);
+        maxColor = max(maxColor, color); 
+    }
+    minColor -= 0.075; 
+    maxColor += 0.075; 
+    return clamp(prevColor, minColor, maxColor); 
 }
 
+void main() {
+    vec4 GlobalIllumination = texture2D(colortex6, texCoords);
+    vec4 GlobalIlluminationResult = GlobalIllumination;
+    
+    #if PTGI == 1
+        #if PTGI_TEMPORAL_ACCUMULATION == 1
+            // Thanks Stubman#8195 and swr#1899 for the help!
+            vec2 resolution = vec2(viewWidth, viewHeight);
+            vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
+            vec4 prevColor = texture2D(colortex7, prevTexCoords);
+
+            prevColor = NeighborClamping(colortex6, GlobalIllumination, prevColor, 1.0 / resolution);
+            vec2 velocity = (texCoords - prevTexCoords) * resolution;
+
+            float blendFactor = float(
+                prevTexCoords.x > 0.0 && prevTexCoords.x < 1.0 &&
+                prevTexCoords.y > 0.0 && prevTexCoords.y < 1.0
+            );
+            blendFactor *= exp(-length(velocity)) * 0.6 + 0.3;
+            blendFactor = clamp(blendFactor, 0.01, 0.979);
+
+            GlobalIlluminationResult = mix(GlobalIlluminationResult, prevColor, blendFactor); 
+        #endif
+    #endif
+
+    /*DRAWBUFFERS:7*/
+    gl_FragData[0] = GlobalIlluminationResult;
+}

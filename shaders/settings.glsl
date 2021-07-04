@@ -31,7 +31,7 @@ const bool shadowtex1Nearest = true;
 
 /*------------------ LIGHTING ------------------*/
 #define WHITE_WORLD 0 // [0 1]
-#define AMBIENT vec3(0.025, 0.025, 0.02) // If SSGI is ON
+#define AMBIENT vec3(0.045) // If PTGI is ON
 
 #define TORCHLIGHT_MULTIPLIER 3.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
@@ -69,11 +69,11 @@ const bool shadowtex1Nearest = true;
 #define BINARY_COUNT 8 // [4 8 16 32 48]
 #define BINARY_DECREASE 0.5
 
-#define SSGI 1 // [0 1]
-#define SSGI_BOUNCES 2 // [1 2 3 4 5 6]
-#define SSGI_TEMPORAL_ACCUMULATION 1 // [0 1]
-#define SSGI_FILTER 1 // [0 1]
-#define SSGI_SCALE 1.0
+#define PTGI 1 // [0 1]
+#define PTGI_BOUNCES 2 // [1 2 3 4 5 6]
+#define PTGI_TEMPORAL_ACCUMULATION 1 // [0 1]
+#define PTGI_FILTER 1 // [0 1]
+#define PTGI_SCALE 1.0
 
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]

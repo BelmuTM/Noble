@@ -61,7 +61,7 @@ vec3 Spherical_Gaussian_Fresnel(float HdotL, vec3 F0){
     https://gist.github.com/LVutner/c07a3cc4fec338e8fe3fa5e598787e47
 */
 
-vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 ambient, vec3 shadowmap) {
+vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 ambient, vec3 shadowmap, vec3 GI, bool ignoreE0) {
     bool isMetal = (data.F0 * 255.0) > 229.5;
     vec3 specularColor = isMetal ? data.albedo : vec3(data.F0);
     vec3 dayTimeColor = getDayTimeColor();
@@ -94,12 +94,15 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 ambient, vec3 sha
     #endif
 
     vec3 DiffuseLighting = vec3(0.0);
-    vec3 E0 = ambient + (NdotL * shadowmap);
+    vec3 E0 = ignoreE0 ? vec3(1.0) : ambient + (NdotL * shadowmap);
+
+    DiffuseLighting += (GI * data.albedo);
+
     if(!isMetal) {
         #if DIFFUSE_LIGHTING == 0
 
             /* LAMBERTIAN MODEL */
-            DiffuseLighting = (data.albedo * dayTimeColor) * E0;
+            DiffuseLighting += (data.albedo * dayTimeColor) * E0;
         #else 
             /* OREN-NAYAR MODEL - QUALITATIVE */
             // Angles
@@ -108,9 +111,10 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 ambient, vec3 sha
 
             float A = 1.0 - 0.5 * (alpha / (alpha + 0.4));
             float B = 0.45 * (alpha / (alpha + 0.09));
-            DiffuseLighting = (data.albedo * dayTimeColor) * (A + (B * max(0.0, cos(aNdotV - aNdotL)))) * E0;
+            DiffuseLighting += (data.albedo * dayTimeColor) * (A + (B * max(0.0, cos(aNdotV - aNdotL)))) * E0;
         #endif
     }
+
     vec3 Lighting = DiffuseLighting + SpecularLighting;
     Lighting += data.albedo * data.emission;
 

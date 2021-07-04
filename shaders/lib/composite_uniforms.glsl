@@ -13,6 +13,7 @@ uniform vec3 skyColor;
 uniform float rainStrength;
 uniform float frameTimeCounter;
 uniform float aspectRatio;
+uniform float centerDepthSmooth;
 uniform float near;
 uniform float far;
 uniform float viewWidth;
