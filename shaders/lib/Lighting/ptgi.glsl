@@ -6,13 +6,15 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 computePTGI(in vec3 screenPos, in vec3 normal, vec3 shadowmap) {
-    vec3 illumination = vec3(0.0);
+vec3 computePTGI(in vec3 viewPos, in vec3 normal) {
     float jitter = bayer64(gl_FragCoord.xy);
-    vec3 hitPos = screenPos;
+    vec3 hitPos = viewPos + normal * 0.01;
+
+    vec3 illumination = vec3(0.0);
+    vec3 weight = vec3(1.0); // How much the current iteration contributes to the final product
 
     for(int i = 0; i < PTGI_BOUNCES; i++) {
-        hitPos = screenToView(hitPos) + normal * 0.01;
+        if(i != 0) hitPos = screenToView(hitPos) + normal * 0.01;
         vec2 noise = hash22(gl_FragCoord.xy);
         noise = fract(frameTimeCounter + noise);
 
@@ -25,13 +27,17 @@ vec3 computePTGI(in vec3 screenPos, in vec3 normal, vec3 shadowmap) {
         vec4 tex3 = texture2D(colortex3, hitPos.xy);
 
         material data = getMaterial(tex0, tex1, tex2, tex3);
-        normal = data.normal;
+        normal = data.normal * 0.5 + 0.5;
 
         vec3 BRDF = Cook_Torrance(normal, normalize(-screenToView(hitPos)), 
-        sampleDir, data, vec3(0.0), vec3(0.0), vec3(0.0), false);
+        sampleDir, data, vec3(0.0), vec3(0.0), vec3(0.0), true);
 
-        illumination += BRDF * (data.emission == 0.0 ? 0.0 : 1.0);
-        // (data.emission == 0.0 ? 0.0 : 1.0)
+        /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
+        vec3 shadowmap = shadowMap(screenToView(hitPos), shadowMapResolution);
+        
+        weight *= BRDF;
+        illumination += weight * (shadowmap + (data.emission == 0 ? 0.0 : 1.0));
+        // (data.emission == 0 ? 0.0 : 1.0)
     }
     illumination *= PTGI_SCALE;
     return illumination;

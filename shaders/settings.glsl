@@ -15,7 +15,7 @@
 
 /*------------------ OPTIFINE CONSTANTS ------------------*/
 const float sunPathRotation = -40.0; // [80.0 75.0 70.0 65.0 60.0 55.0 50.0 45.0 40.0 35.0 30.0 25.0 20.0 15.0 10.0 5.0 0.0 -5.0 -10.0 -15.0 -20.0 -25.0 -30.0 -35.0 -40.0 -45.0 -50.0 -55.0 -60.0 -65.0 -70.0 -75.0 -80.0]
-const int noiseTextureResolution = 64;
+const int noiseTextureResolution = 1028;
 const float ambientOcclusionLevel = 0.0;
 
 const int shadowMapResolution = 3072; //[512 1024 2048 3072 4096 6144]
@@ -31,9 +31,9 @@ const bool shadowtex1Nearest = true;
 
 /*------------------ LIGHTING ------------------*/
 #define WHITE_WORLD 0 // [0 1]
-#define AMBIENT vec3(0.045) // If PTGI is ON
+#define AMBIENT vec3(0.01) // If PTGI is ON
 
-#define TORCHLIGHT_MULTIPLIER 3.0
+#define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
 
 #define SPECULAR 1 // [0 1]
@@ -72,14 +72,14 @@ const bool shadowtex1Nearest = true;
 #define PTGI 1 // [0 1]
 #define PTGI_BOUNCES 2 // [1 2 3 4 5 6]
 #define PTGI_TEMPORAL_ACCUMULATION 1 // [0 1]
-#define PTGI_FILTER 1 // [0 1]
+#define PTGI_FILTER 0 // [0 1]
 #define PTGI_SCALE 1.0
 
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
 
 /*------------------ REFLECTIONS ------------------*/
-#define ATTENUATION_FACTOR 0.6
+#define ATTENUATION_FACTOR 0.4
 
 // Rough Reflections
 #define BRDF_BIAS 0.26

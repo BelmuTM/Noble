@@ -20,6 +20,7 @@ uniform mat4 gbufferPreviousProjection;
 #include "/lib/frag/noise.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
+#include "/lib/util/worldTime.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/util/reprojection.glsl"
 #include "/lib/lighting/raytracer.glsl"
@@ -39,16 +40,16 @@ void main() {
     vec4 Result = texture2D(colortex0, texCoords);
 
     #if VL == 1
-        vec4 VolumetricLighting = texture2D(colortex4, texCoords);
+        float VolumetricLighting = texture2D(colortex4, texCoords).r;
         #if VL_BLUR == 1
             /* HIGH QUALITY - MORE EXPENSIVE */
-            //VolumetricLighting = fastGaussian(colortex4, vec2(viewWidth, viewHeight), 5.65, 15.0, 20.0);
+            //VolumetricLighting = fastGaussian(colortex4, vec2(viewWidth, viewHeight), 5.65, 15.0, 20.0).r;
 
             /* DECENT QUALITY - LESS EXPENSIVE */
-            VolumetricLighting = bilateralBlur(colortex4);
+            VolumetricLighting = bilateralBlur(colortex4).r;
         #endif
 
-        Result += VolumetricLighting;
+        Result.rgb += vec3(getDayTimeSunColor() * VolumetricLighting);
     #endif
 
     float Depth = texture2D(depthtex0, texCoords).r;
@@ -59,12 +60,11 @@ void main() {
 
     #if SSR == 1
         vec3 viewPos = getViewPos();
-
         vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
+        float NdotV = max(dot(Normal, normalize(-viewPos)), 0.0);
+        
         float F0 = texture2D(colortex2, texCoords).g;
         bool isMetal = (F0 * 255.0) > 229.5;
-        float NdotV = max(dot(Normal, normalize(-viewPos)), 0.0);
-
         vec3 specColor = isMetal ? texture2D(colortex5, texCoords).rgb : vec3(F0);
 
         #if SSR_TYPE == 1

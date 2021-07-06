@@ -22,24 +22,15 @@ uniform mat4 gbufferPreviousProjection;
 #include "/lib/util/utils.glsl"
 #include "/lib/util/reprojection.glsl"
 
-vec2 neighborClampingOffsets[8] = vec2[8](
-	vec2( 1.0, 0.0),
-	vec2( 0.0, 1.0),
-	vec2(-1.0, 0.0),
-    vec2(0.0, -1.0),
-    vec2(1.0, -1.0),
-	vec2(-1.0, 1.0),
-    vec2( 1.0, 1.0),
-	vec2(-1.0, -1.0)
-);
-
 vec4 NeighborClamping(sampler2D currColorTex, vec4 currColor, vec4 prevColor, vec2 resolution) {
     vec4 minColor = currColor, maxColor = currColor;
 
-    for(int i = 0; i < 8; i++) {
-        vec4 color = texture2D(currColorTex, texCoords + (neighborClampingOffsets[i] * resolution)); 
-        minColor = min(minColor, color);
-        maxColor = max(maxColor, color); 
+    for(int x = -2; x <= 2; x++) {
+        for(int y = -2; y <= 2; y++) {
+            vec4 color = texture2D(currColorTex, texCoords + (vec2(x, y) * resolution)); 
+            minColor = min(minColor, color);
+            maxColor = max(maxColor, color); 
+        }
     }
     minColor -= 0.075; 
     maxColor += 0.075; 
@@ -65,8 +56,6 @@ void main() {
                 prevTexCoords.y > 0.0 && prevTexCoords.y < 1.0
             );
             blendFactor *= exp(-length(velocity)) * 0.6 + 0.3;
-            blendFactor = clamp(blendFactor, 0.01, 0.979);
-
             GlobalIlluminationResult = mix(GlobalIlluminationResult, prevColor, blendFactor); 
         #endif
     #endif

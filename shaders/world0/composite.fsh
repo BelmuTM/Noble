@@ -44,8 +44,7 @@ void main() {
         float F0 = texture2D(colortex2, texCoords).g;
         bool isMetal = (F0 * 255.0) > 229.5;
         
-        if(!isHand(Depth)) GlobalIllumination = isMetal ? vec3(0.0) : 
-        computePTGI(viewToScreen(viewPos), Normal, shadowMap(viewPos, shadowMapResolution));
+        if(!isHand(Depth)) GlobalIllumination = isMetal ? vec3(0.0) : computePTGI(viewPos, Normal);
     #else
         #if SSAO == 1
             AmbientOcclusion = computeSSAO(viewPos, Normal);

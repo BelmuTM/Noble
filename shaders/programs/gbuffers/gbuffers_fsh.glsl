@@ -34,6 +34,10 @@ uniform mat4 gbufferModelView;
 uniform vec4 entityColor;
 #endif
 
+/*
+const int colortex0Format = RGBA16F;
+*/
+
 void main() {
 	//Sample textures
 	vec4 albedoTex = texture2D(texture, texCoords);
@@ -45,6 +49,22 @@ void main() {
 
 	#ifdef TERRAIN
 		albedoTex.a *= color.a;
+
+		#if WHITE_WORLD == 1
+			albedoTex = vec4(1.0);
+		#endif
+	#endif
+
+	#ifdef BLOCK 
+		#if WHITE_WORLD == 1
+			albedoTex = vec4(1.0);
+		#endif
+	#endif
+
+	#ifdef WATER 
+		#if WHITE_WORLD == 1
+			albedoTex = vec4(1.0);
+		#endif
 	#endif
 
 	#ifdef ENTITY

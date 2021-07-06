@@ -71,26 +71,22 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
     mat3 t2v = mat3(vTangentX, vTangentY, normal);  
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-		vec3 noise = hash33(vec3(texCoords, i));
-		noise.y = mix(noise.y, 0.0, BRDF_BIAS);
+		vec2 noise = hash22(gl_FragCoord.xy + i);
+		noise.y = mix(noise.y, 1.0, BRDF_BIAS);
 	
 		vec3 H = Importance_Sample_GGX(noise.xy, roughness);
-		H = t2v * H;
 		
-		vec3 reflected = reflect(normalize(viewPos), H);	
-		vec3 hitPos;
-		bool intersect = raytrace(viewPos, reflected, 18, noise.z, hitPos);
+        vec3 hitPos;
+		vec3 reflected = reflect(normalize(viewPos), t2v * H);	
+		bool intersect = raytrace(viewPos, reflected, 20, noise.x, hitPos);
 
         float NdotL = max(dot(normal, reflected), 0.0);
-		if(intersect) {
-			//hitPos = reprojection(vec3(hitPos, texture2D(depthtex0, hitPos).x));
-			if(NdotL >= 0.0) {
-				filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
-				totalWeight += NdotL;
-			}
+		if(intersect && NdotL >= 0.0) {
+			filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
+			totalWeight += NdotL;
 		}
 	}
-	return clamp(filteredColor / totalWeight, 0.0, 1.0);
+	return filteredColor / totalWeight;
 }
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/

@@ -16,7 +16,7 @@ vec3 getDayTimeColor() {
     const vec3 ambient_sunrise = vec3(0.543, 0.272, 0.147);
     const vec3 ambient_noon = vec3(0.345, 0.302, 0.23);
     const vec3 ambient_sunset = vec3(0.543, 0.272, 0.147);
-    const vec3 ambient_midnight = vec3(0.035, 0.25, 0.3);
+    const vec3 ambient_midnight = vec3(0.15, 0.15, 0.2);
 
     return ambient_sunrise * timeSunrise + ambient_noon * timeNoon + ambient_sunset * timeSunset + ambient_midnight * timeMidnight;
 }
