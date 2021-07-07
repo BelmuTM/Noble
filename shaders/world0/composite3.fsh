@@ -40,20 +40,20 @@ void main() {
     vec4 Result = texture2D(colortex0, texCoords);
 
     #if VL == 1
-        float VolumetricLighting = texture2D(colortex4, texCoords).r;
+        float VolumetricLighting = texture2D(colortex4, texCoords).a;
         #if VL_BLUR == 1
             /* HIGH QUALITY - MORE EXPENSIVE */
-            //VolumetricLighting = fastGaussian(colortex4, vec2(viewWidth, viewHeight), 5.65, 15.0, 20.0).r;
+            //VolumetricLighting = fastGaussian(colortex4, vec2(viewWidth, viewHeight), 5.65, 15.0, 20.0).a;
 
             /* DECENT QUALITY - LESS EXPENSIVE */
-            VolumetricLighting = bilateralBlur(colortex4).r;
+            VolumetricLighting = bilateralBlur(colortex4).a;
         #endif
 
         Result.rgb += vec3(getDayTimeSunColor() * VolumetricLighting);
     #endif
 
     float Depth = texture2D(depthtex0, texCoords).r;
-    if(texture2D(colortex8, texCoords).r != 0.0 || Depth == 1.0) {
+    if(Depth == 1.0) {
         gl_FragData[0] = Result;
         return;
     }
@@ -65,7 +65,7 @@ void main() {
         
         float F0 = texture2D(colortex2, texCoords).g;
         bool isMetal = (F0 * 255.0) > 229.5;
-        vec3 specColor = isMetal ? texture2D(colortex5, texCoords).rgb : vec3(F0);
+        vec3 specColor = isMetal ? texture2D(colortex4, texCoords).rgb : vec3(F0);
 
         #if SSR_TYPE == 1
             float roughness = texture2D(colortex2, texCoords).r;
@@ -78,6 +78,6 @@ void main() {
         #endif
     #endif
 
-    /* DRAWBUFFERS:0 */
+    /*DRAWBUFFERS:0*/
     gl_FragData[0] = Result;
 }

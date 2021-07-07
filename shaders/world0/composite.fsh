@@ -18,11 +18,8 @@ varying vec2 texCoords;
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 ///////// REQUIRED FOR PTGI /////////
-#include "/lib/util/distort.glsl"
-#include "/lib/util/color.glsl"
 #include "/lib/util/worldTime.glsl"
-#include "/lib/material.glsl"
-#include "/lib/lighting/brdf.glsl"
+#include "/lib/util/distort.glsl"
 #include "/lib/lighting/shadows.glsl"
 #include "/lib/lighting/ssao.glsl"
 /////////////////////////////////////
@@ -51,7 +48,7 @@ void main() {
         #endif
     #endif
 
-    /* DRAWBUFFERS:6 */
+    /*DRAWBUFFERS:5*/
     gl_FragData[0] = vec4(GlobalIllumination, AmbientOcclusion);
 }
 

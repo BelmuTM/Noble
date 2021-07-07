@@ -15,10 +15,9 @@ uniform sampler2D colortex0;
 
 const float rainBrightness = 2.5;
 void main() {
-    vec4 Albedo = texture2D(colortex0, texCoords) * color;
-    Albedo /= rainBrightness;
+    vec4 albedo = texture2D(colortex0, texCoords) * color;
+    albedo /= rainBrightness;
 
-    /*DRAWBUFFERS:08*/
-    gl_FragData[0] = Albedo;
-    gl_FragData[3] = vec4(1.0);
+    /*DRAWBUFFERS:0*/
+    gl_FragData[0] = albedo;
 }

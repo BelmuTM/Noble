@@ -38,7 +38,7 @@ vec4 NeighborClamping(sampler2D currColorTex, vec4 currColor, vec4 prevColor, ve
 }
 
 void main() {
-    vec4 GlobalIllumination = texture2D(colortex6, texCoords);
+    vec4 GlobalIllumination = texture2D(colortex5, texCoords);
     vec4 GlobalIlluminationResult = GlobalIllumination;
     
     #if PTGI == 1
@@ -46,9 +46,9 @@ void main() {
             // Thanks Stubman#8195 and swr#1899 for the help!
             vec2 resolution = vec2(viewWidth, viewHeight);
             vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
-            vec4 prevColor = texture2D(colortex7, prevTexCoords);
+            vec4 prevColor = texture2D(colortex6, prevTexCoords);
 
-            prevColor = NeighborClamping(colortex6, GlobalIllumination, prevColor, 1.0 / resolution);
+            prevColor = NeighborClamping(colortex5, GlobalIllumination, prevColor, 1.0 / resolution);
             vec2 velocity = (texCoords - prevTexCoords) * resolution;
 
             float blendFactor = float(
@@ -60,6 +60,6 @@ void main() {
         #endif
     #endif
 
-    /*DRAWBUFFERS:7*/
+    /*DRAWBUFFERS:6*/
     gl_FragData[0] = GlobalIlluminationResult;
 }

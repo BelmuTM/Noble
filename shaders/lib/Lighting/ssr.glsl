@@ -29,9 +29,9 @@ vec3 simpleReflections(vec3 color, vec3 viewPos, vec3 normal, float NdotV, vec3 
     viewPos += normal * 0.01;
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec3 hitPos;
-    bool intersect = raytrace(viewPos, reflected, 28, bayer64(gl_FragCoord.xy), hitPos);
+    bool hit = raytrace(viewPos, reflected, 28, bayer64(gl_FragCoord.xy), hitPos);
 
-    if(!intersect) return color;
+    if(!hit) return color;
 
     vec3 fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0) + rainStrength;
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
@@ -78,15 +78,15 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 		
         vec3 hitPos;
 		vec3 reflected = reflect(normalize(viewPos), t2v * H);	
-		bool intersect = raytrace(viewPos, reflected, 20, noise.x, hitPos);
+		bool hit = raytrace(viewPos, reflected, 20, noise.x, hitPos);
 
         float NdotL = max(dot(normal, reflected), 0.0);
-		if(intersect && NdotL >= 0.0) {
+		if(hit && NdotL >= 0.0) {
 			filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
 			totalWeight += NdotL;
 		}
 	}
-	return filteredColor / totalWeight;
+	return filteredColor / max(totalWeight, EPS);
 }
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/
@@ -94,7 +94,7 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 vec3 simpleRefractions(vec3 color, vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
     vec3 refracted = refract(normalize(viewPos), normal, 1.0 / 1.333);
     vec3 hitPos;
-    bool intersect = raytrace(viewPos, refracted, 28, bayer64(gl_FragCoord.xy), hitPos);
+    bool hit = raytrace(viewPos, refracted, 28, bayer64(gl_FragCoord.xy), hitPos);
 
     vec3 fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0) + rainStrength;
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;

@@ -7,6 +7,8 @@
 /***********************************************/
 
 /*------------------ MATH ------------------*/
+#define EPS 0.01
+
 #define PI 3.141592653589
 #define PI2 6.28318530718
 
@@ -21,17 +23,17 @@ const float ambientOcclusionLevel = 0.0;
 const int shadowMapResolution = 3072; //[512 1024 2048 3072 4096 6144]
 const float shadowDistanceRenderMul = 1.0;
 const float shadowDistance = 120.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 100.0 110.0 120.0 130.0 140.0 150.0 160.0 170.0 180.0 190.0 200.0]
-const bool shadowcolor0Nearest = true;
-const bool shadowtex0Nearest = true;
-const bool shadowtex1Nearest = true;
+const bool shadowHardwareFiltering = true;
+const bool shadowHardwareFiltering0 = true;
+const bool shadowHardwareFiltering1 = true;
 
 /*------------------ NOISE ------------------*/
 #define FBM_OCTAVES 6 // FBM
-#define RADIUS 8 // Denoiser
+#define RADIUS 6 // Denoiser
 
 /*------------------ LIGHTING ------------------*/
 #define WHITE_WORLD 0 // [0 1]
-#define AMBIENT vec3(0.01) // If PTGI is ON
+#define AMBIENT vec3(0.0) // If PTGI is ON
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
@@ -73,7 +75,7 @@ const bool shadowtex1Nearest = true;
 #define PTGI_BOUNCES 2 // [1 2 3 4 5 6]
 #define PTGI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define PTGI_FILTER 0 // [0 1]
-#define PTGI_SCALE 1.0
+#define SUN_BRIGHTNESS 4.0
 
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
@@ -115,7 +117,7 @@ const bool shadowtex1Nearest = true;
 
 // Color Correction
 #define TONEMAPPING 0 // [-1 0 1 2 3 4 5]
-#define EXPOSURE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define EXPOSURE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
 #define VIBRANCE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define CONTRAST 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]

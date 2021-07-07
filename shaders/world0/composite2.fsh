@@ -26,7 +26,7 @@ varying vec2 texCoords;
 #include "/lib/lighting/shadows.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
 
-const bool colortex7Clear = false;
+const bool colortex6Clear = false;
 const float rainMinAmbientBrightness = 0.2;
 
 /*------------------ LIGHTMAP ------------------*/
@@ -50,10 +50,6 @@ void main() {
     vec4 tex3 = texture2D(colortex3, texCoords);
     tex0.rgb = toLinear(tex0.rgb);
 
-    if(texture2D(colortex8, texCoords).r == 0.0) {
-        gl_FragData[0] = tex0;
-        return;
-    }
     material data = getMaterial(tex0, tex1, tex2, tex3);
     vec3 Normal = normalize(data.normal.xyz);
     float Depth = texture2D(depthtex0, texCoords).r;
@@ -77,7 +73,7 @@ void main() {
 
     float AmbientOcclusion = 1.0;
     #if SSAO == 1
-        AmbientOcclusion = bilateralBlur(colortex6).a;
+        AmbientOcclusion = bilateralBlur(colortex5).a;
     #endif
 
     vec3 ambient = AMBIENT;
@@ -86,18 +82,18 @@ void main() {
         ambient = getLightmapColor(lightmap);
     #endif
 
-    vec4 GlobalIllumination = texture2D(colortex7, texCoords);
+    vec4 GlobalIllumination = texture2D(colortex6, texCoords);
     #if PTGI == 1
         #if PTGI_FILTER == 1
             /* HIGH QUALITY - MORE EXPENSIVE */
-            GlobalIllumination = smartDeNoise(colortex7, texCoords, 5.0, 5.0, 0.5);
+            GlobalIllumination = smartDeNoise(colortex6, texCoords, 5.0, 5.0, 0.5);
 
             /* DECENT QUALITY - LESS EXPENSIVE */
-            //GlobalIllumination = bilateralBlur(colortex7);
+            //GlobalIllumination = bilateralBlur(colortex6);
         #endif
     #endif
 
-    vec3 Lighting = Cook_Torrance(Normal, viewDir, lightDir, data, ambient, Shadow, GlobalIllumination.rgb, false);
+    vec3 Lighting = Cook_Torrance(Normal, viewDir, lightDir, data, ambient, Shadow, GlobalIllumination.rgb);
 
     if(getBlockId(texCoords) == 6) {
         float depthDist = distance(
@@ -128,5 +124,5 @@ void main() {
 
     /*DRAWBUFFERS:04*/
     gl_FragData[0] = vec4(Lighting * AmbientOcclusion, 1.0);
-    gl_FragData[1] = vec4(VolumetricLighting);
+    gl_FragData[1] = vec4(data.albedo, VolumetricLighting);
 }

@@ -138,27 +138,6 @@ vec3 brightness_contrast(vec3 color, float contrast, float brightness) {
 }
 
 /*
-// SRGB to Linear
-vec3 decodeSRGB(vec3 screenRGB) {
-    vec3 a = screenRGB / 12.92;
-    vec3 b = pow((screenRGB + 0.055) / 1.055, vec3(2.4));
-    vec3 c = step(vec3(0.04045), screenRGB);
-    return mix(a, b, c);
-}
-
-// Linear to SRGB
-vec3 encodeSRGB(vec3 linearRGB) {
-    vec3 a = 12.92 * linearRGB;
-    vec3 b = 1.055 * pow(linearRGB, vec3(1.0 / 2.4)) - 0.055;
-    vec3 c = step(vec3(0.0031308), linearRGB);
-    
-    #if TONEMAPPING != 4
-        return mix(a, b, c);
-    #else
-        return linearRGB;
-    #endif
-}
-
 vec3 srgbToLinear(vec3 srgb) {
     return pow(srgb, vec3(2.2));
 }
