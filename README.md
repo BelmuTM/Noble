@@ -19,7 +19,6 @@ dev versions on the project's Discord server. The invite link is down below.
    1. Join the Discord server. ([Click me!](https://discord.gg/jjRrhpkH9e))
    2. Read the *#releases* channel.
    3. Download the desired release.
-   4. Extract it from the .zip file.
    5. Put it in your "shaderpacks" folder.
       * Hold Windows + R.
       * Type %appdata% in the window.
