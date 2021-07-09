@@ -43,13 +43,12 @@ vec4 bilateralBlur(sampler2D tex) {
     int SAMPLES;
     for(int i = -4 ; i <= 4; i++) {
         for(int j = -3; j <= 3; j++) {
-            vec2 offset = vec2((j * 1.0 / viewWidth), (i * 1.0 / viewHeight));
+            vec2 offset = vec2(j, i) * (1.0 / vec2(viewWidth, viewHeight));
             color += texture2D(tex, texCoords + offset);
             SAMPLES++;
         }
     }
-    color /= SAMPLES;
-    return color;
+    return color / SAMPLES;
 }
 
 // Got help from: https://catlikecoding.com/unity/tutorials/advanced-rendering/depth-of-field/
@@ -69,6 +68,5 @@ vec4 bokeh(sampler2D tex) {
             }
         }
     }
-    color /= SAMPLES;
-    return color;
+    return color / SAMPLES;
 }

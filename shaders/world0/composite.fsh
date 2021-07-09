@@ -17,38 +17,15 @@ varying vec2 texCoords;
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
-///////// REQUIRED FOR PTGI /////////
-#include "/lib/util/worldTime.glsl"
 #include "/lib/util/distort.glsl"
 #include "/lib/lighting/shadows.glsl"
-#include "/lib/lighting/ssao.glsl"
-/////////////////////////////////////
-#include "/lib/lighting/raytracer.glsl"
-#include "/lib/lighting/ptgi.glsl"
 
 void main() {
-    vec3 viewPos = getViewPos();
-    vec3 Normal = normalize(texture2D(colortex1, texCoords).rgb * 2.0 - 1.0);
+     vec3 Shadow = vec3(1.0);
+     #if SHADOWS == 1
+        Shadow = shadowMap(getViewPos(), shadowMapResolution);
+     #endif
 
-    vec3 GlobalIllumination = vec3(0.0);
-    float AmbientOcclusion = 0.0;
-    #if PTGI == 1
-        float Depth = texture2D(depthtex0, texCoords).r;
-
-        vec3 lightPos = worldTime >= 12750 ? moonPosition : sunPosition;
-        vec3 lightDir = normalize(lightPos);
-
-        float F0 = texture2D(colortex2, texCoords).g;
-        bool isMetal = (F0 * 255.0) > 229.5;
-        
-        if(!isHand(Depth)) GlobalIllumination = isMetal ? vec3(0.0) : computePTGI(viewPos, Normal);
-    #else
-        #if SSAO == 1
-            AmbientOcclusion = computeSSAO(viewPos, Normal);
-        #endif
-    #endif
-
-    /*DRAWBUFFERS:5*/
-    gl_FragData[0] = vec4(GlobalIllumination, AmbientOcclusion);
+     /*DRAWBUFFERS:7*/
+     gl_FragData[0] = vec4(Shadow, 1.0);
 }
-

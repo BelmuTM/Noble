@@ -7,14 +7,15 @@
 ##################### ABOUT #####################
 option.ABOUT = Noble
 option.ABOUT.comment = §f§lTwitter: §r§7@Belmu_. §f§lDiscord: §r§7Belmu#4066. §f§lPatreon: §r§6https://www.patreon.com/Belmu. §f§lGithub: §r§6https://www.github.com/BelmuTM.
-value.ABOUT.69.420 = §7r0.9.8 §f- §6Belmu
+value.ABOUT.69.420 = §7r0.9.9 §f- §6Belmu
 
 ##################### SCREENS #####################
 
 screen.LIGHTING = Light & Shadows
+screen.RAYTRACING = Ray Tracing
+screen.ATMOSPHERICS = Atmospherics
 screen.POST_PROCESSING = Post-Processing
 screen.COLOR_CORRECTION = Color Correction
-screen.RAYTRACING = Ray Tracing
 
 ##################### LIGHTING & SHADOWS #####################
 
@@ -23,17 +24,11 @@ option.SHADOWS.comment = Adds shadows.
 value.SHADOWS.0 = §cOFF
 value.SHADOWS.1 = §aON
 
-option.shadowMapResolution = Shadow Quality
-option.shadowMapResolution.comment = Adjusts shadows resolution. §cHigher resolution gives sharper shadows, but reduces §cperformance.
-value.shadowMapResolution.512 = §aVery Low §7| §a512
-value.shadowMapResolution.1024 = §2Low §7| §21024
-value.shadowMapResolution.2048 = §eMedium §7| §e2048
-value.shadowMapResolution.3072 = §6High §7| §63072
-value.shadowMapResolution.4096 = §cVery High §7| §c4096
-value.shadowMapResolution.6144 = §4Extreme §7| §46144
+option.shadowDistance = Shadow Distance
+option.shadowDistance.comment = Adjusts §bShadows§f maximum render distance.
 
 option.SHADOW_SAMPLES = Shadow Samples
-option.SHADOW_SAMPLES.comment = Influences §bShadows§f' quality. §cHigher value gives smoother results, but reduces §cperformance.
+option.SHADOW_SAMPLES.comment = Adjusts §bShadows§f quality. §cHigher resolution gives better shadows, but reduces §cperformance. §6§lONLY APPLIES WHEN SOFT SHADOWS ARE OFF.
 value.SHADOW_SAMPLES.1 = §21
 value.SHADOW_SAMPLES.2 = §a2
 value.SHADOW_SAMPLES.3 = §e3
@@ -41,41 +36,24 @@ value.SHADOW_SAMPLES.4 = §64
 value.SHADOW_SAMPLES.5 = §c5
 value.SHADOW_SAMPLES.6 = §46
 
-option.shadowDistance = Shadow Distance
-option.shadowDistance.comment = Adjusts §bShadow§f's maximum render distance.
+option.shadowMapResolution = Shadow Quality
+option.shadowMapResolution.comment = Adjusts §bShadows§f resolution. §cHigher resolution gives sharper shadows, but reduces §cperformance. §6§lONLY APPLIES WHEN SOFT SHADOWS ARE OFF.
+value.shadowMapResolution.512 = §aVery Low §7| §a512
+value.shadowMapResolution.1024 = §2Low §7| §21024
+value.shadowMapResolution.2048 = §eMedium §7| §e2048
+value.shadowMapResolution.3072 = §6High §7| §63072
+value.shadowMapResolution.4096 = §cVery High §7| §c4096
+value.shadowMapResolution.6144 = §4Extreme §7| §46144
 
 option.SPECULAR = Specular
 option.SPECULAR.comment = Adds a certain shininess to blocks.
 value.SPECULAR.0 = §cOFF
 value.SPECULAR.1 = §aON
 
-option.DIFFUSE_LIGHTING = Diffuse Lighting
-option.DIFFUSE_LIGHTING.comment = Different methods to calculate the §bDiffuse Lighting §fof a surface. §cOren-Nayar is the most accurate but the most §cexpensive.
-value.DIFFUSE_LIGHTING.0 = §f§lLambertian
-value.DIFFUSE_LIGHTING.1 = §f§lOren-Nayar
-
-option.VL = Volumetric Lighting (VL)
-option.VL.comment = Simulates physical light fog (godrays / light shafts).
-value.VL.0 = §cOFF
-value.VL.1 = §aON
-
-option.VL_SAMPLES = VL Samples
-option.VL_SAMPLES.comment = Influences §bVL§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
-value.VL_SAMPLES.4 = §34
-value.VL_SAMPLES.8 = §a8
-value.VL_SAMPLES.12 = §212
-value.VL_SAMPLES.16 = §e16
-value.VL_SAMPLES.24 = §624
-value.VL_SAMPLES.32 = §c32
-value.VL_SAMPLES.48 = §448
-
-option.VL_BRIGHTNESS = VL Brightness
-option.VL_BRIGHTNESS.comment = Adjusts §bVL§f's brightness.
-
-option.VL_BLUR = VL Blur
-option.VL_BLUR.comment = Blurs §bVL. §cGives a cleaner result, but reduces performance.
-value.VL_BLUR.0 = §cOFF
-value.VL_BLUR.1 = §aON
+option.SOFT_SHADOWS = Soft Shadows
+option.SOFT_SHADOWS.comment = Features §bPCSS §7§o(Percentage-Closer Soft Shadows). The farther the shadow is from an object, the blurrier it gets.
+value.SOFT_SHADOWS.0 = §cOFF
+value.SOFT_SHADOWS.1 = §aON
 
 option.SSAO = SSAO
 option.SSAO.comment = §bScreen Space Ambient Occlusion. §fAdds pseudo-shadows that enhance a scene's depth perception.
@@ -91,13 +69,13 @@ value.SSAO_SAMPLES.32 = §632
 value.SSAO_SAMPLES.64 = §c64
 value.SSAO_SAMPLES.128 = §4128
 
-option.sunPathRotation = Sun Path Rotation
-option.sunPathRotation.comment = Adjusts sun's rotation.
-
 option.WHITE_WORLD = White World
 option.WHITE_WORLD.comment = §fSets all block colors to white.
 value.WHITE_WORLD.0 = §cOFF
 value.WHITE_WORLD.1 = §aON
+
+option.sunPathRotation = Sun Path Rotation
+option.sunPathRotation.comment = Adjusts sun's rotation.
 
 ##################### RAY TRACING #####################
 
@@ -148,10 +126,40 @@ value.BINARY_COUNT.16 = §616
 value.BINARY_COUNT.32 = §c32
 value.BINARY_COUNT.48 = §448
 
+option.WATER_REFRACTION = Water Refraction
+option.WATER_REFRACTION.comment = Reduces §bPTGI§f's noise.
+value.WATER_REFRACTION.0 = §cOFF
+value.WATER_REFRACTION.1 = §aON
+
+##################### ATMOSPHERICS #####################
+
+option.VL = Volumetric Lighting (VL)
+option.VL.comment = Simulates physical light fog (godrays / light shafts).
+value.VL.0 = §cOFF
+value.VL.1 = §aON
+
+option.VL_SAMPLES = VL Samples
+option.VL_SAMPLES.comment = Influences §bVL§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
+value.VL_SAMPLES.4 = §34
+value.VL_SAMPLES.8 = §a8
+value.VL_SAMPLES.12 = §212
+value.VL_SAMPLES.16 = §e16
+value.VL_SAMPLES.24 = §624
+value.VL_SAMPLES.32 = §c32
+value.VL_SAMPLES.48 = §448
+
+option.VL_BRIGHTNESS = VL Brightness
+option.VL_BRIGHTNESS.comment = Adjusts §bVL§f's brightness.
+
+option.VL_BLUR = VL Blur
+option.VL_BLUR.comment = Blurs §bVL. §cGives a cleaner result, but reduces performance.
+value.VL_BLUR.0 = §cOFF
+value.VL_BLUR.1 = §aON
+
 ##################### POST-PROCESSING #####################
 
-option.BLOOM = Bloom §b§lWIP
-option.BLOOM.comment = Allows bright areas to glow.
+option.BLOOM = Bloom §b§l[PBR ONLY]
+option.BLOOM.comment = Allows bright areas to glow. §cThis only works with PBR emissive materials (requires a §cPBR texture pack).
 value.BLOOM.0 = §cOFF
 value.BLOOM.1 = §aON
 
@@ -181,6 +189,14 @@ value.DOF.1 = §aON
 option.DOF_DISTANCE = DOF Distance
 option.DOF_DISTANCE.comment = Adjusts §bDepth of Field§f's minimum distance.
 
+option.WATER_FOAM = Water Foam
+option.WATER_FOAM.comment = Simulates foam when water encounters an edge.
+value.WATER_FOAM.0 = §cOFF
+value.WATER_FOAM.1 = §aON
+
+option.FOAM_BRIGHTNESS = Foam Brightness
+option.FOAM_BRIGHTNESS.comment = Adjusts §bWater Foam§f's darkness.
+
 option.OUTLINE = Outline
 option.OUTLINE.comment = Adds a cartoon-ish outline to edges.
 value.OUTLINE.0 = §cOFF
@@ -189,13 +205,8 @@ value.OUTLINE.1 = §aON
 option.OUTLINE_DARKNESS = Outline Darkness
 option.OUTLINE_DARKNESS.comment = Adjusts §bOutline§f's darkness.
 
-option.WATER_FOAM = Water Foam
-option.WATER_FOAM.comment = Simulates foam when water encounters an edge.
-value.WATER_FOAM.0 = §cOFF
-value.WATER_FOAM.1 = §aON
-
-option.FOAM_BRIGHTNESS = Foam Brightness
-option.FOAM_BRIGHTNESS.comment = Adjusts §bWater Foam§f's darkness.
+option.OUTLINE_THICKNESS = Outline Thickness
+option.OUTLINE_THICKNESS.comment = Adjusts §bOutline§f's thickness.
 
 ##################### COLOR CORRECTION #####################
 

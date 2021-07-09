@@ -25,17 +25,17 @@ float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
 
 /*------------------ SIMPLE REFLECTIONS ------------------*/
 
-vec3 simpleReflections(vec3 color, vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
+vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
     viewPos += normal * 0.01;
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec3 hitPos;
     bool hit = raytrace(viewPos, reflected, 28, bayer64(gl_FragCoord.xy), hitPos);
 
-    if(!hit) return color;
+    if(!hit) return vec3(0.0);
 
     vec3 fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0) + rainStrength;
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
-    return mix(color, hitColor, fresnel * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR));
+    return hitColor * (fresnel * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR));
 }
 
 /*------------------ ROUGH REFLECTIONS ------------------*/
@@ -91,12 +91,15 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/
 
-vec3 simpleRefractions(vec3 color, vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
-    vec3 refracted = refract(normalize(viewPos), normal, 1.0 / 1.333);
+vec3 simpleRefractions(vec3 color, vec3 viewPos, vec3 normal, float NdotV, float F0) {
+    //float ior = F0toIOR(F0);
+    vec3 refracted = refract(normalize(viewPos), normal, 1.0 / 1.325); // water's ior
     vec3 hitPos;
     bool hit = raytrace(viewPos, refracted, 28, bayer64(gl_FragCoord.xy), hitPos);
 
-    vec3 fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0) + rainStrength;
+    if(isHand(texture2D(depthtex1, hitPos.xy).r)) return color;
+
+    float fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0);
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
-    return hitColor;
+    return hitColor * (1.0 - fresnel);
 }

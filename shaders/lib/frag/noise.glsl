@@ -9,6 +9,41 @@
 // Functions below aren't my property. They either are public domain
 // or require to credit the author.
 
+const vec2 poisson32[32] = vec2[](
+    vec2(-0.975402, -0.0711386),
+    vec2(-0.920347, -0.41142),
+    vec2(-0.883908, 0.217872),
+    vec2(-0.884518, 0.568041),
+    vec2(-0.811945, 0.90521),
+    vec2(-0.792474, -0.779962),
+    vec2(-0.614856, 0.386578),
+    vec2(-0.580859, -0.208777),
+    vec2(-0.53795, 0.716666),
+    vec2(-0.515427, 0.0899991),
+    vec2(-0.454634, -0.707938),
+    vec2(-0.420942, 0.991272),
+    vec2(-0.261147, 0.588488),
+    vec2(-0.211219, 0.114841),
+    vec2(-0.146336, -0.259194),
+    vec2(-0.139439, -0.888668),
+    vec2(0.0116886, 0.326395),
+    vec2(0.0380566, 0.625477),
+    vec2(0.0625935, -0.50853),
+    vec2(0.125584, 0.0469069),
+    vec2(0.169469, -0.997253),
+    vec2(0.320597, 0.291055),
+    vec2(0.359172, -0.633717),
+    vec2(0.435713, -0.250832),
+    vec2(0.507797, -0.916562),
+    vec2(0.545763, 0.730216),
+    vec2(0.56859, 0.11655),
+    vec2(0.743156, -0.505173),
+    vec2(0.736442, -0.189734),
+    vec2(0.843562, 0.357036),
+    vec2(0.865413, 0.763726),
+    vec2(0.872005, -0.927)
+);
+
 float rand(vec2 p) {
 	return fract(sin(dot(p, vec2(12.9898, 4.1414))) * 43758.5453);
 }
@@ -56,11 +91,6 @@ float noise(vec2 p) {
 	return res * res;
 }
 
-float blueNoise(vec2 p) {
-    vec2 coord = fract(p / 256.0) * 256.0;
-    return texture2D(noisetex, p).a;
-}
-
 const vec3 interleavedConstants = vec3(0.06711056, 0.00583715, 52.9829189);
 
 float interleavedGradientNoise(vec2 p) {
@@ -83,6 +113,12 @@ float FBM(vec2 p) {
         amplitude *= 0.5;
     }
     return value;
+}
+
+// Gold Noise ©2015 dcerisano@standard3d.com
+
+float gold_noise(in vec2 xy, in float seed){
+    return fract(tan(distance(xy * GOLDEN_RATIO, xy) * seed) * xy.x);
 }
 
 //	<https://www.shadertoy.com/view/Xd23Dh>

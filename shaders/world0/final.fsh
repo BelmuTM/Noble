@@ -17,6 +17,7 @@ uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 uniform sampler2D colortex5;
+uniform sampler2D colortex7;
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
@@ -47,7 +48,6 @@ uniform mat4 gbufferModelView, gbufferModelViewInverse;
 #include "/lib/util/worldTime.glsl"
 #include "/lib/post/dof.glsl"
 #include "/lib/post/outline.glsl"
-#include "/lib/post/bloom.glsl"
 #include "/lib/atmospherics/fog.glsl"
 
 const vec4 fogColor = vec4(0.225, 0.349, 0.488, 1.0);
@@ -69,7 +69,7 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result += Bloom(4, 3) * BLOOM_INTENSITY;
+        Result += bilateralBlur(colortex7) * BLOOM_INTENSITY;
     #endif
     
     vec3 exposureColor = Result.rgb * EXPOSURE;
@@ -92,7 +92,7 @@ void main() {
     Result.rgb = brightness_contrast(Result.rgb, CONTRAST, BRIGHTNESS);
 
     #if OUTLINE == 1
-        Result = mix(Result, vec4(0.0), clamp(edgeDetection(), 0.0, OUTLINE_DARKNESS));
+        Result = mix(Result, vec4(0.0), clamp(edgeDetection(OUTLINE_THICKNESS), 0.0, OUTLINE_DARKNESS));
     #endif
 
     Result.rgb = toSRGB(Result.rgb);

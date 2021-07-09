@@ -48,10 +48,11 @@ float linearizeDepth(float depth) {
 }
 
 float F0toIOR(float F0) {
-	F0 = sqrt(F0) * 0.99999;
-	return (1.0 + F0) / (1.0 - F0);
+	F0 *= 0.99999999;
+	return -(F0 + 1.0 + 2.0 * sqrt(F0)) / (F0 - 1.0);
 }
 
 float IORtoF0(float ior) {
-	return sqrt((ior - 1.0) / (ior + 1.0));
+	float a = (ior - 1.0) / (ior + 1.0);
+	return a * a;
 }

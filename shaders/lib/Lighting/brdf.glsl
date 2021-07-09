@@ -28,7 +28,7 @@ float Geometry_Smith(float NdotV, float NdotL, float roughness) {
 
     float ggxV = Geometry_Schlick_Beckmann(NdotV, roughness);
     float ggxL = Geometry_Schlick_Beckmann(NdotL, roughness);
-    return (ggxV * ggxL) / max(4.0 * NdotL * NdotV, 0.001);
+    return (ggxV * ggxL) / max(4.0 * NdotL * NdotV, EPS);
 }
 
 float Geometry_Schlick_GGX(float NdotV, float alpha) {
@@ -69,11 +69,11 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 ambient, vec3 sha
     float alpha = data.roughness * data.roughness;
 
     vec3 H = normalize(V + L); // Halfway vector
-    float NdotL = max(dot(N, L), 0.001);
-    float NdotV = max(dot(N, V), 0.001);
-    float NdotH = max(dot(N, H),   0.0);
-    float VdotH = max(dot(V, H),   0.0);
-    float HdotL = max(dot(H, L),   0.0);
+    float NdotL = max(dot(N, L), EPS);
+    float NdotV = max(dot(N, V), EPS);
+    float NdotH = max(dot(N, H), EPS);
+    float VdotH = max(dot(V, H), EPS);
+    float HdotL = max(dot(H, L), EPS);
 
     vec3 SpecularLighting;
     #if SPECULAR == 1
@@ -98,19 +98,16 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 ambient, vec3 sha
     vec3 Albedo = data.albedo * dayTimeColor;
 
     if(!isMetal) {
-        #if DIFFUSE_LIGHTING == 0
+        /* LAMBERTIAN MODEL */
+        //DiffuseLighting += Albedo * E0;
+        
+        /* OREN-NAYAR MODEL - QUALITATIVE */
+        float aNdotL = acos(NdotL);
+        float aNdotV = acos(NdotV);
 
-            /* LAMBERTIAN MODEL */
-            DiffuseLighting += Albedo * E0;
-        #else 
-            /* OREN-NAYAR MODEL - QUALITATIVE */
-            float aNdotL = acos(NdotL);
-            float aNdotV = acos(NdotV);
-
-            float A = 1.0 - 0.5 * (alpha / (alpha + 0.4));
-            float B = 0.45 * (alpha / (alpha + 0.09));
-            DiffuseLighting += Albedo * (A + (B * max(0.0, cos(aNdotV - aNdotL)))) * E0;
-        #endif
+        float A = 1.0 - 0.5 * (alpha / (alpha + 0.4));
+        float B = 0.45 * (alpha / (alpha + 0.09));
+        DiffuseLighting += Albedo * (A + (B * max(0.0, cos(aNdotV - aNdotL)))) * E0;
     }
 
     vec3 Lighting = DiffuseLighting + SpecularLighting;
