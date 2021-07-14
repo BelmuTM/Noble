@@ -27,16 +27,12 @@ void main() {
 
     vec3 GlobalIllumination = vec3(0.0);
     float AmbientOcclusion = 0.0;
-    #if PTGI == 1
+    #if GI == 1
         float Depth = texture2D(depthtex0, texCoords).r;
-
-        vec3 lightPos = worldTime >= 12750 ? moonPosition : sunPosition;
-        vec3 lightDir = normalize(lightPos);
-
         float F0 = texture2D(colortex2, texCoords).g;
         bool isMetal = (F0 * 255.0) > 229.5;
         
-        if(!isHand(Depth)) GlobalIllumination = isMetal ? vec3(0.0) : computePTGI(viewPos, Normal);
+        if(!isHand(Depth)) GlobalIllumination = isMetal ? vec3(0.0) : computeGI(viewPos, Normal);
     #else
         #if SSAO == 1
             AmbientOcclusion = computeSSAO(viewPos, Normal);

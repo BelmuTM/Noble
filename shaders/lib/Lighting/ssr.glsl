@@ -26,7 +26,7 @@ float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
 /*------------------ SIMPLE REFLECTIONS ------------------*/
 
 vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
-    viewPos += normal * 0.01;
+    viewPos += normal * EPS;
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec3 hitPos;
     bool hit = raytrace(viewPos, reflected, 28, bayer64(gl_FragCoord.xy), hitPos);
@@ -81,7 +81,7 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 		bool hit = raytrace(viewPos, reflected, 20, noise.x, hitPos);
 
         float NdotL = max(dot(normal, reflected), 0.0);
-		if(hit && NdotL >= 0.0) {
+		if(NdotL >= 0.0) {
 			filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
 			totalWeight += NdotL;
 		}

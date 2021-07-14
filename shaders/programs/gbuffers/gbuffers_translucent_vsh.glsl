@@ -64,7 +64,7 @@ void main() {
     vec4 clipPos = gl_ProjectionMatrix * vec4(viewPos, 1.0);
 	
     vec3 tangent = normalize(gl_NormalMatrix * at_tangent.xyz);
-    vec3 binormal = normalize(gl_NormalMatrix * cross(at_tangent.xyz, gl_Normal) * sign(at_tangent.w));
+    vec3 binormal = normalize(cross(tangent, normal) * sign(at_tangent.w));
 	TBN = mat3(tangent, binormal, normal);	
 
 	blockId = mc_Entity.x - 1000.0;

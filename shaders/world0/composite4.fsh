@@ -43,7 +43,7 @@ void main() {
     #if VL == 1
         #if VL_BLUR == 1
             /* HIGH QUALITY - MORE EXPENSIVE */
-            //VolumetricLighting = fastGaussian(colortex4, vec2(viewWidth, viewHeight), 5.65, 15.0, 20.0).a;
+            //VolumetricLighting = fastGaussian(colortex4, viewSize, 5.65, 15.0, 20.0).a;
 
             /* DECENT QUALITY - LESS EXPENSIVE */
             VolumetricLighting = bilateralBlur(colortex4).a;

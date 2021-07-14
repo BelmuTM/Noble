@@ -32,7 +32,7 @@ float saturate(float x) {
 	their hemisphere sampling functions! <3
 */
 
-// Written by n_r4h33m#7259
+// Provided by LVutner.#1925
 vec3 hemisphereSample(float u, float v) {
     float phi = v * 2.0 * PI;
     float cosTheta = 1.0 - u;
@@ -40,16 +40,40 @@ vec3 hemisphereSample(float u, float v) {
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
 }
 
-// Written by xirreal#0281
-vec3 randomHemisphereDirection(vec3 n, vec2 r) {
-    vec3 uu = normalize(cross(n, vec3(0.0, 1.0, 1.0)));
-    vec3 vv = cross(uu, n);
+// Provided by LVutner.#1925
+vec3 importanceSampleCos(vec3 N, vec2 Xi) {
+    float Phi = 2.0 * PI * Xi.y;
+    float cosTheta = sqrt(max(0.0, 1.0 - Xi.x));
+    float sinTheta = sqrt(Xi.x);
 
-    float ra = sqrt(r.y);
-    float rx = ra * cos(PI2 * r.x);
-    float ry = ra * sin(PI2 * r.x);
-    float rz = sqrt(1.0 - r.y);
-    vec3 rr = vec3(rx * uu + ry * vv + rz * n);
+    // Cartesian coords
+    vec3 L;
+    L.x = sinTheta * cos(Phi);
+    L.y = sinTheta * sin(Phi);
+    L.z = cosTheta;
 
-    return normalize(rr);
+    // TBN
+    vec3 B = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+    vec3 T = normalize(cross(B, N));
+    B = cross(N, T);
+    
+    // World / view coords
+    L = vec3(T * L.x + B * L.y + N * L.z);
+    L = normalize(L);
+    
+    return L;
+}
+
+// Provided by xirreal#0281
+vec3 randomHemisphereDirection(vec3 normal, vec2 r) {
+    vec3 tangent = normalize(cross(normal, vec3(0.0, 1.0, 1.0)));
+    vec3 bitangent = cross(tangent, normal);
+
+    float radius = sqrt(r.y);
+    float xOffset = radius * cos(PI2 * r.x);
+    float yOffset = radius * sin(PI2 * r.x);
+    float zOffset = sqrt(1.0 - r.y);
+    vec3 direction = xOffset * tangent + yOffset * bitangent + zOffset * normal;
+
+    return normalize(direction);
 }

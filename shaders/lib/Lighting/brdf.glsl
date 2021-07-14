@@ -61,14 +61,14 @@ vec3 Spherical_Gaussian_Fresnel(float HdotL, vec3 F0){
     https://gist.github.com/LVutner/c07a3cc4fec338e8fe3fa5e598787e47
 */
 
-vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 ambient, vec3 shadowmap, vec3 GI) {
+vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap, vec3 GlobalIllumination) {
     bool isMetal = (data.F0 * 255.0) > 229.5;
+    float alpha = data.roughness * data.roughness;
 
     vec3 specularColor = isMetal ? data.albedo : vec3(data.F0);
     vec3 dayTimeColor = getDayTimeColor();
-    float alpha = data.roughness * data.roughness;
 
-    vec3 H = normalize(V + L); // Halfway vector
+    vec3 H = normalize(V + L);
     float NdotL = max(dot(N, L), EPS);
     float NdotV = max(dot(N, V), EPS);
     float NdotH = max(dot(N, H), EPS);
@@ -77,14 +77,9 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 ambient, vec3 sha
 
     vec3 SpecularLighting;
     #if SPECULAR == 1
-        /* NORMAL DISTRIBUTION FUNCTION (NDF) */
-        float D = Trowbridge_Reitz_GGX(NdotH, alpha);
-        /* FRESNEL */
-        vec3 F = Spherical_Gaussian_Fresnel(HdotL, specularColor);
-        // vec3 F = Fresnel_Schlick(NdotV, specularColor);
-        // vec3 F = Spherical_Gaussian_Fresnel(HdotL, specularColor);
 
-        /* GEOMETRIC SHADOWING */
+        float D = Trowbridge_Reitz_GGX(NdotH, alpha);
+        vec3 F = Spherical_Gaussian_Fresnel(HdotL, specularColor);
         float G = Geometry_Smith(NdotV, NdotL, data.roughness);
         // float G = Geometry_Schlick_GGX(NdotV, alpha);
         // float G = Geometry_Smith(NdotV, NdotL, data.roughness);
@@ -93,8 +88,8 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 ambient, vec3 sha
         SpecularLighting = (D * F * G) * shadowmap * dayTimeColor;
     #endif
 
-    vec3 DiffuseLighting  = GI * data.albedo;
-    vec3 E0  = ambient + (NdotL * shadowmap);
+    vec3 DiffuseLighting  = GlobalIllumination * data.albedo;
+    vec3 E0 = lightmap + NdotL * shadowmap + AMBIENT;
     vec3 Albedo = data.albedo * dayTimeColor;
 
     if(!isMetal) {

@@ -12,7 +12,6 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/lib/composite_uniforms.glsl"
-#include "/lib/util/distort.glsl"
 #include "/lib/frag/dither.glsl"
 #include "/lib/frag/noise.glsl"
 #include "/lib/util/math.glsl"
@@ -23,7 +22,7 @@ varying vec2 texCoords;
 #include "/lib/util/blur.glsl"
 #include "/lib/material.glsl"
 #include "/lib/lighting/brdf.glsl"
-#include "/lib/lighting/shadows.glsl"
+#include "/lib/util/distort.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
 
 const bool colortex6Clear = false;
@@ -41,8 +40,7 @@ vec3 getLightmapColor(vec2 lightmap) {
 void main() {
     vec3 viewPos = getViewPos();
     vec3 viewDir = normalize(-viewPos);
-    vec3 lightPos = worldTime >= 12750 ? moonPosition : sunPosition;
-    vec3 lightDir = normalize(lightPos);
+    vec3 lightDir = normalize(shadowLightPosition);
 
     vec4 tex0 = texture2D(colortex0, texCoords);
     vec4 tex1 = texture2D(colortex1, texCoords);
@@ -73,24 +71,22 @@ void main() {
         AmbientOcclusion = bilateralBlur(colortex5).a;
     #endif
 
-    vec3 ambient = AMBIENT;
-    #if PTGI == 0
+    vec3 lightmapColor = vec3(0.0);
+    #if GI == 0
         vec2 lightmap = texture2D(colortex2, texCoords).zw;
-        ambient = getLightmapColor(lightmap);
+        lightmapColor = getLightmapColor(lightmap);
     #endif
 
     vec4 GlobalIllumination = texture2D(colortex6, texCoords);
-    #if PTGI == 1
-        #if PTGI_FILTER == 1
-            /* HIGH QUALITY - MORE EXPENSIVE */
-            GlobalIllumination = smartDeNoise(colortex6, texCoords, 5.0, 5.0, 0.5);
-
-            /* DECENT QUALITY - LESS EXPENSIVE */
-            //GlobalIllumination = bilateralBlur(colortex6);
+    /*
+    #if GI == 1
+        #if GI_FILTER == 1
+            // nyoom
         #endif
     #endif
+    */
 
-    vec3 Lighting = Cook_Torrance(Normal, viewDir, lightDir, data, ambient, Shadow, GlobalIllumination.rgb);
+    vec3 Lighting = Cook_Torrance(Normal, viewDir, lightDir, data, lightmapColor, Shadow, GlobalIllumination.rgb);
     bool isEmissive = data.emission != 0.0;
 
     if(getBlockId(texCoords) == 6) {

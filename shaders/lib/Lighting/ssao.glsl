@@ -8,7 +8,7 @@
 
 float computeSSAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
-	vec3 sampleOrigin = viewPos + normal * 0.01;
+	vec3 sampleOrigin = viewPos + normal * EPS;
 	
 	for(int i = 0; i <= SSAO_SAMPLES; i++) {
 		vec2 noise = vec2(bayer64(gl_FragCoord.xy), bayer64(gl_FragCoord.yx));

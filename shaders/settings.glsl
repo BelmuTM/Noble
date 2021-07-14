@@ -8,7 +8,6 @@
 
 /*------------------ MATH ------------------*/
 #define EPS 0.001
-#define GOLDEN_RATIO 1.61803398874989484820459
 
 #define PI 3.141592653589
 #define PI2 6.28318530718
@@ -16,24 +15,23 @@
 #define INV_SQRT_OF_2PI 0.3989422804014326
 #define INV_PI 0.31831
 
+#define GOLDEN_RATIO 1.61803398874989484820459
+#define GOLDEN_ANGLE 2.39996322973
+
 /*------------------ OPTIFINE CONSTANTS ------------------*/
-const float sunPathRotation = -40.0; // [80.0 75.0 70.0 65.0 60.0 55.0 50.0 45.0 40.0 35.0 30.0 25.0 20.0 15.0 10.0 5.0 0.0 -5.0 -10.0 -15.0 -20.0 -25.0 -30.0 -35.0 -40.0 -45.0 -50.0 -55.0 -60.0 -65.0 -70.0 -75.0 -80.0]
+const float sunPathRotation = -40.0; // [-85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0]
 const int noiseTextureResolution = 1028;
 const float ambientOcclusionLevel = 0.0;
 
 const int shadowMapResolution = 3072; //[512 1024 2048 3072 4096 6144]
-const float shadowDistanceRenderMul = 1.0;
-const float shadowDistance = 120.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 100.0 110.0 120.0 130.0 140.0 150.0 160.0 170.0 180.0 190.0 200.0]
-const bool shadowHardwareFiltering = true;
-const bool shadowHardwareFiltering0 = true;
-const bool shadowHardwareFiltering1 = true;
+const float shadowDistance = 200.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 100.0 110.0 120.0 130.0 140.0 150.0 160.0 170.0 180.0 190.0 200.0 210.0 220.0 230.0 240.0 250.0 260.0 270.0 280.0 290.0 300.0]
 
 /*------------------ NOISE ------------------*/
 #define FBM_OCTAVES 6 // FBM
 #define RADIUS 6 // Denoiser
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.02) // If PTGI is ON
+#define AMBIENT vec3(0.02)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
@@ -61,26 +59,26 @@ const bool shadowHardwareFiltering1 = true;
 
 /*------------------ SHADOWS ------------------*/
 #define SHADOWS 1 // [0 1]
-#define SOFT_SHADOWS 0 //[0 1]
+#define SOFT_SHADOWS 0 // [0 1]
 #define SHADOW_SAMPLES 3 // [1 2 3 4 5 6]
 #define DISTORT_FACTOR 0.5 // Lower numbers mean better shadows near you and worse shadows farther away.
 #define SHADOW_BIAS 0.1 // Increase this if you get shadow acne. Decrease this if you get peter panning.
 
 // Soft Shadows
-#define PCSS_SAMPLES 32
+#define PCSS_SAMPLES 20
 #define LIGHT_SIZE 100.0
-#define BLOCKER_SEARCH_RADIUS 40.0
-#define BLOCKER_SEARCH_SAMPLES 16
+#define BLOCKER_SEARCH_RADIUS 65.0
+#define BLOCKER_SEARCH_SAMPLES 20
 
 /*------------------ RAY TRACING ------------------*/
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT 8 // [4 8 16 32 48]
 #define BINARY_DECREASE 0.5
 
-#define PTGI 1 // [0 1]
-#define PTGI_BOUNCES 2 // [1 2 3 4 5 6]
-#define PTGI_TEMPORAL_ACCUMULATION 1 // [0 1]
-#define PTGI_FILTER 0 // [0 1]
+#define GI 1 // [0 1]
+#define GI_BOUNCES 2 // [1 2 3 4 5 6]
+#define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
+#define GI_FILTER 0 // [0 1]
 #define SUN_BRIGHTNESS 4.0
 
 #define SSR 1 // [0 1]
@@ -106,7 +104,7 @@ const bool shadowHardwareFiltering1 = true;
 
 // Depth of Field
 #define DOF 1 // [0 1]
-#define DOF_DISTANCE 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
+#define DOF_DISTANCE 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define MIN_DISTANCE 5
 #define FOCAL 0.3
 #define APERTURE 0.3
@@ -116,12 +114,20 @@ const bool shadowHardwareFiltering1 = true;
 #define BOKEH_SAMPLES 6
 #define BOKEH_RADIUS 0.03
 
-#define BLOOM 0 // [0 1]
+#define BLOOM 1 // [0 1]
 #define BLOOM_INTENSITY 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define BLOOM_RESOLUTION_MULTIPLIER 1.0
+#define BLOOM_QUALITY 15.0
+#define BLOOM_SIZE 5.0
+#define BLOOM_DIRECTIONS 20.0
 
 #define OUTLINE 0 // [0 1]
 #define OUTLINE_DARKNESS 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define OUTLINE_THICKNESS 1.00 // [0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+
+#define VIGNETTE 1 // [0 1]
+#define VIGNETTE_FALLOFF 0.2
+#define VIGNETTE_AMOUNT 0.7
 
 // Color Correction
 #define TONEMAPPING 0 // [-1 0 1 2 3 4 5]

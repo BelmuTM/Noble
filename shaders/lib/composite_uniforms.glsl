@@ -6,10 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+uniform vec3 shadowLightPosition;
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 uniform vec3 cameraPosition;
 uniform vec3 skyColor;
+
 uniform float rainStrength;
 uniform float frameTimeCounter;
 uniform float aspectRatio;
@@ -43,3 +45,6 @@ uniform sampler2D shadowcolor0;
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 uniform mat4 shadowModelView, shadowProjection;
+
+vec2 viewSize = vec2(viewWidth, viewHeight);
+vec2 pixelSize = 1.0 / vec2(viewWidth, viewHeight);

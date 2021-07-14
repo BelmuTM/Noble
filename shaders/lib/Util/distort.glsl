@@ -1,4 +1,4 @@
-// Written by Builderb0y
+// Provided by Builderb0y
 
 float cubeLength(vec2 coords) {
 	return pow(abs(coords.x * coords.x * coords.x) + abs(coords.y * coords.y * coords.y), 1.0 / 3.0);
@@ -15,9 +15,13 @@ vec3 distort(vec3 coords, float factor) {
 vec3 distort(vec3 coords) {
 	return distort(coords, getDistortFactor(coords.xy));
 }
+////////////////////////
 
 vec2 distort2(vec2 coords) {
-	float centerDist = length(coords);
-	float distortFactor = mix(1.0, centerDist, 0.9);
-	return coords / distortFactor;
+	return coords / (mix(1.0, length(coords), 0.9) + DISTORT_FACTOR);
+}
+
+vec2 distort3(vec2 coords) {
+	const float shadowBias = 0.85;
+	return coords / (length(coords * 1.169) * shadowBias + (1.0 - shadowBias));
 }

@@ -37,7 +37,7 @@ value.SHADOW_SAMPLES.5 = §c5
 value.SHADOW_SAMPLES.6 = §46
 
 option.shadowMapResolution = Shadow Quality
-option.shadowMapResolution.comment = Adjusts §bShadows§f resolution. §cHigher resolution gives sharper shadows, but reduces §cperformance. §6§lONLY APPLIES WHEN SOFT SHADOWS ARE OFF.
+option.shadowMapResolution.comment = Adjusts §bShadows§f resolution. §cHigher resolution gives sharper shadows, but reduces §cperformance.
 value.shadowMapResolution.512 = §aVery Low §7| §a512
 value.shadowMapResolution.1024 = §2Low §7| §21024
 value.shadowMapResolution.2048 = §eMedium §7| §e2048
@@ -50,7 +50,7 @@ option.SPECULAR.comment = Adds a certain shininess to blocks.
 value.SPECULAR.0 = §cOFF
 value.SPECULAR.1 = §aON
 
-option.SOFT_SHADOWS = Soft Shadows
+option.SOFT_SHADOWS = Soft Shadows §e§lBETA
 option.SOFT_SHADOWS.comment = Features §bPCSS §7§o(Percentage-Closer Soft Shadows). The farther the shadow is from an object, the blurrier it gets.
 value.SOFT_SHADOWS.0 = §cOFF
 value.SOFT_SHADOWS.1 = §aON
@@ -89,29 +89,29 @@ option.SSR_TYPE.comment = §bSimple reflections §fdo not consider a material's 
 value.SSR_TYPE.0 = §eSimple Reflections
 value.SSR_TYPE.1 = §eRough Reflections
 
-option.PTGI = PTGI §e§lBETA
-option.PTGI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it.
-value.PTGI.0 = §cOFF
-value.PTGI.1 = §aON
+option.GI = Global Illumination (GI)
+option.GI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it.
+value.GI.0 = §cOFF
+value.GI.1 = §aON
 
-option.PTGI_BOUNCES = PTGI Bounces
-option.PTGI_BOUNCES.comment = Makes §bPTGI§f bounce §aX§f times to gather light. §cHigher value gives better results, but reduces §cperformance.
-value.PTGI_BOUNCES.1 = §21
-value.PTGI_BOUNCES.2 = §a2
-value.PTGI_BOUNCES.3 = §e3
-value.PTGI_BOUNCES.4 = §64
-value.PTGI_BOUNCES.5 = §c5
-value.PTGI_BOUNCES.6 = §46
+option.GI_BOUNCES = GI Bounces
+option.GI_BOUNCES.comment = Makes §bGI§f bounce §aX§f times to gather light. §cHigher value gives better results, but reduces §cperformance.
+value.GI_BOUNCES.1 = §21
+value.GI_BOUNCES.2 = §a2
+value.GI_BOUNCES.3 = §e3
+value.GI_BOUNCES.4 = §64
+value.GI_BOUNCES.5 = §c5
+value.GI_BOUNCES.6 = §46
 
-option.PTGI_TEMPORAL_ACCUMULATION = Temporal Accumulation
-option.PTGI_TEMPORAL_ACCUMULATION.comment = Accumulates §bPTGI §fover multiple frames to reduce noise and give a more precise result.
-value.PTGI_TEMPORAL_ACCUMULATION.0 = §cOFF
-value.PTGI_TEMPORAL_ACCUMULATION.1 = §aON
+option.GI_TEMPORAL_ACCUMULATION = Temporal Accumulation
+option.GI_TEMPORAL_ACCUMULATION.comment = Accumulates §bGI §fover multiple frames to reduce noise and give a more precise result.
+value.GI_TEMPORAL_ACCUMULATION.0 = §cOFF
+value.GI_TEMPORAL_ACCUMULATION.1 = §aON
 
-option.PTGI_FILTER = Spatial Filtering
-option.PTGI_FILTER.comment = Reduces §bPTGI§f's noise.
-value.PTGI_FILTER.0 = §cOFF
-value.PTGI_FILTER.1 = §aON
+option.GI_FILTER = Spatial Filtering
+option.GI_FILTER.comment = Reduces §bGI§f's noise.
+value.GI_FILTER.0 = §cOFF
+value.GI_FILTER.1 = §aON
 
 option.BINARY_REFINEMENT = Binary Refinement
 option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make it more accurate. §cHigher value gives better results, but reduces §cperformance.
@@ -127,7 +127,7 @@ value.BINARY_COUNT.32 = §c32
 value.BINARY_COUNT.48 = §448
 
 option.WATER_REFRACTION = Water Refraction
-option.WATER_REFRACTION.comment = Reduces §bPTGI§f's noise.
+option.WATER_REFRACTION.comment = Reduces §bGI§f's noise.
 value.WATER_REFRACTION.0 = §cOFF
 value.WATER_REFRACTION.1 = §aON
 
@@ -207,6 +207,11 @@ option.OUTLINE_DARKNESS.comment = Adjusts §bOutline§f's darkness.
 
 option.OUTLINE_THICKNESS = Outline Thickness
 option.OUTLINE_THICKNESS.comment = Adjusts §bOutline§f's thickness.
+
+option.VIGNETTE = Vignette
+option.VIGNETTE.comment = Makes screen edges darker.
+value.VIGNETTE.0 = §cOFF
+value.VIGNETTE.1 = §aON
 
 ##################### COLOR CORRECTION #####################
 

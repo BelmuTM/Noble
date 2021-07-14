@@ -65,12 +65,12 @@ void main() {
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 	#endif
 	
-	//Normals
+	// Normals
 	vec3 normal;
 	normal.xy = normalTex.xy * 2.0 - 1.0;
-	normal.z = sqrt(1.0 - dot(normal.xy, normal.xy)); //Reconstruct Z
-	normal = clamp(normal, -1.0, 1.0); //Clamp into right range
-	normal = TBN * normal; //Rotate by TBN matrix
+	normal.z = sqrt(1.0 - dot(normal.xy, normal.xy)); // Reconstruct Z
+	normal = clamp(normal, -1.0, 1.0); // Clamp into right range
+	normal = TBN * normal; // Rotate by TBN matrix
 
 	float ao = normalTex.z;
 	

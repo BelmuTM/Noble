@@ -12,32 +12,8 @@
 
 varying vec2 texCoords;
 
-uniform sampler2D colortex0;
-uniform sampler2D colortex1;
-uniform sampler2D colortex2;
-uniform sampler2D colortex3;
-uniform sampler2D colortex5;
-uniform sampler2D colortex7;
-uniform sampler2D depthtex0;
-uniform sampler2D noisetex;
-
-uniform vec3 cameraPosition;
-uniform vec3 skyColor;
-uniform float rainStrength;
-uniform float centerDepthSmooth;
-uniform int isEyeInWater;
-uniform int worldTime;
-uniform float near;
-uniform float far;
-uniform float viewWidth;
-uniform float viewHeight;
-uniform float aspectRatio;
-uniform float frameTimeCounter;
-
-uniform mat4 gbufferProjection, gbufferProjectionInverse;
-uniform mat4 gbufferModelView, gbufferModelViewInverse;
-
 #include "/settings.glsl"
+#include "/lib/composite_uniforms.glsl"
 #include "/lib/frag/dither.glsl"
 #include "/lib/frag/noise.glsl"
 #include "/lib/util/math.glsl"
@@ -69,7 +45,8 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result += bilateralBlur(colortex7) * BLOOM_INTENSITY;
+        Result += fastGaussian(colortex7, viewSize * BLOOM_RESOLUTION_MULTIPLIER, 
+                  BLOOM_SIZE, BLOOM_QUALITY, BLOOM_DIRECTIONS) * BLOOM_INTENSITY;
     #endif
     
     vec3 exposureColor = Result.rgb * EXPOSURE;
@@ -95,7 +72,12 @@ void main() {
         Result = mix(Result, vec4(0.0), clamp(edgeDetection(OUTLINE_THICKNESS), 0.0, OUTLINE_DARKNESS));
     #endif
 
-    Result.rgb = toSRGB(Result.rgb);
+    #if VIGNETTE == 1
+        float dist = distance(texCoords, vec2(0.5, 0.5));
+        Result.rgb *= smoothstep(0.8, VIGNETTE_FALLOFF * 0.799, dist * (VIGNETTE_AMOUNT + VIGNETTE_FALLOFF));
+    #endif
+
     /*DRAWBUFFERS:0*/
+    Result.rgb = toSRGB(Result.rgb);
     gl_FragData[0] = Result;
 }

@@ -22,40 +22,51 @@ uniform mat4 gbufferPreviousProjection;
 #include "/lib/util/utils.glsl"
 #include "/lib/util/reprojection.glsl"
 
-vec4 NeighborClamping(sampler2D currColorTex, vec4 currColor, vec4 prevColor, vec2 resolution) {
-    vec4 minColor = currColor, maxColor = currColor;
+/*
+    Temporal Anti-Aliasing from "Temporal Reprojection Anti-Aliasing in INSIDE"
+    http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
+*/
+
+vec4 clipAABB(vec4 minColor, vec4 maxColor, vec4 prevColor) {
+    vec4 pClip = 0.5 * (maxColor + minColor); // Center
+    vec4 eClip = 0.5 * (maxColor - minColor); // Size
+
+    vec4 vClip = prevColor * pClip;
+    vec3 vUnit = vClip.xyz / eClip.xyz;
+    vec3 aUnit = abs(vUnit);
+    float denom = max(aUnit.x, max(aUnit.y, aUnit.z));
+
+    return denom > 1.0 ? pClip + vClip / denom : prevColor;
+}
+
+vec4 neighborhoodClamping(sampler2D currColorTex, vec4 currColor, vec4 prevColor) {
+    vec4 minColor = prevColor, maxColor = prevColor;
 
     for(int x = -2; x <= 2; x++) {
         for(int y = -2; y <= 2; y++) {
-            vec4 color = texture2D(currColorTex, texCoords + (vec2(x, y) * resolution)); 
-            minColor = min(minColor, color);
-            maxColor = max(maxColor, color); 
+            vec4 color = texture2D(currColorTex, texCoords + (vec2(x, y) * pixelSize)); 
+            minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
     }
-    minColor -= 0.075; 
-    maxColor += 0.075; 
-    return clamp(prevColor, minColor, maxColor); 
+    return clipAABB(minColor, maxColor, prevColor);
 }
 
 void main() {
     vec4 GlobalIllumination = texture2D(colortex5, texCoords);
     vec4 GlobalIlluminationResult = GlobalIllumination;
     
-    #if PTGI == 1
-        #if PTGI_TEMPORAL_ACCUMULATION == 1
+    #if GI == 1
+        #if GI_TEMPORAL_ACCUMULATION == 1
             // Thanks Stubman#8195 and swr#1899 for the help!
-            vec2 resolution = vec2(viewWidth, viewHeight);
             vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
             vec4 prevColor = texture2D(colortex6, prevTexCoords);
 
-            prevColor = NeighborClamping(colortex5, GlobalIllumination, prevColor, 1.0 / resolution);
-            vec2 velocity = (texCoords - prevTexCoords) * resolution;
+            prevColor = neighborhoodClamping(colortex5, GlobalIllumination, prevColor);
+            vec2 velocity = (texCoords - prevTexCoords) * viewSize;
 
-            float blendFactor = float(
-                prevTexCoords.x > 0.0 && prevTexCoords.x < 1.0 &&
-                prevTexCoords.y > 0.0 && prevTexCoords.y < 1.0
-            );
+            float blendFactor = float(!any(greaterThan(prevTexCoords, vec2(1.0))));
             blendFactor *= exp(-length(velocity)) * 0.6 + 0.3;
+
             GlobalIlluminationResult = mix(GlobalIlluminationResult, prevColor, blendFactor); 
         #endif
     #endif
