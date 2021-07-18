@@ -26,7 +26,7 @@ varying vec2 texCoords;
 #include "/lib/post/outline.glsl"
 #include "/lib/atmospherics/fog.glsl"
 
-const vec4 fogColor = vec4(0.225, 0.349, 0.488, 1.0);
+const vec4 fogColor = vec4(0.225, 0.349, 0.488, 0.5);
 const float rainFogDensity = 0.09;
 
 void main() {

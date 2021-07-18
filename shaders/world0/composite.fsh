@@ -22,11 +22,12 @@ varying vec2 texCoords;
 #include "/lib/lighting/shadows.glsl"
 
 void main() {
-     vec3 Shadow = vec3(1.0);
-     #if SHADOWS == 1
-        Shadow = shadowMap(getViewPos(), shadowMapResolution);
-     #endif
 
-     /*DRAWBUFFERS:7*/
-     gl_FragData[0] = vec4(Shadow, 1.0);
+   vec3 Shadow = vec3(1.0);
+   #if SHADOWS == 1
+      Shadow = shadowMap(getViewPos(), shadowMapResolution);
+   #endif
+
+   /*DRAWBUFFERS:7*/
+   gl_FragData[0] = vec4(Shadow, 1.0);
 }

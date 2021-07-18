@@ -22,19 +22,11 @@ uniform mat4 gbufferPreviousProjection;
 #include "/lib/util/utils.glsl"
 #include "/lib/util/worldTime.glsl"
 #include "/lib/util/blur.glsl"
+#include "/lib/material.glsl"
+#include "/lib/lighting/brdf.glsl"
 #include "/lib/util/reprojection.glsl"
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ssr.glsl"
-
-// https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true
-vec3 Env_BRDF_Approx(vec3 specular, float NdotV, float roughness) {
-    const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
-    const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
-    vec4 r = roughness * c0 + c1;
-    float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
-    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
-    return specular * AB.x + AB.y;
-}
 
 void main() {
     vec4 Result = texture2D(colortex0, texCoords);
@@ -70,7 +62,7 @@ void main() {
 
             vec3 reflections = prefilteredReflections(viewPos, Normal, roughness);
             vec3 DFG = Env_BRDF_Approx(specColor, roughness, NdotV);
-            Result.rgb = mix(Result.rgb, reflections, DFG);
+            Result.rgb += mix(Result.rgb, reflections, DFG);
         #else
             Result.rgb += simpleReflections(viewPos, Normal, NdotV, specColor);
         #endif

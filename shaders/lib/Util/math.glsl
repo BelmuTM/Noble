@@ -27,6 +27,11 @@ float saturate(float x) {
 	return clamp(x, 0.0, 1.0);
 }
 
+float circle(vec2 coords, float radius, float fade) {
+    vec2 dist = coords - vec2(0.5);
+	return 1.0 - smoothstep(radius - (radius * fade), radius + (radius * fade), dot(dist, dist) * 4.0);
+}
+
 /*
 	Thanks to the 2 people who gave me
 	their hemisphere sampling functions! <3
@@ -38,30 +43,6 @@ vec3 hemisphereSample(float u, float v) {
     float cosTheta = 1.0 - u;
     float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
-}
-
-// Provided by LVutner.#1925
-vec3 importanceSampleCos(vec3 N, vec2 Xi) {
-    float Phi = 2.0 * PI * Xi.y;
-    float cosTheta = sqrt(max(0.0, 1.0 - Xi.x));
-    float sinTheta = sqrt(Xi.x);
-
-    // Cartesian coords
-    vec3 L;
-    L.x = sinTheta * cos(Phi);
-    L.y = sinTheta * sin(Phi);
-    L.z = cosTheta;
-
-    // TBN
-    vec3 B = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
-    vec3 T = normalize(cross(B, N));
-    B = cross(N, T);
-    
-    // World / view coords
-    L = vec3(T * L.x + B * L.y + N * L.z);
-    L = normalize(L);
-    
-    return L;
 }
 
 // Provided by xirreal#0281

@@ -78,13 +78,12 @@ void main() {
     #endif
 
     vec4 GlobalIllumination = texture2D(colortex6, texCoords);
-    /*
+
     #if GI == 1
         #if GI_FILTER == 1
-            // nyoom
+            GlobalIllumination = edgeStoppingFastGaussian(viewPos, Normal, colortex6, viewSize, 4.0, 15.0, 20.0);
         #endif
     #endif
-    */
 
     vec3 Lighting = Cook_Torrance(Normal, viewDir, lightDir, data, lightmapColor, Shadow, GlobalIllumination.rgb);
     bool isEmissive = data.emission != 0.0;

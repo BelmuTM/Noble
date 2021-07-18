@@ -9,15 +9,16 @@
 vec4 fastGaussian(sampler2D tex, vec2 resolution, float size, float quality, float directions) {
     vec4 color = vec4(0.0);
     vec2 radius = size / resolution;
+
     int SAMPLES;
     for(float d = 0.0; d < PI2; d += PI2 / directions) {
-		    for(float i = 1.0 / quality; i <= 1.0; i += 1.0 / quality) {
-			    color += texture2D(tex, texCoords + vec2(cos(d), sin(d)) * radius * i);
+		for(float i = 1.0 / quality; i <= 1.0; i += 1.0 / quality) {
+
+			color += texture2D(tex, texCoords + vec2(cos(d), sin(d)) * radius * i);
             SAMPLES++;
         }
     }
-    color /= SAMPLES;
-    return color / quality * directions;
+    return (color / SAMPLES) / quality * directions;
 }
 
 vec4 bilateralBlur(sampler2D tex) {
@@ -52,4 +53,37 @@ vec4 bokeh(sampler2D tex) {
         }
     }
     return color / SAMPLES;
+}
+
+#define THRESH 1.41421
+bool sampleValid(vec2 sampleCoords, vec3 pos, vec3 normal) { 
+
+    bool onScreen = !any(greaterThan(sampleCoords.xy, vec2(1.0)));
+	vec3 positionAt = vec3(sampleCoords, texture2D(depthtex0, sampleCoords).r);
+    positionAt = screenToView(positionAt);
+	vec3 normalAt = normalize(texture2D(colortex1, sampleCoords).xyz * 2.0 - 1.0);
+
+	return abs(positionAt.z - pos.z) <= THRESH
+		&& abs(positionAt.x - pos.x) <= THRESH
+		&& abs(positionAt.y - pos.y) <= THRESH
+		&& normal == normalAt
+		&& onScreen;
+}
+
+vec4 edgeStoppingFastGaussian(vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float size, float quality, float directions) {
+    vec4 color = vec4(0.0);
+    vec2 radius = size / resolution;
+
+    int SAMPLES;
+    for(float d = 0.0; d < PI2; d += PI2 / directions) {
+		for(float i = 1.0 / quality; i <= 1.0; i += 1.0 / quality) {
+            vec2 sampleCoords = texCoords + vec2(cos(d), sin(d)) * radius * i;
+
+            if(sampleValid(sampleCoords, viewPos, normal)) {
+			    color += texture2D(tex, sampleCoords);
+                SAMPLES++;
+            }
+        }
+    }
+    return clamp((color / SAMPLES) / quality * directions, 0.0, 1.0);
 }

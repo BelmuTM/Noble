@@ -9,7 +9,7 @@
 #include "/settings.glsl"
 
 attribute vec4 at_tangent;
-attribute vec4 mc_Entity;
+attribute vec3 mc_Entity;
 
 varying vec2 texCoords;
 varying vec2 lmCoords;

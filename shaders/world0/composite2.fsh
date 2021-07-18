@@ -42,8 +42,8 @@ vec4 clipAABB(vec4 minColor, vec4 maxColor, vec4 prevColor) {
 vec4 neighborhoodClamping(sampler2D currColorTex, vec4 currColor, vec4 prevColor) {
     vec4 minColor = prevColor, maxColor = prevColor;
 
-    for(int x = -2; x <= 2; x++) {
-        for(int y = -2; y <= 2; y++) {
+    for(int x = -1; x <= 1; x++) {
+        for(int y = -1; y <= 1; y++) {
             vec4 color = texture2D(currColorTex, texCoords + (vec2(x, y) * pixelSize)); 
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
@@ -60,10 +60,9 @@ void main() {
             // Thanks Stubman#8195 and swr#1899 for the help!
             vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
             vec4 prevColor = texture2D(colortex6, prevTexCoords);
-
             prevColor = neighborhoodClamping(colortex5, GlobalIllumination, prevColor);
-            vec2 velocity = (texCoords - prevTexCoords) * viewSize;
 
+            vec2 velocity = (texCoords - prevTexCoords) * viewSize;
             float blendFactor = float(!any(greaterThan(prevTexCoords, vec2(1.0))));
             blendFactor *= exp(-length(velocity)) * 0.6 + 0.3;
 

@@ -17,6 +17,7 @@ varying vec2 texCoords;
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
+#include "/lib/util/worldTime.glsl"
 #include "/lib/lighting/ssao.glsl"
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ptgi.glsl"

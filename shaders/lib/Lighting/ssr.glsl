@@ -29,37 +29,18 @@ vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
     viewPos += normal * EPS;
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec3 hitPos;
-    bool hit = raytrace(viewPos, reflected, 28, bayer64(gl_FragCoord.xy), hitPos);
+    if(!raytrace(viewPos, reflected, 28, texture2D(noisetex, texCoords * 5.0).r, hitPos)) return vec3(0.0);
 
-    if(!hit) return vec3(0.0);
+    vec3 L = normalize(shadowLightPosition);
+    vec3 H = normalize(viewPos + L);
+    vec3 fresnel = Spherical_Gaussian_Fresnel(max(dot(H, L), EPS), F0);
 
-    vec3 fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0) + rainStrength;
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
     return hitColor * (fresnel * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR));
 }
 
 /*------------------ ROUGH REFLECTIONS ------------------*/
 
-vec3 Importance_Sample_GGX(vec2 Xi, float roughness) {	
-	// Importance sampling - UE4
-    float phi = 2.0 * PI * Xi.x;
-    float a = roughness * roughness;
-
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
-    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
-
-    // Spherical to Cartesian coordinates
-    vec3 H;
-    H.x = cos(phi) * sinTheta;
-    H.y = sin(phi) * sinTheta;
-    H.z = cosTheta;
-    return H;
-}
-
-/*
-    Thanks LVutner.#7259 a lot for the help!
-    Inspired of UE4, provided by LVutner and modified by Belmu.
-*/
 vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 	vec3 filteredColor = vec3(0.0);
 	float totalWeight = 0.0;
@@ -71,19 +52,19 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
     mat3 t2v = mat3(vTangentX, vTangentY, normal);  
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-		vec2 noise = hash22(gl_FragCoord.xy + i);
+		vec2 noise = texture2D(noisetex, (texCoords + i) * 5.0).xy;
 		noise.y = mix(noise.y, 1.0, BRDF_BIAS);
 	
 		vec3 H = Importance_Sample_GGX(noise.xy, roughness);
 		
         vec3 hitPos;
 		vec3 reflected = reflect(normalize(viewPos), t2v * H);	
-		bool hit = raytrace(viewPos, reflected, 20, noise.x, hitPos);
+		bool hit = raytrace(viewPos, reflected, 28, noise.x, hitPos);
 
-        float NdotL = max(dot(normal, reflected), 0.0);
-		if(NdotL >= 0.0) {
+        float NdotL = max(dot(normal, reflected), EPS);
+		if(hit && NdotL >= 0.0) {
 			filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
-			totalWeight += NdotL;
+            totalWeight += NdotL;
 		}
 	}
 	return filteredColor / max(totalWeight, EPS);
@@ -93,13 +74,17 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 
 vec3 simpleRefractions(vec3 color, vec3 viewPos, vec3 normal, float NdotV, float F0) {
     //float ior = F0toIOR(F0);
+    viewPos += normal * EPS;
     vec3 refracted = refract(normalize(viewPos), normal, 1.0 / 1.325); // water's ior
     vec3 hitPos;
-    bool hit = raytrace(viewPos, refracted, 28, bayer64(gl_FragCoord.xy), hitPos);
+    if(!raytrace(viewPos, refracted, 28, texture2D(noisetex, texCoords * 5.0).r, hitPos)) return vec3(0.0);
 
     if(isHand(texture2D(depthtex1, hitPos.xy).r)) return color;
 
-    float fresnel = F0 + (1.0 - F0) * pow(1.0 - NdotV, 5.0);
+    vec3 L = normalize(shadowLightPosition);
+    vec3 H = normalize(viewPos + L);
+    vec3 fresnel = Spherical_Gaussian_Fresnel(max(dot(H, L), EPS), vec3(F0));
+
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
     return hitColor * (1.0 - fresnel);
 }
