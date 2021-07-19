@@ -68,6 +68,33 @@ vec3 Importance_Sample_GGX(vec2 Xi, float roughness) {
     return H;
 }
 
+// Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
+vec3 sample_GGX_VNDF(vec3 Ve, vec2 Xi, float roughness) {
+    float alpha = roughness * roughness;
+
+	// Section 3.2: transforming the view direction to the hemisphere configuration
+	vec3 Vh = normalize(vec3(alpha * Ve.x, alpha * Ve.y, Ve.z));
+
+	// Section 4.1: orthonormal basis (with special case if cross product is zero)
+	float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
+	vec3 T1 = lensq > 0.0 ? vec3(-Vh.y, Vh.x, 0.0) * inversesqrt(lensq) : vec3(1.0, 0.0, 0.0);
+	vec3 T2 = cross(Vh, T1);
+
+	// Section 4.2: parameterization of the projected area
+	float r = sqrt(Xi.y);	
+	float phi = 2.0 * PI * Xi.x;	
+	float t1 = r * cos(phi);
+	float t2 = r * sin(phi);
+	float s = 0.5 * (1.0 + Vh.z);
+	t2 = (1.0 - s) * sqrt(1.0 - t1 * t1) + s * t2;
+
+	// Section 4.3: reprojection onto hemisphere
+	vec3 Nh = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - t1 * t1 - t2 * t2)) * Vh;
+
+	// Section 3.4: transforming the normal back to the ellipsoid configuration
+	return normalize(vec3(alpha * Nh.x, alpha * Nh.y, max(0.0, Nh.z)));	
+}
+
 // https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true
 vec3 Env_BRDF_Approx(vec3 specular, float NdotV, float roughness) {
     const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
@@ -115,7 +142,7 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sh
         SpecularLighting = (D * F * G) * shadowmap * dayTimeColor;
     #endif
 
-    vec3 DiffuseLighting  = GlobalIllumination * data.albedo;
+    vec3 DiffuseLighting = GlobalIllumination * data.albedo;
     vec3 E0 = lightmap + NdotL * shadowmap + AMBIENT;
     vec3 Albedo = data.albedo * dayTimeColor;
 

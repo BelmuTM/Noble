@@ -52,14 +52,15 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
     mat3 t2v = mat3(vTangentX, vTangentY, normal);  
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-		vec2 noise = texture2D(noisetex, (texCoords + i) * 5.0).xy;
-		noise.y = mix(noise.y, 1.0, BRDF_BIAS);
+		vec2 noise = texture2D(noisetex, texCoords * 5.0).xy;
+		noise.x = mod(noise.x + GOLDEN_RATIO * i, 1.0);
+        noise.y = mod(noise.y + (GOLDEN_RATIO * 2.0) * i, 1.0);
 	
-		vec3 H = Importance_Sample_GGX(noise.xy, roughness);
+        vec3 H = sample_GGX_VNDF(normalize(-viewPos) * t2v, noise.xy, roughness);
 		
         vec3 hitPos;
 		vec3 reflected = reflect(normalize(viewPos), t2v * H);	
-		bool hit = raytrace(viewPos, reflected, 28, noise.x, hitPos);
+		bool hit = raytrace(viewPos, reflected, 32, noise.x, hitPos);
 
         float NdotL = max(dot(normal, reflected), EPS);
 		if(hit && NdotL >= 0.0) {
@@ -81,10 +82,7 @@ vec3 simpleRefractions(vec3 color, vec3 viewPos, vec3 normal, float NdotV, float
 
     if(isHand(texture2D(depthtex1, hitPos.xy).r)) return color;
 
-    vec3 L = normalize(shadowLightPosition);
-    vec3 H = normalize(viewPos + L);
-    vec3 fresnel = Spherical_Gaussian_Fresnel(max(dot(H, L), EPS), vec3(F0));
-
+    vec3 fresnel = Fresnel_Schlick(NdotV, vec3(F0));
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
     return hitColor * (1.0 - fresnel);
 }

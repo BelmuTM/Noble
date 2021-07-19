@@ -45,8 +45,7 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result += fastGaussian(colortex7, viewSize * BLOOM_RESOLUTION_MULTIPLIER, 
-                  BLOOM_SIZE, BLOOM_QUALITY, BLOOM_DIRECTIONS) * BLOOM_INTENSITY;
+        Result += bilateralBlur(colortex7) * BLOOM_INTENSITY;
     #endif
     
     vec3 exposureColor = Result.rgb * EXPOSURE;

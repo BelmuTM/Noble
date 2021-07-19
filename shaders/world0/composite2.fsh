@@ -42,12 +42,14 @@ vec4 clipAABB(vec4 minColor, vec4 maxColor, vec4 prevColor) {
 vec4 neighborhoodClamping(sampler2D currColorTex, vec4 currColor, vec4 prevColor) {
     vec4 minColor = prevColor, maxColor = prevColor;
 
-    for(int x = -1; x <= 1; x++) {
-        for(int y = -1; y <= 1; y++) {
+    for(int x = -2; x <= 2; x++) {
+        for(int y = -2; y <= 2; y++) {
             vec4 color = texture2D(currColorTex, texCoords + (vec2(x, y) * pixelSize)); 
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
     }
+    minColor -= 0.075;
+    maxColor += 0.075;
     return clipAABB(minColor, maxColor, prevColor);
 }
 

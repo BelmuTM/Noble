@@ -34,10 +34,6 @@ void main() {
     float VolumetricLighting = texture2D(colortex4, texCoords).a;
     #if VL == 1
         #if VL_BLUR == 1
-            /* HIGH QUALITY - MORE EXPENSIVE */
-            //VolumetricLighting = fastGaussian(colortex4, viewSize, 5.65, 15.0, 20.0).a;
-
-            /* DECENT QUALITY - LESS EXPENSIVE */
             VolumetricLighting = bilateralBlur(colortex4).a;
         #endif
     #endif

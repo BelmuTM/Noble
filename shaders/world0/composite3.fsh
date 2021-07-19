@@ -81,7 +81,8 @@ void main() {
 
     #if GI == 1
         #if GI_FILTER == 1
-            GlobalIllumination = edgeStoppingFastGaussian(viewPos, Normal, colortex6, viewSize, 4.0, 15.0, 20.0);
+            GlobalIllumination = edgeStoppingBlur(viewPos, colortex6, 
+            viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 20.0);
         #endif
     #endif
 

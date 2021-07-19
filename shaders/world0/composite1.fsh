@@ -27,7 +27,7 @@ void main() {
     vec3 Normal = normalize(texture2D(colortex1, texCoords).xyz * 2.0 - 1.0);
 
     vec3 GlobalIllumination = vec3(0.0);
-    float AmbientOcclusion = 0.0;
+    float AmbientOcclusion = 1.0;
     #if GI == 1
         float Depth = texture2D(depthtex0, texCoords).r;
         float F0 = texture2D(colortex2, texCoords).g;

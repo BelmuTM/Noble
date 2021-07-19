@@ -14,10 +14,10 @@ vec3 computeGI(in vec3 viewPos, in vec3 normal) {
     vec3 weight = vec3(1.0); // How much the current iteration contributes to the final product
 
     for(int i = 0; i < GI_BOUNCES; i++) {
-        if(i != 0) hitPos = screenToView(hitPos) + normal * EPS;
-
         vec2 noise = texture2D(noisetex, texCoords * 5.0).xy;
-        noise = fract((frameTimeCounter * 17.0) + noise);
+        noise.x = mod(noise.x + GOLDEN_RATIO * i, 1.0);
+        noise.y = mod(noise.y + (GOLDEN_RATIO * 2.0) * i, 1.0);
+        noise = fract((frameTimeCounter * 20.0) + noise);
         
         vec3 sampleDir = randomHemisphereDirection(normal, noise.xy);
         bool hit = raytrace(hitPos, sampleDir, 40, jitter, hitPos);
@@ -34,10 +34,11 @@ vec3 computeGI(in vec3 viewPos, in vec3 normal) {
             /* Updating normals */
             normal = normalize(texture2D(colortex1, hitPos.xy).xyz * 2.0 - 1.0);
         } else { 
-            /* Fallback to sky */
             illumination += weight * getDayTimeColor() * shadowmap;
             break;
         }
+
+        if(i != 0) hitPos = screenToView(hitPos) + normal * EPS;
     }
     return illumination;
 }
