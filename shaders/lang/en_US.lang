@@ -126,6 +126,9 @@ value.BINARY_COUNT.16 = §616
 value.BINARY_COUNT.32 = §c32
 value.BINARY_COUNT.48 = §448
 
+option.GI_RESOLUTION = GI Resolution
+option.GI_RESOLUTION.comment = Downscales §bGI §fto increase performance. §cHigher value gives better results, but reduces §cperformance.
+
 option.WATER_REFRACTION = Water Refraction
 option.WATER_REFRACTION.comment = Reduces §bGI§f's noise.
 value.WATER_REFRACTION.0 = §cOFF

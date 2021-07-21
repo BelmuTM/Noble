@@ -24,19 +24,27 @@ varying vec2 texCoords;
 
 void main() {
     vec3 viewPos = getViewPos();
-    vec3 Normal = normalize(texture2D(colortex1, texCoords).xyz * 2.0 - 1.0);
+    vec3 normal = normalize(texture2D(colortex1, texCoords).xyz * 2.0 - 1.0);
 
     vec3 GlobalIllumination = vec3(0.0);
     float AmbientOcclusion = 1.0;
     #if GI == 1
-        float Depth = texture2D(depthtex0, texCoords).r;
-        float F0 = texture2D(colortex2, texCoords).g;
-        bool isMetal = (F0 * 255.0) > 229.5;
+        /* Downscaling Global Illumination */
+        float inverseRes = 1.0 / GI_RESOLUTION;
+        vec2 scaledUv = texCoords * inverseRes;
+
+        float depth = texture2D(depthtex0, scaledUv).r;
         
-        if(!isHand(Depth)) GlobalIllumination = isMetal ? vec3(0.0) : computeGI(viewPos, Normal);
+        if(!isHand(depth) && clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords) {
+            float F0 = texture2D(colortex2, scaledUv).g;
+            bool isMetal = (F0 * 255.0) > 229.5;
+
+            vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
+            GlobalIllumination = isMetal ? vec3(0.0) : computeGI(positionAt);
+        }
     #else
         #if SSAO == 1
-            AmbientOcclusion = computeSSAO(viewPos, Normal);
+            AmbientOcclusion = computeSSAO(viewPos, normal);
         #endif
     #endif
 

@@ -27,7 +27,7 @@ uniform mat4 gbufferPreviousProjection;
     http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
 */
 
-vec4 clipAABB(vec4 minColor, vec4 maxColor, vec4 prevColor) {
+vec4 clipAABB(vec4 prevColor, vec4 minColor, vec4 maxColor) {
     vec4 pClip = 0.5 * (maxColor + minColor); // Center
     vec4 eClip = 0.5 * (maxColor - minColor); // Size
 
@@ -48,13 +48,12 @@ vec4 neighborhoodClamping(sampler2D currColorTex, vec4 currColor, vec4 prevColor
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
     }
-    minColor -= 0.075;
-    maxColor += 0.075;
-    return clipAABB(minColor, maxColor, prevColor);
+    return clipAABB(prevColor, minColor, maxColor);
 }
 
 void main() {
-    vec4 GlobalIllumination = texture2D(colortex5, texCoords);
+    /* Upscaling Global Illumination */
+    vec4 GlobalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION);
     vec4 GlobalIlluminationResult = GlobalIllumination;
     
     #if GI == 1

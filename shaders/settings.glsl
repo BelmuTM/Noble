@@ -62,7 +62,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define SHADOWS 1 // [0 1]
 #define SOFT_SHADOWS 0 // [0 1]
 #define SHADOW_SAMPLES 3 // [1 2 3 4 5 6]
-#define DISTORT_FACTOR 0.5 // Lower numbers mean better shadows near you and worse shadows farther away.
+#define DISTORT_FACTOR 0.5 // Lower number means better shadows near you and worse shadows farther away.
 #define SHADOW_BIAS 0.1 // Increase this if you get shadow acne. Decrease this if you get peter panning.
 
 // Soft Shadows
@@ -72,6 +72,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define BLOCKER_SEARCH_SAMPLES 20
 
 /*------------------ RAY TRACING ------------------*/
+
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT 8 // [4 8 16 32 48]
 #define BINARY_DECREASE 0.5
@@ -79,11 +80,13 @@ const float shadowDistanceRenderMul = 1.0;
 #define GI 1 // [0 1]
 #define GI_BOUNCES 2 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
+#define GI_RESOLUTION 0.55 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 // Spatial Filtering
 #define GI_FILTER 0 // [0 1]
-#define GI_FILTER_RES 0.65
-#define GI_FILTER_SIZE 8.0
-#define GI_FILTER_QUALITY 6.0
+#define GI_FILTER_RES 0.5
+#define GI_FILTER_SIZE 20.0
+#define GI_FILTER_QUALITY 7.0
+#define EDGE_STOP_THRESHOLD 0.7 // Lower number means more accuracy with the spatial filter.
 
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
@@ -124,11 +127,11 @@ const float shadowDistanceRenderMul = 1.0;
 
 #define VIGNETTE 1 // [0 1]
 #define VIGNETTE_FALLOFF 0.2
-#define VIGNETTE_AMOUNT 0.7
+#define VIGNETTE_AMOUNT 0.6
 
 // Color Correction
 #define TONEMAPPING 5 // [-1 0 1 2 3 4 5]
-#define EXPOSURE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
+#define EXPOSURE 1.50 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
 #define VIBRANCE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define CONTRAST 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]

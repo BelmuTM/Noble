@@ -142,7 +142,7 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sh
         SpecularLighting = (D * F * G) * shadowmap * dayTimeColor;
     #endif
 
-    vec3 DiffuseLighting = GlobalIllumination * data.albedo;
+    vec3 DiffuseLighting = vec3(0.0);
     vec3 E0 = lightmap + NdotL * shadowmap + AMBIENT;
     vec3 Albedo = data.albedo * dayTimeColor;
 
@@ -155,11 +155,12 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sh
         float A = 1.0 - 0.5 * (alpha / (alpha + 0.333));
         float B = 0.45 * alpha / (alpha + 0.09);
 
-        DiffuseLighting += Albedo * (A + (B * max(0.0, cos(aNdotV - aNdotL)))) * E0;
+        DiffuseLighting = Albedo * (A + (B * max(0.0, cos(aNdotV - aNdotL)))) * E0;
+        DiffuseLighting = DiffuseLighting + (GlobalIllumination * data.albedo);
     }
 
     vec3 Lighting = DiffuseLighting + SpecularLighting;
-    Lighting += data.albedo * data.emission;
+    Lighting += (data.albedo * data.emission);
 
     return Lighting;
 }

@@ -32,14 +32,14 @@ const float rainFogDensity = 0.09;
 void main() {
     vec3 viewPos = getViewPos();
     vec4 Result = texture2D(colortex0, texCoords);
-    float Depth = texture2D(depthtex0, texCoords).r;
+    float depth = texture2D(depthtex0, texCoords).r;
 
-    Result += Fog(Depth, viewPos, vec4(0.0), fogColor * vec4(getDayTimeColor(), 1.0), rainStrength, rainFogDensity); // Applying Fog
+    Result += Fog(depth, viewPos, vec4(0.0), fogColor * vec4(getDayTimeColor(), 1.0), rainStrength, rainFogDensity); // Applying Fog
 
     // Depth Of Field
     vec3 depthOfField = Result.rgb;
     #if DOF == 1
-        depthOfField = computeDOF(Depth, viewPos);
+        depthOfField = computeDOF(depth, viewPos);
     #endif
     Result = vec4(depthOfField, 1.0);
 

@@ -49,15 +49,15 @@ void main() {
     tex0.rgb = toLinear(tex0.rgb);
 
     material data = getMaterial(tex0, tex1, tex2, tex3);
-    vec3 Normal = normalize(data.normal.xyz);
-    float Depth = texture2D(depthtex0, texCoords).r;
+    vec3 normal = normalize(data.normal.xyz);
+    float depth = texture2D(depthtex0, texCoords).r;
     
     float VolumetricLighting = 0.0;
     #if VL == 1
         VolumetricLighting = clamp((computeVL(viewPos) * VL_BRIGHTNESS) - rainStrength, 0.0, 1.0);
     #endif
 
-    if(Depth == 1.0) {
+    if(depth == 1.0) {
         /*DRAWBUFFERS:04*/
         gl_FragData[0] = tex0;
         gl_FragData[1] = vec4(VolumetricLighting);
@@ -65,28 +65,27 @@ void main() {
     }
 
     vec3 Shadow = texture2D(colortex7, texCoords).rgb;
-
-    float AmbientOcclusion = 1.0;
-    #if SSAO == 1
-        AmbientOcclusion = bilateralBlur(colortex5).a;
-    #endif
-
     vec3 lightmapColor = vec3(0.0);
+    float AmbientOcclusion = 1.0;
+    
     #if GI == 0
         vec2 lightmap = texture2D(colortex2, texCoords).zw;
         lightmapColor = getLightmapColor(lightmap);
-    #endif
 
-    vec4 GlobalIllumination = texture2D(colortex6, texCoords);
-
-    #if GI == 1
-        #if GI_FILTER == 1
-            GlobalIllumination = edgeStoppingBlur(viewPos, colortex6, 
-            viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 20.0);
+        #if SSAO == 1
+            AmbientOcclusion = bilateralBlur(colortex5).a;
         #endif
     #endif
 
-    vec3 Lighting = Cook_Torrance(Normal, viewDir, lightDir, data, lightmapColor, Shadow, GlobalIllumination.rgb);
+    vec4 GlobalIllumination = texture2D(colortex6, texCoords);
+    #if GI == 1
+        #if GI_FILTER == 1
+            GlobalIllumination = edgeAwareBlur(viewPos, normal, colortex6, 
+            viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 14.0);
+        #endif
+    #endif
+
+    vec3 Lighting = Cook_Torrance(normal, viewDir, lightDir, data, lightmapColor, Shadow, GlobalIllumination.rgb);
     bool isEmissive = data.emission != 0.0;
 
     if(getBlockId(texCoords) == 6) {

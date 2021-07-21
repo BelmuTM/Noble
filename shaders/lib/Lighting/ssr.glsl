@@ -52,7 +52,7 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
     mat3 t2v = mat3(vTangentX, vTangentY, normal);  
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-		vec2 noise = texture2D(noisetex, texCoords * 5.0).xy;
+		vec2 noise = texture2D(noisetex, texCoords * 5.0).rg;
 		noise.x = mod(noise.x + GOLDEN_RATIO * i, 1.0);
         noise.y = mod(noise.y + (GOLDEN_RATIO * 2.0) * i, 1.0);
 	

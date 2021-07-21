@@ -38,15 +38,15 @@ void main() {
         #endif
     #endif
 
-    float Depth = texture2D(depthtex0, texCoords).r;
-    if(Depth == 1.0) {
+    float depth = texture2D(depthtex0, texCoords).r;
+    if(depth == 1.0) {
         gl_FragData[0] = Result;
         return;
     }
     vec3 viewPos = getViewPos();
-    vec3 Normal = normalize(texture2D(colortex1, texCoords).xyz * 2.0 - 1.0);
+    vec3 normal = normalize(texture2D(colortex1, texCoords).xyz * 2.0 - 1.0);
 
-    float NdotV = max(dot(Normal, normalize(-viewPos)), 0.0);
+    float NdotV = max(dot(normal, normalize(-viewPos)), 0.0);
     float F0 = texture2D(colortex2, texCoords).g;
 
     #if SSR == 1
@@ -56,16 +56,16 @@ void main() {
         #if SSR_TYPE == 1
             float roughness = texture2D(colortex2, texCoords).r;
 
-            vec3 reflections = prefilteredReflections(viewPos, Normal, roughness);
+            vec3 reflections = prefilteredReflections(viewPos, normal, roughness);
             vec3 DFG = Env_BRDF_Approx(specColor, roughness, NdotV);
             Result.rgb += mix(Result.rgb, reflections, DFG);
         #else
-            Result.rgb += simpleReflections(viewPos, Normal, NdotV, specColor);
+            Result.rgb += simpleReflections(viewPos, normal, NdotV, specColor);
         #endif
     #endif
 
     #if WATER_REFRACTION == 1
-        if(getBlockId(texCoords) == 6) Result.rgb = simpleRefractions(Result.rgb, viewPos, Normal, NdotV, F0);
+        if(getBlockId(texCoords) == 6) Result.rgb = simpleRefractions(Result.rgb, viewPos, normal, NdotV, F0);
     #endif
 
     Result.rgb += vec3(getDayTimeSunColor() * VolumetricLighting);
