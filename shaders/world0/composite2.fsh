@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble SSRT - 2021       */
+/*       Copyright (C) Noble RT - 2021       */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -64,7 +64,7 @@ void main() {
             prevColor = neighborhoodClamping(colortex5, GlobalIllumination, prevColor);
 
             vec2 velocity = (texCoords - prevTexCoords) * viewSize;
-            float blendFactor = float(!any(greaterThan(prevTexCoords, vec2(1.0))));
+            float blendFactor = float(clamp(prevTexCoords, vec2(0.0), vec2(1.0)) == prevTexCoords);
             blendFactor *= exp(-length(velocity)) * 0.6 + 0.3;
 
             GlobalIlluminationResult = mix(GlobalIlluminationResult, prevColor, blendFactor); 

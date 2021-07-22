@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble SSRT - 2021       */
+/*       Copyright (C) Noble RT - 2021       */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -53,8 +53,8 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_ABSORPTION_COEFFICIENTS vec3(1.0, 0.2, 0.13)
 
 #define WATER_FOAM 1 // [0 1]
-#define FOAM_BRIGHTNESS 0.3 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define FOAM_FALLOFF_DISTANCE 0.9
+#define FOAM_BRIGHTNESS 0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define FOAM_FALLOFF_DISTANCE 0.75
 #define FOAM_EDGE_FALLOFF 0.3
 #define FOAM_FALLOFF_BIAS 0.1
 
@@ -84,7 +84,7 @@ const float shadowDistanceRenderMul = 1.0;
 // Spatial Filtering
 #define GI_FILTER 0 // [0 1]
 #define GI_FILTER_RES 0.5
-#define GI_FILTER_SIZE 20.0
+#define GI_FILTER_SIZE 15.0
 #define GI_FILTER_QUALITY 7.0
 #define EDGE_STOP_THRESHOLD 0.7 // Lower number means more accuracy with the spatial filter.
 
@@ -93,8 +93,12 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_REFRACTION 0 // [0 1]
 
 /*------------------ REFLECTIONS ------------------*/
+#define SIMPLE_REFLECT_STEPS 64
+#define ROUGH_REFLECT_STEPS 12
+#define SIMPLE_REFRACT_STEPS 20
+
 #define ATTENUATION_FACTOR 0.375
-#define PREFILTER_SAMPLES 3
+#define PREFILTER_SAMPLES 12 // [4 8 12 16 20 24]
 
 /*------------------ VOLUMETRIC LIGHTING ------------------*/
 #define VL 0 // [0 1]
@@ -134,5 +138,5 @@ const float shadowDistanceRenderMul = 1.0;
 #define EXPOSURE 1.50 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
 #define VIBRANCE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define CONTRAST 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define CONTRAST 1.00 // [0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50]
 #define BRIGHTNESS 0.00 // [-0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25]

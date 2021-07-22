@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble SSRT - 2021       */
+/*       Copyright (C) Noble RT - 2021       */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -50,22 +50,6 @@ vec3 Fresnel_Schlick(float cosTheta, vec3 F0) {
 vec3 Spherical_Gaussian_Fresnel(float HdotL, vec3 F0) {
     float fresnel = exp2(((-5.55473 * HdotL) - 6.98316) * HdotL);
     return fresnel * (1.0 - F0) + F0;
-}
-
-vec3 Importance_Sample_GGX(vec2 Xi, float roughness) {	
-	// Importance sampling - UE4
-    float phi = 2.0 * PI * Xi.x;
-    float a = roughness * roughness;
-
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
-    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
-
-    // Spherical to Cartesian coordinates
-    vec3 H;
-    H.x = cos(phi) * sinTheta;
-    H.y = sin(phi) * sinTheta;
-    H.z = cosTheta;
-    return H;
 }
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
@@ -127,7 +111,6 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sh
     float NdotH = max(dot(N, H), EPS);
     float VdotH = max(dot(V, H), EPS);
     float HdotL = max(dot(H, L), EPS);
-    float LdotV = max(dot(L, V), EPS);
 
     vec3 SpecularLighting;
     #if SPECULAR == 1

@@ -1,4 +1,4 @@
-#              Noble SSRT - 2021
+#              Noble RT - 2021
 #   Belmu | GNU General Public License V3.0
 #   Please do not claim my work as your own.
 
@@ -84,10 +84,24 @@ option.SSR.comment = Adds reflections that §ccan only display if they're showin
 value.SSR.0 = §cOFF
 value.SSR.1 = §aON
 
+option.WATER_REFRACTION = Water Refraction
+option.WATER_REFRACTION.comment = Reduces §bGI§f's noise.
+value.WATER_REFRACTION.0 = §cOFF
+value.WATER_REFRACTION.1 = §aON
+
 option.SSR_TYPE = SSR Type
 option.SSR_TYPE.comment = §bSimple reflections §fdo not consider a material's roughness. §bRough reflections §fdo consider it, §cthey give a better §cresult but reduce performance.
 value.SSR_TYPE.0 = §eSimple Reflections
 value.SSR_TYPE.1 = §eRough Reflections
+
+option.PREFILTER_SAMPLES = Rough Reflections Samples
+option.PREFILTER_SAMPLES.comment = Adjusts §bRough Reflections §fquality. §cHigher value gives better results, but reduces §cperformance.
+value.PREFILTER_SAMPLES.4 = §24
+value.PREFILTER_SAMPLES.8 = §a8
+value.PREFILTER_SAMPLES.12 = §e12
+value.PREFILTER_SAMPLES.16 = §616
+value.PREFILTER_SAMPLES.20 = §c20
+value.PREFILTER_SAMPLES.24 = §424
 
 option.GI = Global Illumination (GI)
 option.GI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it.
@@ -113,6 +127,9 @@ option.GI_FILTER.comment = Reduces §bGI§f's noise.
 value.GI_FILTER.0 = §cOFF
 value.GI_FILTER.1 = §aON
 
+option.GI_RESOLUTION = GI Resolution
+option.GI_RESOLUTION.comment = Downscales §bGI §fto increase performance. §cHigher value gives better results, but reduces §cperformance.
+
 option.BINARY_REFINEMENT = Binary Refinement
 option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make it more accurate. §cHigher value gives better results, but reduces §cperformance.
 value.BINARY_REFINEMENT.0 = §cOFF
@@ -125,14 +142,6 @@ value.BINARY_COUNT.8 = §e8
 value.BINARY_COUNT.16 = §616
 value.BINARY_COUNT.32 = §c32
 value.BINARY_COUNT.48 = §448
-
-option.GI_RESOLUTION = GI Resolution
-option.GI_RESOLUTION.comment = Downscales §bGI §fto increase performance. §cHigher value gives better results, but reduces §cperformance.
-
-option.WATER_REFRACTION = Water Refraction
-option.WATER_REFRACTION.comment = Reduces §bGI§f's noise.
-value.WATER_REFRACTION.0 = §cOFF
-value.WATER_REFRACTION.1 = §aON
 
 ##################### ATMOSPHERICS #####################
 

@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble SSRT - 2021       */
+/*       Copyright (C) Noble RT - 2021       */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -50,7 +50,7 @@ void main() {
     
     vec3 exposureColor = Result.rgb * EXPOSURE;
     #if TONEMAPPING == 0
-        Result.rgb = reinhard_jodie(exposureColor); // Reinhard
+        Result.rgb = white_preserving_luma_based_reinhard(exposureColor); // Reinhard
     #elif TONEMAPPING == 1
         Result.rgb = uncharted2(exposureColor); // Uncharted 2
     #elif TONEMAPPING == 2
@@ -63,9 +63,8 @@ void main() {
         Result.rgb = aces(exposureColor); // ACES
     #endif
 
-    // Color Grading
     Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
-    Result.rgb = brightness_contrast(Result.rgb, CONTRAST, BRIGHTNESS);
+    Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
 
     #if OUTLINE == 1
         Result = mix(Result, vec4(0.0), clamp(edgeDetection(OUTLINE_THICKNESS), 0.0, OUTLINE_DARKNESS));

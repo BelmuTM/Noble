@@ -29,6 +29,14 @@ vec3 luma_based_reinhard(vec3 color) {
 	return color;
 }
 
+vec3 white_preserving_luma_based_reinhard(vec3 color) {
+	const float white = 2.0;
+	float luma = luma(color);
+	float toneMappedLuma = luma * (1.0 + luma / (white * white)) / (1.0 + luma);
+	color *= toneMappedLuma / luma;
+	return color;
+}
+
 vec3 reinhard_jodie(vec3 color) {
     float luma = luma(color);
     vec3 tv = color / (1.0 + color);
@@ -133,23 +141,9 @@ vec3 vibrance_saturation(vec3 color, float vibrance, float saturation) {
     return color;
 }
 
-vec3 brightness_contrast(vec3 color, float contrast, float brightness) {
-    return (color - 0.5) * contrast + 0.5 + brightness;
+vec3 adjustContrast(vec3 color, float contrast) {
+    return color * contrast + (0.5 - contrast * 0.5);
 }
-
-/*
-vec3 srgbToLinear(vec3 srgb) {
-    return pow(srgb, vec3(2.2));
-}
-
-vec3 linearToSRGB(vec3 linear) {
-    #if TONEMAPPING != 4
-        return pow(linear, vec3(1.0 / 2.2));
-    #else
-        return linear;
-    #endif
-}
-*/
 
 vec3 toLinear(vec3 color) {
 	return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), vec3(greaterThan(color, vec3(0.04045))));

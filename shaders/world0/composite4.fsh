@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble SSRT - 2021       */
+/*       Copyright (C) Noble RT - 2021       */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -52,16 +52,17 @@ void main() {
     #if SSR == 1
         bool isMetal = (F0 * 255.0) > 229.5;
         vec3 specColor = isMetal ? texture2D(colortex4, texCoords).rgb : vec3(F0);
+        float roughness = texture2D(colortex2, texCoords).r;
 
+        vec3 reflections;
         #if SSR_TYPE == 1
-            float roughness = texture2D(colortex2, texCoords).r;
-
-            vec3 reflections = prefilteredReflections(viewPos, normal, roughness);
-            vec3 DFG = Env_BRDF_Approx(specColor, roughness, NdotV);
-            Result.rgb += mix(Result.rgb, reflections, DFG);
+            reflections = prefilteredReflections(viewPos, normal, roughness);
         #else
-            Result.rgb += simpleReflections(viewPos, normal, NdotV, specColor);
+            reflections = simpleReflections(viewPos, normal, NdotV, specColor);
         #endif
+
+        vec3 DFG = Env_BRDF_Approx(specColor, roughness, NdotV);
+        Result.rgb += mix(Result.rgb, reflections, DFG);
     #endif
 
     #if WATER_REFRACTION == 1

@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble SSRT - 2021       */
+/*       Copyright (C) Noble RT - 2021       */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -81,7 +81,7 @@ void main() {
     #if GI == 1
         #if GI_FILTER == 1
             GlobalIllumination = edgeAwareBlur(viewPos, normal, colortex6, 
-            viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 14.0);
+            viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 13.0);
         #endif
     #endif
 
@@ -107,10 +107,10 @@ void main() {
 
             if(depthDist < FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF && isEyeInWater == 0) {
                 float falloff = (depthDist / FOAM_FALLOFF_DISTANCE) + FOAM_FALLOFF_BIAS;
-                vec3 edge = falloffColor.rgb * falloff * falloffColor.a;
+                vec3 edge = falloffColor.rgb * falloff * falloffColor.a * Shadow;
 
                 float leading = depthDist / (FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF);
-	            Lighting = mix(Lighting, Lighting + edge * Shadow, leading);
+	            Lighting = mix(Lighting + edge, Lighting, leading);
             }
         #endif
     }
