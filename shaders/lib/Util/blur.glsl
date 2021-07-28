@@ -25,9 +25,9 @@ vec4 bilateralBlur(sampler2D tex) {
     vec4 color = texture2D(tex, texCoords);
 
     int SAMPLES = 1;
-    for(int x = -4 ; x <= 4; x++) {
+    for(int x = -4; x <= 4; x++) {
         for(int y = -4; y <= 4; y++) {
-            vec2 offset = vec2(y, x) * pixelSize;
+            vec2 offset = vec2(x, y) * pixelSize;
             color += texture2D(tex, texCoords + offset);
             SAMPLES++;
         }
@@ -38,9 +38,7 @@ vec4 bilateralBlur(sampler2D tex) {
 // Got help from: https://catlikecoding.com/unity/tutorials/advanced-rendering/depth-of-field/
 vec4 bokeh(sampler2D tex, int quality, float radius) {
     vec4 color = texture2D(tex, texCoords);
-    vec2 noise = texture2D(noisetex, texCoords * 5.0).rg;
-    noise.x = mod(noise.x + GOLDEN_RATIO * frameTimeCounter, 1.0);
-    noise.y = mod(noise.y + (GOLDEN_RATIO * 2.0) * mod(frameTimeCounter, 100.0), 1.0);
+    vec2 noise = uniformAnimatedNoise();
 
     int SAMPLES = 1;
     for(int i = 0; i < quality; i++) {
@@ -76,7 +74,7 @@ bool sampleValid(vec2 sampleCoords, vec3 pos, vec3 normal) {
     bool onScreen = clamp(sampleCoords, vec2(0.0), vec2(1.0)) == sampleCoords;
 	vec3 positionAt = vec3(sampleCoords, texture2D(depthtex0, sampleCoords).r);
     positionAt = screenToView(positionAt);
-    vec3 normalAt = normalize(texture2D(colortex1, sampleCoords).xyz * 2.0 - 1.0);
+    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, sampleCoords).xy));
 
 	return   abs(positionAt.x - pos.x) <= EDGE_STOP_THRESHOLD
 		&&   abs(positionAt.y - pos.y) <= EDGE_STOP_THRESHOLD
@@ -84,7 +82,7 @@ bool sampleValid(vec2 sampleCoords, vec3 pos, vec3 normal) {
         &&  abs(normalAt.x - normal.x) <= EDGE_STOP_THRESHOLD
 		&&  abs(normalAt.y - normal.y) <= EDGE_STOP_THRESHOLD
 		&&  abs(normalAt.z - normal.z) <= EDGE_STOP_THRESHOLD
-		&& onScreen;
+		&&  onScreen;
 }
 
 vec4 edgeAwareBlur(vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float size, float quality, float directions) {

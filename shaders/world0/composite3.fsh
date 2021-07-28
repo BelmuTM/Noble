@@ -29,12 +29,12 @@ const bool colortex6Clear = false;
 const float rainMinAmbientBrightness = 0.2;
 
 /*------------------ LIGHTMAP ------------------*/
-vec3 getLightmapColor(vec2 lightmap) {
-    lightmap.x = TORCHLIGHT_MULTIPLIER * pow(lightmap.x, 5.06);
-    
-    vec3 TorchLight = lightmap.x * TORCH_COLOR;
-    vec3 SkyLight = (lightmap.y * lightmap.y) * skyColor;
-    return vec3(TorchLight + clamp(SkyLight - rainStrength, 0.001, 1.0));
+vec3 getLightmapColor(vec2 lightMap) {
+    lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, 5.06);
+
+    vec3 TorchLight = lightMap.x * TORCH_COLOR;
+    vec3 SkyLight = (lightMap.y * lightMap.y) * skyColor;
+    return vec3(TorchLight + clamp(SkyLight - rainStrength, EPS, 1.0));
 }
 
 void main() {
@@ -45,10 +45,9 @@ void main() {
     vec4 tex0 = texture2D(colortex0, texCoords);
     vec4 tex1 = texture2D(colortex1, texCoords);
     vec4 tex2 = texture2D(colortex2, texCoords);
-    vec4 tex3 = texture2D(colortex3, texCoords);
     tex0.rgb = toLinear(tex0.rgb);
 
-    material data = getMaterial(tex0, tex1, tex2, tex3);
+    material data = getMaterial(tex0, tex1, tex2);
     vec3 normal = normalize(data.normal.xyz);
     float depth = texture2D(depthtex0, texCoords).r;
     
@@ -69,8 +68,8 @@ void main() {
     float AmbientOcclusion = 1.0;
     
     #if GI == 0
-        vec2 lightmap = texture2D(colortex2, texCoords).zw;
-        lightmapColor = getLightmapColor(lightmap);
+        vec2 lightMap = data.lightmap;
+        lightmapColor = getLightmapColor(lightMap);
 
         #if SSAO == 1
             AmbientOcclusion = bilateralBlur(colortex5).a;
@@ -118,5 +117,5 @@ void main() {
     /*DRAWBUFFERS:047*/
     gl_FragData[0] = vec4(Lighting * AmbientOcclusion, 1.0);
     gl_FragData[1] = vec4(data.albedo, VolumetricLighting);
-    gl_FragData[2] = vec4(isEmissive ? Lighting : vec3(0.0), 1.0);
+    gl_FragData[2] = vec4(luma(Lighting) > 0.3 ? Lighting : vec3(0.0), 1.0);
 }

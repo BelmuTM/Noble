@@ -43,32 +43,26 @@ vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
 
 vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 	vec3 filteredColor = vec3(0.0);
-	float totalWeight = 0.0;
+	float weight = 0.0;
 	
-	//Tangent to View matrix
-    vec3 vTangentY = abs(normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
-    vec3 vTangentX = normalize(cross(vTangentY, normal));
-    vTangentY = cross(normal, vTangentX);
-    mat3 t2v = mat3(vTangentX, vTangentY, normal);  
+    vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
+    mat3 TBN = mat3(tangent, cross(normal, tangent), normal);   
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-		vec2 noise = texture2D(noisetex, texCoords * 5.0).rg;
-		noise.x = mod(noise.x + GOLDEN_RATIO * i, 1.0);
-        noise.y = mod(noise.y + (GOLDEN_RATIO * 2.0) * i, 1.0);
-	
-        vec3 H = sample_GGX_VNDF(normalize(-viewPos) * t2v, noise.xy, roughness);
+		vec2 noise = uniformNoise(i);
+        vec3 H = sample_GGX_VNDF(normalize(-viewPos) * TBN, noise.xy, roughness);
 		
         vec3 hitPos;
-		vec3 reflected = reflect(normalize(viewPos), t2v * H);	
+		vec3 reflected = reflect(normalize(viewPos), TBN * H);	
 		bool hit = raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, noise.x, hitPos);
 
         float NdotL = max(dot(normal, reflected), EPS);
 		if(hit && NdotL >= 0.0) {
 			filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
-            totalWeight += NdotL;
+            weight += NdotL;
 		}
 	}
-	return filteredColor / max(totalWeight, EPS);
+	return filteredColor / max(weight, EPS);
 }
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/

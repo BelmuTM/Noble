@@ -32,7 +32,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define RADIUS 6 // Denoiser
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.01)
+#define AMBIENT vec3(0.005)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
@@ -72,13 +72,14 @@ const float shadowDistanceRenderMul = 1.0;
 #define BLOCKER_SEARCH_SAMPLES 20
 
 /*------------------ RAY TRACING ------------------*/
+#define RAY_STEP_LENGTH 2.0
 
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT 8 // [4 8 16 32 48]
 #define BINARY_DECREASE 0.5
 
 #define GI 1 // [0 1]
-#define GI_BOUNCES 2 // [1 2 3 4 5 6]
+#define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 0.55 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 // Spatial Filtering
@@ -93,12 +94,14 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_REFRACTION 0 // [0 1]
 
 /*------------------ REFLECTIONS ------------------*/
-#define SIMPLE_REFLECT_STEPS 64
-#define ROUGH_REFLECT_STEPS 12
-#define SIMPLE_REFRACT_STEPS 20
+const float hardCodedRoughness = 0.2; // 0.0 = OFF
 
 #define ATTENUATION_FACTOR 0.375
-#define PREFILTER_SAMPLES 12 // [4 8 12 16 20 24]
+#define PREFILTER_SAMPLES 8 // [4 8 12 16 20 24]
+
+#define SIMPLE_REFLECT_STEPS 64
+#define ROUGH_REFLECT_STEPS 12 // Inverse exponential curve: int(a * pow(b, PREFILTER_SAMPLES)) 5 < a < 100 | 0.5 < b < 0.999
+#define SIMPLE_REFRACT_STEPS 20
 
 /*------------------ VOLUMETRIC LIGHTING ------------------*/
 #define VL 0 // [0 1]
@@ -121,8 +124,8 @@ const float shadowDistanceRenderMul = 1.0;
 #define BLOOM 1 // [0 1]
 #define BLOOM_INTENSITY 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define BLOOM_RESOLUTION_MULTIPLIER 1.0
-#define BLOOM_QUALITY 15.0
-#define BLOOM_SIZE 5.0
+#define BLOOM_QUALITY 20.0
+#define BLOOM_SIZE 8.0
 #define BLOOM_DIRECTIONS 20.0
 
 #define OUTLINE 0 // [0 1]

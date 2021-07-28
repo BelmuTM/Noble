@@ -6,6 +6,27 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+vec2 encodeNormal(vec3 normal) {
+    return normal.xy / sqrt(normal.z * 8.0 + 8.0) + 0.5;
+}
+
+vec3 decodeNormal(vec2 encodedNormal) {
+    vec2 fenc = encodedNormal * 4.0 - 2.0;
+    float f = dot(fenc, fenc);
+    float g = sqrt(1.0 - f / 4.0);
+    vec3 normal = vec3(fenc * g, 1.0 - f / 2.0);
+    return clamp(normal, -1.0, 1.0);
+}
+
+float packUnorm2x8(vec2 xy) {
+	return dot(floor(255.0 * xy + 0.5), vec2(1.0 / 65535.0, 256.0 / 65535.0));
+}
+
+vec2 unpackUnorm2x8(float pack) {
+	vec2 xy; xy.x = modf(pack * 65535.0 / 256.0, xy.y);
+	return xy * vec2(256.0 / 255.0, 1.0 / 255.0);
+}
+
 float distanceSquared(vec3 v1, vec3 v2) {
 	vec3 u = v2 - v1;
 	return dot(u, u);
@@ -46,15 +67,10 @@ vec3 hemisphereSample(float u, float v) {
 }
 
 // Provided by xirreal#0281
-vec3 randomHemisphereDirection(vec3 normal, vec2 r) {
-    vec3 tangent = normalize(cross(normal, vec3(0.0, 1.0, 1.0)));
-    vec3 bitangent = cross(tangent, normal);
-
+vec3 randomHemisphereDirection(vec2 r) {
     float radius = sqrt(r.y);
     float xOffset = radius * cos(PI2 * r.x);
     float yOffset = radius * sin(PI2 * r.x);
     float zOffset = sqrt(1.0 - r.y);
-    vec3 direction = xOffset * tangent + yOffset * bitangent + zOffset * normal;
-
-    return normalize(direction);
+    return normalize(vec3(xOffset, yOffset, zOffset));
 }

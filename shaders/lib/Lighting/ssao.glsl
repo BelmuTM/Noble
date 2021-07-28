@@ -9,10 +9,14 @@
 float computeSSAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
 	vec3 sampleOrigin = viewPos + normal * EPS;
+
+    	vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
+    	mat3 TBN = mat3(tangent, cross(normal, tangent), normal); 
 	
 	for(int i = 0; i <= SSAO_SAMPLES; i++) {
 		vec2 noise = vec2(bayer64(gl_FragCoord.xy), bayer64(gl_FragCoord.yx));
-		vec3 sampleDir = randomHemisphereDirection(normal, noise.xy) * SSAO_BIAS;
+		vec3 sampleDir = randomHemisphereDirection(noise.xy) * SSAO_BIAS;
+		sampleDir = TBN * sampleDir;
 
 		vec3 samplePos = sampleOrigin + sampleDir * SSAO_RADIUS;
     		vec2 sampleScreen = viewToScreen(samplePos).xy;

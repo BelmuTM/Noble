@@ -217,8 +217,21 @@ float FBM(vec2 p) {
     return value;
 }
 
-// Gold Noise ©2015 dcerisano@standard3d.com
+vec2 uniformAnimatedNoise() {
+    vec2 noise = texture2D(noisetex, texCoords * 5.0).rg;
+    noise.x = fract(noise.x + GOLDEN_RATIO * (frameTimeCounter * 15.0));
+    noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter * 15.0, 100.0));
+    return noise;
+}
 
+vec2 uniformNoise(int i) {
+    vec2 noise = texture2D(noisetex, texCoords * 5.0).rg;
+    noise.x = fract(noise.x + GOLDEN_RATIO * i);
+    noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i);
+    return noise;
+}
+
+// Gold Noise ©2015 dcerisano@standard3d.com
 float gold_noise(vec2 xy, float seed){
     return fract(tan(distance(xy * GOLDEN_RATIO, xy) * seed) * xy.x);
 }

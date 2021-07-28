@@ -21,9 +21,8 @@ vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
 }
 
 bool raytrace(vec3 viewPos, vec3 rayDir, int steps, float jitter, inout vec3 hitPos) {
-    float invSteps = 2.0 / steps;
     vec3 screenPos = viewToScreen(viewPos);
-    vec3 screenDir = normalize(viewToScreen(viewPos + rayDir) - screenPos) * invSteps;
+    vec3 screenDir = normalize(viewToScreen(viewPos + rayDir) - screenPos) * (RAY_STEP_LENGTH / steps);
 
     hitPos = screenPos + screenDir * jitter;
     for(int i = 0; i < steps; i++) {

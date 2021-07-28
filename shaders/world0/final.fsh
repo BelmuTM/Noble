@@ -45,7 +45,7 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result += bilateralBlur(colortex7) * BLOOM_INTENSITY;
+        Result += bokeh(colortex7, 12, 0.02) * BLOOM_INTENSITY;
     #endif
     
     vec3 exposureColor = Result.rgb * EXPOSURE;

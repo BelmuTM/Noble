@@ -8,4 +8,4 @@
 
 #version 400 compatibility
 
-#include "/programs/gbuffers/gbuffers_translucent_vsh.glsl"
+#include "/programs/gbuffers/gbuffers_opaque_vsh.glsl"

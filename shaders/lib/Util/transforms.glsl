@@ -10,8 +10,16 @@ vec3 diag3(mat4 mat) {
 	return vec3(mat[0].x, mat[1].y, mat[2].z);
 }
 
-vec3 projMAD(mat4 mat, vec3 v) {
+vec2 diag2(mat4 mat) {
+	return vec2(mat[0].x, mat[1].y);
+}
+
+vec3 projMAD3(mat4 mat, vec3 v) {
 	return (diag3(mat) * v + mat[3].xyz);
+}
+
+vec2 projMAD2(mat4 mat, vec2 v) {
+	return (diag2(mat) * v + mat[3].xy);
 }
 
 vec3 viewToClip(vec3 viewPos) {
@@ -20,11 +28,12 @@ vec3 viewToClip(vec3 viewPos) {
 
 vec3 screenToView(vec3 screenPos) {
 	screenPos = screenPos * 2.0 - 1.0;
-	return projMAD(gbufferProjectionInverse, screenPos) / (screenPos.z * gbufferProjectionInverse[2].w + gbufferProjectionInverse[3].w);
+	vec3 viewPos = vec3(projMAD2(gbufferProjectionInverse, screenPos.xy), gbufferProjectionInverse[3].z);
+	return viewPos / (gbufferProjectionInverse[2].w * screenPos.z + gbufferProjectionInverse[3].w);
 }
 
 vec3 viewToScreen(vec3 viewPos) {
-	return (diag3(gbufferProjection) * viewPos + gbufferProjection[3].xyz) / -viewPos.z * 0.5 + 0.5;
+	return (projMAD3(gbufferProjection, viewPos) / -viewPos.z) * 0.5 + 0.5;
 }
 
 vec3 worldToView(vec3 worldPos) {

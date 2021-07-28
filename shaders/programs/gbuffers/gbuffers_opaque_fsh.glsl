@@ -61,6 +61,12 @@ void main() {
 		#endif
 	#endif
 
+	#ifdef WATER 
+		#if WHITE_WORLD == 1
+			albedoTex = vec4(1.0);
+		#endif
+	#endif
+
 	#ifdef ENTITY
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 	#endif
@@ -69,7 +75,6 @@ void main() {
 	vec3 normal;
 	normal.xy = normalTex.xy * 2.0 - 1.0;
 	normal.z = sqrt(1.0 - dot(normal.xy, normal.xy)); // Reconstruct Z
-	normal = clamp(normal, -1.0, 1.0); // Clamp into right range
 	normal = TBN * normal; // Rotate by TBN matrix
 
 	float ao = normalTex.z;
@@ -81,14 +86,16 @@ void main() {
 
 	float emission = (specularTex.w * 255.0) < 254.5 ? specularTex.w : 0.0;
 
+	/*
 	float scattering = 0.0;
 	if(!isMetal) {
 		scattering = (specularTex.z * 255.0) < 65.0 ? 0.0 : specularTex.z;
 	}
+	*/
 	
 	/*DRAWBUFFERS:0123*/
 	gl_FragData[0] = albedoTex;
-	gl_FragData[1] = vec4(normal * 0.5 + 0.5, ao);
+	gl_FragData[1] = vec4(encodeNormal(normal), emission, ao);
 	gl_FragData[2] = vec4(clamp(roughness, 0.001, 1.0), F0, lightmap);
-	gl_FragData[3] = vec4(blockId / 255.0, 0.0, scattering, emission);
+	gl_FragData[3] = vec4(blockId / 255.0);
 }

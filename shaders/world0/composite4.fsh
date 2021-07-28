@@ -18,6 +18,7 @@ uniform mat4 gbufferPreviousProjection;
 #include "/lib/composite_uniforms.glsl"
 #include "/lib/frag/dither.glsl"
 #include "/lib/frag/noise.glsl"
+#include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/worldTime.glsl"
@@ -44,7 +45,7 @@ void main() {
         return;
     }
     vec3 viewPos = getViewPos();
-    vec3 normal = normalize(texture2D(colortex1, texCoords).xyz * 2.0 - 1.0);
+    vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
     float NdotV = max(dot(normal, normalize(-viewPos)), 0.0);
     float F0 = texture2D(colortex2, texCoords).g;
@@ -52,7 +53,7 @@ void main() {
     #if SSR == 1
         bool isMetal = (F0 * 255.0) > 229.5;
         vec3 specColor = isMetal ? texture2D(colortex4, texCoords).rgb : vec3(F0);
-        float roughness = texture2D(colortex2, texCoords).r;
+        float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : texture2D(colortex2, texCoords).r;
 
         vec3 reflections;
         #if SSR_TYPE == 1
