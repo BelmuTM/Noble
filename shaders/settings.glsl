@@ -9,14 +9,15 @@
 /*------------------ MATH ------------------*/
 #define EPS 0.001
 
+#define HALF_PI 1.570796
 #define PI 3.141592653589
 #define PI2 6.28318530718
 
-#define INV_SQRT_OF_2PI 0.3989422804014326
+#define INV_SQRT_OF_2PI 0.398942280
 #define INV_PI 0.31831
 
-#define GOLDEN_RATIO 1.61803398874989484820459
-#define GOLDEN_ANGLE 2.39996322973
+#define GOLDEN_RATIO 1.618033988
+#define GOLDEN_ANGLE 2.399963229
 
 /*------------------ OPTIFINE CONSTANTS ------------------*/
 const float sunPathRotation = -40.0; // [-85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0]
@@ -29,10 +30,9 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ NOISE ------------------*/
 #define FBM_OCTAVES 6 // FBM
-#define RADIUS 6 // Denoiser
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.005)
+#define AMBIENT vec3(0.03)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
@@ -46,6 +46,8 @@ const float shadowDistanceRenderMul = 1.0;
 #define WHITE_WORLD 0 // [0 1]
 
 /*------------------ WATER ------------------*/
+#define WATER_COLOR vec4(0.286, 0.565, 0.749, 0.01)
+
 #define WATER_WAVE_SPEED 0.15
 #define WATER_WAVE_AMPLITUDE 0.02
 #define WATER_WAVE_LENGTH 0.9
@@ -78,23 +80,26 @@ const float shadowDistanceRenderMul = 1.0;
 #define BINARY_COUNT 8 // [4 8 16 32 48]
 #define BINARY_DECREASE 0.5
 
+/*------------------ GLOBAL ILLUMINATION ------------------*/
 #define GI 1 // [0 1]
+#define GI_STEPS 24
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 0.55 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+
 // Spatial Filtering
 #define GI_FILTER 0 // [0 1]
-#define GI_FILTER_RES 0.5
-#define GI_FILTER_SIZE 15.0
-#define GI_FILTER_QUALITY 7.0
+#define GI_FILTER_RES 0.8
+#define GI_FILTER_SIZE 30.0
+#define GI_FILTER_QUALITY 15.0
 #define EDGE_STOP_THRESHOLD 0.7 // Lower number means more accuracy with the spatial filter.
 
+/*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
-#define WATER_REFRACTION 0 // [0 1]
+#define REFRACTION 0 // [0 1]
 
-/*------------------ REFLECTIONS ------------------*/
-const float hardCodedRoughness = 0.2; // 0.0 = OFF
+const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define ATTENUATION_FACTOR 0.375
 #define PREFILTER_SAMPLES 8 // [4 8 12 16 20 24]
@@ -110,7 +115,7 @@ const float hardCodedRoughness = 0.2; // 0.0 = OFF
 #define VL_BRIGHTNESS 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define VL_BLUR 1 // [0 1]
 
-/*------------------ FINAL ------------------*/
+/*------------------ POST PROCESSING ------------------*/
 #define ABOUT 69.420
 
 // Depth of Field

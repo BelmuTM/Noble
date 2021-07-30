@@ -83,7 +83,7 @@ vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
 
 vec3 shadowMap(vec3 viewPos, float shadowMapResolution) {
     vec3 sampleCoords = viewToShadow(viewPos).xyz * 0.5 + 0.5;
-    float theta = texture2D(noisetex, texCoords * 5.0).r;
+    float theta = uniformNoise(1).r;
 
     #if SOFT_SHADOWS == 1
         theta *= PI2; // That's wacky, but it looks better on Soft Shadows :D

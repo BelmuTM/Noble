@@ -25,7 +25,6 @@ uniform mat4 gbufferPreviousProjection;
 #include "/lib/util/blur.glsl"
 #include "/lib/material.glsl"
 #include "/lib/lighting/brdf.glsl"
-#include "/lib/util/reprojection.glsl"
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ssr.glsl"
 
@@ -66,8 +65,8 @@ void main() {
         Result.rgb += mix(Result.rgb, reflections, DFG);
     #endif
 
-    #if WATER_REFRACTION == 1
-        if(getBlockId(texCoords) == 6) Result.rgb = simpleRefractions(Result.rgb, viewPos, normal, NdotV, F0);
+    #if REFRACTION == 1
+        if(getBlockId(texCoords) > 0) Result.rgb = simpleRefractions(Result.rgb, viewPos, normal, NdotV, F0);
     #endif
 
     Result.rgb += vec3(getDayTimeSunColor() * VolumetricLighting);

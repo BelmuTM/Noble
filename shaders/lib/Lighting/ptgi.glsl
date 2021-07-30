@@ -16,14 +16,14 @@ vec3 computePTGI(in vec3 screenPos) {
     mat3 TBN = mat3(tangent, cross(normal, tangent), normal); 
 
     for(int i = 0; i < GI_BOUNCES; i++) {
-        /* Updating positions for the next bounce */
-        normal = normalize(decodeNormal(texture2D(colortex1, hitPos.xy).xy));
+        /* Updating our position for the next bounce */
         hitPos = screenToView(hitPos) + normal * EPS;
         
         vec2 noise = uniformAnimatedNoise();
         vec3 sampleDir = randomHemisphereDirection(noise.xy);
         sampleDir = TBN * sampleDir;
-        bool hit = raytrace(hitPos, sampleDir, int(29.3 * pow(0.78, GI_BOUNCES)), noise.x, hitPos);
+        bool hit = raytrace(hitPos, sampleDir, GI_STEPS, noise.x, hitPos);
+        // Inverse exponential amount of steps: int(29.3 * pow(0.78, GI_BOUNCES))
 
         if(hit) {
             /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
@@ -31,9 +31,10 @@ vec3 computePTGI(in vec3 screenPos) {
             vec3 albedo = texture2D(colortex0, hitPos.xy).rgb;
             float isEmissive = texture2D(colortex1, hitPos.xy).z == 0.0 ? 0.0 : 1.0;
 
-            weight *= albedo;
+            weight *= (albedo * INV_PI);
             illumination += weight * (shadowmap + isEmissive);
         }
+        normal = normalize(decodeNormal(texture2D(colortex1, hitPos.xy).xy));
     }
     return illumination;
 }

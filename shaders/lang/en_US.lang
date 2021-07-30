@@ -84,10 +84,10 @@ option.SSR.comment = Adds reflections that §ccan only display if they're showin
 value.SSR.0 = §cOFF
 value.SSR.1 = §aON
 
-option.WATER_REFRACTION = Water Refraction
-option.WATER_REFRACTION.comment = Reduces §bGI§f's noise.
-value.WATER_REFRACTION.0 = §cOFF
-value.WATER_REFRACTION.1 = §aON
+option.REFRACTION = Refractions
+option.REFRACTION.comment = Features §bScreen Space Refractions §ffor stained glass and water.
+value.REFRACTION.0 = §cOFF
+value.REFRACTION.1 = §aON
 
 option.SSR_TYPE = SSR Type
 option.SSR_TYPE.comment = §bSimple reflections §fdo not consider a material's roughness. §bRough reflections §fdo consider it, §cthey give a better §cresult but reduce performance.

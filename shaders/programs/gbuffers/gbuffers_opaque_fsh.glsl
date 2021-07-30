@@ -86,6 +86,8 @@ void main() {
 
 	float emission = (specularTex.w * 255.0) < 254.5 ? specularTex.w : 0.0;
 
+	if(int(blockId) == 1) albedoTex = WATER_COLOR;
+
 	/*
 	float scattering = 0.0;
 	if(!isMetal) {

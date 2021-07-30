@@ -218,14 +218,14 @@ float FBM(vec2 p) {
 }
 
 vec2 uniformAnimatedNoise() {
-    vec2 noise = texture2D(noisetex, texCoords * 5.0).rg;
+    vec2 noise = texture2D(noisetex, texCoords * 7.0).rg;
     noise.x = fract(noise.x + GOLDEN_RATIO * (frameTimeCounter * 15.0));
     noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter * 15.0, 100.0));
     return noise;
 }
 
 vec2 uniformNoise(int i) {
-    vec2 noise = texture2D(noisetex, texCoords * 5.0).rg;
+    vec2 noise = texture2D(noisetex, texCoords * 7.0).rg;
     noise.x = fract(noise.x + GOLDEN_RATIO * i);
     noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i);
     return noise;

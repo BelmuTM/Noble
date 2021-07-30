@@ -53,6 +53,18 @@ float circle(vec2 coords, float radius, float fade) {
 	return 1.0 - smoothstep(radius - (radius * fade), radius + (radius * fade), dot(dist, dist) * 4.0);
 }
 
+// https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
+float ACos(in float x) { 
+    x = abs(x); 
+    float res = -0.156583 * x + HALF_PI; 
+    res *= sqrt(1.0 - x); 
+    return (x >= 0) ? res : PI - res; 
+}
+
+float ASin(float x) {
+    return HALF_PI - ACos(x);
+}
+
 /*
 	Thanks to the 2 people who gave me
 	their hemisphere sampling functions! <3

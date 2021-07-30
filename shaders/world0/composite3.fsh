@@ -50,6 +50,8 @@ void main() {
     material data = getMaterial(tex0, tex1, tex2);
     vec3 normal = normalize(data.normal.xyz);
     float depth = texture2D(depthtex0, texCoords).r;
+
+    data.albedo = mix(texture2D(colortex4, texCoords).rgb, data.albedo, data.alpha);
     
     float VolumetricLighting = 0.0;
     #if VL == 1
@@ -87,7 +89,7 @@ void main() {
     vec3 Lighting = Cook_Torrance(normal, viewDir, lightDir, data, lightmapColor, Shadow, GlobalIllumination.rgb);
     bool isEmissive = data.emission != 0.0;
 
-    if(getBlockId(texCoords) == 6) {
+    if(getBlockId(texCoords) == 1) {
         float depthDist = distance(
 		    linearizeDepth(texture2D(depthtex0, texCoords).r),
 		    linearizeDepth(texture2D(depthtex1, texCoords).r)

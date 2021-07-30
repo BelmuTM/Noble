@@ -127,14 +127,14 @@ vec3 Cook_Torrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sh
 
     vec3 DiffuseLighting = vec3(0.0);
     vec3 E0 = lightmap + NdotL * shadowmap + AMBIENT;
-    vec3 Albedo = data.albedo * dayTimeColor;
+    vec3 Albedo = (data.albedo * dayTimeColor) * INV_PI;
 
     if(!isMetal) {
         /* LAMBERTIAN MODEL */
         //DiffuseLighting += Albedo * E0;
         
         /* OREN-NAYAR MODEL - QUALITATIVE */
-        float aNdotL = acos(NdotL), aNdotV = acos(NdotV);
+        float aNdotL = ACos(NdotL), aNdotV = ASin(NdotV);
         float A = 1.0 - 0.5 * (alpha / (alpha + 0.333));
         float B = 0.45 * alpha / (alpha + 0.09);
 
