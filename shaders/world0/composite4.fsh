@@ -15,7 +15,7 @@ uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
 #include "/settings.glsl"
-#include "/lib/composite_uniforms.glsl"
+#include "/lib/uniforms.glsl"
 #include "/lib/frag/dither.glsl"
 #include "/lib/frag/noise.glsl"
 #include "/lib/util/math.glsl"
@@ -61,12 +61,8 @@ void main() {
             reflections = simpleReflections(viewPos, normal, NdotV, specColor);
         #endif
 
-        vec3 DFG = Env_BRDF_Approx(specColor, roughness, NdotV);
+        vec3 DFG = envBRDFApprox(specColor, roughness, NdotV);
         Result.rgb += mix(Result.rgb, reflections, DFG);
-    #endif
-
-    #if REFRACTION == 1
-        if(getBlockId(texCoords) > 0) Result.rgb = simpleRefractions(Result.rgb, viewPos, normal, NdotV, F0);
     #endif
 
     Result.rgb += vec3(getDayTimeSunColor() * VolumetricLighting);

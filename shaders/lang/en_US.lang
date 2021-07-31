@@ -137,11 +137,11 @@ value.BINARY_REFINEMENT.1 = §aON
 
 option.BINARY_COUNT = Refinement Count
 option.BINARY_COUNT.comment = Influences §bBinary Refinement§f's quality. §cHigher value gives better results, but reduces §cperformance.
+value.BINARY_COUNT.2 = §22
 value.BINARY_COUNT.4 = §a4
 value.BINARY_COUNT.8 = §e8
 value.BINARY_COUNT.16 = §616
 value.BINARY_COUNT.32 = §c32
-value.BINARY_COUNT.48 = §448
 
 ##################### ATMOSPHERICS #####################
 
@@ -170,8 +170,8 @@ value.VL_BLUR.1 = §aON
 
 ##################### POST-PROCESSING #####################
 
-option.BLOOM = Bloom §b§l[PBR ONLY]
-option.BLOOM.comment = Allows bright areas to glow. §cThis only works with PBR emissive materials (requires a §cPBR texture pack).
+option.BLOOM = Bloom
+option.BLOOM.comment = Allows bright areas to glow.
 value.BLOOM.0 = §cOFF
 value.BLOOM.1 = §aON
 

@@ -15,7 +15,7 @@ uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
 #include "/settings.glsl"
-#include "/lib/composite_uniforms.glsl"
+#include "/lib/uniforms.glsl"
 #include "/lib/frag/dither.glsl"
 #include "/lib/frag/noise.glsl"
 #include "/lib/util/transforms.glsl"

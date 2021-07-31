@@ -7,10 +7,10 @@
 /***********************************************/
 
 vec4 Fog(float depth, vec3 viewPos, vec4 fogColorStart, vec4 fogColorEnd, float fogCoef, float density) {
-    // Water Fog
+    // Underwater Fog
     if(isEyeInWater == 1) {
         fogCoef = 1.0;
-        density = 0.125;
+        density = 0.05;
         fogColorStart = vec4(0.0);
         fogColorEnd = vec4(0.145, 0.38, 0.42, 0.65) * density;
     }

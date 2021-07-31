@@ -32,7 +32,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define FBM_OCTAVES 6 // FBM
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.03)
+#define AMBIENT vec3(0.01)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
@@ -46,7 +46,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define WHITE_WORLD 0 // [0 1]
 
 /*------------------ WATER ------------------*/
-#define WATER_COLOR vec4(0.286, 0.565, 0.749, 0.01)
+#define WATER_COLOR vec4(0.286, 0.565, 0.749, 0.2)
 
 #define WATER_WAVE_SPEED 0.15
 #define WATER_WAVE_AMPLITUDE 0.02
@@ -55,7 +55,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_ABSORPTION_COEFFICIENTS vec3(1.0, 0.2, 0.13)
 
 #define WATER_FOAM 1 // [0 1]
-#define FOAM_BRIGHTNESS 0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define FOAM_BRIGHTNESS 1.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
 #define FOAM_FALLOFF_DISTANCE 0.75
 #define FOAM_EDGE_FALLOFF 0.3
 #define FOAM_FALLOFF_BIAS 0.1
@@ -77,7 +77,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define RAY_STEP_LENGTH 2.0
 
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT 8 // [4 8 16 32 48]
+#define BINARY_COUNT 8 // [2 4 8 16 32]
 #define BINARY_DECREASE 0.5
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
@@ -97,7 +97,7 @@ const float shadowDistanceRenderMul = 1.0;
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
-#define REFRACTION 0 // [0 1]
+#define REFRACTION 1 // [0 1]
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
@@ -106,7 +106,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define SIMPLE_REFLECT_STEPS 64
 #define ROUGH_REFLECT_STEPS 12 // Inverse exponential curve: int(a * pow(b, PREFILTER_SAMPLES)) 5 < a < 100 | 0.5 < b < 0.999
-#define SIMPLE_REFRACT_STEPS 20
+#define REFRACT_STEPS 64
 
 /*------------------ VOLUMETRIC LIGHTING ------------------*/
 #define VL 0 // [0 1]
@@ -128,10 +128,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define BLOOM 1 // [0 1]
 #define BLOOM_INTENSITY 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define BLOOM_RESOLUTION_MULTIPLIER 1.0
-#define BLOOM_QUALITY 20.0
-#define BLOOM_SIZE 8.0
-#define BLOOM_DIRECTIONS 20.0
+#define BLOOM_LUMA_THRESHOLD 0.1
 
 #define OUTLINE 0 // [0 1]
 #define OUTLINE_DARKNESS 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
@@ -143,7 +140,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 // Color Correction
 #define TONEMAPPING 5 // [-1 0 1 2 3 4 5]
-#define EXPOSURE 1.50 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
+#define EXPOSURE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
 #define VIBRANCE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define CONTRAST 1.00 // [0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50]

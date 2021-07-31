@@ -13,20 +13,8 @@ varying mat3 TBN;
 varying float blockId;
 varying vec3 viewPos;
 
-uniform sampler2D lightmap;
-uniform sampler2D texture;
-uniform sampler2D normals;
-uniform sampler2D specular;
-uniform sampler2D depthtex0;
-
-uniform float rainStrength;
-uniform float near;
-uniform float far;
-
-uniform mat4 gbufferModelViewInverse;
-uniform mat4 gbufferModelView;
-
 #include "/settings.glsl"
+#include "/lib/uniforms.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/color.glsl"
 
@@ -78,22 +66,13 @@ void main() {
 	normal = TBN * normal; // Rotate by TBN matrix
 
 	float ao = normalTex.z;
-	
     	float roughness = pow(1.0 - specularTex.x, 2.0);
 	float F0 = specularTex.y;
 	bool isMetal = (F0 * 255.0) > 229.5;
 	vec2 lightmap = lmCoords.xy;
-
 	float emission = (specularTex.w * 255.0) < 254.5 ? specularTex.w : 0.0;
 
-	if(int(blockId) == 1) albedoTex = WATER_COLOR;
-
-	/*
-	float scattering = 0.0;
-	if(!isMetal) {
-		scattering = (specularTex.z * 255.0) < 65.0 ? 0.0 : specularTex.z;
-	}
-	*/
+	if(int(blockId) == 1) albedoTex.a = WATER_COLOR.a;
 	
 	/*DRAWBUFFERS:0123*/
 	gl_FragData[0] = albedoTex;

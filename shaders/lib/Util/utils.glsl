@@ -17,6 +17,5 @@ int getBlockId(vec2 coords) {
 }
 
 bool isHand(float depth) {
-    depth = linearizeDepth(depth);
-    return depth < MC_HAND_DEPTH;
+    return linearizeDepth(depth) < MC_HAND_DEPTH;
 }

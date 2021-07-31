@@ -14,6 +14,6 @@ vec3 computeDOF(float sceneDepth, vec3 viewPos) {
 
     if(sceneDepth == 1.0) return inFocusColor.rgb;
 
-    vec4 outOfFocusColor = bokeh(colortex0, 16, 0.03);
+    vec4 outOfFocusColor = bokeh(colortex0, 1.0 / viewSize, 16, 0.03);
     return mix(inFocusColor.rgb, outOfFocusColor.rgb, blur);
 }

@@ -35,18 +35,17 @@ vec4 bilateralBlur(sampler2D tex) {
     return color / SAMPLES;
 }
 
-// Got help from: https://catlikecoding.com/unity/tutorials/advanced-rendering/depth-of-field/
-vec4 bokeh(sampler2D tex, int quality, float radius) {
+vec4 bokeh(sampler2D tex, vec2 resolution, int quality, float radius) {
     vec4 color = texture2D(tex, texCoords);
     vec2 noise = uniformAnimatedNoise();
 
     int SAMPLES = 1;
     for(int i = 0; i < quality; i++) {
         for(int j = 0; j < quality; j++) {
-            vec2 offset = ((vec2(i, j) + noise) - quality * 0.5) / quality;
+            vec2 offset = ((vec2(i, j) + noise) - quality * 0.5) / quality * resolution;
             
             if(length(offset) < 0.5) {
-                color += texture2D(tex, texCoords + offset * radius / aspectRatio);
+                color += texture2D(tex, texCoords + offset * radius);
                 SAMPLES++;
             }
         }

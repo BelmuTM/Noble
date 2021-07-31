@@ -33,7 +33,7 @@ vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
 
     vec3 L = normalize(shadowLightPosition);
     vec3 H = normalize(viewPos + L);
-    vec3 fresnel = Spherical_Gaussian_Fresnel(max(dot(H, L), EPS), F0);
+    vec3 fresnel = sphericalGaussianFresnel(max(dot(H, L), EPS), F0);
 
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
     return hitColor * (fresnel * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR));
@@ -50,7 +50,7 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
 		vec2 noise = uniformNoise(i);
-        vec3 H = sample_GGX_VNDF(normalize(-viewPos) * TBN, noise.xy, roughness);
+        vec3 H = sampleGGXVNDF(normalize(-viewPos) * TBN, noise.xy, roughness);
 		
         vec3 hitPos;
 		vec3 reflected = reflect(normalize(viewPos), TBN * H);	
@@ -62,21 +62,19 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
             weight += NdotL;
 		}
 	}
-	return filteredColor / max(weight, EPS);
+	return filteredColor / max(EPS, weight);
 }
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/
 
-vec3 simpleRefractions(vec3 color, vec3 viewPos, vec3 normal, float NdotV, float F0) {
+vec3 simpleRefractions(vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
     //float ior = F0toIOR(F0);
     viewPos += normal * EPS;
     vec3 refracted = refract(normalize(viewPos), normal, 1.0 / 1.325); // water's ior
-    vec3 hitPos;
-    if(!raytrace(viewPos, refracted, 64, uniformNoise(1).r, hitPos)) return vec3(0.0);
+    if(!raytrace(viewPos, refracted, REFRACT_STEPS, uniformNoise(1).r, hitPos)) return vec3(0.0);
+    if(isHand(texture2D(depthtex1, hitPos.xy).r)) return vec3(0.0);
 
-    if(isHand(texture2D(depthtex1, hitPos.xy).r)) return color;
-
-    vec3 fresnel = Fresnel_Schlick(NdotV, vec3(F0));
-    vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
+    vec3 fresnel = fresnelSchlick(NdotV, vec3(F0));
+    vec3 hitColor = texture2D(colortex4, hitPos.xy).rgb;
     return hitColor * (1.0 - fresnel) * Kneemund_Attenuation(hitPos.xy, 0.05);
 }

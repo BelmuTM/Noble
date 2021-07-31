@@ -48,4 +48,4 @@ uniform mat4 gbufferModelView, gbufferModelViewInverse;
 uniform mat4 shadowModelView, shadowProjection;
 
 vec2 viewSize = vec2(viewWidth, viewHeight);
-vec2 pixelSize = 1.0 / vec2(viewWidth, viewHeight);
+vec2 pixelSize = 1.0 / viewSize;

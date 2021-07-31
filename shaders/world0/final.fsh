@@ -13,7 +13,7 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/lib/composite_uniforms.glsl"
+#include "/lib/uniforms.glsl"
 #include "/lib/frag/dither.glsl"
 #include "/lib/frag/noise.glsl"
 #include "/lib/util/math.glsl"
@@ -45,10 +45,10 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result += bokeh(colortex7, 12, 0.02) * BLOOM_INTENSITY;
+        Result += bokeh(colortex7, 0.7 / viewSize, 8, 7.0) * BLOOM_INTENSITY;
     #endif
     
-    vec3 exposureColor = Result.rgb * EXPOSURE;
+    vec3 exposureColor = Result.rgb * (EXPOSURE * PI);
     #if TONEMAPPING == 0
         Result.rgb = white_preserving_luma_based_reinhard(exposureColor); // Reinhard
     #elif TONEMAPPING == 1

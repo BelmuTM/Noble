@@ -9,7 +9,7 @@
 #version 400 compatibility
 
 varying vec2 texCoords;
-#include "/lib/composite_uniforms.glsl"
+#include "/lib/uniforms.glsl"
 
 void main() {
      /*DRAWBUFFERS:4*/
