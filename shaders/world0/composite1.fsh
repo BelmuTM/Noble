@@ -18,8 +18,8 @@ varying vec2 texCoords;
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/worldTime.glsl"
-#include "/lib/lighting/ssao.glsl"
 #include "/lib/lighting/raytracer.glsl"
+#include "/lib/lighting/ssao.glsl"
 #include "/lib/lighting/ptgi.glsl"
 
 void main() {
@@ -39,8 +39,10 @@ void main() {
             GlobalIllumination = isMetal ? vec3(0.0) : computePTGI(positionAt);
         }
     #else
-        #if SSAO == 1
+        #if AO_TYPE == 0
             AmbientOcclusion = computeSSAO(viewPos, normal);
+        #else
+            AmbientOcclusion = computeRTAO(viewPos, normal);
         #endif
     #endif
 

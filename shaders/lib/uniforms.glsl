@@ -13,11 +13,12 @@ uniform vec3 cameraPosition;
 uniform vec3 skyColor;
 
 uniform float rainStrength;
+uniform float frameTime;
 uniform float frameTimeCounter;
-uniform float aspectRatio;
 uniform float centerDepthSmooth;
 uniform float near;
 uniform float far;
+uniform float aspectRatio;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform int worldTime;

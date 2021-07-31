@@ -55,19 +55,27 @@ option.SOFT_SHADOWS.comment = Features §bPCSS §7§o(Percentage-Closer Soft Sha
 value.SOFT_SHADOWS.0 = §cOFF
 value.SOFT_SHADOWS.1 = §aON
 
-option.SSAO = SSAO
-option.SSAO.comment = §bScreen Space Ambient Occlusion. §fAdds pseudo-shadows that enhance a scene's depth perception.
-value.SSAO.0 = §cOFF
-value.SSAO.1 = §aON
+option.AO = AO
+option.AO.comment = §bAmbient Occlusion. §fFeatures pseudo-shadows that enhance a scene's depth perception.
+value.AO.0 = §cOFF
+value.AO.1 = §aON
 
-option.SSAO_SAMPLES = SSAO Samples
-option.SSAO_SAMPLES.comment = Influences §bSSAO§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
-value.SSAO_SAMPLES.4 = §24
-value.SSAO_SAMPLES.8 = §a8
-value.SSAO_SAMPLES.16 = §e16
-value.SSAO_SAMPLES.32 = §632
-value.SSAO_SAMPLES.64 = §c64
-value.SSAO_SAMPLES.128 = §4128
+option.AO_SAMPLES = AO Samples
+option.AO_SAMPLES.comment = Influences §bAO§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
+value.AO_SAMPLES.4 = §a4
+value.AO_SAMPLES.8 = §e8
+value.AO_SAMPLES.16 = §616
+value.AO_SAMPLES.32 = §c32
+
+option.AO_TYPE = AO Type
+option.AO_TYPE.comment = §aRTAO §7-> §fRay Traced Ambient Occlusion. §aSSAO §7-> §fScreen Space Ambient Occlusion.
+value.AO_TYPE.0 = §eSSAO
+value.AO_TYPE.1 = §eRTAO
+
+option.AO_FILTER = AO Filter
+option.AO_FILTER.comment = Filters §bAO §fto reduce the noise.
+value.AO_FILTER.0 = §cOFF
+value.AO_FILTER.1 = §aON
 
 option.WHITE_WORLD = White World
 option.WHITE_WORLD.comment = §fSets all block colors to white.
@@ -123,7 +131,7 @@ value.GI_TEMPORAL_ACCUMULATION.0 = §cOFF
 value.GI_TEMPORAL_ACCUMULATION.1 = §aON
 
 option.GI_FILTER = Spatial Filtering
-option.GI_FILTER.comment = Reduces §bGI§f's noise.
+option.GI_FILTER.comment = Filters §bGI §fto reduce the noise.
 value.GI_FILTER.0 = §cOFF
 value.GI_FILTER.1 = §aON
 
@@ -163,10 +171,10 @@ value.VL_SAMPLES.48 = §448
 option.VL_BRIGHTNESS = VL Brightness
 option.VL_BRIGHTNESS.comment = Adjusts §bVL§f's brightness.
 
-option.VL_BLUR = VL Blur
-option.VL_BLUR.comment = Blurs §bVL. §cGives a cleaner result, but reduces performance.
-value.VL_BLUR.0 = §cOFF
-value.VL_BLUR.1 = §aON
+option.VL_FILTER = VL Filter
+option.VL_FILTER.comment = Filters §bVL §fto reduce the noise. §cGives a cleaner result, but reduces performance.
+value.VL_FILTER.0 = §cOFF
+value.VL_FILTER.1 = §aON
 
 ##################### POST-PROCESSING #####################
 

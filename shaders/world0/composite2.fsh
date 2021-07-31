@@ -23,6 +23,13 @@ uniform mat4 gbufferPreviousProjection;
 #include "/lib/util/reprojection.glsl"
 
 /*
+const int colortex5Format = RGBA16F;
+const int colortex6Format = RGBA16F;
+*/
+
+const bool colortex6Clear = false;
+
+/*
     Temporal Anti-Aliasing from "Temporal Reprojection Anti-Aliasing in INSIDE"
     http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
 */

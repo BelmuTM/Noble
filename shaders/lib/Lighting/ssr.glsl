@@ -29,7 +29,8 @@ vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
     viewPos += normal * EPS;
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec3 hitPos;
-    if(!raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, uniformNoise(1).r, hitPos)) return vec3(0.0);
+
+    if(!raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, uniformNoise(0).r, hitPos)) return vec3(0.0);
 
     vec3 L = normalize(shadowLightPosition);
     vec3 H = normalize(viewPos + L);
@@ -46,10 +47,10 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 	float weight = 0.0;
 	
     vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
-    mat3 TBN = mat3(tangent, cross(normal, tangent), normal);   
+    mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-		vec2 noise = uniformNoise(i);
+        vec2 noise = uniformNoise(i);
         vec3 H = sampleGGXVNDF(normalize(-viewPos) * TBN, noise.xy, roughness);
 		
         vec3 hitPos;
@@ -71,10 +72,11 @@ vec3 simpleRefractions(vec3 viewPos, vec3 normal, float NdotV, float F0, out vec
     //float ior = F0toIOR(F0);
     viewPos += normal * EPS;
     vec3 refracted = refract(normalize(viewPos), normal, 1.0 / 1.325); // water's ior
-    if(!raytrace(viewPos, refracted, REFRACT_STEPS, uniformNoise(1).r, hitPos)) return vec3(0.0);
+
+    if(!raytrace(viewPos, refracted, REFRACT_STEPS, uniformNoise(0).r, hitPos)) return vec3(0.0);
     if(isHand(texture2D(depthtex1, hitPos.xy).r)) return vec3(0.0);
 
     vec3 fresnel = fresnelSchlick(NdotV, vec3(F0));
     vec3 hitColor = texture2D(colortex4, hitPos.xy).rgb;
-    return hitColor * (1.0 - fresnel) * Kneemund_Attenuation(hitPos.xy, 0.05);
+    return hitColor * (1.0 - fresnel) * Kneemund_Attenuation(hitPos.xy, 0.15);
 }

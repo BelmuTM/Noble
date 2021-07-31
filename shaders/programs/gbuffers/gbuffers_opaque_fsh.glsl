@@ -15,8 +15,8 @@ varying vec3 viewPos;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
+#include "/lib/frag/dither.glsl"
 #include "/lib/util/math.glsl"
-#include "/lib/util/color.glsl"
 
 #ifdef ENTITY
 uniform vec4 entityColor;
@@ -24,6 +24,7 @@ uniform vec4 entityColor;
 
 /*
 const int colortex0Format = RGBA16F;
+const int colortex2Format = RGBA16F;
 */
 
 void main() {
@@ -77,6 +78,6 @@ void main() {
 	/*DRAWBUFFERS:0123*/
 	gl_FragData[0] = albedoTex;
 	gl_FragData[1] = vec4(encodeNormal(normal), emission, ao);
-	gl_FragData[2] = vec4(clamp(roughness, 0.001, 1.0), F0, lightmap);
+	gl_FragData[2] = vec4(clamp(roughness, EPS, 1.0), F0, lightmap);
 	gl_FragData[3] = vec4(blockId / 255.0);
 }

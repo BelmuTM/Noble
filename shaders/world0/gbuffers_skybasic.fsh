@@ -16,6 +16,7 @@ const int GL_EXP = 2048;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
+#include "/lib/frag/dither.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 

@@ -33,7 +33,7 @@ void main() {
 
     float VolumetricLighting = texture2D(colortex4, texCoords).a;
     #if VL == 1
-        #if VL_BLUR == 1
+        #if VL_FILTER == 1
             VolumetricLighting = bilateralBlur(colortex4).a;
         #endif
     #endif

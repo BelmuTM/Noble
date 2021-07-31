@@ -24,10 +24,7 @@ varying vec2 texCoords;
 #include "/lib/lighting/brdf.glsl"
 #include "/lib/util/distort.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
-#include "/lib/lighting/raytracer.glsl"
-#include "/lib/lighting/ssr.glsl"
 
-const bool colortex6Clear = false;
 const float rainMinAmbientBrightness = 0.2;
 
 /*------------------ LIGHTMAP ------------------*/
@@ -47,7 +44,6 @@ void main() {
     vec4 tex0 = texture2D(colortex0, texCoords);
     vec4 tex1 = texture2D(colortex1, texCoords);
     vec4 tex2 = texture2D(colortex2, texCoords);
-    tex0.rgb = toLinear(tex0.rgb);
 
     material data = getMaterial(tex0, tex1, tex2);
     vec3 normal = normalize(data.normal.xyz);
@@ -70,11 +66,15 @@ void main() {
     float AmbientOcclusion = 1.0;
     
     #if GI == 0
-        vec2 lightMap = data.lightmap;
+        vec2 lightMap = clamp(data.lightmap, 0.0, 1.0);
         lightmapColor = getLightmapColor(lightMap);
 
-        #if SSAO == 1
-            AmbientOcclusion = bilateralBlur(colortex5).a;
+        #if AO == 1
+            AmbientOcclusion = texture2D(colortex5, texCoords).a;
+
+            #if AO_FILTER == 1
+                AmbientOcclusion = bilateralBlur(colortex5).a;
+            #endif
         #endif
     #endif
 
@@ -85,46 +85,6 @@ void main() {
             viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 13.0);
         #endif
     #endif
-
-    /*
-        WATER ABSORPTION / REFRACTION
-    */
-    float depthDist = distance(
-		linearizeDepth(texture2D(depthtex0, texCoords).r),
-		linearizeDepth(texture2D(depthtex1, texCoords).r)
-	);
-    vec3 hitPos;
-    vec3 opaques = texture2D(colortex4, texCoords).rgb;
-
-    #if REFRACTION == 1
-        float NdotV = max(dot(normal, viewDir), 0.0);
-        if(getBlockId(texCoords) > 0) opaques = simpleRefractions(viewPos, normal, NdotV, data.F0, hitPos);
-
-        depthDist = distance(viewPos.z, hitPos.z);
-    #endif
-
-    // Alpha Blending
-    data.albedo = mix(opaques, data.albedo, data.alpha);
-
-    if(getBlockId(texCoords) == 1 && isEyeInWater == 0) {
-        // Absorption
-        depthDist = max(0.0, depthDist);
-        float density = depthDist * 6.5e-1;
-
-	    vec3 absorption = exp2(-(density / log(2.0)) * WATER_ABSORPTION_COEFFICIENTS);
-        data.albedo *= absorption;
-
-        // Foam
-        #if WATER_FOAM == 1
-            if(depthDist < FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF) {
-                float falloff = (depthDist / FOAM_FALLOFF_DISTANCE) + FOAM_FALLOFF_BIAS;
-                vec3 edge = absorption * falloff * FOAM_BRIGHTNESS * Shadow;
-
-                float leading = depthDist / (FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF);
-	            data.albedo = mix(data.albedo + edge, data.albedo, leading);
-            }
-        #endif
-    }
 
     vec3 Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, Shadow, GlobalIllumination.rgb);
     bool isEmissive = data.emission != 0.0;

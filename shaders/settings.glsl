@@ -29,29 +29,10 @@ const float shadowDistance = 200.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 
 const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ NOISE ------------------*/
-#define FBM_OCTAVES 6 // FBM
-
-/*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.01)
-
-#define TORCHLIGHT_MULTIPLIER 2.0
-#define TORCH_COLOR vec3(1.5, 0.85, 0.88)
-
-#define SSAO 0 // [0 1]
-#define SSAO_SAMPLES 16 // [4 8 16 32 64 128]
-#define SSAO_RADIUS 1.0
-#define SSAO_BIAS 0.5
-
-#define SPECULAR 1 // [0 1]
-#define WHITE_WORLD 0 // [0 1]
+#define FBM_OCTAVES 6
 
 /*------------------ WATER ------------------*/
 #define WATER_COLOR vec4(0.286, 0.565, 0.749, 0.2)
-
-#define WATER_WAVE_SPEED 0.15
-#define WATER_WAVE_AMPLITUDE 0.02
-#define WATER_WAVE_LENGTH 0.9
-#define WATER_WAVE_AMOUNT 5
 #define WATER_ABSORPTION_COEFFICIENTS vec3(1.0, 0.2, 0.13)
 
 #define WATER_FOAM 1 // [0 1]
@@ -59,6 +40,28 @@ const float shadowDistanceRenderMul = 1.0;
 #define FOAM_FALLOFF_DISTANCE 0.75
 #define FOAM_EDGE_FALLOFF 0.3
 #define FOAM_FALLOFF_BIAS 0.1
+
+/*------------------ LIGHTING ------------------*/
+#define AMBIENT vec3(0.01)
+
+#define TORCHLIGHT_MULTIPLIER 2.0
+#define TORCH_COLOR vec3(1.5, 0.85, 0.88)
+
+#define SPECULAR 1 // [0 1]
+#define WHITE_WORLD 0 // [0 1]
+
+/*------------------ AMBIENT OCCLUSION ------------------*/
+#define AO 1 // [0 1]
+#define AO_SAMPLES 8 // [4 8 16 32]
+#define AO_TYPE 0 // [0 1]
+#define AO_FILTER 1 // [0 1]
+
+#define SSAO_RADIUS 1.0
+#define SSAO_BIAS 0.5
+
+#define RTAO_STEPS 16
+#define RTAO_MULT 1.5
+#define RTAO_STRENGTH 0.2
 
 /*------------------ SHADOWS ------------------*/
 #define SHADOWS 1 // [0 1]
@@ -82,7 +85,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
 #define GI 1 // [0 1]
-#define GI_STEPS 24
+#define GI_STEPS 32
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 0.55 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
@@ -91,7 +94,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define GI_FILTER 0 // [0 1]
 #define GI_FILTER_RES 0.8
 #define GI_FILTER_SIZE 30.0
-#define GI_FILTER_QUALITY 15.0
+#define GI_FILTER_QUALITY 12.0
 #define EDGE_STOP_THRESHOLD 0.7 // Lower number means more accuracy with the spatial filter.
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
@@ -113,7 +116,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define VL_SAMPLES 8 // [4 8 12 16 24 32 48]
 #define VL_DENSITY 0.4
 #define VL_BRIGHTNESS 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define VL_BLUR 1 // [0 1]
+#define VL_FILTER 1 // [0 1]
 
 /*------------------ POST PROCESSING ------------------*/
 #define ABOUT 69.420
@@ -128,7 +131,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define BLOOM 1 // [0 1]
 #define BLOOM_INTENSITY 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define BLOOM_LUMA_THRESHOLD 0.1
+#define BLOOM_LUMA_THRESHOLD 0.2
 
 #define OUTLINE 0 // [0 1]
 #define OUTLINE_DARKNESS 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
@@ -140,7 +143,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 // Color Correction
 #define TONEMAPPING 5 // [-1 0 1 2 3 4 5]
-#define EXPOSURE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
+#define EXPOSURE 1.20 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
 #define VIBRANCE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define CONTRAST 1.00 // [0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50]

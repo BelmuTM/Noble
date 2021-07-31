@@ -19,7 +19,7 @@ vec3 decodeNormal(vec2 encodedNormal) {
 }
 
 float packUnorm2x8(vec2 xy) {
-	return dot(floor(255.0 * xy + 0.5), vec2(1.0 / 65535.0, 256.0 / 65535.0));
+	return dot(floor(255.0 * xy + bayer64(gl_FragCoord.xy)), vec2(1.0 / 65535.0, 256.0 / 65535.0));
 }
 
 vec2 unpackUnorm2x8(float pack) {

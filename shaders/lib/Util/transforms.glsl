@@ -44,8 +44,13 @@ vec3 viewToWorld(vec3 viewPos) {
 	return mat3(gbufferModelViewInverse) * viewPos;
 }
 
+vec3 tangentToWorld(vec3 normal, vec3 H) {
+    vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
+    return vec3((tangent * H.x) + (cross(normal, tangent) * H.y) + (normal * H.z));
+}
+
 float linearizeDepth(float depth) {
-	return (2.0f * near * far) / (far + near - (depth * 2.0 - 1.0) * (far - near));
+	return (2.0 * near * far) / (far + near - (depth * 2.0 - 1.0) * (far - near));
 }
 
 float F0toIOR(float F0) {
