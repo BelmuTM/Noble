@@ -60,22 +60,22 @@ option.AO.comment = §bAmbient Occlusion. §fFeatures pseudo-shadows that enhanc
 value.AO.0 = §cOFF
 value.AO.1 = §aON
 
-option.AO_SAMPLES = AO Samples
-option.AO_SAMPLES.comment = Influences §bAO§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
-value.AO_SAMPLES.4 = §a4
-value.AO_SAMPLES.8 = §e8
-value.AO_SAMPLES.16 = §616
-value.AO_SAMPLES.32 = §c32
+option.AO_FILTER = AO Filter
+option.AO_FILTER.comment = Filters §bAO §fto reduce the noise.
+value.AO_FILTER.0 = §cOFF
+value.AO_FILTER.1 = §aON
 
 option.AO_TYPE = AO Type
 option.AO_TYPE.comment = §aRTAO §7-> §fRay Traced Ambient Occlusion. §aSSAO §7-> §fScreen Space Ambient Occlusion.
 value.AO_TYPE.0 = §eSSAO
 value.AO_TYPE.1 = §eRTAO
 
-option.AO_FILTER = AO Filter
-option.AO_FILTER.comment = Filters §bAO §fto reduce the noise.
-value.AO_FILTER.0 = §cOFF
-value.AO_FILTER.1 = §aON
+option.SSAO_SAMPLES = SSAO Samples
+option.SSAO_SAMPLES.comment = Influences §bSSAO§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
+value.SSAO_SAMPLES.4 = §a4
+value.SSAO_SAMPLES.8 = §e8
+value.SSAO_SAMPLES.16 = §616
+value.SSAO_SAMPLES.32 = §c32
 
 option.WHITE_WORLD = White World
 option.WHITE_WORLD.comment = §fSets all block colors to white.
@@ -168,9 +168,6 @@ value.VL_SAMPLES.24 = §624
 value.VL_SAMPLES.32 = §c32
 value.VL_SAMPLES.48 = §448
 
-option.VL_BRIGHTNESS = VL Brightness
-option.VL_BRIGHTNESS.comment = Adjusts §bVL§f's brightness.
-
 option.VL_FILTER = VL Filter
 option.VL_FILTER.comment = Filters §bVL §fto reduce the noise. §cGives a cleaner result, but reduces performance.
 value.VL_FILTER.0 = §cOFF
@@ -183,31 +180,16 @@ option.BLOOM.comment = Allows bright areas to glow.
 value.BLOOM.0 = §cOFF
 value.BLOOM.1 = §aON
 
-option.BLOOM_INTENSITY = Bloom Intensity
-option.BLOOM_INTENSITY.comment = Adjusts §bBloom§f's intensity.
-value.BLOOM_INTENSITY.10 = 10%
-value.BLOOM_INTENSITY.20 = 20%
-value.BLOOM_INTENSITY.30 = 30%
-value.BLOOM_INTENSITY.40 = 40%
-value.BLOOM_INTENSITY.50 = 50%
-value.BLOOM_INTENSITY.60 = 60%
-value.BLOOM_INTENSITY.70 = 70%
-value.BLOOM_INTENSITY.80 = 80%
-value.BLOOM_INTENSITY.90 = 90%
-value.BLOOM_INTENSITY.100 = 100%
-value.BLOOM_INTENSITY.110 = 110%
-value.BLOOM_INTENSITY.120 = 120%
-value.BLOOM_INTENSITY.130 = 130%
-value.BLOOM_INTENSITY.140 = 140%
-value.BLOOM_INTENSITY.150 = 150%
+option.BLOOM_STRENGTH = Bloom Strength
+option.BLOOM_STRENGTH.comment = Adjusts §bBloom§f's strength.
 
 option.DOF = Depth of Field
 option.DOF.comment = Applies blur to objects far from you.
 value.DOF.0 = §cOFF
 value.DOF.1 = §aON
 
-option.DOF_DISTANCE = DOF Distance
-option.DOF_DISTANCE.comment = Adjusts §bDepth of Field§f's minimum distance.
+option.DOF_STRENGTH = DOF Strength
+option.DOF_STRENGTH.comment = Adjusts §bDepth of Field§f's strength.
 
 option.WATER_FOAM = Water Foam
 option.WATER_FOAM.comment = Simulates foam when water encounters an edge.
@@ -217,8 +199,24 @@ value.WATER_FOAM.1 = §aON
 option.FOAM_BRIGHTNESS = Foam Brightness
 option.FOAM_BRIGHTNESS.comment = Adjusts §bWater Foam§f's darkness.
 
+option.VIGNETTE = Vignette
+option.VIGNETTE.comment = Makes screen edges darker.
+value.VIGNETTE.0 = §cOFF
+value.VIGNETTE.1 = §aON
+
+option.VIGNETTE_STRENGTH = Vignette Strength
+option.VIGNETTE_STRENGTH.comment = Adjusts §bVignette§f's strength.
+
+option.CHROMATIC_ABERRATION = Chromatic Aberration
+option.CHROMATIC_ABERRATION.comment = Simulates diffraction by separating the color channels depending on the distance between the center of the screen.
+value.CHROMATIC_ABERRATION.0 = §cOFF
+value.CHROMATIC_ABERRATION.1 = §aON
+
+option.ABERRATION_STRENGTH = Aberration Strength
+option.ABERRATION_STRENGTH.comment = Adjusts §bOutline§f's darkness.
+
 option.OUTLINE = Outline
-option.OUTLINE.comment = Adds a cartoon-ish outline to edges.
+option.OUTLINE.comment = Adds a cartoon-ish outline to certain edges.
 value.OUTLINE.0 = §cOFF
 value.OUTLINE.1 = §aON
 
@@ -227,11 +225,6 @@ option.OUTLINE_DARKNESS.comment = Adjusts §bOutline§f's darkness.
 
 option.OUTLINE_THICKNESS = Outline Thickness
 option.OUTLINE_THICKNESS.comment = Adjusts §bOutline§f's thickness.
-
-option.VIGNETTE = Vignette
-option.VIGNETTE.comment = Makes screen edges darker.
-value.VIGNETTE.0 = §cOFF
-value.VIGNETTE.1 = §aON
 
 ##################### COLOR CORRECTION #####################
 

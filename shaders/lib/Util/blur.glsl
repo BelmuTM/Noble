@@ -6,46 +6,46 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec4 qualityBlur(sampler2D tex, vec2 resolution, float size, float quality, float directions) {
-    vec4 color = texture2D(tex, texCoords);
+vec4 qualityBlur(vec2 coords, sampler2D tex, vec2 resolution, float size, float quality, float directions) {
+    vec4 color = texture2D(tex, coords);
     vec2 radius = size / resolution;
 
     int SAMPLES = 1;
     for(float d = 0.0; d < PI2; d += PI2 / directions) {
 		for(float i = 1.0 / quality; i <= 1.0; i += 1.0 / quality) {
 
-			color += texture2D(tex, texCoords + vec2(cos(d), sin(d)) * radius * i);
+			color += texture2D(tex, coords + vec2(cos(d), sin(d)) * radius * i);
             SAMPLES++;
         }
     }
     return (color / SAMPLES) / quality * directions;
 }
 
-vec4 bilateralBlur(sampler2D tex) {
-    vec4 color = texture2D(tex, texCoords);
+vec4 bilateralBlur(vec2 coords, sampler2D tex, int size) {
+    vec4 color = texture2D(tex, coords);
 
     int SAMPLES = 1;
-    for(int x = -4; x <= 4; x++) {
-        for(int y = -4; y <= 4; y++) {
+    for(int x = -size; x <= size; x++) {
+        for(int y = -size; y <= size; y++) {
             vec2 offset = vec2(x, y) * pixelSize;
-            color += texture2D(tex, texCoords + offset);
+            color += texture2D(tex, coords + offset);
             SAMPLES++;
         }
     }
     return color / SAMPLES;
 }
 
-vec4 bokeh(sampler2D tex, vec2 resolution, int quality, float radius) {
-    vec4 color = texture2D(tex, texCoords);
+vec4 bokeh(vec2 coords, sampler2D tex, vec2 resolution, int quality, float radius) {
+    vec4 color = texture2D(tex, coords);
     vec2 noise = uniformAnimatedNoise();
 
     int SAMPLES = 1;
     for(int i = 0; i < quality; i++) {
         for(int j = 0; j < quality; j++) {
-            vec2 offset = ((vec2(i, j) + noise) - quality * 0.5) / quality * resolution;
+            vec2 offset = ((vec2(i, j) + noise) - quality * 0.5) / quality;
             
             if(length(offset) < 0.5) {
-                color += texture2D(tex, texCoords + offset * radius);
+                color += texture2D(tex, coords + ((offset * radius) * resolution));
                 SAMPLES++;
             }
         }
@@ -53,14 +53,14 @@ vec4 bokeh(sampler2D tex, vec2 resolution, int quality, float radius) {
     return color / SAMPLES;
 }
 
-vec4 radialBlur(sampler2D tex, vec2 resolution, int quality, float size) {
-    vec4 color = texture2D(tex, texCoords);
+vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float size) {
+    vec4 color = texture2D(tex, coords);
     vec2 radius = size / resolution;
 
     int SAMPLES = 1;
     for(int i = 0; i < quality; i++){
         float d = (i * PI2) / quality;
-        vec2 sampleCoords = texCoords + vec2(sin(d), cos(d)) * radius;
+        vec2 sampleCoords = coords + vec2(sin(d), cos(d)) * radius;
             
         color += texture2D(tex, sampleCoords);
         SAMPLES++;

@@ -25,7 +25,7 @@ vec3 computePTGI(in vec3 screenPos) {
         vec3 normal = normalize(decodeNormal(texture2D(colortex1, hitPos.xy).xy));
         hitPos = screenToView(hitPos) + normal * EPS;
         
-        vec3 sampleDir = tangentToWorld(normal, randomHemisphereDirection(noise.xy));
+        vec3 sampleDir = tangentToWorld(normal, randomHemisphereDirection(noise));
         if(!raytrace(hitPos, sampleDir, GI_STEPS, noise.x, hitPos)) continue;
 
         /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
@@ -33,7 +33,7 @@ vec3 computePTGI(in vec3 screenPos) {
         vec3 albedo = texture2D(colortex0, hitPos.xy).rgb;
         float isEmissive = texture2D(colortex1, hitPos.xy).z == 0.0 ? 0.0 : 1.0;
 
-        weight *= albedo * dayTimeColor;
+        weight *= (albedo * dayTimeColor) * INV_PI;
         illumination += weight * (shadowmap + isEmissive);
     }
     return illumination;

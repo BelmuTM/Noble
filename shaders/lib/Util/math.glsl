@@ -65,15 +65,34 @@ float ASin(float x) {
     return HALF_PI - ACos(x);
 }
 
+float ATanPos(float x)  { 
+    float t0 = (x < 1.0) ? x : 1.0 / x;
+    float t1 = t0 * t0;
+    float poly = 0.0872929;
+    poly = -0.301895 + poly * t1;
+    poly = 1.0 + poly * t1;
+    poly = poly * t0;
+    return (x < 1.0) ? poly : HALF_PI - poly;
+}
+
+float ATan(float x) {     
+    float t0 = ATanPos(abs(x));     
+    return (x < 0.0) ? -t0 : t0; 
+}
+
+float getCoC(float depth) {
+    return saturate(((depth - centerDepthSmooth) * DOF_STRENGTH) / near);
+}
+
 /*
 	Thanks to the 2 people who gave me
 	their hemisphere sampling functions! <3
 */
 
 // Provided by LVutner.#1925
-vec3 hemisphereSample(float u, float v) {
-    float phi = v * 2.0 * PI;
-    float cosTheta = 1.0 - u;
+vec3 hemisphereSample(vec2 r) {
+    float phi = r.x * 2.0 * PI;
+    float cosTheta = 1.0 - r.y;
     float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
 }
