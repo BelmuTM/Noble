@@ -10,10 +10,6 @@
 
 varying vec2 texCoords;
 
-uniform vec3 previousCameraPosition;
-uniform mat4 gbufferPreviousModelView;
-uniform mat4 gbufferPreviousProjection;
-
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
 #include "/lib/frag/dither.glsl"
@@ -50,11 +46,11 @@ void main() {
 	    blur += bloomTile(8, vec2(0.1784375, 0.3325));
     #endif
 
-    float depth = texture2D(depthtex0, texCoords).r;
-    if(depth == 1.0) {
+    if(isSky()) {
         gl_FragData[0] = Result;
         return;
     }
+
     vec3 viewPos = getViewPos();
     vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 

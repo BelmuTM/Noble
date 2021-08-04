@@ -116,23 +116,20 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
 
     vec3 DiffuseLighting = vec3(0.0);
     vec3 E0 = lightmap + NdotL * shadowmap + AMBIENT;
-    vec3 Albedo = (data.albedo * dayTimeColor) * INV_PI;
+    vec3 Albedo = data.albedo * dayTimeColor;
 
     if(!isMetal) {
         /* 
-            OREN-NAYAR MODEL - QUALITATIVE 
-            http://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_CVPR93.pdf
-        */
-        /*
+        OREN-NAYAR MODEL - QUALITATIVE 
+        http://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_CVPR93.pdf
+        
         vec2 angles = acos(vec2(NdotL, NdotV));
         if(angles.x < angles.y) angles = angles.yx;
         float cosA = saturate(dot(normalize(V - NdotV * N), normalize(L - NdotL * N)));
 
         vec3 A = Albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
         vec3 B = Albedo * (0.125 * (alpha /  (alpha + 0.18)));
-
-        DiffuseLighting = clamp(NdotL * (A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y)) * E0, 0.0, 1.0);
-        DiffuseLighting = DiffuseLighting + (GlobalIllumination * data.albedo);
+        DiffuseLighting = clamp(A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y), 0.0, 1.0);
         */
 
         /* OREN-NAYAR MODEL - QUALITATIVE SIMPLIFIED */

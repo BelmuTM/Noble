@@ -84,7 +84,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
 #define GI 1 // [0 1]
-#define GI_STEPS 32
+#define GI_STEPS 20
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 0.75 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]

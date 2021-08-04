@@ -13,6 +13,7 @@ uniform vec3 cameraPosition;
 uniform vec3 skyColor;
 
 uniform float rainStrength;
+uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;
 uniform float centerDepthSmooth;
@@ -49,6 +50,10 @@ uniform sampler2D shadowcolor0;
 uniform mat4 gbufferProjection, gbufferProjectionInverse;
 uniform mat4 gbufferModelView, gbufferModelViewInverse;
 uniform mat4 shadowModelView, shadowProjection;
+
+uniform vec3 previousCameraPosition;
+uniform mat4 gbufferPreviousModelView;
+uniform mat4 gbufferPreviousProjection;
 
 vec2 viewSize = vec2(viewWidth, viewHeight);
 vec2 pixelSize = 1.0 / viewSize;

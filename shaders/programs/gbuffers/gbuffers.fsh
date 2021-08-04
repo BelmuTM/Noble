@@ -11,7 +11,6 @@ varying vec2 lmCoords;
 varying vec4 color;
 varying mat3 TBN;
 varying float blockId;
-varying vec3 viewPos;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
@@ -24,11 +23,10 @@ uniform vec4 entityColor;
 
 /*
 const int colortex0Format = RGBA16F;
-const int colortex2Format = RGBA16F;
+const int colortex1Format = RGBA16F;
 */
 
 void main() {
-	//Sample textures
 	vec4 albedoTex = texture2D(texture, texCoords);
 	vec4 normalTex = texture2D(normals, texCoords);
 	vec4 specularTex = texture2D(specular, texCoords);
@@ -36,34 +34,15 @@ void main() {
 	if(albedoTex.a < 0.1) discard;
 	albedoTex *= color;
 
-	#ifdef TERRAIN
-		albedoTex.a *= color.a;
-
-		#if WHITE_WORLD == 1
-			albedoTex = vec4(1.0);
-		#endif
-	#endif
-
-	#ifdef BLOCK 
-		#if WHITE_WORLD == 1
-			albedoTex = vec4(1.0);
-		#endif
-	#endif
-
-	#ifdef WATER 
-		#if WHITE_WORLD == 1
-			albedoTex = vec4(1.0);
-		#endif
-	#endif
-
 	#ifdef ENTITY
+		// Alpha blending on entities
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 	#endif
 	
-	// Normals
 	vec3 normal;
 	normal.xy = normalTex.xy * 2.0 - 1.0;
 	normal.z = sqrt(1.0 - dot(normal.xy, normal.xy)); // Reconstruct Z
+	normal = clamp(normal, -1.0, 1.0); // Clamping to the right range
 	normal = TBN * normal; // Rotate by TBN matrix
 
 	float ao = normalTex.z;

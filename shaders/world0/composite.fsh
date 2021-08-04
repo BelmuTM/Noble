@@ -17,8 +17,8 @@ varying vec2 texCoords;
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
-#include "/lib/util/color.glsl"
 #include "/lib/util/worldTime.glsl"
+#include "/lib/util/color.glsl"
 #include "/lib/material.glsl"
 #include "/lib/lighting/brdf.glsl"
 #include "/lib/lighting/raytracer.glsl"
@@ -28,18 +28,19 @@ varying vec2 texCoords;
 
 void main() {
 
-   vec3 Shadow = vec3(1.0);
-   #if SHADOWS == 1
-      Shadow = shadowMap(getViewPos(), shadowMapResolution);
-   #endif
+   if(isSky()) {
+      /*DRAWBUFFERS:0*/
+      gl_FragData[0] = texture2D(colortex4, texCoords);
+      return;
+   }
 
    /*
-      WATER ABSORPTION / REFRACTION
+      ------- WATER ABSORPTION / REFRACTION -------
    */
    vec4 tex0 = texture2D(colortex0, texCoords);
    vec4 tex1 = texture2D(colortex1, texCoords);
    vec4 tex2 = texture2D(colortex2, texCoords);
-   tex0.rgb = toLinear(tex0.rgb);
+   tex0.rgb = toLinear(tex0.rgb); // Color Conversion
    material data = getMaterial(tex0, tex1, tex2);
 
    float depthDist = distance(
@@ -82,6 +83,14 @@ void main() {
             }
          #endif
       }
+   #endif
+
+   /* 
+      ------- SHADOW MAPPING -------
+   */
+   vec3 Shadow = vec3(1.0);
+   #if SHADOWS == 1
+      Shadow = shadowMap(getViewPos(), shadowMapResolution);
    #endif
 
    /*DRAWBUFFERS:07*/

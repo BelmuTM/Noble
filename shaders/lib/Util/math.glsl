@@ -14,17 +14,21 @@ vec3 decodeNormal(vec2 encodedNormal) {
     vec2 fenc = encodedNormal * 4.0 - 2.0;
     float f = dot(fenc, fenc);
     float g = sqrt(1.0 - f / 4.0);
-    vec3 normal = vec3(fenc * g, 1.0 - f / 2.0);
-    return clamp(normal, -1.0, 1.0);
+    return vec3(fenc * g, 1.0 - f / 2.0);
 }
 
-float packUnorm2x8(vec2 xy) {
-	return dot(floor(255.0 * xy + bayer64(gl_FragCoord.xy)), vec2(1.0 / 65535.0, 256.0 / 65535.0));
+float pack2x8(vec2 x) {
+	return dot(floor(255.0 * x + 0.5), vec2(1.0 / 65535.0, 256.0 / 65535.0));
 }
 
-vec2 unpackUnorm2x8(float pack) {
-	vec2 xy; xy.x = modf(pack * 65535.0 / 256.0, xy.y);
-	return xy * vec2(256.0 / 255.0, 1.0 / 255.0);
+float pack2x8Dithered(vec2 x, float pattern) {
+	return dot(floor(255.0 * x + pattern), vec2(1.0 / 65535.0, 256.0 / 65535.0));
+}
+
+vec2 unpack2x8(float pack) {
+	pack *= 65535.0 / 256.0;
+	vec2 xy; xy.y = floor(pack); xy.x = pack - xy.y;
+	return vec2(256.0 / 255.0, 1.0 / 255.0) * xy;
 }
 
 float distanceSquared(vec3 v1, vec3 v2) {
@@ -36,21 +40,8 @@ float sdSphere(vec3 rayPos, vec3 spherePos, float radius)  {
     return length(rayPos - spherePos) - radius;
 }
 
-float cdist(vec2 coord) {
-	return max(abs(coord.x - 0.5), abs(coord.y - 0.5)) * 1.85;
-}
-
-float distx(float dist) {
-    return (far * (dist - near)) / (dist * (far - near));
-}
-
 float saturate(float x) {
 	return clamp(x, 0.0, 1.0);
-}
-
-float circle(vec2 coords, float radius, float fade) {
-    vec2 dist = coords - vec2(0.5);
-	return 1.0 - smoothstep(radius - (radius * fade), radius + (radius * fade), dot(dist, dist) * 4.0);
 }
 
 // https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
@@ -84,9 +75,13 @@ float getCoC(float depth) {
     return saturate(((depth - centerDepthSmooth) * DOF_STRENGTH) / near);
 }
 
+float drawCircle(vec2 coords, float radius) {
+    return step(length(coords), radius);
+}
+
 /*
 	Thanks to the 2 people who gave me
-	their hemisphere sampling functions! <3
+	hemisphere sampling functions! <3
 */
 
 // Provided by LVutner.#1925

@@ -9,7 +9,6 @@
 struct material {
     vec3 albedo;
     float alpha;
-    vec2 lightmap;
     vec3 normal;
 
     float ao;
@@ -23,7 +22,6 @@ material getMaterial(vec4 tex0, vec4 tex1, vec4 tex2) {
 
     data.albedo = tex0.xyz;
     data.alpha = tex0.w;
-    data.lightmap = tex2.zw;
     data.normal = decodeNormal(tex1.xy);
 
     data.ao = tex1.w;

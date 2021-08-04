@@ -19,3 +19,7 @@ int getBlockId(vec2 coords) {
 bool isHand(float depth) {
     return linearizeDepth(depth) < MC_HAND_DEPTH;
 }
+
+bool isSky() {
+    return texture2D(depthtex0, texCoords).r == 1.0;
+}

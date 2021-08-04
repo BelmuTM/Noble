@@ -6,8 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/settings.glsl"
-
 attribute vec4 at_tangent;
 attribute vec3 mc_Entity;
 
@@ -16,7 +14,10 @@ varying vec2 lmCoords;
 varying vec4 color;
 varying mat3 TBN;
 varying float blockId;
-varying vec3 viewPos;
+
+#include "/settings.glsl"
+#include "/lib/uniforms.glsl"
+#include "/lib/post/taa.glsl"
 
 void main() {
 	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -26,7 +27,7 @@ void main() {
 	color = gl_Color;
     vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
 	
-    viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+    vec3 viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
     vec4 clipPos = gl_ProjectionMatrix * vec4(viewPos, 1.0);
 	
     vec3 tangent = normalize(gl_NormalMatrix * at_tangent.xyz);
@@ -34,5 +35,6 @@ void main() {
 	TBN = mat3(tangent, binormal, normal);	
 
 	blockId = mc_Entity.x - 1000.0;
+
     gl_Position = ftransform();
 }

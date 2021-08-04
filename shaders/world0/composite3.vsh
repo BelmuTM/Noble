@@ -7,5 +7,4 @@
 /***********************************************/
 
 #version 400 compatibility
-
-#include "/programs/composite_vsh.glsl"
+#include "/programs/composite/composite_vsh.glsl"

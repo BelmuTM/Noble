@@ -9,4 +9,4 @@
 #version 400 compatibility
 
 #define WATER
-#include "/programs/gbuffers/gbuffers_opaque_fsh.glsl"
+#include "/programs/gbuffers/gbuffers.fsh"

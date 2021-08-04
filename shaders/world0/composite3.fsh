@@ -44,17 +44,16 @@ void main() {
     vec4 tex0 = texture2D(colortex0, texCoords);
     vec4 tex1 = texture2D(colortex1, texCoords);
     vec4 tex2 = texture2D(colortex2, texCoords);
-    material data = getMaterial(tex0, tex1, tex2);
 
+    material data = getMaterial(tex0, tex1, tex2);
     vec3 normal = normalize(data.normal.xyz);
-    float depth = texture2D(depthtex0, texCoords).r;
     
     float VolumetricLighting = 0.0;
     #if VL == 1
         VolumetricLighting = clamp(computeVL(viewPos) - rainStrength, 0.0, 1.0) * 0.1;
     #endif
 
-    if(depth == 1.0) {
+    if(isSky()) {
         /*DRAWBUFFERS:045*/
         gl_FragData[0] = tex0;
         gl_FragData[1] = vec4(VolumetricLighting);
@@ -62,19 +61,23 @@ void main() {
         return;
     }
 
+    #if WHITE_WORLD == 1
+		data.albedo = vec3(1.0);
+    #endif
+
     vec3 Shadow = texture2D(colortex7, texCoords).rgb;
     vec3 lightmapColor = vec3(0.0);
     float AmbientOcclusion = 1.0;
     
     #if GI == 0
-        vec2 lightMap = clamp(data.lightmap, 0.0, 1.0);
+        vec2 lightMap = texture2D(colortex2, texCoords).zw;
         lightmapColor = getLightmapColor(lightMap);
 
         #if AO == 1
             AmbientOcclusion = texture2D(colortex5, texCoords).a;
 
             #if AO_FILTER == 1
-                AmbientOcclusion = qualityBlur(texCoords, colortex5, viewSize, 9.0, 6.0, 10.0).a;
+                AmbientOcclusion = qualityBlur(texCoords, colortex5, viewSize, 15.0, 6.0, 10.0).a;
             #endif
         #endif
     #endif
