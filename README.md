@@ -6,13 +6,15 @@
 
 # 🌻 Noble RT <img src="https://i.imgur.com/M8UicM6.png" data-canonical-src="https://i.imgur.com/M8UicM6.png" width="40" height="40" />
 Noble RT is a Minecraft shaderpack that enhances one's experience with the help of good-looking graphics and light simulations.
-It offers a handful of customizable options to tweak according to your desires. *Most versions should properly work as long as Optifine is being used.*
+It offers a handful of customizable options to tweak according to your desires. **Most versions should properly work as long as Optifine is being used.**
 
 ## 🌺 Install
 ### Releases
 The project is in constant evolution. Therefore, you can except some issues to be fixed,
 some features to be added, and some problems to appear. However, it will remain free and
-open source forever, as I don't want to monetize my learning of GLSL. Enjoy!
+open source forever, as I don't want to monetize my learning of GLSL. Beta versions are most
+likely to be exclusive to Patreon supporters or close friends, but they will always end up
+being accessible to public no matter what.
 
 ### Tutorial
    1. Join the Discord server. ([Click me!](https://discord.gg/jjRrhpkH9e))
