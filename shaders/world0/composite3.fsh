@@ -12,8 +12,8 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
-#include "/lib/frag/dither.glsl"
-#include "/lib/frag/noise.glsl"
+#include "/lib/fragment/bayer.glsl"
+#include "/lib/fragment/noise.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
@@ -25,15 +25,15 @@ varying vec2 texCoords;
 #include "/lib/util/distort.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
 
-const float rainMinAmbientBrightness = 0.2;
+const float rainAmbientDarkness = 0.12;
 
 /*------------------ LIGHTMAP ------------------*/
 vec3 getLightmapColor(vec2 lightMap) {
     lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, 5.06);
 
-    vec3 TorchLight = lightMap.x * TORCH_COLOR;
-    vec3 SkyLight = (lightMap.y * lightMap.y) * skyColor;
-    return vec3(TorchLight + clamp(SkyLight - rainStrength, EPS, 1.0));
+    vec3 torchLight = lightMap.x * TORCH_COLOR;
+    vec3 skyLight = (lightMap.y * lightMap.y) * skyColor;
+    return torchLight + max(vec3(EPS), skyLight - clamp(rainStrength, 0.0, rainAmbientDarkness));
 }
 
 void main() {
@@ -48,15 +48,15 @@ void main() {
     material data = getMaterial(tex0, tex1, tex2);
     vec3 normal = normalize(data.normal.xyz);
     
-    float VolumetricLighting = 0.0;
+    float volumetricLighting = 0.0;
     #if VL == 1
-        VolumetricLighting = clamp(computeVL(viewPos) - rainStrength, 0.0, 1.0) * 0.1;
+        volumetricLighting = clamp(computeVL(viewPos) - rainStrength, 0.0, 1.0) * 0.1;
     #endif
 
     if(isSky()) {
         /*DRAWBUFFERS:045*/
         gl_FragData[0] = tex0;
-        gl_FragData[1] = vec4(VolumetricLighting);
+        gl_FragData[1] = vec4(volumetricLighting);
         gl_FragData[2] = luma(tex0.rgb) > BLOOM_LUMA_THRESHOLD ? tex0 : vec4(0.0);
         return;
     }
@@ -65,32 +65,28 @@ void main() {
 		data.albedo = vec3(1.0);
     #endif
 
-    vec3 Shadow = texture2D(colortex7, texCoords).rgb;
-    vec3 lightmapColor = vec3(0.0);
-    float AmbientOcclusion = 1.0;
+    vec3 shadowmap = texture2D(colortex4, texCoords).rgb;
+    vec3 lightmapColor = vec3(1.0);
+
+    vec3 globalIllumination = vec3(0.0);
+    float ambientOcclusion = 1.0;
     
     #if GI == 0
         vec2 lightMap = texture2D(colortex2, texCoords).zw;
         lightmapColor = getLightmapColor(lightMap);
 
         #if AO == 1
-            AmbientOcclusion = texture2D(colortex5, texCoords).a;
+            ambientOcclusion = texture2D(colortex5, texCoords).a;
 
             #if AO_FILTER == 1
-                AmbientOcclusion = qualityBlur(texCoords, colortex5, viewSize, 15.0, 6.0, 10.0).a;
+                ambientOcclusion = qualityBlur(texCoords, colortex5, viewSize, 15.0, 6.0, 10.0).a;
             #endif
         #endif
+    #else
+        globalIllumination = clamp(texture2D(colortex6, texCoords).rgb, 0.0, 1.0);
     #endif
 
-    vec4 GlobalIllumination = texture2D(colortex6, texCoords);
-    #if GI == 1
-        #if GI_FILTER == 1
-            GlobalIllumination = edgeAwareBlur(viewPos, normal, colortex6, 
-            viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 13.0);
-        #endif
-    #endif
-
-    vec3 Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, Shadow, GlobalIllumination.rgb);
+    vec3 Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, shadowmap, globalIllumination);
 
     vec3 brightSpots;
     #if BLOOM == 1
@@ -98,7 +94,7 @@ void main() {
     #endif
 
     /*DRAWBUFFERS:045*/
-    gl_FragData[0] = vec4(Lighting * AmbientOcclusion, 1.0);
-    gl_FragData[1] = vec4(data.albedo, VolumetricLighting);
+    gl_FragData[0] = vec4(Lighting * ambientOcclusion, 1.0);
+    gl_FragData[1] = vec4(data.albedo, volumetricLighting);
     gl_FragData[2] = vec4(brightSpots, 1.0);
 }

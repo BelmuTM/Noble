@@ -12,8 +12,8 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
-#include "/lib/frag/dither.glsl"
-#include "/lib/frag/noise.glsl"
+#include "/lib/fragment/bayer.glsl"
+#include "/lib/fragment/noise.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
@@ -34,21 +34,29 @@ void main() {
       return;
    }
 
+   /* 
+      ------- SHADOW MAPPING -------
+   */
+   vec3 shadowmap = vec3(1.0);
+   #if SHADOWS == 1
+      shadowmap = shadowMap(getViewPos(), shadowMapResolution);
+   #endif
+
    /*
       ------- WATER ABSORPTION / REFRACTION -------
    */
    vec4 tex0 = texture2D(colortex0, texCoords);
    vec4 tex1 = texture2D(colortex1, texCoords);
    vec4 tex2 = texture2D(colortex2, texCoords);
-   tex0.rgb = toLinear(tex0.rgb); // Color Conversion
    material data = getMaterial(tex0, tex1, tex2);
+   data.albedo = toLinear(vec4(data.albedo, 1.0)).rgb;
 
    float depthDist = distance(
 		linearizeDepth(texture2D(depthtex0, texCoords).r),
 		linearizeDepth(texture2D(depthtex1, texCoords).r)
 	);
    vec3 hitPos;
-   vec3 opaques = texture2D(colortex4, texCoords).rgb;
+   vec3 opaques = toLinear(texture2D(colortex4, texCoords)).rgb;
 
    #if REFRACTION == 1
       vec3 viewPos = getViewPos();
@@ -76,7 +84,7 @@ void main() {
          #if WATER_FOAM == 1
             if(depthDist < FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF) {
                float falloff = (depthDist / FOAM_FALLOFF_DISTANCE) + FOAM_FALLOFF_BIAS;
-               vec3 edge = absorption * falloff * FOAM_BRIGHTNESS * Shadow;
+               vec3 edge = absorption * falloff * FOAM_BRIGHTNESS * shadowmap;
 
                float leading = depthDist / (FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF);
 	            data.albedo = mix(data.albedo + edge, data.albedo, leading);
@@ -85,15 +93,7 @@ void main() {
       }
    #endif
 
-   /* 
-      ------- SHADOW MAPPING -------
-   */
-   vec3 Shadow = vec3(1.0);
-   #if SHADOWS == 1
-      Shadow = shadowMap(getViewPos(), shadowMapResolution);
-   #endif
-
-   /*DRAWBUFFERS:07*/
+   /*DRAWBUFFERS:04*/
    gl_FragData[0] = vec4(data.albedo, 1.0);
-   gl_FragData[1] = vec4(Shadow, 1.0);
+   gl_FragData[1] = vec4(shadowmap, 1.0);
 }

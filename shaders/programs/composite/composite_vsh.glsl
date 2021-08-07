@@ -10,5 +10,5 @@ varying vec2 texCoords;
 
 void main() {
     gl_Position = ftransform();
-    texCoords = gl_MultiTexCoord0.st;
+    texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 }

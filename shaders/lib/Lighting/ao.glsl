@@ -37,12 +37,12 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
     	vec3 bitangent = cross(normal, tangent);
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
-		vec2 noise = uniformNoise(i);
+		vec2 noise = uniformNoise(i).yx;
 		vec3 sampleDir = randomHemisphereDirection(noise);
 		sampleDir = vec3((tangent * sampleDir.x) + (bitangent * sampleDir.y) + (normal * sampleDir.z));
 
 		vec3 hitPos;
-		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.x, hitPos)) continue;
+		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, blueNoise().g, hitPos)) continue;
 
 		float dist = distance(samplePos, screenToView(hitPos));
 		float attenuation = 1.0 - (dist * dist);

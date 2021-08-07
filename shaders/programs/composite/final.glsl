@@ -8,8 +8,8 @@
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
-#include "/lib/frag/dither.glsl"
-#include "/lib/frag/noise.glsl"
+#include "/lib/fragment/bayer.glsl"
+#include "/lib/fragment/noise.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
@@ -21,7 +21,6 @@
 #include "/lib/post/dof.glsl"
 #include "/lib/post/outline.glsl"
 #include "/lib/atmospherics/fog.glsl"
-#include "/lib/post/taa.glsl"
 
 const vec4 fogColor = vec4(0.225, 0.349, 0.488, 0.5);
 const float rainFogDensity = 0.09;
@@ -57,7 +56,7 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result.rgb += computeBloom() * 0.005 * BLOOM_STRENGTH;
+        Result.rgb += computeBloom() * 0.025 * BLOOM_STRENGTH;
     #endif
 
     // Outline
@@ -74,25 +73,18 @@ void main() {
     // Tonemapping
     Result.rgb *= EXPOSURE;
     #if TONEMAPPING == 0
-        Result.rgb = white_preserving_luma_based_reinhard(Result.rgb); // Reinhard
+        Result.rgb = reinhard_jodie(Result.rgb); // Reinhard
     #elif TONEMAPPING == 1
         Result.rgb = uncharted2(Result.rgb); // Uncharted 2
     #elif TONEMAPPING == 2
-        Result.rgb = uchimura(Result.rgb); // Uchimura
-    #elif TONEMAPPING == 3
-        Result.rgb = lottes(Result.rgb); // Lottes
-    #elif TONEMAPPING == 4
         Result.rgb = burgess(Result.rgb); // Burgess
-    #elif TONEMAPPING == 5
+    #elif TONEMAPPING == 3
         Result.rgb = ACESFitted(Result.rgb); // ACES
     #endif
 
     Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
     Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
 
-    // Result.rgb = TAA(colortex0, Result.rgb);
-
     /*DRAWBUFFERS:0*/
-    Result.rgb = toSRGB(Result.rgb);
-    gl_FragData[0] = Result;
+    gl_FragData[0] = toSRGB(Result);
 }

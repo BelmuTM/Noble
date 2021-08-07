@@ -76,13 +76,13 @@ vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float roughness) {
 }
 
 // https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true
-vec3 envBRDFApprox(vec3 specular, float NdotV, float roughness) {
+vec3 envBRDFApprox(vec3 specularColor, float NdotV, float roughness) {
     const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
     const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
     vec4 r = roughness * c0 + c1;
     float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
     vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
-    return specular * AB.x + AB.y;
+    return specularColor * AB.x + AB.y;
 }
 
 /*
@@ -91,7 +91,7 @@ vec3 envBRDFApprox(vec3 specular, float NdotV, float roughness) {
     https://gist.github.com/LVutner/c07a3cc4fec338e8fe3fa5e598787e47
 */
 
-vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap, vec3 GlobalIllumination) {
+vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap, vec3 globalIllumination) {
     bool isMetal = (data.F0 * 255.0) > 229.5;
     float alpha = data.roughness * data.roughness;
 
@@ -105,44 +105,38 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     float VdotH = saturate(dot(V, H));
     float HdotL = saturate(dot(H, L));
 
-    vec3 SpecularLighting;
+    vec3 specular;
     #if SPECULAR == 1
         float D = trowbridgeReitzGGX(NdotH, alpha);
         vec3 F = sphericalGaussianFresnel(HdotL, specularColor);
         float G = geometrySmith(NdotV, NdotL, data.roughness);
         
-        SpecularLighting = (D * F * G) * shadowmap * dayTimeColor;
+        specular = D * F * G;
     #endif
 
-    vec3 DiffuseLighting = vec3(0.0);
-    vec3 E0 = lightmap + NdotL * shadowmap + AMBIENT;
-    vec3 Albedo = data.albedo * dayTimeColor;
-
+    vec3 diffuse = vec3(0.0);
     if(!isMetal) {
-        /* 
-        OREN-NAYAR MODEL - QUALITATIVE 
-        http://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_CVPR93.pdf
+        // OREN-NAYAR MODEL - QUALITATIVE 
+        // http://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_CVPR93.pdf
         
         vec2 angles = acos(vec2(NdotL, NdotV));
         if(angles.x < angles.y) angles = angles.yx;
         float cosA = saturate(dot(normalize(V - NdotV * N), normalize(L - NdotL * N)));
 
-        vec3 A = Albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
-        vec3 B = Albedo * (0.125 * (alpha /  (alpha + 0.18)));
-        DiffuseLighting = clamp(A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y), 0.0, 1.0);
-        */
-
-        /* OREN-NAYAR MODEL - QUALITATIVE SIMPLIFIED */
-        float aNdotL = ACos(NdotL), aNdotV = ASin(NdotV);
-        float A = 1.0 - 0.5 * (alpha / (alpha + 0.33));
-        float B = 0.45 * alpha / (alpha + 0.09);
-
-        DiffuseLighting = Albedo * (A + (B * max(EPS, cos(aNdotV - aNdotL)))) * E0;
-        DiffuseLighting = DiffuseLighting + (GlobalIllumination * data.albedo);
+        vec3 A = data.albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
+        vec3 B = data.albedo * (0.125 * (alpha /  (alpha + 0.18)));
+        diffuse = clamp(A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y), 0.0, 1.0);
     }
 
-    vec3 Lighting = DiffuseLighting + SpecularLighting;
+    vec3 Lighting = (diffuse + specular) * NdotL * shadowmap * dayTimeColor;
     Lighting += (data.albedo * data.emission);
 
+    if(!isMetal) {
+        Lighting += (globalIllumination * data.albedo);
+        #if GI == 0
+            Lighting += AMBIENT * data.albedo;
+            Lighting *= lightmap;
+        #endif
+    }
     return Lighting;
 }

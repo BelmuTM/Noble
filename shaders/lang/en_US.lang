@@ -16,6 +16,7 @@ screen.RAYTRACING = Ray Tracing
 screen.ATMOSPHERICS = Atmospherics
 screen.POST_PROCESSING = Post-Processing
 screen.COLOR_CORRECTION = Color Correction
+screen.OUTLINE_SCREEN = Outline
 
 ##################### LIGHTING & SHADOWS #####################
 
@@ -104,12 +105,12 @@ value.SSR_TYPE.1 = §eRough Reflections
 
 option.PREFILTER_SAMPLES = Rough Reflections Samples
 option.PREFILTER_SAMPLES.comment = Adjusts §bRough Reflections §fquality. §cHigher value gives better results, but reduces §cperformance.
-value.PREFILTER_SAMPLES.4 = §24
-value.PREFILTER_SAMPLES.8 = §a8
-value.PREFILTER_SAMPLES.12 = §e12
-value.PREFILTER_SAMPLES.16 = §616
-value.PREFILTER_SAMPLES.20 = §c20
-value.PREFILTER_SAMPLES.24 = §424
+value.PREFILTER_SAMPLES.2 = §22
+value.PREFILTER_SAMPLES.4 = §a4
+value.PREFILTER_SAMPLES.8 = §e8
+value.PREFILTER_SAMPLES.12 = §612
+value.PREFILTER_SAMPLES.16 = §c16
+value.PREFILTER_SAMPLES.20 = §420
 
 option.GI = Global Illumination (GI)
 option.GI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it.
@@ -175,6 +176,11 @@ value.VL_FILTER.1 = §aON
 
 ##################### POST-PROCESSING #####################
 
+option.TAA = TAA
+option.TAA.comment = §bTemporal Anti-Aliasing. §fA form of anti-aliasing which operates over multiple frames.
+value.TAA.0 = §cOFF
+value.TAA.1 = §aON
+
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
 value.BLOOM.0 = §cOFF
@@ -233,10 +239,8 @@ option.TONEMAPPING.comment = Applies a color correction filter.
 value.TONEMAPPING.-1 = None
 value.TONEMAPPING.0 = Reinhard
 value.TONEMAPPING.1 = Uncharted
-value.TONEMAPPING.2 = Uchimura
-value.TONEMAPPING.3 = Lottes
-value.TONEMAPPING.4 = Burgess
-value.TONEMAPPING.5 = ACES
+value.TONEMAPPING.2 = Burgess
+value.TONEMAPPING.3 = ACES
 
 option.EXPOSURE = Exposure
 option.EXPOSURE.comment = Influences the overall brightness or darkness of an image.

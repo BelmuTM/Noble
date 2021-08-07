@@ -6,10 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec2 uniformIndexedNoise(int i, vec2 seed) {
-    return fract(seed + vec2(GOLDEN_RATIO, GOLDEN_RATIO + GOLDEN_RATIO) * i);
-}
-
 vec3 computePTGI(in vec3 screenPos) {
     vec3 hitPos = screenPos;
     vec3 illumination = vec3(0.0);
@@ -26,10 +22,10 @@ vec3 computePTGI(in vec3 screenPos) {
         hitPos = screenToView(hitPos) + normal * EPS;
         
         vec3 sampleDir = tangentToWorld(normal, randomHemisphereDirection(noise));
-        if(!raytrace(hitPos, sampleDir, GI_STEPS, noise.x, hitPos)) continue;
+        if(!raytrace(hitPos, sampleDir, GI_STEPS, blueNoise().r, hitPos)) continue;
 
         /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
-        vec3 shadowmap = texture2D(colortex7, hitPos.xy).rgb;
+        vec3 shadowmap = texture2D(colortex4, hitPos.xy).rgb;
         vec3 albedo = texture2D(colortex0, hitPos.xy).rgb;
         float isEmissive = texture2D(colortex1, hitPos.xy).z == 0.0 ? 0.0 : 1.0;
 

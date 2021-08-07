@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-// Functions below aren't my property. They either are public domain
+// Certain functions below aren't my property. They either are public domain
 // or require to credit the author.
 
 const vec2 poisson128[128] = vec2[128](
@@ -205,11 +205,11 @@ vec2 interleavedGradientNoise2D(vec2 p) {
     return fract(interleavedConstants.z * fract(x));
 }
 
-float FBM(vec2 p) {
+float FBM(vec2 p, int octaves) {
     float value = 0.0;
     float amplitude = 0.5;
 
-    for(int i = 0; i < FBM_OCTAVES; i++) {
+    for(int i = 0; i < octaves; i++) {
         value += amplitude * noise(p);
         p *= 2.0;
         amplitude *= 0.5;
@@ -217,15 +217,23 @@ float FBM(vec2 p) {
     return value;
 }
 
+vec3 blueNoise() {
+    return texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
+}
+
+vec2 uniformIndexedNoise(int i, vec2 seed) {
+    return fract(seed + vec2(GOLDEN_RATIO, GOLDEN_RATIO + GOLDEN_RATIO) * i);
+}
+
 vec2 uniformAnimatedNoise() {
-    vec2 noise = texture2D(noisetex, texCoords * 7.0).rg;
+    vec2 noise = blueNoise().rg;
     noise.x = fract(noise.x + GOLDEN_RATIO * (frameTimeCounter * 15.0));
     noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter * 15.0, 100.0));
     return noise;
 }
 
 vec2 uniformNoise(int i) {
-    vec2 noise = texture2D(noisetex, texCoords * 7.0).rg;
+    vec2 noise = blueNoise().rg;
     noise.x = fract(noise.x + GOLDEN_RATIO * i);
     noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i);
     return noise;

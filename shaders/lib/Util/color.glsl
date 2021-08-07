@@ -9,18 +9,6 @@ float luma(vec3 color) {
     return dot(color, vec3(0.2125, 0.7154, 0.0721));
 }
 
-float blendOverlay(float base, float blend) {
-    return base < 0.5 ? (2.0 * base * blend) : (1.0 - 2.0 * (1.0 - base ) * (1.0 - blend));
-}
-
-vec3 blendOverlay(vec3 base, vec3 blend) {
-    return vec3(blendOverlay(base.r, blend.r), blendOverlay(base.g, blend.g), blendOverlay(base.b, blend.b));
-}
-
-vec3 blendOverlay(vec3 base, vec3 blend, float opacity) {
-	return blendOverlay(base, blend) * opacity + base * (1.0 - opacity);
-}
-
 vec3 luma_based_reinhard(vec3 color) {
     float luma = luma(color.rgb);
 	float white = 2.0;
@@ -161,15 +149,23 @@ vec3 adjustContrast(vec3 color, float contrast) {
     return color * contrast + (0.5 - contrast * 0.5);
 }
 
-vec3 toLinear(vec3 color) {
-	return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), vec3(greaterThan(color, vec3(0.04045))));
-}
+// https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x
+vec4 toSRGB(vec4 linear) {
+    #if TONEMAPPING != 2
+        bvec4 cutoff = lessThan(linear, vec4(0.0031308));
+        vec4 higher = vec4(1.055) * pow(linear, vec4(1.0 / 2.4)) - vec4(0.055);
+        vec4 lower = linear * vec4(12.92);
 
-vec3 toSRGB(vec3 color) {
-    #if TONEMAPPING != 4
-	    return mix(color * 12.92, 1.055 * pow(color, vec3(1.0 / 2.4)) - 0.055, vec3(greaterThan(color, vec3(0.0031308))));
+        return mix(higher, lower, cutoff);
     #else
-        return color;
+        return linear;
     #endif
 }
 
+vec4 toLinear(vec4 sRGB) {
+    bvec4 cutoff = lessThan(sRGB, vec4(0.04045));
+    vec4 higher = pow((sRGB + vec4(0.055)) / vec4(1.055), vec4(2.4));
+    vec4 lower = sRGB / vec4(12.92);
+
+    return mix(higher, lower, cutoff);
+}

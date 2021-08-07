@@ -17,16 +17,20 @@ varying float blockId;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
-#include "/lib/post/taa.glsl"
+#include "/lib/fragment/hammersley.glsl"
+
+uniform int framemod;
+vec2 taaJitter(vec4 pos) {
+    vec2 taa = hammersley2d(framemod, 15) * (pos.w * pixelSize);
+    return pos.xy + taa;
+}
 
 void main() {
 	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmCoords = mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.st;
-    lmCoords = (lmCoords * 33.05 / 32.0) - (1.05 / 32.0);
-	
+	lmCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	color = gl_Color;
+
     vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
-	
     vec3 viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
     vec4 clipPos = gl_ProjectionMatrix * vec4(viewPos, 1.0);
 	
@@ -37,4 +41,7 @@ void main() {
 	blockId = mc_Entity.x - 1000.0;
 
     gl_Position = ftransform();
+    #if TAA == 1
+        gl_Position.xy = taaJitter(gl_Position);
+    #endif
 }

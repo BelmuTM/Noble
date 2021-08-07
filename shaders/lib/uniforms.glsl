@@ -57,3 +57,4 @@ uniform mat4 gbufferPreviousProjection;
 
 vec2 viewSize = vec2(viewWidth, viewHeight);
 vec2 pixelSize = 1.0 / viewSize;
+const int noiseRes = 512;

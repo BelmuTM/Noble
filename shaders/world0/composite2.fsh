@@ -12,28 +12,36 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
-#include "/lib/frag/dither.glsl"
-#include "/lib/frag/noise.glsl"
+#include "/lib/fragment/noise.glsl"
+#include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
+#include "/lib/util/blur.glsl"
 #include "/lib/post/taa.glsl"
 
 /*
 const int colortex6Format = RGBA16F;
-*/
 const bool colortex6Clear = false;
+*/
 
 void main() {
-    /* Upscaling Global Illumination */
-    vec3 GlobalIllumination = vec3(0.0);
+    vec3 globalIllumination = vec3(0.0);
     #if GI == 1
-        GlobalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION).rgb;
+        globalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION).rgb;
+
+        #if GI_FILTER == 1
+            vec3 viewPos = getViewPos();
+            vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+
+            globalIllumination = spatialDenoiser(viewPos, normal, colortex5, 
+            viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 13.0).rgb;
+        #endif
 
         #if GI_TEMPORAL_ACCUMULATION == 1
-            GlobalIllumination = TAA(colortex6, GlobalIllumination);
+            globalIllumination = computeTAA(colortex6, globalIllumination);
         #endif
     #endif
 
     /*DRAWBUFFERS:6*/
-    gl_FragData[0] = vec4(GlobalIllumination, 1.0);
+    gl_FragData[0] = vec4(globalIllumination, 1.0);
 }
