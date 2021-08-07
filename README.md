@@ -28,7 +28,7 @@ being accessible to public no matter what.
 
 
 ## 📜 License
-Noble RT is licensed under the MIT License. Please consider reading the terms before modifying / distributing this project.
+Noble RT is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
 
 ## 📡 Contact 
    * **Discord:** Belmu#4066
