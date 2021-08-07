@@ -35,7 +35,7 @@ Noble RT is licensed under the MIT License. Please consider reading the terms be
    * **Twitter:** [@Belmu_](https://twitter.com/Belmu_)
 
 > I would like to thank the people from ShaderLabs for helping me understand and learn GLSL.
-> Thanks to the beta testers who helped me fix and deal with multiple issues concerning compatibility and such.
+> Thanks to the beta testers who helped me fix and deal with multiple issues.
 
 Please consider contacting me if needed.
 **Thanks for supporting this project!**
