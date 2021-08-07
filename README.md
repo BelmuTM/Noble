@@ -27,17 +27,15 @@ being accessible to public no matter what.
    6. Enjoy!
 
 
-## 📜 Credits
-   I would like to thank the:
-   * ShaderLabs Discord server and its experienced developers for guiding me through this apprenticeship.
-   * Beta testers for helping me keeping track of the performances.
-   * Early supporters for staying loyal and giving much love and motivation.
-
-Thanks to you all! 🙏
+## 📜 License
+Noble RT is licensed under the MIT License. Please consider reading the terms before modifying / distributing this project.
 
 ## 📡 Contact 
    * **Discord:** Belmu#4066
    * **Twitter:** [@Belmu_](https://twitter.com/Belmu_)
+
+> I would like to thank the people from ShaderLabs for helping me understand and learn GLSL.
+> Thanks to the beta testers who helped me fix and deal with multiple issues concerning compatibility and such.
 
 Please consider contacting me if needed.
 **Thanks for supporting this project!**
