@@ -17,51 +17,28 @@ varying vec2 texCoords;
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/worldTime.glsl"
-#include "/lib/util/blur.glsl"
 #include "/lib/material.glsl"
 #include "/lib/lighting/brdf.glsl"
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ssr.glsl"
-#include "/lib/post/bloom.glsl"
 
 void main() {
-    vec4 Result = texture2D(colortex0, texCoords);
-
-    float volumetricLighting = texture2D(colortex4, texCoords).a;
-    #if VL == 1
-        #if VL_FILTER == 1
-            volumetricLighting = bilateralBlur(texCoords, colortex4, 5).a;
-        #endif
-    #endif
-
-    if(isSky()) {
-        gl_FragData[0] = Result;
-        return;
-    }
-
-    #if SSR == 1
-        vec3 viewPos = getViewPos();
-        vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
-
-        float NdotV = saturate(dot(normal, normalize(-viewPos)));
-        float F0 = texture2D(colortex2, texCoords).g;
-
-        vec3 specColor = (F0 * 255.0) > 229.5 ? texture2D(colortex4, texCoords).rgb : vec3(F0);
-        float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : texture2D(colortex2, texCoords).r;
-
-        vec3 reflections;
+     vec3 roughReflections;
+     #if SSR == 1
         #if SSR_TYPE == 1
-            reflections = prefilteredReflections(viewPos, normal, roughness);
-        #else
-            reflections = simpleReflections(viewPos, normal, NdotV, specColor);
-        #endif
+               float inverseRes = 1.0 / ROUGH_REFLECT_RES;
+               vec2 scaledUv = texCoords * inverseRes;
+        
+               if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords) {
+                    vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
+                    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, scaledUv).xy));
+        
+                    float roughness = texture2D(colortex2, scaledUv).r;
+                    roughReflections = prefilteredReflections(screenToView(positionAt), normalAt, roughness * roughness);
+               }
+          #endif
+     #endif
 
-        vec3 DFG = envBRDFApprox(specColor, roughness, NdotV);
-        Result.rgb += mix(Result.rgb, reflections, DFG);
-    #endif
-
-    Result.rgb += getDayTimeColor() * volumetricLighting;
-
-    /*DRAWBUFFERS:0*/
-    gl_FragData[0] = Result;
+     /*DRAWBUFFERS:5*/
+     gl_FragData[0] = vec4(roughReflections, 1.0);
 }

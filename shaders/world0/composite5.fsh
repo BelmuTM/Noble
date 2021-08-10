@@ -16,34 +16,53 @@ varying vec2 texCoords;
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
+#include "/lib/util/color.glsl"
+#include "/lib/util/worldTime.glsl"
 #include "/lib/util/blur.glsl"
-#include "/lib/post/bloom.glsl"
-#include "/lib/post/taa.glsl"
-
-/*
-const bool colortex5MipmapEnabled = true;
-const bool colortex0Clear = false;
-*/
+#include "/lib/material.glsl"
+#include "/lib/lighting/brdf.glsl"
+#include "/lib/lighting/raytracer.glsl"
+#include "/lib/lighting/ssr.glsl"
 
 void main() {
-     vec4 Result = texture2D(colortex0, texCoords);
+    vec4 Result = texture2D(colortex0, texCoords);
 
-     vec3 blur = vec3(0.0);
-     #if BLOOM == 1
-          blur  = bloomTile(2, vec2(0.0      , 0.0   ));
-	     blur += bloomTile(3, vec2(0.0      , 0.26  ));
-	     blur += bloomTile(4, vec2(0.135    , 0.26  ));
-	     blur += bloomTile(5, vec2(0.2075   , 0.26  ));
-	     blur += bloomTile(6, vec2(0.135    , 0.3325));
-	     blur += bloomTile(7, vec2(0.160625 , 0.3325));
-	     blur += bloomTile(8, vec2(0.1784375, 0.3325));
-     #endif
+    if(isSky()) {
+        /*DRAWBUFFERS:05*/
+        gl_FragData[0] = Result;
+        #if BLOOM == 1
+            gl_FragData[1] = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result : vec4(0.0);
+        #endif
+        return;
+    }
 
-     #if TAA == 1
-          Result.rgb = computeTAA(colortex0, Result.rgb);
-     #endif
+    #if SSR == 1
+        vec3 viewPos = getViewPos();
+        vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-     /*DRAWBUFFERS:05*/
-     gl_FragData[0] = Result;
-     gl_FragData[1] = vec4(blur, 1.0);
+        float NdotV = saturate(dot(normal, normalize(-viewPos)));
+        float F0 = texture2D(colortex2, texCoords).g;
+
+        vec3 specularColor = mix(vec3(F0), texture2D(colortex4, texCoords).rgb, float((F0 * 255.0) > 229.5));
+        float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : texture2D(colortex2, texCoords).r;
+
+        vec3 reflections;
+        #if SSR_TYPE == 1
+            reflections = texture2D(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
+        #else
+            reflections = simpleReflections(viewPos, normal, NdotV, specularColor);
+        #endif
+
+        vec3 DFG = envBRDFApprox(specularColor, roughness, NdotV);
+        Result.rgb += mix(Result.rgb, reflections, DFG);
+    #endif
+
+    vec3 brightSpots;
+    #if BLOOM == 1
+        brightSpots = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
+    #endif
+
+    /*DRAWBUFFERS:05*/
+    gl_FragData[0] = Result;
+    gl_FragData[1] = vec4(brightSpots, 1.0);
 }

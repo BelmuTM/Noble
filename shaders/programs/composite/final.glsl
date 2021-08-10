@@ -22,8 +22,8 @@
 #include "/lib/post/outline.glsl"
 #include "/lib/atmospherics/fog.glsl"
 
-const vec4 fogColor = vec4(0.225, 0.349, 0.488, 0.5);
-const float rainFogDensity = 0.09;
+const vec4 fogColor = vec4(0.225, 0.349, 0.488, 0.1);
+const float rainFogDensity = 0.05;
 
 vec3 computeBloom() {
     vec3 color  = getBloomTile(2, vec2(0.0      , 0.0   ));
@@ -41,22 +41,31 @@ void main() {
     vec4 Result = texture2D(colortex0, texCoords);
     float depth = texture2D(depthtex0, texCoords).r;
 
+    float volumetricLighting = texture2D(colortex4, texCoords).a;
+    #if VL == 1
+        #if VL_FILTER == 1
+            volumetricLighting = bilateralBlur(texCoords, colortex4, 5).a;
+        #endif
+
+        Result.rgb += getDayTimeColor() * volumetricLighting;
+    #endif
+
     // Chromatic Aberration
     #if CHROMATIC_ABERRATION == 1
         Result.rgb = computeAberration(Result.rgb);
     #endif
-
-    // Rain Fog
-    Result += Fog(depth, viewPos, vec4(0.0), fogColor * vec4(getDayTimeColor(), 1.0), rainStrength, rainFogDensity); // Applying Fog
 
     // Depth of Field
     #if DOF == 1
         Result.rgb = computeDOF(Result.rgb, depth);
     #endif
 
+    // Rain Fog
+    Result += Fog(depth, viewPos, vec4(0.0), fogColor * vec4(getDayTimeColor(), 1.0), rainStrength, rainFogDensity); // Applying Fog
+
     // Bloom
     #if BLOOM == 1
-        Result.rgb += computeBloom() * 0.025 * BLOOM_STRENGTH;
+        Result.rgb += computeBloom() * clamp(0.015 + (rainStrength * 0.1), 0.0, 0.08) * BLOOM_STRENGTH;
     #endif
 
     // Outline

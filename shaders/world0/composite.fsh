@@ -34,17 +34,13 @@ void main() {
       return;
    }
 
-   /* 
-      ------- SHADOW MAPPING -------
-   */
+   /*    ------- SHADOW MAPPING -------    */
    vec3 shadowmap = vec3(1.0);
    #if SHADOWS == 1
       shadowmap = shadowMap(getViewPos(), shadowMapResolution);
    #endif
 
-   /*
-      ------- WATER ABSORPTION / REFRACTION -------
-   */
+   /*    ------- WATER ABSORPTION / REFRACTION -------    */
    vec4 tex0 = texture2D(colortex0, texCoords);
    vec4 tex1 = texture2D(colortex1, texCoords);
    vec4 tex2 = texture2D(colortex2, texCoords);

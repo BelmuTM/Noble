@@ -75,15 +75,6 @@ float getCoC(float depth) {
     return saturate(((depth - centerDepthSmooth) * DOF_STRENGTH) / near);
 }
 
-float drawCircle(vec2 coords, float radius) {
-    return step(length(coords), radius);
-}
-
-/*
-	Thanks to the 2 people who gave me
-	hemisphere sampling functions! <3
-*/
-
 // Provided by LVutner.#1925
 vec3 hemisphereSample(vec2 r) {
     float phi = r.x * 2.0 * PI;

@@ -12,7 +12,6 @@ vec3 computePTGI(in vec3 screenPos) {
     vec3 weight = vec3(1.0);
 
     vec2 noise = uniformAnimatedNoise();
-    vec3 dayTimeColor = getDayTimeColor();
 
     for(int i = 0; i < GI_BOUNCES; i++) {
         noise = uniformIndexedNoise(i, noise);

@@ -17,12 +17,21 @@ varying float blockId;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
-#include "/lib/fragment/hammersley.glsl"
+
+vec2 taaOffsets[8] = vec2[8](
+	vec2( 0.125,-0.375),
+	vec2(-0.125, 0.375),
+	vec2( 0.625, 0.125),
+	vec2( 0.375,-0.625),
+	vec2(-0.625, 0.625),
+	vec2(-0.875,-0.125),
+	vec2( 0.375,-0.875),
+	vec2( 0.875, 0.875)
+);
 
 uniform int framemod;
 vec2 taaJitter(vec4 pos) {
-    vec2 taa = hammersley2d(framemod, 15) * (pos.w * pixelSize);
-    return pos.xy + taa;
+    return taaOffsets[framemod] * (pos.w * pixelSize);
 }
 
 void main() {
@@ -42,6 +51,6 @@ void main() {
 
     gl_Position = ftransform();
     #if TAA == 1
-        gl_Position.xy = taaJitter(gl_Position);
+        gl_Position.xy += taaJitter(gl_Position);
     #endif
 }

@@ -30,7 +30,14 @@ vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec3 hitPos;
 
-    if(!raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, blueNoise().r, hitPos)) return vec3(0.0);
+    float jitter;
+    #if TAA == 1
+        jitter = uniformAnimatedNoise().r;
+    #else
+        jitter = blueNoise().r;
+    #endif
+
+    if(!raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos)) return vec3(0.0);
 
     vec3 L = normalize(shadowLightPosition);
     vec3 H = normalize(viewPos + L);
@@ -49,13 +56,20 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
     vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
     mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
     vec3 hitPos;
+    vec2 noise;
+
+    #if TAA == 1
+        noise = uniformAnimatedNoise();
+    #endif
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-        vec2 noise = uniformNoise(i);
+        #if TAA == 0
+            noise = uniformNoise(i);
+        #endif
         vec3 H = sampleGGXVNDF(normalize(-viewPos) * TBN, noise.rg, roughness);
 		
 		vec3 reflected = reflect(normalize(viewPos), TBN * H);	
-		bool hit = raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, blueNoise().r, hitPos);
+		bool hit = raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, blueNoise().b, hitPos);
 
         float NdotL = max(dot(normal, reflected), EPS);
 		if(hit && NdotL > 0.0) {

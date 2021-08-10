@@ -6,8 +6,9 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float trowbridgeReitzGGX(float NdotH, float alpha) {
+float trowbridgeReitzGGX(float NdotH, in float alpha) {
     // GGXTR(N,H,α) = α² / π*((N*H)²*(α² + 1)-1)²
+    alpha *= alpha;
     float denom = ((NdotH * NdotH) * (alpha - 1.0) + 1.0);
     return alpha / (PI * denom * denom);
 }
@@ -28,8 +29,7 @@ float geometrySmith(float NdotV, float NdotL, float roughness) {
 }
 
 float geometrySchlickGGX(float NdotV, float alpha) {
-    float a2 = alpha * alpha;
-    return (2.0 * NdotV) / (NdotV + sqrt(a2 + (1.0 - a2) * (NdotV + NdotV)));
+    return (2.0 * NdotV) / (NdotV + sqrt(alpha + (1.0 - alpha) * (NdotV + NdotV)));
 }
 
 float geometryCookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
@@ -50,7 +50,7 @@ vec3 sphericalGaussianFresnel(float HdotL, vec3 F0) {
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
 vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float roughness) {
-    float alpha = roughness * roughness;
+    float alpha = roughness;
 
 	// Section 3.2: transforming the view direction to the hemisphere configuration
 	vec3 Vh = normalize(vec3(alpha * Ve.x, alpha * Ve.y, Ve.z));
@@ -97,6 +97,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
 
     vec3 specularColor = isMetal ? data.albedo : vec3(data.F0);
     vec3 dayTimeColor = getDayTimeColor();
+    vec3 ambient = GI == 0 ? AMBIENT : PTGI_AMBIENT;
 
     vec3 H = normalize(V + L);
     float NdotL = saturate(dot(N, L));
@@ -129,12 +130,12 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     }
 
     vec3 Lighting = (diffuse + specular) * NdotL * shadowmap * dayTimeColor;
-    Lighting += (data.albedo * data.emission);
+    Lighting += data.emission * data.albedo;
 
     if(!isMetal) {
-        Lighting += (globalIllumination * data.albedo);
+        Lighting += globalIllumination * data.albedo;
+        Lighting += ambient * data.albedo;
         #if GI == 0
-            Lighting += AMBIENT * data.albedo;
             Lighting *= lightmap;
         #endif
     }

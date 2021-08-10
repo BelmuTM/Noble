@@ -69,8 +69,7 @@ vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float 
 }
 
 bool sampleValid(vec2 sampleCoords, vec3 pos, vec3 normal) { 
-
-    bool onScreen = clamp(sampleCoords, 0.0, 1.0) == sampleCoords;
+    
 	vec3 positionAt = vec3(sampleCoords, texture2D(depthtex0, sampleCoords).r);
     positionAt = screenToView(positionAt);
     vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, sampleCoords).xy));
@@ -81,7 +80,7 @@ bool sampleValid(vec2 sampleCoords, vec3 pos, vec3 normal) {
         &&  abs(normalAt.x - normal.x) <= EDGE_STOP_THRESHOLD
 		&&  abs(normalAt.y - normal.y) <= EDGE_STOP_THRESHOLD
 		&&  abs(normalAt.z - normal.z) <= EDGE_STOP_THRESHOLD
-		&&  onScreen;
+		&&  clamp(sampleCoords, 0.0, 1.0) == sampleCoords; // Is on screen
 }
 
 vec4 spatialDenoiser(vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float size, float quality, float directions) {

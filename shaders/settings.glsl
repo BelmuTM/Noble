@@ -31,7 +31,7 @@ const float shadowDistance = 200.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 
 const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ WATER ------------------*/
-#define WATER_ALPHA 0.2
+#define WATER_ALPHA 0.1
 #define WATER_ABSORPTION_COEFFICIENTS vec3(1.0, 0.2, 0.13)
 
 #define WATER_FOAM 1 // [0 1]
@@ -41,7 +41,8 @@ const float shadowDistanceRenderMul = 1.0;
 #define FOAM_FALLOFF_BIAS 0.1
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.03)
+#define AMBIENT vec3(0.08)
+#define PTGI_AMBIENT vec3(0.006)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
@@ -58,7 +59,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define SSAO_RADIUS 1.0
 #define SSAO_BIAS 0.5
 
-#define RTAO_SAMPLES 2
+#define RTAO_SAMPLES 4
 #define RTAO_STEPS 24
 
 /*------------------ SHADOWS ------------------*/
@@ -75,7 +76,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define BLOCKER_SEARCH_SAMPLES 20
 
 /*------------------ RAY TRACING ------------------*/
-#define RAY_STEP_LENGTH 2.0
+#define RAY_STEP_LENGTH 1.3 // [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT 8 // [2 4 8 16 32]
@@ -93,7 +94,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define GI_FILTER_RES 0.7
 #define GI_FILTER_SIZE 30.0
 #define GI_FILTER_QUALITY 7.0
-#define EDGE_STOP_THRESHOLD 0.7 // Lower number means more accuracy with the spatial filter.
+#define EDGE_STOP_THRESHOLD 0.8 // Lower number means more accuracy with the spatial filter.
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
@@ -101,12 +102,13 @@ const float shadowDistanceRenderMul = 1.0;
 #define REFRACTION 0 // [0 1]
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
-
 #define ATTENUATION_FACTOR 0.375
-#define PREFILTER_SAMPLES 4 // [2 4 8 12 16 20]
+
+#define PREFILTER_SAMPLES 3 // [2 3 4 8 12 16 20]
+#define ROUGH_REFLECT_STEPS 20
+#define ROUGH_REFLECT_RES 0.8
 
 #define SIMPLE_REFLECT_STEPS 64
-#define ROUGH_REFLECT_STEPS 20 // Inverse exponential curve: int(a * pow(b, PREFILTER_SAMPLES)) 5 < a < 100 | 0.5 < b < 0.999
 #define REFRACT_STEPS 64
 
 /*------------------ VOLUMETRIC LIGHTING ------------------*/
@@ -117,13 +119,10 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-
-#define OUTLINE 0 // [0 1]
-#define OUTLINE_DARKNESS 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define OUTLINE_THICKNESS 1.00 // [0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define TAA_STRENGTH 0.675 // [0.025 0.050 0.075 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300 0.325 0.350 0.375 0.400 0.425 0.450 0.475 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
 
 #define DOF 1 // [0 1]
-#define DOF_STRENGTH 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00] 
+#define DOF_STRENGTH 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]
 
 #define BLOOM 1 // [0 1]
 #define BLOOM_STRENGTH 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
@@ -135,6 +134,10 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define CHROMATIC_ABERRATION 0 // [0 1]
 #define ABERRATION_STRENGTH 30.0 // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0]
+
+#define OUTLINE 0 // [0 1]
+#define OUTLINE_DARKNESS 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define OUTLINE_THICKNESS 1.00 // [0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 
 /*------------------ COLOR CORRECTION ------------------*/
 #define TONEMAPPING 0 // [-1 0 1 2 3]

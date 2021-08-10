@@ -14,8 +14,7 @@ vec2 reprojection(vec3 pos) {
     viewPosPrev /= viewPosPrev.w;
     viewPosPrev = gbufferModelViewInverse * viewPosPrev;
 
-    vec3 cameraOffset = cameraPosition - previousCameraPosition;
-    cameraOffset *= float(pos.z > MC_HAND_DEPTH);
+    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(pos.z > MC_HAND_DEPTH);
 
     vec4 prevPos = viewPosPrev + vec4(cameraOffset, 0.0);
     prevPos = gbufferPreviousModelView * prevPos;
@@ -40,25 +39,27 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
     return denom > 1.0 ? pClip + vClip / denom : prevColor;
 }
 
-vec3 neighbourhoodClamping(sampler2D currColorTex, vec3 currColor, vec3 prevColor) {
-    vec3 minColor = prevColor, maxColor = prevColor;
+vec3 neighbourhoodClamping(sampler2D currColorTex, vec3 prevColor) {
+    vec3 minColor = vec3(0.0), maxColor = vec3(0.0);
 
-    for(int i = 0; i <= 12; i++) {
-        vec3 color = texture2D(currColorTex, texCoords + (vogelDisk(i, 12) * pixelSize)).rgb; 
-        minColor = min(minColor, color); maxColor = max(maxColor, color); 
+    for(int x = -1; x <= 1; x++) {
+        for(int y = -1; y <= 1; y++) {
+            vec3 color = texture2D(currColorTex, texCoords + vec2(x, y) * pixelSize).rgb; 
+            minColor = min(minColor, color); maxColor = max(maxColor, color); 
+        }
     }
     return clipAABB(prevColor, minColor, maxColor);
 }
 
-vec3 computeTAA(sampler2D tex, vec3 color) {
+// Thanks LVutner for the help with previous / current textures management!
+vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
-    vec3 prevColor = texture2D(tex, prevTexCoords).rgb;
-    prevColor = neighbourhoodClamping(tex, color, prevColor);
+    vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
+    prevColor = neighbourhoodClamping(currTex, prevColor);
 
     vec2 velocity = (texCoords - prevTexCoords) * viewSize;
     float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
-          blendFactor = clamp(blendFactor + 0.4, EPS, 0.979);
           blendFactor *= float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
 
-    return mix(color, prevColor, blendFactor); 
+    return mix(texture2D(currTex, texCoords).rgb, prevColor, blendFactor); 
 }

@@ -24,21 +24,26 @@ const int colortex6Format = RGBA16F;
 const bool colortex6Clear = false;
 */
 
+vec3 temporalAccumulation(sampler2D tex, vec3 currColor) {
+    vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
+    vec3 prevColor = texture2D(tex, prevTexCoords).rgb;
+    prevColor = neighbourhoodClamping(tex, prevColor);
+
+    vec2 velocity = (texCoords - prevTexCoords) * viewSize;
+    float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
+          blendFactor = clamp(blendFactor + 0.4, EPS, 0.979);
+          blendFactor *= float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
+
+    return mix(currColor, prevColor, blendFactor); 
+}
+
 void main() {
     vec3 globalIllumination = vec3(0.0);
     #if GI == 1
         globalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION).rgb;
 
-        #if GI_FILTER == 1
-            vec3 viewPos = getViewPos();
-            vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
-
-            globalIllumination = spatialDenoiser(viewPos, normal, colortex5, 
-            viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 13.0).rgb;
-        #endif
-
         #if GI_TEMPORAL_ACCUMULATION == 1
-            globalIllumination = computeTAA(colortex6, globalIllumination);
+            globalIllumination = temporalAccumulation(colortex6, globalIllumination);
         #endif
     #endif
 

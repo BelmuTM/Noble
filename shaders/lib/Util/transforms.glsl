@@ -37,7 +37,7 @@ vec3 viewToScreen(vec3 viewPos) {
 }
 
 vec3 worldToView(vec3 worldPos) {
-	return mat3(gbufferModelView) * (worldPos - cameraPosition);
+	return mat3(gbufferModelView) * worldPos;
 }
 
 vec3 viewToWorld(vec3 viewPos) {

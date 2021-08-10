@@ -23,6 +23,7 @@ uniform vec4 entityColor;
 /*
 const int colortex0Format = RGBA16F;
 const int colortex1Format = RGBA16F;
+const int colortex2Format = RGBA16F;
 */
 
 void main() {
@@ -42,13 +43,17 @@ void main() {
 	normal = clamp(normal, -1.0, 1.0);
 
 	float ao = normalTex.z;
-    	float roughness = pow(1.0 - specularTex.x, 2.0);
+    	float roughness = 1.0 - specularTex.x;
 	float F0 = specularTex.y;
 
 	vec2 lightmap = lmCoords.xy;
 	float emission = (specularTex.w * 255.0) < 254.5 ? specularTex.w : 0.0;
 
-	if(int(blockId + 0.5) == 1) albedoTex.a = WATER_ALPHA;
+	if(int(blockId + 0.5) == 1) { 
+		albedoTex.a = WATER_ALPHA;
+		F0 = 0.02;
+		roughness = 0.01;
+	}
 	
 	/*DRAWBUFFERS:0123*/
 	gl_FragData[0] = color * albedoTex;

@@ -6,8 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 computeDOF(vec3 color, float depth) {
+#version 400 compatibility
 
-    vec4 outOfFocusColor = bokeh(texCoords, colortex0, pixelSize, 2, 30.0);
-    return mix(color, outOfFocusColor.rgb, getCoC(depth));
-}
+#include "/programs/composite/composite_vsh.glsl"

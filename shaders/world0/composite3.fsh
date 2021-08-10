@@ -32,7 +32,7 @@ vec3 getLightmapColor(vec2 lightMap) {
     lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, 5.06);
 
     vec3 torchLight = lightMap.x * TORCH_COLOR;
-    vec3 skyLight = (lightMap.y * lightMap.y) * skyColor;
+    vec3 skyLight = (lightMap.y * lightMap.y) * getDayTimeColor();
     return torchLight + max(vec3(EPS), skyLight - clamp(rainStrength, 0.0, rainAmbientDarkness));
 }
 
@@ -54,10 +54,9 @@ void main() {
     #endif
 
     if(isSky()) {
-        /*DRAWBUFFERS:045*/
+        /*DRAWBUFFERS:04*/
         gl_FragData[0] = tex0;
         gl_FragData[1] = vec4(volumetricLighting);
-        gl_FragData[2] = luma(tex0.rgb) > BLOOM_LUMA_THRESHOLD ? tex0 : vec4(0.0);
         return;
     }
 
@@ -73,7 +72,7 @@ void main() {
     
     #if GI == 0
         vec2 lightMap = texture2D(colortex2, texCoords).zw;
-        lightmapColor = getLightmapColor(lightMap);
+        lightmapColor = max(vec3(0.03), getLightmapColor(lightMap));
 
         #if AO == 1
             ambientOcclusion = texture2D(colortex5, texCoords).a;
@@ -84,17 +83,16 @@ void main() {
         #endif
     #else
         globalIllumination = clamp(texture2D(colortex6, texCoords).rgb, 0.0, 1.0);
+
+        #if GI_FILTER == 1
+            globalIllumination = spatialDenoiser(viewPos, normal, colortex6, 
+            viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 13.0).rgb;
+        #endif
     #endif
 
     vec3 Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, shadowmap, globalIllumination);
 
-    vec3 brightSpots;
-    #if BLOOM == 1
-        brightSpots = luma(Lighting) > BLOOM_LUMA_THRESHOLD ? Lighting : vec3(0.0);
-    #endif
-
-    /*DRAWBUFFERS:045*/
+    /*DRAWBUFFERS:04*/
     gl_FragData[0] = vec4(Lighting * ambientOcclusion, 1.0);
     gl_FragData[1] = vec4(data.albedo, volumetricLighting);
-    gl_FragData[2] = vec4(brightSpots, 1.0);
 }

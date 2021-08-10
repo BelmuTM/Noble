@@ -105,7 +105,8 @@ value.SSR_TYPE.1 = §eRough Reflections
 
 option.PREFILTER_SAMPLES = Rough Reflections Samples
 option.PREFILTER_SAMPLES.comment = Adjusts §bRough Reflections §fquality. §cHigher value gives better results, but reduces §cperformance.
-value.PREFILTER_SAMPLES.2 = §22
+value.PREFILTER_SAMPLES.2 = §32
+value.PREFILTER_SAMPLES.3 = §23
 value.PREFILTER_SAMPLES.4 = §a4
 value.PREFILTER_SAMPLES.8 = §e8
 value.PREFILTER_SAMPLES.12 = §612
@@ -152,6 +153,9 @@ value.BINARY_COUNT.8 = §e8
 value.BINARY_COUNT.16 = §616
 value.BINARY_COUNT.32 = §c32
 
+option.RAY_STEP_LENGTH = Ray Length
+option.RAY_STEP_LENGTH.comment = Adjusts the ray's length. §cLower value gives more accurate results, but reduces §cperformance.
+
 ##################### ATMOSPHERICS #####################
 
 option.VL = Volumetric Lighting (VL)
@@ -180,6 +184,9 @@ option.TAA = TAA
 option.TAA.comment = §bTemporal Anti-Aliasing. §fA form of anti-aliasing which operates over multiple frames.
 value.TAA.0 = §cOFF
 value.TAA.1 = §aON
+
+option.TAA_STRENGTH = TAA Strength
+option.TAA_STRENGTH.comment = Adjusts §bTAA§f's strength.
 
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
