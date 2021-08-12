@@ -21,6 +21,7 @@ varying vec2 texCoords;
 
 /*
 const int colortex0Format = RGBA16F;
+const int colortex4Format = RGBA16F;
 */
 
 void main() {
@@ -31,7 +32,7 @@ void main() {
           vec3 eyeDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
           float angle = smoothstep(0.9991, 0.99995, dot(sunDir, normalize(viewPos)));
-          vec3 sky = mix(getDayTimeSkyGradient(eyeDir.y), vec3(1.0) + (1.0 - angle), angle); 
+          vec3 sky = mix(getDayTimeSkyGradient(eyeDir, viewPos), vec3(1.0) + (1.0 - angle), angle); 
           
           /*DRAWBUFFERS:0*/
           gl_FragData[0] = vec4(sky, 1.0);

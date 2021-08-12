@@ -26,10 +26,6 @@ varying vec2 texCoords;
 #include "/lib/util/distort.glsl"
 #include "/lib/lighting/shadows.glsl"
 
-/*
-const int colortex4Format = RGBA16F;
-*/
-
 void main() {
 
    if(isSky()) {

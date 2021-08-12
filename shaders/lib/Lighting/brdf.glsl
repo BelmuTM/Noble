@@ -49,11 +49,10 @@ vec3 sphericalGaussianFresnel(float HdotL, vec3 F0) {
 }
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
-vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float roughness) {
-    float alpha = roughness;
+vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float alpha) {
 
 	// Section 3.2: transforming the view direction to the hemisphere configuration
-	vec3 Vh = normalize(vec3(alpha * Ve.x, alpha * Ve.y, Ve.z));
+	vec3 Vh = normalize(vec3(alpha * Ve.xy, Ve.z));
 
 	// Section 4.1: orthonormal basis (with special case if cross product is zero)
 	float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
@@ -62,17 +61,16 @@ vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float roughness) {
 
 	// Section 4.2: parameterization of the projected area
 	float r = sqrt(Xi.y);	
-	float phi = 2.0 * PI * Xi.x;	
-	float t1 = r * cos(phi);
-	float t2 = r * sin(phi);
+	float xOffset = r * cos(PI2 * Xi.x);
+	float yOffset = r * sin(PI2 * Xi.x);
 	float s = 0.5 * (1.0 + Vh.z);
-	t2 = (1.0 - s) * sqrt(1.0 - t1 * t1) + s * t2;
+	yOffset = (1.0 - s) * sqrt(1.0 - xOffset * xOffset) + s * yOffset;
 
 	// Section 4.3: reprojection onto hemisphere
-	vec3 Nh = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - t1 * t1 - t2 * t2)) * Vh;
+	vec3 Nh = xOffset * T1 + yOffset * T2 + sqrt(max(EPS, 1.0 - xOffset * xOffset - yOffset * yOffset)) * Vh;
 
 	// Section 3.4: transforming the normal back to the ellipsoid configuration
-	return normalize(vec3(alpha * Nh.x, alpha * Nh.y, max(0.0, Nh.z)));	
+	return normalize(vec3(alpha * Nh.x, alpha * Nh.y, max(EPS, Nh.z)));	
 }
 
 // https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true

@@ -52,10 +52,12 @@ vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0) {
 vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 	vec3 filteredColor = vec3(0.0);
 	float weight = 0.0;
+
+    vec3 viewDir = normalize(viewPos);
+    vec3 hitPos; vec2 noise;
 	
     vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
     mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
-    vec3 hitPos; vec2 noise;
 
     #if TAA == 1
         noise = uniformAnimatedNoise();
@@ -65,9 +67,9 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
         #if TAA == 0
             noise = uniformNoise(i);
         #endif
-        vec3 H = sampleGGXVNDF(normalize(-viewPos) * TBN, noise.rg, roughness);
-		
-		vec3 reflected = reflect(normalize(viewPos), TBN * H);	
+        
+        vec3 H = sampleGGXVNDF(-viewDir * TBN, noise.rg, roughness);
+		vec3 reflected = reflect(viewDir, TBN * H);	
 		bool hit = raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, blueNoise().b, hitPos);
 
         float NdotL = max(dot(normal, reflected), EPS);

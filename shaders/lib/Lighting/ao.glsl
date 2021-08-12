@@ -11,7 +11,7 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 	vec3 sampleOrigin = viewPos + normal * EPS;
 
     	vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
-    	vec3 bitangent = cross(normal, tangent);
+	mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 
 	vec2 noise;
     	#if TAA == 1
@@ -22,8 +22,7 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 		#if TAA == 0
             	noise = uniformNoise(i);
         	#endif
-		vec3 sampleDir = randomHemisphereDirection(noise.xy) * AO_BIAS;
-		sampleDir = vec3((tangent * sampleDir.x) + (bitangent * sampleDir.y) + (normal * sampleDir.z));
+		vec3 sampleDir = TBN * (randomHemisphereDirection(noise.xy) * AO_BIAS);
 
 		vec3 samplePos = sampleOrigin + sampleDir * SSAO_RADIUS;
     		vec2 sampleScreen = viewToScreen(samplePos).xy;
@@ -41,7 +40,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 	vec3 samplePos = viewPos + normal * EPS;
 
     	vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
-    	vec3 bitangent = cross(normal, tangent);
+	mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 
 	vec2 noise;
     	#if TAA == 1
@@ -52,9 +51,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 		#if TAA == 0
             	noise = uniformNoise(i);
         	#endif
-		vec3 sampleDir = randomHemisphereDirection(noise) * AO_BIAS;
-		sampleDir = vec3((tangent * sampleDir.x) + (bitangent * sampleDir.y) + (normal * sampleDir.z));
-
+		vec3 sampleDir = TBN * (randomHemisphereDirection(noise) * AO_BIAS);
 		vec3 hitPos;
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, blueNoise().g, hitPos)) continue;
 
@@ -77,7 +74,7 @@ float computeHBAO(vec3 viewPos, vec3 normal) {
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
 		vec2 noise = uniformNoise(i);
 		vec3 sampleDir = randomHemisphereDirection(noise);
-		sampleDir = vec3((tangent * sampleDir.x) + (bitangent * sampleDir.y) + (normal * sampleDir.z));
+		sampleDir = TBNtransform(sampleDir, tangent, bitangent, normal);
 
 		float gamma = ATan(tangent.z / length(tangent.xy));
 

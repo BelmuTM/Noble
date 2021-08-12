@@ -7,7 +7,8 @@
 ##################### ABOUT #####################
 option.ABOUT = Noble
 option.ABOUT.comment = §f§lTwitter: §r§7@Belmu_. §f§lDiscord: §r§7Belmu#4066. §f§lPatreon: §r§6https://www.patreon.com/Belmu. §f§lGithub: §r§6https://www.github.com/BelmuTM.
-value.ABOUT.69.420 = §7r0.9.9 §f- §6Belmu
+value.ABOUT.0 = §7r0.9.9 §f- §6Belmu
+value.ABOUT.1 = §b§lBoop!
 
 ##################### SCREENS #####################
 
@@ -177,6 +178,11 @@ option.VL_FILTER = VL Filter
 option.VL_FILTER.comment = Filters §bVL §fto reduce the noise. §cGives a cleaner result, but reduces performance.
 value.VL_FILTER.0 = §cOFF
 value.VL_FILTER.1 = §aON
+
+option.RAIN_FOG = Rain Fog
+option.RAIN_FOG.comment = Features a fog that appears when it rains.
+value.RAIN_FOG.0 = §cOFF
+value.RAIN_FOG.1 = §aON
 
 ##################### POST-PROCESSING #####################
 

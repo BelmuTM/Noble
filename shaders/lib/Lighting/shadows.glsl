@@ -13,6 +13,10 @@ vec4 viewToShadow(vec3 viewPos) {
 	return shadowSpace;
 }
 
+bool shadowIntersect(vec3 viewPos, inout vec3 hitPos) {
+    return raytrace(viewPos, normalize(shadowLightPosition), 16, bayer64(gl_FragCoord.xy), hitPos);
+}
+
 float visibility(sampler2D tex, vec3 sampleCoords) {
     return step(sampleCoords.z - EPS, texture2D(tex, sampleCoords.xy).r);
 }
@@ -24,10 +28,6 @@ vec3 sampleTransparentShadow(vec3 sampleCoords) {
     vec4 shadowColor0 = texture2D(shadowcolor0, sampleCoords.xy);
     vec3 transmittedColor = shadowColor0.rgb * (1.0 - shadowColor0.a);
     return mix(shadowVisibility1 * transmittedColor, vec3(1.0), shadowVisibility0);
-}
-
-bool shadowIntersect(vec3 viewPos) {
-    vec3 hitPos; return raytrace(viewPos, normalize(shadowLightPosition), 16, bayer4(gl_FragCoord.xy), hitPos);
 }
 
 float findBlockerDepth(vec3 sampleCoords) {
@@ -83,10 +83,15 @@ vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
 
 vec3 shadowMap(vec3 viewPos, float shadowMapResolution) {
     vec3 sampleCoords = viewToShadow(viewPos).xyz * 0.5 + 0.5;
-    float theta = uniformNoise(1).r;
+    float theta;
+    #if TAA == 1
+     	theta = uniformAnimatedNoise().r;
+    #else
+        theta = uniformNoise(1).r;
+    #endif
 
     #if SOFT_SHADOWS == 1
-        theta *= PI2; // That's wacky, but it looks better on Soft Shadows :D
+        //theta *= PI2; // That's wacky, but it looks better on Soft Shadows :D
     #endif
     
     float cosTheta = cos(theta), sinTheta = sin(theta);

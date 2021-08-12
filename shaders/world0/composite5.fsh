@@ -28,35 +28,36 @@ varying vec2 texCoords;
 void main() {
     vec4 Result = texture2D(colortex0, texCoords);
 
-    if(isSky()) {
-        /*DRAWBUFFERS:05*/
-        gl_FragData[0] = Result;
-        #if BLOOM == 1
-            gl_FragData[1] = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result : vec4(0.0);
-        #endif
-        return;
-    }
-
     #if SSR == 1
-        vec3 viewPos = getViewPos();
-        vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+        if(!isSky()) {
+            vec3 viewPos = getViewPos();
+            vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-        float NdotV = saturate(dot(normal, normalize(-viewPos)));
-        float F0 = texture2D(colortex2, texCoords).g;
+            float NdotV = saturate(dot(normal, normalize(-viewPos)));
+            float F0 = texture2D(colortex2, texCoords).g;
 
-        vec3 specularColor = mix(vec3(F0), texture2D(colortex4, texCoords).rgb, float((F0 * 255.0) > 229.5));
-        float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : texture2D(colortex2, texCoords).r;
+            vec3 specularColor = mix(vec3(F0), texture2D(colortex4, texCoords).rgb, float((F0 * 255.0) > 229.5));
+            float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : texture2D(colortex2, texCoords).r;
 
-        vec3 reflections;
-        #if SSR_TYPE == 1
-            // reflections = texture2D(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
-            reflections = spatialDenoiser(ROUGH_REFLECT_RES, viewPos, normal, colortex5, viewSize, 3.0, 5.0, 7.0).rgb;
-        #else
-            reflections = simpleReflections(viewPos, normal, NdotV, specularColor);
+            vec3 reflections;
+            #if SSR_TYPE == 1
+                reflections = texture2D(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
+            #else
+                reflections = simpleReflections(viewPos, normal, NdotV, specularColor);
+            #endif
+
+            vec3 DFG = envBRDFApprox(specularColor, roughness, NdotV);
+            Result.rgb = mix(Result.rgb, reflections, DFG);
+        }
+    #endif
+
+    float volumetricLighting = texture2D(colortex4, texCoords).a;
+    #if VL == 1
+        #if VL_FILTER == 1
+            volumetricLighting = bilateralBlur(texCoords, colortex4, 5).a;
         #endif
 
-        vec3 DFG = envBRDFApprox(specularColor, roughness, NdotV);
-        Result.rgb += mix(Result.rgb, reflections, DFG);
+        Result.rgb += getDayTimeColor() * 0.7 * volumetricLighting;
     #endif
 
     vec3 brightSpots;

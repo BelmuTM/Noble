@@ -17,7 +17,7 @@ varying float blockId;
 #include "/lib/util/math.glsl"
 
 #ifdef ENTITY
-uniform vec4 entityColor;
+	uniform vec4 entityColor;
 #endif
 
 /*
