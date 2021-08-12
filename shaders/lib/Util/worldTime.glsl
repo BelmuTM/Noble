@@ -14,18 +14,19 @@ float timeMidnight = ((clamp(wTimeF, 12500.0, 12750.0) - 12500.0) / 250.0) - ((c
 
 vec3 getDayTimeColor() {
     const vec3 ambient_sunrise  = vec3(0.843, 0.372, 0.147);
-    const vec3 ambient_noon     = vec3(0.845, 0.802, 0.73);
+    const vec3 ambient_noon     = vec3(0.945, 0.902, 0.830);
     const vec3 ambient_sunset   = vec3(0.843, 0.372, 0.147);
-    const vec3 ambient_midnight = vec3(0.2, 0.25, 0.45);
+    const vec3 ambient_midnight = vec3(0.254, 0.284, 0.291);
 
     return ambient_sunrise * timeSunrise + ambient_noon * timeNoon + ambient_sunset * timeSunset + ambient_midnight * timeMidnight;
 }
 
 vec3 getDayTimeSkyGradient(float x) {  // Bottom Color -> Top Color
-    vec3 skyGradient_sunrise  = mix(vec3(0.529, 0.192, 0.047), vec3(0.275, 0.675, 0.91), x);
-    vec3 skyGradient_noon     = mix(vec3(0.275, 0.675, 0.91), vec3(0.275, 0.675, 0.91), x);
-    vec3 skyGradient_sunset   = mix(vec3(0.275, 0.675, 0.91), vec3(0.275, 0.675, 0.91), x);
-    vec3 skyGradient_midnight = mix(vec3(0.529, 0.192, 0.047), vec3(0.275, 0.675, 0.91), x);
+    x += bayer2(gl_FragCoord.xy);
+    vec3 skyGradient_sunrise  = mix(vec3(0.529, 0.292, 0.047),    vec3(0.20, 0.386, 0.582),     x);
+    vec3 skyGradient_noon     = mix(vec3(0.424, 0.532, 0.702),    vec3(0.20, 0.386, 0.582),     x);
+    vec3 skyGradient_sunset   = mix(vec3(0.529, 0.112, 0.047),    vec3(0.20, 0.386, 0.582),     x);
+    vec3 skyGradient_midnight = mix(vec3(0.0146, 0.0244, 0.0402), vec3(0.0048, 0.0087, 0.0122), x);
 
     return skyGradient_sunrise * timeSunrise + skyGradient_noon * timeNoon + skyGradient_sunset * timeSunset + skyGradient_midnight * timeMidnight;
 }

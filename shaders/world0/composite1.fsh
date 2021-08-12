@@ -12,46 +12,69 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
+#include "/lib/fragment/bayer.glsl"
 #include "/lib/fragment/noise.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
+#include "/lib/util/color.glsl"
 #include "/lib/util/worldTime.glsl"
-#include "/lib/lighting/raytracer.glsl"
-#include "/lib/lighting/ao.glsl"
-#include "/lib/lighting/ptgi.glsl"
+#include "/lib/util/blur.glsl"
+#include "/lib/material.glsl"
+#include "/lib/lighting/brdf.glsl"
+#include "/lib/util/distort.glsl"
+#include "/lib/atmospherics/volumetric.glsl"
 
-/*
-const int colortex5Format = RGBA16F;
-*/
+const float rainAmbientDarkness = 0.12;
+
+/*------------------ LIGHTMAP ------------------*/
+vec3 getLightmapColor(vec2 lightMap) {
+    lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, 5.06);
+
+    vec3 torchLight = lightMap.x * TORCH_COLOR;
+    vec3 skyLight = (lightMap.y * lightMap.y) * getDayTimeColor();
+    return torchLight + max(vec3(EPS), skyLight - clamp(rainStrength, 0.0, rainAmbientDarkness));
+}
 
 void main() {
     vec3 viewPos = getViewPos();
-    vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+    vec3 viewDir = normalize(-viewPos);
+    vec3 lightDir = normalize(shadowLightPosition);
 
-    vec3 globalIllumination = vec3(0.0);
-    float ambientOcclusion = 1.0;
-    #if GI == 1
-        /* Downscaling Global Illumination */
-        float inverseRes = 1.0 / GI_RESOLUTION;
-        vec2 scaledUv = texCoords * inverseRes;
-        
-        if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords) {
-            bool isMetal = (texture2D(colortex2, scaledUv).g * 255.0) > 229.5;
-            vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
-            globalIllumination = isMetal ? vec3(0.0) : computePTGI(positionAt);
-        }
-    #else
-        #if AO == 1
-            #if AO_TYPE == 0
-                ambientOcclusion = computeSSAO(viewPos, normal);
-            #else
-                ambientOcclusion = computeRTAO(viewPos, normal);
-            #endif
-        #endif
+    vec4 tex0 = texture2D(colortex0, texCoords);
+    vec4 tex1 = texture2D(colortex1, texCoords);
+    vec4 tex2 = texture2D(colortex2, texCoords);
+
+    material data = getMaterial(tex0, tex1, tex2);
+    vec3 normal = normalize(data.normal.xyz);
+    
+    float volumetricLighting = 0.0;
+    #if VL == 1
+        volumetricLighting = clamp(computeVL(viewPos) - rainStrength, 0.0, 1.0) * 0.1;
     #endif
 
-    /*DRAWBUFFERS:5*/
-    gl_FragData[0] = vec4(globalIllumination, ambientOcclusion);
-}
+    if(isSky()) {
+        /*DRAWBUFFERS:04*/
+        gl_FragData[0] = tex0;
+        gl_FragData[1] = vec4(volumetricLighting);
+        return;
+    }
 
+    #if WHITE_WORLD == 1
+		data.albedo = vec3(1.0);
+    #endif
+
+    vec3 shadowmap = texture2D(colortex4, texCoords).rgb;
+    vec3 lightmapColor = vec3(1.0);
+    
+    #if GI == 0
+        vec2 lightMap = texture2D(colortex2, texCoords).zw;
+        lightmapColor = max(vec3(0.03), getLightmapColor(lightMap));
+    #endif
+
+    vec3 Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, shadowmap);
+
+    /*DRAWBUFFERS:04*/
+    gl_FragData[0] = vec4(Lighting, 1.0);
+    gl_FragData[1] = vec4(data.albedo, volumetricLighting);
+}

@@ -12,6 +12,7 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
+#include "/lib/fragment/bayer.glsl"
 #include "/lib/fragment/noise.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
@@ -48,7 +49,8 @@ void main() {
 
         vec3 reflections;
         #if SSR_TYPE == 1
-            reflections = texture2D(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
+            // reflections = texture2D(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
+            reflections = spatialDenoiser(ROUGH_REFLECT_RES, viewPos, normal, colortex5, viewSize, 3.0, 5.0, 7.0).rgb;
         #else
             reflections = simpleReflections(viewPos, normal, NdotV, specularColor);
         #endif

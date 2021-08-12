@@ -91,7 +91,7 @@ vec3 envBRDFApprox(vec3 specularColor, float NdotV, float roughness) {
     https://gist.github.com/LVutner/c07a3cc4fec338e8fe3fa5e598787e47
 */
 
-vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap, vec3 globalIllumination) {
+vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap) {
     bool isMetal = (data.F0 * 255.0) > 229.5;
     float alpha = data.roughness * data.roughness;
 
@@ -129,11 +129,10 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
         diffuse = clamp(A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y), 0.0, 1.0);
     }
 
-    vec3 Lighting = (diffuse + specular) * NdotL * shadowmap * dayTimeColor;
+    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * dayTimeColor;
     Lighting += data.emission * data.albedo;
 
     if(!isMetal) {
-        Lighting += globalIllumination * data.albedo;
         Lighting += ambient * data.albedo;
         #if GI == 0
             Lighting *= lightmap;

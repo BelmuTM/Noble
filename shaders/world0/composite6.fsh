@@ -41,7 +41,7 @@ void main() {
      #endif
 
      #if TAA == 1
-          Result.rgb = computeTAA(colortex0, colortex7);
+          Result.rgb = clamp(computeTAA(colortex0, colortex7), 0.0, 1.0);
      #endif
 
      /*DRAWBUFFERS:075*/

@@ -35,14 +35,14 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_ABSORPTION_COEFFICIENTS vec3(1.0, 0.2, 0.13)
 
 #define WATER_FOAM 1 // [0 1]
-#define FOAM_BRIGHTNESS 1.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
+#define FOAM_BRIGHTNESS 1.00 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
 #define FOAM_FALLOFF_DISTANCE 0.75
 #define FOAM_EDGE_FALLOFF 0.3
 #define FOAM_FALLOFF_BIAS 0.1
 
 /*------------------ LIGHTING ------------------*/
 #define AMBIENT vec3(0.08)
-#define PTGI_AMBIENT vec3(0.006)
+#define PTGI_AMBIENT vec3(0.002)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
@@ -54,10 +54,10 @@ const float shadowDistanceRenderMul = 1.0;
 #define AO 1 // [0 1]
 #define AO_TYPE 0 // [0 1]
 #define AO_FILTER 1 // [0 1]
+#define AO_BIAS 0.8
 
 #define SSAO_SAMPLES 8 // [4 8 16 32]
-#define SSAO_RADIUS 1.0
-#define SSAO_BIAS 0.5
+#define SSAO_RADIUS 0.6
 
 #define RTAO_SAMPLES 4
 #define RTAO_STEPS 24
@@ -92,7 +92,7 @@ const float shadowDistanceRenderMul = 1.0;
 // Spatial Filtering
 #define GI_FILTER 1 // [0 1]
 #define GI_FILTER_RES 0.7
-#define GI_FILTER_SIZE 30.0
+#define GI_FILTER_SIZE 35.0
 #define GI_FILTER_QUALITY 7.0
 #define EDGE_STOP_THRESHOLD 0.8 // Lower number means more accuracy with the spatial filter.
 
@@ -119,7 +119,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.675 // [0.025 0.050 0.075 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300 0.325 0.350 0.375 0.400 0.425 0.450 0.475 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
+#define TAA_STRENGTH 0.500 // [0.025 0.050 0.075 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300 0.325 0.350 0.375 0.400 0.425 0.450 0.475 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
 
 #define DOF 1 // [0 1]
 #define DOF_STRENGTH 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]

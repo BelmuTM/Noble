@@ -10,6 +10,7 @@ uniform vec3 shadowLightPosition;
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 uniform vec3 cameraPosition;
+uniform vec3 upPosition;
 uniform vec3 skyColor;
 
 uniform float rainStrength;

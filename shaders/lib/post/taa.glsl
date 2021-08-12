@@ -22,6 +22,13 @@ vec2 reprojection(vec3 pos) {
     return (prevPos.xy / prevPos.w) * 0.5 + 0.5;
 }
 
+vec3 screenToWorld(float depth, vec2 coords, mat4 projection, mat4 modelView) {
+    vec4 clipPos = vec4(coords * 2.0 - 1.0, depth, 1.0);
+    vec4 viewPos = inverse(projection) * clipPos;
+    viewPos /= viewPos.w;
+    return (inverse(modelView) * viewPos).xyz;
+}
+
 /*
     AABB Clipping from "Temporal Reprojection Anti-Aliasing in INSIDE"
     http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
@@ -40,10 +47,11 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 }
 
 vec3 neighbourhoodClamping(sampler2D currColorTex, vec3 prevColor) {
-    vec3 minColor = vec3(0.0), maxColor = vec3(0.0);
+    vec3 minColor = vec3(0.0), maxColor = vec3(0.0); 
+    const int size = 4;
 
-    for(int x = -1; x <= 1; x++) {
-        for(int y = -1; y <= 1; y++) {
+    for(int x = -size; x <= size; x++) {
+        for(int y = -size; y <= size; y++) {
             vec3 color = texture2D(currColorTex, texCoords + vec2(x, y) * pixelSize).rgb; 
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
@@ -54,6 +62,8 @@ vec3 neighbourhoodClamping(sampler2D currColorTex, vec3 prevColor) {
 // Thanks LVutner for the help with previous / current textures management!
 vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
+    vec3 currColor = texture2D(currTex, texCoords).rgb;
+
     vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
     prevColor = neighbourhoodClamping(currTex, prevColor);
 
@@ -61,5 +71,5 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
           blendFactor *= float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
 
-    return mix(texture2D(currTex, texCoords).rgb, prevColor, blendFactor); 
+    return mix(currColor, prevColor, blendFactor); 
 }

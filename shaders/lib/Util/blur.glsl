@@ -54,7 +54,7 @@ vec4 bokeh(vec2 coords, sampler2D tex, vec2 resolution, int quality, float radiu
 }
 
 vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float size) {
-    vec4 color = texture2D(tex, coords);
+    vec4 color = texture2D(tex, texCoords);
     vec2 radius = size / resolution;
 
     int SAMPLES = 1;
@@ -83,7 +83,7 @@ bool sampleValid(vec2 sampleCoords, vec3 pos, vec3 normal) {
 		&&  clamp(sampleCoords, 0.0, 1.0) == sampleCoords; // Is on screen
 }
 
-vec4 spatialDenoiser(vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float size, float quality, float directions) {
+vec4 spatialDenoiser(float scale, vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float size, float quality, float directions) {
     vec4 color = texture2D(tex, texCoords);
     vec2 radius = size / resolution;
 
@@ -93,7 +93,7 @@ vec4 spatialDenoiser(vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, 
             vec2 sampleCoords = texCoords + vec2(cos(d), sin(d)) * radius * i;
 
             if(sampleValid(sampleCoords, viewPos, normal)) {
-			    color += texture2D(tex, sampleCoords);
+			    color += texture2D(tex, sampleCoords * scale);
                 SAMPLES++;
             }
         }

@@ -12,19 +12,26 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
+#include "/lib/fragment/bayer.glsl"
 #include "/lib/fragment/noise.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/worldTime.glsl"
 
+/*
+const int colortex0Format = RGBA16F;
+*/
+
 void main() {
 
      if(texture2D(depthtex0, texCoords).r == 1.0) {
           vec3 sunDir = normalize(shadowLightPosition);
-          vec3 viewDir = normalize(getViewPos());
+          vec3 viewPos = getViewPos();
+          vec3 eyeDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
-          vec3 sky = mix(vec3(1.0), getDayTimeSkyGradient(texCoords.y), step(dot(sunDir, viewDir), 0.999));
+          float angle = smoothstep(0.9991, 0.99995, dot(sunDir, normalize(viewPos)));
+          vec3 sky = mix(getDayTimeSkyGradient(eyeDir.y), vec3(1.0) + (1.0 - angle), angle); 
           
           /*DRAWBUFFERS:0*/
           gl_FragData[0] = vec4(sky, 1.0);

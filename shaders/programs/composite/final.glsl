@@ -65,7 +65,7 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result.rgb += computeBloom() * clamp(0.015 + (rainStrength * 0.1), 0.0, 0.08) * BLOOM_STRENGTH;
+        Result.rgb += computeBloom() * clamp(0.012 + (rainStrength * 0.1), 0.0, 0.08) * BLOOM_STRENGTH;
     #endif
 
     // Outline

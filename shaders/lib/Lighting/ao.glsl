@@ -22,7 +22,7 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 		#if TAA == 0
             	noise = uniformNoise(i);
         	#endif
-		vec3 sampleDir = randomHemisphereDirection(noise.xy) * SSAO_BIAS;
+		vec3 sampleDir = randomHemisphereDirection(noise.xy) * AO_BIAS;
 		sampleDir = vec3((tangent * sampleDir.x) + (bitangent * sampleDir.y) + (normal * sampleDir.z));
 
 		vec3 samplePos = sampleOrigin + sampleDir * SSAO_RADIUS;
@@ -30,7 +30,7 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 		float sampleDepth = screenToView(vec3(sampleScreen, texture2D(depthtex0, sampleScreen).r)).z;
 
 		float delta = sampleDepth - samplePos.z;
-        	if(delta > 0.0 && delta < SSAO_RADIUS) occlusion += delta + SSAO_BIAS;
+        	if(delta > 0.0 && delta < SSAO_RADIUS) occlusion += delta + AO_BIAS;
 	}
 	occlusion = 1.0 - (occlusion / SSAO_SAMPLES);
 	return saturate(occlusion);
@@ -52,7 +52,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 		#if TAA == 0
             	noise = uniformNoise(i);
         	#endif
-		vec3 sampleDir = randomHemisphereDirection(noise);
+		vec3 sampleDir = randomHemisphereDirection(noise) * AO_BIAS;
 		sampleDir = vec3((tangent * sampleDir.x) + (bitangent * sampleDir.y) + (normal * sampleDir.z));
 
 		vec3 hitPos;
@@ -60,7 +60,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 
 		float dist = distance(samplePos, screenToView(hitPos));
 		float attenuation = 1.0 - (dist * dist);
-		occlusion += attenuation;
+		occlusion += attenuation + AO_BIAS;
 	}
 	occlusion = 1.0 - (occlusion / RTAO_SAMPLES);
 	return saturate(occlusion);

@@ -55,8 +55,7 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness) {
 	
     vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
     mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
-    vec3 hitPos;
-    vec2 noise;
+    vec3 hitPos; vec2 noise;
 
     #if TAA == 1
         noise = uniformAnimatedNoise();

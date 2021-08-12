@@ -24,12 +24,11 @@ vec3 computePTGI(in vec3 screenPos) {
         if(!raytrace(hitPos, sampleDir, GI_STEPS, blueNoise().r, hitPos)) continue;
 
         /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
-        vec3 shadowmap = texture2D(colortex4, hitPos.xy).rgb;
         vec3 albedo = texture2D(colortex0, hitPos.xy).rgb;
         float isEmissive = texture2D(colortex1, hitPos.xy).z == 0.0 ? 0.0 : 1.0;
 
         weight *= albedo;
-        illumination += weight * (shadowmap + isEmissive);
+        illumination += weight;
     }
     return illumination;
 }

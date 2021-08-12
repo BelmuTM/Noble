@@ -27,7 +27,7 @@ vec3 sampleTransparentShadow(vec3 sampleCoords) {
 }
 
 bool shadowIntersect(vec3 viewPos) {
-    vec3 hitPos; return raytrace(viewPos, normalize(shadowLightPosition), 16, bayer64(gl_FragCoord.xy), hitPos);
+    vec3 hitPos; return raytrace(viewPos, normalize(shadowLightPosition), 16, bayer4(gl_FragCoord.xy), hitPos);
 }
 
 float findBlockerDepth(vec3 sampleCoords) {

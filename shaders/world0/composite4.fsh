@@ -12,17 +12,21 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
+#include "/lib/fragment/bayer.glsl"
 #include "/lib/fragment/noise.glsl"
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/worldTime.glsl"
+#include "/lib/util/blur.glsl"
 #include "/lib/material.glsl"
 #include "/lib/lighting/brdf.glsl"
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ssr.glsl"
 
 void main() {
+     vec4 Result = texture2D(colortex0, texCoords);
+
      vec3 roughReflections;
      #if SSR == 1
         #if SSR_TYPE == 1
@@ -39,6 +43,23 @@ void main() {
           #endif
      #endif
 
-     /*DRAWBUFFERS:5*/
-     gl_FragData[0] = vec4(roughReflections, 1.0);
+     #if GI == 1
+          vec3 globalIllumination = clamp(texture2D(colortex6, texCoords).rgb, 0.0, 1.0);
+
+          #if GI_FILTER == 1
+               vec3 viewPos = getViewPos();
+               vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+
+               globalIllumination = spatialDenoiser(1.0, viewPos, normal, colortex6, 
+                   viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 10.0).rgb;
+          #endif
+
+          Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
+     #else
+          Result.rgb *= texture2D(colortex6, texCoords).a; // Ambient Occlusion
+     #endif
+
+     /*DRAWBUFFERS:05*/
+     gl_FragData[0] = Result;
+     gl_FragData[1] = vec4(roughReflections, 1.0);
 }

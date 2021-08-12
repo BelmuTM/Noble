@@ -14,7 +14,7 @@ float computeVL(vec3 viewPos) {
     vec4 startPos = conversion * vec4(vec3(0.0), 1.0);
     vec4 endPos = conversion * vec4(viewPos, 1.0);
 
-    float jitter = fract(frameTimeCounter + bayer64(gl_FragCoord.xy));
+    float jitter = fract(frameTimeCounter + bayer4(gl_FragCoord.xy));
     vec3 rayDir = (normalize(endPos.xyz - startPos.xyz) * distance(endPos.xyz, startPos.xyz)) * INV_SAMPLES * jitter;
     
     vec3 rayPos = startPos.xyz;
