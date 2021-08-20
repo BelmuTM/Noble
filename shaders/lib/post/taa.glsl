@@ -22,13 +22,6 @@ vec2 reprojection(vec3 pos) {
     return (prevPos.xy / prevPos.w) * 0.5 + 0.5;
 }
 
-vec3 screenToWorld(float depth, vec2 coords, mat4 projection, mat4 modelView) {
-    vec4 clipPos = vec4(coords * 2.0 - 1.0, depth, 1.0);
-    vec4 viewPos = inverse(projection) * clipPos;
-    viewPos /= viewPos.w;
-    return (inverse(modelView) * viewPos).xyz;
-}
-
 /*
     AABB Clipping from "Temporal Reprojection Anti-Aliasing in INSIDE"
     http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
