@@ -83,6 +83,57 @@ bool sampleValid(vec2 sampleCoords, vec3 pos, vec3 normal) {
 		&&  clamp(sampleCoords, 0.0, 1.0) == sampleCoords; // Is on screen
 }
 
+const float gaussianWeights[33] = float[33](
+    0.0000051697,
+    0.0000173053,
+    0.0000535861,
+    0.0001534900,
+    0.0004066886,
+    0.0009967720,
+    0.0022598456,
+    0.0047392326,
+    0.0091935037,
+    0.0164966617,
+    0.0273811989,
+    0.0420388718,
+    0.0597026841,
+    0.0784301322,
+    0.0953056177,
+    0.1071268647,
+    0.1113847490,
+    0.1071268647,
+    0.0953056177,
+    0.0784301322,
+    0.0597026841,
+    0.0420388718,
+    0.0273811989,
+    0.0164966617,
+    0.0091935037,
+    0.0047392326,
+    0.0022598456,
+    0.0009967720,
+    0.0004066886,
+    0.0001534900,
+    0.0000535861,
+    0.0000173053,
+    0.0000051697
+);
+
+
+/*
+vec4 spatialDenoiser(vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float radius) {
+    vec4 color = vec4(0.0);
+
+    for(int i = 0; i < 32; i++) {
+        float weight = gaussianWeights[i];
+        vec2 sampleCoords = texCoords + (poisson128[i] * radius * resolution);
+
+        color += texture2D(tex, sampleCoords) * weight;
+    }
+    return color;
+}
+*/
+
 vec4 spatialDenoiser(float scale, vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float size, float quality, float directions) {
     vec4 color = texture2D(tex, texCoords);
     vec2 radius = size / resolution;
