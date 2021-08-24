@@ -5,10 +5,10 @@
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
 /***********************************************/
-// placeholders
-#define APERTURE 0.0
-#define ISO 0.0
-#define SHUTTER_SPEED 0.0
+
+#define APERTURE 1.4
+#define ISO 250.0
+#define SHUTTER_SPEED 1.0 / 70.0
 
 float averageLuminance(sampler2D tex, int scale) {
      float minLum = 0.0, maxLum = 1.0;
@@ -27,12 +27,29 @@ float averageLuminance(sampler2D tex, int scale) {
      }
      return totalLum / (resolution.x * resolution.y);
 }
-
-float computeEV() {
-     return log2(((APERTURE * APERTURE) * SHUTTER_SPEED) / (100.0 * ISO);
+     
+float computeEV100() {
+     return log2((APERTURE * APERTURE) * SHUTTER_SPEED / (100.0 * ISO));
 }
 
-float computeEVFromAverageLum(float averageLum) {
-     const float K = 12.5; // metric calibration
+float computeEV100FromAverageLum(float averageLum) {
+     const float K = 12.5; // Calibration
      return log2(averageLum * 100.0 / K);
+}
+
+float EV100ToExposure(float EV100) {
+     return 1.0 / (1.2 * pow(2.0, EV100));
+}
+
+float computeExposure(sampler2D tex) {
+     float EV100;
+     
+     #if AUTO_EXPOSURE == 1
+           float averageLum = averageLuminance(tex, 50);
+           EV100 = computeEV100FromAverageLum(averageLum);
+     #else
+           EV100 = computeEV100();
+     #endif
+     
+     return EV100ToExposure(EV100);
 }

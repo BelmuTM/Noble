@@ -20,6 +20,7 @@
 #include "/lib/post/bloom.glsl"
 #include "/lib/post/dof.glsl"
 #include "/lib/post/outline.glsl"
+#include "/lib/post/exposure.glsl"
 #include "/lib/atmospherics/fog.glsl"
 
 const vec3 fogColor = vec3(0.225, 0.349, 0.488);
@@ -72,7 +73,7 @@ void main() {
     #endif
     
     // Tonemapping
-    Result.rgb *= EXPOSURE;
+    Result.rgb *= computeExposure(colortex0);
     #if TONEMAPPING == 0
         Result.rgb = reinhard_jodie(Result.rgb); // Reinhard
     #elif TONEMAPPING == 1

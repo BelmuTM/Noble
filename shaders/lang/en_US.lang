@@ -255,6 +255,11 @@ value.TONEMAPPING.1 = Uncharted
 value.TONEMAPPING.2 = Burgess
 value.TONEMAPPING.3 = ACES
 
+option.AUTO_EXPOSURE = Auto Exposure
+option.AUTO_EXPOSURE.comment = Simulates Eye Adaptation by tweaking the exposure depending on the average brightness.
+value.AUTO_EXPOSURE.0 = §cOFF
+value.AUTO_EXPOSURE.1 = §aON
+
 option.EXPOSURE = Exposure
 option.EXPOSURE.comment = Influences the overall brightness or darkness of an image.
 
