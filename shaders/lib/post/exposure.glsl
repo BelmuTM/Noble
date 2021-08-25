@@ -25,7 +25,7 @@ float averageLuminance(sampler2D tex, int scale) {
                minLum = min(lum, minLum); maxLum = max(lum, maxLum);
           }
      }
-     return totalLum / (resolution.x * resolution.y);
+     return totalLum / floor(resolution.x / scale) / floor(resolution.y / scale);
 }
      
 float computeEV100() {
