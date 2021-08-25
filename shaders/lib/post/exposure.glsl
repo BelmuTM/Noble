@@ -33,12 +33,12 @@ float computeEV100() {
 }
 
 float computeEV100FromAverageLum(float averageLum) {
-     const float K = 12.5; // Calibration
-     return log2(averageLum * 100.0 / K);
+     const float K = 100.0 / 12.5; // Calibration
+     return log2(averageLum * K);
 }
 
 float EV100ToExposure(float EV100) {
-     return 1.0 / (1.2 * pow(2.0, EV100));
+     return exp2(-0.263034406 - EV100);
 }
 
 float computeExposure(sampler2D tex) {
