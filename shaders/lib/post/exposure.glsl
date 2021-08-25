@@ -14,7 +14,7 @@ float averageLuminance(sampler2D tex, int scale) {
      float minLum = 1.0, maxLum = 0.0;
      float totalLum = 0.0;
      
-     vec2 samples = viewSize / scale;
+     vec2 samples = floor(viewSize / scale);
 
      for(int x = 0; x < samples.x; x++) {
           for(int y = 0; y < samples.y; y++) {
@@ -25,7 +25,7 @@ float averageLuminance(sampler2D tex, int scale) {
                minLum = min(lum, minLum); maxLum = max(lum, maxLum);
           }
      }
-     return totalLum / samples.x * samples.y;
+     return totalLum / (samples.x * samples.y);
 }
      
 float computeEV100() {
