@@ -38,18 +38,18 @@ float computeEV100FromAverageLum(float averageLum) {
 }
 
 float EV100ToExposure(float EV100) {
-     return exp2(-0.263034406 - EV100);
+     return 1.0 / (1.2 * exp2(EV100));
 }
 
-float computeExposure(sampler2D tex) {
-     float EV100;
+vec3 applyExposure(sampler2D tex, vec3 color) {
+     float EV100 = 0.0;
      
      #if AUTO_EXPOSURE == 1
-           float averageLum = averageLuminance(tex, 50);
+           float averageLum = averageLuminance(tex, 30);
            EV100 = computeEV100FromAverageLum(averageLum);
      #else
            EV100 = computeEV100();
      #endif
      
-     return EV100ToExposure(EV100);
+     return color * EV100ToExposure(EV100);
 }

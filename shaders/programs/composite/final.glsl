@@ -73,7 +73,7 @@ void main() {
     #endif
     
     // Tonemapping
-    Result.rgb *= computeExposure(colortex0);
+    Result.rgb = applyExposure(colortex0, Result.rgb);
     #if TONEMAPPING == 0
         Result.rgb = reinhard_jodie(Result.rgb); // Reinhard
     #elif TONEMAPPING == 1
