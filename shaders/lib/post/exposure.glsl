@@ -11,13 +11,13 @@
 #define SHUTTER_SPEED 1.0 / 70.0
 
 float averageLuminance(sampler2D tex, int scale) {
-     float minLum = 0.0, maxLum = 1.0;
+     float minLum = 1.0, maxLum = 0.0;
      float totalLum = 0.0;
+     
+     vec2 samples = viewSize / scale;
 
-     vec2 resolution = vec2(viewWidth, viewHeight) * (1.0 / scale);
-
-     for(int x = 0; x < resolution.x; x += scale) {
-          for(int y = 0; y < resolution.y; y += scale) {
+     for(int x = 0; x < samples.x; x++) {
+          for(int y = 0; y < samples.y; y++) {
                vec3 color = texture2D(tex, (vec2(x, y) + 0.5) * pixelSize).rgb;
                float lum = luma(color);
 
@@ -25,7 +25,7 @@ float averageLuminance(sampler2D tex, int scale) {
                minLum = min(lum, minLum); maxLum = max(lum, maxLum);
           }
      }
-     return totalLum / floor(resolution.x / scale) / floor(resolution.y / scale);
+     return totalLum / samples.x * samples.y;
 }
      
 float computeEV100() {
