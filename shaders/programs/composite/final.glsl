@@ -23,6 +23,10 @@
 #include "/lib/post/exposure.glsl"
 #include "/lib/atmospherics/fog.glsl"
 
+/*
+const bool colortex0MipmapEnabled = true;
+*/
+
 const vec3 fogColor = vec3(0.225, 0.349, 0.488);
 
 vec3 computeBloom() {
