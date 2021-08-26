@@ -7,42 +7,36 @@
 /***********************************************/
 
 #define APERTURE 1.4
-#define ISO 250.0
-#define SHUTTER_SPEED 1.0 / 70.0
+#define ISO 150.0
+#define SHUTTER_SPEED 50.0
+const float K = 12.5; // Light meter calibration
+const float S = 100.0; // Sensor sensitivity
 
-float averageLuminance(sampler2D tex) {
-     float minLum = 1.0, maxLum = 0.0;
+float averageLuminance() {
      float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
 
-     vec3 color = textureLod(tex, vec2(0.5), LOD).rgb;
+     vec3 color = textureLod(colortex0, vec2(0.5), LOD).rgb;
      float lum = luma(color);
      
-     minLum = min(lum, minLum); maxLum = max(lum, maxLum);
-     return clamp(lum, minLum, maxLum);
-}
-     
-float computeEV100() {
-     return log2((APERTURE * APERTURE) * SHUTTER_SPEED / (100.0 * ISO));
+     return max(lum, 0.3);
 }
 
-float computeEV100FromAverageLum(float averageLum) {
-     const float K = 100.0 / 12.5; // Calibration
-     return log2(averageLum * K);
+#if AUTO_EXPOSURE == 0
+float computeEV100() {
+     return log2((APERTURE * APERTURE) / (SHUTTER_SPEED) * 100 / (ISO));
 }
+
+#else
+float computeEV100() {
+     return log2(averageLuminance() * (S / K));
+}
+#endif
 
 float EV100ToExposure(float EV100) {
      return 1.0 / (1.2 * exp2(EV100));
 }
 
-vec3 applyExposure(sampler2D tex, vec3 color) {
-     float EV100 = 0.0;
-     
-     #if AUTO_EXPOSURE == 1
-           float averageLum = averageLuminance(tex);
-           EV100 = computeEV100FromAverageLum(averageLum);
-     #else
-           EV100 = computeEV100();
-     #endif
-     
-     return color * EV100ToExposure(EV100);
+float computeExposure() {
+     float EV100 = computeEV100();
+     return EV100ToExposure(EV100);
 }
