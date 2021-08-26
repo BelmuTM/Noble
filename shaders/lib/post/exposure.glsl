@@ -12,7 +12,7 @@
 
 float averageLuminance(sampler2D tex) {
      float minLum = 1.0, maxLum = 0.0;
-     float LOD = ceil(log2(viewSize));
+     float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
 
      vec3 color = textureLod(tex, vec2(0.5), LOD).rgb;
      float lum = luma(color);
