@@ -10,22 +10,15 @@
 #define ISO 250.0
 #define SHUTTER_SPEED 1.0 / 70.0
 
-float averageLuminance(sampler2D tex, int scale) {
+float averageLuminance(sampler2D tex) {
      float minLum = 1.0, maxLum = 0.0;
-     float totalLum = 0.0;
+     float LOD = ceil(log2(viewSize));
+
+     vec3 color = textureLod(tex, vec2(0.5), LOD).rgb;
+     float lum = luma(color);
      
-     vec2 samples = floor(viewSize / scale);
-
-     for(int x = 0; x < samples.x; x++) {
-          for(int y = 0; y < samples.y; y++) {
-               vec3 color = texture2D(tex, (vec2(x, y) + 0.5) * pixelSize).rgb;
-               float lum = luma(color);
-
-               totalLum += lum;
-               minLum = min(lum, minLum); maxLum = max(lum, maxLum);
-          }
-     }
-     return totalLum / (samples.x * samples.y);
+     minLum = min(lum, minLum); maxLum = max(lum, maxLum);
+     return clamp(lum, minLum, maxLum);
 }
      
 float computeEV100() {
@@ -45,7 +38,7 @@ vec3 applyExposure(sampler2D tex, vec3 color) {
      float EV100 = 0.0;
      
      #if AUTO_EXPOSURE == 1
-           float averageLum = averageLuminance(tex, 30);
+           float averageLum = averageLuminance(tex);
            EV100 = computeEV100FromAverageLum(averageLum);
      #else
            EV100 = computeEV100();
