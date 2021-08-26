@@ -68,7 +68,7 @@ void main() {
    data.albedo = mix(opaques, data.albedo, data.alpha);
 
    #if WHITE_WORLD == 0
-      if(getBlockId(texCoords) == 1 && isEyeInWater == 0) {
+      if(getBlockId(texCoords) == 1) {
          // Absorption
          depthDist = max(0.0, depthDist);
          float density = depthDist * 6.5e-1;

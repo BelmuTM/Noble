@@ -7,7 +7,7 @@
 /***********************************************/
 
 #define APERTURE 1.4
-#define ISO 150.0
+#define ISO 100.0
 #define SHUTTER_SPEED 50.0
 const float K = 12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
@@ -18,7 +18,7 @@ float averageLuminance() {
      vec3 color = textureLod(colortex0, vec2(0.5), LOD).rgb;
      float lum = luma(color);
      
-     return max(lum, 0.3);
+     return max(lum, 0.9);
 }
 
 #if AUTO_EXPOSURE == 0

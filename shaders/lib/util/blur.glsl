@@ -120,19 +120,17 @@ const float gaussianWeights[33] = float[33](
 );
 
 
-/*
-vec4 spatialDenoiser(vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float radius) {
+vec4 gaussianFilter(vec3 viewPos, vec3 normal, sampler2D tex, float radius) {
     vec4 color = vec4(0.0);
 
     for(int i = 0; i < 32; i++) {
         float weight = gaussianWeights[i];
-        vec2 sampleCoords = texCoords + (poisson128[i] * radius * resolution);
+        vec2 sampleCoords = texCoords + (poisson128[i] * radius * pixelSize);
 
         color += texture2D(tex, sampleCoords) * weight;
     }
     return color;
 }
-*/
 
 vec4 spatialDenoiser(float scale, vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float size, float quality, float directions) {
     vec4 color = texture2D(tex, texCoords);
