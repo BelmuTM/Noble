@@ -71,8 +71,12 @@ float ATan(float x) {
     return (x < 0.0) ? -t0 : t0; 
 }
 
+// Thanks WoMspace#7331 for helping with the CoC!
 float getCoC(float depth) {
-    return saturate(((depth - centerDepthSmooth) * DOF_STRENGTH) / near);
+    float cursorDepth = linearizeDepth(centerDepthSmooth);
+    float fragDepth = linearizeDepth(depth);
+    
+    return abs((LENS_LENGHT / APERTURE) * ((LENS_LENGTH * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - LENS_LENGTH)))) * 0.5;
 }
 
 // Provided by LVutner.#1925

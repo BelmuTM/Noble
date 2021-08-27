@@ -6,12 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#define APERTURE 1.4
-#define ISO 100.0
-#define SHUTTER_SPEED 50.0
-const float K = 12.5; // Light meter calibration
-const float S = 100.0; // Sensor sensitivity
-
 float averageLuminance() {
      float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
 
