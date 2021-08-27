@@ -10,8 +10,9 @@
 float getCoC(float depth) {
     float cursorDepth = linearizeDepth(centerDepthSmooth);
     float fragDepth = linearizeDepth(depth);
+    float coc = abs((LENS_LENGTH / APERTURE) * ((LENS_LENGTH * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - LENS_LENGTH)))) * 0.5;
     
-    return abs((LENS_LENGTH / APERTURE) * ((LENS_LENGTH * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - LENS_LENGTH)))) * 0.5;
+    return saturate(coc);
 }
 
 vec3 computeDOF(vec3 color, float depth) {
