@@ -71,14 +71,6 @@ float ATan(float x) {
     return (x < 0.0) ? -t0 : t0; 
 }
 
-// Thanks WoMspace#7331 for helping with the CoC!
-float getCoC(float depth) {
-    float cursorDepth = linearizeDepth(centerDepthSmooth);
-    float fragDepth = linearizeDepth(depth);
-    
-    return abs((LENS_LENGHT / APERTURE) * ((LENS_LENGTH * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - LENS_LENGTH)))) * 0.5;
-}
-
 // Provided by LVutner.#1925
 vec3 hemisphereSample(vec2 r) {
     float phi = r.x * 2.0 * PI;
