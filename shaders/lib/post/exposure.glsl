@@ -10,9 +10,7 @@ float averageLuminance() {
      float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
 
      vec3 color = textureLod(colortex0, vec2(0.5), LOD).rgb;
-     float lum = luma(color);
-     
-     return max(lum, 0.9);
+     return luma(color);
 }
 
 #if AUTO_EXPOSURE == 0
@@ -32,5 +30,5 @@ float EV100ToExposure(float EV100) {
 
 float computeExposure() {
      float EV100 = computeEV100();
-     return EV100ToExposure(EV100);
+     return clamp(EV100ToExposure(EV100), MIN_EXPOSURE, MAX_EXPOSURE);
 }
