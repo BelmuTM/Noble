@@ -6,13 +6,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-// Thanks WoMspace#7331 for helping with the CoC!
 float getCoC(float depth) {
-    float cursorDepth = linearizeDepth(centerDepthSmooth);
-    float fragDepth = linearizeDepth(depth);
-    float coc = abs((LENS_LENGTH / APERTURE) * ((LENS_LENGTH * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - LENS_LENGTH)))) * 0.5;
-    
-    return saturate(coc);
+    return saturate(((depth - centerDepthSmooth) * DOF_STRENGTH) / near);
 }
 
 vec3 computeDOF(vec3 color, float depth) {
