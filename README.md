@@ -10,7 +10,7 @@ It offers a handful of customizable options to tweak according to your desires. 
 
 ## 🌺 Install
 ### Releases
-The project is in constant evolution. Therefore, you can except some issues to be fixed,
+The project is in constant evolution. Therefore, you can expect some issues to be fixed,
 some features to be added, and some problems to appear. However, it will remain free and
 open source forever, as I don't want to monetize my learning of GLSL. Beta versions are most
 likely to be exclusive to Patreon supporters or close friends, but they will always end up
