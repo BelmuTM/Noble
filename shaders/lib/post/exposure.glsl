@@ -15,7 +15,7 @@ float averageLuminance() {
 
 #if AUTO_EXPOSURE == 0
 float computeEV100() {
-     return log2((APERTURE * APERTURE) / (SHUTTER_SPEED) * 100 / (ISO));
+     return log2((APERTURE * APERTURE) / (SHUTTER_SPEED) * 100.0 / (ISO));
 }
 
 #else

@@ -27,10 +27,11 @@ varying vec2 texCoords;
 #include "/lib/lighting/shadows.glsl"
 
 void main() {
+   vec4 temp = toLinear(texture2D(colortex4, texCoords));
 
    if(isSky()) {
       /*DRAWBUFFERS:0*/
-      gl_FragData[0] = texture2D(colortex4, texCoords);
+      gl_FragData[0] = temp;
       return;
    }
 
@@ -45,14 +46,14 @@ void main() {
    vec4 tex1 = texture2D(colortex1, texCoords);
    vec4 tex2 = texture2D(colortex2, texCoords);
    material data = getMaterial(tex0, tex1, tex2);
-   data.albedo = toLinear(vec4(data.albedo, 1.0)).rgb;
+   data.albedo = toLinear(tex0).rgb;
 
    float depthDist = distance(
 		linearizeDepth(texture2D(depthtex0, texCoords).r),
 		linearizeDepth(texture2D(depthtex1, texCoords).r)
 	);
    vec3 hitPos;
-   vec3 opaques = toLinear(texture2D(colortex4, texCoords)).rgb;
+   vec3 opaques = temp.rgb;
 
    #if REFRACTION == 1
       vec3 viewPos = getViewPos();
