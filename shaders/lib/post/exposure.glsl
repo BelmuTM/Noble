@@ -25,10 +25,10 @@ float computeEV100() {
 #endif
 
 float EV100ToExposure(float EV100) {
-     return 1.0 / (1.2 * exp2(EV100));
+     return 1.0 / (exp2(EV100) * 1.2);
 }
 
 float computeExposure() {
      float EV100 = computeEV100();
-     return clamp(EV100ToExposure(EV100), MIN_EXPOSURE, MAX_EXPOSURE);
+     return EV100ToExposure(EV100);
 }

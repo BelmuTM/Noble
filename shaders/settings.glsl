@@ -148,7 +148,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ CAMERA ------------------*/
 #define LENS_LENGTH 15.0
-#define APERTURE 8.0
+#define APERTURE 4.0
 #define ISO 100.0
 #define SHUTTER_SPEED 50.0
 const float K = 12.5; // Light meter calibration
