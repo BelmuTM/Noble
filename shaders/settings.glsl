@@ -45,6 +45,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(1.5, 0.85, 0.88)
+#define SUN_INTENSITY 4.0
 
 #define SPECULAR 1 // [0 1]
 #define WHITE_WORLD 0 // [0 1]

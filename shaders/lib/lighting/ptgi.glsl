@@ -27,7 +27,7 @@ vec3 computePTGI(in vec3 screenPos) {
         vec3 albedo = texture2D(colortex0, hitPos.xy).rgb;
         // float isEmissive = texture2D(colortex1, hitPos.xy).z == 0.0 ? 0.0 : 1.0;
 
-        weight *= albedo * 4.0;
+        weight *= albedo * SUN_INTENSITY;
         illumination += weight;
     }
     return illumination;
