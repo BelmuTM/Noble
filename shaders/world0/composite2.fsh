@@ -27,7 +27,7 @@ const int colortex5Format = RGBA16F;
 */
 
 void main() {
-    vec3 viewPos = getViewPos();
+    vec3 viewPos = getViewPos(texCoords);
     vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
     vec3 globalIllumination = vec3(0.0);

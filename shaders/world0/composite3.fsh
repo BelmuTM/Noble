@@ -42,10 +42,17 @@ void main() {
     float ambientOcclusion = 1.0;
 
     #if GI == 1
-        globalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION).rgb;
+        #if GI_FILTER == 1
+            vec3 viewPos = getViewPos(texCoords * GI_RESOLUTION);
+            vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords * GI_RESOLUTION).xy));
+
+            globalIllumination = spatialDenoiser(texCoords * GI_RESOLUTION, viewPos, normal, colortex5, GI_FILTER_SIZE, GI_FILTER_QUALITY, 10.0).rgb;
+        #else
+            globalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION).rgb;
+        #endif
 
         #if GI_TEMPORAL_ACCUMULATION == 1
-            globalIllumination = temporalAccumulation(colortex6, globalIllumination);
+            globalIllumination = clamp(temporalAccumulation(colortex6, globalIllumination), 0.0, 1.0);
         #endif
     #else 
         #if AO == 1

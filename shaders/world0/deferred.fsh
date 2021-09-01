@@ -28,7 +28,7 @@ void main() {
 
      if(texture2D(depthtex0, texCoords).r == 1.0) {
           vec3 sunDir = normalize(shadowLightPosition);
-          vec3 viewPos = getViewPos();
+          vec3 viewPos = getViewPos(texCoords);
           vec3 eyeDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
           float angle = smoothstep(0.9991, 0.99995, dot(sunDir, normalize(viewPos)));

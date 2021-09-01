@@ -110,9 +110,9 @@ bool sampleValid(vec2 sampleCoords, vec3 pos, vec3 normal) {
     positionAt = screenToView(positionAt);
     vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, sampleCoords).xy));
 
-	return   abs(positionAt.x - pos.x) <= EDGE_STOP_THRESHOLD
-		&&   abs(positionAt.y - pos.y) <= EDGE_STOP_THRESHOLD
-		&&   abs(positionAt.z - pos.z) <= EDGE_STOP_THRESHOLD
+	return   abs(positionAt.x - pos.x) <= 1.3
+		&&   abs(positionAt.y - pos.y) <= 1.3
+		&&   abs(positionAt.z - pos.z) <= 1.3
         &&  abs(normalAt.x - normal.x) <= EDGE_STOP_THRESHOLD
 		&&  abs(normalAt.y - normal.y) <= EDGE_STOP_THRESHOLD
 		&&  abs(normalAt.z - normal.z) <= EDGE_STOP_THRESHOLD
@@ -124,30 +124,28 @@ vec4 gaussianFilter(vec3 viewPos, vec3 normal, sampler2D tex, float radius) {
     float totalWeight = 0.0;
 
     for(int i = 0; i < 32; i++) {
-        float weight = gaussianWeights[i];
-        vec2 sampleCoords = texCoords + (poisson128[i] * radius * pixelSize);
-        float edge = float(sampleValid(sampleCoords, viewPos, normal));
+        vec2 sampleCoords = texCoords + (vogelDisk(i, 32) * radius) * pixelSize;
+        float weight = gaussianWeights[i] * float(sampleValid(sampleCoords, viewPos, normal));
 
-        color += (texture2D(tex, sampleCoords) * weight) * edge;
-        totalWeight += edge;
+        color += texture2D(tex, sampleCoords) * weight;
+        totalWeight += weight;
     }
     return color / max(EPS, totalWeight);
 }
 
-vec4 spatialDenoiser(float scale, vec3 viewPos, vec3 normal, sampler2D tex, vec2 resolution, float size, float quality, float directions) {
-    vec4 color = vec4(0.0);
-    vec2 radius = size / resolution;
+vec4 spatialDenoiser(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, float size, float quality, float directions) {
+    vec4 color = texture2D(tex, texCoords);
 
     int SAMPLES = 1;
     for(float d = 0.0; d < PI2; d += PI2 / directions) {
 		for(float i = 1.0 / quality; i <= 1.0; i += 1.0 / quality) {
-            vec2 sampleCoords = texCoords + vec2(cos(d), sin(d)) * radius * i;
+            vec2 sampleCoords = coords + vec2(cos(d), sin(d)) * (size * i * pixelSize);
             
             if(sampleValid(sampleCoords, viewPos, normal)) {
 			    color += texture2D(tex, sampleCoords);
                 SAMPLES++;
             }
-        }
+        } 
     }
     return clamp((color / SAMPLES) / quality * directions, 0.0, 1.0);
 }

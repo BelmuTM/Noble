@@ -38,7 +38,7 @@ void main() {
    /*    ------- SHADOW MAPPING -------    */
    vec3 shadowmap = vec3(1.0);
    #if SHADOWS == 1
-      shadowmap = shadowMap(getViewPos(), shadowMapResolution);
+      shadowmap = shadowMap(getViewPos(texCoords), shadowMapResolution);
    #endif
 
    /*    ------- WATER ABSORPTION / REFRACTION -------    */
@@ -56,7 +56,7 @@ void main() {
    vec3 opaques = temp.rgb;
 
    #if REFRACTION == 1
-      vec3 viewPos = getViewPos();
+      vec3 viewPos = getViewPos(texCoords);
       vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
       float NdotV = max(dot(normal, normalize(-viewPos)), 0.0);

@@ -30,5 +30,5 @@ float EV100ToExposure(float EV100) {
 
 float computeExposure() {
      float EV100 = computeEV100();
-     return EV100ToExposure(EV100);
+     return clamp(EV100ToExposure(EV100), MIN_EXPOSURE, MAX_EXPOSURE);
 }

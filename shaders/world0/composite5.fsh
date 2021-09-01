@@ -30,20 +30,21 @@ void main() {
 
     #if SSR == 1
         if(!isSky()) {
-            vec3 viewPos = getViewPos();
+            vec3 viewPos = getViewPos(texCoords);
             vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
             float NdotV = saturate(dot(normal, normalize(-viewPos)));
             float F0 = texture2D(colortex2, texCoords).g;
+            bool isMetal = (F0 * 255.0) > 229.5;
 
-            vec3 specularColor = mix(vec3(F0), texture2D(colortex4, texCoords).rgb, float((F0 * 255.0) > 229.5));
+            vec3 specularColor = mix(vec3(F0), texture2D(colortex4, texCoords).rgb, float(isMetal));
             float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : texture2D(colortex2, texCoords).r;
 
             vec3 reflections;
             #if SSR_TYPE == 1
                 reflections = texture2D(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
             #else
-                reflections = simpleReflections(viewPos, normal, NdotV, specularColor);
+                reflections = simpleReflections(viewPos, normal, NdotV, specularColor, isMetal);
             #endif
 
             vec3 DFG = envBRDFApprox(specularColor, roughness, NdotV);

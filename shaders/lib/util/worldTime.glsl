@@ -19,7 +19,7 @@ float timeMidnight = ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0) - ((cl
 float drawStars(vec3 viewPos) {
 	vec3 worldPos = mat3(gbufferModelViewInverse) * viewPos;
 	vec3 planeCoords = worldPos / (worldPos.y + length(worldPos.xz));
-	vec2 coord = planeCoords.xz * 0.4 + cameraPosition.xz * 0.0001 + frameTime * 0.00125;
+	vec2 coord = planeCoords.xz * 0.5 + cameraPosition.xz * 0.0001 + frameTime * 0.00125;
 	coord = floor(coord * 1024.0) / 1024.0;
 
 	float VdotU = saturate(dot(normalize(viewPos), normalize(upPosition)));
@@ -46,10 +46,10 @@ vec3 getDayTimeColor() {
 
 vec3 getDayTimeSkyGradient(in vec3 pos, vec3 viewPos) {  // Bottom Color -> Top Color
     pos.y += bayer2(gl_FragCoord.xy);
-    vec3 skyGradient_sunrise  = mix(vec3(0.529, 0.292, 0.047),    vec3(0.20, 0.386, 0.682),     pos.y);
-    vec3 skyGradient_noon     = mix(vec3(0.424, 0.532, 0.702),    vec3(0.20, 0.386, 0.682),     pos.y);
-    vec3 skyGradient_sunset   = mix(vec3(0.529, 0.112, 0.047),    vec3(0.20, 0.386, 0.682),     pos.y);
-    vec3 skyGradient_midnight = mix(vec3(0.0146, 0.0244, 0.0402), vec3(0.0048, 0.0087, 0.0122), pos.y) + drawStars(viewPos);
+    vec3 skyGradient_sunrise  = mix(vec3(0.529, 0.34, 0.247),  vec3(0.23, 0.265, 0.339),  pos.y);
+    vec3 skyGradient_noon     = mix(vec3(0.424, 0.532, 0.702),  vec3(0.22, 0.345, 0.439),  pos.y);
+    vec3 skyGradient_sunset   = mix(vec3(0.529, 0.3, 0.22),  vec3(0.23, 0.265, 0.339),  pos.y);
+    vec3 skyGradient_midnight = mix(vec3(0.07, 0.109, 0.148),   vec3(0.039, 0.047, 0.071), pos.y) + (drawStars(viewPos) * 2.0);
 
     return skyGradient_sunrise * timeSunrise + skyGradient_noon * timeNoon + skyGradient_sunset * timeSunset + skyGradient_midnight * timeMidnight;
 }

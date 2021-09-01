@@ -41,7 +41,7 @@ vec3 computeBloom() {
 }
 
 void main() {
-    vec3 viewPos = getViewPos();
+    vec3 viewPos = getViewPos(texCoords);
     vec4 Result = texture2D(colortex0, texCoords);
     float depth = texture2D(depthtex0, texCoords).r;
 
@@ -77,7 +77,7 @@ void main() {
     #endif
     
     // Tonemapping
-    Result.rgb *= 1.5;
+    Result.rgb *= computeExposure();
     #if TONEMAPPING == 0
         Result.rgb = reinhard_jodie(Result.rgb); // Reinhard
     #elif TONEMAPPING == 1

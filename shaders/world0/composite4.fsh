@@ -36,9 +36,10 @@ void main() {
                if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords) {
                     vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
                     vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, scaledUv).xy));
-        
+
+                    bool isMetal = texture2D(colortex2, scaledUv).g * 255.0 > 229.5;
                     float roughness = texture2D(colortex2, scaledUv).r;
-                    roughReflections = prefilteredReflections(screenToView(positionAt), normalAt, roughness * roughness);
+                    roughReflections = prefilteredReflections(screenToView(positionAt), normalAt, roughness * roughness, isMetal);
                }
           #endif
      #endif
@@ -47,14 +48,13 @@ void main() {
           vec3 globalIllumination = texture2D(colortex6, texCoords).rgb;
 
           #if GI_FILTER == 1
-               vec3 viewPos = getViewPos();
+               vec3 viewPos = getViewPos(texCoords);
                vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-               globalIllumination = spatialDenoiser(1.0, viewPos, normal, colortex6, 
-                   viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 10.0).rgb;
+               globalIllumination = gaussianFilter(viewPos, normal, colortex6, 15.0).rgb;
           #endif
 
-          Result.rgb += clamp(globalIllumination * texture2D(colortex4, texCoords).rgb, 0.0, 1.0);
+          Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
      #else
           Result.rgb *= texture2D(colortex6, texCoords).a; // Ambient Occlusion
      #endif

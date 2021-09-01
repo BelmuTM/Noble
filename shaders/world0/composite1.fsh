@@ -37,7 +37,7 @@ vec3 getLightmapColor(vec2 lightMap) {
 }
 
 void main() {
-    vec3 viewPos = getViewPos();
+    vec3 viewPos = getViewPos(texCoords);
     vec3 viewDir = normalize(-viewPos);
     vec3 lightDir = normalize(shadowLightPosition);
 

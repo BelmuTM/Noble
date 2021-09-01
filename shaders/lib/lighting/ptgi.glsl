@@ -30,5 +30,5 @@ vec3 computePTGI(in vec3 screenPos) {
         weight *= albedo * SUN_INTENSITY;
         illumination += weight;
     }
-    return illumination;
+    return max(vec3(EPS), illumination);
 }

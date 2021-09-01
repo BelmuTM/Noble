@@ -90,17 +90,16 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
 #define GI 1 // [0 1]
-#define GI_STEPS 24
+#define GI_STEPS 32
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 0.85 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // Spatial Filtering
 #define GI_FILTER 1 // [0 1]
-#define GI_FILTER_RES 0.7
-#define GI_FILTER_SIZE 35.0
+#define GI_FILTER_SIZE 50.0
 #define GI_FILTER_QUALITY 7.0
-#define EDGE_STOP_THRESHOLD 0.8 // Lower number means more accuracy with the spatial filter.
+#define EDGE_STOP_THRESHOLD 0.6 // Lower number means more accuracy with the spatial filter.
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
@@ -109,6 +108,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.375
+#define SKY_FALLBACK 1
 
 #define PREFILTER_SAMPLES 3 // [2 3 4 8 12 16 20]
 #define ROUGH_REFLECT_STEPS 16
@@ -157,10 +157,10 @@ const float S = 100.0; // Sensor sensitivity
 
 #define AUTO_EXPOSURE 1 // [0 1]
 #define MIN_EXPOSURE 0.5
-#define MAX_EXPOSURE 5.0
+#define MAX_EXPOSURE 4.0
 
 /*------------------ COLOR CORRECTION ------------------*/
-#define TONEMAPPING 0 // [-1 0 1 2 3]
+#define TONEMAPPING 2 // [-1 0 1 2 3]
 
 #define VIBRANCE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
