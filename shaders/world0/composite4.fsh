@@ -44,7 +44,7 @@ void main() {
      #endif
 
      #if GI == 1
-          vec3 globalIllumination = clamp(texture2D(colortex6, texCoords).rgb, 0.0, 1.0);
+          vec3 globalIllumination = texture2D(colortex6, texCoords).rgb;
 
           #if GI_FILTER == 1
                vec3 viewPos = getViewPos();
@@ -54,7 +54,7 @@ void main() {
                    viewSize * GI_FILTER_RES, GI_FILTER_SIZE, GI_FILTER_QUALITY, 10.0).rgb;
           #endif
 
-          Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
+          Result.rgb += clamp(globalIllumination * texture2D(colortex4, texCoords).rgb, 0.0, 1.0);
      #else
           Result.rgb *= texture2D(colortex6, texCoords).a; // Ambient Occlusion
      #endif
