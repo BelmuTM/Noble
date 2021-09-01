@@ -23,7 +23,7 @@ being accessible to public no matter what.
    5. Drag it in your "shaderpacks" folder.
       * Hold Windows + R.
       * Type %appdata% in the window.
-      * Drag the shaderpack in */.minecraft/shaderpacks/*
+      * Drag the shaderpack in */Roaming/.minecraft/shaderpacks/*
    6. Enjoy!
 
 
