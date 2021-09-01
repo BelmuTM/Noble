@@ -12,8 +12,8 @@
 #define EPS 0.001
 
 #define HALF_PI 1.570796
-#define PI 3.141592653589
-#define PI2 6.28318530718
+#define PI 3.14159265
+#define PI2 6.28318530
 
 #define INV_SQRT_OF_2PI 0.398942280
 #define INV_PI 0.31831
