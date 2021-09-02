@@ -28,10 +28,11 @@ varying vec2 texCoords;
 
 void main() {
    vec4 temp = toLinear(texture2D(colortex4, texCoords));
+   vec4 rain = texture2D(colortex5, texCoords);
 
    if(isSky()) {
       /*DRAWBUFFERS:0*/
-      gl_FragData[0] = temp;
+      gl_FragData[0] = temp + rain;
       return;
    }
 
@@ -91,6 +92,6 @@ void main() {
    #endif
 
    /*DRAWBUFFERS:04*/
-   gl_FragData[0] = vec4(data.albedo, 1.0);
+   gl_FragData[0] = vec4(data.albedo, 1.0) + rain;
    gl_FragData[1] = vec4(shadowmap, 1.0);
 }

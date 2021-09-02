@@ -27,6 +27,12 @@ varying vec2 texCoords;
 void main() {
      vec4 Result = texture2D(colortex0, texCoords);
 
+     if(isSky()) {
+        /*DRAWBUFFERS:0*/
+        gl_FragData[0] = Result;
+        return;
+     }
+
      vec3 roughReflections;
      #if SSR == 1
         #if SSR_TYPE == 1
@@ -44,17 +50,27 @@ void main() {
           #endif
      #endif
 
+     vec3 globalIllumination;
      #if GI == 1
-          vec3 globalIllumination = texture2D(colortex6, texCoords).rgb;
+          float F0 = texture2D(colortex2, texCoords).g;
+          bool isMetal = F0 * 255.0 > 229.5;
 
-          #if GI_FILTER == 1
-               vec3 viewPos = getViewPos(texCoords);
-               vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+          if(!isMetal) {
+               globalIllumination = texture2D(colortex6, texCoords).rgb;
 
-               globalIllumination = gaussianFilter(viewPos, normal, colortex6, 15.0).rgb;
-          #endif
+               #if GI_FILTER == 1
+                    vec3 viewPos = getViewPos(texCoords);
+                    vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-          Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
+                    globalIllumination = spatialDenoiser(texCoords, viewPos, normal, colortex6, GI_FILTER_SIZE, GI_FILTER_QUALITY, 8.0).rgb;
+               #endif
+
+               #if GI_VISUALIZATION == 0
+                    Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
+               #else
+                    Result.rgb = globalIllumination;
+               #endif
+          }
      #else
           Result.rgb *= texture2D(colortex6, texCoords).a; // Ambient Occlusion
      #endif

@@ -90,6 +90,8 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
 #define GI 1 // [0 1]
+#define GI_VISUALIZATION 0
+
 #define GI_STEPS 32
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
@@ -97,9 +99,9 @@ const float shadowDistanceRenderMul = 1.0;
 
 // Spatial Filtering
 #define GI_FILTER 1 // [0 1]
-#define GI_FILTER_SIZE 50.0
-#define GI_FILTER_QUALITY 7.0
-#define EDGE_STOP_THRESHOLD 0.6 // Lower number means more accuracy with the spatial filter.
+#define GI_FILTER_SIZE 25.0
+#define GI_FILTER_QUALITY 10.0
+#define EDGE_STOP_THRESHOLD 0.01 // Lower number means sharper edges
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
@@ -150,14 +152,14 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 /*------------------ CAMERA ------------------*/
 #define LENS_LENGTH 15.0
 #define APERTURE 4.0
-#define ISO 100.0
+#define ISO 120.0
 #define SHUTTER_SPEED 50.0
 const float K = 12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 #define AUTO_EXPOSURE 1 // [0 1]
 #define MIN_EXPOSURE 0.5
-#define MAX_EXPOSURE 4.0
+#define MAX_EXPOSURE 6.0
 
 /*------------------ COLOR CORRECTION ------------------*/
 #define TONEMAPPING 2 // [-1 0 1 2 3]

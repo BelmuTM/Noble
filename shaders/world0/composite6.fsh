@@ -47,5 +47,5 @@ void main() {
      /*DRAWBUFFERS:075*/
      gl_FragData[0] = Result;
      gl_FragData[1] = Result;
-     gl_FragData[2] = vec4(blur, 1.0);
+     gl_FragData[2] = vec4(clamp(blur, 0.0, 1.0), 1.0);
 }

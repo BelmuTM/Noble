@@ -35,7 +35,7 @@ void main() {
 
             float NdotV = saturate(dot(normal, normalize(-viewPos)));
             float F0 = texture2D(colortex2, texCoords).g;
-            bool isMetal = (F0 * 255.0) > 229.5;
+            bool isMetal = F0 * 255.0 > 229.5;
 
             vec3 specularColor = mix(vec3(F0), texture2D(colortex4, texCoords).rgb, float(isMetal));
             float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : texture2D(colortex2, texCoords).r;

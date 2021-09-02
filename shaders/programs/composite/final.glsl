@@ -20,11 +20,13 @@
 #include "/lib/post/bloom.glsl"
 #include "/lib/post/dof.glsl"
 #include "/lib/post/outline.glsl"
+#include "/lib/post/taa.glsl"
 #include "/lib/post/exposure.glsl"
 #include "/lib/atmospherics/fog.glsl"
 
 /*
 const bool colortex0MipmapEnabled = true;
+const bool colortex8Clear = false;
 */
 
 const vec3 fogColor = vec3(0.225, 0.349, 0.488);
@@ -62,7 +64,7 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result.rgb += computeBloom() * clamp(0.012 + (rainStrength * 0.1), 0.0, 0.08) * BLOOM_STRENGTH;
+        Result.rgb += clamp(computeBloom() * mix(0.012 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH, 0.0, 1.0);
     #endif
 
     // Outline
@@ -77,7 +79,13 @@ void main() {
     #endif
     
     // Tonemapping
-    Result.rgb *= computeExposure();
+    float exposureLuma = 0.0;
+    #if AUTO_EXPOSURE == 1
+        exposureLuma = getExposureLuma(colortex8);
+    #endif
+
+    Result.rgb *= computeExposure(exposureLuma);
+
     #if TONEMAPPING == 0
         Result.rgb = reinhard_jodie(Result.rgb); // Reinhard
     #elif TONEMAPPING == 1
@@ -91,6 +99,7 @@ void main() {
     Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
     Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
 
-    /*DRAWBUFFERS:0*/
+    /*DRAWBUFFERS:08*/
     gl_FragData[0] = toSRGB(Result);
+    gl_FragData[1] = vec4(exposureLuma);
 }
