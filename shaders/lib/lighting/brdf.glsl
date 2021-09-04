@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -136,5 +136,6 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
             Lighting *= lightmap;
         #endif
     }
+
     return Lighting;
 }

@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -34,6 +34,12 @@ vec2 taaJitter(vec4 pos) {
     return taaOffsets[framemod] * (pos.w * pixelSize);
 }
 
+float waterHeight(vec2 pos) {
+	float wave0 = (sin(pos.x + (frameTimeCounter * 2.0)) - 0.5) * 0.086;
+	float wave1 = (sin(pos.y + frameTimeCounter) - 0.5) * 0.1;
+	return wave0 + wave1;
+}
+
 void main() {
 	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
@@ -53,14 +59,10 @@ void main() {
 	#ifdef WATER
 		if(int(blockId + 0.5) == 1) {
 			vec3 worldPos = (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
+			worldPos.y += waterHeight(worldPos.xz);
 
-			float wave0 = (sin(worldPos.x + (frameTimeCounter * 2.0)) - 0.5) * 0.076;
-			float wave1 = (sin(worldPos.z + frameTimeCounter) - 0.5) * 0.05;
-
-			worldPos.y += wave0 + wave1;
 			vec3 worldToView = mat3(gbufferModelView) * (worldPos - cameraPosition);
     		vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView, 1.0);
-
 			gl_Position += viewToClip;
 		}
 	#endif

@@ -46,7 +46,7 @@ vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isM
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
 
     if(SKY_FALLBACK == 1 && isMetal) {
-        vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * texture2D(colortex2, texCoords).w;
+        vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap();
         return mix(sky, hitColor, Kneemund_Attenuation(hitPos.xy, 0.1)) * fresnel;
     } else {
         return hitColor * fresnel * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
@@ -76,13 +76,13 @@ vec3 prefilteredReflections(vec3 viewPos, vec3 normal, float roughness, bool isM
         
         vec3 H = sampleGGXVNDF(-viewDir * TBN, noise.rg, roughness);
 		vec3 reflected = reflect(viewDir, TBN * H);	
-		raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, noise.g, hitPos);
+		raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, blueNoise().r, hitPos);
 
         float NdotL = max(0.0, dot(normal, reflected));
 		if(NdotL > 0.0) {
 
             if(SKY_FALLBACK == 1 && isMetal) {
-                vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * texture2D(colortex2, texCoords).w;
+                vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap();
 			    filteredColor += mix(sky, texture2D(colortex0, hitPos.xy).rgb, Kneemund_Attenuation(hitPos.xy, 0.1)) * NdotL;
             } else {
                 filteredColor += texture2D(colortex0, hitPos.xy).rgb * NdotL * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);

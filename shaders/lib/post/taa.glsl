@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -41,10 +41,9 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 
 vec3 neighbourhoodClamping(sampler2D currColorTex, vec3 prevColor) {
     vec3 minColor = vec3(1.0), maxColor = vec3(0.0); 
-    const int size = 4;
 
-    for(int x = -size; x <= size; x++) {
-        for(int y = -size; y <= size; y++) {
+    for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
+        for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {
             vec3 color = texture2D(currColorTex, texCoords + vec2(x, y) * pixelSize).rgb; 
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }

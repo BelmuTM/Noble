@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -58,7 +58,7 @@ void main() {
             volumetricLighting = bilateralBlur(texCoords, colortex4, 5).a;
         #endif
 
-        Result.rgb = mix(Result.rgb, getSunColor() * 0.07 * volumetricLighting, 0.62);
+        Result.rgb += (getSunColor() * volumetricLighting) * VL_BRIGHTNESS;
     #endif
 
     vec3 brightSpots;

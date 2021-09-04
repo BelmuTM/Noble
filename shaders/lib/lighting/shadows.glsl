@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -22,7 +22,7 @@ bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
     #endif
 
     bool hit = raytrace(viewPos, normalize(shadowLightPosition), 16, jitter, hitPos);
-    return hit && abs(linearizeDepth(hitPos.z) - linearizeDepth(texture2D(depthtex1, hitPos.xy).r)) < 0.3 ? true : false;
+    return hit && abs(linearizeDepth(hitPos.z) - linearizeDepth(texture2D(depthtex0, hitPos.xy).r)) < 0.3 ? true : false;
 }
 
 float visibility(sampler2D tex, vec3 sampleCoords) {
@@ -96,7 +96,7 @@ vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
 }
 
 vec3 shadowMap(vec3 viewPos, float shadowMapResolution) {
-    vec3 sampleCoords = viewToShadow(viewPos).xyz * 0.5 + 0.5;
+    vec3 sampleCoords = clamp(viewToShadow(viewPos).xyz * 0.5 + 0.5, 0.0, 1.0);
     float theta;
     #if TAA == 1
      	theta = uniformAnimatedNoise().r;

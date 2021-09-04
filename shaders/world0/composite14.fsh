@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -22,7 +22,7 @@ varying vec2 texCoords;
 
 /*
 const bool colortex5MipmapEnabled = true;
-const int colortex7Format = RGBA16F;
+const int colortex7Format = RGB16F;
 const bool colortex7Clear = false;
 */
 

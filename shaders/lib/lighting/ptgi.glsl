@@ -25,6 +25,7 @@ vec3 computePTGI(in vec3 screenPos) {
 
         /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
         vec3 albedo = texture2D(colortex0, hitPos.xy).rgb;
+
         weight *= albedo;
         illumination += weight;
     }

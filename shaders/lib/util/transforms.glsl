@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -15,11 +15,15 @@ vec2 diag2(mat4 mat) {
 }
 
 vec3 projMAD3(mat4 mat, vec3 v) {
-	return (diag3(mat) * v + mat[3].xyz);
+	return diag3(mat) * v + mat[3].xyz;
 }
 
 vec2 projMAD2(mat4 mat, vec2 v) {
-	return (diag2(mat) * v + mat[3].xy);
+	return diag2(mat) * v + mat[3].xy;
+}
+
+vec3 transMAD3(mat4 mat, vec3 v) {
+	return mat3(mat) * v + mat[3].xyz;
 }
 
 vec3 viewToClip(vec3 viewPos) {

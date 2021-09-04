@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -10,14 +10,12 @@ float computeVL(vec3 viewPos) {
     float visibility = 0.0;
     float INV_SAMPLES = 1.0 / VL_SAMPLES;
 
-    mat4 conversion = (shadowProjection * shadowModelView) * gbufferModelViewInverse;
-    vec4 startPos = conversion * vec4(vec3(0.0), 1.0);
-    vec4 endPos = conversion * vec4(viewPos, 1.0);
+    vec3 rayPos = projMAD3(shadowProjection, transMAD3(shadowModelView, gbufferModelViewInverse[3].xyz));
+    vec3 endPos = projMAD3(shadowProjection, transMAD3(shadowModelView, (mat3(gbufferModelViewInverse) * viewPos)));
 
     float jitter = fract(frameTimeCounter + bayer64(gl_FragCoord.xy));
-    vec3 rayDir = (normalize(endPos.xyz - startPos.xyz) * distance(endPos.xyz, startPos.xyz)) * INV_SAMPLES * jitter;
+    vec3 rayDir = (normalize(endPos - rayPos) * distance(endPos, rayPos)) * INV_SAMPLES * jitter;
     
-    vec3 rayPos = startPos.xyz;
     for(int i = 0; i < VL_SAMPLES; i++) {
         rayPos += rayDir;
         vec3 samplePos = vec3(distort3(rayPos.xy), rayPos.z) * 0.5 + 0.5;

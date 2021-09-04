@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -49,8 +49,8 @@ void main() {
 	float emission = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
 
 	if(int(blockId + 0.5) == 1) { 
-		albedoTex.a = WATER_ALPHA;
-		F0 = 0.02;
+		albedoTex.a = 0.0;
+		F0 = 0.3;
 		roughness = 0.01;
 	}
 	

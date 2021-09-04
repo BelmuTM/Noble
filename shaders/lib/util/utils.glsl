@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -22,4 +22,9 @@ bool isHand(float depth) {
 
 bool isSky() {
     return texture2D(depthtex0, texCoords).r == 1.0;
+}
+
+float getSkyLightmap() {
+    float lightmap = texture2D(colortex2, texCoords).w;
+    return clamp((lightmap * lightmap) * 2.0 - 1.0, 0.0, 1.0);
 }
