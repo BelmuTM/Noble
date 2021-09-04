@@ -76,9 +76,9 @@ const float shadowDistanceRenderMul = 1.0;
 #define SHADOW_BIAS 0.1 // Increase this if you get shadow acne. Decrease this if you get peter panning.
 
 // Soft Shadows
-#define PCSS_SAMPLES 20
-#define LIGHT_SIZE 100.0
-#define BLOCKER_SEARCH_RADIUS 65.0
+#define PCSS_SAMPLES 48
+#define LIGHT_SIZE 160.0
+#define BLOCKER_SEARCH_RADIUS 10.0
 #define BLOCKER_SEARCH_SAMPLES 20
 
 /*------------------ RAY TRACING ------------------*/
@@ -95,13 +95,13 @@ const float shadowDistanceRenderMul = 1.0;
 #define GI_STEPS 32
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
-#define GI_RESOLUTION 0.85 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define GI_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // Spatial Filtering
 #define GI_FILTER 1 // [0 1]
-#define GI_FILTER_SIZE 25.0
+#define GI_FILTER_SIZE 30.0
 #define GI_FILTER_QUALITY 10.0
-#define EDGE_STOP_THRESHOLD 0.01 // Lower number means sharper edges
+#define EDGE_STOP_THRESHOLD 0.4 // Lower number means sharper edges
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
@@ -112,9 +112,9 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.375
 #define SKY_FALLBACK 1
 
-#define PREFILTER_SAMPLES 3 // [2 3 4 8 12 16 20]
+#define PREFILTER_SAMPLES 3
 #define ROUGH_REFLECT_STEPS 16
-#define ROUGH_REFLECT_RES 0.65
+#define ROUGH_REFLECT_RES 0.65 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define SIMPLE_REFLECT_STEPS 64
 #define REFRACT_STEPS 64
@@ -140,7 +140,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define VIGNETTE 1 // [0 1]
 #define VIGNETTE_FALLOFF 0.2
-#define VIGNETTE_STRENGTH 0.65 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define VIGNETTE_STRENGTH 0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define CHROMATIC_ABERRATION 0 // [0 1]
 #define ABERRATION_STRENGTH 30.0 // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0]
@@ -153,13 +153,13 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define LENS_LENGTH 15.0
 #define APERTURE 4.0
 #define ISO 120.0
-#define SHUTTER_SPEED 50.0
-const float K = 12.5; // Light meter calibration
+#define SHUTTER_SPEED 60.0
+const float K = 12; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
-#define AUTO_EXPOSURE 1 // [0 1]
-#define MIN_EXPOSURE 0.5
-#define MAX_EXPOSURE 6.0
+#define AUTO_EXPOSURE 0 // [0 1]
+#define MIN_EXPOSURE 0.3
+#define MAX_EXPOSURE 20.0
 
 /*------------------ COLOR CORRECTION ------------------*/
 #define TONEMAPPING 2 // [-1 0 1 2 3]

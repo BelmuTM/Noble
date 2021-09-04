@@ -6,7 +6,7 @@
 // Most sources are: Github, ShaderToy or Discord.
 
 float luma(vec3 color) {
-    return dot(color, vec3(0.2126, 0.7154, 0.0722));
+    return dot(color, vec3(0.2125, 0.7154, 0.0721));
 }
 
 vec3 luma_based_reinhard(vec3 color) {

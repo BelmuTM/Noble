@@ -62,7 +62,7 @@ void main() {
                     vec3 viewPos = getViewPos(texCoords);
                     vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-                    globalIllumination = spatialDenoiser(texCoords, viewPos, normal, colortex6, GI_FILTER_SIZE, GI_FILTER_QUALITY, 8.0).rgb;
+                    globalIllumination = edgeAwareSpatialDenoiser(texCoords, viewPos, normal, colortex6, GI_FILTER_SIZE, GI_FILTER_QUALITY, 8.0).rgb;
                #endif
 
                #if GI_VISUALIZATION == 0

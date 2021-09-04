@@ -90,7 +90,7 @@ vec3 envBRDFApprox(vec3 specularColor, float NdotV, float roughness) {
 */
 
 vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap) {
-    bool isMetal = (data.F0 * 255.0) > 229.5;
+    bool isMetal = data.F0 * 255.0 > 229.5;
     float alpha = data.roughness * data.roughness;
 
     vec3 specularColor = isMetal ? data.albedo : vec3(data.F0);
@@ -110,7 +110,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
         vec3 F = sphericalGaussianFresnel(HdotL, specularColor);
         float G = geometrySmith(NdotV, NdotL, data.roughness);
         
-        specular = D * F * G;
+        specular = clamp(D * F * G, 0.0, 1.0);
     #endif
 
     vec3 diffuse = vec3(0.0);

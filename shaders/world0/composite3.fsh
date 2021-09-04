@@ -24,17 +24,18 @@ const int colortex6Format = RGBA16F;
 const bool colortex6Clear = false;
 */
 
-vec3 temporalAccumulation(sampler2D tex, vec3 currColor) {
+vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor) {
     vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
-    vec3 prevColor = texture2D(tex, prevTexCoords).rgb;
-    prevColor = neighbourhoodClamping(tex, prevColor);
+    vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
+    prevColor = neighbourhoodClamping(prevTex, prevColor);
 
     vec2 velocity = (texCoords - prevTexCoords) * viewSize;
+
     float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
           blendFactor = clamp(blendFactor + 0.4, EPS, 0.979);
           blendFactor *= float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
 
-    return mix(currColor, prevColor, blendFactor); 
+    return mix(currColor, prevColor, blendFactor);
 }
 
 void main() {
@@ -50,7 +51,7 @@ void main() {
                 vec3 viewPos = getViewPos(texCoords);
                 vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-                globalIllumination = spatialDenoiser(texCoords * GI_RESOLUTION, viewPos, normal, colortex5, GI_FILTER_SIZE, GI_FILTER_QUALITY, 10.0).rgb;
+                globalIllumination = edgeAwareSpatialDenoiser(texCoords * GI_RESOLUTION, viewPos, normal, colortex5, GI_FILTER_SIZE, GI_FILTER_QUALITY, 10.0).rgb;
             #else
                 globalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION).rgb;
             #endif
@@ -64,7 +65,7 @@ void main() {
             ambientOcclusion = texture2D(colortex5, texCoords).a;
 
             #if AO_FILTER == 1
-                ambientOcclusion = qualityBlur(texCoords, colortex5, viewSize, 5.0, 6.0, 9.0).a;
+                ambientOcclusion = qualityBlur(texCoords, colortex5, viewSize, 7.0, 5.0, 8.0).a;
             #endif
         #endif
     #endif

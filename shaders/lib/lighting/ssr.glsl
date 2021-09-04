@@ -100,7 +100,14 @@ vec3 simpleRefractions(vec3 viewPos, vec3 normal, float NdotV, float F0, out vec
     viewPos += normal * EPS;
     vec3 refracted = refract(normalize(viewPos), normal, 1.0 / 1.325); // water's ior
 
-    if(!raytrace(viewPos, refracted, REFRACT_STEPS, blueNoise().r, hitPos)) return vec3(0.0);
+    float jitter;
+    #if TAA == 1
+        jitter = uniformAnimatedNoise().r;
+    #else
+        jitter = blueNoise().r;
+    #endif
+
+    if(!raytrace(viewPos, refracted, REFRACT_STEPS, jitter, hitPos)) return vec3(0.0);
     if(isHand(texture2D(depthtex1, hitPos.xy).r)) return vec3(0.0);
 
     vec3 fresnel = fresnelSchlick(NdotV, vec3(F0));

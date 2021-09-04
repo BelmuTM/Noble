@@ -35,7 +35,7 @@ float findBlockerDepth(vec3 sampleCoords) {
     float avgBlockerDepth = 0.0;
 
     for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-        vec2 offset = (BLOCKER_SEARCH_RADIUS * vogelDisk(i, BLOCKER_SEARCH_SAMPLES)) * pixelSize;
+        vec2 offset = BLOCKER_SEARCH_RADIUS * vogelDisk(i, BLOCKER_SEARCH_SAMPLES) * pixelSize;
         float z = texture2D(shadowtex0, sampleCoords.xy + offset).r;
             
         if(sampleCoords.z - EPS > z) {
@@ -62,7 +62,7 @@ vec3 PCF(vec3 sampleCoords, float radius, mat2 rotation) {
         }
     #else
         for(int i = 0; i < PCSS_SAMPLES; i++) {
-            vec2 offset = (rotation * (radius * vogelDisk(i, PCSS_SAMPLES)));
+            vec2 offset = rotation * (radius * vogelDisk(i, PCSS_SAMPLES));
             vec3 currentSampleCoordinate = vec3(sampleCoords.xy + offset, sampleCoords.z);
 
             shadowResult += sampleTransparentShadow(currentSampleCoordinate);

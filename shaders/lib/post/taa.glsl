@@ -40,7 +40,7 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 }
 
 vec3 neighbourhoodClamping(sampler2D currColorTex, vec3 prevColor) {
-    vec3 minColor = vec3(0.0), maxColor = vec3(0.0); 
+    vec3 minColor = vec3(1.0), maxColor = vec3(0.0); 
     const int size = 4;
 
     for(int x = -size; x <= size; x++) {

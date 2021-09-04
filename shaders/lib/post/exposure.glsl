@@ -8,27 +8,8 @@
 
 float averageLuminance() {
      float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
-
-     vec3 color = textureLod(colortex0, vec2(0.5), LOD).rgb;
+     vec3 color = textureLod(colortex0, texCoords, LOD).rgb;
      return luma(color);
-}
-
-float averageLuminance2() {
-     float minLum = 1.0, maxLum = 0.0;
-     float totalLum = 0.0;
-     
-     vec2 samples = floor(viewSize / 20);
-
-     for(int x = 0; x < samples.x; x++) {
-          for(int y = 0; y < samples.y; y++) {
-               vec3 color = texture2D(colortex0, (vec2(x, y) + 0.5) * pixelSize).rgb;
-               float lum = luma(color);
-
-               totalLum += lum;
-               minLum = min(lum, minLum); maxLum = max(lum, maxLum);
-          }
-     }
-     return totalLum / (samples.x * samples.y);
 }
 
 float computeEV100() {
@@ -52,10 +33,10 @@ float computeExposure(float avgLuminance) {
      #endif
 
      float exposure = EV100ToExposure(EV100);
-     return exposure;
+     return clamp(exposure, MIN_EXPOSURE, MAX_EXPOSURE);
 }
 
 float getExposureLuma(sampler2D prevTex) {
      float previousLuma = texture2D(prevTex, vec2(0.0)).r;
-     return mix(averageLuminance(), previousLuma, exp(-frameTime * 30.0));
+     return mix(averageLuminance(), previousLuma, exp(-frameTime * SHUTTER_SPEED));
 }

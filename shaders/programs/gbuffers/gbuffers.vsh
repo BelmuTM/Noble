@@ -48,8 +48,23 @@ void main() {
 	TBN = mat3(tangent, binormal, normal);	
 
 	blockId = mc_Entity.x - 1000.0;
+	gl_Position = ftransform();
 
-    gl_Position = ftransform();
+	#ifdef WATER
+		if(int(blockId) == 1) {
+			vec3 worldPos = (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
+
+			float wave0 = (sin(worldPos.x + (frameTimeCounter * 2.0)) - 0.5) * 0.076;
+			float wave1 = (sin(worldPos.z + frameTimeCounter) - 0.5) * 0.05;
+
+			worldPos.y += wave0 + wave1;
+			vec3 worldToView = mat3(gbufferModelView) * (worldPos - cameraPosition);
+    		vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView, 1.0);
+
+			gl_Position += viewToClip;
+		}
+	#endif
+
     #if TAA == 1
         gl_Position.xy += taaJitter(gl_Position);
     #endif

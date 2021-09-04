@@ -10,26 +10,26 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
 	vec3 sampleOrigin = viewPos + normal * EPS;
 
-    	vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
+    vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
 	mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 
 	vec2 noise;
-    	#if TAA == 1
+    #if TAA == 1
      	noise = uniformAnimatedNoise();
-    	#endif
+    #endif
 
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
 		#if TAA == 0
-            	noise = uniformNoise(i);
-        	#endif
+            noise = uniformNoise(i);
+        #endif
 		vec3 sampleDir = TBN * (randomHemisphereDirection(noise.xy) * AO_BIAS);
 
 		vec3 samplePos = sampleOrigin + sampleDir * SSAO_RADIUS;
-    		vec2 sampleScreen = viewToScreen(samplePos).xy;
+    	vec2 sampleScreen = viewToScreen(samplePos).xy;
 		float sampleDepth = screenToView(vec3(sampleScreen, texture2D(depthtex0, sampleScreen).r)).z;
 
 		float delta = sampleDepth - samplePos.z;
-        	if(delta > 0.0 && delta < SSAO_RADIUS) occlusion += delta + AO_BIAS;
+        if(delta > 0.0 && delta < SSAO_RADIUS) occlusion += delta + AO_BIAS;
 	}
 	occlusion = 1.0 - (occlusion / SSAO_SAMPLES);
 	return saturate(occlusion);
@@ -39,7 +39,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
 	vec3 samplePos = viewPos + normal * EPS;
 
-    	vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
+    vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
 	mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 
 	vec2 noise;
@@ -49,8 +49,8 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
 		#if TAA == 0
-            	noise = uniformNoise(i);
-        	#endif
+            noise = uniformNoise(i);
+        #endif
 		vec3 sampleDir = TBN * (randomHemisphereDirection(noise) * AO_BIAS);
 		vec3 hitPos;
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, blueNoise().g, hitPos)) continue;

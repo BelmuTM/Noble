@@ -38,7 +38,7 @@ void main() {
         vec2 scaledUv = texCoords * inverseRes;
         
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords) {
-            bool isMetal = (texture2D(colortex2, scaledUv).g * 255.0) > 229.5;
+            bool isMetal = texture2D(colortex2, scaledUv).g * 255.0 > 229.5;
             vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
             globalIllumination = isMetal ? vec3(0.0) : computePTGI(positionAt);
         }

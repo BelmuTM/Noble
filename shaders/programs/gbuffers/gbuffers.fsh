@@ -42,7 +42,7 @@ void main() {
 	normal = clamp(normal, -1.0, 1.0);
 
 	float ao = normalTex.z;
-    float roughness = 1.0 - specularTex.x;
+    float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x;
 	float F0 = specularTex.y;
 
 	vec2 lightmap = lmCoords.xy;

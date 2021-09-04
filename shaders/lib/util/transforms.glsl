@@ -49,8 +49,9 @@ vec3 tangentToWorld(vec3 normal, vec3 H) {
     return vec3((tangent * H.x) + (cross(normal, tangent) * H.y) + (normal * H.z));
 }
 
+// https://docs.google.com/document/d/1Hi3B8kkvrsQ2BJWQjpXyQybqBbHT9da0NAnA7ng9mvk/edit
 float linearizeDepth(float depth) {
-	return (2.0 * near * far) / (far + near - (depth * 2.0 - 1.0) * (far - near));
+	return (near * far) / (depth * (near - far) + far);
 }
 
 float F0toIOR(float F0) {

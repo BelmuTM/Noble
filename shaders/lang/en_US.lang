@@ -90,12 +90,12 @@ option.sunPathRotation.comment = Adjusts sun's rotation.
 ##################### RAY TRACING #####################
 
 option.SSR = Screen Space Reflections (SSR)
-option.SSR.comment = Adds reflections that §ccan only display if they're showing §con your screen.
+option.SSR.comment = §cCan only reflect what's being displayed §con your screen.
 value.SSR.0 = §cOFF
 value.SSR.1 = §aON
 
 option.REFRACTION = Refractions
-option.REFRACTION.comment = Features §bScreen Space Refractions §ffor stained glass and water.
+option.REFRACTION.comment = Applies §bScreen Space Refractions §fto stained glass and water. §cCan only refract what's being displayed §con your screen.
 value.REFRACTION.0 = §cOFF
 value.REFRACTION.1 = §aON
 
@@ -104,18 +104,11 @@ option.SSR_TYPE.comment = §bSimple reflections §fdo not consider a material's 
 value.SSR_TYPE.0 = §eSimple Reflections
 value.SSR_TYPE.1 = §eRough Reflections
 
-option.PREFILTER_SAMPLES = Rough Reflections Samples
-option.PREFILTER_SAMPLES.comment = Adjusts §bRough Reflections §fquality. §cHigher value gives better results, but reduces §cperformance.
-value.PREFILTER_SAMPLES.2 = §32
-value.PREFILTER_SAMPLES.3 = §23
-value.PREFILTER_SAMPLES.4 = §a4
-value.PREFILTER_SAMPLES.8 = §e8
-value.PREFILTER_SAMPLES.12 = §612
-value.PREFILTER_SAMPLES.16 = §c16
-value.PREFILTER_SAMPLES.20 = §420
+option.ROUGH_REFLECT_RES = Rough Reflections Resolution
+option.ROUGH_REFLECT_RES.comment = Adjusts §bRough Reflections §fquality. §cHigher value gives better results, but reduces §cperformance.
 
 option.GI = Global Illumination (GI)
-option.GI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it.
+option.GI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it. §cCan only sample what's being displayed §con your screen.
 value.GI.0 = §cOFF
 value.GI.1 = §aON
 
@@ -129,12 +122,12 @@ value.GI_BOUNCES.5 = §c5
 value.GI_BOUNCES.6 = §46
 
 option.GI_TEMPORAL_ACCUMULATION = Temporal Accumulation
-option.GI_TEMPORAL_ACCUMULATION.comment = Accumulates §bGI §fover multiple frames to reduce noise and give a more precise result.
+option.GI_TEMPORAL_ACCUMULATION.comment = Accumulates §bGI §fover multiple frames to reduce noise and give a cleaner result.
 value.GI_TEMPORAL_ACCUMULATION.0 = §cOFF
 value.GI_TEMPORAL_ACCUMULATION.1 = §aON
 
 option.GI_FILTER = Spatial Filtering
-option.GI_FILTER.comment = Filters §bGI §fto reduce the noise.
+option.GI_FILTER.comment = Blurs §bGI §fto reduce the noise.
 value.GI_FILTER.0 = §cOFF
 value.GI_FILTER.1 = §aON
 
@@ -160,7 +153,7 @@ option.RAY_STEP_LENGTH.comment = Adjusts the ray's length. §cLower value gives 
 ##################### ATMOSPHERICS #####################
 
 option.VL = Volumetric Lighting (VL)
-option.VL.comment = Simulates physical light fog (godrays / light shafts).
+option.VL.comment = Simulates light scattering in fog.
 value.VL.0 = §cOFF
 value.VL.1 = §aON
 
@@ -175,12 +168,12 @@ value.VL_SAMPLES.32 = §c32
 value.VL_SAMPLES.48 = §448
 
 option.VL_FILTER = VL Filter
-option.VL_FILTER.comment = Filters §bVL §fto reduce the noise. §cGives a cleaner result, but reduces performance.
+option.VL_FILTER.comment = Blurs §bVL §fto reduce the noise. §cGives a cleaner result, but reduces performance.
 value.VL_FILTER.0 = §cOFF
 value.VL_FILTER.1 = §aON
 
 option.RAIN_FOG = Rain Fog
-option.RAIN_FOG.comment = Features a fog that appears when it rains.
+option.RAIN_FOG.comment = A fog that appears when it rains.
 value.RAIN_FOG.0 = §cOFF
 value.RAIN_FOG.1 = §aON
 
@@ -203,7 +196,7 @@ option.BLOOM_STRENGTH = Bloom Strength
 option.BLOOM_STRENGTH.comment = Adjusts §bBloom§f's strength.
 
 option.DOF = Depth of Field
-option.DOF.comment = Applies blur to objects far from you.
+option.DOF.comment = Blurs objects that are out of focus.
 value.DOF.0 = §cOFF
 value.DOF.1 = §aON
 
@@ -211,7 +204,7 @@ option.DOF_STRENGTH = DOF Strength
 option.DOF_STRENGTH.comment = Adjusts §bDepth of Field§f's strength.
 
 option.WATER_FOAM = Water Foam
-option.WATER_FOAM.comment = Simulates foam when water encounters an edge.
+option.WATER_FOAM.comment = Foam that appears when water encounters an edge.
 value.WATER_FOAM.0 = §cOFF
 value.WATER_FOAM.1 = §aON
 
@@ -227,7 +220,7 @@ option.VIGNETTE_STRENGTH = Vignette Strength
 option.VIGNETTE_STRENGTH.comment = Adjusts §bVignette§f's strength.
 
 option.CHROMATIC_ABERRATION = Chromatic Aberration
-option.CHROMATIC_ABERRATION.comment = Simulates diffraction by separating the color channels depending on the distance between the center of the screen.
+option.CHROMATIC_ABERRATION.comment = Separates the different color channels depending on the distance between the center of the screen.
 value.CHROMATIC_ABERRATION.0 = §cOFF
 value.CHROMATIC_ABERRATION.1 = §aON
 
@@ -235,7 +228,7 @@ option.ABERRATION_STRENGTH = Aberration Strength
 option.ABERRATION_STRENGTH.comment = Adjusts §bOutline§f's darkness.
 
 option.OUTLINE = Outline
-option.OUTLINE.comment = Adds a cartoon-ish outline to certain edges.
+option.OUTLINE.comment = Adds a cartoon-ish outline to edges.
 value.OUTLINE.0 = §cOFF
 value.OUTLINE.1 = §aON
 
@@ -255,13 +248,10 @@ value.TONEMAPPING.1 = Uncharted
 value.TONEMAPPING.2 = Burgess
 value.TONEMAPPING.3 = ACES
 
-option.AUTO_EXPOSURE = Auto Exposure
-option.AUTO_EXPOSURE.comment = Simulates Eye Adaptation by tweaking the exposure depending on the average brightness.
+option.AUTO_EXPOSURE = Auto Exposure §e§lBETA
+option.AUTO_EXPOSURE.comment = Tweaks the exposure depending on the average screen brightness.
 value.AUTO_EXPOSURE.0 = §cOFF
 value.AUTO_EXPOSURE.1 = §aON
-
-option.EXPOSURE = Exposure
-option.EXPOSURE.comment = Influences the overall brightness or darkness of an image.
 
 option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.

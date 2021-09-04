@@ -8,4 +8,5 @@
 
 #version 400 compatibility
 
+#define WATER
 #include "/programs/gbuffers/gbuffers.vsh"
