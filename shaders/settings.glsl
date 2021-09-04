@@ -70,7 +70,9 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ SHADOWS ------------------*/
 #define SHADOWS 1 // [0 1]
-#define SOFT_SHADOWS 0 // [0 1]
+#define SOFT_SHADOWS 1 // [0 1]
+#define CONTACT_SHADOWS 0
+
 #define SHADOW_SAMPLES 3 // [1 2 3 4 5 6]
 #define DISTORT_FACTOR 0.5 // Lower number means better shadows near you and worse shadows farther away.
 #define SHADOW_BIAS 0.1 // Increase this if you get shadow acne. Decrease this if you get peter panning.

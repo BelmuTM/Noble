@@ -51,7 +51,7 @@ void main() {
 	gl_Position = ftransform();
 
 	#ifdef WATER
-		if(int(blockId) == 1) {
+		if(int(blockId + 0.5) == 1) {
 			vec3 worldPos = (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
 
 			float wave0 = (sin(worldPos.x + (frameTimeCounter * 2.0)) - 0.5) * 0.076;

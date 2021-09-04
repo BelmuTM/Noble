@@ -13,12 +13,26 @@ vec4 viewToShadow(vec3 viewPos) {
 	return shadowSpace;
 }
 
-bool shadowIntersect(vec3 viewPos, inout vec3 hitPos) {
-    return raytrace(viewPos, normalize(shadowLightPosition), 16, bayer64(gl_FragCoord.xy), hitPos);
+bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
+    float jitter;
+    #if TAA == 1
+     	jitter = uniformAnimatedNoise().r;
+    #else
+        jitter = blueNoise().r;
+    #endif
+
+    bool hit = raytrace(viewPos, normalize(shadowLightPosition), 16, jitter, hitPos);
+    return hit && abs(linearizeDepth(hitPos.z) - linearizeDepth(texture2D(depthtex1, hitPos.xy).r)) < 0.3 ? true : false;
 }
 
 float visibility(sampler2D tex, vec3 sampleCoords) {
-    return step(sampleCoords.z - EPS, texture2D(tex, sampleCoords.xy).r);
+    float contactShadow = 1.0;
+    #if SOFT_SHADOWS == 0 && CONTACT_SHADOWS == 1
+        vec3 hitPos;
+        contactShadow = 1.0 - float(contactShadows(getViewPos(texCoords), hitPos));
+    #endif
+
+    return step(sampleCoords.z - EPS, texture2D(tex, sampleCoords.xy).r) * contactShadow;
 }
 
 vec3 sampleTransparentShadow(vec3 sampleCoords) {
@@ -91,14 +105,13 @@ vec3 shadowMap(vec3 viewPos, float shadowMapResolution) {
     #endif
 
     #if SOFT_SHADOWS == 1
-        //theta *= PI2; // That's wacky, but it looks better on Soft Shadows :D
+        theta *= PI2;
     #endif
     
     float cosTheta = cos(theta), sinTheta = sin(theta);
     mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta) / shadowMapResolution;
 
     #if SOFT_SHADOWS == 0
-        //float contactShadow = 1.0 - float(shadowIntersect(viewPos));
         return PCF(sampleCoords, 0.0, rotation);
     #else
         return PCSS(sampleCoords, rotation);

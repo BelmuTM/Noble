@@ -7,7 +7,7 @@
 /***********************************************/
 
 vec3 getViewPos(vec2 coords) {
-    vec3 clipPos = vec3(texCoords, texture2D(depthtex0, texCoords).r) * 2.0 - 1.0;
+    vec3 clipPos = vec3(coords, texture2D(depthtex0, coords).r) * 2.0 - 1.0;
     vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
     return tmp.xyz / tmp.w;
 }

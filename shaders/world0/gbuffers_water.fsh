@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 400 compatibility
+#version 330 compatibility
 
 #define WATER
 #include "/programs/gbuffers/gbuffers.fsh"
