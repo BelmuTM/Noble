@@ -8,8 +8,8 @@
 
 float averageLuminance() {
      float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
-     vec3 color = textureLod(colortex0, texCoords, LOD).rgb;
-     return luma(color);
+     vec3 color = textureLod(colortex0, vec2(0.5), LOD).rgb;
+     return 0.02 * dot(color, vec3(5.0));
 }
 
 float computeEV100() {
@@ -38,5 +38,5 @@ float computeExposure(float avgLuminance) {
 
 float getExposureLuma(sampler2D prevTex) {
      float previousLuma = texture2D(prevTex, vec2(0.0)).r;
-     return mix(averageLuminance(), previousLuma, exp(-frameTime * SHUTTER_SPEED));
+     return mix(averageLuminance(), previousLuma, exp(-frameTimeCounter * SHUTTER_SPEED) * EPS);
 }

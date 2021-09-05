@@ -41,7 +41,6 @@ void main() {
 	normal = TBN * normal;
 	normal = clamp(normal, -1.0, 1.0);
 
-	float ao = normalTex.z;
     float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x;
 	float F0 = specularTex.y;
 
@@ -58,9 +57,8 @@ void main() {
 		emission = 0.8;
 	}
 	
-	/*DRAWBUFFERS:0123*/
+	/*DRAWBUFFERS:012*/
 	gl_FragData[0] = color * albedoTex;
-	gl_FragData[1] = vec4(encodeNormal(normal), emission, ao);
+	gl_FragData[1] = vec4(encodeNormal(normal), emission, (blockId + 0.25) / 255.0);
 	gl_FragData[2] = vec4(roughness, F0, lightmap);
-	gl_FragData[3] = vec4((blockId + 0.25) / 255.0);
 }

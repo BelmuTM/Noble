@@ -39,7 +39,7 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 }
 
 vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
-    vec3 minColor = vec3(1.0), maxColor = vec3(0.0); 
+    vec3 minColor = vec3(0.0), maxColor = vec3(0.0); 
 
     for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
         for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {

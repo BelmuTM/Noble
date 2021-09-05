@@ -26,7 +26,7 @@
 
 /*
 const bool colortex0MipmapEnabled = true;
-const bool colortex8Clear = false;
+const bool colortex7Clear = false;
 */
 
 const vec3 fogColor = vec3(0.225, 0.349, 0.488);
@@ -81,7 +81,7 @@ void main() {
     // Tonemapping
     float exposureLuma = 0.0;
     #if AUTO_EXPOSURE == 1
-        exposureLuma = getExposureLuma(colortex8);
+        exposureLuma = getExposureLuma(colortex7);
     #endif
 
     Result.rgb *= computeExposure(exposureLuma);
@@ -99,7 +99,9 @@ void main() {
     Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
     Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
 
-    /*DRAWBUFFERS:08*/
+    Result.rgb += bayer2(gl_FragCoord.xy) / 200.0; // Removes color banding from the screen
+
+    /*DRAWBUFFERS:07*/
     gl_FragData[0] = toSRGB(Result);
     gl_FragData[1] = vec4(exposureLuma);
 }

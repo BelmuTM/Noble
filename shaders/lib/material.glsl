@@ -11,7 +11,6 @@ struct material {
     float alpha;
     vec3 normal;
 
-    float ao;
     float roughness;
     float F0;
     float emission;
@@ -24,7 +23,6 @@ material getMaterial(vec4 tex0, vec4 tex1, vec4 tex2) {
     data.alpha = tex0.w;
     data.normal = decodeNormal(tex1.xy);
 
-    data.ao = tex1.w;
     data.roughness = tex2.x;
     data.F0 = tex2.y;
     data.emission = tex1.z;

@@ -13,7 +13,7 @@ vec3 getViewPos(vec2 coords) {
 }
 
 int getBlockId(vec2 coords) {
-    return int(texture2D(colortex3, coords).r * 255.0 + 0.5);
+    return int(texture2D(colortex1, coords).w * 255.0 + 0.5);
 }
 
 bool isHand(float depth) {

@@ -22,8 +22,8 @@ varying vec2 texCoords;
 
 /*
 const bool colortex5MipmapEnabled = true;
-const int colortex7Format = RGB16F;
-const bool colortex7Clear = false;
+const int colortex3Format = RGB16F;
+const bool colortex3Clear = false;
 */
 
 void main() {
@@ -41,10 +41,10 @@ void main() {
      #endif
 
      #if TAA == 1
-          Result.rgb = clamp(computeTAA(colortex0, colortex7), 0.0, 1.0);
+          Result.rgb = clamp(computeTAA(colortex0, colortex3), 0.0, 1.0);
      #endif
 
-     /*DRAWBUFFERS:075*/
+     /*DRAWBUFFERS:035*/
      gl_FragData[0] = Result;
      gl_FragData[1] = Result;
      gl_FragData[2] = vec4(clamp(blur, 0.0, 1.0), 1.0);
