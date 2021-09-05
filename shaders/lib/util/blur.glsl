@@ -109,9 +109,9 @@ bool edgeStop(vec2 sampleCoords, vec3 pos, vec3 normal) {
     positionAt = screenToView(positionAt);
     vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, sampleCoords).xy));
 
-    return   abs(positionAt.x - pos.x) <= 0.7
-        &&   abs(positionAt.y - pos.y) <= 0.7
-        &&   abs(positionAt.z - pos.z) <= 0.7
+    return  abs(positionAt.x - pos.x) <= 0.7
+        &&  abs(positionAt.y - pos.y) <= 0.7
+        &&  abs(positionAt.z - pos.z) <= 0.7
         &&  abs(normalAt.x - normal.x) <= EDGE_STOP_THRESHOLD
         &&  abs(normalAt.y - normal.y) <= EDGE_STOP_THRESHOLD
         &&  abs(normalAt.z - normal.z) <= EDGE_STOP_THRESHOLD

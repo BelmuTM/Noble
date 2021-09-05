@@ -53,6 +53,10 @@ void main() {
 		F0 = 0.3;
 		roughness = 0.01;
 	}
+
+	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 11) {
+		emission = 0.8;
+	}
 	
 	/*DRAWBUFFERS:0123*/
 	gl_FragData[0] = color * albedoTex;

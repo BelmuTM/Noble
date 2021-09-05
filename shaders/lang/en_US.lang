@@ -184,9 +184,6 @@ option.TAA.comment = §bTemporal Anti-Aliasing. §fA form of anti-aliasing which
 value.TAA.0 = §cOFF
 value.TAA.1 = §aON
 
-option.TAA_STRENGTH = TAA Strength
-option.TAA_STRENGTH.comment = Adjusts §bTAA§f's strength.
-
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
 value.BLOOM.0 = §cOFF

@@ -21,7 +21,7 @@ vec3 computePTGI(in vec3 screenPos) {
         hitPos = screenToView(hitPos) + normal * EPS;
         
         vec3 sampleDir = tangentToWorld(normal, randomHemisphereDirection(noise));
-        if(!raytrace(hitPos, sampleDir, GI_STEPS, noise.x, hitPos)) continue;
+        if(!raytrace(hitPos, sampleDir, GI_STEPS, blueNoise().r, hitPos)) continue;
 
         /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
         vec3 albedo = texture2D(colortex0, hitPos.xy).rgb;

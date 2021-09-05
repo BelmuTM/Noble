@@ -17,7 +17,7 @@ int getBlockId(vec2 coords) {
 }
 
 bool isHand(float depth) {
-    return linearizeDepth(depth) < MC_HAND_DEPTH;
+    return linearizeDepth(depth) < 0.56;
 }
 
 bool isSky() {

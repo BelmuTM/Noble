@@ -10,16 +10,15 @@
 vec2 reprojection(vec3 pos) {
     pos = pos * 2.0 - 1.0;
 
-    vec4 viewPosPrev = gbufferProjectionInverse * vec4(pos, 1.0);
-    viewPosPrev /= viewPosPrev.w;
-    viewPosPrev = gbufferModelViewInverse * viewPosPrev;
+    vec4 currViewPos = gbufferProjectionInverse * vec4(pos, 1.0);
+    currViewPos /= currViewPos.w;
+    vec3 currWorldPos = (gbufferModelViewInverse * currViewPos).xyz;
 
-    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(pos.z > MC_HAND_DEPTH);
+    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(pos.z > 0.56);
 
-    vec4 prevPos = viewPosPrev + vec4(cameraOffset, 0.0);
-    prevPos = gbufferPreviousModelView * prevPos;
-    prevPos = gbufferPreviousProjection * prevPos;
-    return (prevPos.xy / prevPos.w) * 0.5 + 0.5;
+    vec3 prevWorldPos = currWorldPos + cameraOffset;
+    vec4 prevClipPos = gbufferPreviousProjection * gbufferPreviousModelView * vec4(prevWorldPos, 1.0);
+    return (prevClipPos.xy / prevClipPos.w) * 0.5 + 0.5;
 }
 
 /*
@@ -39,7 +38,7 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
     return denom > 1.0 ? pClip + vClip / denom : prevColor;
 }
 
-vec3 neighbourhoodClamping(sampler2D currColorTex, vec3 prevColor) {
+vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
     vec3 minColor = vec3(1.0), maxColor = vec3(0.0); 
 
     for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
@@ -57,11 +56,11 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     vec3 currColor = texture2D(currTex, texCoords).rgb;
 
     vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
-    prevColor = neighbourhoodClamping(currTex, prevColor);
+    prevColor = neighbourhoodClipping(currTex, prevColor);
 
     vec2 velocity = (texCoords - prevTexCoords) * viewSize;
     float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
-          blendFactor *= float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
-
+    blendFactor *= float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
+    
     return mix(currColor, prevColor, blendFactor); 
 }

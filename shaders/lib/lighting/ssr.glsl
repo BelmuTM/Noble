@@ -47,7 +47,7 @@ vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isM
 
     if(SKY_FALLBACK == 1 && isMetal) {
         vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap();
-        return mix(sky, hitColor, Kneemund_Attenuation(hitPos.xy, 0.1)) * fresnel;
+        return mix(sky, hitColor, Kneemund_Attenuation(hitPos.xy, 0.2)) * fresnel;
     } else {
         return hitColor * fresnel * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
     }

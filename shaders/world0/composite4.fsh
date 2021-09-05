@@ -56,13 +56,13 @@ void main() {
           bool isMetal = F0 * 255.0 > 229.5;
 
           if(!isMetal) {
-               globalIllumination = texture2D(colortex6, texCoords).rgb;
-
                #if GI_FILTER == 1
                     vec3 viewPos = getViewPos(texCoords);
                     vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
                     globalIllumination = edgeAwareSpatialDenoiser(texCoords, viewPos, normal, colortex6, GI_FILTER_SIZE, GI_FILTER_QUALITY, 8.0).rgb;
+               #else
+                    globalIllumination = texture2D(colortex6, texCoords).rgb;
                #endif
 
                #if GI_VISUALIZATION == 0

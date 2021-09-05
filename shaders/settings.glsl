@@ -40,10 +40,10 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ LIGHTING ------------------*/
 #define AMBIENT vec3(0.08)
-#define PTGI_AMBIENT vec3(0.006)
+#define PTGI_AMBIENT vec3(0.0)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
-#define TORCH_COLOR vec3(1.5, 0.85, 0.88)
+#define TORCH_COLOR vec3(0.92, 0.87, 0.7)
 #define SUN_INTENSITY 4.0
 
 #define SPECULAR 1 // [0 1]
@@ -54,12 +54,6 @@ const float shadowDistanceRenderMul = 1.0;
 #define AO_TYPE 0 // [0 1]
 #define AO_FILTER 1 // [0 1]
 #define AO_BIAS 0.6
-
-#if AO == 1
-     const float ambientOcclusionLevel = 0.0;
-#else
-     const float ambientOcclusionLevel = 1.0;
-#endif
 
 #define SSAO_SAMPLES 8 // [4 8 16 32]
 #define SSAO_RADIUS 0.6
@@ -77,7 +71,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define SHADOW_BIAS 0.1 // Increase this if you get shadow acne. Decrease this if you get peter panning.
 
 // Soft Shadows
-#define PCSS_SAMPLES 48
+#define PCSS_SAMPLES 32
 #define LIGHT_SIZE 160.0
 #define BLOCKER_SEARCH_RADIUS 10.0
 #define BLOCKER_SEARCH_SAMPLES 20
@@ -93,16 +87,16 @@ const float shadowDistanceRenderMul = 1.0;
 #define GI 1 // [0 1]
 #define GI_VISUALIZATION 0
 
-#define GI_STEPS 48
+#define GI_STEPS 128
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // Spatial Filtering
 #define GI_FILTER 1 // [0 1]
-#define GI_FILTER_SIZE 30.0
+#define GI_FILTER_SIZE 15.0
 #define GI_FILTER_QUALITY 9.0
-#define EDGE_STOP_THRESHOLD 0.4 // Lower number means sharper edges
+#define EDGE_STOP_THRESHOLD 0.5 // Lower number means sharper edges
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
@@ -130,7 +124,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.500 // [0.025 0.050 0.075 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300 0.325 0.350 0.375 0.400 0.425 0.450 0.475 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
+#define TAA_NORMAL_THRESHOLD 0.5
 #define NEIGHBORHOOD_SIZE 4
 
 #define DOF 1 // [0 1]
@@ -170,3 +164,10 @@ const float S = 100.0; // Sensor sensitivity
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define CONTRAST 1.00 // [0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50]
 #define BRIGHTNESS 0.00 // [-0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25]
+
+/*------------------ OTHER ------------------*/
+#if AO == 1 || GI == 1
+     const float ambientOcclusionLevel = 0.0;
+#else
+     const float ambientOcclusionLevel = 1.0;
+#endif

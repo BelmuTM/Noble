@@ -24,18 +24,18 @@ const int colortex6Format = RGBA16F;
 const bool colortex6Clear = false;
 */
 
-vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor) {
+vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 normal) {
     vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
     vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
-    prevColor = neighbourhoodClamping(prevTex, prevColor);
+    prevColor = neighbourhoodClipping(prevTex, prevColor);
 
-    vec2 velocity = (texCoords - prevTexCoords) * viewSize;
+    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, prevTexCoords).xy));
 
-    float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
-          blendFactor = clamp(blendFactor + 0.4, EPS, 0.979);
-          blendFactor *= float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
+    float normalWeight = max(pow(max(dot(normal, normalAt), 0.0), 8.0), EPS);
+    float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
 
-    return mix(currColor, prevColor, blendFactor);
+    float totalWeight = clamp(normalWeight * screenWeight, 0.0, 1.0);
+    return mix(currColor, prevColor, 0.92 * totalWeight);
 }
 
 void main() {
@@ -43,21 +43,21 @@ void main() {
     float ambientOcclusion = 1.0;
 
     #if GI == 1
+        vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+    
         float F0 = texture2D(colortex2, texCoords).g;
         bool isMetal = F0 * 255.0 > 229.5;
 
         if(!isMetal) {
             #if GI_FILTER == 1
                 vec3 viewPos = getViewPos(texCoords);
-                vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
-
                 globalIllumination = edgeAwareSpatialDenoiser(texCoords * GI_RESOLUTION, viewPos, normal, colortex5, GI_FILTER_SIZE, GI_FILTER_QUALITY, 10.0).rgb;
             #else
                 globalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION).rgb;
             #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                globalIllumination = clamp(temporalAccumulation(colortex6, globalIllumination), 0.0, 1.0);
+                globalIllumination = clamp(temporalAccumulation(colortex6, globalIllumination, normal), 0.0, 1.0);
             #endif
         }
     #else 
