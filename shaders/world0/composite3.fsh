@@ -24,40 +24,45 @@ const int colortex6Format = RGBA16F;
 const bool colortex6Clear = false;
 */
 
-vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 normal) {
-    vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
-    vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
-    prevColor = neighbourhoodClipping(prevTex, prevColor);
+#if GI_TEMPORAL_ACCUMULATION == 1
+    vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 normal) {
+        vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r)).xy;
+        vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
+        prevColor = neighbourhoodClipping(prevTex, prevColor);
 
-    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, prevTexCoords).xy));
+        vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, prevTexCoords).xy));
+        float normalWeight = float(
+            all(lessThanEqual(abs(normalAt - normal), vec3(TAA_NORMAL_THRESHOLD)))
+        );
+        float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
+        float totalWeight = clamp(normalWeight * screenWeight, 0.0, 1.0);
 
-    float normalWeight = max(pow(max(dot(normal, normalAt), 0.0), 8.0), EPS);
-    float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
-
-    float totalWeight = clamp(normalWeight * screenWeight, 0.0, 1.0);
-    return mix(currColor, prevColor, 0.92 * totalWeight);
-}
+        return mix(currColor, prevColor, TAA_STRENGTH * totalWeight);
+    }
+#endif
 
 void main() {
     vec3 globalIllumination = vec3(0.0);
     float ambientOcclusion = 1.0;
 
     #if GI == 1
-        vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
-    
         float F0 = texture2D(colortex2, texCoords).g;
         bool isMetal = F0 * 255.0 > 229.5;
 
         if(!isMetal) {
+
             #if GI_FILTER == 1
-                vec3 viewPos = getViewPos(texCoords);
-                globalIllumination = edgeAwareSpatialDenoiser(texCoords * GI_RESOLUTION, viewPos, normal, colortex5, GI_FILTER_SIZE, GI_FILTER_QUALITY, 10.0).rgb;
+                vec3 scaledViewPos = getViewPos(texCoords * GI_RESOLUTION);
+                vec3 scaledNormal = normalize(decodeNormal(texture2D(colortex1, texCoords * GI_RESOLUTION).xy));
+
+                globalIllumination = gaussianFilter(texCoords * GI_RESOLUTION, scaledViewPos, scaledNormal, colortex5, vec2(1.0, 0.0)).rgb;
             #else
                 globalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION).rgb;
             #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                globalIllumination = clamp(temporalAccumulation(colortex6, globalIllumination, normal), 0.0, 1.0);
+                vec3 fullResNormal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+                globalIllumination = clamp(temporalAccumulation(colortex6, globalIllumination, fullResNormal), 0.0, 1.0);
             #endif
         }
     #else 

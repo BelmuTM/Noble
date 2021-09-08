@@ -39,7 +39,7 @@ vec3 simpleReflections(vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isM
 
     raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos);
 
-    vec3 L = normalize(shadowLightPosition);
+    vec3 L = shadowLightPosition * 0.01;
     vec3 H = normalize(viewPos + L);
     vec3 fresnel = sphericalGaussianFresnel(max(dot(H, L), EPS), F0);
 

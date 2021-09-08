@@ -83,6 +83,14 @@ vec3 envBRDFApprox(vec3 specularColor, float NdotV, float roughness) {
     return specularColor * AB.x + AB.y;
 }
 
+vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, float roughness, vec3 F0) {
+    float D = trowbridgeReitzGGX(NdotH, roughness * roughness);
+    vec3 F = sphericalGaussianFresnel(HdotL, F0);
+    float G = geometrySmith(NdotV, NdotL, roughness);
+        
+    return clamp(D * F * G, 0.0, 1.0);
+}
+
 /*
     Thanks LVutner for the help!
     https://github.com/LVutner
@@ -106,11 +114,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
 
     vec3 specular;
     #if SPECULAR == 1
-        float D = trowbridgeReitzGGX(NdotH, alpha);
-        vec3 F = sphericalGaussianFresnel(HdotL, specularColor);
-        float G = geometrySmith(NdotV, NdotL, data.roughness);
-        
-        specular = clamp(D * F * G, 0.0, 1.0);
+        specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, data.roughness, specularColor);
     #endif
 
     vec3 diffuse = vec3(0.0);

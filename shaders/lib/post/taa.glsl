@@ -6,8 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-// From Chocapic13, modified by Belmu
-vec2 reprojection(vec3 pos) {
+vec3 reprojection(vec3 pos) {
     pos = pos * 2.0 - 1.0;
 
     vec4 currViewPos = gbufferProjectionInverse * vec4(pos, 1.0);
@@ -18,7 +17,7 @@ vec2 reprojection(vec3 pos) {
 
     vec3 prevWorldPos = currWorldPos + cameraOffset;
     vec4 prevClipPos = gbufferPreviousProjection * gbufferPreviousModelView * vec4(prevWorldPos, 1.0);
-    return (prevClipPos.xy / prevClipPos.w) * 0.5 + 0.5;
+    return (prevClipPos.xyz / prevClipPos.w) * 0.5 + 0.5;
 }
 
 /*
@@ -52,7 +51,7 @@ vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
 
 // Thanks LVutner for the help with previous / current textures management!
 vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
-    vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r));
+    vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r)).xy;
     vec3 currColor = texture2D(currTex, texCoords).rgb;
 
     vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
@@ -60,7 +59,15 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
 
     vec2 velocity = (texCoords - prevTexCoords) * viewSize;
     float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
-    blendFactor *= float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
+
+    vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, prevTexCoords).xy));
+    float normalWeight = float(
+        all(lessThanEqual(abs(normalAt - normal), vec3(TAA_NORMAL_THRESHOLD)))
+    );
+
+    float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
+    float totalWeight = clamp(normalWeight * screenWeight, 0.0, 1.0);
     
-    return mix(currColor, prevColor, blendFactor); 
+    return mix(currColor, prevColor, totalWeight * blendFactor); 
 }

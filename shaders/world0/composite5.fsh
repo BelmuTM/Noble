@@ -29,7 +29,7 @@ void main() {
     vec4 Result = texture2D(colortex0, texCoords);
 
     #if SSR == 1
-        if(!isSky()) {
+        if(!isSky(texCoords)) {
             vec3 viewPos = getViewPos(texCoords);
             vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 

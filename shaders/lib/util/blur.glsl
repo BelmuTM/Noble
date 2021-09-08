@@ -68,40 +68,56 @@ vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float 
     return clamp(color / SAMPLES, 0.0, 1.0);
 }
 
-const float gaussianWeights[33] = float[33](
-    0.004013,
-    0.005554,
-    0.007527,
-    0.00999,
-    0.012984,
-    0.016524,
-    0.020594,
-    0.025133,
-    0.030036,
-    0.035151,
-    0.040283,
-    0.045207,
-    0.049681,
-    0.053463,
-    0.056341,
-    0.058141,
-    0.058754,
-    0.058141,
-    0.056341,
-    0.053463,
-    0.049681,
-    0.045207,
-    0.040283,
-    0.035151,
-    0.030036,
-    0.025133,
-    0.020594,
-    0.016524,
-    0.012984,
-    0.00999,
-    0.007527,
-    0.005554,
-    0.004013
+const float gaussianWeights[49] = float[49](
+0.004696576679070732,
+0.005528603997864301,
+0.0064630154006652014,
+0.007503096437824796,
+0.008650306566931922,
+0.00990394268015627,
+0.011260830280013285,
+0.012715060211082848,
+0.01425778914891494,
+0.01587712131274775,
+0.01755808701193398,
+0.019282730633218392,
+0.0210303165845277,
+0.022777656674551675,
+0.024499556655159366,
+0.026169373490628617,
+0.027759668708179853,
+0.029242937328683462,
+0.03059238678201788,
+0.031782736261255995,
+0.03279100448992231,
+0.03359725310748109,
+0.034185253951139895,
+0.03454305143322248,
+0.03466328834561044,
+0.03454305143322248,
+0.034185253951139895,
+0.03359725310748109,
+0.03279100448992231,
+0.031782736261255995,
+0.03059238678201788,
+0.029242937328683462,
+0.027759668708179853,
+0.026169373490628617,
+0.024499556655159366,
+0.022777656674551675,
+0.0210303165845277,
+0.019282730633218392,
+0.01755808701193398,
+0.01587712131274775,
+0.01425778914891494,
+0.012715060211082848,
+0.011260830280013285,
+0.00990394268015627,
+0.008650306566931922,
+0.007503096437824796,
+0.0064630154006652014,
+0.005528603997864301,
+0.004696576679070732
 );
 
 bool edgeStop(vec2 sampleCoords, vec3 pos, vec3 normal) { 
@@ -118,6 +134,21 @@ bool edgeStop(vec2 sampleCoords, vec3 pos, vec3 normal) {
         &&  clamp(sampleCoords, 0.0, 1.0) == sampleCoords; // Is on screen
 }
 
+vec4 gaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, vec2 direction) {
+    vec4 color = vec4(0.0);
+    float totalWeight = 0.0;
+
+    for(int i = 0; i < 49; i++) {
+        vec2 sampleCoords = coords + (direction * (i - 24) * pixelSize);
+        float weight = gaussianWeights[i] * float(edgeStop(sampleCoords, viewPos, normal));
+
+        color += texture2D(tex, sampleCoords) * weight;
+        totalWeight += weight;
+    }
+    return color / max(EPS, totalWeight);
+}
+
+/*
 vec4 edgeAwareSpatialDenoiser(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, float size, float quality, float directions) {
     vec4 color = texture2D(tex, coords);
     float totalWeight = 1.0;
@@ -133,3 +164,4 @@ vec4 edgeAwareSpatialDenoiser(vec2 coords, vec3 viewPos, vec3 normal, sampler2D 
     }
     return clamp((color / totalWeight) / quality * directions, 0.0, 1.0);
 }
+*/

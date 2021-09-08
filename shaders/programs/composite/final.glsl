@@ -20,16 +20,7 @@
 #include "/lib/post/bloom.glsl"
 #include "/lib/post/dof.glsl"
 #include "/lib/post/outline.glsl"
-#include "/lib/post/taa.glsl"
 #include "/lib/post/exposure.glsl"
-#include "/lib/atmospherics/fog.glsl"
-
-/*
-const bool colortex0MipmapEnabled = true;
-const bool colortex7Clear = false;
-*/
-
-const vec3 fogColor = vec3(0.225, 0.349, 0.488);
 
 vec3 computeBloom() {
     vec3 color  = getBloomTile(2, vec2(0.0      , 0.0   ));
@@ -43,7 +34,6 @@ vec3 computeBloom() {
 }
 
 void main() {
-    vec3 viewPos = getViewPos(texCoords);
     vec4 Result = texture2D(colortex0, texCoords);
     float depth = texture2D(depthtex0, texCoords).r;
 
@@ -55,11 +45,6 @@ void main() {
     // Depth of Field
     #if DOF == 1
         Result.rgb = computeDOF(Result.rgb, depth);
-    #endif
-
-    // Rain Fog
-    #if RAIN_FOG == 1
-        Result.rgb += fog(depth, viewPos, vec3(0.0), fogColor * getDayTimeColor(), rainStrength, 0.01); // Applying Fog
     #endif
 
     // Bloom
@@ -79,12 +64,7 @@ void main() {
     #endif
     
     // Tonemapping
-    float exposureLuma = 0.0;
-    #if AUTO_EXPOSURE == 1
-        exposureLuma = getExposureLuma(colortex7);
-    #endif
-
-    Result.rgb *= computeExposure(exposureLuma);
+    Result.rgb *= computeExposure(texture2D(colortex7, texCoords).r);
 
     #if TONEMAPPING == 0
         Result.rgb = reinhard_jodie(Result.rgb); // Reinhard
@@ -101,7 +81,6 @@ void main() {
 
     Result.rgb += bayer2(gl_FragCoord.xy) / 200.0; // Removes color banding from the screen
 
-    /*DRAWBUFFERS:07*/
+    /*DRAWBUFFERS:0*/
     gl_FragData[0] = toSRGB(Result);
-    gl_FragData[1] = vec4(exposureLuma);
 }

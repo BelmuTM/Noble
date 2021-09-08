@@ -7,10 +7,10 @@
 /***********************************************/
 
 vec3 computePTGI(in vec3 screenPos) {
-    vec3 hitPos = screenPos;
     vec3 illumination = vec3(0.0);
     vec3 weight = vec3(1.0);
 
+    vec3 hitPos = screenPos;
     vec2 noise = uniformAnimatedNoise();
 
     for(int i = 0; i < GI_BOUNCES; i++) {
@@ -21,11 +21,10 @@ vec3 computePTGI(in vec3 screenPos) {
         hitPos = screenToView(hitPos) + normal * EPS;
         
         vec3 sampleDir = tangentToWorld(normal, randomHemisphereDirection(noise));
-        if(!raytrace(hitPos, sampleDir, GI_STEPS, blueNoise().r, hitPos)) continue;
+        bool hit = raytrace(hitPos, sampleDir, GI_STEPS, blueNoise().r, hitPos);
 
         /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
         vec3 albedo = texture2D(colortex0, hitPos.xy).rgb;
-
         weight *= albedo;
         illumination += weight;
     }

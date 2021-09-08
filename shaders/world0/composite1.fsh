@@ -39,7 +39,7 @@ vec3 getLightmapColor(vec2 lightMap) {
 void main() {
     vec3 viewPos = getViewPos(texCoords);
     vec3 viewDir = normalize(-viewPos);
-    vec3 lightDir = normalize(shadowLightPosition);
+    vec3 lightDir = shadowLightPosition * 0.01;
 
     vec4 tex0 = texture2D(colortex0, texCoords);
     vec4 tex1 = texture2D(colortex1, texCoords);
@@ -53,7 +53,7 @@ void main() {
         volumetricLighting = clamp(computeVL(viewPos) - rainStrength, 0.0, 1.0) * 0.1;
     #endif
 
-    if(isSky()) {
+    if(isSky(texCoords)) {
         /*DRAWBUFFERS:04*/
         gl_FragData[0] = tex0;
         gl_FragData[1] = vec4(volumetricLighting);

@@ -27,19 +27,13 @@ varying vec2 texCoords;
 void main() {
      vec4 Result = texture2D(colortex0, texCoords);
 
-     if(isSky()) {
-        /*DRAWBUFFERS:0*/
-        gl_FragData[0] = Result;
-        return;
-     }
-
      vec3 roughReflections;
      #if SSR == 1
         #if SSR_TYPE == 1
                float inverseRes = 1.0 / ROUGH_REFLECT_RES;
                vec2 scaledUv = texCoords * inverseRes;
         
-               if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords) {
+               if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords && !isSky(scaledUv)) {
                     vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
                     vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, scaledUv).xy));
 
@@ -60,7 +54,7 @@ void main() {
                     vec3 viewPos = getViewPos(texCoords);
                     vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-                    globalIllumination = edgeAwareSpatialDenoiser(texCoords, viewPos, normal, colortex6, GI_FILTER_SIZE, GI_FILTER_QUALITY, 8.0).rgb;
+                    globalIllumination = gaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
                #else
                     globalIllumination = texture2D(colortex6, texCoords).rgb;
                #endif

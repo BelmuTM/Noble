@@ -20,8 +20,8 @@ bool isHand(float depth) {
     return linearizeDepth(depth) < 0.56;
 }
 
-bool isSky() {
-    return texture2D(depthtex0, texCoords).r == 1.0;
+bool isSky(vec2 coords) {
+    return texture2D(depthtex0, coords).r == 1.0;
 }
 
 float getSkyLightmap() {

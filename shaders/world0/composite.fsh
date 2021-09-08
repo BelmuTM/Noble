@@ -34,7 +34,7 @@ void main() {
    vec4 temp = toLinear(texture2D(colortex4, texCoords));
    vec4 rain = texture2D(colortex5, texCoords);
 
-   if(isSky()) {
+   if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
       gl_FragData[0] = temp + rain;
       return;
@@ -79,14 +79,14 @@ void main() {
          depthDist = max(0.0, depthDist);
          float density = depthDist * 6.5e-1;
 
-	      vec3 absorption = exp2(-(density / log(2.0)) * WATER_ABSORPTION_COEFFICIENTS);
-         data.albedo *= absorption;
+	      vec3 transmittance = exp2(-(density / log(2.0)) * WATER_ABSORPTION_COEFFICIENTS);
+         data.albedo *= transmittance;
 
          // Foam
          #if WATER_FOAM == 1
             if(depthDist < FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF) {
                float falloff = (depthDist / FOAM_FALLOFF_DISTANCE) + FOAM_FALLOFF_BIAS;
-               vec3 edge = absorption * falloff * FOAM_BRIGHTNESS * shadowmap;
+               vec3 edge = transmittance * falloff * FOAM_BRIGHTNESS * shadowmap;
 
                float leading = depthDist / (FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF);
 	            data.albedo = mix(data.albedo + edge, data.albedo, leading);

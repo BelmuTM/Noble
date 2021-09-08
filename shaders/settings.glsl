@@ -94,9 +94,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 // Spatial Filtering
 #define GI_FILTER 1 // [0 1]
-#define GI_FILTER_SIZE 30.0
-#define GI_FILTER_QUALITY 9.0
-#define EDGE_STOP_THRESHOLD 0.5 // Lower number means sharper edges
+#define EDGE_STOP_THRESHOLD 0.3 // Lower number means sharper edges
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
@@ -124,7 +122,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_NORMAL_THRESHOLD 0.5
+#define TAA_STRENGTH 0.96
+#define TAA_NORMAL_THRESHOLD 1.8
 #define NEIGHBORHOOD_SIZE 4
 
 #define DOF 1 // [0 1]
@@ -154,7 +153,7 @@ const float K = 12; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 #define AUTO_EXPOSURE 1 // [0 1]
-#define MIN_EXPOSURE 0.003
+#define MIN_EXPOSURE 0.005
 #define MAX_EXPOSURE 20.0
 
 /*------------------ COLOR CORRECTION ------------------*/

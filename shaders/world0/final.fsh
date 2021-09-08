@@ -9,8 +9,4 @@
 #version 330 compatibility
 
 varying vec2 texCoords;
-uniform sampler2D colortex0;
-
-void main() {
-    gl_FragData[0] = texture2D(colortex0, texCoords);
-}
+#include "/programs/composite/final.glsl"
