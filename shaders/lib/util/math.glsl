@@ -36,10 +36,6 @@ float distanceSquared(vec3 v1, vec3 v2) {
 	return dot(u, u);
 }
 
-float sdSphere(vec3 rayPos, vec3 spherePos, float radius)  {
-    return length(rayPos - spherePos) - radius;
-}
-
 float saturate(float x) {
 	return clamp(x, 0.0, 1.0);
 }

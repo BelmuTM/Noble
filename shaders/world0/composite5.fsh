@@ -52,12 +52,11 @@ void main() {
         }
     #endif
 
-    float volumetricLighting = texture2D(colortex4, texCoords).a;
+    vec3 volumetricLighting = texture2D(colortex8, texCoords).rgb;
     #if VL == 1
         #if VL_FILTER == 1
-            volumetricLighting = bilateralBlur(texCoords, colortex4, 5).a;
+            volumetricLighting = bilateralBlur(texCoords, colortex8, 5).rgb;
         #endif
-
         Result.rgb += (getSunColor() * volumetricLighting) * VL_BRIGHTNESS;
     #endif
 

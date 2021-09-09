@@ -6,21 +6,31 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float computeVL(vec3 viewPos) {
-    float visibility = 0.0;
+vec3 computeVL(vec3 viewPos) {
+    vec3 color = vec3(0.0);
     float INV_SAMPLES = 1.0 / VL_SAMPLES;
 
-    vec3 rayPos = projMAD3(shadowProjection, transMAD3(shadowModelView, gbufferModelViewInverse[3].xyz));
+    vec3 startPos = projMAD3(shadowProjection, transMAD3(shadowModelView, gbufferModelViewInverse[3].xyz));
     vec3 endPos = projMAD3(shadowProjection, transMAD3(shadowModelView, (mat3(gbufferModelViewInverse) * viewPos)));
 
     float jitter = fract(frameTimeCounter + bayer64(gl_FragCoord.xy));
-    vec3 rayDir = (normalize(endPos - rayPos) * distance(endPos, rayPos)) * INV_SAMPLES * jitter;
+    vec3 rayDir = (normalize(endPos - startPos) * distance(endPos, startPos)) * INV_SAMPLES * jitter;
+    float dist = distance(endPos, startPos);
     
+    vec3 rayPos = startPos;
     for(int i = 0; i < VL_SAMPLES; i++) {
         rayPos += rayDir;
         vec3 samplePos = vec3(distort3(rayPos.xy), rayPos.z) * 0.5 + 0.5;
 
-        visibility += texture2D(shadowtex0, samplePos.xy).r < samplePos.z ? 0.0 : 1.0;
+        float shadowVisibility0 = step(samplePos.z - EPS, texture2D(shadowtex0, samplePos.xy).r);
+        float shadowVisibility1 = step(samplePos.z - EPS, texture2D(shadowtex1, samplePos.xy).r);
+
+        vec4 shadowColor = texture2D(shadowcolor0, samplePos.xy);
+        vec3 transmittedColor = shadowColor.rgb * (1.0 - shadowColor.a);
+
+        // Doing both coloured VL and normal VL
+        float extinction = exp(-dist * VL_DENSITY * VL_EXTINCTION);
+        color += (mix(transmittedColor * shadowVisibility1, vec3(0.0), shadowVisibility0) + shadowVisibility0);
     }
-    return visibility * INV_SAMPLES;
+    return color * INV_SAMPLES;
 }

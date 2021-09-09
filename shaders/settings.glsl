@@ -116,7 +116,9 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define VL 0 // [0 1]
 #define VL_FILTER 1 // [0 1]
 #define VL_SAMPLES 8 // [4 8 12 16 24 32 48]
-#define VL_BRIGHTNESS 0.325
+#define VL_BRIGHTNESS 0.3
+#define VL_DENSITY 0.1
+#define VL_EXTINCTION 0.7
 
 #define RAIN_FOG 1 // [0 1]
 
@@ -148,12 +150,12 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define LENS_LENGTH 15.0
 #define APERTURE 4.0
 #define ISO 120.0
-#define SHUTTER_SPEED 60.0
-const float K = 12; // Light meter calibration
+#define SHUTTER_SPEED 6.0
+const float K = 20.5;  // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 #define AUTO_EXPOSURE 1 // [0 1]
-#define MIN_EXPOSURE 0.005
+#define MIN_EXPOSURE 0.05
 #define MAX_EXPOSURE 20.0
 
 /*------------------ COLOR CORRECTION ------------------*/

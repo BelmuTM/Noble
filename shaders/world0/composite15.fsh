@@ -16,6 +16,7 @@ varying vec2 texCoords;
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
+#include "/lib/util/color.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/post/bloom.glsl"
 #include "/lib/post/taa.glsl"

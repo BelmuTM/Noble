@@ -79,7 +79,7 @@ void main() {
     Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
     Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
 
-    Result.rgb += bayer2(gl_FragCoord.xy) / 200.0; // Removes color banding from the screen
+    Result.rgb += bayer2(gl_FragCoord.xy) * (1.0 / 255.0); // Removes color banding from the screen
 
     /*DRAWBUFFERS:0*/
     gl_FragData[0] = toSRGB(Result);

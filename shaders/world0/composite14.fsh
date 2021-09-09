@@ -18,7 +18,6 @@ varying vec2 texCoords;
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/blur.glsl"
-#include "/lib/util/color.glsl"
 #include "/lib/util/worldTime.glsl"
 #include "/lib/atmospherics/fog.glsl"
 

@@ -27,6 +27,10 @@ varying vec2 texCoords;
 
 const float rainAmbientDarkness = 0.12;
 
+/*
+const int colortex8Format = RGBA16F;
+*/
+
 /*------------------ LIGHTMAP ------------------*/
 vec3 getLightmapColor(vec2 lightMap) {
     lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, 5.06);
@@ -48,15 +52,15 @@ void main() {
     material data = getMaterial(tex0, tex1, tex2);
     vec3 normal = normalize(data.normal.xyz);
     
-    float volumetricLighting = 0.0;
+    vec3 volumetricLighting = vec3(1.0);
     #if VL == 1
-        volumetricLighting = clamp(computeVL(viewPos) - rainStrength, 0.0, 1.0) * 0.1;
+        volumetricLighting = computeVL(viewPos);
     #endif
 
     if(isSky(texCoords)) {
-        /*DRAWBUFFERS:04*/
+        /*DRAWBUFFERS:08*/
         gl_FragData[0] = tex0;
-        gl_FragData[1] = vec4(volumetricLighting);
+        gl_FragData[1] = vec4(volumetricLighting, 1.0);
         return;
     }
 
@@ -74,7 +78,8 @@ void main() {
 
     vec3 Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, shadowmap);
 
-    /*DRAWBUFFERS:04*/
+    /*DRAWBUFFERS:048*/
     gl_FragData[0] = vec4(Lighting, 1.0);
-    gl_FragData[1] = vec4(data.albedo, volumetricLighting);
+    gl_FragData[1] = vec4(data.albedo, 1.0);
+    gl_FragData[2] = vec4(volumetricLighting, 1.0);
 }
