@@ -29,7 +29,8 @@ vec3 computeVL(vec3 viewPos) {
         vec3 transmittedColor = shadowColor.rgb * (1.0 - shadowColor.a);
 
         // Doing both coloured VL and normal VL
-        color += (mix(transmittedColor * shadowVisibility1, vec3(0.0), shadowVisibility0) + shadowVisibility0);
+        float extinction = 1.0 - exp(-dist * VL_EXTINCTION);
+        color += (mix(transmittedColor * shadowVisibility1, vec3(0.0), shadowVisibility0) + shadowVisibility0) * extinction;
     }
     return color * INV_SAMPLES;
 }

@@ -39,8 +39,8 @@ const float shadowDistanceRenderMul = 1.0;
 #define FOAM_FALLOFF_BIAS 0.1
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.08)
-#define PTGI_AMBIENT vec3(0.0001)
+#define AMBIENT vec3(0.06)
+#define PTGI_AMBIENT vec3(0.001)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(0.92, 0.87, 0.7)
@@ -87,7 +87,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define GI 1 // [0 1]
 #define GI_VISUALIZATION 0
 
-#define GI_STEPS 40
+#define GI_STEPS 128
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
@@ -115,16 +115,16 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 /*------------------ ATMOSPHERICS ------------------*/
 #define VL 0 // [0 1]
 #define VL_FILTER 1 // [0 1]
-#define VL_SAMPLES 8 // [4 8 12 16 24 32 48]
-#define VL_BRIGHTNESS 0.3
-#define VL_DENSITY 0.1
-#define VL_EXTINCTION 0.7
+#define VL_SAMPLES 8
+
+#define VL_BRIGHTNESS 0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define VL_EXTINCTION 0.9
 
 #define RAIN_FOG 1 // [0 1]
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.92
+#define TAA_STRENGTH 0.96
 #define TAA_NORMAL_THRESHOLD 2.8
 #define NEIGHBORHOOD_SIZE 4
 
@@ -132,12 +132,11 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define DOF_STRENGTH 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]
 
 #define BLOOM 1 // [0 1]
-#define BLOOM_STRENGTH 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define BLOOM_LUMA_THRESHOLD 0.4
+#define BLOOM_STRENGTH 1.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define BLOOM_LUMA_THRESHOLD 0.6
 
 #define VIGNETTE 1 // [0 1]
-#define VIGNETTE_FALLOFF 0.2
-#define VIGNETTE_STRENGTH 0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define VIGNETTE_STRENGTH 0.15 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define CHROMATIC_ABERRATION 0 // [0 1]
 #define ABERRATION_STRENGTH 30.0 // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0]

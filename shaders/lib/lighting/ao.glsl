@@ -13,15 +13,8 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
     vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
 	mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 
-	vec2 noise;
-    #if TAA == 1
-     	noise = uniformAnimatedNoise();
-    #endif
-
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
-		#if TAA == 0
-            noise = uniformNoise(i);
-        #endif
+		vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
 		vec3 sampleDir = TBN * (randomHemisphereDirection(noise.xy) * AO_BIAS);
 
 		vec3 samplePos = sampleOrigin + sampleDir * SSAO_RADIUS;
@@ -42,15 +35,8 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
     vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
 	mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 
-	vec2 noise;
-    	#if TAA == 1
-     	noise = uniformAnimatedNoise();
-    	#endif
-
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
-		#if TAA == 0
-            noise = uniformNoise(i);
-        #endif
+		vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
 		vec3 sampleDir = TBN * (randomHemisphereDirection(noise) * AO_BIAS);
 		vec3 hitPos;
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, blueNoise().g, hitPos)) continue;

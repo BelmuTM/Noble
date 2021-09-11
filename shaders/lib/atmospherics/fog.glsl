@@ -6,12 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 fog(float depth, vec3 viewPos, vec3 fogColorStart, vec3 fogColorEnd, float fogCoef, float density) {
-    const float LOG2 = -1.442695;
-    float d = density * (-viewPos.z - near);
+vec3 fog(vec3 viewPos, vec3 fogColorStart, vec3 fogColorEnd, float fogCoef, float density) {
+    const float sqrt2 = -sqrt(2.0);
+    float d = density * pow(-viewPos.z - near, 0.6);
 
-    float fogDensity = 1.0 - clamp(exp2(d * d * LOG2), 0.0, 1.0);
-    vec3 fogCol = mix(fogColorStart, fogColorEnd, fogDensity);
-
-    return fogCol * fogCoef;
+    float fogDensity = 1.0 - clamp(exp2(d * d * sqrt2), 0.0, 1.0);
+    return mix(fogColorStart, fogColorEnd, fogDensity) * saturate(fogCoef);
 }

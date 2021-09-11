@@ -101,10 +101,6 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     bool isMetal = data.F0 * 255.0 > 229.5;
     float alpha = data.roughness * data.roughness;
 
-    vec3 specularColor = isMetal ? data.albedo : vec3(data.F0);
-    vec3 dayTimeColor = getDayTimeColor();
-    vec3 ambient = GI == 0 ? AMBIENT : PTGI_AMBIENT;
-
     vec3 H = normalize(V + L);
     float NdotL = saturate(dot(N, L));
     float NdotV = saturate(dot(N, V));
@@ -114,6 +110,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
 
     vec3 specular;
     #if SPECULAR == 1
+        vec3 specularColor = isMetal ? data.albedo : vec3(data.F0);
         specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, data.roughness, specularColor);
     #endif
 
@@ -131,10 +128,12 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
         diffuse = clamp(A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y), 0.0, 1.0);
     }
 
-    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * dayTimeColor;
+    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * getDayColor();
     Lighting += data.emission * data.albedo;
 
     if(!isMetal) {
+        vec3 ambient = GI == 0 ? AMBIENT : PTGI_AMBIENT;
+
         Lighting += ambient * data.albedo;
         #if GI == 0
             Lighting *= lightmap;

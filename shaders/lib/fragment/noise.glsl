@@ -221,10 +221,6 @@ vec3 blueNoise() {
     return texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
 }
 
-vec2 uniformIndexedNoise(int i, vec2 seed) {
-    return fract(seed + vec2(GOLDEN_RATIO, GOLDEN_RATIO + GOLDEN_RATIO) * i);
-}
-
 vec2 uniformAnimatedNoise() {
     vec2 noise = blueNoise().rg;
     return fract(noise + vec2(GOLDEN_RATIO * (frameTimeCounter * 15.0), (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter * 15.0, 100.0)));

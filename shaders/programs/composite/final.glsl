@@ -59,8 +59,11 @@ void main() {
 
     // Vignette
     #if VIGNETTE == 1
-        float dist = distance(texCoords, vec2(0.5));
-        Result.rgb *= smoothstep(0.8, VIGNETTE_FALLOFF * 0.799, dist * (VIGNETTE_STRENGTH + VIGNETTE_FALLOFF));
+        vec2 coords = texCoords * (1.0 - texCoords.yx);
+        Result.rgb *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
+
+        //float diff = 0.55 - distance(texCoords, vec2(0.5));
+	    //Result.rgb *= smoothstep(-0.20, 0.20, diff);
     #endif
     
     // Tonemapping

@@ -46,26 +46,22 @@ void main() {
         volumetricLighting = computeVL(viewPos);
     #endif
 
-    if(isSky(texCoords)) {
-        /*DRAWBUFFERS:08*/
-        gl_FragData[0] = tex0;
-        gl_FragData[1] = vec4(volumetricLighting, 1.0);
-        return;
-    }
-
     #if WHITE_WORLD == 1
 		data.albedo = vec3(1.0);
     #endif
 
-    vec3 shadowmap = texture2D(colortex4, texCoords).rgb;
-    vec3 lightmapColor = vec3(1.0);
+    vec3 Lighting = tex0.rgb;
+    if(!isSky(texCoords)) {
+        vec3 shadowmap = texture2D(colortex9, texCoords).rgb;
+        vec3 lightmapColor = vec3(1.0);
     
-    #if GI == 0
-        vec2 lightMap = texture2D(colortex2, texCoords).zw;
-        lightmapColor = max(vec3(0.03), getLightmapColor(lightMap, getDayTimeColor()));
-    #endif
+        #if GI == 0
+            vec2 lightMap = texture2D(colortex2, texCoords).zw;
+            lightmapColor = max(vec3(0.03), getLightmapColor(lightMap, getDayColor()));
+        #endif
 
-    vec3 Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, shadowmap);
+        Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, shadowmap);
+    }
 
     /*DRAWBUFFERS:048*/
     gl_FragData[0] = vec4(Lighting, 1.0);

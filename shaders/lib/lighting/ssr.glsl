@@ -30,27 +30,22 @@ vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec3 hitPos;
 
-    float jitter;
-    #if TAA == 1
-        jitter = uniformAnimatedNoise().r;
-    #else
-        jitter = blueNoise().r;
-    #endif
-
-    raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos);
+    float jitter = TAA == 1 ? uniformAnimatedNoise().r : blueNoise().r;
+    float hit = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos));
 
     vec3 L = shadowLightPosition * 0.01;
     vec3 H = normalize(viewPos + L);
-    vec3 fresnel = sphericalGaussianFresnel(max(dot(H, L), EPS), F0);
-
+    vec3 fresnel = sphericalGaussianFresnel(saturate(dot(H, L)), F0);
     vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
 
+    vec3 color = vec3(0.0);
     if(SKY_FALLBACK == 1 && isMetal) {
         vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap(coords);
-        return mix(sky, hitColor, Kneemund_Attenuation(hitPos.xy, 0.2)) * fresnel;
+        color = mix(sky, hitColor, Kneemund_Attenuation(hitPos.xy, 0.2) * hit);
     } else {
-        return hitColor * fresnel * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
+        color * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
     }
+    return color * fresnel;
 }
 
 /*------------------ ROUGH REFLECTIONS ------------------*/
@@ -64,30 +59,22 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
 	
     vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
     mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
-
-    #if TAA == 1
-        noise = uniformAnimatedNoise();
-    #endif
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-        #if TAA == 0
-            noise = uniformNoise(i);
-        #else
-            noise = uniformIndexedNoise(i, noise);
-        #endif
+        vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
         
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.rg, roughness);
 		vec3 reflected = reflect(viewDir, TBN * microfacet);	
-		raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, blueNoise().r, hitPos);
+		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, blueNoise().r, hitPos));
 
         float NdotL = max(0.0, dot(normal, reflected));
 		if(NdotL > 0.0) {
 
             if(SKY_FALLBACK == 1 && isMetal) {
                 vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap(coords);
-			    filteredColor += mix(sky, texture2D(colortex0, hitPos.xy).rgb, Kneemund_Attenuation(hitPos.xy, 0.1)) * NdotL;
+			    filteredColor += mix(sky, texture2D(colortex0, hitPos.xy).rgb, Kneemund_Attenuation(hitPos.xy, 0.1) * hit) * NdotL;
             } else {
-                filteredColor += texture2D(colortex0, hitPos.xy).rgb * NdotL * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
+                filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * (Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit);
             }
             weight += NdotL;
 		}
@@ -100,14 +87,9 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
 vec3 simpleRefractions(vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
     float ior = 1.329; //F0toIOR(F0);
     viewPos += normal * EPS;
-    vec3 refracted = refract(normalize(viewPos), normal, 1.0 / ior); // water's ior
 
-    float jitter;
-    #if TAA == 1
-        jitter = uniformAnimatedNoise().r;
-    #else
-        jitter = blueNoise().r;
-    #endif
+    vec3 refracted = refract(normalize(viewPos), normal, 1.0 / ior); // water's ior
+    float jitter = TAA == 1 ? uniformAnimatedNoise().r : blueNoise().r;
 
     if(!raytrace(viewPos, refracted, REFRACT_STEPS, jitter, hitPos)) return vec3(0.0);
     if(isHand(texture2D(depthtex1, hitPos.xy).r)) return vec3(0.0);

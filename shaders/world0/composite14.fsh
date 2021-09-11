@@ -24,12 +24,8 @@ varying vec2 texCoords;
 void main() {
      vec3 viewPos = getViewPos(texCoords);
      vec4 Result = texture2D(colortex0, texCoords);
-     float depth = texture2D(depthtex0, texCoords).r;
 
-     // Rain Fog
-     #if RAIN_FOG == 1
-          Result.rgb += fog(depth, viewPos, vec3(0.0), getSunColor(), rainStrength, 0.01); // Applying Fog
-     #endif
+     Result.rgb += fog(viewPos, vec3(0.0), getSunColor(), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.05); // Applying Fog
 
      /*DRAWBUFFERS:0*/
      gl_FragData[0] = Result;

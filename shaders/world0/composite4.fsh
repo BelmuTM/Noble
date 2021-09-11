@@ -45,25 +45,23 @@ void main() {
 
      vec3 globalIllumination;
      #if GI == 1
-          float F0 = texture2D(colortex2, texCoords).g;
-          bool isMetal = F0 * 255.0 > 229.5;
+          //float F0 = texture2D(colortex2, texCoords).g;
+          //bool isMetal = F0 * 255.0 > 229.5;
 
-          if(!isMetal) {
-               #if GI_FILTER == 1
-                    vec3 viewPos = getViewPos(texCoords);
-                    vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+          #if GI_FILTER == 1
+               vec3 viewPos = getViewPos(texCoords);
+               vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-                    globalIllumination = gaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
-               #else
-                    globalIllumination = texture2D(colortex6, texCoords).rgb;
-               #endif
+               globalIllumination = gaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
+          #else
+               globalIllumination = texture2D(colortex6, texCoords).rgb;
+          #endif
 
-               #if GI_VISUALIZATION == 0
-                    Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
-               #else
-                    Result.rgb = globalIllumination;
-               #endif
-          }
+          #if GI_VISUALIZATION == 0
+               Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
+          #else
+               Result.rgb = globalIllumination;
+          #endif
      #else
           Result.rgb *= texture2D(colortex6, texCoords).a; // Ambient Occlusion
      #endif

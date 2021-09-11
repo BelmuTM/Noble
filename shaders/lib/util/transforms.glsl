@@ -30,6 +30,13 @@ vec3 viewToClip(vec3 viewPos) {
 	return diag3(gbufferProjection) * viewPos + gbufferProjection[3].xyz;
 }
 
+vec3 screenToWorld(float depth, vec2 coords, mat4 projection, mat4 modelView) {
+    vec4 clipPos = vec4(coords * 2.0 - 1.0, depth, 1.0);
+    vec4 viewPos = inverse(projection) * clipPos;
+    viewPos /= viewPos.w;
+    return (inverse(modelView) * viewPos).xyz;
+}
+
 vec3 screenToView(vec3 screenPos) {
 	screenPos = screenPos * 2.0 - 1.0;
 	vec3 viewPos = vec3(projMAD2(gbufferProjectionInverse, screenPos.xy), gbufferProjectionInverse[3].z);

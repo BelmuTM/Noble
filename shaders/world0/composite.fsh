@@ -71,7 +71,7 @@ void main() {
    #endif
 
    // Alpha Blending
-   data.albedo = mix(opaques, data.albedo, data.alpha);
+   data.albedo = mix(opaques * mix(vec3(1.0), data.albedo, data.alpha), data.albedo, data.alpha);
 
    #if WHITE_WORLD == 0
       if(getBlockId(texCoords) == 1) {
@@ -95,7 +95,7 @@ void main() {
       }
    #endif
 
-   /*DRAWBUFFERS:04*/
+   /*DRAWBUFFERS:09*/
    gl_FragData[0] = vec4(data.albedo, 1.0) + rain;
    gl_FragData[1] = vec4(shadowmap, 1.0);
 }
