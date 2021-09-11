@@ -32,10 +32,10 @@ const bool colortex6Clear = false;
 
         vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, prevTexCoords).xy));
         float normalWeight = float(
-            all(lessThanEqual(abs(normalAt - normal), vec3(TAA_NORMAL_THRESHOLD)))
+            all(lessThanEqual(abs(normalAt - normal), vec3(0.9)))
         );
         float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
-        float totalWeight = clamp(normalWeight * screenWeight, 0.0, 1.0);
+        float totalWeight = clamp(screenWeight, 0.0, 1.0);
 
         return mix(currColor, prevColor, TAA_STRENGTH * totalWeight);
     }

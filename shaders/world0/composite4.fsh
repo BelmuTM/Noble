@@ -34,12 +34,11 @@ void main() {
                vec2 scaledUv = texCoords * inverseRes;
         
                if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords && !isSky(scaledUv)) {
-                    vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
                     vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, scaledUv).xy));
-
                     bool isMetal = texture2D(colortex2, scaledUv).g * 255.0 > 229.5;
                     float roughness = texture2D(colortex2, scaledUv).r;
-                    roughReflections = prefilteredReflections(screenToView(positionAt), normalAt, roughness * roughness, isMetal);
+
+                    roughReflections = prefilteredReflections(scaledUv, getViewPos(scaledUv), normalAt, roughness * roughness, isMetal);
                }
           #endif
      #endif

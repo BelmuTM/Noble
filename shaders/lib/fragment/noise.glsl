@@ -227,9 +227,7 @@ vec2 uniformIndexedNoise(int i, vec2 seed) {
 
 vec2 uniformAnimatedNoise() {
     vec2 noise = blueNoise().rg;
-    noise.x = fract(noise.x + GOLDEN_RATIO * (frameTimeCounter * 15.0));
-    noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter * 15.0, 100.0));
-    return noise;
+    return fract(noise + vec2(GOLDEN_RATIO * (frameTimeCounter * 15.0), (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter * 15.0, 100.0)));
 }
 
 vec2 uniformNoise(int i) {

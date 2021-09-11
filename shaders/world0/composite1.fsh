@@ -17,28 +17,17 @@ varying vec2 texCoords;
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
-#include "/lib/util/color.glsl"
 #include "/lib/util/worldTime.glsl"
+#include "/lib/util/color.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/material.glsl"
 #include "/lib/lighting/brdf.glsl"
 #include "/lib/util/distort.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
 
-const float rainAmbientDarkness = 0.12;
-
 /*
 const int colortex8Format = RGBA16F;
 */
-
-/*------------------ LIGHTMAP ------------------*/
-vec3 getLightmapColor(vec2 lightMap) {
-    lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, 5.06);
-
-    vec3 torchLight = lightMap.x * TORCH_COLOR;
-    vec3 skyLight = (lightMap.y * lightMap.y) * getDayTimeColor();
-    return torchLight + max(vec3(EPS), skyLight - clamp(rainStrength, 0.0, rainAmbientDarkness));
-}
 
 void main() {
     vec3 viewPos = getViewPos(texCoords);
@@ -73,7 +62,7 @@ void main() {
     
     #if GI == 0
         vec2 lightMap = texture2D(colortex2, texCoords).zw;
-        lightmapColor = max(vec3(0.03), getLightmapColor(lightMap));
+        lightmapColor = max(vec3(0.03), getLightmapColor(lightMap, getDayTimeColor()));
     #endif
 
     vec3 Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, shadowmap);

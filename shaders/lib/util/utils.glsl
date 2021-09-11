@@ -24,7 +24,18 @@ bool isSky(vec2 coords) {
     return texture2D(depthtex0, coords).r == 1.0;
 }
 
-float getSkyLightmap() {
-    float lightmap = texture2D(colortex2, texCoords).w;
+/*------------------ LIGHTMAP ------------------*/
+const float rainAmbientDarkness = 0.8;
+
+float getSkyLightmap(vec2 coords) {
+    float lightmap = texture2D(colortex2, coords).w;
     return clamp((lightmap * lightmap) * 2.0 - 1.0, 0.0, 1.0);
+}
+
+vec3 getLightmapColor(vec2 lightMap, vec3 dayTimeColor) {
+    lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, 5.06);
+
+    vec3 torchLight = lightMap.x * TORCH_COLOR;
+    vec3 skyLight = (lightMap.y * lightMap.y) * dayTimeColor;
+    return torchLight + max(vec3(EPS), skyLight - clamp(rainStrength, 0.0, rainAmbientDarkness));
 }

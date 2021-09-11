@@ -49,7 +49,7 @@ void main() {
 
 	if(int(blockId + 0.5) == 1) { 
 		albedoTex.a = 0.0;
-		F0 = 0.3;
+		F0 = 0.02;
 		roughness = 0.01;
 	}
 

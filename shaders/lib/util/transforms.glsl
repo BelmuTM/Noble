@@ -53,14 +53,13 @@ vec3 tangentToWorld(vec3 normal, vec3 H) {
     return vec3((tangent * H.x) + (cross(normal, tangent) * H.y) + (normal * H.z));
 }
 
-// https://docs.google.com/document/d/1Hi3B8kkvrsQ2BJWQjpXyQybqBbHT9da0NAnA7ng9mvk/edit
+// https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth
 float linearizeDepth(float depth) {
 	return (near * far) / (depth * (near - far) + far);
 }
 
 float F0toIOR(float F0) {
-	F0 *= 0.99999999;
-	return -(F0 + 1.0 + 2.0 * sqrt(F0)) / (F0 - 1.0);
+	return (1.0 + sqrt(F0)) / (1.0 - sqrt(F0));
 }
 
 float IORtoF0(float ior) {

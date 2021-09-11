@@ -13,7 +13,7 @@ vec3 computeVL(vec3 viewPos) {
     vec3 startPos = projMAD3(shadowProjection, transMAD3(shadowModelView, gbufferModelViewInverse[3].xyz));
     vec3 endPos = projMAD3(shadowProjection, transMAD3(shadowModelView, (mat3(gbufferModelViewInverse) * viewPos)));
 
-    float jitter = fract(frameTimeCounter + bayer64(gl_FragCoord.xy));
+    float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
     vec3 rayDir = (normalize(endPos - startPos) * distance(endPos, startPos)) * INV_SAMPLES * jitter;
     float dist = distance(endPos, startPos);
     
@@ -29,7 +29,6 @@ vec3 computeVL(vec3 viewPos) {
         vec3 transmittedColor = shadowColor.rgb * (1.0 - shadowColor.a);
 
         // Doing both coloured VL and normal VL
-        float extinction = exp(-dist * VL_DENSITY * VL_EXTINCTION);
         color += (mix(transmittedColor * shadowVisibility1, vec3(0.0), shadowVisibility0) + shadowVisibility0);
     }
     return color * INV_SAMPLES;

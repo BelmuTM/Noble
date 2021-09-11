@@ -87,7 +87,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define GI 1 // [0 1]
 #define GI_VISUALIZATION 0
 
-#define GI_STEPS 48
+#define GI_STEPS 40
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
@@ -105,9 +105,9 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.375
 #define SKY_FALLBACK 1
 
-#define PREFILTER_SAMPLES 3
+#define PREFILTER_SAMPLES 4
 #define ROUGH_REFLECT_STEPS 20
-#define ROUGH_REFLECT_RES 0.65 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define ROUGH_REFLECT_RES 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define SIMPLE_REFLECT_STEPS 64
 #define REFRACT_STEPS 64
@@ -124,8 +124,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.96
-#define TAA_NORMAL_THRESHOLD 1.8
+#define TAA_STRENGTH 0.92
+#define TAA_NORMAL_THRESHOLD 2.8
 #define NEIGHBORHOOD_SIZE 4
 
 #define DOF 1 // [0 1]
@@ -150,8 +150,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define LENS_LENGTH 15.0
 #define APERTURE 4.0
 #define ISO 120.0
-#define SHUTTER_SPEED 6.0
-const float K = 20.5;  // Light meter calibration
+#define SHUTTER_SPEED 40.0
+const float K = 17.5;  // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 #define AUTO_EXPOSURE 1 // [0 1]

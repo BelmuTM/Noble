@@ -44,7 +44,7 @@ void main() {
             #if SSR_TYPE == 1
                 reflections = texture2D(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
             #else
-                reflections = simpleReflections(viewPos, normal, NdotV, specularColor, isMetal);
+                reflections = simpleReflections(texCoords, viewPos, normal, NdotV, specularColor, isMetal);
             #endif
 
             vec3 DFG = envBRDFApprox(specularColor, roughness, NdotV);
