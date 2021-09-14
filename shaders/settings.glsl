@@ -87,7 +87,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define GI 1 // [0 1]
 #define GI_VISUALIZATION 0
 
-#define GI_STEPS 128
+#define GI_STEPS 40
 #define GI_BOUNCES 3 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
@@ -99,7 +99,7 @@ const float shadowDistanceRenderMul = 1.0;
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
-#define REFRACTION 0 // [0 1]
+#define REFRACTION 1 // [0 1]
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.375
@@ -118,14 +118,13 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define VL_SAMPLES 8
 
 #define VL_BRIGHTNESS 0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define VL_EXTINCTION 0.9
+#define VL_EXTINCTION 0.3
 
 #define RAIN_FOG 1 // [0 1]
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.96
-#define TAA_NORMAL_THRESHOLD 2.8
+#define TAA_STRENGTH 0.800 // [0.025 0.050 0.075 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300 0.325 0.350 0.375 0.400 0.425 0.450 0.475 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
 #define NEIGHBORHOOD_SIZE 4
 
 #define DOF 1 // [0 1]
@@ -141,19 +140,15 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define CHROMATIC_ABERRATION 0 // [0 1]
 #define ABERRATION_STRENGTH 30.0 // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0]
 
-#define OUTLINE 0 // [0 1]
-#define OUTLINE_DARKNESS 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define OUTLINE_THICKNESS 1.00 // [0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-
 /*------------------ CAMERA ------------------*/
 #define LENS_LENGTH 15.0
-#define APERTURE 4.0
+#define APERTURE 2.4
 #define ISO 120.0
 #define SHUTTER_SPEED 40.0
-const float K = 17.5;  // Light meter calibration
+const float K = 15.0;  // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
-#define AUTO_EXPOSURE 1 // [0 1]
+#define AUTO_EXPOSURE 0 // [0 1]
 #define MIN_EXPOSURE 0.05
 #define MAX_EXPOSURE 20.0
 

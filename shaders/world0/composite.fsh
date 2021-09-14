@@ -26,10 +26,6 @@ varying vec2 texCoords;
 #include "/lib/util/distort.glsl"
 #include "/lib/lighting/shadows.glsl"
 
-/*
-const int noisetexFormat = RGBA16F;
-*/
-
 void main() {
    vec4 temp = toLinear(texture2D(colortex4, texCoords));
    vec4 rain = texture2D(colortex5, texCoords);

@@ -8,11 +8,4 @@
 
 #version 330 compatibility
 
-varying vec2 texCoords;
-varying vec4 color;
-
-void main() {
-	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    color = gl_Color;
-    gl_Position = ftransform();
-}
+#include "/programs/gbuffers/gbuffers.vsh"

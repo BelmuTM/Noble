@@ -57,7 +57,7 @@ void main() {
         #if VL_FILTER == 1
             volumetricLighting = bilateralBlur(texCoords, colortex8, 5).rgb;
         #endif
-        Result.rgb += (getSunColor() * volumetricLighting) * VL_BRIGHTNESS;
+        Result.rgb += (getDayColor() * volumetricLighting) * VL_BRIGHTNESS;
     #endif
 
     vec3 brightSpots;

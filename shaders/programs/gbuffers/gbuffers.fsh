@@ -9,6 +9,7 @@
 varying vec2 texCoords;
 varying vec2 lmCoords;
 varying vec4 color;
+varying vec3 heightNormal;
 varying mat3 TBN;
 varying float blockId;
 
@@ -21,6 +22,7 @@ varying float blockId;
 #endif
 
 /*
+const int colortex0Format = RGBA16F;
 const int colortex1Format = RGBA16F;
 const int colortex2Format = RGBA16F;
 */

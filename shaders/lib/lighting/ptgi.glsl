@@ -43,7 +43,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0);
 
         weight *= albedo;
-        illumination += weight;
+        illumination += weight * float(texture2D(colortex1, hitPos.xy).z > 0.0 ? 1.0 : 0.0);
     }
     return max(vec3(EPS), illumination);
 }

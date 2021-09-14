@@ -59,15 +59,7 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
 
     vec2 velocity = (texCoords - prevTexCoords) * viewSize;
     float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
-
-    /*
-    vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
-    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, prevTexCoords).xy));
-    float normalWeight = pow(abs(dot(normalAt, normal)), 12.0);
-    */
-
     float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
-    float totalWeight = clamp(screenWeight, 0.0, 1.0);
     
-    return mix(currColor, prevColor, totalWeight * blendFactor); 
+    return mix(currColor, prevColor, blendFactor * screenWeight); 
 }

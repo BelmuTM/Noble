@@ -17,7 +17,6 @@ screen.RAYTRACING = Ray Tracing
 screen.ATMOSPHERICS = Atmospherics
 screen.POST_PROCESSING = Post-Processing
 screen.COLOR_CORRECTION = Color Correction
-screen.OUTLINE_SCREEN = Outline
 
 ##################### LIGHTING & SHADOWS #####################
 
@@ -177,13 +176,16 @@ option.TAA.comment = §bTemporal Anti-Aliasing. §fA form of anti-aliasing which
 value.TAA.0 = §cOFF
 value.TAA.1 = §aON
 
+option.TAA_STRENGTH = TAA Strength
+option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§f's intensity.
+
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
 value.BLOOM.0 = §cOFF
 value.BLOOM.1 = §aON
 
 option.BLOOM_STRENGTH = Bloom Strength
-option.BLOOM_STRENGTH.comment = Adjusts §bBloom§f's strength.
+option.BLOOM_STRENGTH.comment = Adjusts §bBloom§f's intensity.
 
 option.DOF = Depth of Field
 option.DOF.comment = Blurs objects that are out of focus.
@@ -191,7 +193,7 @@ value.DOF.0 = §cOFF
 value.DOF.1 = §aON
 
 option.DOF_STRENGTH = DOF Strength
-option.DOF_STRENGTH.comment = Adjusts §bDepth of Field§f's strength.
+option.DOF_STRENGTH.comment = Adjusts §bDepth of Field§f's intensity.
 
 option.WATER_FOAM = Water Foam
 option.WATER_FOAM.comment = Foam that appears when water encounters an edge.
@@ -207,7 +209,7 @@ value.VIGNETTE.0 = §cOFF
 value.VIGNETTE.1 = §aON
 
 option.VIGNETTE_STRENGTH = Vignette Strength
-option.VIGNETTE_STRENGTH.comment = Adjusts §bVignette§f's strength.
+option.VIGNETTE_STRENGTH.comment = Adjusts §bVignette§f's intensity.
 
 option.CHROMATIC_ABERRATION = Chromatic Aberration
 option.CHROMATIC_ABERRATION.comment = Separates the different color channels depending on the distance between the center of the screen.
@@ -215,18 +217,7 @@ value.CHROMATIC_ABERRATION.0 = §cOFF
 value.CHROMATIC_ABERRATION.1 = §aON
 
 option.ABERRATION_STRENGTH = Aberration Strength
-option.ABERRATION_STRENGTH.comment = Adjusts §bOutline§f's darkness.
-
-option.OUTLINE = Outline
-option.OUTLINE.comment = Adds a cartoon-ish outline to edges.
-value.OUTLINE.0 = §cOFF
-value.OUTLINE.1 = §aON
-
-option.OUTLINE_DARKNESS = Outline Darkness
-option.OUTLINE_DARKNESS.comment = Adjusts §bOutline§f's darkness.
-
-option.OUTLINE_THICKNESS = Outline Thickness
-option.OUTLINE_THICKNESS.comment = Adjusts §bOutline§f's thickness.
+option.ABERRATION_STRENGTH.comment = Adjusts §bAberration§f's intensity.
 
 ##################### COLOR CORRECTION #####################
 

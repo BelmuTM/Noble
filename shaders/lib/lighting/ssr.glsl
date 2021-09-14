@@ -26,7 +26,6 @@ float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
 /*------------------ SIMPLE REFLECTIONS ------------------*/
 
 vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isMetal) {
-    viewPos += normal * EPS;
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec3 hitPos;
 
@@ -85,7 +84,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
 /*------------------ SIMPLE REFRACTIONS ------------------*/
 
 vec3 simpleRefractions(vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
-    float ior = 1.329; //F0toIOR(F0);
+    float ior = F0toIOR(F0); // 1.329 = water's IOR
     viewPos += normal * EPS;
 
     vec3 refracted = refract(normalize(viewPos), normal, 1.0 / ior); // water's ior

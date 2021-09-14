@@ -19,7 +19,6 @@
 #include "/lib/post/aberration.glsl"
 #include "/lib/post/bloom.glsl"
 #include "/lib/post/dof.glsl"
-#include "/lib/post/outline.glsl"
 #include "/lib/post/exposure.glsl"
 
 vec3 computeBloom() {
@@ -50,11 +49,6 @@ void main() {
     // Bloom
     #if BLOOM == 1
         Result.rgb += clamp(computeBloom() * mix(0.03 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH, 0.0, 1.0);
-    #endif
-
-    // Outline
-    #if OUTLINE == 1
-        Result = mix(Result, vec4(0.0), clamp(edgeDetection(OUTLINE_THICKNESS), 0.0, OUTLINE_DARKNESS));
     #endif
 
     // Vignette

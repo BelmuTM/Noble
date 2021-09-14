@@ -25,7 +25,7 @@ void main() {
      vec3 viewPos = getViewPos(texCoords);
      vec4 Result = texture2D(colortex0, texCoords);
 
-     Result.rgb += fog(viewPos, vec3(0.0), getSunColor(), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.05); // Applying Fog
+     Result.rgb += fog(viewPos, vec3(0.0), getDayColor(), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.05); // Applying Fog
 
      /*DRAWBUFFERS:0*/
      gl_FragData[0] = Result;
