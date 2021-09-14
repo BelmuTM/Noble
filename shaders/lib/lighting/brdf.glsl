@@ -64,10 +64,10 @@ vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float alpha) {
 	float xOffset = r * cos(PI2 * Xi.x);
 	float yOffset = r * sin(PI2 * Xi.x);
 	float s = 0.5 * (1.0 + Vh.z);
-	yOffset = (1.0 - s) * sqrt(1.0 - xOffset * xOffset) + s * yOffset;
+	yOffset = (1.0 - s) * sqrt(1.0 - (xOffset * xOffset)) + s * yOffset;
 
 	// Section 4.3: reprojection onto hemisphere
-	vec3 Nh = xOffset * T1 + yOffset * T2 + sqrt(max(0.0, 1.0 - xOffset * xOffset - yOffset * yOffset)) * Vh;
+	vec3 Nh = xOffset * T1 + yOffset * T2 + sqrt(max(0.0, 1.0 - (xOffset * xOffset) - (yOffset * yOffset))) * Vh;
 
 	// Section 3.4: transforming the normal back to the ellipsoid configuration
 	return normalize(vec3(alpha * Nh.x, alpha * Nh.y, max(0.0, Nh.z)));	
