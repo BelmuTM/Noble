@@ -4,6 +4,8 @@
 /*   Please do not claim my work as your own.  */
 /***********************************************/
 
+#include "/lib/post/taa.glsl"
+
 // LVutner's Border Attenuation
 float LVutner_Attenuation(vec2 pos, float edgeFactor) {
     float borderDist = min(1.0 - max(pos.x, pos.y), min(pos.x, pos.y));
@@ -23,6 +25,15 @@ float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
     return 1.0 - smoothstep(edgeFactor, 0.0, min(pos.x, pos.y));
 }
 
+vec3 getHitColor(vec3 hitPos) {
+    #if SSR_REPROJECTION == 1
+        hitPos = reprojection(hitPos);
+        return texture2D(colortex3, hitPos.xy).rgb;
+    #else
+        return texture2D(colortex0, hitPos.xy).rgb;
+    #endif
+}
+
 /*------------------ SIMPLE REFLECTIONS ------------------*/
 
 vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isMetal) {
@@ -35,15 +46,15 @@ vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3
     vec3 L = shadowLightPosition * 0.01;
     vec3 H = normalize(viewPos + L);
     vec3 fresnel = sphericalGaussianFresnel(saturate(dot(H, L)), F0);
-    vec3 hitColor = texture2D(colortex0, hitPos.xy).rgb;
+    vec3 hitColor = getHitColor(hitPos);
 
     vec3 color = vec3(0.0);
-    if(SKY_FALLBACK == 1 && isMetal) {
+    #if SKY_FALLBACK == 1
         vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap(coords);
-        color = mix(sky, hitColor, Kneemund_Attenuation(hitPos.xy, 0.2) * hit);
-    } else {
-        color * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
-    }
+        color = mix(sky * float(isMetal), hitColor, Kneemund_Attenuation(hitPos.xy, 0.2) * hit);
+    #else
+        color = hitColor * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR);
+    #endif
     return color * fresnel;
 }
 
@@ -68,13 +79,14 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
 
         float NdotL = max(0.0, dot(normal, reflected));
 		if(NdotL > 0.0) {
+            vec3 hitColor = getHitColor(hitPos);
 
-            if(SKY_FALLBACK == 1 && isMetal) {
+            #if SKY_FALLBACK == 1
                 vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap(coords);
-			    filteredColor += mix(sky, texture2D(colortex0, hitPos.xy).rgb, Kneemund_Attenuation(hitPos.xy, 0.1) * hit) * NdotL;
-            } else {
-                filteredColor += (texture2D(colortex0, hitPos.xy).rgb * NdotL) * (Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit);
-            }
+			    filteredColor += mix(sky * float(isMetal), hitColor, Kneemund_Attenuation(hitPos.xy, 0.1) * hit) * NdotL;
+            #else
+                filteredColor += (hitColor * NdotL) * (Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit);
+            #endif
             weight += NdotL;
 		}
 	}

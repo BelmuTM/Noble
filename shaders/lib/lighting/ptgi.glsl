@@ -7,7 +7,7 @@
 /***********************************************/
 
 vec3 computePTGI(in vec3 screenPos, bool isMetal) {
-    vec3 illumination = vec3(0.0);
+    vec3 radiance = vec3(0.0);
     vec3 weight = vec3(1.0);
 
     vec3 hitPos = screenPos;
@@ -29,6 +29,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
         vec3 F0 = vec3(texture2D(colortex2, hitPos.xy).g);
         float roughness = texture2D(colortex2, hitPos.xy).r;
+        float alpha = roughness * roughness;
 
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.yx, roughness);
         vec3 reflected = reflect(viewDir, TBN * microfacet);
@@ -39,11 +40,11 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         float NdotH = saturate(dot(normal, H));
         float HdotL = saturate(dot(H, reflected));
 
-        vec3 albedo = isMetal ? vec3(0.0) : texture2D(colortex0, hitPos.xy).rgb;
+        vec3 albedo = isMetal ? vec3(0.0) : texture2D(colortex4, hitPos.xy).rgb;
         vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0);
 
-        weight *= albedo;
-        illumination += weight * float(texture2D(colortex1, hitPos.xy).z > 0.0 ? 1.0 : 0.0);
+        weight *= albedo + specular;
+        radiance += weight * float(texture2D(colortex1, hitPos.xy).z > 0.0 ? 1.0 : 0.0);
     }
-    return max(vec3(EPS), illumination);
+    return max(vec3(EPS), radiance);
 }

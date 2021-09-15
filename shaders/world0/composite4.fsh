@@ -44,28 +44,31 @@ void main() {
                #endif
           #endif
 
+          float F0 = texture2D(colortex2, texCoords).g;
+          bool isMetal = F0 * 255.0 > 229.5;
+
           vec3 globalIllumination = vec3(0.0);
-          #if GI == 1
-               //float F0 = texture2D(colortex2, texCoords).g;
-               //bool isMetal = F0 * 255.0 > 229.5;
 
-               #if GI_FILTER == 1
-                    vec3 viewPos = getViewPos(texCoords);
-                    vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+          if(!isMetal) {
+               #if GI == 1
+                    #if GI_FILTER == 1
+                         vec3 viewPos = getViewPos(texCoords);
+                         vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-                    globalIllumination = gaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
+                         globalIllumination = gaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
+                    #else
+                         globalIllumination = texture2D(colortex6, texCoords).rgb;
+                    #endif
+
+                    #if GI_VISUALIZATION == 0
+                         Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
+                    #else
+                         Result.rgb = globalIllumination;
+                    #endif
                #else
-                    globalIllumination = texture2D(colortex6, texCoords).rgb;
+                    Result.rgb *= texture2D(colortex6, texCoords).a; // Ambient Occlusion
                #endif
-
-               #if GI_VISUALIZATION == 0
-                    Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
-               #else
-                    Result.rgb = globalIllumination;
-               #endif
-          #else
-               Result.rgb *= texture2D(colortex6, texCoords).a; // Ambient Occlusion
-          #endif
+          }
      }
 
      /*DRAWBUFFERS:05*/

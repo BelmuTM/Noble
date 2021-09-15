@@ -51,11 +51,11 @@ void main() {
     vec3 globalIllumination = vec3(0.0);
     float ambientOcclusion = 1.0;
 
-    if(!isSky(texCoords)) {
-        #if GI == 1
-            //float F0 = texture2D(colortex2, texCoords).g;
-            //bool isMetal = F0 * 255.0 > 229.5;
+    float F0 = texture2D(colortex2, texCoords).g;
+    bool isMetal = F0 * 255.0 > 229.5;
 
+    if(!isSky(texCoords) && !isMetal) {
+        #if GI == 1
             #if GI_FILTER == 1
                 vec3 scaledViewPos = getViewPos(texCoords * GI_RESOLUTION);
                 vec3 scaledNormal = normalize(decodeNormal(texture2D(colortex1, texCoords * GI_RESOLUTION).xy));

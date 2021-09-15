@@ -138,16 +138,13 @@ option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make 
 value.BINARY_REFINEMENT.0 = §cOFF
 value.BINARY_REFINEMENT.1 = §aON
 
-option.BINARY_COUNT = Refinement Count
-option.BINARY_COUNT.comment = Influences §bBinary Refinement§f's quality. §cHigher value gives better results, but reduces §cperformance.
-value.BINARY_COUNT.2 = §22
-value.BINARY_COUNT.4 = §a4
-value.BINARY_COUNT.8 = §e8
-value.BINARY_COUNT.16 = §616
-value.BINARY_COUNT.32 = §c32
-
 option.RAY_STEP_LENGTH = Ray Length
 option.RAY_STEP_LENGTH.comment = Adjusts the ray's length. §cLower value gives more accurate results, but reduces §cperformance.
+
+option.SSR_REPROJECTION = SSR reprojection
+option.SSR_REPROJECTION.comment = Reflects the last frame to make the light bounce infinitely. §aIt doesn't affect performance.
+value.SSR_REPROJECTION.0 = §cOFF
+value.SSR_REPROJECTION.1 = §aON
 
 ##################### ATMOSPHERICS #####################
 

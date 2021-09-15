@@ -36,9 +36,9 @@ float drawStars(vec3 viewPos) {
 }
 
 vec3 getDayColor() {
-    const vec3 ambient_sunrise  = vec3(0.843, 0.372, 0.147);
+    const vec3 ambient_sunrise  = vec3(0.893, 0.422, 0.197);
     const vec3 ambient_noon     = vec3(0.975, 0.932, 0.860);
-    const vec3 ambient_sunset   = vec3(0.843, 0.372, 0.147);
+    const vec3 ambient_sunset   = vec3(0.893, 0.422, 0.197);
     const vec3 ambient_midnight = vec3(0.164, 0.194, 0.301);
 
     return ambient_sunrise * timeSunrise + ambient_noon * timeNoon + ambient_sunset * timeSunset + ambient_midnight * timeMidnight;

@@ -80,7 +80,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define RAY_STEP_LENGTH 1.3 // [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT 8 // [2 4 8 16 32]
+#define BINARY_COUNT 6
 #define BINARY_DECREASE 0.5
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
@@ -103,7 +103,9 @@ const float shadowDistanceRenderMul = 1.0;
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.375
+
 #define SKY_FALLBACK 1
+#define SSR_REPROJECTION 1 // [0 1]
 
 #define PREFILTER_SAMPLES 4
 #define ROUGH_REFLECT_STEPS 20
@@ -142,7 +144,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ CAMERA ------------------*/
 #define LENS_LENGTH 15.0
-#define APERTURE 2.4
+#define APERTURE 4.0
 #define ISO 120.0
 #define SHUTTER_SPEED 40.0
 const float K = 15.0;  // Light meter calibration
