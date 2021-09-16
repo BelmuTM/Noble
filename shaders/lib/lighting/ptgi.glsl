@@ -40,11 +40,11 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         float NdotH = saturate(dot(normal, H));
         float HdotL = saturate(dot(H, reflected));
 
-        vec3 albedo = isMetal ? vec3(0.0) : texture2D(colortex4, hitPos.xy).rgb;
+        vec3 albedo = isMetal ? vec3(0.0) : texture2D(colortex0, hitPos.xy).rgb;
         vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0);
 
-        weight *= albedo + specular;
-        radiance += weight * float(texture2D(colortex1, hitPos.xy).z > 0.0 ? 1.0 : 0.0);
+        weight *= albedo + (specular * texture2D(colortex9, hitPos.xy).rgb);
+        radiance += weight;
     }
     return max(vec3(EPS), radiance);
 }

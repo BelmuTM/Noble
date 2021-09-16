@@ -28,22 +28,22 @@ void main() {
      vec4 Result = texture2D(colortex0, texCoords);
      vec3 roughReflections = vec3(0.0);
 
-     if(!isSky(texCoords)) {
-          #if SSR == 1
-               #if SSR_TYPE == 1
-                    float inverseRes = 1.0 / ROUGH_REFLECT_RES;
-                    vec2 scaledUv = texCoords * inverseRes;
+     #if SSR == 1
+          #if SSR_TYPE == 1
+               float inverseRes = 1.0 / ROUGH_REFLECT_RES;
+               vec2 scaledUv = texCoords * inverseRes;
         
-                    if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords && !isSky(scaledUv)) {
-                         vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, scaledUv).xy));
-                         bool isMetal = texture2D(colortex2, scaledUv).g * 255.0 > 229.5;
-                         float roughness = texture2D(colortex2, scaledUv).r;
+               if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords && !isSky(scaledUv)) {
+                    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, scaledUv).xy));
+                    bool isMetal = texture2D(colortex2, scaledUv).g * 255.0 > 229.5;
+                    float roughness = texture2D(colortex2, scaledUv).r;
 
-                         roughReflections = prefilteredReflections(scaledUv, getViewPos(scaledUv), normalAt, roughness * roughness, isMetal);
-                    }
-               #endif
+                    roughReflections = prefilteredReflections(scaledUv, getViewPos(scaledUv), normalAt, roughness * roughness, isMetal);
+               }
           #endif
+     #endif
 
+     if(!isSky(texCoords)) {
           float F0 = texture2D(colortex2, texCoords).g;
           bool isMetal = F0 * 255.0 > 229.5;
 
