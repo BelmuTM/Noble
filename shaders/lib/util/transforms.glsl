@@ -55,6 +55,11 @@ vec3 viewToWorld(vec3 viewPos) {
 	return mat3(gbufferModelViewInverse) * viewPos;
 }
 
+mat3 getTBN(vec3 normal) {
+	vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
+	return mat3(tangent, cross(normal, tangent), normal);
+}
+
 vec3 tangentToWorld(vec3 normal, vec3 H) {
     vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
     return vec3((tangent * H.x) + (cross(normal, tangent) * H.y) + (normal * H.z));

@@ -53,13 +53,15 @@ const float shadowDistanceRenderMul = 1.0;
 #define AO 1 // [0 1]
 #define AO_TYPE 0 // [0 1]
 #define AO_FILTER 1 // [0 1]
-#define AO_BIAS 0.9
 
 #define SSAO_SAMPLES 8 // [4 8 16 32]
-#define SSAO_RADIUS 0.4
+#define SSAO_BIAS 2.0
+#define SSAO_RADIUS 1.4
+#define SSAO_STRENGTH 1.5
 
 #define RTAO_SAMPLES 4
 #define RTAO_STEPS 16
+#define RTAO_BIAS 3.0
 
 /*------------------ SHADOWS ------------------*/
 #define SHADOWS 1 // [0 1]

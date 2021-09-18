@@ -44,6 +44,13 @@ float saturate(float x) {
 	return clamp(x, 0.0, 1.0);
 }
 
+// Improved smoothstep function suggested by Ken Perlin
+// https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/improved-perlin-noise
+float quintic(float edge0, float edge1, float x) {
+    x = saturate((x - edge0) / (edge1 - edge0));
+    return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
+}
+
 // https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
 float ACos(in float x) { 
     x = abs(x); 

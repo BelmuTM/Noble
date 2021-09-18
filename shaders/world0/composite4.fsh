@@ -50,11 +50,11 @@ void main() {
           vec3 globalIllumination = vec3(0.0);
 
           if(!isMetal) {
+               vec3 viewPos = getViewPos(texCoords);
+               vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+
                #if GI == 1
                     #if GI_FILTER == 1
-                         vec3 viewPos = getViewPos(texCoords);
-                         vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
-
                          globalIllumination = gaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
                     #else
                          globalIllumination = texture2D(colortex6, texCoords).rgb;
@@ -68,7 +68,7 @@ void main() {
                #else
                     #if AO == 1
                          #if AO_FILTER == 1
-                              Result.rgb *= gaussianBlur(texCoords, colortex6, vec2(0.0, 1.0)).a;
+                              Result.rgb *= gaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).a;
                          #else
                               Result.rgb *= texture2D(colortex6, texCoords).a;
                          #endif

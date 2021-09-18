@@ -48,10 +48,11 @@ void main() {
     vec3 globalIllumination = vec3(0.0);
     float ambientOcclusion = 1.0;
 
-    float F0 = texture2D(colortex2, texCoords).g;
-    bool isMetal = F0 * 255.0 > 229.5;
+    bool isMetal = texture2D(colortex2, texCoords).g * 255.0 > 229.5;
 
     if(!isSky(texCoords) && !isMetal) {
+        vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+        
         #if GI == 1
             vec2 scaledUv = texCoords * GI_RESOLUTION; 
             #if GI_FILTER == 1
@@ -64,13 +65,13 @@ void main() {
             #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                vec3 fullResNormal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
-                globalIllumination = clamp(temporalAccumulation(colortex6, globalIllumination, fullResNormal), 0.0, 1.0);
+                globalIllumination = clamp(temporalAccumulation(colortex6, globalIllumination, normal), 0.0, 1.0);
             #endif
         #else 
             #if AO == 1
                 #if AO_FILTER == 1
-                    ambientOcclusion = gaussianBlur(texCoords, colortex5, vec2(1.0, 0.0)).a;
+                    vec3 viewPos = getViewPos(texCoords);
+                    ambientOcclusion = gaussianFilter(texCoords, viewPos, normal, colortex5, vec2(1.0, 0.0)).a;
                 #else
                     ambientOcclusion = texture2D(colortex5, texCoords).a;
                 #endif

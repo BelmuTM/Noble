@@ -9,42 +9,38 @@
 float computeSSAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
 	vec3 sampleOrigin = viewPos + normal * EPS;
-
-    vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
-	mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
+    mat3 TBN = getTBN(normal);
 
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
 		vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
-		vec3 sampleDir = TBN * (randomHemisphereDirection(noise.xy) * AO_BIAS);
+		vec3 sampleDir = TBN * (randomHemisphereDirection(noise.xy) * SSAO_BIAS);
 
-		vec3 samplePos = sampleOrigin + sampleDir * SSAO_RADIUS;
-    	vec2 sampleScreen = viewToScreen(samplePos).xy;
-		float sampleDepth = screenToView(vec3(sampleScreen, texture2D(depthtex0, sampleScreen).r)).z;
+		vec3 samplePos = viewPos + sampleDir * SSAO_RADIUS;
+		float sampleDepth = getViewPos(viewToScreen(samplePos).xy).z;
 
-		float delta = sampleDepth - samplePos.z;
-        if(delta > 0.0 && delta < SSAO_RADIUS) occlusion += delta + AO_BIAS;
+		//float rangeCheck = quintic(0.0, 1.0, abs(viewPos.z - sampleDepth));
+        occlusion += (samplePos.z <= sampleDepth ? 0.0 : 1.0);
 	}
-	occlusion = 1.0 - (occlusion / SSAO_SAMPLES);
-	return saturate(occlusion);
+	occlusion /= SSAO_SAMPLES;
+	return saturate(pow(occlusion, SSAO_STRENGTH));
 }
 
 float computeRTAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
 	vec3 samplePos = viewPos + normal * EPS;
 
-    vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
-	mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
+	mat3 TBN = getTBN(normal);
+	vec3 hitPos;
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
 		vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
-		vec3 sampleDir = TBN * randomHemisphereDirection(noise);
-		vec3 hitPos;
+		vec3 sampleDir = TBN * (randomHemisphereDirection(noise) * RTAO_BIAS);
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, blueNoise().g, hitPos)) continue;
 
-		float dist = distance(samplePos, screenToView(hitPos) + normal * EPS);
-		float attenuation = 1.0 - (dist * dist);
-		occlusion += attenuation;
+		float dist = distance(samplePos, getViewPos(hitPos.xy));
+		float attenuation = 1.0 - dist;
+		occlusion += attenuation + RTAO_BIAS;
 	}
 	occlusion = 1.0 - (occlusion / RTAO_SAMPLES);
-	return saturate(occlusion);
+	return saturate(pow(occlusion, SSAO_STRENGTH));
 }
