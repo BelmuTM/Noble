@@ -43,9 +43,9 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-vec3 sphericalGaussianFresnel(float HdotL, vec3 F0) {
-    float fresnel = exp2(((-5.55473 * HdotL) - 6.98316) * HdotL);
-    return fresnel * (1.0 - F0) + F0;
+vec3 schlickGaussian(float HdotL, vec3 F0) {
+    float sphericalGaussian = exp2(((-5.55473 * HdotL) - 6.98316) * HdotL);
+    return sphericalGaussian * (1.0 - F0) + F0;
 }
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
@@ -85,7 +85,7 @@ vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
 
 vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, float roughness, vec3 F0) {
     float D = trowbridgeReitzGGX(NdotH, roughness * roughness);
-    vec3 F = sphericalGaussianFresnel(HdotL, F0);
+    vec3 F = schlickGaussian(HdotL, F0);
     float G = geometrySmith(NdotV, NdotL, roughness);
         
     return clamp(D * F * G, 0.0, 1.0);
@@ -102,8 +102,8 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     float alpha = data.roughness * data.roughness;
 
     vec3 H = normalize(V + L);
+    float NdotV = abs(dot(N, V)) + 1e-5;
     float NdotL = saturate(dot(N, L));
-    float NdotV = saturate(dot(N, V));
     float NdotH = saturate(dot(N, H));
     float VdotH = saturate(dot(V, H));
     float HdotL = saturate(dot(H, L));

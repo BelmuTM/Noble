@@ -64,7 +64,7 @@ void main() {
     Result.rgb *= computeExposure(texture2D(colortex7, texCoords).r);
 
     #if TONEMAPPING == 0
-        Result.rgb = reinhard_jodie(Result.rgb); // Reinhard
+        Result.rgb = whitePreservingReinhard(Result.rgb); // Reinhard
     #elif TONEMAPPING == 1
         Result.rgb = uncharted2(Result.rgb); // Uncharted 2
     #elif TONEMAPPING == 2

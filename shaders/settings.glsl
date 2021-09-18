@@ -39,8 +39,8 @@ const float shadowDistanceRenderMul = 1.0;
 #define FOAM_FALLOFF_BIAS 0.1
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.06)
-#define PTGI_AMBIENT vec3(0.001)
+#define AMBIENT vec3(0.3)
+#define PTGI_AMBIENT vec3(0.01)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(0.92, 0.87, 0.7)
@@ -53,13 +53,13 @@ const float shadowDistanceRenderMul = 1.0;
 #define AO 1 // [0 1]
 #define AO_TYPE 0 // [0 1]
 #define AO_FILTER 1 // [0 1]
-#define AO_BIAS 0.6
+#define AO_BIAS 0.9
 
 #define SSAO_SAMPLES 8 // [4 8 16 32]
-#define SSAO_RADIUS 0.6
+#define SSAO_RADIUS 0.4
 
 #define RTAO_SAMPLES 4
-#define RTAO_STEPS 24
+#define RTAO_STEPS 16
 
 /*------------------ SHADOWS ------------------*/
 #define SHADOWS 1 // [0 1]
@@ -71,13 +71,13 @@ const float shadowDistanceRenderMul = 1.0;
 #define SHADOW_BIAS 0.1 // Increase this if you get shadow acne. Decrease this if you get peter panning.
 
 // Soft Shadows
-#define PCSS_SAMPLES 32
+#define PCSS_SAMPLES 24
 #define LIGHT_SIZE 160.0
 #define BLOCKER_SEARCH_RADIUS 10.0
 #define BLOCKER_SEARCH_SAMPLES 20
 
 /*------------------ RAY TRACING ------------------*/
-#define RAY_STEP_LENGTH 1.3 // [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define RAY_STEP_LENGTH 1.5 // [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT 6
@@ -119,17 +119,17 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define VL_FILTER 1 // [0 1]
 #define VL_SAMPLES 8
 
-#define VL_BRIGHTNESS 0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define VL_BRIGHTNESS 1.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define VL_EXTINCTION 0.3
 
 #define RAIN_FOG 1 // [0 1]
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.800 // [0.025 0.050 0.075 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300 0.325 0.350 0.375 0.400 0.425 0.450 0.475 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
+#define TAA_STRENGTH 0.850 // [0.025 0.050 0.075 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300 0.325 0.350 0.375 0.400 0.425 0.450 0.475 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
 #define NEIGHBORHOOD_SIZE 4
 
-#define DOF 1 // [0 1]
+#define DOF 0 // [0 1]
 #define DOF_STRENGTH 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]
 
 #define BLOOM 1 // [0 1]
@@ -143,11 +143,11 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ABERRATION_STRENGTH 30.0 // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0]
 
 /*------------------ CAMERA ------------------*/
-#define LENS_LENGTH 15.0
+#define LENS_LENGTH 3.0
 #define APERTURE 4.0
 #define ISO 120.0
 #define SHUTTER_SPEED 40.0
-const float K = 15.0;  // Light meter calibration
+const float K = 12.5;  // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 #define AUTO_EXPOSURE 0 // [0 1]

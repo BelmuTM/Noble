@@ -20,16 +20,17 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         vec3 normal = normalize(decodeNormal(texture2D(colortex1, hitPos.xy).xy));
         hitPos = screenToView(hitPos) + normal * EPS;
 
+        /* Tangent Bitangent Normal */
         vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
         mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
         
+        /* Sampling a random direction in an hemisphere using noise and raytracing in that direction */
         vec3 sampleDir = TBN * randomHemisphereDirection(noise);
         bool hit = raytrace(hitPos, sampleDir, GI_STEPS, blueNoise().r, hitPos);
 
-        /* Thanks to Bálint#1673 and Jessie#7257 for helping me with the part below. */
+        /* Calculating the BRDF & applying it */
         vec3 F0 = vec3(texture2D(colortex2, hitPos.xy).g);
         float roughness = texture2D(colortex2, hitPos.xy).r;
-        float alpha = roughness * roughness;
 
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.yx, roughness);
         vec3 reflected = reflect(viewDir, TBN * microfacet);
@@ -41,10 +42,10 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         float HdotL = saturate(dot(H, reflected));
 
         vec3 albedo = isMetal ? vec3(0.0) : texture2D(colortex0, hitPos.xy).rgb;
-        vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0);
+        vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0) * texture2D(colortex9, hitPos.xy).rgb;
 
-        weight *= albedo + (specular * texture2D(colortex9, hitPos.xy).rgb);
+        weight *= albedo + specular;
         radiance += weight;
     }
-    return max(vec3(EPS), radiance);
+    return radiance;
 }

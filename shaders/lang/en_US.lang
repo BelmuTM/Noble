@@ -56,7 +56,7 @@ option.SOFT_SHADOWS.comment = Features §bPCSS §7§o(Percentage-Closer Soft Sha
 value.SOFT_SHADOWS.0 = §cOFF
 value.SOFT_SHADOWS.1 = §aON
 
-option.AO = AO
+option.AO = Ambient Occlusion (AO)
 option.AO.comment = §bAmbient Occlusion. §fFeatures pseudo-shadows that enhance a scene's depth perception.
 value.AO.0 = §cOFF
 value.AO.1 = §aON

@@ -32,18 +32,18 @@ void main() {
     vec3 globalIllumination = vec3(0.0);
     float ambientOcclusion = 1.0;
 
-    if(!isSky(texCoords)) {
-        #if GI == 1
-            /* Downscaling Global Illumination */
-            float inverseRes = 1.0 / GI_RESOLUTION;
-            vec2 scaledUv = texCoords * inverseRes;
+    #if GI == 1
+        /* Downscaling Global Illumination */
+        float inverseRes = 1.0 / GI_RESOLUTION;
+        vec2 scaledUv = texCoords * inverseRes;
         
-            if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords && !isSky(scaledUv)) {
-                bool isMetal = texture2D(colortex2, scaledUv).g * 255.0 > 229.5;
-                vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
-                globalIllumination = computePTGI(positionAt, isMetal);
-            }
-        #else
+        if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords && !isSky(scaledUv)) {
+            bool isMetal = texture2D(colortex2, scaledUv).g * 255.0 > 229.5;
+            vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
+            globalIllumination = computePTGI(positionAt, isMetal);
+        }
+    #else
+        if(!isSky(texCoords)) {
             #if AO == 1
                 vec3 viewPos = getViewPos(texCoords);
                 vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
@@ -54,8 +54,8 @@ void main() {
                     ambientOcclusion = computeRTAO(viewPos, normal);
                 #endif
             #endif
-        #endif
-    }
+        }
+    #endif
 
     /*DRAWBUFFERS:5*/
     gl_FragData[0] = vec4(globalIllumination, ambientOcclusion);

@@ -31,19 +31,16 @@ const bool colortex6Clear = false;
         prevColor = neighbourhoodClipping(prevTex, prevColor);
 
         vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, prevTexCoords).xy));
-        float normalWeight = max(pow(max(dot(normal, normalAt), 0.0), 8.0), 0.01);
+        float normalWeight = max(pow(max(dot(normal, normalAt), 0.0), 20.0), 0.01);
 
-        float depthAt = texture2D(depthtex0, prevTexCoords).r;
-        float depth = texture2D(depthtex0, texCoords).r;
-
-        vec3 worldAt = screenToWorld(depthAt, prevTexCoords, gbufferPreviousProjection, gbufferPreviousModelView);
-        vec3 world = screenToWorld(depth, texCoords, gbufferProjection, gbufferModelView);
-        float posWeight = 1.0 / max(pow(30.0, distance(world, worldAt)), EPS);
+        float depthAt = linearizeDepth(texture2D(depthtex0, prevTexCoords).r);
+        float depth = linearizeDepth(texture2D(depthtex0, texCoords).r);
+        float depthWeight = 1.0 / max(1e-5, abs(depthAt - depth));
 
         float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
-        float totalWeight = clamp((posWeight + normalWeight) * screenWeight, 0.0, 1.0);
+        float totalWeight = clamp(depthWeight * normalWeight * screenWeight, 0.0, 1.0);
 
-        return mix(currColor, prevColor, TAA_STRENGTH * totalWeight);
+        return mix(currColor, prevColor, 0.95 * totalWeight);
     }
 #endif
 
@@ -56,13 +53,14 @@ void main() {
 
     if(!isSky(texCoords) && !isMetal) {
         #if GI == 1
+            vec2 scaledUv = texCoords * GI_RESOLUTION; 
             #if GI_FILTER == 1
-                vec3 scaledViewPos = getViewPos(texCoords * GI_RESOLUTION);
-                vec3 scaledNormal = normalize(decodeNormal(texture2D(colortex1, texCoords * GI_RESOLUTION).xy));
+                vec3 scaledViewPos = getViewPos(scaledUv);
+                vec3 scaledNormal = normalize(decodeNormal(texture2D(colortex1, scaledUv).xy));
 
-                globalIllumination = gaussianFilter(texCoords * GI_RESOLUTION, scaledViewPos, scaledNormal, colortex5, vec2(1.0, 0.0)).rgb;
+                globalIllumination = gaussianFilter(scaledUv, scaledViewPos, scaledNormal, colortex5, vec2(1.0, 0.0)).rgb;
             #else
-                globalIllumination = texture2D(colortex5, texCoords * GI_RESOLUTION).rgb;
+                globalIllumination = texture2D(colortex5, scaledUv).rgb;
             #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
@@ -71,10 +69,10 @@ void main() {
             #endif
         #else 
             #if AO == 1
-                ambientOcclusion = texture2D(colortex5, texCoords).a;
-
                 #if AO_FILTER == 1
-                    ambientOcclusion = qualityBlur(texCoords, colortex5, viewSize, 7.0, 5.0, 8.0).a;
+                    ambientOcclusion = gaussianBlur(texCoords, colortex5, vec2(1.0, 0.0)).a;
+                #else
+                    ambientOcclusion = texture2D(colortex5, texCoords).a;
                 #endif
             #endif
         #endif

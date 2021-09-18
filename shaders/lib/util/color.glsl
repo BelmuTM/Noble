@@ -9,23 +9,15 @@ float luma(vec3 color) {
     return dot(color, vec3(0.2125, 0.7154, 0.0721));
 }
 
-vec3 luma_based_reinhard(vec3 color) {
-    float luma = luma(color.rgb);
-	float white = 2.0;
-	float toneMappedLuma = luma * (1.0 + luma / (white * white)) / (1.0 + luma);
-	color *= toneMappedLuma / luma;
-	return color;
-}
-
-vec3 white_preserving_luma_based_reinhard(vec3 color) {
-	const float white = 2.0;
+vec3 whitePreservingReinhard(vec3 color) {
+	const float white = 5.0;
 	float luma = luma(color);
 	float toneMappedLuma = luma * (1.0 + luma / (white * white)) / (1.0 + luma);
 	color *= toneMappedLuma / luma;
 	return color;
 }
 
-vec3 reinhard_jodie(vec3 color) {
+vec3 reinhardJodie(vec3 color) {
     float luma = luma(color);
     vec3 tv = color / (1.0 + color);
     return mix(color / (1.0 + luma), tv, tv);

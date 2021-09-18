@@ -120,27 +120,37 @@ const float gaussianWeights[49] = float[49](
     0.014692925
 );
 
+vec4 gaussianBlur(vec2 coords, sampler2D tex, vec2 direction) {
+    vec4 color = vec4(0.0);
+
+    for(int i = 0; i < 49; i++) {
+        vec2 sampleCoords = coords + (direction * float(i - 26) * pixelSize);
+        color += texture2D(tex, sampleCoords) * gaussianWeights[i];
+    }
+    return color;
+}
+
 bool edgeStop(vec2 sampleCoords, vec3 pos, vec3 normal) { 
     vec3 positionAt = vec3(sampleCoords, texture2D(depthtex0, sampleCoords).r);
     positionAt = screenToView(positionAt);
     vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, sampleCoords).xy));
 
-    return  abs(positionAt.x - pos.x) <= 0.7
-        &&  abs(positionAt.y - pos.y) <= 0.7
-        &&  abs(positionAt.z - pos.z) <= 0.7
-        &&  abs(normalAt.x - normal.x) <= EDGE_STOP_THRESHOLD
-        &&  abs(normalAt.y - normal.y) <= EDGE_STOP_THRESHOLD
-        &&  abs(normalAt.z - normal.z) <= EDGE_STOP_THRESHOLD
-        &&  clamp(sampleCoords, 0.0, 1.0) == sampleCoords; // Is on screen
+    return abs(positionAt.x - pos.x) <= 0.7
+        && abs(positionAt.y - pos.y) <= 0.7
+        && abs(positionAt.z - pos.z) <= 0.7
+        && abs(normalAt.x - normal.x) <= EDGE_STOP_THRESHOLD
+        && abs(normalAt.y - normal.y) <= EDGE_STOP_THRESHOLD
+        && abs(normalAt.z - normal.z) <= EDGE_STOP_THRESHOLD
+        && clamp(sampleCoords, 0.0, 1.0) == sampleCoords; // Is on screen
 }
 
 vec4 gaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, vec2 direction) {
     vec4 color = vec4(0.0);
     float totalWeight = 0.0;
 
-    for(int i = 0; i < 49; i++) {
-        vec2 sampleCoords = coords + (direction * (i - 24) * pixelSize);
-        float weight = gaussianWeights[i] * float(edgeStop(sampleCoords, viewPos, normal));
+    for(int i = -49; i <= 49; i++) {
+        vec2 sampleCoords = coords + (direction * float(i) * pixelSize);
+        float weight = gaussianWeights[abs(i)] * float(edgeStop(sampleCoords, viewPos, normal));
 
         color += texture2D(tex, sampleCoords) * weight;
         totalWeight += weight;

@@ -68,6 +68,7 @@ void main() {
 	blockId = mc_Entity.x - 1000.0;
 	gl_Position = ftransform();
 
+	/*
 	#ifdef WATER
 		if(int(blockId + 0.5) == 1) {
 			vec3 worldPos = (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
@@ -79,6 +80,7 @@ void main() {
 			gl_Position += viewToClip;
 		}
 	#endif
+	*/
 
 	vec3 tangent = normalize(gl_NormalMatrix * at_tangent.xyz);
     vec3 binormal = normalize(cross(tangent, normal) * sign(at_tangent.w));

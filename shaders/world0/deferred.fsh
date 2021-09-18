@@ -30,8 +30,8 @@ void main() {
           vec3 viewPos = getViewPos(texCoords);
           vec3 eyeDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
-          float angle = smoothstep(0.9991, 0.99995, dot(sunDir, normalize(viewPos)));
-          vec3 sky = mix(getDayTimeSkyGradient(eyeDir, viewPos), vec3(1.0) + (1.0 - angle), angle); 
+          float angle = smoothstep(0.999, 0.99995, dot(sunDir, normalize(viewPos)));
+          vec3 sky = mix(getDayTimeSkyGradient(eyeDir, viewPos), vec3(2.0), angle); 
           
           /*DRAWBUFFERS:0*/
           gl_FragData[0] = vec4(sky, 1.0);

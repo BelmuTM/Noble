@@ -37,39 +37,14 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
 		vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
-		vec3 sampleDir = TBN * (randomHemisphereDirection(noise) * AO_BIAS);
+		vec3 sampleDir = TBN * randomHemisphereDirection(noise);
 		vec3 hitPos;
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, blueNoise().g, hitPos)) continue;
 
-		float dist = distance(samplePos, screenToView(hitPos));
+		float dist = distance(samplePos, screenToView(hitPos) + normal * EPS);
 		float attenuation = 1.0 - (dist * dist);
-		occlusion += attenuation + AO_BIAS;
+		occlusion += attenuation;
 	}
 	occlusion = 1.0 - (occlusion / RTAO_SAMPLES);
 	return saturate(occlusion);
 }
-
-/*
-float computeHBAO(vec3 viewPos, vec3 normal) {
-	float occlusion = 1.0;
-	vec3 samplePos = viewPos + normal * EPS;
-
-    	vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
-    	vec3 bitangent = cross(normal, tangent);
-
-	for(int i = 0; i < SSAO_SAMPLES; i++) {
-		vec2 noise = uniformNoise(i);
-		vec3 sampleDir = randomHemisphereDirection(noise);
-		sampleDir = TBNtransform(sampleDir, tangent, bitangent, normal);
-
-		float gamma = ATan(tangent.z / length(tangent.xy));
-
-		float value = sin(0.2) - sin(gamma);
-		float attenuation = 1.0 - (value * value);
-
-		occlusion += attenuation;
-	}
-	occlusion /= SSAO_SAMPLES;
-	return saturate(occlusion);
-}
-*/

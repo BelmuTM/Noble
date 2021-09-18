@@ -6,15 +6,19 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+// Normals encoding / decoding from: https://aras-p.info/texts/CompactNormalStorage.html
+
+const float scale = 1.7777;
 vec2 encodeNormal(vec3 normal) {
-    return normal.xy / sqrt(normal.z * 8.0 + 8.0) + 0.5;
+    vec2 enc = normal.xy / (normal.z + 1.0);
+    enc /= scale;
+    return enc * 0.5 + 0.5;
 }
 
-vec3 decodeNormal(vec2 encodedNormal) {
-    vec2 fenc = encodedNormal * 4.0 - 2.0;
-    float f = dot(fenc, fenc);
-    float g = sqrt(1.0 - f / 4.0);
-    return vec3(fenc * g, 1.0 - f / 2.0);
+vec3 decodeNormal(vec2 enc) {
+    vec3 nn = vec3(enc, 0.0) * vec3(vec2(2.0 * scale), 0.0) + vec3(vec2(-scale), 1.0);
+    float g = 2.0 / dot(nn.xyz, nn.xyz);
+    return vec3(g * nn.xy, g - 1.0);
 }
 
 float pack2x8(vec2 x) {
@@ -98,7 +102,7 @@ vec3 hemisphereSample(vec2 r) {
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
 }
 
-// Provided by xirreal#0281
+// Provided by lith#0281
 vec3 randomHemisphereDirection(vec2 r) {
     float radius = sqrt(r.y);
     float xOffset = radius * cos(PI2 * r.x);

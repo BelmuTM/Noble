@@ -61,7 +61,7 @@ void main() {
       vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
       float NdotV = max(dot(normal, normalize(-viewPos)), 0.0);
-      if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 3) opaques = simpleRefractions(viewPos, normal, NdotV, data.F0, hitPos);
+      if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 3) opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);
 
       depthDist = distance(viewPos.z, hitPos.z);
    #endif

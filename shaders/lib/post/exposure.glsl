@@ -6,10 +6,23 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float averageLuminance() {
+float averageLuminance0() {
      float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
      vec3 color = textureLod(colortex0, vec2(0.5), LOD).rgb;
      return luma(color);
+}
+
+float averageLuminance1() {
+     float totalLum = 0.0;
+     vec2 samples = floor(viewSize / 100.0);
+
+     for(int x = 0; x < samples.x; x++) {
+          for(int y = 0; y < samples.y; y++) {
+               vec3 color = texture2D(colortex0, (vec2(x, y) + 0.5) * pixelSize).rgb;
+               totalLum += luma(color);
+          }
+     }
+     return totalLum / floor(samples.x * samples.y);
 }
 
 float computeEV100() {
@@ -38,7 +51,7 @@ float computeExposure(float avgLuminance) {
 
 float getExposureLuma(sampler2D prevTex) {
      float previousLuma = texture2D(prevTex, vec2(0.0)).r;
-     float blendFactor = exp(-frameTime);
+     float blendFactor = exp(-frameTime * 15.0);
 
-     return mix(averageLuminance(), previousLuma, AUTO_EXPOSURE == 0 ? 0.0 : blendFactor);
+     return mix(averageLuminance0(), previousLuma, AUTO_EXPOSURE == 0 ? 0.0 : blendFactor);
 }

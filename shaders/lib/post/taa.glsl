@@ -30,8 +30,7 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
     vec3 eClip = 0.5 * (maxColor - minColor); // Size
 
     vec3 vClip = prevColor - pClip;
-    vec3 vUnit = vClip / eClip;
-    vec3 aUnit = abs(vUnit);
+    vec3 aUnit = abs(vClip / eClip);
     float denom = max(aUnit.x, max(aUnit.y, aUnit.z));
 
     return denom > 1.0 ? pClip + vClip / denom : prevColor;
@@ -57,9 +56,8 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
     prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    vec2 velocity = (texCoords - prevTexCoords) * viewSize;
-    float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
+    // vec2 velocity = (texCoords - prevTexCoords) * viewSize;
+    // float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
     float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
-    
-    return mix(currColor, prevColor, blendFactor * screenWeight); 
+    return mix(currColor, prevColor, TAA_STRENGTH * screenWeight); 
 }

@@ -45,7 +45,7 @@ vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3
 
     vec3 L = shadowLightPosition * 0.01;
     vec3 H = normalize(viewPos + L);
-    vec3 fresnel = sphericalGaussianFresnel(saturate(dot(H, L)), F0);
+    vec3 fresnel = schlickGaussian(saturate(dot(H, L)), F0);
     vec3 hitColor = getHitColor(hitPos);
 
     vec3 color = vec3(0.0);
@@ -95,17 +95,17 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/
 
-vec3 simpleRefractions(vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
+vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
     float ior = F0toIOR(F0); // 1.329 = water's IOR
     viewPos += normal * EPS;
 
     vec3 refracted = refract(normalize(viewPos), normal, 1.0 / ior); // water's ior
     float jitter = TAA == 1 ? uniformAnimatedNoise().r : blueNoise().r;
 
-    if(!raytrace(viewPos, refracted, REFRACT_STEPS, jitter, hitPos)) return vec3(0.0);
+    float hit = float(raytrace(viewPos, refracted, REFRACT_STEPS, jitter, hitPos));
     if(isHand(texture2D(depthtex1, hitPos.xy).r)) return vec3(0.0);
 
     vec3 fresnel = fresnelSchlick(NdotV, vec3(F0));
     vec3 hitColor = texture2D(colortex4, hitPos.xy).rgb;
-    return hitColor * (1.0 - fresnel) * Kneemund_Attenuation(hitPos.xy, 0.15);
+    return mix(background, hitColor, Kneemund_Attenuation(hitPos.xy, 0.07) * hit) * (1.0 - fresnel);
 }

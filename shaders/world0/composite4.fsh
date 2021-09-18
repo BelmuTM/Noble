@@ -66,7 +66,13 @@ void main() {
                          Result.rgb = globalIllumination;
                     #endif
                #else
-                    Result.rgb *= texture2D(colortex6, texCoords).a; // Ambient Occlusion
+                    #if AO == 1
+                         #if AO_FILTER == 1
+                              Result.rgb *= gaussianBlur(texCoords, colortex6, vec2(0.0, 1.0)).a;
+                         #else
+                              Result.rgb *= texture2D(colortex6, texCoords).a;
+                         #endif
+                    #endif
                #endif
           }
      }
