@@ -63,5 +63,5 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     float posWeight = 1.0 / max(1e-5, pow(distance(pos, posAt), 2.0));
 
     float screenWeight = float(saturate(prevTexCoords) == prevTexCoords);
-    return mix(currColor, prevColor, TAA_STRENGTH * saturate(screenWeight * posWeight)); 
+    return mix(currColor, prevColor, TAA_STRENGTH * saturate(screenWeight)); 
 }

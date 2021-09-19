@@ -37,7 +37,7 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result.rgb += saturate(readBloom() * mix(0.01 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
+        Result.rgb += saturate(readBloom() * mix(0.06 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
     #endif
 
     // Vignette
@@ -59,13 +59,13 @@ void main() {
     #elif TONEMAPPING == 2
         Result.rgb = burgess(Result.rgb); // Burgess
     #elif TONEMAPPING == 3
-        Result.rgb = ACESFilm(Result.rgb); // ACES
+        Result.rgb = ACESFitted(Result.rgb); // ACES
     #endif
 
     Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
     Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
 
-    Result.rgb += bayer2(gl_FragCoord.xy) * (1.0 / 255.0); // Removes color banding from the screen
+    Result.rgb += bayer2(gl_FragCoord.xy) * (1.0 / 256.0); // Removes color banding from the screen
     #if TONEMAPPING != 2
         Result = linearToSRGB(Result);
     #endif

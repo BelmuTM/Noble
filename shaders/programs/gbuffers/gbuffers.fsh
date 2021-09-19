@@ -23,7 +23,6 @@ varying float blockId;
 
 /*
 const int colortex0Format = RGBA16F;
-const int colortex1Format = RGBA16F;
 const int colortex2Format = RGBA16F;
 */
 
@@ -55,8 +54,8 @@ void main() {
 		roughness = 0.01;
 	}
 
-	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 11) {
-		emission = 0.5;
+	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 11 && emission <= 0.1) {
+		emission = 0.7;
 	}
 	
 	/*DRAWBUFFERS:012*/

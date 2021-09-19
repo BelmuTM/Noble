@@ -56,7 +56,7 @@ void main() {
 
                #if GI == 1
                     #if GI_FILTER == 1
-                         globalIllumination = gaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
+                         globalIllumination = heavyGaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
                     #else
                          globalIllumination = texture2D(colortex6, texCoords).rgb;
                     #endif
@@ -69,7 +69,7 @@ void main() {
                #else
                     #if AO == 1
                          #if AO_FILTER == 1
-                              Result.rgb *= saturate(gaussianFilter(1.0, viewPos, normal, colortex5, vec2(0.0, 1.0)).a);
+                              Result.rgb *= fastGaussianFilter(texCoords, viewPos, normal, colortex5, vec2(0.0, 1.0)).a;
                          #else
                               Result.rgb *= saturate(texture2D(colortex5, texCoords).a);
                          #endif

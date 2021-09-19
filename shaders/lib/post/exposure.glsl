@@ -51,6 +51,6 @@ float computeExposure(float avgLuminance) {
 
 float getExposureLuma(sampler2D prevTex) {
      float previousLuma = texture2D(prevTex, vec2(0.0)).r;
-     //float blendFactor = exp(-frameTime * 50.0);
+     float blendFactor = exp(-frameTime * 50.0);
      return mix(averageLuminance0(), previousLuma, AUTO_EXPOSURE == 0 ? 0.0 : 0.97);
 }

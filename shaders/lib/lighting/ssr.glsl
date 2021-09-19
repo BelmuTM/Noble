@@ -71,12 +71,11 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
     mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-        vec2 uniformNoise = uniformNoise(i);
-        vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise;
+        vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
         
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.rg, roughness);
 		vec3 reflected = reflect(viewDir, TBN * microfacet);	
-		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, uniformNoise.r, hitPos));
+		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, blueNoise().r, hitPos));
 
         float NdotL = max(0.0, dot(normal, reflected));
 		if(NdotL > 0.0) {

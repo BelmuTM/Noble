@@ -26,7 +26,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         
         /* Sampling a random direction in an hemisphere using noise and raytracing in that direction */
         vec3 sampleDir = TBN * randomHemisphereDirection(noise);
-        bool hit = raytrace(hitPos, sampleDir, GI_STEPS, blueNoise().r, hitPos);
+        bool hit = raytrace(hitPos, sampleDir, GI_STEPS, uniformNoise(i).r, hitPos);
 
         /* Calculating the BRDF & applying it */
         vec3 F0 = vec3(texture2D(colortex2, hitPos.xy).g);

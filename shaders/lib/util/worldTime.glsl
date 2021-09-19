@@ -17,7 +17,7 @@ float timeMidnight = ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0) - ((cl
 float drawStars(vec3 viewPos) {
 	vec3 worldPos = mat3(gbufferModelViewInverse) * viewPos;
 	vec3 planeCoords = worldPos / (worldPos.y + length(worldPos.xz));
-	vec2 coord = planeCoords.xz * 0.5 + cameraPosition.xz * 0.0001 + frameTime * 0.00125;
+	vec2 coord = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-4 + frameTime * 0.00125;
 	coord = floor(coord * 1024.0) / 1024.0;
 
 	float VdotU = saturate(dot(normalize(viewPos), normalize(upPosition)));
@@ -26,18 +26,16 @@ float drawStars(vec3 viewPos) {
 	float star = 1.0;
 	if(VdotU > 0.0) {
 		star *= rand(coord.xy);
-		star *= rand(coord.xy + 0.10);
-		star *= rand(coord.xy + 0.23);
+		star *= rand(-coord.xy + 0.1);
 	}
-	star = saturate(star - 0.8125) * multiplier;
-	return star;
+	return (saturate(star - 0.83) * multiplier) * 2.0;
 }
 
 vec3 getDayColor() {
     const vec3 ambient_sunrise  = vec3(0.943, 0.472, 0.247);
     const vec3 ambient_noon     = vec3(0.975, 0.932, 0.860);
     const vec3 ambient_sunset   = vec3(0.943, 0.472, 0.247);
-    const vec3 ambient_midnight = vec3(0.164, 0.194, 0.301);
+    const vec3 ambient_midnight = vec3(0.064, 0.094, 0.101);
 
     return ambient_sunrise * timeSunrise + ambient_noon * timeNoon + ambient_sunset * timeSunset + ambient_midnight * timeMidnight;
 }
@@ -47,7 +45,7 @@ vec3 getDayTimeSkyGradient(in vec3 pos, vec3 viewPos) {  // Bottom Color -> Top 
     vec3 skyGradient_sunrise  = mix(vec3(0.529, 0.34, 0.247),  vec3(0.23, 0.265, 0.339),  pos.y);
     vec3 skyGradient_noon     = mix(vec3(0.445, 0.575, 0.771), vec3(0.345, 0.475, 0.671), pos.y);
     vec3 skyGradient_sunset   = mix(vec3(0.529, 0.3, 0.22),    vec3(0.23, 0.265, 0.339),  pos.y);
-    vec3 skyGradient_midnight = mix(vec3(0.03, 0.069, 0.088),  vec3(0.0, 0.004, 0.025),   pos.y) + (drawStars(viewPos) * 2.0);
+    vec3 skyGradient_midnight = mix(vec3(0.03, 0.069, 0.088),  vec3(0.0, 0.004, 0.025),   pos.y) + drawStars(viewPos);
 
     return skyGradient_sunrise * timeSunrise + skyGradient_noon * timeNoon + skyGradient_sunset * timeSunset + skyGradient_midnight * timeMidnight;
 }

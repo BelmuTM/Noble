@@ -51,7 +51,7 @@ option.SPECULAR.comment = Adds a certain shininess to blocks.
 value.SPECULAR.0 = §cOFF
 value.SPECULAR.1 = §aON
 
-option.SOFT_SHADOWS = Soft Shadows §e§lBETA
+option.SOFT_SHADOWS = Soft Shadows
 option.SOFT_SHADOWS.comment = Features §bPCSS §7§o(Percentage-Closer Soft Shadows). The farther the shadow is from an object, the blurrier it gets.
 value.SOFT_SHADOWS.0 = §cOFF
 value.SOFT_SHADOWS.1 = §aON

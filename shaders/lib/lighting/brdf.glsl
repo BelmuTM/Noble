@@ -48,6 +48,42 @@ vec3 schlickGaussian(float HdotL, vec3 F0) {
     return sphericalGaussian * (1.0 - F0) + F0;
 }
 
+// https://d3ihk4j6ie4n1g.cloudfront.net/downloads/assets/DecimaSiggraph2017.pdf?mtime=20200402092944&focal=none
+float NdotHSquared(float radiusTan, float NoL, float NoV, float VoL) {
+    float radiusCos = 1.0 / sqrt(1.0 + radiusTan * radiusTan);
+    
+    // Early out if R falls within the disc
+    float RoL = 2.0 * NoL * NoV - VoL;
+    if(RoL >= radiusCos) return 1.0;
+
+    float rOverLengthT = radiusCos * radiusTan * (1.0 / sqrt(1.0 - RoL * RoL));
+    float NoTr = rOverLengthT * (NoV - RoL * NoL);
+    float VoTr = rOverLengthT * (2.0 * NoV * NoV - 1.0 - RoL * VoL);
+
+    // Calculate dot(cross(N, L), V). This could already be calculated and available.
+    float triple = sqrt(saturate(1.0 - NoL * NoL - NoV * NoV - VoL * VoL + 2.0 * NoL * NoV * VoL));
+    
+    // Do one Newton iteration to improve the bent light vector
+    float NoBr = rOverLengthT * triple, VoBr = rOverLengthT * (2.0 * triple * NoV);
+    float NoLVTr = NoL * radiusCos + NoV + NoTr, VoLVTr = VoL * radiusCos + 1.0 + VoTr;
+    float p = NoBr * VoLVTr, q = NoLVTr * VoLVTr, s = VoBr * NoLVTr;    
+    float xNum = q * (-0.5 * p + 0.25 * VoBr * NoLVTr);
+    float xDenom = p * p + s * ((s - 2.0 * p)) + NoLVTr * ((NoL * radiusCos + NoV) * VoLVTr * VoLVTr + 
+                   q * (-0.5 * (VoLVTr + VoL * radiusCos) - 0.5));
+    float twoX1 = 2.0 * xNum / (xDenom * xDenom + xNum * xNum);
+    float sinTheta = twoX1 * xDenom;
+    float cosTheta = 1.0 - twoX1 * xNum;
+    NoTr = cosTheta * NoTr + sinTheta * NoBr; // use new T to update NoTr
+    VoTr = cosTheta * VoTr + sinTheta * VoBr; // use new T to update VoTr
+    
+    // Calculate (N.H)^2 based on the bent light vector
+    float newNoL = NoL * radiusCos + NoTr;
+    float newVoL = VoL * radiusCos + VoTr;
+    float NoH = NoV + newNoL;
+    float HoH = 2.0 * newVoL + 2.0;
+    return max(0.0, NoH * NoH / HoH);
+}
+
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
 vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float alpha) {
 
@@ -102,11 +138,12 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     float alpha = data.roughness * data.roughness;
 
     vec3 H = normalize(V + L);
-    float NdotV = abs(dot(N, V)) + 1e-5;
-    float NdotL = saturate(dot(N, L));
-    float NdotH = saturate(dot(N, H));
-    float VdotH = saturate(dot(V, H));
-    float HdotL = saturate(dot(H, L));
+    float NdotV = max(EPS, dot(N, V));
+    float NdotL = max(EPS, dot(N, L));
+    float VdotL = max(EPS, dot(V, L));
+    float HdotL = max(EPS, dot(H, L));
+    float NdotH = NdotHSquared(0.0004, NdotL, NdotV, VdotL);
+    float VdotH = max(EPS, dot(V, H));
 
     vec3 specular;
     #if SPECULAR == 1
@@ -125,7 +162,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
 
         vec3 A = data.albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
         vec3 B = data.albedo * (0.125 * (alpha /  (alpha + 0.18)));
-        diffuse = saturate(A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y));
+        diffuse = A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y);
     }
 
     vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * getDayColor() * SUN_INTENSITY;

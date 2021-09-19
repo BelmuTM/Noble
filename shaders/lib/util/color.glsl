@@ -125,10 +125,10 @@ vec3 YCoCgToRGB(vec3 YCoCg) {
 
 vec3 linearToYCoCg(vec3 linear) {
     vec3 RGB = linearToSRGB(vec4(linear, 1.0)).rgb;
-    return RGBToYCoCgMatrix * RGB;
+    return isSky(texCoords) ? linear : RGBToYCoCgMatrix * RGB;
 }
 
 vec3 YCoCgToLinear(vec3 YCoCg) {
     vec3 RGB = YCoCgToRGBMatrix * YCoCg;
-    return sRGBToLinear(vec4(RGB, 1.0)).rgb;
+    return isSky(texCoords) ? YCoCg : sRGBToLinear(vec4(RGB, 1.0)).rgb;
 }
