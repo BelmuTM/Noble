@@ -33,14 +33,14 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_ABSORPTION_COEFFICIENTS vec3(1.0, 0.2, 0.13)
 
 #define WATER_FOAM 1 // [0 1]
-#define FOAM_BRIGHTNESS 1.00 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
+#define FOAM_BRIGHTNESS 0.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
 #define FOAM_FALLOFF_DISTANCE 0.75
-#define FOAM_EDGE_FALLOFF 0.3
+#define FOAM_EDGE_FALLOFF 0.4
 #define FOAM_FALLOFF_BIAS 0.1
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.3)
-#define PTGI_AMBIENT vec3(0.01)
+#define AMBIENT vec3(0.15)
+#define PTGI_AMBIENT vec3(0.003)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(0.92, 0.87, 0.7)
@@ -114,7 +114,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ROUGH_REFLECT_RES 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define SIMPLE_REFLECT_STEPS 64
-#define REFRACT_STEPS 64
+#define REFRACT_STEPS 48
 
 /*------------------ ATMOSPHERICS ------------------*/
 #define VL 0 // [0 1]
@@ -149,12 +149,12 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define APERTURE 4.0
 #define ISO 120.0
 #define SHUTTER_SPEED 40.0
-const float K = 12.5;  // Light meter calibration
+const float K = 18.5;  // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
-#define AUTO_EXPOSURE 0 // [0 1]
-#define MIN_EXPOSURE 0.05
-#define MAX_EXPOSURE 20.0
+#define AUTO_EXPOSURE 1 // [0 1]
+#define MIN_EXPOSURE 5e-3
+#define MAX_EXPOSURE 30.0
 
 /*------------------ COLOR CORRECTION ------------------*/
 #define TONEMAPPING 3 // [-1 0 1 2 3]
