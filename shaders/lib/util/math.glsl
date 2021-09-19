@@ -21,11 +21,7 @@ vec3 decodeNormal(vec2 enc) {
     return vec3(g * nn.xy, g - 1.0);
 }
 
-float pack2x8(vec2 x) {
-	return dot(floor(255.0 * x + 0.5), vec2(1.0 / 65535.0, 256.0 / 65535.0));
-}
-
-float pack2x8Dithered(vec2 x, float pattern) {
+float pack2x8(vec2 x, float pattern) {
 	return dot(floor(255.0 * x + pattern), vec2(1.0 / 65535.0, 256.0 / 65535.0));
 }
 
@@ -42,6 +38,18 @@ float distanceSquared(vec3 v1, vec3 v2) {
 
 float saturate(float x) {
 	return clamp(x, 0.0, 1.0);
+}
+
+vec2 saturate(vec2 x) {
+    return clamp(x, vec2(0.0), vec2(1.0));
+}
+
+vec3 saturate(vec3 x) {
+    return clamp(x, vec3(0.0), vec3(1.0));
+}
+
+vec4 saturate(vec4 x) {
+    return clamp(x, vec4(0.0), vec4(1.0));
 }
 
 // Improved smoothstep function suggested by Ken Perlin

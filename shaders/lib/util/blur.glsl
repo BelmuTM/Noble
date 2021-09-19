@@ -6,22 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec4 qualityBlur(vec2 coords, sampler2D tex, vec2 resolution, float size, float quality, float directions) {
-    vec4 color = texture2D(tex, coords);
-    vec2 radius = size / resolution;
-
-    int SAMPLES = 1;
-    for(float d = 0.0; d < PI2; d += PI2 / directions) {
-		for(float i = 1.0 / quality; i <= 1.0; i += 1.0 / quality) {
-
-			color += texture2D(tex, coords + vec2(cos(d), sin(d)) * radius * i);
-            SAMPLES++;
-        }
-    }
-    return (color / SAMPLES) / quality * directions;
-}
-
-vec4 bilateralBlur(vec2 coords, sampler2D tex, int size) {
+vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
     vec4 color = texture2D(tex, coords);
 
     int SAMPLES = 1;
@@ -65,7 +50,7 @@ vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float 
         color += texture2D(tex, sampleCoords);
         SAMPLES++;
     }
-    return clamp(color / SAMPLES, 0.0, 1.0);
+    return saturate(color / SAMPLES);
 }
 
 const float gaussianWeights[49] = float[49](
@@ -130,18 +115,19 @@ vec4 gaussianBlur(vec2 coords, sampler2D tex, vec2 direction) {
     return color;
 }
 
-bool edgeStop(vec2 sampleCoords, vec3 pos, vec3 normal) { 
-    vec3 positionAt = vec3(sampleCoords, texture2D(depthtex0, sampleCoords).r);
-    positionAt = screenToView(positionAt);
-    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, sampleCoords).xy));
+float edgeWeight(vec2 sampleCoords, vec3 pos, vec3 normal) { 
+    vec3 posAt = getViewPos(sampleCoords);
+    float posWeight = 1.0 / max(1e-5, pow(distance(pos, posAt), 4.0));
 
-    return abs(positionAt.x - pos.x) <= 0.7
-        && abs(positionAt.y - pos.y) <= 0.7
-        && abs(positionAt.z - pos.z) <= 0.7
-        && abs(normalAt.x - normal.x) <= EDGE_STOP_THRESHOLD
-        && abs(normalAt.y - normal.y) <= EDGE_STOP_THRESHOLD
-        && abs(normalAt.z - normal.z) <= EDGE_STOP_THRESHOLD
-        && clamp(sampleCoords, 0.0, 1.0) == sampleCoords; // Is on screen
+    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, sampleCoords).xy));
+    float normalWeight = max(pow(saturate(dot(normal, normalAt)), 8.0), 0.0);
+
+    float depthAt = linearizeDepth(texture2D(depthtex0, sampleCoords).r);
+    float depth = linearizeDepth(texture2D(depthtex0, texCoords).r);
+    float depthWeight = pow(1.0 / (1.0 + abs(depthAt - depth)), 5.0);
+
+    float screenWeight = float(saturate(sampleCoords) == sampleCoords);
+    return saturate(posWeight * normalWeight * depthWeight) * screenWeight;
 }
 
 vec4 gaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, vec2 direction) {
@@ -149,29 +135,11 @@ vec4 gaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, vec2 
     float totalWeight = 0.0;
 
     for(int i = -49; i <= 49; i++) {
-        vec2 sampleCoords = coords + (direction * float(i) * pixelSize);
-        float weight = gaussianWeights[abs(i)] * float(edgeStop(sampleCoords, viewPos, normal));
+        vec2 sampleCoords = coords + (direction * float(i - 24) * pixelSize);
+        float weight = edgeWeight(sampleCoords, viewPos, normal) * gaussianWeights[abs(i)];
 
         color += texture2D(tex, sampleCoords) * weight;
         totalWeight += weight;
     }
     return color / max(0.0, totalWeight);
 }
-
-/*
-vec4 edgeAwareSpatialDenoiser(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, float size, float quality, float directions) {
-    vec4 color = texture2D(tex, coords);
-    float totalWeight = 1.0;
-
-    for(float d = 0.0; d < PI2; d += PI2 / directions) {
-		for(float i = 1.0 / quality; i <= 1.0; i += 1.0 / quality) {
-            vec2 sampleCoords = coords + vec2(cos(d), sin(d)) * (size * i * pixelSize);
-            float weight = float(edgeStop(sampleCoords, viewPos, normal));
-
-			color += texture2D(tex, sampleCoords) * weight;
-            totalWeight += weight;
-        } 
-    }
-    return clamp((color / totalWeight) / quality * directions, 0.0, 1.0);
-}
-*/

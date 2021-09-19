@@ -88,7 +88,7 @@ vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, fl
     vec3 F = schlickGaussian(HdotL, F0);
     float G = geometrySmith(NdotV, NdotL, roughness);
         
-    return clamp(D * F * G, 0.0, 1.0);
+    return saturate(D * F * G);
 }
 
 /*
@@ -125,7 +125,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
 
         vec3 A = data.albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
         vec3 B = data.albedo * (0.125 * (alpha /  (alpha + 0.18)));
-        diffuse = clamp(A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y), 0.0, 1.0);
+        diffuse = saturate(A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y));
     }
 
     vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * getDayColor() * SUN_INTENSITY;

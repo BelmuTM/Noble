@@ -37,15 +37,17 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 }
 
 vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
-    vec3 minColor = vec3(1.0), maxColor = vec3(0.0); 
+    vec3 minColor = vec3(1.0), maxColor = vec3(0.0);
+    prevColor = linearToYCoCg(prevColor);
 
     for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
         for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {
-            vec3 color = texture2D(currColorTex, texCoords + vec2(x, y) * pixelSize).rgb; 
+            vec3 color = texture2D(currColorTex, texCoords + vec2(x, y) * pixelSize).rgb;
+            color = linearToYCoCg(color);
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
     }
-    return clipAABB(prevColor, minColor, maxColor);
+    return YCoCgToLinear(clipAABB(prevColor, minColor, maxColor));
 }
 
 // Thanks LVutner for the help with previous / current textures management!
@@ -56,8 +58,10 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
     prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    // vec2 velocity = (texCoords - prevTexCoords) * viewSize;
-    // float blendFactor = exp(-length(velocity)) * 0.6 + 0.3;
-    float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
-    return mix(currColor, prevColor, TAA_STRENGTH * screenWeight); 
+    vec3 pos = getViewPos(texCoords);
+    vec3 posAt = getViewPos(prevTexCoords);
+    float posWeight = 1.0 / max(1e-5, pow(distance(pos, posAt), 2.0));
+
+    float screenWeight = float(saturate(prevTexCoords) == prevTexCoords);
+    return mix(currColor, prevColor, TAA_STRENGTH * saturate(screenWeight * posWeight)); 
 }

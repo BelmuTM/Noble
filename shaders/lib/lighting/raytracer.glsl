@@ -28,7 +28,7 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int steps, float jitter, inout vec3 hit
     for(int i = 0; i < steps; i++) {
         hitPos += screenDir;
 
-        if(clamp(hitPos.xy, 0.0, 1.0) != hitPos.xy) break;
+        if(saturate(hitPos.xy) != hitPos.xy) break;
         float depth = texture2D(depthtex1, hitPos.xy).r;
 
         if(hitPos.z > depth && !isHand(depth)) {

@@ -9,7 +9,7 @@
 // LVutner's Border Attenuation
 float LVutner_Attenuation(vec2 pos, float edgeFactor) {
     float borderDist = min(1.0 - max(pos.x, pos.y), min(pos.x, pos.y));
-    float border = clamp(borderDist > edgeFactor ? 1.0 : borderDist / edgeFactor, 0.0, 1.0);
+    float border = saturate(borderDist > edgeFactor ? 1.0 : borderDist / edgeFactor);
     return border;
 }
 
@@ -71,11 +71,12 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
     mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-        vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
+        vec2 uniformNoise = uniformNoise(i);
+        vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise;
         
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.rg, roughness);
 		vec3 reflected = reflect(viewDir, TBN * microfacet);	
-		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, blueNoise().r, hitPos));
+		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, uniformNoise.r, hitPos));
 
         float NdotL = max(0.0, dot(normal, reflected));
 		if(NdotL > 0.0) {
@@ -90,7 +91,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
             weight += NdotL;
 		}
 	}
-	return filteredColor / max(EPS, weight);
+	return saturate(filteredColor / max(EPS, weight));
 }
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/

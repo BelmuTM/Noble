@@ -68,6 +68,15 @@ vec3 ACESFitted(vec3 color) {
     return clamp(RRTAndODTFit(color * ACESInputMat) * ACESOutputMat, 0.0, 1.0);
 }
 
+vec3 ACESFilm(vec3 x) {
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+}
+
 vec3 vibrance_saturation(vec3 color, float vibrance, float saturation) {
     float luma = luma(color);
     float mn = min(min(color.r, color.g), color.b);
@@ -86,22 +95,40 @@ vec3 adjustContrast(vec3 color, float contrast) {
 }
 
 // https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x
-vec4 toSRGB(vec4 linear) {
-    #if TONEMAPPING != 2
-        bvec4 cutoff = lessThan(linear, vec4(0.0031308));
-        vec4 higher = vec4(1.055) * pow(linear, vec4(1.0 / 2.4)) - vec4(0.055);
-        vec4 lower = linear * vec4(12.92);
+vec4 linearToSRGB(vec4 linear) {
+    bvec4 cutoff = lessThan(linear, vec4(0.0031308));
+    vec4 higher = vec4(1.055) * pow(linear, vec4(1.0 / 2.4)) - vec4(0.055);
+    vec4 lower = linear * vec4(12.92);
 
-        return mix(higher, lower, cutoff);
-    #else
-        return linear;
-    #endif
+    return mix(higher, lower, cutoff);
 }
 
-vec4 toLinear(vec4 sRGB) {
+vec4 sRGBToLinear(vec4 sRGB) {
     bvec4 cutoff = lessThan(sRGB, vec4(0.04045));
     vec4 higher = pow((sRGB + vec4(0.055)) / vec4(1.055), vec4(2.4));
     vec4 lower = sRGB / vec4(12.92);
 
     return mix(higher, lower, cutoff);
+}
+
+// https://www.shadertoy.com/view/ltjBWG
+const mat3 RGBToYCoCgMatrix = mat3(0.25, 0.5, -0.25, 0.5, 0.0, 0.5, 0.25, -0.5, -0.25);
+const mat3 YCoCgToRGBMatrix = mat3(1.0, 1.0, 1.0, 1.0, 0.0, -1.0, -1.0, 1.0, -1.0);
+
+vec3 RGBToYCoCg(vec3 RGB) {
+    return RGBToYCoCgMatrix * RGB;
+}
+
+vec3 YCoCgToRGB(vec3 YCoCg) {
+    return YCoCgToRGBMatrix * YCoCg;
+}
+
+vec3 linearToYCoCg(vec3 linear) {
+    vec3 RGB = linearToSRGB(vec4(linear, 1.0)).rgb;
+    return RGBToYCoCgMatrix * RGB;
+}
+
+vec3 YCoCgToLinear(vec3 YCoCg) {
+    vec3 RGB = YCoCgToRGBMatrix * YCoCg;
+    return sRGBToLinear(vec4(RGB, 1.0)).rgb;
 }

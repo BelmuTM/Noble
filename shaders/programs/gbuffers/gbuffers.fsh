@@ -56,7 +56,7 @@ void main() {
 	}
 
 	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 11) {
-		emission = 1.0;
+		emission = 0.5;
 	}
 	
 	/*DRAWBUFFERS:012*/

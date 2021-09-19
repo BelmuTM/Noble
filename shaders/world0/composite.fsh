@@ -27,7 +27,7 @@ varying vec2 texCoords;
 #include "/lib/lighting/shadows.glsl"
 
 void main() {
-   vec4 temp = toLinear(texture2D(colortex4, texCoords));
+   vec4 temp = sRGBToLinear(texture2D(colortex4, texCoords));
    vec4 rain = texture2D(colortex5, texCoords);
 
    if(isSky(texCoords)) {
@@ -47,7 +47,7 @@ void main() {
    vec4 tex1 = texture2D(colortex1, texCoords);
    vec4 tex2 = texture2D(colortex2, texCoords);
    material data = getMaterial(tex0, tex1, tex2);
-   data.albedo = toLinear(tex0).rgb;
+   data.albedo = sRGBToLinear(tex0).rgb;
 
    float depthDist = distance(
 		linearizeDepth(texture2D(depthtex0, texCoords).r),
@@ -85,7 +85,7 @@ void main() {
                vec3 edge = transmittance * falloff * FOAM_BRIGHTNESS * shadowmap;
 
                float leading = depthDist / (FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF);
-	            data.albedo = mix(data.albedo + edge, data.albedo, leading);
+	            data.albedo += edge * (1.0 - leading);
             }
          #endif
       }

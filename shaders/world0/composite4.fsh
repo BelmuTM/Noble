@@ -17,6 +17,7 @@ varying vec2 texCoords;
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
+#include "/lib/util/color.glsl"
 #include "/lib/util/worldTime.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/material.glsl"
@@ -68,9 +69,9 @@ void main() {
                #else
                     #if AO == 1
                          #if AO_FILTER == 1
-                              Result.rgb *= gaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).a;
+                              Result.rgb *= saturate(gaussianFilter(1.0, viewPos, normal, colortex5, vec2(0.0, 1.0)).a);
                          #else
-                              Result.rgb *= texture2D(colortex6, texCoords).a;
+                              Result.rgb *= saturate(texture2D(colortex5, texCoords).a);
                          #endif
                     #endif
                #endif

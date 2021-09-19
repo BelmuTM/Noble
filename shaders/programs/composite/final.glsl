@@ -21,17 +21,6 @@
 #include "/lib/post/dof.glsl"
 #include "/lib/post/exposure.glsl"
 
-vec3 computeBloom() {
-    vec3 color  = getBloomTile(2, vec2(0.0      , 0.0   ));
-	     color += getBloomTile(3, vec2(0.0      , 0.26  ));
-	     color += getBloomTile(4, vec2(0.135    , 0.26  ));
-	     color += getBloomTile(5, vec2(0.2075   , 0.26  ));
-	     color += getBloomTile(6, vec2(0.135    , 0.3325));
-	     color += getBloomTile(7, vec2(0.160625 , 0.3325));
-	     color += getBloomTile(8, vec2(0.1784375, 0.3325));
-    return color;
-}
-
 void main() {
     vec4 Result = texture2D(colortex0, texCoords);
     float depth = texture2D(depthtex0, texCoords).r;
@@ -48,7 +37,7 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result.rgb += clamp(computeBloom() * mix(0.03 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH, 0.0, 1.0);
+        Result.rgb += saturate(readBloom() * mix(0.01 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
     #endif
 
     // Vignette
@@ -70,14 +59,17 @@ void main() {
     #elif TONEMAPPING == 2
         Result.rgb = burgess(Result.rgb); // Burgess
     #elif TONEMAPPING == 3
-        Result.rgb = ACESFitted(Result.rgb); // ACES
+        Result.rgb = ACESFilm(Result.rgb); // ACES
     #endif
 
     Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
     Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
 
     Result.rgb += bayer2(gl_FragCoord.xy) * (1.0 / 255.0); // Removes color banding from the screen
+    #if TONEMAPPING != 2
+        Result = linearToSRGB(Result);
+    #endif
 
     /*DRAWBUFFERS:0*/
-    gl_FragData[0] = toSRGB(Result);
+    gl_FragData[0] = Result;
 }

@@ -18,8 +18,13 @@ varying vec2 texCoords;
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
 #include "/lib/util/blur.glsl"
+#include "/lib/post/bloom.glsl"
 #include "/lib/util/worldTime.glsl"
 #include "/lib/atmospherics/fog.glsl"
+
+/*
+const bool colortex5MipmapEnabled = true;
+*/
 
 void main() {
      vec3 viewPos = getViewPos(texCoords);
@@ -27,6 +32,12 @@ void main() {
 
      Result.rgb += fog(viewPos, vec3(0.0), getDayColor(), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.05); // Applying Fog
 
-     /*DRAWBUFFERS:0*/
+     vec3 bloom = vec3(0.0);
+     #if BLOOM == 1
+          bloom = writeBloom();
+     #endif
+
+     /*DRAWBUFFERS:05*/
      gl_FragData[0] = Result;
+     gl_FragData[1] = vec4(saturate(bloom), 1.0);
 }

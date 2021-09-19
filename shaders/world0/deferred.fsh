@@ -34,7 +34,7 @@ void main() {
           vec3 sky = mix(getDayTimeSkyGradient(eyeDir, viewPos), vec3(2.0), angle); 
           
           /*DRAWBUFFERS:0*/
-          gl_FragData[0] = vec4(sky, 1.0);
+          gl_FragData[0] = vec4(saturate(sky), 1.0);
           return;
      }
 

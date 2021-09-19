@@ -55,7 +55,7 @@ void main() {
     vec3 volumetricLighting = texture2D(colortex8, texCoords).rgb;
     #if VL == 1
         #if VL_FILTER == 1
-            volumetricLighting = bilateralBlur(texCoords, colortex8, 5).rgb;
+            volumetricLighting = boxBlur(texCoords, colortex8, 5).rgb;
         #endif
         Result.rgb += (getDayColor() * volumetricLighting) * VL_BRIGHTNESS;
     #endif

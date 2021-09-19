@@ -91,7 +91,7 @@
     }
 
     vec3 shadowMap(vec3 viewPos, float shadowMapResolution) {
-        vec3 sampleCoords = clamp(viewToShadow(viewPos).xyz * 0.5 + 0.5, 0.0, 1.0);
+        vec3 sampleCoords = saturate(viewToShadow(viewPos).xyz * 0.5 + 0.5);
         float theta = TAA == 1 ? uniformAnimatedNoise().r : uniformNoise(1).r;
         theta *= PI2;
     

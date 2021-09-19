@@ -16,6 +16,7 @@ varying vec2 texCoords;
 #include "/lib/util/math.glsl"
 #include "/lib/util/transforms.glsl"
 #include "/lib/util/utils.glsl"
+#include "/lib/util/color.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/post/taa.glsl"
 
@@ -25,22 +26,16 @@ const bool colortex6Clear = false;
 */
 
 #if GI_TEMPORAL_ACCUMULATION == 1
-    vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 normal) {
-        vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r)).xy;
+    vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 viewPos, vec3 normal) {
+        vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex0, texCoords).r)).xy;
         vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
         prevColor = neighbourhoodClipping(prevTex, prevColor);
 
-        vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, prevTexCoords).xy));
-        float normalWeight = max(pow(max(dot(normal, normalAt), 0.0), 20.0), 0.01);
-
-        float depthAt = linearizeDepth(texture2D(depthtex0, prevTexCoords).r);
+        float depthAt = linearizeDepth(texture2D(colortex6, prevTexCoords).a);
         float depth = linearizeDepth(texture2D(depthtex0, texCoords).r);
-        float depthWeight = 1.0 / max(1e-5, abs(depthAt - depth));
+        float screenWeight = float(saturate(prevTexCoords) == prevTexCoords);
 
-        float screenWeight = float(clamp(prevTexCoords, 0.0, 1.0) == prevTexCoords);
-        float totalWeight = clamp(depthWeight * normalWeight * screenWeight, 0.0, 1.0);
-
-        return mix(currColor, prevColor, 0.95 * totalWeight);
+        return mix(currColor, prevColor, 0.93 * screenWeight);
     }
 #endif
 
@@ -51,6 +46,7 @@ void main() {
     bool isMetal = texture2D(colortex2, texCoords).g * 255.0 > 229.5;
 
     if(!isSky(texCoords) && !isMetal) {
+        vec3 viewPos = getViewPos(texCoords);
         vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
         
         #if GI == 1
@@ -65,12 +61,11 @@ void main() {
             #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                globalIllumination = clamp(temporalAccumulation(colortex6, globalIllumination, normal), 0.0, 1.0);
+                globalIllumination = saturate(temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
             #endif
         #else 
             #if AO == 1
                 #if AO_FILTER == 1
-                    vec3 viewPos = getViewPos(texCoords);
                     ambientOcclusion = gaussianFilter(texCoords, viewPos, normal, colortex5, vec2(1.0, 0.0)).a;
                 #else
                     ambientOcclusion = texture2D(colortex5, texCoords).a;
@@ -79,6 +74,7 @@ void main() {
         #endif
     }
 
-    /*DRAWBUFFERS:6*/
-    gl_FragData[0] = vec4(globalIllumination, ambientOcclusion);
+    /*DRAWBUFFERS:56*/
+    gl_FragData[0] = vec4(ambientOcclusion);
+    gl_FragData[1] = vec4(globalIllumination, texture2D(depthtex0, texCoords).r);
 }
