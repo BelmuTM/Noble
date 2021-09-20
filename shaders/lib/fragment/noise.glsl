@@ -91,12 +91,12 @@ vec3 blueNoise() {
 }
 
 vec2 uniformAnimatedNoise() {
-    vec2 noise = blueNoise().rg;
-    return fract(noise + vec2(GOLDEN_RATIO * (frameTimeCounter * 15.0), (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter * 15.0, 100.0)));
+    vec2 noise = hash22(gl_FragCoord.xy);
+    return fract(noise + vec2(GOLDEN_RATIO * frameTimeCounter, (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter, 100.0)));
 }
 
 vec2 uniformNoise(int i) {
-    vec2 noise = blueNoise().rg;
+    vec2 noise = texture2D(noisetex, texCoords).rg;
     noise.x = fract(noise.x + GOLDEN_RATIO * i);
     noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i);
     return noise;
