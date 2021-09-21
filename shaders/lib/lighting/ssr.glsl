@@ -40,7 +40,7 @@ vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3
     vec3 reflected = reflect(normalize(viewPos), normal);
     vec3 hitPos;
 
-    float jitter = TAA == 1 ? uniformAnimatedNoise().r : blueNoise().r;
+    float jitter = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg).r : blueNoise().r;
     float hit = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos));
 
     vec3 L = shadowLightPosition * 0.01;
@@ -71,11 +71,11 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
     mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-        vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
+        vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy)) : uniformNoise(i);
         
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.rg, roughness);
 		vec3 reflected = reflect(viewDir, TBN * microfacet);	
-		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, blueNoise().r, hitPos));
+		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, noise.r, hitPos));
 
         float NdotL = max(0.0, dot(normal, reflected));
 		if(NdotL > 0.0) {
@@ -100,7 +100,7 @@ vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, 
     viewPos += normal * EPS;
 
     vec3 refracted = refract(normalize(viewPos), normal, 1.0 / ior); // water's ior
-    float jitter = TAA == 1 ? uniformAnimatedNoise().r : blueNoise().r;
+    float jitter = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg).r : blueNoise().r;
 
     float hit = float(raytrace(viewPos, refracted, REFRACT_STEPS, jitter, hitPos));
     if(isHand(texture2D(depthtex1, hitPos.xy).r)) return vec3(0.0);

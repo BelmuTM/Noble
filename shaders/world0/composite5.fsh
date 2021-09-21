@@ -33,7 +33,7 @@ void main() {
             vec3 viewPos = getViewPos(texCoords);
             vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
 
-            float NdotV = saturate(dot(normal, normalize(-viewPos)));
+            float NdotV = abs(dot(normal, normalize(-viewPos))) + 1e-5;
             float F0 = texture2D(colortex2, texCoords).g;
             bool isMetal = F0 * 255.0 > 229.5;
 

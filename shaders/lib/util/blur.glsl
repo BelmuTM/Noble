@@ -22,7 +22,7 @@ vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
 
 vec4 bokeh(vec2 coords, sampler2D tex, vec2 resolution, int quality, float radius) {
     vec4 color = texture2D(tex, coords);
-    vec2 noise = uniformAnimatedNoise();
+    vec2 noise = uniformAnimatedNoise(blueNoise().rg);
 
     int SAMPLES = 1;
     for(int i = 0; i < quality; i++) {
@@ -157,7 +157,7 @@ vec4 heavyGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, 
         color += texture2D(tex, sampleCoords) * weight;
         totalWeight += weight;
     }
-    return color / max(0.0, totalWeight);
+    return saturate(color / max(0.0, totalWeight));
 }
 
 vec4 fastGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, vec2 direction) {
@@ -171,5 +171,5 @@ vec4 fastGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, v
         color += texture2D(tex, sampleCoords) * weight;
         totalWeight += weight;
     }
-    return color / max(0.0, totalWeight);
+    return saturate(color / max(0.0, totalWeight));
 }

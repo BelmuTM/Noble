@@ -90,13 +90,12 @@ vec3 blueNoise() {
     return texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
 }
 
-vec2 uniformAnimatedNoise() {
-    vec2 noise = hash22(gl_FragCoord.xy);
-    return fract(noise + vec2(GOLDEN_RATIO * frameTimeCounter, (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter, 100.0)));
+vec2 uniformAnimatedNoise(vec2 seed) {
+    return fract(seed + vec2(GOLDEN_RATIO * frameTimeCounter, (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter, 100.0)));
 }
 
 vec2 uniformNoise(int i) {
-    vec2 noise = texture2D(noisetex, texCoords).rg;
+    vec2 noise = blueNoise().rg;
     noise.x = fract(noise.x + GOLDEN_RATIO * i);
     noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i);
     return noise;

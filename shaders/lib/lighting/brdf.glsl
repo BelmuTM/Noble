@@ -93,7 +93,7 @@ vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float alpha) {
 	// Section 4.1: orthonormal basis (with special case if cross product is zero)
 	float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
 	vec3 T1 = lensq > 0.0 ? vec3(-Vh.y, Vh.x, 0.0) * inversesqrt(lensq) : vec3(1.0, 0.0, 0.0);
-	vec3 T2 = cross(Vh, T1);
+	vec3 T2 = cross(T1, Vh);
 
 	// Section 4.2: parameterization of the projected area
 	float r = sqrt(Xi.y);	
@@ -142,7 +142,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     float NdotL = max(EPS, dot(N, L));
     float VdotL = max(EPS, dot(V, L));
     float HdotL = max(EPS, dot(H, L));
-    float NdotH = NdotHSquared(0.0004, NdotL, NdotV, VdotL);
+    float NdotH = max(EPS, dot(N, H));
     float VdotH = max(EPS, dot(V, H));
 
     vec3 specular;

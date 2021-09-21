@@ -11,15 +11,15 @@
 /*------------------ MATH ------------------*/
 #define EPS 1e-4
 
-#define HALF_PI 1.570796
-#define PI 3.14159265
-#define PI2 6.28318530
+#define HALF_PI         1.570796
+#define PI              3.14159265
+#define PI2             6.28318530
 
 #define INV_SQRT_OF_2PI 0.39894228
-#define INV_PI 0.31831
+#define INV_PI          0.31831
 
-#define GOLDEN_RATIO 1.618033988
-#define GOLDEN_ANGLE 2.399963229
+#define GOLDEN_RATIO    1.618033988
+#define GOLDEN_ANGLE    2.399963229
 
 /*------------------ OPTIFINE CONSTANTS ------------------*/
 const float sunPathRotation = -40.0; // [-85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0]
@@ -55,8 +55,8 @@ const float shadowDistanceRenderMul = 1.0;
 #define AO_FILTER 1 // [0 1]
 
 #define SSAO_SAMPLES 8 // [4 8 16 32]
-#define SSAO_RADIUS 0.6
-#define SSAO_STRENGTH 1.5
+#define SSAO_RADIUS 0.4
+#define SSAO_STRENGTH 1.2
 
 #define RTAO_SAMPLES 4
 #define RTAO_STEPS 16

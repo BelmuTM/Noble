@@ -12,7 +12,7 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
     mat3 TBN = getTBN(normal);
 
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
-		vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
+		vec2 noise = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg) : uniformNoise(i);
 		vec3 sampleDir = TBN * randomHemisphereDirection(noise.xy);
 
 		vec3 samplePos = viewPos + sampleDir * SSAO_RADIUS;
@@ -31,7 +31,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 	vec3 hitPos;
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
-		vec2 noise = TAA == 1 ? uniformAnimatedNoise() : uniformNoise(i);
+		vec2 noise = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg) : uniformNoise(i);
 		vec3 sampleDir = TBN * randomHemisphereDirection(noise);
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.r, hitPos)) continue;
 

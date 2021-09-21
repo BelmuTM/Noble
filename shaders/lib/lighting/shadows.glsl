@@ -15,7 +15,7 @@
     }
 
     bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
-        float jitter = TAA == 1 ? uniformAnimatedNoise().r : blueNoise().r;
+        float jitter = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg).r : blueNoise().r;
         bool hit = raytrace(viewPos, shadowLightPosition * 0.01, 16, jitter, hitPos);
         return hit && abs(linearizeDepth(hitPos.z) - linearizeDepth(texture2D(depthtex0, hitPos.xy).r)) < 0.3 ? true : false;
     }
@@ -92,7 +92,7 @@
 
     vec3 shadowMap(vec3 viewPos, float shadowMapResolution) {
         vec3 sampleCoords = saturate(viewToShadow(viewPos).xyz * 0.5 + 0.5);
-        float theta = TAA == 1 ? uniformAnimatedNoise().r : uniformNoise(1).r;
+        float theta = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg).r : uniformNoise(1).r;
         theta *= PI2;
     
         float cosTheta = cos(theta), sinTheta = sin(theta);
