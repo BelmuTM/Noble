@@ -68,8 +68,8 @@ const float shadowDistanceRenderMul = 1.0;
 #define CONTACT_SHADOWS 0
 
 #define SHADOW_SAMPLES 3 // [1 2 3 4 5 6]
-#define DISTORT_FACTOR 0.5 // Lower number means better shadows near you and worse shadows farther away.
-#define SHADOW_BIAS 0.1 // Increase this if you get shadow acne. Decrease this if you get peter panning.
+#define DISTORT_FACTOR 0.9
+#define SHADOW_BIAS 0.8
 
 // Soft Shadows
 #define PCSS_SAMPLES 24
@@ -121,7 +121,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define VL_SAMPLES 8
 
 #define VL_BRIGHTNESS 1.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define VL_EXTINCTION 0.9
+#define VL_EXTINCTION 0.2
 
 #define RAIN_FOG 1 // [0 1]
 
@@ -144,10 +144,10 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ABERRATION_STRENGTH 30.0 // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0]
 
 /*------------------ CAMERA ------------------*/
-#define LENS_LENGTH 3.0
-#define APERTURE 4.0
-#define ISO 120.0
-#define SHUTTER_SPEED 40.0
+#define LENS_LENGTH     3.0
+#define APERTURE        4.0
+#define ISO           120.0
+#define SHUTTER_SPEED  40.0
 const float K = 15.0;  // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 

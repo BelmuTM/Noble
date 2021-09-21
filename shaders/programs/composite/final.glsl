@@ -37,7 +37,7 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result.rgb += saturate(readBloom() * mix(0.06 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
+        Result.rgb += saturate(readBloom() * mix(0.1 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
     #endif
 
     // Vignette

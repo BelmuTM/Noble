@@ -62,7 +62,8 @@ void main() {
 
     vec3 brightSpots;
     #if BLOOM == 1
-        brightSpots = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
+        bool isEmissive = texture2D(colortex1, texCoords).z > EPS;
+        brightSpots = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD || isEmissive ? Result.rgb : vec3(0.0);
     #endif
 
     /*DRAWBUFFERS:05*/

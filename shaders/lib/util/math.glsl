@@ -31,6 +31,10 @@ vec2 unpack2x8(float pack) {
 	return vec2(256.0 / 255.0, 1.0 / 255.0) * xy;
 }
 
+vec2 distort(vec2 coords) {
+	return coords / (length(coords) * SHADOW_BIAS + (1.0 - SHADOW_BIAS));
+}
+
 float distanceSquared(vec3 v1, vec3 v2) {
 	vec3 u = v2 - v1;
 	return dot(u, u);

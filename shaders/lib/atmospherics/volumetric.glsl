@@ -20,7 +20,7 @@ vec3 computeVL(vec3 viewPos) {
     vec3 rayPos = startPos;
     for(int i = 0; i < VL_SAMPLES; i++) {
         rayPos += rayDir;
-        vec3 samplePos = vec3(distort3(rayPos.xy), rayPos.z) * 0.5 + 0.5;
+        vec3 samplePos = vec3(distort(rayPos.xy), rayPos.z) * 0.5 + 0.5;
 
         float shadowVisibility0 = step(samplePos.z - EPS, texture2D(shadowtex0, samplePos.xy).r);
         float shadowVisibility1 = step(samplePos.z - EPS, texture2D(shadowtex1, samplePos.xy).r);

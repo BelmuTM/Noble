@@ -35,7 +35,7 @@ vec3 getDayColor() {
     const vec3 ambient_sunrise  = vec3(0.943, 0.472, 0.247);
     const vec3 ambient_noon     = vec3(0.975, 0.932, 0.860);
     const vec3 ambient_sunset   = vec3(0.943, 0.472, 0.247);
-    const vec3 ambient_midnight = vec3(0.064, 0.094, 0.101);
+    const vec3 ambient_midnight = vec3(0.070, 0.064, 0.101);
 
     return ambient_sunrise * timeSunrise + ambient_noon * timeNoon + ambient_sunset * timeSunset + ambient_midnight * timeMidnight;
 }
@@ -45,7 +45,7 @@ vec3 getDayTimeSkyGradient(in vec3 pos, vec3 viewPos) {  // Bottom Color -> Top 
     vec3 skyGradient_sunrise  = mix(vec3(0.529, 0.34, 0.247),  vec3(0.23, 0.265, 0.339),  pos.y);
     vec3 skyGradient_noon     = mix(vec3(0.445, 0.575, 0.771), vec3(0.345, 0.475, 0.671), pos.y);
     vec3 skyGradient_sunset   = mix(vec3(0.529, 0.3, 0.22),    vec3(0.23, 0.265, 0.339),  pos.y);
-    vec3 skyGradient_midnight = mix(vec3(0.03, 0.069, 0.088),  vec3(0.0, 0.004, 0.025),   pos.y) + drawStars(viewPos);
+    vec3 skyGradient_midnight = mix(vec3(0.058, 0.062, 0.088),  vec3(0.0, 0.004, 0.025),  pos.y) + drawStars(viewPos);
 
     return skyGradient_sunrise * timeSunrise + skyGradient_noon * timeNoon + skyGradient_sunset * timeSunset + skyGradient_midnight * timeMidnight;
 }

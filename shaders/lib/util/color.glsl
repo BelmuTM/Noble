@@ -5,8 +5,9 @@
 // I AM NOT THE AUTHOR OF THE TONE MAPPING ALGORITHMS BELOW
 // Most sources are: Github, ShaderToy or Discord.
 
+// REC. 709 -> https://en.wikipedia.org/wiki/Luma_(video)
 float luma(vec3 color) {
-    return dot(color, vec3(0.2125, 0.7154, 0.0721));
+    return dot(color, vec3(0.2126, 0.7152, 0.0722));
 }
 
 vec3 whitePreservingReinhard(vec3 color) {

@@ -10,24 +10,24 @@
     vec4 viewToShadow(vec3 viewPos) {
 	    vec4 worldPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
 	    vec4 shadowSpace = shadowProjection * shadowModelView * worldPos;
-	    shadowSpace.xy = distort3(shadowSpace.xy);
+	    shadowSpace.xy = distort(shadowSpace.xy);
 	    return shadowSpace;
     }
 
     bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
         float jitter = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg).r : blueNoise().r;
         bool hit = raytrace(viewPos, shadowLightPosition * 0.01, 16, jitter, hitPos);
-        return hit && abs(linearizeDepth(hitPos.z) - linearizeDepth(texture2D(depthtex0, hitPos.xy).r)) < 0.3 ? true : false;
+        return hit && abs(linearizeDepth(texture2D(depthtex0, hitPos.xy).r) - linearizeDepth(hitPos.z)) <= 0.15 ? false : true;
     }
 
     float visibility(sampler2D tex, vec3 sampleCoords) {
         float contactShadow = 1.0;
         #if SOFT_SHADOWS == 0 && CONTACT_SHADOWS == 1
             vec3 hitPos;
-            contactShadow = 1.0 - float(contactShadows(getViewPos(texCoords), hitPos));
+            contactShadow = float(contactShadows(getViewPos(texCoords), hitPos));
         #endif
 
-        return step(sampleCoords.z - 0.001, texture2D(tex, sampleCoords.xy).r) * contactShadow;
+        return step(sampleCoords.z - 0.001, texture2D(tex, sampleCoords.xy).r * contactShadow);
     }
 
     vec3 sampleTransparentShadow(vec3 sampleCoords) {

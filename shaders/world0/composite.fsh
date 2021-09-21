@@ -23,7 +23,6 @@ varying vec2 texCoords;
 #include "/lib/lighting/brdf.glsl"
 #include "/lib/lighting/raytracer.glsl"
 #include "/lib/lighting/ssr.glsl"
-#include "/lib/util/distort.glsl"
 #include "/lib/lighting/shadows.glsl"
 
 void main() {

@@ -9,14 +9,15 @@
 #version 330 compatibility
 
 #include "/settings.glsl"
-#include "/lib/util/distort.glsl"
+#include "/lib/uniforms.glsl"
+#include "/lib/util/math.glsl"
 
 varying vec2 texCoords;
 varying vec4 color;
 
 void main(){
     gl_Position = ftransform();
-    gl_Position.xy = distort3(gl_Position.xy);
+    gl_Position.xy = distort(gl_Position.xy);
     texCoords = gl_MultiTexCoord0.st;
     color = gl_Color;
 }

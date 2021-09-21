@@ -22,7 +22,6 @@ varying vec2 texCoords;
 #include "/lib/util/blur.glsl"
 #include "/lib/material.glsl"
 #include "/lib/lighting/brdf.glsl"
-#include "/lib/util/distort.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
 
 /*
