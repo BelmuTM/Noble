@@ -155,7 +155,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 const float K = 15.0;  // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
-#define AUTO_EXPOSURE 1 // [0 1]
+#define AUTO_EXPOSURE 0 // [0 1]
 #define MIN_EXPOSURE 1e-3
 #define MAX_EXPOSURE 20.0
 
