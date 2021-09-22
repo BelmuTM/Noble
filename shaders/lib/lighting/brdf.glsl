@@ -48,6 +48,17 @@ vec3 schlickGaussian(float HdotL, vec3 F0) {
     return sphericalGaussian * (1.0 - F0) + F0;
 }
 
+float dielectricFresnel(float NdotV, float surfaceIOR) {
+    float n1 = airIOR, n2 = surfaceIOR, eta = n1 / n2;
+    float sinThetaT = eta * saturate(1.0 - (NdotV * NdotV));
+    float cosThetaT = 1.0 - (sinThetaT * sinThetaT);
+
+    float sPolar = pow((n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT), 2.0);
+    float pPolar = pow((n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV), 2.0);
+
+    return (sPolar + pPolar) * 0.5;
+}
+
 // https://d3ihk4j6ie4n1g.cloudfront.net/downloads/assets/DecimaSiggraph2017.pdf?mtime=20200402092944&focal=none
 float NdotHSquared(float radiusTan, float NoL, float NoV, float VoL) {
     float radiusCos = 1.0 / sqrt(1.0 + radiusTan * radiusTan);
@@ -119,9 +130,9 @@ vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
     return F0 * AB.x + AB.y;
 }
 
-vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, float roughness, vec3 F0) {
+vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, float roughness, float F0, vec3 albedo, bool isMetal) {
     float D = trowbridgeReitzGGX(NdotH, roughness * roughness);
-    vec3 F = schlickGaussian(HdotL, F0);
+    vec3 F = isMetal ? schlickGaussian(HdotL, albedo) : vec3(dielectricFresnel(HdotL, F0toIOR(F0)));
     float G = geometrySmith(NdotV, NdotL, roughness);
         
     return saturate(D * F * G);
@@ -147,8 +158,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
 
     vec3 specular;
     #if SPECULAR == 1
-        vec3 specularColor = isMetal ? data.albedo : vec3(data.F0);
-        specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, data.roughness, specularColor);
+        specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, data.roughness, data.F0, data.albedo, isMetal);
     #endif
 
     vec3 diffuse = vec3(0.0);

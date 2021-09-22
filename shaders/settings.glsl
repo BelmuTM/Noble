@@ -22,11 +22,11 @@
 #define GOLDEN_ANGLE    2.399963229
 
 /*------------------ OPTIFINE CONSTANTS ------------------*/
-const float sunPathRotation = -40.0; // [-85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0]
-const int noiseTextureResolution = 1028;
+const float sunPathRotation =       -40.0; // [-85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0]
+const int noiseTextureResolution =   1028;
 
-const int shadowMapResolution = 3072; //[512 1024 2048 3072 4096 6144]
-const float shadowDistance = 200.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 100.0 110.0 120.0 130.0 140.0 150.0 160.0 170.0 180.0 190.0 200.0 210.0 220.0 230.0 240.0 250.0 260.0 270.0 280.0 290.0 300.0]
+const int shadowMapResolution =      3072; //[512 1024 2048 3072 4096 6144]
+const float shadowDistance =        200.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 100.0 110.0 120.0 130.0 140.0 150.0 160.0 170.0 180.0 190.0 200.0 210.0 220.0 230.0 240.0 250.0 260.0 270.0 280.0 290.0 300.0]
 const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ WATER ------------------*/
@@ -39,7 +39,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define FOAM_FALLOFF_BIAS 0.1
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.18)
+#define AMBIENT vec3(0.2, 0.15, 0.1)
 #define PTGI_AMBIENT vec3(0.005)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
@@ -95,20 +95,21 @@ const float shadowDistanceRenderMul = 1.0;
 
 // Spatial Filtering
 #define GI_FILTER 1 // [0 1]
-#define EDGE_STOP_THRESHOLD 0.3 // Lower number means sharper edges
+#define EDGE_STOP_THRESHOLD 0.4 // Lower number means sharper edges
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
 #define REFRACTION 1 // [0 1]
 
+const float airIOR = 1.00028;
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
-#define ATTENUATION_FACTOR 0.375
+#define ATTENUATION_FACTOR 0.325
 
 #define SKY_FALLBACK 1
 #define SSR_REPROJECTION 1 // [0 1]
 
-#define PREFILTER_SAMPLES 4
+#define PREFILTER_SAMPLES 3
 #define ROUGH_REFLECT_STEPS 20
 #define ROUGH_REFLECT_RES 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
@@ -127,8 +128,11 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.850 // [0.025 0.050 0.075 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300 0.325 0.350 0.375 0.400 0.425 0.450 0.475 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
-#define NEIGHBORHOOD_SIZE 4
+#define TAA_STRENGTH 0.875 // [0.025 0.050 0.075 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300 0.325 0.350 0.375 0.400 0.425 0.450 0.475 0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
+#define NEIGHBORHOOD_SIZE 3
+
+#define TAA_LUMA_MIN 0.15
+#define TAA_FEEDBACK_MAX (TAA_STRENGTH + 0.01)
 
 #define DOF 0 // [0 1]
 #define DOF_STRENGTH 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]
@@ -152,8 +156,8 @@ const float K = 15.0;  // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 #define AUTO_EXPOSURE 1 // [0 1]
-#define MIN_EXPOSURE 5e-3
-#define MAX_EXPOSURE 50.0
+#define MIN_EXPOSURE 1e-3
+#define MAX_EXPOSURE 20.0
 
 /*------------------ COLOR CORRECTION ------------------*/
 #define TONEMAPPING 3 // [-1 0 1 2 3]

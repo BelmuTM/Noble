@@ -133,17 +133,20 @@ vec3 gaussianBlur(vec2 coords, sampler2D tex, vec2 direction, float scale) {
 
 float edgeWeight(vec2 sampleCoords, vec3 pos, vec3 normal) { 
     vec3 posAt = getViewPos(sampleCoords);
-    float posWeight = 1.0 / max(1e-5, pow(distance(pos, posAt), 4.0));
-
     vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, sampleCoords).xy));
-    float normalWeight = max(pow(saturate(dot(normal, normalAt)), 8.0), 0.0);
 
-    float depthAt = linearizeDepth(texture2D(depthtex0, sampleCoords).r);
-    float depth = linearizeDepth(texture2D(depthtex0, texCoords).r);
-    float depthWeight = pow(1.0 / (1.0 + abs(depthAt - depth)), 5.0);
+    const float posThresh = 0.68;
+    const float normalThresh = 0.6;
 
-    float screenWeight = float(saturate(sampleCoords) == sampleCoords);
-    return saturate(posWeight * normalWeight * depthWeight) * screenWeight;
+    return float(
+           abs(posAt.x - pos.x) <= posThresh
+        && abs(posAt.y - pos.y) <= posThresh
+        && abs(posAt.z - pos.z) <= posThresh
+        && abs(normalAt.x - normal.x) <= normalThresh
+        && abs(normalAt.y - normal.y) <= normalThresh
+        && abs(normalAt.z - normal.z) <= normalThresh
+        && saturate(sampleCoords) == sampleCoords // Is on screen
+    );
 }
 
 vec4 heavyGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, vec2 direction) {

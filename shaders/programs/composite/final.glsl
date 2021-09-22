@@ -37,7 +37,8 @@ void main() {
 
     // Bloom
     #if BLOOM == 1
-        Result.rgb += saturate(readBloom() * mix(0.1 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
+        // I wasn't supposed to use magic numbers like this in Noble :Sadge:
+        Result.rgb += saturate(readBloom() * mix(0.06 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
     #endif
 
     // Vignette
@@ -50,7 +51,7 @@ void main() {
     #endif
     
     // Tonemapping
-    Result.rgb *= computeExposure(texture2D(colortex7, texCoords).r);
+    Result.rgb *= computeExposure(texture2D(colortex7, pixelSize).r);
 
     #if TONEMAPPING == 0
         Result.rgb = whitePreservingReinhard(Result.rgb); // Reinhard

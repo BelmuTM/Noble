@@ -11,7 +11,7 @@ float luma(vec3 color) {
 }
 
 vec3 whitePreservingReinhard(vec3 color) {
-	const float white = 5.0;
+	const float white = 10.0;
 	float luma = luma(color);
 	float toneMappedLuma = luma * (1.0 + luma / (white * white)) / (1.0 + luma);
 	color *= toneMappedLuma / luma;

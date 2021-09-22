@@ -38,7 +38,6 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 
 vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
     vec3 minColor = vec3(1.0), maxColor = vec3(0.0);
-    prevColor = linearToYCoCg(prevColor);
 
     for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
         for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {
@@ -47,21 +46,28 @@ vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
     }
-    return YCoCgToLinear(clipAABB(prevColor, minColor, maxColor));
+    return clipAABB(prevColor, minColor, maxColor);
 }
 
 // Thanks LVutner for the help with previous / current textures management!
 vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r)).xy;
-    vec3 currColor = texture2D(currTex, texCoords).rgb;
 
-    vec3 prevColor = texture2D(prevTex, prevTexCoords).rgb;
+    vec3 currColor = linearToYCoCg(texture2D(currTex, texCoords).rgb);
+    vec3 prevColor = linearToYCoCg(texture2D(prevTex, prevTexCoords).rgb);
     prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    vec3 pos = getViewPos(texCoords);
-    vec3 posAt = getViewPos(prevTexCoords);
-    float posWeight = 1.0 / max(1e-5, pow(distance(pos, posAt), 2.0));
+    vec2 velocity = (texCoords - prevTexCoords) * viewSize;
+    float blendWeight = exp(-length(velocity)) * 0.5 + 0.5;
 
-    float screenWeight = float(saturate(prevTexCoords) == prevTexCoords);
-    return mix(currColor, prevColor, TAA_STRENGTH * saturate(screenWeight)); 
+    // Luma weight by LVutner: https://github.com/LVutner/NobleRT/commit/0c679af04c83500a158ec6604448c74202ef403e
+    // Thanks to them!
+    float currLuma = luma(currColor);
+    float prevLuma = luma(prevColor);
+
+    float lumaWeight = 1.0 - (abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN)));
+	blendWeight *= mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
+
+    blendWeight *= float(saturate(prevTexCoords) == prevTexCoords);
+    return YCoCgToLinear(mix(currColor, prevColor, blendWeight)); 
 }

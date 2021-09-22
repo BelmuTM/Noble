@@ -30,7 +30,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         if(!raytrace(hitPos, sampleDir, GI_STEPS, blueNoise.b, hitPos)) continue;
 
         /* Calculating the BRDF & applying it */
-        vec3 F0 = vec3(texture2D(colortex2, hitPos.xy).g);
+        float F0 = texture2D(colortex2, hitPos.xy).g;
         float roughness = texture2D(colortex2, hitPos.xy).r;
 
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.yx, roughness);
@@ -43,7 +43,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         float HdotL = saturate(dot(H, reflected));
 
         vec3 albedo = isMetal ? vec3(0.0) : texture2D(colortex0, hitPos.xy).rgb;
-        vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0) * texture2D(colortex9, hitPos.xy).rgb;
+        vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0, albedo, isMetal) * texture2D(colortex9, hitPos.xy).rgb;
 
         weight *= albedo + specular;
         radiance += weight;

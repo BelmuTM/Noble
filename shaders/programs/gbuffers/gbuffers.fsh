@@ -9,7 +9,6 @@
 varying vec2 texCoords;
 varying vec2 lmCoords;
 varying vec4 color;
-varying vec3 heightNormal;
 varying mat3 TBN;
 varying float blockId;
 

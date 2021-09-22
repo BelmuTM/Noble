@@ -75,7 +75,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
         
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.rg, roughness);
 		vec3 reflected = reflect(viewDir, TBN * microfacet);	
-		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, noise.r, hitPos));
+		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, noise.g, hitPos));
 
         float NdotL = max(0.0, dot(normal, reflected));
 		if(NdotL > 0.0) {
@@ -83,7 +83,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
 
             #if SKY_FALLBACK == 1
                 vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap(coords);
-			    filteredColor += mix(sky * float(isMetal), hitColor, Kneemund_Attenuation(hitPos.xy, 0.1) * hit) * NdotL;
+			    filteredColor += mix(sky * float(isMetal), hitColor, Kneemund_Attenuation(hitPos.xy, 0.15) * hit) * NdotL;
             #else
                 filteredColor += (hitColor * NdotL) * (Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit);
             #endif

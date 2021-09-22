@@ -14,7 +14,6 @@ varying vec2 lmCoords;
 varying vec4 color;
 varying mat3 TBN;
 varying float blockId;
-varying vec3 heightNormal;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
