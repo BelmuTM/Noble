@@ -67,7 +67,7 @@ void main() {
             #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                globalIllumination = max(vec3(EPS), temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
+                globalIllumination = saturate(temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
             #endif
         #else 
             #if AO == 1

@@ -60,6 +60,7 @@ void main() {
                     #else
                          globalIllumination = texture2D(colortex6, texCoords).rgb;
                     #endif
+                    globalIllumination = saturate(globalIllumination);
 
                     #if GI_VISUALIZATION == 0
                          Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
