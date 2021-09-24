@@ -37,15 +37,24 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         vec3 reflected = reflect(viewDir, TBN * microfacet);
 
         vec3 H = normalize(viewDir + reflected);
-        float NdotL = saturate(dot(normal, reflected));
-        float NdotV = saturate(dot(normal, viewDir));
-        float NdotH = saturate(dot(normal, H));
-        float HdotL = saturate(dot(H, reflected));
+        float NdotL = max(EPS, dot(normal, reflected));
+        float NdotV = max(EPS, dot(normal, viewDir));
+        float NdotH = max(EPS, dot(normal, H));
+        float HdotL = max(EPS, dot(H, reflected));
 
-        vec3 albedo = isMetal ? vec3(0.0) : texture(colortex4, hitPos.xy).rgb;
+        vec3 albedo = texture(colortex4, hitPos.xy).rgb;
         vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0, albedo, isMetal);
 
+        /*
+        vec3 diffuse = vec3(0.0);
+        if(!isMetal) {
+            float NdotD = max(EPS, dot(normal, sampleDir)); 
+            diffuse = orenNayarDiffuse(normal, viewDir, sampleDir, NdotD, NdotV, roughness * roughness, albedo) / (NdotD * INV_PI);
+        }
+        */
+
         /* Thanks to Bálint#1673 and Jessie#7257 for helping with PTGI! */
+        radiance += throughput * albedo * (texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);
         throughput *= albedo + specular;
         radiance += throughput * SUN_INTENSITY * getDayColor() * texture(colortex9, hitPos.xy).rgb;
     }

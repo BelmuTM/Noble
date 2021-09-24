@@ -138,6 +138,19 @@ vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, fl
     return saturate(D * F * G);
 }
 
+vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float alpha, vec3 albedo) {
+    // OREN-NAYAR MODEL - QUALITATIVE 
+    // http://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_CVPR93.pdf
+
+    vec2 angles = acos(vec2(NdotL, NdotV));
+    if(angles.x < angles.y) angles = angles.yx;
+    float cosA = saturate(dot(normalize(V - NdotV * N), normalize(L - NdotL * N)));
+
+    vec3 A = albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
+    vec3 B = albedo * (0.125 * (alpha /  (alpha + 0.18)));
+    return A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y);
+}
+
 /*
     Thanks LVutner for the help!
     https://github.com/LVutner
@@ -162,18 +175,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     #endif
 
     vec3 diffuse = vec3(0.0);
-    if(!isMetal) {
-        // OREN-NAYAR MODEL - QUALITATIVE 
-        // http://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_CVPR93.pdf
-        
-        vec2 angles = acos(vec2(NdotL, NdotV));
-        if(angles.x < angles.y) angles = angles.yx;
-        float cosA = saturate(dot(normalize(V - NdotV * N), normalize(L - NdotL * N)));
-
-        vec3 A = data.albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
-        vec3 B = data.albedo * (0.125 * (alpha /  (alpha + 0.18)));
-        diffuse = A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y);
-    }
+    if(!isMetal) { diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, data.albedo); }
 
     vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * getDayColor() * SUN_INTENSITY;
     Lighting += data.emission * data.albedo;

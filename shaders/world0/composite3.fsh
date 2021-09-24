@@ -29,18 +29,20 @@ const bool colortex6Clear = false;
     vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 viewPos, vec3 normal) {
         vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
         vec3 prevColor = texture(prevTex, prevTexCoords).rgb;
-
         /*
         float depthAt = linearizeDepth(texture(depthtex0, prevTexCoords).r);
         float depth = linearizeDepth(texture(depthtex0, texCoords).r);
-        vec3 normalAt = normalize(decodeNormal(texture(colortex1, prevTexCoords).xy));
         */
+        vec3 normalAt = normalize(decodeNormal(texture(colortex1, prevTexCoords).xy));
 
         float totalWeight = float(
-            saturate(prevTexCoords) == prevTexCoords // Is on screen
+               abs(normalAt.x - normal.x) <= EDGE_STOP_THRESHOLD
+            && abs(normalAt.y - normal.y) <= EDGE_STOP_THRESHOLD
+            && abs(normalAt.z - normal.z) <= EDGE_STOP_THRESHOLD
+            && saturate(prevTexCoords) == prevTexCoords // Is on screen
         );
 
-        return mix(currColor, prevColor, 0.93 * totalWeight);
+        return mix(currColor, prevColor, 0.92 * totalWeight);
     }
 #endif
 

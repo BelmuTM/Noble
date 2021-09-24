@@ -45,15 +45,13 @@ void main() {
      #endif
 
      if(!isSky(texCoords)) {
-          float F0 = texture(colortex2, texCoords).g;
-          bool isMetal = F0 * 255.0 > 229.5;
-
-          vec3 globalIllumination = vec3(0.0);
+          bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
 
           if(!isMetal) {
                vec3 viewPos = getViewPos(texCoords);
                vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
+               vec3 globalIllumination = vec3(0.0);
                #if GI == 1
                     #if GI_FILTER == 1
                          globalIllumination = heavyGaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;

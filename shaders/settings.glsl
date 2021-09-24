@@ -44,7 +44,9 @@ const float shadowDistanceRenderMul = 1.0;
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(0.92, 0.87, 0.7)
+
 #define SUN_INTENSITY 4.0
+#define EMISSION_INTENSITY 1.0
 
 #define SPECULAR 1 // [0 1]
 #define WHITE_WORLD 0 // [0 1]
@@ -95,7 +97,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 // Spatial Filtering
 #define GI_FILTER 1 // [0 1]
-#define EDGE_STOP_THRESHOLD 0.4 // Lower number means sharper edges
+#define EDGE_STOP_THRESHOLD 0.5 // Lower number means sharper edges
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
@@ -139,7 +141,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define BLOOM 1 // [0 1]
 #define BLOOM_STRENGTH 1.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define BLOOM_LUMA_THRESHOLD 0.7
+#define BLOOM_LUMA_THRESHOLD 0.8
 
 #define VIGNETTE 1 // [0 1]
 #define VIGNETTE_STRENGTH 0.15 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]

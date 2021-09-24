@@ -53,7 +53,7 @@ void main() {
 		roughness = 0.01;
 	}
 
-	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 11 && emission <= 0.1) {
+	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 10 && emission <= 0.01) {
 		emission = 0.7;
 	}
 	

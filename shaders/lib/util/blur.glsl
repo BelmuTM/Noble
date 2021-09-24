@@ -53,9 +53,7 @@ vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float 
     return saturate(color / SAMPLES);
 }
 
-const int WEIGHTS0_KERNEL = 49;
-const int WEIGHTS1_KERNEL = 11;
-const float gaussianWeights0[] = float[](
+const float gaussianWeights49[] = float[](
     0.014692925,
     0.015287874,
     0.015880068,
@@ -107,7 +105,37 @@ const float gaussianWeights0[] = float[](
     0.014692925
 );
 
-const float gaussianWeights1[] = float[](
+const float gaussianWeights27[] = float[](
+    0.017943620,
+    0.020956058,
+    0.024172251,
+    0.027538020,
+    0.030985360,
+    0.034434091,
+    0.037794528,
+    0.040971075,
+    0.043866573,
+    0.046387154,
+    0.048447261,
+    0.049974497,
+    0.050913909,
+    0.051231190,
+    0.050913909,
+    0.049974497,
+    0.048447261,
+    0.046387154,
+    0.043866573,
+    0.040971075,
+    0.037794528,
+    0.034434091,
+    0.030985360,
+    0.027538020,
+    0.024172251,
+    0.020956058,
+    0.017943620
+);
+
+const float gaussianWeights11[] = float[](
 	0.019590831,
 	0.042587370,
 	0.077902496,
@@ -126,7 +154,7 @@ vec3 gaussianBlur(vec2 coords, sampler2D tex, vec2 direction, float scale) {
 
     for(int i = 0; i < 11; i++) {
         vec2 sampleCoords = (coords + (direction * float(i - 5) * pixelSize)) * scale;
-        color += texture(tex, sampleCoords).rgb * gaussianWeights1[i];
+        color += texture(tex, sampleCoords).rgb * gaussianWeights11[i];
     }
     return color;
 }
@@ -135,8 +163,8 @@ float edgeWeight(vec2 sampleCoords, vec3 pos, vec3 normal) {
     vec3 posAt = getViewPos(sampleCoords);
     vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
 
-    const float posThresh = 0.68;
-    const float normalThresh = 0.6;
+    const float posThresh = 0.7;
+    const float normalThresh = 0.4;
 
     return float(
            abs(posAt.x - pos.x) <= posThresh
@@ -153,9 +181,9 @@ vec4 heavyGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, 
     vec4 color = vec4(0.0);
     float totalWeight = 0.0;
 
-    for(int i = -49; i <= 49; i++) {
-        vec2 sampleCoords = coords + (direction * float(i - 24) * pixelSize);
-        float weight = edgeWeight(sampleCoords, viewPos, normal) * gaussianWeights0[abs(i)];
+    for(int i = -27; i <= 27; i++) {
+        vec2 sampleCoords = coords + (direction * float(i - 12) * pixelSize);
+        float weight = gaussianWeights27[abs(i)] * edgeWeight(sampleCoords, viewPos, normal);
 
         color += texture(tex, sampleCoords) * weight;
         totalWeight += weight;
@@ -169,7 +197,7 @@ vec4 fastGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, v
 
     for(int i = 0; i < 11; i++) {
         vec2 sampleCoords = coords + (direction * float(i - 5) * pixelSize);
-        float weight = edgeWeight(sampleCoords, viewPos, normal) * gaussianWeights1[abs(i)];
+        float weight = gaussianWeights11[abs(i)] * edgeWeight(sampleCoords, viewPos, normal);
 
         color += texture(tex, sampleCoords) * weight;
         totalWeight += weight;

@@ -27,9 +27,10 @@ varying vec2 texCoords;
 
 void main() {
     vec4 Result = texture(colortex0, texCoords);
+    bool sky = isSky(texCoords);
 
     #if SSR == 1
-        if(!isSky(texCoords)) {
+        if(!sky) {
             vec3 viewPos = getViewPos(texCoords);
             vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
@@ -62,8 +63,10 @@ void main() {
 
     vec3 brightSpots;
     #if BLOOM == 1
-        bool isEmissive = texture(colortex1, texCoords).z > 0.1;
-        brightSpots = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
+        if(!sky) {
+            bool isEmissive = texture(colortex1, texCoords).z > 0.2;
+            brightSpots = isEmissive || luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
+        }
     #endif
 
     /*DRAWBUFFERS:05*/
