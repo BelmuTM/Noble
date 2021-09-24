@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 varying vec2 texCoords;
 
@@ -38,15 +38,15 @@ void main() {
         vec2 scaledUv = texCoords * inverseRes;
         
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords && !isSky(scaledUv)) {
-            bool isMetal = texture2D(colortex2, scaledUv).g * 255.0 > 229.5;
-            vec3 positionAt = vec3(scaledUv, texture2D(depthtex0, scaledUv).r);
+            bool isMetal = texture(colortex2, scaledUv).g * 255.0 > 229.5;
+            vec3 positionAt = vec3(scaledUv, texture(depthtex0, scaledUv).r);
             globalIllumination = computePTGI(positionAt, isMetal);
         }
     #else
         if(!isSky(texCoords)) {
             #if AO == 1
                 vec3 viewPos = getViewPos(texCoords);
-                vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+                vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
             
                 #if AO_TYPE == 0
                     ambientOcclusion = computeSSAO(viewPos, normal);

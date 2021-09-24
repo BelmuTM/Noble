@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 varying vec2 texCoords;
 
@@ -26,23 +26,23 @@ varying vec2 texCoords;
 #include "/lib/lighting/ssr.glsl"
 
 void main() {
-    vec4 Result = texture2D(colortex0, texCoords);
+    vec4 Result = texture(colortex0, texCoords);
 
     #if SSR == 1
         if(!isSky(texCoords)) {
             vec3 viewPos = getViewPos(texCoords);
-            vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+            vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
             float NdotV = abs(dot(normal, normalize(-viewPos))) + 1e-5;
-            float F0 = texture2D(colortex2, texCoords).g;
+            float F0 = texture(colortex2, texCoords).g;
             bool isMetal = F0 * 255.0 > 229.5;
 
-            vec3 specularColor = mix(vec3(F0), texture2D(colortex4, texCoords).rgb, float(isMetal));
-            float roughness = texture2D(colortex2, texCoords).r;
+            vec3 specularColor = mix(vec3(F0), texture(colortex4, texCoords).rgb, float(isMetal));
+            float roughness = texture(colortex2, texCoords).r;
 
             vec3 reflections;
             #if SSR_TYPE == 1
-                reflections = texture2D(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
+                reflections = texture(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
             #else
                 reflections = simpleReflections(texCoords, viewPos, normal, NdotV, specularColor, isMetal);
             #endif
@@ -52,7 +52,7 @@ void main() {
         }
     #endif
 
-    vec3 volumetricLighting = texture2D(colortex8, texCoords).rgb;
+    vec3 volumetricLighting = texture(colortex8, texCoords).rgb;
     #if VL == 1
         #if VL_FILTER == 1
             volumetricLighting = boxBlur(texCoords, colortex8, 5).rgb;
@@ -62,7 +62,7 @@ void main() {
 
     vec3 brightSpots;
     #if BLOOM == 1
-        bool isEmissive = texture2D(colortex1, texCoords).z > EPS;
+        bool isEmissive = texture(colortex1, texCoords).z > 0.1;
         brightSpots = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
     #endif
 

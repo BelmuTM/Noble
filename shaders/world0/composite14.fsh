@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 varying vec2 texCoords;
 
@@ -28,7 +28,7 @@ const bool colortex5MipmapEnabled = true;
 
 void main() {
      vec3 viewPos = getViewPos(texCoords);
-     vec4 Result = texture2D(colortex0, texCoords);
+     vec4 Result = texture(colortex0, texCoords);
 
      Result.rgb += fog(viewPos, vec3(0.0), getDayColor(), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.05); // Applying Fog
 

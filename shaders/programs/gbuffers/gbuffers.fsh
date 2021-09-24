@@ -26,9 +26,9 @@ const int colortex2Format = RGBA16F;
 */
 
 void main() {
-	vec4 albedoTex = texture2D(texture, texCoords);
-	vec4 normalTex = texture2D(normals, texCoords);
-	vec4 specularTex = texture2D(specular, texCoords);
+	vec4 albedoTex = texture(colortex0, texCoords);
+	vec4 normalTex = texture(normals, texCoords);
+	vec4 specularTex = texture(specular, texCoords);
 
 	#ifdef ENTITY
 		// Alpha blending on entities

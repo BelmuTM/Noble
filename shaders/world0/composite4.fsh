@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 varying vec2 texCoords;
 
@@ -26,7 +26,7 @@ varying vec2 texCoords;
 #include "/lib/lighting/ssr.glsl"
 
 void main() {
-     vec4 Result = texture2D(colortex0, texCoords);
+     vec4 Result = texture(colortex0, texCoords);
      vec3 roughReflections = vec3(0.0);
 
      #if SSR == 1
@@ -35,9 +35,9 @@ void main() {
                vec2 scaledUv = texCoords * inverseRes;
         
                if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords && !isSky(scaledUv)) {
-                    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, scaledUv).xy));
-                    bool isMetal = texture2D(colortex2, scaledUv).g * 255.0 > 229.5;
-                    float roughness = texture2D(colortex2, scaledUv).r;
+                    vec3 normalAt = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
+                    bool isMetal = texture(colortex2, scaledUv).g * 255.0 > 229.5;
+                    float roughness = texture(colortex2, scaledUv).r;
 
                     roughReflections = prefilteredReflections(scaledUv, getViewPos(scaledUv), normalAt, roughness * roughness, isMetal);
                }
@@ -45,25 +45,25 @@ void main() {
      #endif
 
      if(!isSky(texCoords)) {
-          float F0 = texture2D(colortex2, texCoords).g;
+          float F0 = texture(colortex2, texCoords).g;
           bool isMetal = F0 * 255.0 > 229.5;
 
           vec3 globalIllumination = vec3(0.0);
 
           if(!isMetal) {
                vec3 viewPos = getViewPos(texCoords);
-               vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+               vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
                #if GI == 1
                     #if GI_FILTER == 1
                          globalIllumination = heavyGaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
                     #else
-                         globalIllumination = texture2D(colortex6, texCoords).rgb;
+                         globalIllumination = texture(colortex6, texCoords).rgb;
                     #endif
                     globalIllumination = saturate(globalIllumination);
 
                     #if GI_VISUALIZATION == 0
-                         Result.rgb += globalIllumination * texture2D(colortex4, texCoords).rgb;
+                         Result.rgb += globalIllumination * texture(colortex4, texCoords).rgb;
                     #else
                          Result.rgb = globalIllumination;
                     #endif
@@ -72,7 +72,7 @@ void main() {
                          #if AO_FILTER == 1
                               Result.rgb *= fastGaussianFilter(texCoords, viewPos, normal, colortex5, vec2(0.0, 1.0)).a;
                          #else
-                              Result.rgb *= saturate(texture2D(colortex5, texCoords).a);
+                              Result.rgb *= saturate(texture(colortex5, texCoords).a);
                          #endif
                     #endif
                #endif

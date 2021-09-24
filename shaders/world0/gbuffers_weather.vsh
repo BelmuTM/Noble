@@ -6,6 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 #include "/programs/gbuffers/gbuffers.vsh"

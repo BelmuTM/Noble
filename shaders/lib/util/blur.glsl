@@ -7,13 +7,13 @@
 /***********************************************/
 
 vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
-    vec4 color = texture2D(tex, coords);
+    vec4 color = texture(tex, coords);
 
     int SAMPLES = 1;
     for(int x = -size; x <= size; x++) {
         for(int y = -size; y <= size; y++) {
             vec2 offset = vec2(x, y) * pixelSize;
-            color += texture2D(tex, coords + offset);
+            color += texture(tex, coords + offset);
             SAMPLES++;
         }
     }
@@ -21,7 +21,7 @@ vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
 }
 
 vec4 bokeh(vec2 coords, sampler2D tex, vec2 resolution, int quality, float radius) {
-    vec4 color = texture2D(tex, coords);
+    vec4 color = texture(tex, coords);
     vec2 noise = uniformAnimatedNoise(blueNoise().rg);
 
     int SAMPLES = 1;
@@ -30,7 +30,7 @@ vec4 bokeh(vec2 coords, sampler2D tex, vec2 resolution, int quality, float radiu
             vec2 offset = ((vec2(i, j) + noise) - quality * 0.5) / quality;
             
             if(length(offset) < 0.5) {
-                color += texture2D(tex, coords + ((offset * radius) * resolution));
+                color += texture(tex, coords + ((offset * radius) * resolution));
                 SAMPLES++;
             }
         }
@@ -39,7 +39,7 @@ vec4 bokeh(vec2 coords, sampler2D tex, vec2 resolution, int quality, float radiu
 }
 
 vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float size) {
-    vec4 color = texture2D(tex, texCoords);
+    vec4 color = texture(tex, texCoords);
     vec2 radius = size / resolution;
 
     int SAMPLES = 1;
@@ -47,7 +47,7 @@ vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float 
         float d = (i * PI2) / quality;
         vec2 sampleCoords = coords + vec2(sin(d), cos(d)) * radius;
             
-        color += texture2D(tex, sampleCoords);
+        color += texture(tex, sampleCoords);
         SAMPLES++;
     }
     return saturate(color / SAMPLES);
@@ -126,14 +126,14 @@ vec3 gaussianBlur(vec2 coords, sampler2D tex, vec2 direction, float scale) {
 
     for(int i = 0; i < 11; i++) {
         vec2 sampleCoords = (coords + (direction * float(i - 5) * pixelSize)) * scale;
-        color += texture2D(tex, sampleCoords).rgb * gaussianWeights1[i];
+        color += texture(tex, sampleCoords).rgb * gaussianWeights1[i];
     }
     return color;
 }
 
 float edgeWeight(vec2 sampleCoords, vec3 pos, vec3 normal) { 
     vec3 posAt = getViewPos(sampleCoords);
-    vec3 normalAt = normalize(decodeNormal(texture2D(colortex1, sampleCoords).xy));
+    vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
 
     const float posThresh = 0.68;
     const float normalThresh = 0.6;
@@ -157,10 +157,10 @@ vec4 heavyGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, 
         vec2 sampleCoords = coords + (direction * float(i - 24) * pixelSize);
         float weight = edgeWeight(sampleCoords, viewPos, normal) * gaussianWeights0[abs(i)];
 
-        color += texture2D(tex, sampleCoords) * weight;
+        color += texture(tex, sampleCoords) * weight;
         totalWeight += weight;
     }
-    return saturate(color / max(0.0, totalWeight));
+    return saturate(color / max(1e-5, totalWeight));
 }
 
 vec4 fastGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, vec2 direction) {
@@ -171,8 +171,8 @@ vec4 fastGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, v
         vec2 sampleCoords = coords + (direction * float(i - 5) * pixelSize);
         float weight = edgeWeight(sampleCoords, viewPos, normal) * gaussianWeights1[abs(i)];
 
-        color += texture2D(tex, sampleCoords) * weight;
+        color += texture(tex, sampleCoords) * weight;
         totalWeight += weight;
     }
-    return saturate(color / max(0.0, totalWeight));
+    return saturate(color / max(1e-5, totalWeight));
 }

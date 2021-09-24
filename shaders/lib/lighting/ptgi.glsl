@@ -8,7 +8,7 @@
 
 vec3 computePTGI(in vec3 screenPos, bool isMetal) {
     vec3 radiance = vec3(0.0);
-    vec3 weight = vec3(1.0);
+    vec3 throughput = vec3(1.0);
 
     vec3 hitPos = screenPos;
     vec3 viewDir = -normalize(screenToView(screenPos));
@@ -18,7 +18,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         vec2 noise = uniformAnimatedNoise(blueNoise.rg);
 
         /* Updating our position for the next bounce */
-        vec3 normal = normalize(decodeNormal(texture2D(colortex1, hitPos.xy).xy));
+        vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
         hitPos = screenToView(hitPos) + normal * EPS;
 
         /* Tangent Bitangent Normal */
@@ -30,8 +30,8 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         if(!raytrace(hitPos, sampleDir, GI_STEPS, blueNoise.b, hitPos)) continue;
 
         /* Calculating the BRDF & applying it */
-        float F0 = texture2D(colortex2, hitPos.xy).g;
-        float roughness = texture2D(colortex2, hitPos.xy).r;
+        float F0 = texture(colortex2, hitPos.xy).g;
+        float roughness = texture(colortex2, hitPos.xy).r;
 
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.yx, roughness);
         vec3 reflected = reflect(viewDir, TBN * microfacet);
@@ -42,11 +42,12 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         float NdotH = saturate(dot(normal, H));
         float HdotL = saturate(dot(H, reflected));
 
-        vec3 albedo = isMetal ? vec3(0.0) : texture2D(colortex0, hitPos.xy).rgb;
-        vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0, albedo, isMetal) * texture2D(colortex9, hitPos.xy).rgb;
+        vec3 albedo = isMetal ? vec3(0.0) : texture(colortex4, hitPos.xy).rgb;
+        vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0, albedo, isMetal);
 
-        weight *= albedo + specular;
-        radiance += weight;
+        /* Thanks to Bálint#1673 and Jessie#7257 for helping with PTGI! */
+        throughput *= albedo + specular;
+        radiance += throughput * SUN_INTENSITY * getDayColor() * texture(colortex9, hitPos.xy).rgb;
     }
     return radiance;
 }

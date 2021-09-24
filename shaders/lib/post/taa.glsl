@@ -41,7 +41,7 @@ vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
 
     for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
         for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {
-            vec3 color = texture2D(currColorTex, texCoords + vec2(x, y) * pixelSize).rgb;
+            vec3 color = texture(currColorTex, texCoords + vec2(x, y) * pixelSize).rgb;
             color = linearToYCoCg(color);
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
@@ -51,10 +51,10 @@ vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
 
 // Thanks LVutner for the help with previous / current textures management!
 vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
-    vec2 prevTexCoords = reprojection(vec3(texCoords, texture2D(depthtex1, texCoords).r)).xy;
+    vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex1, texCoords).r)).xy;
 
-    vec3 currColor = linearToYCoCg(texture2D(currTex, texCoords).rgb);
-    vec3 prevColor = linearToYCoCg(texture2D(prevTex, prevTexCoords).rgb);
+    vec3 currColor = linearToYCoCg(texture(currTex, texCoords).rgb);
+    vec3 prevColor = linearToYCoCg(texture(prevTex, prevTexCoords).rgb);
     prevColor = neighbourhoodClipping(currTex, prevColor);
 
     vec2 velocity = (texCoords - prevTexCoords) * viewSize;

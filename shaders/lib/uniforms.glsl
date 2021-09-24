@@ -25,9 +25,7 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform int worldTime;
 uniform int isEyeInWater;
-uniform int fogMode;
 
-uniform sampler2D texture;
 uniform sampler2D normals;
 uniform sampler2D specular;
 uniform sampler2D colortex0;

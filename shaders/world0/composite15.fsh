@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 varying vec2 texCoords;
 
@@ -29,7 +29,7 @@ const bool colortex7Clear = false;
 */
 
 void main() {
-    vec4 Result = texture2D(colortex0, texCoords);
+    vec4 Result = texture(colortex0, texCoords);
 
     #if TAA == 1
         Result.rgb = saturate(computeTAA(colortex0, colortex3));

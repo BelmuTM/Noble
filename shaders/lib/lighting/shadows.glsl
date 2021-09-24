@@ -17,7 +17,7 @@
     bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
         float jitter = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg).r : blueNoise().r;
         bool hit = raytrace(viewPos, shadowLightPosition * 0.01, 16, jitter, hitPos);
-        return hit && abs(linearizeDepth(texture2D(depthtex0, hitPos.xy).r) - linearizeDepth(hitPos.z)) <= 0.15 ? false : true;
+        return hit && abs(linearizeDepth(texture(depthtex0, hitPos.xy).r) - linearizeDepth(hitPos.z)) <= 0.15 ? false : true;
     }
 
     float visibility(sampler2D tex, vec3 sampleCoords) {
@@ -27,14 +27,14 @@
             contactShadow = float(contactShadows(getViewPos(texCoords), hitPos));
         #endif
 
-        return step(sampleCoords.z - 0.001, texture2D(tex, sampleCoords.xy).r * contactShadow);
+        return step(sampleCoords.z - 0.001, texture(tex, sampleCoords.xy).r * contactShadow);
     }
 
     vec3 sampleTransparentShadow(vec3 sampleCoords) {
         float shadowVisibility0 = visibility(shadowtex0, sampleCoords);
         float shadowVisibility1 = visibility(shadowtex1, sampleCoords);
     
-        vec4 shadowColor0 = texture2D(shadowcolor0, sampleCoords.xy);
+        vec4 shadowColor0 = texture(shadowcolor0, sampleCoords.xy);
         vec3 transmittedColor = shadowColor0.rgb * (1.0 - shadowColor0.a);
         return mix(transmittedColor * shadowVisibility1, vec3(1.0), shadowVisibility0);
     }
@@ -45,7 +45,7 @@
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
             vec2 offset = BLOCKER_SEARCH_RADIUS * vogelDisk(i, BLOCKER_SEARCH_SAMPLES) * pixelSize;
-            float z = texture2D(shadowtex0, sampleCoords.xy + offset).r;
+            float z = texture(shadowtex0, sampleCoords.xy + offset).r;
             
             if(sampleCoords.z - EPS > z) {
                 BLOCKERS++;
@@ -84,7 +84,7 @@
 
     vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
         float avgBlockerDepth = findBlockerDepth(sampleCoords);
-        if(avgBlockerDepth < 0.0) return vec3(1.0);
+        if(avgBlockerDepth < EPS) return vec3(1.0);
 
         float penumbraSize = (max(sampleCoords.z - avgBlockerDepth, 0.0) / avgBlockerDepth) * LIGHT_SIZE;
         return PCF(sampleCoords, penumbraSize, rotation);

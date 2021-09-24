@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 varying vec2 texCoords;
 
@@ -26,8 +26,8 @@ varying vec2 texCoords;
 #include "/lib/lighting/shadows.glsl"
 
 void main() {
-   vec4 temp = sRGBToLinear(texture2D(colortex4, texCoords));
-   vec4 rain = texture2D(colortex5, texCoords);
+   vec4 temp = sRGBToLinear(texture(colortex4, texCoords));
+   vec4 rain = texture(colortex5, texCoords);
 
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
@@ -42,22 +42,22 @@ void main() {
    #endif
 
    /*    ------- WATER ABSORPTION / REFRACTION -------    */
-   vec4 tex0 = texture2D(colortex0, texCoords);
-   vec4 tex1 = texture2D(colortex1, texCoords);
-   vec4 tex2 = texture2D(colortex2, texCoords);
+   vec4 tex0 = texture(colortex0, texCoords);
+   vec4 tex1 = texture(colortex1, texCoords);
+   vec4 tex2 = texture(colortex2, texCoords);
    material data = getMaterial(tex0, tex1, tex2);
    data.albedo = sRGBToLinear(tex0).rgb;
 
    float depthDist = distance(
-		linearizeDepth(texture2D(depthtex0, texCoords).r),
-		linearizeDepth(texture2D(depthtex1, texCoords).r)
+		linearizeDepth(texture(depthtex0, texCoords).r),
+		linearizeDepth(texture(depthtex1, texCoords).r)
 	);
    vec3 hitPos;
    vec3 opaques = temp.rgb;
 
    #if REFRACTION == 1
       vec3 viewPos = getViewPos(texCoords);
-      vec3 normal = normalize(decodeNormal(texture2D(colortex1, texCoords).xy));
+      vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
       float NdotV = max(dot(normal, normalize(-viewPos)), 0.0);
       if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 3) opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);

@@ -9,7 +9,7 @@
 vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
 
     for(int i = 0; i < BINARY_COUNT; i++) {
-        float depth = texture2D(depthtex1, rayPos.xy).r;
+        float depth = texture(depthtex1, rayPos.xy).r;
         float depthDelta = depth - rayPos.z;
 
         if(depthDelta > 0.0) rayPos += rayDir;
@@ -29,7 +29,7 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int steps, float jitter, inout vec3 hit
         hitPos += screenDir;
 
         if(saturate(hitPos.xy) != hitPos.xy) break;
-        float depth = texture2D(depthtex1, hitPos.xy).r;
+        float depth = texture(depthtex1, hitPos.xy).r;
 
         if(hitPos.z > depth && !isHand(depth)) {
             #if BINARY_REFINEMENT == 1

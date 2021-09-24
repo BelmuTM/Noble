@@ -28,9 +28,9 @@ float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
 vec3 getHitColor(vec3 hitPos) {
     #if SSR_REPROJECTION == 1
         hitPos = reprojection(hitPos);
-        return texture2D(colortex3, hitPos.xy).rgb;
+        return texture(colortex3, hitPos.xy).rgb;
     #else
-        return texture2D(colortex0, hitPos.xy).rgb;
+        return texture(colortex0, hitPos.xy).rgb;
     #endif
 }
 
@@ -103,9 +103,9 @@ vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, 
     float jitter = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg).r : blueNoise().r;
 
     float hit = float(raytrace(viewPos, refracted, REFRACT_STEPS, jitter, hitPos));
-    if(isHand(texture2D(depthtex1, hitPos.xy).r)) return vec3(0.0);
+    if(isHand(texture(depthtex1, hitPos.xy).r)) return vec3(0.0);
 
     vec3 fresnel = fresnelSchlick(NdotV, vec3(F0));
-    vec3 hitColor = texture2D(colortex4, hitPos.xy).rgb;
+    vec3 hitColor = texture(colortex4, hitPos.xy).rgb;
     return mix(background, hitColor, Kneemund_Attenuation(hitPos.xy, 0.07) * hit) * (1.0 - fresnel);
 }

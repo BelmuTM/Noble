@@ -11,8 +11,8 @@ vec3 computeAberration(vec3 color) {
      vec2 offset = (1.0 - pow(dist, vec2(2.0)) * ABERRATION_STRENGTH) * pixelSize;
 
      return vec3(
-          texture2D(colortex0, texCoords - offset).r,
-          texture2D(colortex0, texCoords).g,
-          texture2D(colortex0, texCoords + offset).b
+          texture(colortex0, texCoords - offset).r,
+          texture(colortex0, texCoords).g,
+          texture(colortex0, texCoords + offset).b
      );
 }

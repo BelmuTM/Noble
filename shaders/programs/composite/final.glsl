@@ -22,8 +22,8 @@
 #include "/lib/post/exposure.glsl"
 
 void main() {
-    vec4 Result = texture2D(colortex0, texCoords);
-    float depth = texture2D(depthtex0, texCoords).r;
+    vec4 Result = texture(colortex0, texCoords);
+    float depth = texture(depthtex0, texCoords).r;
 
     // Chromatic Aberration
     #if CHROMATIC_ABERRATION == 1
@@ -51,7 +51,7 @@ void main() {
     #endif
     
     // Tonemapping
-    Result.rgb *= computeExposure(texture2D(colortex7, pixelSize).r);
+    Result.rgb *= computeExposure(texture(colortex7, pixelSize).r);
 
     #if TONEMAPPING == 0
         Result.rgb = whitePreservingReinhard(Result.rgb); // Reinhard

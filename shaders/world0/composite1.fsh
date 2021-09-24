@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 varying vec2 texCoords;
 
@@ -33,9 +33,9 @@ void main() {
     vec3 viewDir = normalize(-viewPos);
     vec3 lightDir = shadowLightPosition * 0.01;
 
-    vec4 tex0 = texture2D(colortex0, texCoords);
-    vec4 tex1 = texture2D(colortex1, texCoords);
-    vec4 tex2 = texture2D(colortex2, texCoords);
+    vec4 tex0 = texture(colortex0, texCoords);
+    vec4 tex1 = texture(colortex1, texCoords);
+    vec4 tex2 = texture(colortex2, texCoords);
 
     material data = getMaterial(tex0, tex1, tex2);
     vec3 normal = normalize(data.normal.xyz);
@@ -51,11 +51,11 @@ void main() {
 
     vec3 Lighting = tex0.rgb;
     if(!isSky(texCoords)) {
-        vec3 shadowmap = texture2D(colortex9, texCoords).rgb;
+        vec3 shadowmap = texture(colortex9, texCoords).rgb;
         vec3 lightmapColor = vec3(1.0);
     
         #if GI == 0
-            vec2 lightMap = texture2D(colortex2, texCoords).zw;
+            vec2 lightMap = texture(colortex2, texCoords).zw;
             lightmapColor = max(vec3(0.03), getLightmapColor(lightMap, getDayColor()));
         #endif
 

@@ -18,7 +18,7 @@ float averageLuminance1() {
 
      for(int x = 0; x < samples.x; x++) {
           for(int y = 0; y < samples.y; y++) {
-               vec3 color = texture2D(colortex0, (vec2(x, y) + 0.5) * pixelSize).rgb;
+               vec3 color = texture(colortex0, (vec2(x, y) + 0.5) * pixelSize).rgb;
                totalLum += luma(color);
           }
      }
@@ -50,6 +50,6 @@ float computeExposure(float avgLuminance) {
 }
 
 float getExposureLuma(sampler2D prevTex) {
-     float previousLuma = texture2D(prevTex, vec2(0.0)).r;
+     float previousLuma = texture(prevTex, vec2(0.0)).r;
      return mix(averageLuminance0(), previousLuma, AUTO_EXPOSURE == 0 ? 0.0 : 0.95);
 }

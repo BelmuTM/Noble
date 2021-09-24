@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 varying vec2 texCoords;
 varying vec4 color;
@@ -15,5 +15,5 @@ varying vec4 color;
 
 void main() {
     /*DRAWBUFFERS:5*/
-    gl_FragData[0] = texture2D(colortex0, texCoords) * color;
+    gl_FragData[0] = texture(colortex0, texCoords) * color;
 }

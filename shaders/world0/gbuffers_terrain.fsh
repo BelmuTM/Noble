@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 330
 
 #define TERRAIN
 #include "/programs/gbuffers/gbuffers.fsh"
