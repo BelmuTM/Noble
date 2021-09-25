@@ -6,5 +6,5 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330
+#version 330 compatibility
 #include "/programs/composite/composite_vsh.glsl"
