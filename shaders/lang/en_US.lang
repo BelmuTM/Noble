@@ -21,6 +21,7 @@ screen.RAYTRACING = Ray Tracing
 screen.ATMOSPHERICS = Atmospherics
 screen.WORLD = World
 screen.CAMERA = Camera
+screen.CAMERA_SETTINGS = Camera Settings
 screen.COLOR_CORRECTION = Color Correction
 
 ##################### LIGHTING & SHADOWS #####################
@@ -196,10 +197,15 @@ value.TAA.1 = §aON
 option.TAA_STRENGTH = TAA Strength
 option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§f's intensity.
 
-option.AUTO_EXPOSURE = Auto Exposure §e§lBETA
-option.AUTO_EXPOSURE.comment = Tweaks the exposure depending on the average screen brightness.
-value.AUTO_EXPOSURE.0 = §cOFF
-value.AUTO_EXPOSURE.1 = §aON
+option.EXPOSURE = Exposure
+option.EXPOSURE.comment = §eManual§r exposure lets you use the camera settings to adjust the image. §eAutomatic§r exposure tweaks the camera settings depending on the average screen brightness.
+value.EXPOSURE.0 = §e§lManual
+value.EXPOSURE.1 = §e§lAutomatic
+
+option.DOF = Depth of Field
+option.DOF.comment = Blurs objects that are out of focus.
+value.DOF.0 = §cOFF
+value.DOF.1 = §aON
 
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
@@ -208,14 +214,6 @@ value.BLOOM.1 = §aON
 
 option.BLOOM_STRENGTH = Bloom Strength
 option.BLOOM_STRENGTH.comment = Adjusts §bBloom§f's intensity.
-
-option.DOF = Depth of Field
-option.DOF.comment = Blurs objects that are out of focus.
-value.DOF.0 = §cOFF
-value.DOF.1 = §aON
-
-option.DOF_STRENGTH = DOF Strength
-option.DOF_STRENGTH.comment = Adjusts §bDepth of Field§f's intensity.
 
 option.VIGNETTE = Vignette
 option.VIGNETTE.comment = Makes screen edges darker.
@@ -232,6 +230,27 @@ value.CHROMATIC_ABERRATION.1 = §aON
 
 option.ABERRATION_STRENGTH = Aberration Strength
 option.ABERRATION_STRENGTH.comment = Adjusts §bAberration§f's intensity.
+
+##################### CAMERA SETTINGS #####################
+
+# https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-focal-length.html#:~:text=Focal%20length%2C%20usually%20represented%20in,description%20of%20a%20photographic%20lens.&text=The%20longer%20the%20focal%20length,and%20the%20lower%20the%20magnification.
+option.FOCAL = Focal Length
+option.FOCAL.comment = Usually represented in millimeters, the focal length is the basic description of a photographic lens. The longer the focal length, the narrower the angle of view. It influences §bDepth of Field.
+
+# https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-maximum-aperture.html#:~:text=What%20is%20aperture%20in%20photography,diaphragm%20through%20which%20light%20passes.&text=Lower%20f%2Fstops%20give%20more,because%20they%20represent%20smaller%20apertures.
+option.APERTURE = Aperture
+option.APERTURE.comment = Opening of a lens's diaphragm through which light passes, lower values capture more light.
+prefix.APERTURE = ƒ/
+
+# https://wp-modula.com/what-is-iso-in-photography/
+option.ISO = ISO
+option.ISO.comment = ISO is an option that will either brighten or darken your photograph, increasing it will make your pictures brighter and help you capture good shots in darker environments.
+
+# https://imaging.nikon.com/lineup/dslr/basics/04/03.htm#:~:text=Shutter%20speed%20is%20a%20measurement,1%2F%20500%20s%2C%20etc.&text=In%20other%20words%2C%20the%20faster,the%20effects%20of%20camera%20shake.
+option.SHUTTER_SPEED = Shutter Speed
+option.SHUTTER_SPEED.comment = A measurement of the time the camera's shutter is open, shown in fractions of a second.
+prefix.SHUTTER_SPEED = 1/
+suffix.SHUTTER_SPEED = s
 
 ##################### COLOR CORRECTION #####################
 

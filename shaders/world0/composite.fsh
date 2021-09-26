@@ -11,23 +11,16 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/fragment/bayer.glsl"
-#include "/lib/fragment/noise.glsl"
-#include "/lib/util/math.glsl"
-#include "/lib/util/transforms.glsl"
-#include "/lib/util/utils.glsl"
-#include "/lib/util/worldTime.glsl"
-#include "/lib/util/color.glsl"
+#include "/common.glsl"
 #include "/lib/material.glsl"
-#include "/lib/lighting/brdf.glsl"
-#include "/lib/lighting/raytracer.glsl"
-#include "/lib/lighting/ssr.glsl"
-#include "/lib/lighting/shadows.glsl"
+#include "/lib/fragment/brdf.glsl"
+#include "/lib/fragment/raytracer.glsl"
+#include "/lib/fragment/ssr.glsl"
+#include "/lib/fragment/shadows.glsl"
 
 void main() {
    vec4 temp = sRGBToLinear(texture(colortex4, texCoords));
-   vec4 rain = texture(colortex5, texCoords);
+   vec4 rain = sRGBToLinear(texture(colortex5, texCoords));
 
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/

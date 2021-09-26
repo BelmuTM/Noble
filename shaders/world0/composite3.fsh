@@ -11,12 +11,7 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/fragment/noise.glsl"
-#include "/lib/util/math.glsl"
-#include "/lib/util/transforms.glsl"
-#include "/lib/util/utils.glsl"
-#include "/lib/util/color.glsl"
+#include "/common.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/post/taa.glsl"
 
@@ -41,7 +36,7 @@ const bool colortex6Clear = false;
         );
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 1
-            totalWeight = 0.979 * float(distance(texCoords, prevTexCoords) <= 1e-4);
+            totalWeight = 0.985 * float(distance(texCoords, prevTexCoords) <= 1e-6);
         #endif
         totalWeight *= float(saturate(prevTexCoords) == prevTexCoords);
 

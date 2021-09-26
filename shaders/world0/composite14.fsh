@@ -11,15 +11,9 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/fragment/bayer.glsl"
-#include "/lib/fragment/noise.glsl"
-#include "/lib/util/math.glsl"
-#include "/lib/util/transforms.glsl"
-#include "/lib/util/utils.glsl"
+#include "/common.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/post/bloom.glsl"
-#include "/lib/util/worldTime.glsl"
 #include "/lib/atmospherics/fog.glsl"
 
 /*

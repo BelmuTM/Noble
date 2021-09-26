@@ -11,13 +11,7 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/fragment/bayer.glsl"
-#include "/lib/fragment/noise.glsl"
-#include "/lib/util/math.glsl"
-#include "/lib/util/transforms.glsl"
-#include "/lib/util/utils.glsl"
-#include "/lib/util/worldTime.glsl"
+#include "/common.glsl"
 
 /*
 const int colortex4Format = RGBA16F;

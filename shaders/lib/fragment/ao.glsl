@@ -35,7 +35,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 		vec3 sampleDir = TBN * randomHemisphereDirection(noise);
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.r, hitPos)) continue;
 
-		float dist = 1.5 - distance(samplePos, getViewPos(hitPos.xy));
+		float dist = 1.0 - pow(distance(samplePos, getViewPos(hitPos.xy)), 2.0);
 		occlusion += dist;
 	}
 	occlusion = 1.0 - (occlusion / RTAO_SAMPLES);

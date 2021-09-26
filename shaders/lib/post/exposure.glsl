@@ -6,23 +6,18 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float averageLuminance0() {
+const bool colortex0MipmapEnabled = true;
+
+float computeAverageLuminance(sampler2D prevTex) {
      float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
-     vec3 color = textureLod(colortex0, vec2(0.5), LOD).rgb;
-     return luma(color);
-}
+     float currLuma = luma(textureLod(colortex0, vec2(0.5), LOD).rgb);
 
-float averageLuminance1() {
-     float totalLum = 0.0;
-     vec2 samples = floor(viewSize / 100.0);
+     float previousLuma = texture(prevTex, vec2(0.5)).r;
+     previousLuma = previousLuma > 0.0 ? previousLuma : currLuma;
 
-     for(int x = 0; x < samples.x; x++) {
-          for(int y = 0; y < samples.y; y++) {
-               vec3 color = texture(colortex0, (vec2(x, y) + 0.5) * pixelSize).rgb;
-               totalLum += luma(color);
-          }
-     }
-     return totalLum / floor(samples.x * samples.y);
+     float exposureTime = currLuma > previousLuma ? 0.5 : 2.5;
+     float exposureFrameTime = exp(-exposureTime * frameTime);
+     return mix(currLuma, previousLuma, EXPOSURE == 0 ? 0.0 : exposureFrameTime);
 }
 
 float computeEV100() {
@@ -34,12 +29,12 @@ float computeEV100fromLuma(float avgLuminance) {
 }
 
 float EV100ToExposure(float EV100) {
-     return 1.0 / (exp2(EV100) * 1.2);
+     return 1.0 / (1.2 * exp2(EV100));
 }
 
 float computeExposure(float avgLuminance) {
      float EV100;
-     #if AUTO_EXPOSURE == 0
+     #if EXPOSURE == 0
           EV100 = computeEV100();
      #else
           EV100 = computeEV100fromLuma(avgLuminance);
@@ -47,9 +42,4 @@ float computeExposure(float avgLuminance) {
 
      float exposure = EV100ToExposure(EV100);
      return clamp(exposure, MIN_EXPOSURE, MAX_EXPOSURE);
-}
-
-float getExposureLuma(sampler2D prevTex) {
-     float previousLuma = texture(prevTex, vec2(0.0)).r;
-     return mix(averageLuminance0(), previousLuma, AUTO_EXPOSURE == 0 ? 0.0 : 0.95);
 }

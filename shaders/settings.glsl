@@ -9,6 +9,7 @@
 #define ABOUT 0 // [0 1]
 
 /*------------------ MATH ------------------*/
+#define lumaCoeff vec3(0.2126, 0.7152, 0.0722)
 #define EPS 1e-5
 
 #define HALF_PI         1.570796
@@ -43,14 +44,14 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_DISTORTION_AMPLITUDE 0.40 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.3, 0.25, 0.2)
+#define AMBIENT vec3(0.2, 0.15, 0.1)
 #define PTGI_AMBIENT vec3(0.005)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
-#define TORCH_COLOR vec3(0.92, 0.87, 0.7)
+#define TORCH_COLOR vec3(0.9, 0.87, 0.69)
 
 #define SUN_INTENSITY 4.0
-#define EMISSION_INTENSITY 5.0
+#define EMISSION_INTENSITY 10.0
 
 #define SPECULAR 1 // [0 1]
 #define WHITE_WORLD 0 // [0 1]
@@ -62,7 +63,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 #define SSAO_SAMPLES 8 // [4 8 16 32]
 #define SSAO_RADIUS 0.4
-#define SSAO_STRENGTH 1.5
+#define SSAO_STRENGTH 1.3
 
 #define RTAO_SAMPLES 4 // [4 32]
 #define RTAO_STEPS 16
@@ -142,27 +143,27 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define TAA_FEEDBACK_MAX (TAA_STRENGTH + 0.01)
 
 #define DOF 0 // [0 1]
-#define DOF_STRENGTH 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]
 
 #define BLOOM 1 // [0 1]
-#define BLOOM_STRENGTH 1.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define BLOOM_STRENGTH 0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define BLOOM_LUMA_THRESHOLD 0.8
 
 #define VIGNETTE 1 // [0 1]
-#define VIGNETTE_STRENGTH 0.15 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define VIGNETTE_STRENGTH 0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define CHROMATIC_ABERRATION 0 // [0 1]
-#define ABERRATION_STRENGTH 30.0 // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0]
+#define ABERRATION_STRENGTH 2.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00 3.25 3.50 3.75 4.00 4.25 4.50 4.75 5.00]
 
 /*------------------ CAMERA ------------------*/
-#define LENS_LENGTH     3.0
-#define APERTURE        4.0
-#define ISO           120.0
-#define SHUTTER_SPEED  40.0
-const float K = 15.0;  // Light meter calibration
+#define FOCAL       11.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0]
+#define APERTURE     4.0 // [1.0 1.2 1.4 2.0 2.8 4.0 5.6 8.0 11.0 16.0 22.0 32.0]
+#define ISO          100 // [50 100 200 400 800 1600 3200 6400 12800 25600 51200]
+#define SHUTTER_SPEED 60 // [4 5 6 8 10 15 20 30 40 50 60 80 100 125 160 200 250 320 400 500 640 800 1000 1250 1600 2000 2500 3200 4000]
+
+const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
-#define AUTO_EXPOSURE 0 // [0 1]
+#define EXPOSURE 0 // [0 1]
 #define MIN_EXPOSURE 1e-3
 #define MAX_EXPOSURE 20.0
 

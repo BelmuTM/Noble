@@ -7,15 +7,8 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/fragment/bayer.glsl"
-#include "/lib/fragment/noise.glsl"
-#include "/lib/util/math.glsl"
-#include "/lib/util/transforms.glsl"
-#include "/lib/util/utils.glsl"
+#include "/common.glsl"
 #include "/lib/util/blur.glsl"
-#include "/lib/util/color.glsl"
-#include "/lib/util/worldTime.glsl"
 #include "/lib/post/aberration.glsl"
 #include "/lib/post/bloom.glsl"
 #include "/lib/post/dof.glsl"
@@ -57,20 +50,17 @@ void main() {
     // Bloom
     #if BLOOM == 1
         // I wasn't supposed to use magic numbers like this in Noble :Sadge:
-        Result.rgb += saturate(readBloom() * mix(0.03 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
+        Result.rgb += saturate(readBloom() * 0.1 * saturate(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
     #endif
 
     // Vignette
     #if VIGNETTE == 1
         vec2 coords = texCoords * (1.0 - texCoords.yx);
-        Result.rgb *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
-
-        //float diff = 0.55 - distance(texCoords, vec2(0.5));
-	    //Result.rgb *= smoothstep(-0.20, 0.20, diff);
+        Result.rgb *= pow(coords.x * coords.y * VIGNETTE_STRENGTH, 0.15);
     #endif
     
     // Tonemapping
-    Result.rgb *= computeExposure(texture(colortex7, pixelSize).r);
+    Result.rgb *= computeExposure(texture(colortex7, texCoords).r);
 
     #if TONEMAPPING == 0
         Result.rgb = whitePreservingReinhard(Result.rgb); // Reinhard
@@ -85,7 +75,7 @@ void main() {
     Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
     Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
 
-    Result.rgb += bayer2(gl_FragCoord.xy) * (1.0 / 256.0); // Removes color banding from the screen
+    Result.rgb += bayer2(gl_FragCoord.xy) * (1.0 / 255.0); // Removes color banding from the screen
     #if TONEMAPPING != 2
         Result = linearToSRGB(Result);
     #endif

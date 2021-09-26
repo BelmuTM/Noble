@@ -131,7 +131,7 @@ vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
 }
 
 vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, float roughness, float F0, vec3 albedo, bool isMetal) {
-    // int hcmID = int(texture(specular, texCoords).g * 255.0 - 229.5);
+    int hcmID = int(texture(specular, texCoords).g * 255.0 - 229.5);
     float D = trowbridgeReitzGGX(NdotH, roughness * roughness);
     vec3 F = isMetal ? schlickGaussian(HdotL, albedo) : vec3(dielectricFresnel(HdotL, F0toIOR(F0)));
     float G = geometrySmith(NdotV, NdotL, roughness);

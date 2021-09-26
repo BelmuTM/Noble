@@ -11,19 +11,12 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/fragment/bayer.glsl"
-#include "/lib/fragment/noise.glsl"
-#include "/lib/util/math.glsl"
-#include "/lib/util/transforms.glsl"
-#include "/lib/util/utils.glsl"
-#include "/lib/util/color.glsl"
-#include "/lib/util/worldTime.glsl"
+#include "/common.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/material.glsl"
-#include "/lib/lighting/brdf.glsl"
-#include "/lib/lighting/raytracer.glsl"
-#include "/lib/lighting/ssr.glsl"
+#include "/lib/fragment/brdf.glsl"
+#include "/lib/fragment/raytracer.glsl"
+#include "/lib/fragment/ssr.glsl"
 
 void main() {
     vec4 Result = texture(colortex0, texCoords);
@@ -63,8 +56,7 @@ void main() {
 
     vec3 brightSpots;
     #if BLOOM == 1
-        bool isEmissive = texture(colortex1, texCoords).z > 0.2;
-        brightSpots = isEmissive || luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
+        brightSpots = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
     #endif
 
     /*DRAWBUFFERS:05*/

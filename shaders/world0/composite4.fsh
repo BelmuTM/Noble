@@ -11,19 +11,12 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/fragment/bayer.glsl"
-#include "/lib/fragment/noise.glsl"
-#include "/lib/util/math.glsl"
-#include "/lib/util/transforms.glsl"
-#include "/lib/util/utils.glsl"
-#include "/lib/util/color.glsl"
-#include "/lib/util/worldTime.glsl"
+#include "/common.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/material.glsl"
-#include "/lib/lighting/brdf.glsl"
-#include "/lib/lighting/raytracer.glsl"
-#include "/lib/lighting/ssr.glsl"
+#include "/lib/fragment/brdf.glsl"
+#include "/lib/fragment/raytracer.glsl"
+#include "/lib/fragment/ssr.glsl"
 
 void main() {
      vec4 Result = texture(colortex0, texCoords);
@@ -70,7 +63,7 @@ void main() {
                #else
                     #if AO == 1
                          #if AO_FILTER == 1
-                              Result.rgb *= fastGaussianFilter(texCoords, viewPos, normal, colortex5, vec2(0.0, 1.0)).a;
+                              Result.rgb *= heavyGaussianFilter(texCoords, viewPos, normal, colortex5, vec2(0.0, 1.0)).a;
                          #else
                               Result.rgb *= saturate(texture(colortex5, texCoords).a);
                          #endif

@@ -26,7 +26,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         
         /* Sampling a random direction in an hemisphere using noise and raytracing in that direction */
         vec3 sampleDir = TBN * randomHemisphereDirection(noise);
-        if(!raytrace(hitPos, sampleDir, GI_STEPS, noise.g, hitPos)) continue;
+        if(!raytrace(hitPos, sampleDir, GI_STEPS, uniformNoise(i).g, hitPos)) continue;
 
         /* Calculating the BRDF & applying it */
         float F0 = texture(colortex2, hitPos.xy).g;
@@ -36,7 +36,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         vec3 reflected = reflect(viewDir, TBN * microfacet);
 
         vec3 H = normalize(viewDir + reflected);
-        float NdotL = max(EPS, dot(normal, reflected));
+        float NdotL = max(EPS, dot(normal, reflected)); 
         float NdotV = max(EPS, dot(normal, viewDir));
         float NdotH = max(EPS, dot(normal, H));
         float HdotL = max(EPS, dot(H, reflected));
@@ -47,7 +47,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         /*
         vec3 diffuse = vec3(0.0);
         if(!isMetal) {
-            float NdotD = max(EPS, dot(normal, sampleDir)); 
+            float NdotD = max(EPS, dot(normal, sampleDir));
             diffuse = orenNayarDiffuse(normal, viewDir, sampleDir, NdotD, NdotV, roughness * roughness, albedo) / (NdotD * INV_PI);
         }
         */

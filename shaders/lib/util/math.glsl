@@ -129,3 +129,8 @@ vec3 randomHemisphereDirection(vec2 r) {
     float zOffset = sqrt(1.0 - r.y);
     return normalize(vec3(xOffset, yOffset, zOffset));
 }
+
+// https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
+float getCoC(float fragDepth, float cursorDepth) {
+    return fragDepth < 0.56 ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - FOCAL)))) * 0.5;
+}

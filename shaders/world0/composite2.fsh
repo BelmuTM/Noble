@@ -11,18 +11,12 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/fragment/bayer.glsl"
-#include "/lib/fragment/noise.glsl"
-#include "/lib/util/math.glsl"
-#include "/lib/util/transforms.glsl"
-#include "/lib/util/utils.glsl"
-#include "/lib/util/worldTime.glsl"
+#include "/common.glsl"
 #include "/lib/material.glsl"
-#include "/lib/lighting/brdf.glsl"
-#include "/lib/lighting/raytracer.glsl"
-#include "/lib/lighting/ao.glsl"
-#include "/lib/lighting/ptgi.glsl"
+#include "/lib/fragment/brdf.glsl"
+#include "/lib/fragment/raytracer.glsl"
+#include "/lib/fragment/ao.glsl"
+#include "/lib/fragment/ptgi.glsl"
 
 /*
 const int colortex5Format = RGBA16F;
