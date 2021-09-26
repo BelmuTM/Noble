@@ -16,7 +16,7 @@
 
     bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
         float jitter = TAA == 1 ? uniformAnimatedNoise(blueNoise().rg).r : blueNoise().r;
-        bool hit = raytrace(viewPos, shadowLightPosition * 0.01, 16, jitter, hitPos);
+        bool hit = raytrace(viewPos, sunDir, 16, jitter, hitPos);
         return hit && abs(linearizeDepth(texture(depthtex0, hitPos.xy).r) - linearizeDepth(hitPos.z)) <= 0.15 ? false : true;
     }
 

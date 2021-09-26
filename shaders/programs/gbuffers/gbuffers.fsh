@@ -50,7 +50,7 @@ void main() {
 	if(int(blockId + 0.5) == 1) { 
 		albedoTex.a = 0.0;
 		F0 = 0.02;
-		roughness = 0.01;
+		roughness = 0.0;
 	}
 
 	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 10 && emission <= 0.01) {
@@ -60,5 +60,5 @@ void main() {
 	/*DRAWBUFFERS:012*/
 	gl_FragData[0] = color * albedoTex;
 	gl_FragData[1] = vec4(encodeNormal(normal), emission, (blockId + 0.25) / 255.0);
-	gl_FragData[2] = vec4(roughness, F0, lightmap);
+	gl_FragData[2] = vec4(clamp(roughness, 1e-6, 1.0), F0, lightmap);
 }

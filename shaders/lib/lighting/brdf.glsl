@@ -131,6 +131,7 @@ vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
 }
 
 vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, float roughness, float F0, vec3 albedo, bool isMetal) {
+    // int hcmID = int(texture(specular, texCoords).g * 255.0 - 229.5);
     float D = trowbridgeReitzGGX(NdotH, roughness * roughness);
     vec3 F = isMetal ? schlickGaussian(HdotL, albedo) : vec3(dielectricFresnel(HdotL, F0toIOR(F0)));
     float G = geometrySmith(NdotV, NdotL, roughness);
@@ -138,10 +139,9 @@ vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, fl
     return saturate(D * F * G);
 }
 
+// OREN-NAYAR MODEL - QUALITATIVE 
+// http://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_CVPR93.pdf
 vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float alpha, vec3 albedo) {
-    // OREN-NAYAR MODEL - QUALITATIVE 
-    // http://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_CVPR93.pdf
-
     vec2 angles = acos(vec2(NdotL, NdotV));
     if(angles.x < angles.y) angles = angles.yx;
     float cosA = saturate(dot(normalize(V - NdotV * N), normalize(L - NdotL * N)));
@@ -151,12 +151,8 @@ vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float al
     return A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y);
 }
 
-/*
-    Thanks LVutner for the help!
-    https://github.com/LVutner
-    https://gist.github.com/LVutner/c07a3cc4fec338e8fe3fa5e598787e47
-*/
-
+// Thanks LVutner for the help!
+// https://github.com/LVutner
 vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap) {
     bool isMetal = data.F0 * 255.0 > 229.5;
     float alpha = data.roughness * data.roughness;
@@ -169,7 +165,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     float NdotH = max(EPS, dot(N, H));
     float VdotH = max(EPS, dot(V, H));
 
-    vec3 specular;
+    vec3 specular = vec3(0.0);
     #if SPECULAR == 1
         specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, data.roughness, data.F0, data.albedo, isMetal);
     #endif
@@ -177,7 +173,13 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     vec3 diffuse = vec3(0.0);
     if(!isMetal) { diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, data.albedo); }
 
-    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * getDayColor() * SUN_INTENSITY;
+    /*
+    vec3 f_NdotL = 1.0 - fresnelSchlick(NdotL, vec3(data.F0));
+    vec3 f_NdotV = 1.0 - fresnelSchlick(NdotV, vec3(data.F0));
+    diffuse = f_NdotL * f_NdotV * diffuse;
+    */
+
+    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * 4.0 * getDayColor();
     Lighting += data.emission * data.albedo;
 
     if(!isMetal) {

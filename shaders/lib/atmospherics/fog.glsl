@@ -7,6 +7,11 @@
 /***********************************************/
 
 vec3 fog(vec3 viewPos, vec3 fogColorStart, vec3 fogColorEnd, float fogCoef, float density) {
+    if(isEyeInWater == 1) {
+        fogColorEnd = vec3(0.1, 0.3, 0.4);
+        density = 0.1;
+    }
+
     const float sqrt2 = -sqrt(2.0);
     float d = density * pow(-viewPos.z - near, 0.6);
 

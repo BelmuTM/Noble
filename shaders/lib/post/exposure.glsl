@@ -8,7 +8,7 @@
 
 float averageLuminance0() {
      float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
-     vec3 color = textureLod(colortex0, vec2(0.5), LOD * 2.0).rgb;
+     vec3 color = textureLod(colortex0, vec2(0.5), LOD).rgb;
      return luma(color);
 }
 

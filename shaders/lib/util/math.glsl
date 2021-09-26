@@ -8,15 +8,15 @@
 
 // Normals encoding / decoding from: https://aras-p.info/texts/CompactNormalStorage.html
 
-const float scale = 1.7777;
+const float packingScale = 1.7777;
 vec2 encodeNormal(vec3 normal) {
     vec2 enc = normal.xy / (normal.z + 1.0);
-    enc /= scale;
+    enc /= packingScale;
     return enc * 0.5 + 0.5;
 }
 
 vec3 decodeNormal(vec2 enc) {
-    vec3 nn = vec3(enc, 0.0) * vec3(vec2(2.0 * scale), 0.0) + vec3(vec2(-scale), 1.0);
+    vec3 nn = vec3(enc, 0.0) * vec3(vec2(2.0 * packingScale), 0.0) + vec3(vec2(-packingScale), 1.0);
     float g = 2.0 / dot(nn.xyz, nn.xyz);
     return vec3(g * nn.xy, g - 1.0);
 }
@@ -115,7 +115,7 @@ float heyneyGreensteinPhase(float g, float cosTheta) {
 
 // Provided by LVutner.#1925
 vec3 hemisphereSample(vec2 r) {
-    float phi = r.x * 2.0 * PI;
+    float phi = r.x * PI2;
     float cosTheta = 1.0 - r.y;
     float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);

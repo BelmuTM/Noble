@@ -34,7 +34,7 @@ void main() {
             vec3 viewPos = getViewPos(texCoords);
             vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
-            float NdotV = abs(dot(normal, normalize(-viewPos))) + 1e-5;
+            float NdotV = max(EPS, dot(normal, -normalize(viewPos)));
             float F0 = texture(colortex2, texCoords).g;
             bool isMetal = F0 * 255.0 > 229.5;
 
@@ -49,7 +49,7 @@ void main() {
             #endif
 
             vec3 DFG = envBRDFApprox(specularColor, roughness, NdotV);
-            Result.rgb = mix(Result.rgb, reflections, DFG);
+            Result.rgb = saturate(mix(Result.rgb, reflections, DFG));
         }
     #endif
 
@@ -63,10 +63,8 @@ void main() {
 
     vec3 brightSpots;
     #if BLOOM == 1
-        if(!sky) {
-            bool isEmissive = texture(colortex1, texCoords).z > 0.2;
-            brightSpots = isEmissive || luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
-        }
+        bool isEmissive = texture(colortex1, texCoords).z > 0.2;
+        brightSpots = isEmissive || luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
     #endif
 
     /*DRAWBUFFERS:05*/

@@ -14,8 +14,7 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
     vec3 viewDir = -normalize(screenToView(screenPos));
 
     for(int i = 0; i < GI_BOUNCES; i++) {
-        vec3 blueNoise = blueNoise();
-        vec2 noise = uniformAnimatedNoise(blueNoise.rg);
+        vec2 noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + fract(frameTime)));
 
         /* Updating our position for the next bounce */
         vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
@@ -27,13 +26,13 @@ vec3 computePTGI(in vec3 screenPos, bool isMetal) {
         
         /* Sampling a random direction in an hemisphere using noise and raytracing in that direction */
         vec3 sampleDir = TBN * randomHemisphereDirection(noise);
-        if(!raytrace(hitPos, sampleDir, GI_STEPS, blueNoise.b, hitPos)) continue;
+        if(!raytrace(hitPos, sampleDir, GI_STEPS, noise.g, hitPos)) continue;
 
         /* Calculating the BRDF & applying it */
         float F0 = texture(colortex2, hitPos.xy).g;
         float roughness = texture(colortex2, hitPos.xy).r;
 
-        vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise.yx, roughness);
+        vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise, roughness);
         vec3 reflected = reflect(viewDir, TBN * microfacet);
 
         vec3 H = normalize(viewDir + reflected);

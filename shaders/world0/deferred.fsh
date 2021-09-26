@@ -24,10 +24,8 @@ const int colortex4Format = RGBA16F;
 */
 
 void main() {
-
      /*DRAWBUFFERS:4*/
      if(texture(depthtex0, texCoords).r == 1.0) {
-          vec3 sunDir = shadowLightPosition * 0.01;
           vec3 viewPos = getViewPos(texCoords);
           vec3 eyeDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 

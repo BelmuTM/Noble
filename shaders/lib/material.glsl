@@ -6,6 +6,18 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+// Hardcoded values provided by Bálint#1673
+const vec3 HARDCODED_F0[] = vec3[](
+    vec3(0.53123, 0.51236, 0.49583), // Iron
+    vec3(0.94423, 0.77610, 0.37340), // Gold
+    vec3(0.91230, 0.91385, 0.91968), // Aluminium
+    vec3(0.55560, 0.55454, 0.55478), // Chrome
+    vec3(0.92595, 0.72090, 0.50415), // Copper
+    vec3(0.63248, 0.62594, 0.64148), // Lead
+    vec3(0.67885, 0.64240, 0.58841), // Platinum
+    vec3(0.96200, 0.94947, 0.92212)  // Silver
+);
+
 struct material {
     vec3 albedo;
     float alpha;

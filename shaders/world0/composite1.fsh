@@ -31,7 +31,6 @@ const int colortex8Format = RGBA16F;
 void main() {
     vec3 viewPos = getViewPos(texCoords);
     vec3 viewDir = normalize(-viewPos);
-    vec3 lightDir = shadowLightPosition * 0.01;
 
     vec4 tex0 = texture(colortex0, texCoords);
     vec4 tex1 = texture(colortex1, texCoords);
@@ -59,7 +58,7 @@ void main() {
             lightmapColor = max(vec3(0.03), getLightmapColor(lightMap, getDayColor()));
         #endif
 
-        Lighting = cookTorrance(normal, viewDir, lightDir, data, lightmapColor, shadowmap);
+        Lighting = cookTorrance(normal, viewDir, sunDir, data, lightmapColor, shadowmap);
     }
 
     /*DRAWBUFFERS:048*/

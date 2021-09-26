@@ -36,10 +36,12 @@ void main() {
         
                if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords && !isSky(scaledUv)) {
                     vec3 normalAt = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
-                    bool isMetal = texture(colortex2, scaledUv).g * 255.0 > 229.5;
                     float roughness = texture(colortex2, scaledUv).r;
 
-                    roughReflections = prefilteredReflections(scaledUv, getViewPos(scaledUv), normalAt, roughness * roughness, isMetal);
+                    float F0 = texture(colortex2, scaledUv).g;
+                    bool isMetal = F0 * 255.0 > 229.5;
+                    vec3 specularColor = mix(vec3(F0), texture(colortex4, scaledUv).rgb, float(isMetal));
+                    roughReflections = prefilteredReflections(scaledUv, getViewPos(scaledUv), normalAt, roughness * roughness, specularColor, isMetal);
                }
           #endif
      #endif

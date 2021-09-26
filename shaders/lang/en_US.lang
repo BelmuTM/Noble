@@ -4,18 +4,23 @@
 
 #shaders/lang/en_US.lang
 
-##################### ABOUT #####################
-option.ABOUT = Noble
+##################### OTHERS #####################
+option.ABOUT = §6Noble
 option.ABOUT.comment = §f§lTwitter: §r§7@Belmu_. §f§lDiscord: §r§7Belmu#4066. §f§lPatreon: §r§6https://www.patreon.com/Belmu. §f§lGithub: §r§6https://www.github.com/BelmuTM.
-value.ABOUT.0 = §7r0.9.9 §f- §6Belmu
+value.ABOUT.0 = §7§ov0.9.9 §r- Belmu
 value.ABOUT.1 = §b§lBoop!
+
+profile.RENDER = §bRender
+profile.NORMAL = Normal
+profile.comment = §lNormal§r profile refers to Noble with default settings. §b§lRender§r profile transforms Noble into a renderer by boosting certain settings. §c§lDISCLAIMER: MIGHT HEAVILY AFFECT THE §c§lPERFORMANCE.
 
 ##################### SCREENS #####################
 
-screen.LIGHTING = Light & Shadows
+screen.LIGHTING = Lighting & Shadows
 screen.RAYTRACING = Ray Tracing
 screen.ATMOSPHERICS = Atmospherics
-screen.POST_PROCESSING = Post-Processing
+screen.WORLD = World
+screen.CAMERA = Camera
 screen.COLOR_CORRECTION = Color Correction
 
 ##################### LIGHTING & SHADOWS #####################
@@ -78,11 +83,6 @@ value.SSAO_SAMPLES.8 = §e8
 value.SSAO_SAMPLES.16 = §616
 value.SSAO_SAMPLES.32 = §c32
 
-option.WHITE_WORLD = White World
-option.WHITE_WORLD.comment = §fSets all block colors to white.
-value.WHITE_WORLD.0 = §cOFF
-value.WHITE_WORLD.1 = §aON
-
 option.sunPathRotation = Sun Path Rotation
 option.sunPathRotation.comment = Adjusts sun's rotation.
 
@@ -138,9 +138,6 @@ option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make 
 value.BINARY_REFINEMENT.0 = §cOFF
 value.BINARY_REFINEMENT.1 = §aON
 
-option.RAY_STEP_LENGTH = Ray Length
-option.RAY_STEP_LENGTH.comment = Adjusts the ray's length. §cLower value gives more accurate results, but reduces §cperformance.
-
 option.SSR_REPROJECTION = SSR reprojection
 option.SSR_REPROJECTION.comment = Reflects the last frame to make the light bounce infinitely. §aIt doesn't affect performance.
 value.SSR_REPROJECTION.0 = §cOFF
@@ -166,7 +163,30 @@ option.RAIN_FOG.comment = A fog that appears when it rains.
 value.RAIN_FOG.0 = §cOFF
 value.RAIN_FOG.1 = §aON
 
-##################### POST-PROCESSING #####################
+##################### WORLD #####################
+
+option.WHITE_WORLD = White World
+option.WHITE_WORLD.comment = §fSets all block colors to white.
+value.WHITE_WORLD.0 = §cOFF
+value.WHITE_WORLD.1 = §aON
+
+option.WATER_FOAM = Water Foam
+option.WATER_FOAM.comment = Foam that appears when water encounters an edge.
+value.WATER_FOAM.0 = §cOFF
+value.WATER_FOAM.1 = §aON
+
+option.FOAM_BRIGHTNESS = Foam Brightness
+option.FOAM_BRIGHTNESS.comment = Adjusts §bWater Foam§f's darkness.
+
+option.UNDERWATER_DISTORTION = Underwater Distortion
+option.UNDERWATER_DISTORTION.comment = Wiggles the entire screen when you are underwater.
+value.UNDERWATER_DISTORTION.0 = §cOFF
+value.UNDERWATER_DISTORTION.1 = §aON
+
+option.WATER_DISTORTION_AMPLITUDE = Distortion Amplitude
+option.WATER_DISTORTION_AMPLITUDE.comment = Adjusts §bUnderwater Distortion§f's amplitude.
+
+##################### CAMERA #####################
 
 option.TAA = TAA
 option.TAA.comment = §bTemporal Anti-Aliasing. §fA form of anti-aliasing which operates over multiple frames.
@@ -175,6 +195,11 @@ value.TAA.1 = §aON
 
 option.TAA_STRENGTH = TAA Strength
 option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§f's intensity.
+
+option.AUTO_EXPOSURE = Auto Exposure §e§lBETA
+option.AUTO_EXPOSURE.comment = Tweaks the exposure depending on the average screen brightness.
+value.AUTO_EXPOSURE.0 = §cOFF
+value.AUTO_EXPOSURE.1 = §aON
 
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
@@ -191,14 +216,6 @@ value.DOF.1 = §aON
 
 option.DOF_STRENGTH = DOF Strength
 option.DOF_STRENGTH.comment = Adjusts §bDepth of Field§f's intensity.
-
-option.WATER_FOAM = Water Foam
-option.WATER_FOAM.comment = Foam that appears when water encounters an edge.
-value.WATER_FOAM.0 = §cOFF
-value.WATER_FOAM.1 = §aON
-
-option.FOAM_BRIGHTNESS = Foam Brightness
-option.FOAM_BRIGHTNESS.comment = Adjusts §bWater Foam§f's darkness.
 
 option.VIGNETTE = Vignette
 option.VIGNETTE.comment = Makes screen edges darker.
@@ -225,11 +242,6 @@ value.TONEMAPPING.0 = Reinhard
 value.TONEMAPPING.1 = Uncharted
 value.TONEMAPPING.2 = Burgess
 value.TONEMAPPING.3 = ACES
-
-option.AUTO_EXPOSURE = Auto Exposure §e§lBETA
-option.AUTO_EXPOSURE.comment = Tweaks the exposure depending on the average screen brightness.
-value.AUTO_EXPOSURE.0 = §cOFF
-value.AUTO_EXPOSURE.1 = §aON
 
 option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.

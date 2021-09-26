@@ -58,6 +58,10 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
+vec3 sunDir = shadowLightPosition * 0.01;
 vec2 viewSize = vec2(viewWidth, viewHeight);
 vec2 pixelSize = 1.0 / viewSize;
 const int noiseRes = 512;
+
+const float g = 9.81;
+const float airIOR = 1.00028;

@@ -62,9 +62,7 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
 
     // Luma weight by LVutner: https://github.com/LVutner/NobleRT/commit/0c679af04c83500a158ec6604448c74202ef403e
     // Thanks to them!
-    float currLuma = luma(currColor);
-    float prevLuma = luma(prevColor);
-
+    float currLuma = luma(currColor), prevLuma = luma(prevColor);
     float lumaWeight = 1.0 - (abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN)));
 	blendWeight *= mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
 

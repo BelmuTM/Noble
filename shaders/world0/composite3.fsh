@@ -34,15 +34,18 @@ const bool colortex6Clear = false;
         float depth = linearizeDepth(texture(depthtex0, texCoords).r);
         */
         vec3 normalAt = normalize(decodeNormal(texture(colortex1, prevTexCoords).xy));
-
-        float totalWeight = float(
+        float totalWeight = 0.92 * float(
                abs(normalAt.x - normal.x) <= EDGE_STOP_THRESHOLD
             && abs(normalAt.y - normal.y) <= EDGE_STOP_THRESHOLD
             && abs(normalAt.z - normal.z) <= EDGE_STOP_THRESHOLD
-            && saturate(prevTexCoords) == prevTexCoords // Is on screen
         );
 
-        return mix(currColor, prevColor, 0.92 * totalWeight);
+        #if ACCUMULATION_VELOCITY_WEIGHT == 1
+            totalWeight = 0.979 * float(distance(texCoords, prevTexCoords) <= 1e-4);
+        #endif
+        totalWeight *= float(saturate(prevTexCoords) == prevTexCoords);
+
+        return mix(currColor, prevColor, totalWeight);
     }
 #endif
 

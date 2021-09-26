@@ -21,9 +21,28 @@
 #include "/lib/post/dof.glsl"
 #include "/lib/post/exposure.glsl"
 
+vec2 underwaterDistortionCoords(vec2 coords) {
+    const float scale = 27.5;
+    float speed = frameTimeCounter * WATER_DISTORTION_SPEED;
+    float offsetX = coords.x * scale + speed;
+    float offsetY = coords.y * scale + speed;
+
+    vec2 distorted = coords + vec2(
+        WATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
+        WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
+    );
+
+    return saturate(distorted) != distorted ? coords : distorted;
+} 
+
 void main() {
-    vec4 Result = texture(colortex0, texCoords);
-    float depth = texture(depthtex0, texCoords).r;
+    vec2 tempCoords = texCoords;
+    #if UNDERWATER_DISTORTION == 1
+        if(isEyeInWater == 1) tempCoords = underwaterDistortionCoords(tempCoords);
+    #endif
+
+    vec4 Result = texture(colortex0, tempCoords);
+    float depth = texture(depthtex0, tempCoords).r;
 
     // Chromatic Aberration
     #if CHROMATIC_ABERRATION == 1
@@ -38,7 +57,7 @@ void main() {
     // Bloom
     #if BLOOM == 1
         // I wasn't supposed to use magic numbers like this in Noble :Sadge:
-        Result.rgb += saturate(readBloom() * mix(0.06 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
+        Result.rgb += saturate(readBloom() * mix(0.03 + (rainStrength * 0.1), 0.0, 0.3) * BLOOM_STRENGTH);
     #endif
 
     // Vignette

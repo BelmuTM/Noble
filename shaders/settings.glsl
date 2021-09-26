@@ -9,7 +9,7 @@
 #define ABOUT 0 // [0 1]
 
 /*------------------ MATH ------------------*/
-#define EPS 1e-4
+#define EPS 1e-5
 
 #define HALF_PI         1.570796
 #define PI              3.14159265
@@ -38,15 +38,19 @@ const float shadowDistanceRenderMul = 1.0;
 #define FOAM_EDGE_FALLOFF 0.4
 #define FOAM_FALLOFF_BIAS 0.1
 
+#define UNDERWATER_DISTORTION 1 // [0 1]
+#define WATER_DISTORTION_SPEED 0.65
+#define WATER_DISTORTION_AMPLITUDE 0.40 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.2, 0.15, 0.1)
+#define AMBIENT vec3(0.3, 0.25, 0.2)
 #define PTGI_AMBIENT vec3(0.005)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(0.92, 0.87, 0.7)
 
 #define SUN_INTENSITY 4.0
-#define EMISSION_INTENSITY 1.0
+#define EMISSION_INTENSITY 5.0
 
 #define SPECULAR 1 // [0 1]
 #define WHITE_WORLD 0 // [0 1]
@@ -58,9 +62,9 @@ const float shadowDistanceRenderMul = 1.0;
 
 #define SSAO_SAMPLES 8 // [4 8 16 32]
 #define SSAO_RADIUS 0.4
-#define SSAO_STRENGTH 1.2
+#define SSAO_STRENGTH 1.5
 
-#define RTAO_SAMPLES 4
+#define RTAO_SAMPLES 4 // [4 32]
 #define RTAO_STEPS 16
 #define RTAO_STRENGTH 0.1
 
@@ -74,23 +78,23 @@ const float shadowDistanceRenderMul = 1.0;
 #define SHADOW_BIAS 0.8
 
 // Soft Shadows
-#define PCSS_SAMPLES 24
+#define PCSS_SAMPLES 24 // [24 64]
 #define LIGHT_SIZE 160.0
-#define BLOCKER_SEARCH_RADIUS 10.0
-#define BLOCKER_SEARCH_SAMPLES 20
+#define BLOCKER_SEARCH_RADIUS 12.0
+#define BLOCKER_SEARCH_SAMPLES 20 // [20 64]
 
 /*------------------ RAY TRACING ------------------*/
-#define RAY_STEP_LENGTH 1.5 // [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
-
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT 6
+#define BINARY_COUNT 6 // [6 12]
 #define BINARY_DECREASE 0.5
+
+#define RAY_STEP_LENGTH 1.5
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
 #define GI 1 // [0 1]
 #define GI_VISUALIZATION 0
 
-#define GI_STEPS 40
+#define GI_STEPS 40 // [40 128]
 #define GI_BOUNCES 2 // [1 2 3 4 5 6]
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define GI_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
@@ -98,21 +102,21 @@ const float shadowDistanceRenderMul = 1.0;
 // Spatial Filtering
 #define GI_FILTER 1 // [0 1]
 #define EDGE_STOP_THRESHOLD 0.5 // Lower number means sharper edges
+#define ACCUMULATION_VELOCITY_WEIGHT 0 //[0 1]
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
 #define REFRACTION 0 // [0 1]
 
-const float airIOR = 1.00028;
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.325
 
 #define SKY_FALLBACK 1
 #define SSR_REPROJECTION 1 // [0 1]
 
-#define PREFILTER_SAMPLES 3
-#define ROUGH_REFLECT_STEPS 20
+#define PREFILTER_SAMPLES 3 // [3 12]
+#define ROUGH_REFLECT_STEPS 20 // [20 64]
 #define ROUGH_REFLECT_RES 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define SIMPLE_REFLECT_STEPS 64
@@ -124,7 +128,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define VL_SAMPLES 8
 
 #define VL_BRIGHTNESS 1.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define VL_EXTINCTION 0.2
+#define VL_EXTINCTION 0.6
 
 #define RAIN_FOG 1 // [0 1]
 
@@ -133,6 +137,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define TAA_STRENGTH 0.975 // [0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
 #define NEIGHBORHOOD_SIZE 3
 
+#define TAA_LUMA_WEIGHT 1 // [0 1]
 #define TAA_LUMA_MIN 0.15
 #define TAA_FEEDBACK_MAX (TAA_STRENGTH + 0.01)
 
