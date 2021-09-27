@@ -13,7 +13,6 @@ varying vec2 texCoords;
 #include "/settings.glsl"
 #include "/common.glsl"
 #include "/lib/util/blur.glsl"
-#include "/lib/material.glsl"
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
 

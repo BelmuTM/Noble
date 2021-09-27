@@ -6,33 +6,43 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float trowbridgeReitzGGX(float NdotH, in float alpha) {
+#include "/lib/material.glsl"
+
+// http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
+
+float D_Beckmann(float NdotH, in float alpha) {
+    alpha *= alpha;
+    float NdotH2 = NdotH * NdotH;
+    return (1.0 / (PI * alpha * (NdotH2 * NdotH2))) * exp((NdotH2 - 1.0) / (alpha * NdotH2));
+}
+
+float D_GGX(float NdotH, in float alpha) {
     // GGXTR(N,H,α) = α² / π*((N*H)²*(α² + 1)-1)²
     alpha *= alpha;
     float denom = ((NdotH * NdotH) * (alpha - 1.0) + 1.0);
     return alpha / (PI * denom * denom);
 }
 
-float geometrySchlickBeckmann(float cosTheta, float roughness) {
+float G_SchlickBeckmann(float cosTheta, float roughness) {
     // SchlickGGX(N,V,k) = N*V/(N*V)*(1 - k) + k
     float denom = cosTheta * (1.0 - roughness) + roughness;
     return cosTheta / denom;
 }
 
-float geometrySmith(float NdotV, float NdotL, float roughness) {
+float G_Smith(float NdotV, float NdotL, float roughness) {
     float r = roughness + 1.0;
     roughness = (r * r) / 8.0;
 
-    float ggxV = geometrySchlickBeckmann(NdotV, roughness);
-    float ggxL = geometrySchlickBeckmann(NdotL, roughness);
-    return (ggxV * ggxL) / max(4.0 * NdotL * NdotV, EPS);
+    float ggxV = G_SchlickBeckmann(NdotV, roughness);
+    float ggxL = G_SchlickBeckmann(NdotL, roughness);
+    return ggxV * ggxL;
 }
 
-float geometrySchlickGGX(float NdotV, float alpha) {
+float G_GGX(float NdotV, float alpha) {
     return (2.0 * NdotV) / (NdotV + sqrt(alpha + (1.0 - alpha) * (NdotV + NdotV)));
 }
 
-float geometryCookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
+float G_CookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
     float NdotH2 = 2.0 * NdotH;
     float g1 = (NdotH2 * NdotV) / VdotH;
     float g2 = (NdotH2 * NdotL) / VdotH;
@@ -123,20 +133,23 @@ vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float alpha) {
 // https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true
 vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
     const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
-    const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
+    const vec4 c1 = vec4( 1.0,  0.0425,  1.04,  -0.04);
     vec4 r = roughness * c0 + c1;
     float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
     vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
     return F0 * AB.x + AB.y;
 }
 
+vec3 cookTorranceFresnel(float cosTheta, float F0, vec3 albedo, bool isMetal) {
+    return isMetal ? schlickGaussian(cosTheta, albedo) : vec3(dielectricFresnel(cosTheta, F0toIOR(F0)));
+}
+
 vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, float roughness, float F0, vec3 albedo, bool isMetal) {
-    int hcmID = int(texture(specular, texCoords).g * 255.0 - 229.5);
-    float D = trowbridgeReitzGGX(NdotH, roughness * roughness);
-    vec3 F = isMetal ? schlickGaussian(HdotL, albedo) : vec3(dielectricFresnel(HdotL, F0toIOR(F0)));
-    float G = geometrySmith(NdotV, NdotL, roughness);
+    float D = D_Beckmann(NdotH, roughness * roughness);
+    vec3 F = cookTorranceFresnel(HdotL, F0, getSpecularColor(F0, albedo), isMetal);
+    float G = G_Smith(NdotV, NdotL, roughness);
         
-    return saturate(D * F * G);
+    return saturate((D * F * G) / max(0.0, 4.0 * NdotL * NdotV));
 }
 
 // OREN-NAYAR MODEL - QUALITATIVE 

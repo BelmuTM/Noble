@@ -6,7 +6,9 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/*
 const bool colortex0MipmapEnabled = true;
+*/
 
 float computeAverageLuminance(sampler2D prevTex) {
      float LOD = ceil(log2(max(viewSize.x, viewSize.y)));
@@ -33,13 +35,7 @@ float EV100ToExposure(float EV100) {
 }
 
 float computeExposure(float avgLuminance) {
-     float EV100;
-     #if EXPOSURE == 0
-          EV100 = computeEV100();
-     #else
-          EV100 = computeEV100fromLuma(avgLuminance);
-     #endif
-
+     float EV100 = EXPOSURE == 0 ? computeEV100() : computeEV100fromLuma(avgLuminance);
      float exposure = EV100ToExposure(EV100);
      return clamp(exposure, MIN_EXPOSURE, MAX_EXPOSURE);
 }

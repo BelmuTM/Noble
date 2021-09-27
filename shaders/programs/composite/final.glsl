@@ -52,28 +52,27 @@ void main() {
         // I wasn't supposed to use magic numbers like this in Noble :Sadge:
         Result.rgb += saturate(readBloom() * 0.1 * saturate(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
     #endif
-
-    // Vignette
-    #if VIGNETTE == 1
-        vec2 coords = texCoords * (1.0 - texCoords.yx);
-        Result.rgb *= pow(coords.x * coords.y * VIGNETTE_STRENGTH, 0.15);
-    #endif
     
     // Tonemapping
-    Result.rgb *= computeExposure(texture(colortex7, texCoords).r);
-
+    vec3 exposedColor = Result.rgb * computeExposure(texture(colortex7, texCoords).r);
     #if TONEMAPPING == 0
-        Result.rgb = whitePreservingReinhard(Result.rgb); // Reinhard
+        Result.rgb = whitePreservingReinhard(exposedColor); // Reinhard
     #elif TONEMAPPING == 1
-        Result.rgb = uncharted2(Result.rgb); // Uncharted 2
+        Result.rgb = uncharted2(exposedColor); // Uncharted 2
     #elif TONEMAPPING == 2
-        Result.rgb = burgess(Result.rgb); // Burgess
+        Result.rgb = burgess(exposedColor); // Burgess
     #elif TONEMAPPING == 3
-        Result.rgb = ACESFitted(Result.rgb); // ACES
+        Result.rgb = ACESFitted(exposedColor); // ACES
     #endif
 
     Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
     Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
+
+    // Vignette
+    #if VIGNETTE == 1
+        vec2 coords = texCoords * (1.0 - texCoords.yx);
+        Result.rgb *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
+    #endif
 
     Result.rgb += bayer2(gl_FragCoord.xy) * (1.0 / 255.0); // Removes color banding from the screen
     #if TONEMAPPING != 2

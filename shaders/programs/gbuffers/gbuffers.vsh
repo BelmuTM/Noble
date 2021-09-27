@@ -17,6 +17,7 @@ varying float blockId;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
+#include "/lib/util/math.glsl"
 
 vec2 taaOffsets[8] = vec2[8](
 	vec2( 0.125,-0.375),
@@ -34,46 +35,63 @@ vec2 taaJitter(vec4 pos) {
     return taaOffsets[framemod] * (pos.w * pixelSize);
 }
 
-const float amplitude = 0.2;
-const float waveAmount = 0.01;
-const float yOffset = 0.0;
+float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmplitude, float waveLength, vec2 waveDirection) {
+	float k = PI2 / waveLength;
+    float w = sqrt(g * k);
 
-float waterHeight(vec2 pos) {
-	float offsetX = pos.x * 35.0 + frameTimeCounter;
-    float offsetY = pos.y * 35.0 + frameTimeCounter;
-
-	float wave0 = amplitude * cos(offsetX + offsetY) * waveAmount * cos(offsetY) - yOffset;
-    float wave1 = amplitude * sin(offsetX - offsetY) * waveAmount * sin(offsetY) - yOffset;
-
-	return wave0 + wave1;
-}
-
-const float steepness = 0.7;
-const float k = 0.6;
-const float c = sqrt(9.81 / steepness * steepness);
-
-// https://www.desmos.com/calculator/z7f7bgbdwq?lang=fr
-float gerstnerWaves(vec2 pos) {
-	return steepness * (sin(k * (pos.x - (c * frameTimeCounter))));
-}
-
-float gerstnerWaves2(vec2 coords) {
-    float c = sqrt(g * k);
-    float x = c * frameTimeCounter - k * dot(vec2(1.0, 0.0), coords);
+    float x = w * time - k * dot(waveDirection, coords);
     float wave = sin(x) * 0.5 + 0.5;
-    return amplitude * pow(wave, steepness);
+    return waveAmplitude * pow(wave, waveSteepness);
+}
+
+/*
+NOT MY CODE
+
+const float windRad = 0.785398;
+const vec2 windDir = vec2(sin(0.785398), cos(0.785398));
+
+float computeWaves(vec2 coords) {
+	float movement = frameTimeCounter * 0.1;
+
+    float waveSteepness = 0.5;
+	float waveAmplitude = 0.2;
+	float waveLength    = 0.7;
+
+	vec2 waveDirection = -windDir;
+    float waves = 0.0;
+
+    waves         += -gerstnerWaves(coords, movement, waveSteepness, waveAmplitude, waveLength, waveDirection);
+    waveSteepness *= 1.0;
+    waveAmplitude *= 0.6;
+    waveLength    *= 1.8;
+    waveDirection  = sincos2(windRad + 0.9);
+
+    waves         += -gerstnerWaves(coords, movement, waveSteepness, waveAmplitude, waveLength, waveDirection);
+    waveSteepness *= 1.0;
+    waveAmplitude *= 0.6;
+    waveLength    *= 0.7;
+    waveDirection  = sincos2(windRad - 1.8);
+
+    waves         += -gerstnerWaves(coords, movement, waveSteepness, waveAmplitude, waveLength, waveDirection);
+    waveSteepness *= 1.0;
+    waveAmplitude *= 2.6;
+    waveLength    *= 0.8;
+    waveDirection  = sincos2(windRad + 2.7);
+
+	return waves;
 }
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#From_heightmaps
 vec3 normalFromHeight(vec2 pos, float stepSize) {
     vec2 e = vec2(stepSize, 0.0);
-    vec3 px1 = vec3(pos.x - e.x, gerstnerWaves(pos - e.xy), pos.y - e.y);
-    vec3 px2 = vec3(pos.x + e.x, gerstnerWaves(pos + e.xy), pos.y + e.y);
-    vec3 py1 = vec3(pos.x - e.y, gerstnerWaves(pos - e.yx), pos.y - e.x);
-    vec3 py2 = vec3(pos.x + e.y, gerstnerWaves(pos + e.yx), pos.y + e.x);
+    vec3 px1 = vec3(pos.x - e.x, computeWaves(pos - e.xy), pos.y - e.y);
+    vec3 px2 = vec3(pos.x + e.x, computeWaves(pos + e.xy), pos.y + e.y);
+    vec3 py1 = vec3(pos.x - e.y, computeWaves(pos - e.yx), pos.y - e.x);
+    vec3 py2 = vec3(pos.x + e.y, computeWaves(pos + e.yx), pos.y + e.x);
     
     return normalize(cross(px2 - px1, py2 - py1));
 }
+*/
 
 void main() {
 	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -91,7 +109,7 @@ void main() {
 	#ifdef WATER
 		if(int(blockId + 0.5) == 1) {
 			vec3 worldPos = (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
-			worldPos.y += gerstnerWaves(worldPos.xz);
+			worldPos.y += computeWaves(worldPos.xz);
 			normal = normalize(mat3(gbufferModelView) * normalFromHeight(worldPos.xz, 1e-2));
 
 			vec3 worldToView = mat3(gbufferModelView) * (worldPos - cameraPosition);

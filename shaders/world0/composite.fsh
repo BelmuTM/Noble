@@ -12,7 +12,6 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/common.glsl"
-#include "/lib/material.glsl"
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/ssr.glsl"

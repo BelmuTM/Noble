@@ -13,7 +13,6 @@ varying vec2 texCoords;
 #include "/settings.glsl"
 #include "/common.glsl"
 #include "/lib/util/blur.glsl"
-#include "/lib/material.glsl"
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/ssr.glsl"
@@ -31,7 +30,7 @@ void main() {
             float F0 = texture(colortex2, texCoords).g;
             bool isMetal = F0 * 255.0 > 229.5;
 
-            vec3 specularColor = mix(vec3(F0), texture(colortex4, texCoords).rgb, float(isMetal));
+            vec3 specularColor = getSpecularColor(F0, texture(colortex4, texCoords).rgb);
             float roughness = texture(colortex2, texCoords).r;
 
             vec3 reflections;

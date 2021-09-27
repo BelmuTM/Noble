@@ -9,14 +9,18 @@
 // Certain functions below aren't my property. They either are public domain
 // or require to credit the author.
 
+vec3 blueNoise = texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
+
 vec2 vogelDisk(int index, int samplesCount) {
     float r = sqrt(index + 0.5) / sqrt(samplesCount);
     float theta = index * GOLDEN_ANGLE;
     return r * vec2(cos(theta), sin(theta));
 }
 
+// http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float rand(vec2 p) {
-	return fract(sin(dot(p, vec2(12.9898, 4.1414))) * 43758.5453);
+    float dt = dot(p.xy, vec2(12.9898, 78.233));
+    return fract(sin(mod(dt, PI)) * 43758.5453);
 }
 
 float hash12(vec2 p) {
@@ -86,16 +90,12 @@ float FBM(vec2 p, int octaves) {
     return value;
 }
 
-vec3 blueNoise() {
-    return texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
-}
-
 vec2 uniformAnimatedNoise(vec2 seed) {
     return fract(seed + vec2(GOLDEN_RATIO * frameTimeCounter, (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter, 100.0)));
 }
 
 vec2 uniformNoise(int i) {
-    vec2 noise = blueNoise().rg;
+    vec2 noise = blueNoise.xy;
     noise.x = fract(noise.x + GOLDEN_RATIO * i);
     noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i);
     return noise;

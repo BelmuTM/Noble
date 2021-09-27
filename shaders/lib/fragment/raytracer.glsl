@@ -6,6 +6,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+vec2 taaJitter = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy)) : hash22(gl_FragCoord.xy);
+
 vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
 
     for(int i = 0; i < BINARY_COUNT; i++) {
@@ -20,11 +22,11 @@ vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
     return rayPos;
 }
 
-bool raytrace(vec3 viewPos, vec3 rayDir, int steps, float jitter, inout vec3 hitPos) {
+bool raytrace(vec3 viewPos, vec3 rayDir, int steps, vec2 jitter, inout vec3 hitPos) {
     vec3 screenPos = viewToScreen(viewPos);
     vec3 screenDir = normalize(viewToScreen(viewPos + rayDir) - screenPos) * (RAY_STEP_LENGTH / steps);
 
-    hitPos = screenPos + screenDir * jitter;
+    hitPos = screenPos + screenDir * jitter.r;
     for(int i = 0; i < steps; i++) {
         hitPos += screenDir;
 

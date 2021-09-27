@@ -12,7 +12,6 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/common.glsl"
-#include "/lib/material.glsl"
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/ao.glsl"
@@ -32,9 +31,8 @@ void main() {
         vec2 scaledUv = texCoords * inverseRes;
         
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords && !isSky(scaledUv)) {
-            bool isMetal = texture(colortex2, scaledUv).g * 255.0 > 229.5;
             vec3 positionAt = vec3(scaledUv, texture(depthtex0, scaledUv).r);
-            globalIllumination = computePTGI(positionAt, isMetal);
+            globalIllumination = computePTGI(positionAt);
         }
     #else
         if(!isSky(texCoords)) {

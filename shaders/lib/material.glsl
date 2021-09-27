@@ -18,6 +18,11 @@ const vec3 HARDCODED_F0[] = vec3[](
     vec3(0.96200, 0.94947, 0.92212)  // Silver
 );
 
+vec3 getSpecularColor(float F0, vec3 albedo) {
+    int metalID = int(F0 * 255.0 - 229.5);
+    return metalID >= 0 && metalID < 8 ? HARDCODED_F0[metalID] : mix(vec3(F0), albedo, float(F0 * 255.0 > 229.5));
+}
+
 struct material {
     vec3 albedo;
     float alpha;

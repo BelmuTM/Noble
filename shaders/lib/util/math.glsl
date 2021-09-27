@@ -90,6 +90,10 @@ float ATan(float x) {
     return (x < 0.0) ? -t0 : t0; 
 }
 
+vec2 sincos2(float x) {
+    return vec2(sin(x), cos(x));
+}
+
 /* SOURCES
 https://fr.wikipedia.org/wiki/Th%C3%A9orie_de_Mie
 https://www.shadertoy.com/view/wlBXWK
