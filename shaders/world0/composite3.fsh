@@ -60,7 +60,7 @@ void main() {
                 vec3 scaledViewPos = getViewPos(scaledUv);
                 vec3 scaledNormal = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
 
-                globalIllumination = heavyGaussianFilter(scaledUv, scaledViewPos, scaledNormal, colortex5, vec2(1.0, 0.0)).rgb;
+                globalIllumination = saturate(heavyGaussianFilter(scaledUv, scaledViewPos, scaledNormal, colortex5, vec2(1.0, 0.0)).rgb);
             #else
                 globalIllumination = texture(colortex5, scaledUv).rgb;
             #endif

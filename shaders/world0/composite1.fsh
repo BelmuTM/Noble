@@ -47,10 +47,10 @@ void main() {
     
         #if GI == 0
             vec2 lightMap = texture(colortex2, texCoords).zw;
-            lightmapColor = max(vec3(0.03), getLightmapColor(lightMap, getDayColor()));
+            lightmapColor = max(vec3(0.03), getLightmapColor(lightMap, viewPosSkyColor(viewPos)));
         #endif
 
-        Lighting = cookTorrance(normal, viewDir, sunDir, data, lightmapColor, shadowmap);
+        Lighting = cookTorrance(viewPos, normal, viewDir, sunDir, data, lightmapColor, shadowmap);
     }
 
     /*DRAWBUFFERS:048*/

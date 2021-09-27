@@ -166,7 +166,7 @@ vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float al
 
 // Thanks LVutner for the help!
 // https://github.com/LVutner
-vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap) {
+vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap) {
     bool isMetal = data.F0 * 255.0 > 229.5;
     float alpha = data.roughness * data.roughness;
 
@@ -192,7 +192,7 @@ vec3 cookTorrance(vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 sha
     diffuse = f_NdotL * f_NdotV * diffuse;
     */
 
-    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * 4.0 * getDayColor();
+    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * viewPosSkyColor(viewPos);
     Lighting += data.emission * data.albedo;
 
     if(!isMetal) {

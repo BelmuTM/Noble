@@ -50,7 +50,7 @@ void main() {
     // Bloom
     #if BLOOM == 1
         // I wasn't supposed to use magic numbers like this in Noble :Sadge:
-        Result.rgb += saturate(readBloom() * 0.1 * saturate(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
+        Result.rgb += saturate(readBloom() * 0.05 * saturate(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
     #endif
     
     // Tonemapping

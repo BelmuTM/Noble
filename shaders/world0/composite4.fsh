@@ -48,7 +48,7 @@ void main() {
                vec3 globalIllumination = vec3(0.0);
                #if GI == 1
                     #if GI_FILTER == 1
-                         globalIllumination = heavyGaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb;
+                         globalIllumination = saturate(heavyGaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb);
                     #else
                          globalIllumination = texture(colortex6, texCoords).rgb;
                     #endif

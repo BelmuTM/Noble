@@ -20,10 +20,10 @@ varying vec2 texCoords;
 void main() {
     vec4 Result = texture(colortex0, texCoords);
     bool sky = isSky(texCoords);
+    vec3 viewPos = getViewPos(texCoords);
 
     #if SSR == 1
         if(!sky) {
-            vec3 viewPos = getViewPos(texCoords);
             vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
             float NdotV = max(EPS, dot(normal, -normalize(viewPos)));
@@ -50,7 +50,7 @@ void main() {
         #if VL_FILTER == 1
             volumetricLighting = boxBlur(texCoords, colortex8, 5).rgb;
         #endif
-        Result.rgb += (getDayColor() * volumetricLighting) * VL_BRIGHTNESS;
+        Result.rgb += (viewPosSkyColor(viewPos) * volumetricLighting) * VL_BRIGHTNESS;
     #endif
 
     vec3 brightSpots;

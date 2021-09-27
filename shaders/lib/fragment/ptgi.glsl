@@ -11,7 +11,8 @@ vec3 computePTGI(in vec3 screenPos) {
     vec3 throughput = vec3(1.0);
 
     vec3 hitPos = screenPos;
-    vec3 viewDir = -normalize(screenToView(screenPos));
+    vec3 viewPos = screenToView(screenPos);
+    vec3 viewDir = -normalize(viewPos);
 
     for(int i = 0; i < GI_BOUNCES; i++) {
         vec2 noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + fract(frameTime)));
@@ -53,7 +54,7 @@ vec3 computePTGI(in vec3 screenPos) {
         /* Thanks to Bálint#1673 and Jessie#7257 for helping with PTGI! */
         radiance += throughput * albedo * (texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);
         throughput *= albedo + specular;
-        radiance += throughput * SUN_INTENSITY * getDayColor() * texture(colortex9, hitPos.xy).rgb;
+        radiance += throughput * SUN_INTENSITY * viewPosSkyColor(viewPos) * texture(colortex9, hitPos.xy).rgb;
     }
     return radiance;
 }

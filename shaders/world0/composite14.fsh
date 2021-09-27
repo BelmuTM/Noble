@@ -24,7 +24,7 @@ void main() {
      vec3 viewPos = getViewPos(texCoords);
      vec4 Result = texture(colortex0, texCoords);
 
-     Result.rgb += fog(viewPos, vec3(0.0), getDayColor(), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.05); // Applying Fog
+     Result.rgb += fog(viewPos, vec3(0.0), viewPosSkyColor(viewPos), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.05); // Applying Fog
 
      vec3 bloom = vec3(0.0);
      #if BLOOM == 1
