@@ -187,6 +187,18 @@ value.UNDERWATER_DISTORTION.1 = §aON
 option.WATER_DISTORTION_AMPLITUDE = Distortion Amplitude
 option.WATER_DISTORTION_AMPLITUDE.comment = Adjusts §bUnderwater Distortion§f's amplitude.
 
+option.WAVE_STEEPNESS = Wave Steepness
+option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of height to width.
+
+option.WAVE_AMPLITUDE = Wave Amplitude
+option.WAVE_AMPLITUDE.comment = Adjusts the amplitude of water waves. Height from sea level to top.
+
+option.WAVE_LENGTH = Wave Length
+option.WAVE_LENGTH.comment = Adjusts the length of water waves. Length between 2 waves.
+
+option.WAVE_SPEED = Wave Speed
+option.WAVE_SPEED.comment = Adjusts the speed of water waves.
+
 ##################### CAMERA #####################
 
 option.TAA = TAA

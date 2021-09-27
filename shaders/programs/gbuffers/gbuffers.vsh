@@ -11,13 +11,16 @@ attribute vec3 mc_Entity;
 
 varying vec2 texCoords;
 varying vec2 lmCoords;
+varying vec3 waterNormals;
 varying vec4 color;
 varying mat3 TBN;
 varying float blockId;
 
 #include "/settings.glsl"
 #include "/lib/uniforms.glsl"
+#include "/lib/noise/noise.glsl"
 #include "/lib/util/math.glsl"
+#include "/lib/fragment/water.glsl"
 
 vec2 taaOffsets[8] = vec2[8](
 	vec2( 0.125,-0.375),
@@ -35,64 +38,6 @@ vec2 taaJitter(vec4 pos) {
     return taaOffsets[framemod] * (pos.w * pixelSize);
 }
 
-float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmplitude, float waveLength, vec2 waveDirection) {
-	float k = PI2 / waveLength;
-    float w = sqrt(g * k);
-
-    float x = w * time - k * dot(waveDirection, coords);
-    float wave = sin(x) * 0.5 + 0.5;
-    return waveAmplitude * pow(wave, waveSteepness);
-}
-
-/*
-NOT MY CODE
-
-const float windRad = 0.785398;
-const vec2 windDir = vec2(sin(0.785398), cos(0.785398));
-
-float computeWaves(vec2 coords) {
-	float movement = frameTimeCounter * 0.1;
-
-    float waveSteepness = 0.5;
-	float waveAmplitude = 0.2;
-	float waveLength    = 0.7;
-
-	vec2 waveDirection = -windDir;
-    float waves = 0.0;
-
-    waves         += -gerstnerWaves(coords, movement, waveSteepness, waveAmplitude, waveLength, waveDirection);
-    waveSteepness *= 1.0;
-    waveAmplitude *= 0.6;
-    waveLength    *= 1.8;
-    waveDirection  = sincos2(windRad + 0.9);
-
-    waves         += -gerstnerWaves(coords, movement, waveSteepness, waveAmplitude, waveLength, waveDirection);
-    waveSteepness *= 1.0;
-    waveAmplitude *= 0.6;
-    waveLength    *= 0.7;
-    waveDirection  = sincos2(windRad - 1.8);
-
-    waves         += -gerstnerWaves(coords, movement, waveSteepness, waveAmplitude, waveLength, waveDirection);
-    waveSteepness *= 1.0;
-    waveAmplitude *= 2.6;
-    waveLength    *= 0.8;
-    waveDirection  = sincos2(windRad + 2.7);
-
-	return waves;
-}
-
-// https://wiki.shaderlabs.org/wiki/Shader_tricks#From_heightmaps
-vec3 normalFromHeight(vec2 pos, float stepSize) {
-    vec2 e = vec2(stepSize, 0.0);
-    vec3 px1 = vec3(pos.x - e.x, computeWaves(pos - e.xy), pos.y - e.y);
-    vec3 px2 = vec3(pos.x + e.x, computeWaves(pos + e.xy), pos.y + e.y);
-    vec3 py1 = vec3(pos.x - e.y, computeWaves(pos - e.yx), pos.y - e.x);
-    vec3 py2 = vec3(pos.x + e.y, computeWaves(pos + e.yx), pos.y + e.x);
-    
-    return normalize(cross(px2 - px1, py2 - py1));
-}
-*/
-
 void main() {
 	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
@@ -102,26 +47,24 @@ void main() {
     vec3 viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
     vec4 clipPos = gl_ProjectionMatrix * vec4(viewPos, 1.0);
 
+    vec3 tangent = normalize(gl_NormalMatrix * at_tangent.xyz);
+    vec3 binormal = normalize(cross(tangent, normal) * sign(at_tangent.w));
+	TBN = mat3(tangent, binormal, normal);
+
 	blockId = mc_Entity.x - 1000.0;
 	gl_Position = ftransform();
 
-	/*
 	#ifdef WATER
 		if(int(blockId + 0.5) == 1) {
 			vec3 worldPos = (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
 			worldPos.y += computeWaves(worldPos.xz);
-			normal = normalize(mat3(gbufferModelView) * normalFromHeight(worldPos.xz, 1e-2));
+			waterNormals = getWaveNormals(worldPos);
 
 			vec3 worldToView = mat3(gbufferModelView) * (worldPos - cameraPosition);
     		vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView, 1.0);
 			gl_Position += viewToClip;
 		}
 	#endif
-	*/
-
-	vec3 tangent = normalize(gl_NormalMatrix * at_tangent.xyz);
-    vec3 binormal = normalize(cross(tangent, normal) * sign(at_tangent.w));
-	TBN = mat3(tangent, binormal, normal);
 
 	#if TAA == 1
         gl_Position.xy += taaJitter(gl_Position);

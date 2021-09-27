@@ -8,6 +8,7 @@
 
 varying vec2 texCoords;
 varying vec2 lmCoords;
+varying vec3 waterNormals;
 varying vec4 color;
 varying mat3 TBN;
 varying float blockId;
@@ -34,12 +35,6 @@ void main() {
 		// Alpha blending on entities
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 	#endif
-	
-	vec3 normal;
-	normal.xy = normalTex.xy * 2.0 - 1.0;
-	normal.z = sqrt(1.0 - dot(normal.xy, normal.xy));
-	normal = TBN * normal;
-	normal = clamp(normal, -1.0, 1.0);
 
     float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x;
 	float F0 = specularTex.y;
@@ -47,11 +42,18 @@ void main() {
 	vec2 lightmap = lmCoords.xy;
 	float emission = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
 
+	vec3 normal;
 	if(int(blockId + 0.5) == 1) { 
 		albedoTex.a = 0.0;
 		F0 = 0.02;
 		roughness = 0.0;
+		normal = waterNormals;
+	} else {
+		normal.xy = normalTex.xy * 2.0 - 1.0;
+		normal.z = sqrt(1.0 - dot(normal.xy, normal.xy));
 	}
+	normal = TBN * normal;
+	normal = clamp(normal, -1.0, 1.0);
 
 	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 10 && emission <= 0.01) {
 		emission = 0.8;
@@ -60,5 +62,5 @@ void main() {
 	/*DRAWBUFFERS:012*/
 	gl_FragData[0] = color * albedoTex;
 	gl_FragData[1] = vec4(encodeNormal(normal), emission, (blockId + 0.25) / 255.0);
-	gl_FragData[2] = vec4(clamp(roughness, 1e-6, 1.0), F0, lightmap);
+	gl_FragData[2] = vec4(saturate(roughness), F0, lightmap);
 }

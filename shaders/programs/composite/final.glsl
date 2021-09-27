@@ -15,7 +15,7 @@
 #include "/lib/post/exposure.glsl"
 
 vec2 underwaterDistortionCoords(vec2 coords) {
-    const float scale = 27.5;
+    const float scale = 25.0;
     float speed = frameTimeCounter * WATER_DISTORTION_SPEED;
     float offsetX = coords.x * scale + speed;
     float offsetY = coords.y * scale + speed;

@@ -17,9 +17,22 @@ varying vec2 texCoords;
 #include "/lib/fragment/ssr.glsl"
 #include "/lib/fragment/shadows.glsl"
 
+float computeCaustics(vec3 pos, vec3 normal) {
+   vec3 sampleDir = mat3(shadowModelView) * mat3(gbufferModelViewInverse) * sunDir;
+   vec3 samplePos = pos + refract(sampleDir, normal, 1.0 / 1.333) * 2.5;
+
+   float oldArea = length(dFdy(pos) * dFdy(pos));
+   float newArea = length(dFdy(samplePos) * dFdy(samplePos));
+    
+   return oldArea / newArea * 0.2;
+}
+
 void main() {
    vec4 temp = sRGBToLinear(texture(colortex4, texCoords));
    vec4 rain = sRGBToLinear(texture(colortex5, texCoords));
+
+   vec3 viewPos = getViewPos(texCoords);
+   vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
@@ -32,6 +45,12 @@ void main() {
    #if SHADOWS == 1
       shadowmap = shadowMap(getViewPos(texCoords), shadowMapResolution);
    #endif
+
+   /*
+   if(isEyeInWater == 1) {
+      shadowmap *= pow(computeCaustics(viewPos, normal) * 8.0, 2.0);
+   }
+   */
 
    /*    ------- WATER ABSORPTION / REFRACTION -------    */
    vec4 tex0 = texture(colortex0, texCoords);
@@ -48,9 +67,6 @@ void main() {
    vec3 opaques = temp.rgb;
 
    #if REFRACTION == 1
-      vec3 viewPos = getViewPos(texCoords);
-      vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-
       float NdotV = max(dot(normal, normalize(-viewPos)), 0.0);
       if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 3) opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);
 

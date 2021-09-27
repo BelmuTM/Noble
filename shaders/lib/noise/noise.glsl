@@ -9,8 +9,6 @@
 // Certain functions below aren't my property. They either are public domain
 // or require to credit the author.
 
-vec3 blueNoise = texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
-
 vec2 vogelDisk(int index, int samplesCount) {
     float r = sqrt(index + 0.5) / sqrt(samplesCount);
     float theta = index * GOLDEN_ANGLE;
@@ -94,8 +92,8 @@ vec2 uniformAnimatedNoise(vec2 seed) {
     return fract(seed + vec2(GOLDEN_RATIO * frameTimeCounter, (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter, 100.0)));
 }
 
-vec2 uniformNoise(int i) {
-    vec2 noise = blueNoise.xy;
+vec2 uniformNoise(int i, vec3 seed) {
+    vec2 noise = seed.xy;
     noise.x = fract(noise.x + GOLDEN_RATIO * i);
     noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i);
     return noise;
@@ -108,7 +106,7 @@ float goldNoise(vec2 xy, float seed){
 
 //	<https://www.shadertoy.com/view/Xd23Dh>
 //	by inigo quilez <http://iquilezles.org/www/articles/voronoise/voronoise.htm>
-float voronoise(in vec2 p, float u, float v) {
+vec2 voronoise(in vec2 p, float u, float v) {
 	float k = 1.0 + 63.0 * pow(1.0 - v, 6.0);
     vec2 i = floor(p);
     vec2 f = fract(p);
@@ -124,5 +122,5 @@ float voronoise(in vec2 p, float u, float v) {
 		    a += vec2(o.z * w, w);
         }
     }
-    return a.x / a.y;
+    return a;
 }

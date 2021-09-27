@@ -26,7 +26,7 @@ vec3 computePTGI(in vec3 screenPos) {
         
         /* Sampling a random direction in an hemisphere using noise and raytracing in that direction */
         vec3 sampleDir = TBN * randomHemisphereDirection(noise);
-        if(!raytrace(hitPos, sampleDir, GI_STEPS, uniformNoise(i).gr, hitPos)) continue;
+        if(!raytrace(hitPos, sampleDir, GI_STEPS, uniformNoise(i, blueNoise).r, hitPos)) continue;
 
         /* Calculating the BRDF & applying it */
         float F0 = texture(colortex2, hitPos.xy).g;
@@ -37,7 +37,7 @@ vec3 computePTGI(in vec3 screenPos) {
         vec3 reflected = reflect(viewDir, TBN * microfacet);
 
         vec3 H = normalize(viewDir + reflected);
-        float NdotD = max(EPS, dot(microfacet, sampleDir));
+        float NdotD = max(EPS, dot(normal, sampleDir));
         float NdotL = max(EPS, dot(normal, reflected)); 
         float NdotV = max(EPS, dot(normal, viewDir));
         float NdotH = max(EPS, dot(normal, H));
@@ -48,17 +48,7 @@ vec3 computePTGI(in vec3 screenPos) {
         // vec3 diffuse = orenNayarDiffuse(normal, viewDir, sampleDir, NdotD, NdotV, roughness * roughness, albedo) / (NdotD * INV_PI);
 
         vec3 fresnel = cookTorranceFresnel(NdotD, F0, albedo, isMetal);
-        float fresnelLuma = luma(fresnel), albedoLuma = luma(albedo);
-        float totalLuma = albedoLuma * (1.0 - fresnelLuma) + fresnelLuma;
-        float specBounceProbability = fresnelLuma / totalLuma;
-
-        if(specBounceProbability > rand(gl_FragCoord.xy)) {
-            throughput /= specBounceProbability;
-            throughput *= fresnel;
-        } else {
-            throughput /= 1.0 - specBounceProbability;
-            throughput *= 1.0 - fresnel;
-        }
+        albedo *= 1.0 - fresnel;
 
         /* Thanks to Bálint#1673 and Jessie#7257 for helping with PTGI! */
         radiance += throughput * albedo * (texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);

@@ -12,15 +12,13 @@
 #define REC709 vec3(0.2126, 0.7152, 0.0722)
 #define EPS 1e-5
 
-#define HALF_PI         1.570796
-#define PI              3.14159265
-#define PI2             6.28318530
+#define HALF_PI      1.570796
+#define PI           3.14159265
+#define PI2          6.28318530
+#define INV_PI       0.31831
 
-#define INV_SQRT_OF_2PI 0.39894228
-#define INV_PI          0.31831
-
-#define GOLDEN_RATIO    1.618033988
-#define GOLDEN_ANGLE    2.399963229
+#define GOLDEN_RATIO 1.618033988
+#define GOLDEN_ANGLE 2.399963229
 
 /*------------------ OPTIFINE CONSTANTS ------------------*/
 const float sunPathRotation =       -40.0; // [-85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0]
@@ -31,8 +29,16 @@ const float shadowDistance =        200.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.
 const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ WATER ------------------*/
+
+// PBR
 #define WATER_ABSORPTION_COEFFICIENTS vec3(1.0, 0.2, 0.13)
 
+#define WAVE_STEEPNESS 2.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define WAVE_AMPLITUDE 0.04  // [0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20]
+#define WAVE_LENGTH 2.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define WAVE_SPEED 0.20 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+
+// POST-EFFECTS
 #define WATER_FOAM 1 // [0 1]
 #define FOAM_BRIGHTNESS 0.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
 #define FOAM_FALLOFF_DISTANCE 0.75
@@ -44,7 +50,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_DISTORTION_AMPLITUDE 0.40 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.2, 0.15, 0.1)
+#define AMBIENT vec3(0.125, 0.125, 0.100)
 #define PTGI_AMBIENT vec3(0.005)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
@@ -108,12 +114,12 @@ const float shadowDistanceRenderMul = 1.0;
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
 #define SSR 1 // [0 1]
 #define SSR_TYPE 1 // [0 1]
-#define REFRACTION 0 // [0 1]
+#define REFRACTION 1 // [0 1]
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.325
 
-#define SKY_FALLBACK 1
+#define SKY_FALLBACK 0
 #define SSR_REPROJECTION 1 // [0 1]
 
 #define PREFILTER_SAMPLES 3 // [3 12]
@@ -135,7 +141,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.975 // [0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
+#define TAA_STRENGTH 0.900 // [0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
 #define NEIGHBORHOOD_SIZE 3
 
 #define TAA_LUMA_WEIGHT 1 // [0 1]
@@ -158,7 +164,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define FOCAL         11.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0]
 #define APERTURE       4.0 // [1.0 1.2 1.4 2.0 2.8 4.0 5.6 8.0 11.0 16.0 22.0 32.0]
 #define ISO            100 // [50 100 200 400 800 1600 3200 6400 12800 25600 51200]
-#define SHUTTER_SPEED   40 // [4 5 6 8 10 15 20 30 40 50 60 80 100 125 160 200 250 320 400 500 640 800 1000 1250 1600 2000 2500 3200 4000]
+#define SHUTTER_SPEED   80 // [4 5 6 8 10 15 20 30 40 50 60 80 100 125 160 200 250 320 400 500 640 800 1000 1250 1600 2000 2500 3200 4000]
 
 const float K =  15.0; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity

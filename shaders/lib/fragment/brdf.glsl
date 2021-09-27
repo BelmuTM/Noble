@@ -145,7 +145,7 @@ vec3 cookTorranceFresnel(float cosTheta, float F0, vec3 albedo, bool isMetal) {
 }
 
 vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, float roughness, float F0, vec3 albedo, bool isMetal) {
-    float D = D_Beckmann(NdotH, roughness * roughness);
+    float D = D_GGX(NdotH, roughness * roughness);
     vec3 F = cookTorranceFresnel(HdotL, F0, getSpecularColor(F0, albedo), isMetal);
     float G = G_Smith(NdotV, NdotL, roughness);
         
