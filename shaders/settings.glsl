@@ -51,7 +51,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ LIGHTING ------------------*/
 #define AMBIENT vec3(0.125, 0.125, 0.100)
-#define PTGI_AMBIENT vec3(0.005)
+#define PTGI_AMBIENT vec3(0.003)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCH_COLOR vec3(0.9, 0.87, 0.69)

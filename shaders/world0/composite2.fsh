@@ -1,3 +1,6 @@
+#version 400 compatibility
+#include "/programs/extensions.glsl"
+
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
@@ -6,13 +9,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 150
-#extension GL_ARB_shader_texture_lod : enable
-
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/common.glsl"
+#include "/programs/common.glsl"
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/ao.glsl"

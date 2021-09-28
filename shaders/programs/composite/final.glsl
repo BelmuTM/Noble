@@ -7,7 +7,7 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#include "/common.glsl"
+#include "/programs/common.glsl"
 #include "/lib/util/blur.glsl"
 #include "/lib/post/aberration.glsl"
 #include "/lib/post/bloom.glsl"
