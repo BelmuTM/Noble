@@ -188,7 +188,7 @@ vec4 heavyGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, 
         color += texture(tex, sampleCoords) * weight;
         totalWeight += weight;
     }
-    return saturate(color / max(EPS, totalWeight));
+    return saturate(color / max(1e-5, totalWeight));
 }
 
 vec4 fastGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, vec2 direction) {
@@ -202,5 +202,5 @@ vec4 fastGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, v
         color += texture(tex, sampleCoords) * weight;
         totalWeight += weight;
     }
-    return saturate(color / max(EPS, totalWeight));
+    return saturate(color / max(1e-5, totalWeight));
 }

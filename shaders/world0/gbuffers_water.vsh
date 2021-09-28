@@ -6,7 +6,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 150
+#extension GL_ARB_shader_texture_lod : enable
 
 #define WATER
 #include "/programs/gbuffers/gbuffers.vsh"

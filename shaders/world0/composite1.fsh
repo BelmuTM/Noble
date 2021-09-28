@@ -6,7 +6,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#version 330 compatibility
+#version 150
+#extension GL_ARB_shader_texture_lod : enable
 
 varying vec2 texCoords;
 
@@ -19,6 +20,16 @@ varying vec2 texCoords;
 /*
 const int colortex8Format = RGBA16F;
 */
+
+float computeCaustics(vec3 pos, vec3 normal) {
+    vec3 sampleDir = sunDir;
+    vec3 samplePos = pos + refract(sampleDir, normal, 1.0 / 1.329);
+
+    float oldArea = length(dFdx(pos) * dFdy(pos));
+    float newArea = length(dFdx(samplePos) * dFdy(samplePos));
+    
+    return saturate(oldArea / newArea * 0.2);
+}
 
 void main() {
     vec3 viewPos = getViewPos(texCoords);
@@ -44,6 +55,10 @@ void main() {
     if(!isSky(texCoords)) {
         vec3 shadowmap = texture(colortex9, texCoords).rgb;
         vec3 lightmapColor = vec3(1.0);
+
+        /*if(isEyeInWater == 1) {
+            shadowmap *= pow(computeCaustics(viewPos, normal) * 8.0, 2.0);
+        }*/
     
         #if GI == 0
             vec2 lightMap = texture(colortex2, texCoords).zw;
