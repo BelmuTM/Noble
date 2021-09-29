@@ -34,6 +34,10 @@ vec3 getHitColor(vec3 hitPos) {
     #endif
 }
 
+float canFallback(bool isMetal) {
+    return float(isMetal || (getBlockId(texCoords) == 1 && isEyeInWater == 0));
+}
+
 /*------------------ SIMPLE REFLECTIONS ------------------*/
 
 vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isMetal) {
@@ -48,7 +52,7 @@ vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3
     vec3 color = vec3(0.0);
     #if SKY_FALLBACK == 1
         vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap(coords);
-        color = mix(sky * float(isMetal || getBlockId(texCoords) == 1), hitColor, Kneemund_Attenuation(hitPos.xy, 0.2) * hit);
+        color = mix(sky * canFallback(isMetal), hitColor, Kneemund_Attenuation(hitPos.xy, 0.2) * hit);
     #else
         color = hitColor * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
     #endif
@@ -80,7 +84,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float roughn
 
         #if SKY_FALLBACK == 1
             vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap(coords);
-			filteredColor += (mix(sky * float(isMetal || getBlockId(texCoords) == 1), hitColor, Kneemund_Attenuation(hitPos.xy, 0.15) * hit) * NdotL) * fresnel;
+			filteredColor += (mix(sky * canFallback(isMetal), hitColor, Kneemund_Attenuation(hitPos.xy, 0.15) * hit) * NdotL) * fresnel;
         #else
             filteredColor += ((hitColor * NdotL) * (Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit)) * fresnel;
         #endif

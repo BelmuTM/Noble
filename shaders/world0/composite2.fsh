@@ -28,9 +28,8 @@ void main() {
 
     #if GI == 1
         /* Downscaling Global Illumination */
-        float inverseRes = 1.0 / GI_RESOLUTION;
-        vec2 scaledUv = texCoords * inverseRes;
-        
+        vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
+
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords && !isSky(scaledUv)) {
             vec3 positionAt = vec3(scaledUv, texture(depthtex0, scaledUv).r);
             globalIllumination = computePTGI(positionAt);
@@ -41,11 +40,7 @@ void main() {
                 vec3 viewPos = getViewPos(texCoords);
                 vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
             
-                #if AO_TYPE == 0
-                    ambientOcclusion = computeSSAO(viewPos, normal);
-                #else
-                    ambientOcclusion = computeRTAO(viewPos, normal);
-                #endif
+                ambientOcclusion = AO_TYPE == 0 ? computeSSAO(viewPos, normal) : computeRTAO(viewPos, normal);
             #endif
         }
     #endif

@@ -21,19 +21,8 @@ varying vec2 texCoords;
 const int colortex8Format = RGBA16F;
 */
 
-float computeCaustics(vec3 pos, vec3 normal) {
-    vec3 sampleDir = sunDir;
-    vec3 samplePos = pos + refract(sampleDir, normal, 1.0 / 1.329);
-
-    float oldArea = length(dFdx(pos) * dFdy(pos));
-    float newArea = length(dFdx(samplePos) * dFdy(samplePos));
-    
-    return saturate(oldArea / newArea * 0.2);
-}
-
 void main() {
     vec3 viewPos = getViewPos(texCoords);
-    vec3 viewDir = normalize(-viewPos);
 
     vec4 tex0 = texture(colortex0, texCoords);
     vec4 tex1 = texture(colortex1, texCoords);
@@ -55,17 +44,13 @@ void main() {
     if(!isSky(texCoords)) {
         vec3 shadowmap = texture(colortex9, texCoords).rgb;
         vec3 lightmapColor = vec3(1.0);
-
-        /*if(isEyeInWater == 1) {
-            shadowmap *= pow(computeCaustics(viewPos, normal) * 8.0, 2.0);
-        }*/
     
         #if GI == 0
             vec2 lightMap = texture(colortex2, texCoords).zw;
             lightmapColor = max(vec3(0.03), getLightmapColor(lightMap, viewPosSkyColor(viewPos)));
         #endif
 
-        Lighting = cookTorrance(viewPos, normal, viewDir, sunDir, data, lightmapColor, shadowmap);
+        Lighting = cookTorrance(viewPos, normal, sunDir, data, lightmapColor, shadowmap);
     }
 
     /*DRAWBUFFERS:048*/

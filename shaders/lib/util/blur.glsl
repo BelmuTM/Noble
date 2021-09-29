@@ -165,7 +165,7 @@ float edgeWeight(vec2 sampleCoords, vec3 pos, vec3 normal) {
     vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
 
     const float posThresh = 0.7;
-    const float normalThresh = 0.4;
+    const float normalThresh = 0.5;
 
     return float(
            abs(posAt.x - pos.x) <= posThresh

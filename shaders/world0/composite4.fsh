@@ -24,16 +24,16 @@ void main() {
 
      #if SSR == 1
           #if SSR_TYPE == 1
-               float inverseRes = 1.0 / ROUGH_REFLECT_RES;
-               vec2 scaledUv = texCoords * inverseRes;
+               vec2 scaledUv = texCoords * (1.0 / ROUGH_REFLECT_RES);
         
                if(clamp(texCoords, vec2(0.0), vec2(ROUGH_REFLECT_RES)) == texCoords && !isSky(scaledUv)) {
                     vec3 normalAt = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
-                    float roughness = texture(colortex2, scaledUv).r;
 
+                    float roughness = texture(colortex2, scaledUv).r;
                     float F0 = texture(colortex2, scaledUv).g;
                     bool isMetal = F0 * 255.0 > 229.5;
                     vec3 specularColor = getSpecularColor(F0, texture(colortex4, scaledUv).rgb);
+                    
                     roughReflections = prefilteredReflections(scaledUv, getViewPos(scaledUv), normalAt, roughness * roughness, specularColor, isMetal);
                }
           #endif
@@ -54,12 +54,7 @@ void main() {
                          globalIllumination = texture(colortex6, texCoords).rgb;
                     #endif
                     globalIllumination = saturate(globalIllumination);
-
-                    #if GI_VISUALIZATION == 0
-                         Result.rgb += globalIllumination * texture(colortex4, texCoords).rgb;
-                    #else
-                         Result.rgb = globalIllumination;
-                    #endif
+                    Result.rgb = GI_VISUALIZATION == 0 ? Result.rgb + globalIllumination : globalIllumination;
                #else
                     #if AO == 1
                          #if AO_FILTER == 1

@@ -166,7 +166,8 @@ vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float al
 
 // Thanks LVutner for the help!
 // https://github.com/LVutner
-vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 V, vec3 L, material data, vec3 lightmap, vec3 shadowmap) {
+vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material data, vec3 lightmap, vec3 shadowmap) {
+    vec3 V = -normalize(viewPos);
     bool isMetal = data.F0 * 255.0 > 229.5;
     float alpha = data.roughness * data.roughness;
 
@@ -175,8 +176,8 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 V, vec3 L, material data, vec3 ligh
     float NdotL = max(EPS, dot(N, L));
     float VdotL = max(EPS, dot(V, L));
     float HdotL = max(EPS, dot(H, L));
+    float HdotV = max(EPS, dot(H, V));
     float NdotH = max(EPS, dot(N, H));
-    float VdotH = max(EPS, dot(V, H));
 
     vec3 specular = vec3(0.0);
     #if SPECULAR == 1
@@ -186,13 +187,17 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 V, vec3 L, material data, vec3 ligh
     vec3 diffuse = vec3(0.0);
     if(!isMetal) { diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, data.albedo); }
 
-    /*
-    vec3 f_NdotL = 1.0 - fresnelSchlick(NdotL, vec3(data.F0));
-    vec3 f_NdotV = 1.0 - fresnelSchlick(NdotV, vec3(data.F0));
-    diffuse = f_NdotL * f_NdotV * diffuse;
-    */
+    /* Energy Conservation */
+    vec3 F0vec = vec3(data.F0);
+    vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0vec) + 5.0 * vec3(F0vec) * vec3(F0vec)) * 0.11111111;
+    vec3 fNdotL = 1.0 - schlickGaussian(NdotL, F0vec);
+    vec3 fNdotV = 1.0 - schlickGaussian(NdotV, F0vec);
 
-    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * viewPosSkyColor(viewPos);
+    vec3 fresnel = (fNdotL * fNdotV) / energyConservationFactor;
+    diffuse *= fresnel;
+
+    /* Calculating Indirect / Direct Lighting */
+    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * getDayColor();
     Lighting += data.emission * data.albedo;
 
     if(!isMetal) {

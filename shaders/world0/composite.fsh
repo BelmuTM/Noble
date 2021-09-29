@@ -18,6 +18,17 @@ varying vec2 texCoords;
 #include "/lib/fragment/ssr.glsl"
 #include "/lib/fragment/shadows.glsl"
 
+float computeCaustics(vec3 pos, vec3 normal) {
+   pos = viewToShadow(pos).xyz * 0.5 + 0.5;
+   normal = viewToShadow(normal).xyz * 0.5 + 0.5;
+   vec3 samplePos = pos + refract(vec3(0.0, 0.0, 1.0), normal, 1.0 / 1.333);
+
+   float oldArea = length(dFdx(pos) * dFdy(pos));
+   float newArea = length(dFdx(samplePos) * dFdy(samplePos));
+    
+   return oldArea / newArea * 0.2;
+}
+
 void main() {
    vec4 temp = sRGBToLinear(texture(colortex4, texCoords));
    vec4 rain = sRGBToLinear(texture(colortex5, texCoords));
@@ -36,6 +47,10 @@ void main() {
    #if SHADOWS == 1
       shadowmap = shadowMap(getViewPos(texCoords), shadowMapResolution);
    #endif
+
+   if(isEyeInWater == 1) {
+      //shadowmap *= pow(computeCaustics(viewPos, normal) * 0.5 + 0.5, 2.0);
+   }
 
    /*    ------- WATER ABSORPTION / REFRACTION -------    */
    vec4 tex0 = texture(colortex0, texCoords);
@@ -68,7 +83,7 @@ void main() {
          float density = depthDist * 6.5e-1;
 
 	      vec3 transmittance = exp2(-(density / log(2.0)) * WATER_ABSORPTION_COEFFICIENTS);
-         data.albedo *= transmittance;
+         if(isEyeInWater == 0) data.albedo *= transmittance;
 
          // Foam
          #if WATER_FOAM == 1
