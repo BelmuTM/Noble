@@ -119,7 +119,7 @@ const float shadowDistanceRenderMul = 1.0;
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.325
 
-#define SKY_FALLBACK 0
+#define SKY_FALLBACK 1
 #define SSR_REPROJECTION 1 // [0 1]
 
 #define PREFILTER_SAMPLES 3 // [3 12]
