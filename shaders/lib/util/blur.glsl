@@ -164,8 +164,8 @@ float edgeWeight(vec2 sampleCoords, vec3 pos, vec3 normal) {
     vec3 posAt = getViewPos(sampleCoords);
     vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
 
-    const float posThresh = 0.7;
-    const float normalThresh = 0.5;
+    const float posThresh = 0.6;
+    const float normalThresh = 0.1;
 
     return float(
            abs(posAt.x - pos.x) <= posThresh
@@ -182,9 +182,9 @@ vec4 heavyGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, 
     vec4 color = vec4(0.0);
     float totalWeight = 0.0;
 
-    for(int i = -27; i < 27; i++) {
-        vec2 sampleCoords = coords + (direction * i * pixelSize);
-        float weight = gaussianWeights27[abs(i)] * edgeWeight(sampleCoords, viewPos, normal);
+    for(int i = 0; i < 49; i++) {
+        vec2 sampleCoords = coords + (direction * float(i - 24) * pixelSize);
+        float weight = gaussianWeights49[abs(i)] * edgeWeight(sampleCoords, viewPos, normal);
 
         color += texture(tex, sampleCoords) * weight;
         totalWeight += weight;

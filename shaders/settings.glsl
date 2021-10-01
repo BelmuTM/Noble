@@ -34,9 +34,9 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_ABSORPTION_COEFFICIENTS vec3(1.0, 0.2, 0.13)
 
 #define WAVE_STEEPNESS 2.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define WAVE_AMPLITUDE 0.04  // [0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20]
-#define WAVE_LENGTH 2.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define WAVE_SPEED 0.20 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define WAVE_AMPLITUDE 0.04 // [0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20]
+#define WAVE_LENGTH    2.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
+#define WAVE_SPEED     0.20 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // POST-EFFECTS
 #define WATER_FOAM 1 // [0 1]
@@ -51,10 +51,10 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ LIGHTING ------------------*/
 #define AMBIENT vec3(0.125, 0.125, 0.100)
-#define PTGI_AMBIENT vec3(0.003)
+#define PTGI_AMBIENT vec3(0.0009)
 
-#define TORCHLIGHT_MULTIPLIER 2.0
-#define TORCH_COLOR vec3(0.9, 0.87, 0.69)
+#define TORCHLIGHT_MULTIPLIER 1.5
+#define TORCH_COLOR vec3(1.0, 0.97, 0.82)
 
 #define SUN_INTENSITY 4.0
 #define EMISSION_INTENSITY 10.0
@@ -167,11 +167,11 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ISO            100 // [50 100 200 400 800 1600 3200 6400 12800 25600 51200]
 #define SHUTTER_SPEED   80 // [4 5 6 8 10 15 20 30 40 50 60 80 100 125 160 200 250 320 400 500 640 800 1000 1250 1600 2000 2500 3200 4000]
 
-const float K =  15.0; // Light meter calibration
+const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 #define EXPOSURE 1 // [0 1]
-#define MIN_EXPOSURE 1e-3
+#define MIN_EXPOSURE 1e-4
 #define MAX_EXPOSURE 20.0
 
 /*------------------ COLOR CORRECTION ------------------*/

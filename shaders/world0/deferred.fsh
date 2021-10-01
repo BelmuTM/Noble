@@ -20,7 +20,7 @@ const int colortex4Format = RGBA16F;
 
 void main() {
      /*DRAWBUFFERS:4*/
-     if(texture(depthtex0, texCoords).r == 1.0) {
+     if(isSky(texCoords)) {
           vec3 viewPos = getViewPos(texCoords);
           vec3 eyeDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
@@ -28,7 +28,7 @@ void main() {
           vec3 sky = mix(getDayTimeSkyGradient(eyeDir, viewPos), vec3(2.0), angle); 
           
           gl_FragData[0] = vec4(saturate(sky), 1.0);
-          return;
+     } else {
+          gl_FragData[0] = texture(colortex0, texCoords);
      }
-     gl_FragData[0] = texture(colortex0, texCoords);
 }

@@ -20,6 +20,7 @@ varying vec2 texCoords;
 /*
 const int colortex3Format = RGB16F;
 const bool colortex3Clear = false;
+const int colortex7Format = RGB16F;
 const bool colortex7Clear = false;
 */
 
