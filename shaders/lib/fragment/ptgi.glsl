@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021       */
+/*       Copyright (C) Noble RT - 2021         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -21,7 +21,7 @@ vec3 PTGIBRDF(in vec3 viewDir, in vec2 screenPos, in vec3 sampleDir, in mat3 TBN
     float NdotH = max(EPS, dot(normal, H));
     float HdotL = max(EPS, dot(H, reflected));
 
-    albedo = texture(colortex4, screenPos).rgb;
+    albedo = isMetal ? vec3(0.0) : texture(colortex4, screenPos).rgb;
     vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0, albedo, isMetal);
     // vec3 diffuse = orenNayarDiffuse(normal, viewDir, sampleDir, NdotD, NdotV, roughness * roughness, albedo) / (NdotD * INV_PI);
 
@@ -31,34 +31,29 @@ vec3 PTGIBRDF(in vec3 viewDir, in vec2 screenPos, in vec3 sampleDir, in mat3 TBN
 }
 
 vec3 computePTGI(in vec3 screenPos) {
-    vec2 noise = hash22(gl_FragCoord.xy);
-    vec3 hitPos = screenPos; vec3 viewPos = screenToView(screenPos); vec3 viewDir = -normalize(viewPos);
+    vec3 hitPos = screenPos; 
+    vec3 viewPos = screenToView(screenPos); 
+    vec3 viewDir = -normalize(viewPos);
 
-    vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
-    mat3 TBN = getTBN(normal);
-    vec3 sampleDir = TBN * randomHemisphereDirection(noise);
-
-    vec3 albedo;
-    vec3 BRDF = PTGIBRDF(viewDir, hitPos.xy, sampleDir, TBN, normal, noise, albedo);
-
-    vec3 throughput = GI_VISUALIZATION == 0 ? BRDF : vec3(1.0);
+    vec3 throughput = vec3(1.0);
     vec3 radiance = vec3(0.0);
+    vec3 albedo;
 
     for(int i = 0; i < GI_SAMPLES; i++) {
         for(int j = 0; j < GI_BOUNCES; j++) {
-            noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + fract(frameTime)));
+            vec2 noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter));
 
             /* Updating our position for the next bounce */
-            normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
+            vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
+            mat3 TBN = getTBN(normal);
             hitPos = screenToView(hitPos) + normal * EPS;
-            TBN = getTBN(normal);
         
             /* Sampling a random direction in an hemisphere and raytracing in that direction */
-            sampleDir = TBN * randomHemisphereDirection(noise);
+            vec3 sampleDir = TBN * randomHemisphereDirection(noise);
             if(!raytrace(hitPos, sampleDir, GI_STEPS, uniformNoise(j, blueNoise).r, hitPos)) continue;
 
             /* Calculating the BRDF & applying it */
-            BRDF = PTGIBRDF(viewDir, hitPos.xy, sampleDir, TBN, normal, noise, albedo);
+            vec3 BRDF = PTGIBRDF(viewDir, hitPos.xy, sampleDir, TBN, normal, noise, albedo);
 
             /* Thanks to BÃ¡lint#1673 and Jessie#7257 for helping with PTGI! */
             radiance += throughput * albedo * (texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);

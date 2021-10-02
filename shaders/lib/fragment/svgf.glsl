@@ -9,16 +9,16 @@
 float computeVariance(sampler2D tex, vec2 coords) {
     const int radius = 2; // 5x5 kernel
     vec2 sigmaVariancePair = vec2(0.0);
-    float sampCount = 0.0;
 
+    int SAMPLES;
     for(int y = -radius; y <= radius; y++) {
         for(int x = -radius; x <= radius; x++) {
             float samp = luma(texture(tex, coords + vec2(x, x) * pixelSize).rgb);
             sigmaVariancePair += vec2(samp, samp * samp);
-            sampCount += 1.0;
+            SAMPLES++;
         }
     }
-    sigmaVariancePair /= sampCount;
+    sigmaVariancePair /= SAMPLES;
     return max(0.0, sigmaVariancePair.y - sigmaVariancePair.x * sigmaVariancePair.x);
 }
 
@@ -41,43 +41,55 @@ float gaussianVariance(sampler2D tex, vec2 coords) {
     return sum;
 }
 
-vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords) {
+const float cPhi = 0.285714285;
+const float nPhi = 0.003333333;
+const float pPhi = 0.003333333;
+
+vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction) {
     vec3 color = vec3(0.0);
     float totalWeight = 0.0;
-
-    float kernelWeights[3] = float[3](1.0, 0.66666666, 0.16666666);
+    float kernelWeights[] = float[](
+        0.127820756,
+        0.121434792,
+        0.104128318,
+        0.080589092,
+        0.056294645,
+        0.035492679,
+        0.020197023,
+        0.010373140,
+        0.004808473,
+        0.002011776,
+        0.000759679
+    );
 
     vec3 currCol = texture(tex, texCoords).rgb;
     viewPos = viewToWorld(viewPos);
 
+    float centerLuma = luma(currCol);
     float variance = gaussianVariance(tex, texCoords);
+    float colorPhi = sqrt(max(0.0, variance + 1e-8)) * cPhi;
 
-    for(int x = -2; x <= 2; x++) {
-        for(int y = -2; y <= 2; y++) {
+    for(int x = -5; x <= 5; x++) {
+        for(int y = -5; y <= 5; y++) {
             vec2 sampleCoords = coords + vec2(x, y) * pixelSize;
-            float sampleVariance = gaussianVariance(tex, sampleCoords);
-        
             float kernel = kernelWeights[abs(x)] * kernelWeights[abs(y)];
-        
-            vec3 sampleColor = texture(tex, sampleCoords).rgb;
-            vec3 delta = currCol - sampleColor;
-            float dist = dot(delta, delta);
-            float colorWeight = max(0.0, exp(-dist / 4.8));
 
             vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
-            float normalWeight = pow(saturate(dot(normal, normalAt)), 0.00333);
+            vec3 delta = normal - normalAt;
+            float normalWeight = max(0.0, exp(-dot(delta, delta) / nPhi));
 
             vec3 samplePos = viewToWorld(getViewPos(sampleCoords));
             delta = viewPos - samplePos;
-            dist = dot(delta, delta);
-            float posWeight = max(0.0, exp(-dist / 0.03333));
+            float posWeight = max(0.0, exp(-dot(delta, delta) / pPhi));
+  
+            vec3 sampleColor = texture(tex, sampleCoords).rgb;
+            float lumaWeight = colorPhi * abs(luma(sampleColor) - centerLuma);
+            lumaWeight = exp(-lumaWeight);
 
-            float varWeight = 1.0 / max(abs(variance - sampleVariance), 0.001);
-
-            float weight = colorWeight * normalWeight * posWeight * varWeight;
+            float weight = saturate(normalWeight * posWeight * lumaWeight);
             color += texture(tex, sampleCoords).rgb * weight * kernel;
             totalWeight += weight * kernel;
         }
     }
-    return saturate(color / totalWeight);
+    return color / totalWeight;
 }

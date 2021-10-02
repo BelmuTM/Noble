@@ -17,6 +17,7 @@ varying vec2 texCoords;
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/ssr.glsl"
+#include "/lib/fragment/svgf.glsl"
 
 void main() {
      vec4 Result = texture(colortex0, texCoords);
@@ -49,18 +50,16 @@ void main() {
                vec3 globalIllumination = vec3(0.0);
                #if GI == 1
                     #if GI_FILTER == 1
-                         globalIllumination = saturate(heavyGaussianFilter(texCoords, viewPos, normal, colortex6, vec2(0.0, 1.0)).rgb);
+                         globalIllumination = SVGF(colortex5, viewPos, normal, texCoords, vec2(0.0, 1.0));
                     #else
-                         globalIllumination = texture(colortex6, texCoords).rgb;
+                         globalIllumination = texture(colortex5, texCoords).rgb;
                     #endif
-                    globalIllumination = saturate(globalIllumination);
+                    globalIllumination = saturate(globalIllumination * texture(colortex4, texCoords).rgb);
                     Result.rgb = GI_VISUALIZATION == 0 ? Result.rgb + globalIllumination : globalIllumination;
                #else
                     #if AO == 1
                          #if AO_FILTER == 1
                               Result.rgb *= fastGaussianFilter(texCoords, viewPos, normal, colortex5, vec2(0.0, 1.0)).a;
-                         #else
-                              Result.rgb *= saturate(texture(colortex5, texCoords).a);
                          #endif
                     #endif
                #endif

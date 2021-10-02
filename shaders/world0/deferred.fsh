@@ -27,7 +27,7 @@ void main() {
           float angle = quintic(0.9998, 0.99995, dot(sunDir, normalize(viewPos)));
           vec3 sky = mix(getDayTimeSkyGradient(eyeDir, viewPos), vec3(2.0), angle); 
           
-          gl_FragData[0] = vec4(saturate(sky), 1.0);
+          gl_FragData[0] = vec4(sky, 1.0);
      } else {
           gl_FragData[0] = texture(colortex0, texCoords);
      }

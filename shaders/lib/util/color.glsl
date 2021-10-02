@@ -43,8 +43,7 @@ vec3 uncharted2(vec3 color) {
 // Modified by JustTech#2594
 vec3 burgess(vec3 color) {
     vec3 maxColor = color * min(vec3(1.0), 1.0 - exp(-1.0 / 0.004 * color)) * 0.8;
-    vec3 retColor = (maxColor * (6.2 * maxColor + 0.5)) / (maxColor * (6.2 * maxColor + 1.7) + 0.06);
-    return retColor;
+    return (maxColor * (6.2 * maxColor + 0.5)) / (maxColor * (6.2 * maxColor + 1.7) + 0.06);
 }
 
 const mat3 ACESInputMat = mat3(
