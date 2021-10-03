@@ -29,11 +29,6 @@ const bool colortex6Clear = false;
     vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 viewPos, vec3 normal) {
         vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
         vec3 prevColor = texture(prevTex, prevTexCoords).rgb;
-        /*
-        vec3 normalAt = normalize(decodeNormal(texture(colortex1, prevTexCoords).xy));
-        vec3 delta = normal - normalAt;
-        float normalWeight = max(0.0, exp(-dot(delta, delta)));
-        */
 
         vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
         vec3 delta = viewToWorld(viewPos) - prevPos;
@@ -89,4 +84,3 @@ void main() {
     gl_FragData[1] = vec4(globalIllumination, ambientOcclusion);
     gl_FragData[2] = vec4(globalIllumination, 1.0);
 }
-

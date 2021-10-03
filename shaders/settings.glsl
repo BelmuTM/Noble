@@ -50,7 +50,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_DISTORTION_AMPLITUDE 0.40 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.125, 0.125, 0.100)
+#define AMBIENT vec3(0.135, 0.135, 0.110)
 #define PTGI_AMBIENT vec3(0.0009)
 
 #define TORCHLIGHT_MULTIPLIER 2.0

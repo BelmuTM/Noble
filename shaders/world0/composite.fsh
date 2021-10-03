@@ -18,6 +18,10 @@ varying vec2 texCoords;
 #include "/lib/fragment/ssr.glsl"
 #include "/lib/fragment/shadows.glsl"
 
+/*
+const int colortex9Format = RGBA16F;
+*/
+
 float computeCaustics(vec3 pos, vec3 normal) {
    pos = viewToShadow(pos).xyz * 0.5 + 0.5;
    normal = viewToShadow(normal).xyz * 0.5 + 0.5;

@@ -17,16 +17,17 @@ varying vec2 texCoords;
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/ssr.glsl"
+#include "/lib/fragment/svgf.glsl"
 
 void main() {
     vec4 Result = texture(colortex0, texCoords);
     bool sky = isSky(texCoords);
+
     vec3 viewPos = getViewPos(texCoords);
+    vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
     #if SSR == 1
         if(!sky) {
-            vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-
             float NdotV = max(EPS, dot(normal, -normalize(viewPos)));
             float F0 = texture(colortex2, texCoords).g;
             bool isMetal = F0 * 255.0 > 229.5;
@@ -58,6 +59,23 @@ void main() {
     #if BLOOM == 1
         brightSpots = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
     #endif
+
+    if(!sky) {
+        bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
+
+        if(!isMetal) {
+            #if GI == 1
+                vec3 globalIllumination = vec3(0.0);
+                #if GI_FILTER == 1
+                    globalIllumination = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
+                #else
+                    globalIllumination = texture(colortex9, texCoords).rgb;
+                #endif
+                globalIllumination = saturate(globalIllumination * texture(colortex4, texCoords).rgb);
+                Result.rgb = GI_VISUALIZATION == 0 ? Result.rgb + globalIllumination : globalIllumination;
+            #endif
+        }
+    }
 
     /*DRAWBUFFERS:05*/
     gl_FragData[0] = Result;
