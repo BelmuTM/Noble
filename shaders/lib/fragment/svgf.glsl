@@ -42,8 +42,8 @@ float gaussianVariance(sampler2D tex, vec2 coords) {
 }
 
 const float cPhi = 0.285;
-const float nPhi = 0.003;
-const float pPhi = 0.1;
+const float nPhi = 0.03;
+const float pPhi = 0.3;
 
 vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction) {
     vec3 color = vec3(0.0);
