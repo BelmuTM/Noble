@@ -274,6 +274,11 @@ value.TONEMAPPING.1 = Uncharted
 value.TONEMAPPING.2 = Burgess
 value.TONEMAPPING.3 = ACES
 
+option.PURKINJE = Purkinje Effect
+option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.
+value.PURKINJE.0 = §cOFF
+value.PURKINJE.1 = §aON
+
 option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.
 

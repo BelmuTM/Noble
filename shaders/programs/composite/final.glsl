@@ -28,6 +28,18 @@ vec2 underwaterDistortionCoords(vec2 coords) {
     return saturate(distorted) != distorted ? coords : distorted;
 } 
 
+// Rod response coefficients & blending method provided by Jessie#7257
+// SOURCE: http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
+vec3 purkinje(vec3 color) {
+    vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
+    vec3 xyzColor = linearToXYZ(color);
+
+    vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
+    float purkinje = dot(rodResponse, XYZtoLinear(scotopicLuma));
+
+    return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 20.0));
+}
+
 void main() {
     vec2 tempCoords = texCoords;
     #if UNDERWATER_DISTORTION == 1
@@ -51,6 +63,11 @@ void main() {
     #if BLOOM == 1
         // I wasn't supposed to use magic numbers like this in Noble :Sadge:
         Result.rgb += saturate(readBloom() * 0.05 * saturate(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
+    #endif
+
+    // Purkinje
+    #if PURKINJE == 1
+        Result.rgb = purkinje(Result.rgb);
     #endif
     
     // Tonemapping

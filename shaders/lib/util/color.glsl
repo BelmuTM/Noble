@@ -111,6 +111,28 @@ vec4 sRGBToLinear(vec4 sRGB) {
     return mix(higher, lower, cutoff);
 }
 
+// Adobe RGB (1998) color space matrix from:
+// http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+const mat3 RGBtoXYZMatrix = (mat3(
+    0.5767309, 0.1855540, 0.1881852,
+    0.2973769, 0.6273491, 0.0752741,
+    0.0270343, 0.0706872, 0.9911085
+));
+
+const mat3 XYZtoRGBMatrix = (mat3(
+     2.0413690,-0.5649464,-0.3446944,
+    -0.9692660, 1.8760108, 0.0415560,
+     0.0134474,-0.1183897, 1.0154096
+));
+
+vec3 linearToXYZ(vec3 linear) {
+    return RGBtoXYZMatrix * linear;
+}
+
+vec3 XYZtoLinear(vec3 XYZ) {
+    return XYZtoRGBMatrix * XYZ;
+}
+
 // https://www.shadertoy.com/view/ltjBWG
 const mat3 RGBToYCoCgMatrix = mat3(0.25, 0.5, -0.25, 0.5, 0.0, 0.5, 0.25, -0.5, -0.25);
 const mat3 YCoCgToRGBMatrix = mat3(1.0, 1.0, 1.0, 1.0, 0.0, -1.0, -1.0, 1.0, -1.0);
@@ -125,10 +147,10 @@ vec3 YCoCgToRGB(vec3 YCoCg) {
 
 vec3 linearToYCoCg(vec3 linear) {
     vec3 RGB = linearToSRGB(vec4(linear, 1.0)).rgb;
-    return isSky(texCoords) ? linear : RGBToYCoCgMatrix * RGB;
+    return RGBToYCoCgMatrix * RGB;
 }
 
 vec3 YCoCgToLinear(vec3 YCoCg) {
     vec3 RGB = YCoCgToRGBMatrix * YCoCg;
-    return isSky(texCoords) ? YCoCg : sRGBToLinear(vec4(RGB, 1.0)).rgb;
+    return sRGBToLinear(vec4(RGB, 1.0)).rgb;
 }

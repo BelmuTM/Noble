@@ -41,7 +41,7 @@ const bool colortex6Clear = false;
         float totalWeight = 0.96 * posWeight;
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 1
-            totalWeight = 0.985 * float(distance(texCoords, prevTexCoords) <= 1e-6);
+            totalWeight = 0.99 * float(distance(texCoords, prevTexCoords) <= 1e-6);
         #endif
         totalWeight *= float(saturate(prevTexCoords) == prevTexCoords);
 
