@@ -214,10 +214,13 @@ option.EXPOSURE.comment = §eManual§r exposure lets you use the camera settings
 value.EXPOSURE.0 = §e§lManual
 value.EXPOSURE.1 = §e§lAutomatic
 
-option.DOF = Depth of Field
-option.DOF.comment = Blurs objects that are out of focus.
+option.DOF = Depth of Field (DOF)
+option.DOF.comment = Blurs objects that are out of focus. Influenced by the §eaperture§r and §efocal length§r in the camera settings.
 value.DOF.0 = §cOFF
 value.DOF.1 = §aON
+
+option.DOF_RADIUS = DOF Radius
+option.DOF_RADIUS.comment = Adjusts §bDepth of Field§f's intensity.
 
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.

@@ -30,7 +30,7 @@ void main() {
     #if TAA == 1
         Result.rgb = saturate(computeTAA(colortex0, colortex3));
     #endif
-
+    
     /*DRAWBUFFERS:037*/
     gl_FragData[0] = Result;
     gl_FragData[1] = Result;

@@ -9,9 +9,7 @@
 #include "/settings.glsl"
 #include "/programs/common.glsl"
 #include "/lib/util/blur.glsl"
-#include "/lib/post/aberration.glsl"
 #include "/lib/post/bloom.glsl"
-#include "/lib/post/dof.glsl"
 #include "/lib/post/exposure.glsl"
 
 vec2 underwaterDistortionCoords(vec2 coords) {
@@ -40,23 +38,29 @@ vec3 purkinje(vec3 color) {
     return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 20.0));
 }
 
+vec3 computeAberration(vec3 color) {
+     float depth = linearizeDepth(texture(depthtex0, texCoords).r);
+     float coc = getCoC(depth, linearizeDepth(centerDepthSmooth));
+     vec2 offset = coc * ABERRATION_STRENGTH * pixelSize;
+
+     return vec3(
+          texture(colortex0, texCoords + offset).r,
+          texture(colortex0, texCoords).g,
+          texture(colortex0, texCoords - offset).b
+     );
+}
+
 void main() {
     vec2 tempCoords = texCoords;
     #if UNDERWATER_DISTORTION == 1
         if(isEyeInWater == 1) tempCoords = underwaterDistortionCoords(tempCoords);
     #endif
-
+    
     vec4 Result = texture(colortex0, tempCoords);
-    float depth = texture(depthtex0, tempCoords).r;
 
     // Chromatic Aberration
     #if CHROMATIC_ABERRATION == 1
         Result.rgb = computeAberration(Result.rgb);
-    #endif
-
-    // Depth of Field
-    #if DOF == 1
-        Result.rgb = computeDOF(Result.rgb, depth);
     #endif
 
     // Bloom

@@ -58,7 +58,7 @@ vec3 computePTGI(in vec3 screenPos) {
             /* Thanks to BÃ¡lint#1673 and Jessie#7257 for helping with PTGI! */
             radiance += throughput * albedo * (texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);
             throughput *= BRDF;
-            radiance += throughput * SUN_INTENSITY * viewPosSkyColor(viewPos) * texture(colortex9, hitPos.xy).rgb;
+            radiance += throughput * texture(colortex9, hitPos.xy).rgb * viewPosSkyColor(viewPos) * SUN_INTENSITY;
         }
     }
     radiance /= GI_SAMPLES;
