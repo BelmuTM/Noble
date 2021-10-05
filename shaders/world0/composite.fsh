@@ -46,12 +46,13 @@ void main() {
 
    #if REFRACTION == 1
       float NdotV = max(EPS, dot(normal, normalize(-viewPos)));
-      if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 3) opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);
+      if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 3) {
+         opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);
+         coords = hitPos.xy;
+      }
 
       depthDist = distance(viewPos.z, hitPos.z);
-      coords = hitPos.xy;
    #endif
-
    vec3 shadowmap = texture(colortex9, coords).rgb;
 
    // Alpha Blending
