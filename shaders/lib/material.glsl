@@ -34,15 +34,15 @@ struct material {
 };
 
 material getMaterial(vec4 tex0, vec4 tex1, vec4 tex2) {
-    material data;
+    material mat;
 
-    data.albedo = tex0.xyz;
-    data.alpha = tex0.w;
-    data.normal = decodeNormal(tex1.xy);
+    mat.albedo = tex0.xyz;
+    mat.alpha = tex0.w;
+    mat.normal = decodeNormal(tex1.xy);
 
-    data.roughness = tex2.x;
-    data.F0 = tex2.y;
-    data.emission = tex1.z;
+    mat.roughness = tex2.x;
+    mat.F0 = tex2.y;
+    mat.emission = tex1.z;
 
-    return data;
+    return mat;
 }

@@ -55,9 +55,11 @@ void main() {
 	normal = TBN * normal;
 	normal = clamp(normal, -1.0, 1.0);
 
-	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 10 && emission <= 0.01) {
+	/*
+	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 10 && emission < EPS) {
 		emission = 0.8;
 	}
+	*/
 	
 	/*DRAWBUFFERS:012*/
 	gl_FragData[0] = color * albedoTex;

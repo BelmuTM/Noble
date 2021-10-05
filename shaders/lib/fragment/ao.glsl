@@ -12,12 +12,11 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
     mat3 TBN = getTBN(normal);
 
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
-		vec2 noise = TAA == 1 ? uniformAnimatedNoise(blueNoise.xy) : uniformNoise(i, blueNoise);
-		vec3 sampleDir = TBN * randomHemisphereDirection(noise);
+		vec3 sampleDir = TBN * randomHemisphereDirection(uniformNoise(i, blueNoise));
 
 		vec3 samplePos = viewPos + sampleDir * SSAO_RADIUS;
 		float sampleDepth = getViewPos(viewToScreen(samplePos).xy).z;
-        occlusion += (samplePos.z + EPS <= sampleDepth ? 0.0 : 1.0);
+        occlusion += step(sampleDepth, samplePos.z + EPS);
 	}
 	occlusion /= SSAO_SAMPLES;
 	return saturate(pow(occlusion, SSAO_STRENGTH));

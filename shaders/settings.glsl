@@ -50,11 +50,12 @@ const float shadowDistanceRenderMul = 1.0;
 #define WATER_DISTORTION_AMPLITUDE 0.40 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.135, 0.135, 0.110)
+#define AMBIENT vec3(0.155, 0.100, 0.100)
 #define PTGI_AMBIENT vec3(0.0009)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
-#define TORCH_COLOR vec3(1.0, 0.97, 0.82)
+#define TORCHLIGHT_EXPONENT 3.0
+#define TORCH_COLOR vec3(1.0, 0.57, 0.42)
 
 #define SUN_INTENSITY 4.0
 #define EMISSION_INTENSITY 10.0
@@ -68,7 +69,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define AO_FILTER 1 // [0 1]
 
 #define SSAO_SAMPLES 8 // [4 8 16 32]
-#define SSAO_RADIUS 0.4
+#define SSAO_RADIUS 0.7
 #define SSAO_STRENGTH 1.3
 
 #define RTAO_SAMPLES 4 // [4 32]
@@ -86,7 +87,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 // Soft Shadows
 #define PCSS_SAMPLES 24 // [24 64]
-#define LIGHT_SIZE 160.0
+#define LIGHT_SIZE 120.0
 #define BLOCKER_SEARCH_RADIUS 12.0
 #define BLOCKER_SEARCH_SAMPLES 20 // [20 64]
 
@@ -142,7 +143,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.900 // [0.500 0.525 0.550 0.575 0.600 0.625 0.650 0.675 0.700 0.725 0.750 0.775 0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
+#define TAA_STRENGTH 0.975 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
 #define NEIGHBORHOOD_SIZE 3
 
 #define TAA_LUMA_WEIGHT 1 // [0 1]
@@ -154,7 +155,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define BLOOM 1 // [0 1]
 #define BLOOM_STRENGTH 0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define BLOOM_LUMA_THRESHOLD 0.8
+#define BLOOM_LUMA_THRESHOLD 0.5
 
 #define VIGNETTE 0 // [0 1]
 #define VIGNETTE_STRENGTH 0.25 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50]
@@ -171,12 +172,12 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
-#define EXPOSURE 1 // [0 1]
+#define EXPOSURE 0 // [0 1]
 #define MIN_EXPOSURE 1e-4
-#define MAX_EXPOSURE 20.0
+#define MAX_EXPOSURE 15.0
 
 /*------------------ COLOR CORRECTION ------------------*/
-#define TONEMAPPING 3 // [-1 0 1 2 3]
+#define TONEMAPPING 2 // [-1 0 1 2 3]
 #define PURKINJE 0 // [0 1]
 
 #define VIBRANCE 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]

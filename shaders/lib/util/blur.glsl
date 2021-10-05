@@ -22,7 +22,7 @@ vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
 
 vec4 bokeh(vec2 coords, sampler2D tex, vec2 resolution, int quality, float radius) {
     vec4 color = texture(tex, coords);
-    vec2 noise = uniformAnimatedNoise(blueNoise.xy);
+    vec2 noise = uniformAnimatedNoise(animBlueNoise.yz);
 
     int SAMPLES = 1;
     for(int i = 0; i < quality; i++) {
@@ -150,12 +150,12 @@ const float gaussianWeights11[] = float[](
 	0.019590831
 );
 
-vec3 gaussianBlur(vec2 coords, sampler2D tex, vec2 direction, float scale) {
-    vec3 color = vec3(0.0);
+vec4 gaussianBlur(vec2 coords, sampler2D tex, vec2 direction, float scale) {
+    vec4 color = vec4(0.0);
 
     for(int i = 0; i < 11; i++) {
         vec2 sampleCoords = (coords + (direction * float(i - 5) * pixelSize)) * scale;
-        color += texture(tex, sampleCoords).rgb * gaussianWeights11[i];
+        color += texture(tex, sampleCoords) * gaussianWeights11[i];
     }
     return color;
 }

@@ -166,10 +166,10 @@ vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float al
 
 // Thanks LVutner for the help!
 // https://github.com/LVutner
-vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material data, vec3 lightmap, vec3 shadowmap) {
+vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec3 shadowmap) {
     vec3 V = -normalize(viewPos);
-    bool isMetal = data.F0 * 255.0 > 229.5;
-    float alpha = data.roughness * data.roughness;
+    bool isMetal = mat.F0 * 255.0 > 229.5;
+    float alpha = mat.roughness * mat.roughness;
 
     vec3 H = normalize(V + L);
     float NdotV = max(EPS, dot(N, V));
@@ -181,14 +181,14 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material data, vec3 lightmap, ve
 
     vec3 specular = vec3(0.0);
     #if SPECULAR == 1
-        specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, data.roughness, data.F0, data.albedo, isMetal);
+        specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, mat.roughness, mat.F0, mat.albedo, isMetal);
     #endif
 
     vec3 diffuse = vec3(0.0);
-    if(!isMetal) { diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, data.albedo); }
+    if(!isMetal) { diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, mat.albedo); }
 
     /* Energy Conservation */
-    vec3 F0vec = vec3(data.F0);
+    vec3 F0vec = vec3(mat.F0);
     vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0vec) + 5.0 * vec3(F0vec) * vec3(F0vec)) * 0.11111111;
     vec3 fNdotL = 1.0 - schlickGaussian(NdotL, F0vec);
     vec3 fNdotV = 1.0 - schlickGaussian(NdotV, F0vec);
@@ -198,12 +198,12 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material data, vec3 lightmap, ve
 
     /* Calculating Indirect / Direct Lighting */
     vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * getDayColor();
-    Lighting += data.emission * data.albedo;
+    Lighting += mat.emission * mat.albedo;
 
     if(!isMetal) {
         vec3 ambient = GI == 0 ? AMBIENT : PTGI_AMBIENT;
 
-        Lighting += ambient * data.albedo;
+        Lighting += ambient * mat.albedo;
         #if GI == 0
             Lighting *= lightmap;
         #endif

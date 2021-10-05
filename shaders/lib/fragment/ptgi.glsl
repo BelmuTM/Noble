@@ -41,7 +41,7 @@ vec3 computePTGI(in vec3 screenPos) {
 
     for(int i = 0; i < GI_SAMPLES; i++) {
         for(int j = 0; j < GI_BOUNCES; j++) {
-            vec2 noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter));
+            vec2 noise = uniformAnimatedNoise(animBlueNoise.xy);
 
             /* Updating our position for the next bounce */
             vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
@@ -50,12 +50,12 @@ vec3 computePTGI(in vec3 screenPos) {
         
             /* Sampling a random direction in an hemisphere and raytracing in that direction */
             vec3 sampleDir = TBN * randomHemisphereDirection(noise);
-            if(!raytrace(hitPos, sampleDir, GI_STEPS, uniformNoise(j, blueNoise).r, hitPos)) continue;
+            if(!raytrace(hitPos, sampleDir, GI_STEPS, uniformNoise(j, blueNoise).x, hitPos)) continue;
 
             /* Calculating the BRDF & applying it */
             vec3 BRDF = PTGIBRDF(viewDir, hitPos.xy, sampleDir, TBN, normal, noise, albedo);
 
-            /* Thanks to BÃ¡lint#1673 and Jessie#7257 for helping with PTGI! */
+            /* Thanks to Balint#1673 and Jessie#7257 for helping with PTGI! */
             radiance += throughput * albedo * (texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);
             throughput *= BRDF;
             radiance += throughput * texture(colortex9, hitPos.xy).rgb * viewPosSkyColor(viewPos) * SUN_INTENSITY;

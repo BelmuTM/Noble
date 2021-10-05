@@ -41,29 +41,31 @@ float gaussianVariance(sampler2D tex, vec2 coords) {
     return sum;
 }
 
-const float cPhi = 0.285;
+const float cPhi = 0.23;
 const float nPhi = 0.03;
 const float pPhi = 0.3;
 
 vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction) {
     vec3 color = vec3(0.0);
     float totalWeight = 0.0;
+
+    const int KERNEL_SIZE = 3;
     float kernelWeights[] = float[](
-        0.214606428,
-        0.189879232,
-        0.131514120,
-        0.071303431
+        0.233642855,
+        0.200015531,
+        0.125480758,
+        0.057682282
     );
 
     vec3 currCol = texture(tex, texCoords).rgb;
     viewPos = viewToWorld(viewPos);
 
     float centerLuma = luma(currCol);
-    float variance = gaussianVariance(tex, texCoords);
+    float variance = computeVariance(tex, texCoords);
     float colorPhi = sqrt(max(0.0, variance + 1e-8)) * cPhi;
 
-    for(int x = -3; x <= 3; x++) {
-        for(int y = -3; y <= 3; y++) {
+    for(int x = -KERNEL_SIZE; x <= KERNEL_SIZE; x++) {
+        for(int y = -KERNEL_SIZE; y <= KERNEL_SIZE; y++) {
             vec2 sampleCoords = coords + vec2(x, y) * pixelSize;
             float kernel = kernelWeights[abs(x)] * kernelWeights[abs(y)];
 

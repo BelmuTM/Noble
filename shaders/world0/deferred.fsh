@@ -13,13 +13,42 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/programs/common.glsl"
+#include "/lib/fragment/raytracer.glsl"
+#include "/lib/fragment/shadows.glsl"
 
 /*
 const int colortex4Format = RGBA16F;
+const int colortex9Format = RGBA16F;
 */
 
+float computeCaustics(vec3 pos, vec3 normal) {
+   pos = viewToShadow(pos).xyz * 0.5 + 0.5;
+   normal = viewToShadow(normal).xyz * 0.5 + 0.5;
+   vec3 samplePos = pos + refract(vec3(0.0, 0.0, 1.0), normal, 1.0 / 1.333);
+
+   float oldArea = length(dFdx(pos) * dFdy(pos));
+   float newArea = length(dFdx(samplePos) * dFdy(samplePos));
+    
+   return oldArea / newArea * 0.2;
+}
+
 void main() {
-     /*DRAWBUFFERS:4*/
+     vec3 viewPos = getViewPos(texCoords);
+     vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+
+     /*    ------- SHADOW MAPPING -------    */
+     vec3 shadowmap = vec3(1.0);
+     #if SHADOWS == 1
+          shadowmap = shadowMap(viewPos, shadowMapResolution);
+     #endif
+
+     /*
+     if(isEyeInWater == 1) {
+          shadowmap = texelFetch(colortex9, ivec2(mod(gl_FragCoord + (frameTimeCounter * 10.0), 250)), 0).rgb;
+     }
+     */
+
+     /*DRAWBUFFERS:49*/
      if(isSky(texCoords)) {
           vec3 viewPos = getViewPos(texCoords);
           vec3 eyeDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
@@ -31,4 +60,5 @@ void main() {
      } else {
           gl_FragData[0] = texture(colortex0, texCoords);
      }
+     gl_FragData[1] = vec4(shadowmap, 1.0);
 }

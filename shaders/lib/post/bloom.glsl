@@ -9,24 +9,24 @@
 // Bloom tiles concept from Capt Tatsu#7124
 // Gaussian blur by Belmu#4066
 
-vec3 bloomTile(int LOD, vec2 offset) {
+vec4 bloomTile(int LOD, vec2 offset) {
 	float scale = exp2(LOD);
 	vec2 coords = (texCoords - offset) * scale;
 	float padding = 0.5 + 0.005 * scale;
 
-	vec3 color;
+	vec4 color;
 	if(abs(coords.x - 0.5) < padding && abs(coords.y - 0.5) < padding) {
-		color = gaussianBlur(texCoords - offset, colortex5, vec2(1.0, 0.0), scale).rgb;
+		color = gaussianBlur(texCoords - offset, colortex5, vec2(1.0, 0.0), scale);
 	}
 	return color;
 }
 
-vec3 getBloomTile(int LOD, vec2 offset) {
-	return gaussianBlur(texCoords / exp2(LOD) + offset, colortex5, vec2(0.0, 1.0), 1.0).rgb;
+vec4 getBloomTile(int LOD, vec2 offset) {
+	return gaussianBlur(texCoords / exp2(LOD) + offset, colortex5, vec2(0.0, 1.0), 1.0);
 }
 
-vec3 writeBloom() {
-	vec3 bloom  = bloomTile(2, vec2(0.0      , 0.0   ));
+vec4 writeBloom() {
+	vec4 bloom  = bloomTile(2, vec2(0.0      , 0.0   ));
 	     bloom += bloomTile(3, vec2(0.0      , 0.26  ));
 	     bloom += bloomTile(4, vec2(0.135    , 0.26  ));
 	     bloom += bloomTile(5, vec2(0.2075   , 0.26  ));
@@ -36,8 +36,8 @@ vec3 writeBloom() {
 	return bloom;
 }
 
-vec3 readBloom() {
-    vec3 bloom  = getBloomTile(2, vec2(0.0      , 0.0   ));
+vec4 readBloom() {
+    vec4 bloom  = getBloomTile(2, vec2(0.0      , 0.0   ));
 	     bloom += getBloomTile(3, vec2(0.0      , 0.26  ));
 	     bloom += getBloomTile(4, vec2(0.135    , 0.26  ));
 	     bloom += getBloomTile(5, vec2(0.2075   , 0.26  ));

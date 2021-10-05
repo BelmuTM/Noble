@@ -29,15 +29,15 @@ const float rainAmbientDarkness = 0.3;
 
 float getSkyLightmap(vec2 coords) {
     float lightmap = texture(colortex2, coords).w;
-    return saturate((lightmap * lightmap) * 2.0 - 1.0);
+    return saturate((lightmap * lightmap * lightmap) * 2.0 - 1.0);
 }
 
 vec3 getLightmapColor(vec2 lightMap, vec3 dayTimeColor) {
-    lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, 5.06);
+    lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, TORCHLIGHT_EXPONENT);
 
-    vec3 torchLight = lightMap.x * TORCH_COLOR;
-    vec3 skyLight = (lightMap.y * lightMap.y) * dayTimeColor;
-    return torchLight + saturate(skyLight - clamp(rainStrength, 0.0, rainAmbientDarkness));
+    vec3 torchLight = TORCH_COLOR * lightMap.x;
+    vec3 skyLight   = dayTimeColor * (lightMap.y - clamp(rainStrength, 0.0, rainAmbientDarkness));
+    return torchLight + saturate(skyLight);
 }
 
 /*------------------ WORLD TIME & SKY ------------------*/
@@ -68,7 +68,7 @@ float drawStars(vec3 viewPos) {
 
 vec3 getDayColor() {
     const vec3 ambient_sunrise  = vec3(0.943, 0.572, 0.397);
-    const vec3 ambient_noon     = vec3(1.000, 0.950, 0.890);
+    const vec3 ambient_noon     = vec3(1.000, 0.850, 0.800);
     const vec3 ambient_sunset   = vec3(0.943, 0.472, 0.297);
     const vec3 ambient_midnight = vec3(0.058, 0.054, 0.101);
 
@@ -86,5 +86,5 @@ vec3 getDayTimeSkyGradient(in vec3 pos, vec3 viewPos) {  // Bottom Color -> Top 
 }
 
 vec3 viewPosSkyColor(vec3 viewPos) {
-    return getDayTimeSkyGradient(normalize(mat3(gbufferModelViewInverse) * viewPos), viewPos);
+    return getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * -normalize(viewPos), viewPos);
 }

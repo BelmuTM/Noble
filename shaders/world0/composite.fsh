@@ -16,22 +16,6 @@ varying vec2 texCoords;
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/ssr.glsl"
-#include "/lib/fragment/shadows.glsl"
-
-/*
-const int colortex9Format = RGBA16F;
-*/
-
-float computeCaustics(vec3 pos, vec3 normal) {
-   pos = viewToShadow(pos).xyz * 0.5 + 0.5;
-   normal = viewToShadow(normal).xyz * 0.5 + 0.5;
-   vec3 samplePos = pos + refract(vec3(0.0, 0.0, 1.0), normal, 1.0 / 1.333);
-
-   float oldArea = length(dFdx(pos) * dFdy(pos));
-   float newArea = length(dFdx(samplePos) * dFdy(samplePos));
-    
-   return oldArea / newArea * 0.2;
-}
 
 void main() {
    vec4 temp = sRGBToLinear(texture(colortex4, texCoords));
@@ -45,16 +29,7 @@ void main() {
       gl_FragData[0] = temp + rain;
       return;
    }
-
-   /*    ------- SHADOW MAPPING -------    */
-   vec3 shadowmap = vec3(1.0);
-   #if SHADOWS == 1
-      shadowmap = shadowMap(getViewPos(texCoords), shadowMapResolution);
-   #endif
-
-   if(isEyeInWater == 1) {
-      //shadowmap *= pow(computeCaustics(viewPos, normal) * 0.5 + 0.5, 2.0);
-   }
+   vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
    /*    ------- WATER ABSORPTION / REFRACTION -------    */
    vec4 tex0 = texture(colortex0, texCoords);
@@ -71,7 +46,7 @@ void main() {
    vec3 opaques = temp.rgb;
 
    #if REFRACTION == 1
-      float NdotV = max(dot(normal, normalize(-viewPos)), 0.0);
+      float NdotV = max(EPS, dot(normal, normalize(-viewPos)));
       if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 3) opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);
 
       depthDist = distance(viewPos.z, hitPos.z);
@@ -102,7 +77,6 @@ void main() {
       }
    #endif
 
-   /*DRAWBUFFERS:09*/
+   /*DRAWBUFFERS:0*/
    gl_FragData[0] = vec4(data.albedo, 1.0) + rain;
-   gl_FragData[1] = vec4(shadowmap, 1.0);
 }

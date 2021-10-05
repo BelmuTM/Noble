@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float taaJitter = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy)).r : hash22(gl_FragCoord.xy).r;
+float taaJitter = TAA == 1 ? uniformAnimatedNoise(blueNoise.xy).x : hash22(gl_FragCoord.xy).x;
 
 vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
 

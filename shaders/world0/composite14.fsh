@@ -31,7 +31,7 @@ void main() {
      vec3 viewPos = getViewPos(texCoords);
      vec4 Result = texture(colortex0, texCoords);
 
-     vec3 bloom = vec3(0.0);
+     vec4 bloom = vec4(0.0);
      #if BLOOM == 1
           bloom = writeBloom();
      #endif
@@ -46,5 +46,5 @@ void main() {
 
      /*DRAWBUFFERS:05*/
      gl_FragData[0] = Result;
-     gl_FragData[1] = vec4(saturate(bloom), 1.0);
+     gl_FragData[1] = bloom;
 }

@@ -32,7 +32,7 @@ const bool colortex6Clear = false;
 
         vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
         vec3 delta = viewToWorld(viewPos) - prevPos;
-        float posWeight = max(0.0, exp(-dot(delta, delta) / 0.4));
+        float posWeight = max(0.0, exp(-dot(delta, delta)));
         float totalWeight = 0.96 * posWeight;
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 1
@@ -56,14 +56,14 @@ void main() {
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords && !isSky(scaledUv)) {
             vec3 positionAt = vec3(scaledUv, texture(depthtex0, scaledUv).r);
             globalIllumination = computePTGI(positionAt);
-        }
 
-        #if GI_TEMPORAL_ACCUMULATION == 1
-            vec3 viewPos = getViewPos(texCoords);
-            vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+            #if GI_TEMPORAL_ACCUMULATION == 1
+                vec3 viewPos = getViewPos(texCoords);
+                vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
             
-            globalIllumination = saturate(temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
-        #endif
+                globalIllumination = saturate(temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
+            #endif
+        }
     #else
         if(!isSky(texCoords)) {
             #if AO == 1

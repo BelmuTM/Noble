@@ -57,7 +57,7 @@ void main() {
                #else
                     #if AO == 1
                          #if AO_FILTER == 1
-                              Result.rgb *= fastGaussianFilter(texCoords, viewPos, normal, colortex5, vec2(0.0, 1.0)).a;
+                              Result.rgb *= gaussianBlur(texCoords, colortex5, vec2(0.0, 1.0), 1.0).a;
                          #endif
                     #endif
                #endif
