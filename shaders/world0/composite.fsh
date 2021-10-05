@@ -29,7 +29,6 @@ void main() {
       gl_FragData[0] = temp + rain;
       return;
    }
-   vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
    /*    ------- WATER ABSORPTION / REFRACTION -------    */
    vec4 tex0 = texture(colortex0, texCoords);
@@ -42,7 +41,7 @@ void main() {
 		linearizeDepth(texture(depthtex0, texCoords).r),
 		linearizeDepth(texture(depthtex1, texCoords).r)
 	);
-   vec3 hitPos;
+   vec3 hitPos; vec2 coords = texCoords;
    vec3 opaques = temp.rgb;
 
    #if REFRACTION == 1
@@ -50,7 +49,10 @@ void main() {
       if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 3) opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);
 
       depthDist = distance(viewPos.z, hitPos.z);
+      coords = hitPos.xy;
    #endif
+
+   vec3 shadowmap = texture(colortex9, coords).rgb;
 
    // Alpha Blending
    data.albedo = mix(opaques * mix(vec3(1.0), data.albedo, data.alpha), data.albedo, data.alpha);
@@ -77,6 +79,7 @@ void main() {
       }
    #endif
 
-   /*DRAWBUFFERS:0*/
+   /*DRAWBUFFERS:09*/
    gl_FragData[0] = vec4(data.albedo, 1.0) + rain;
+   gl_FragData[1] = vec4(shadowmap, 1.0);
 }
