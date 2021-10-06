@@ -35,7 +35,7 @@ vec3 purkinje(vec3 color) {
     vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
     float purkinje = dot(rodResponse, XYZtoLinear(scotopicLuma));
 
-    return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 20.0));
+    return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 150.0));
 }
 
 vec3 computeAberration(vec3 color) {

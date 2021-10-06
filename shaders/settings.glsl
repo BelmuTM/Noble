@@ -55,7 +55,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCHLIGHT_EXPONENT 3.0
-#define TORCH_COLOR vec3(1.0, 0.57, 0.42)
+#define TORCH_COLOR vec3(0.70, 0.79, 0.62)
 
 #define SUN_INTENSITY 4.0
 #define EMISSION_INTENSITY 10.0
@@ -70,7 +70,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 #define SSAO_SAMPLES    8 // [4 8 16 32]
 #define SSAO_RADIUS   0.7
-#define SSAO_STRENGTH 1.3
+#define SSAO_STRENGTH 1.5
 
 #define RTAO_SAMPLES    4 // [4 32]
 #define RTAO_STEPS     16
@@ -177,7 +177,7 @@ const float S = 100.0; // Sensor sensitivity
 #define MAX_EXPOSURE 15.0
 
 /*------------------ COLOR CORRECTION ------------------*/
-#define TONEMAPPING 2 // [-1 0 1 2 3]
+#define TONEMAPPING 3 // [-1 0 1 2 3]
 #define PURKINJE    0 // [0 1]
 
 #define VIBRANCE   1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]

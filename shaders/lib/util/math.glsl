@@ -94,29 +94,6 @@ vec2 sincos2(float x) {
     return vec2(sin(x), cos(x));
 }
 
-/* SOURCES
-https://fr.wikipedia.org/wiki/Th%C3%A9orie_de_Mie
-https://www.shadertoy.com/view/wlBXWK
-*/
-
-float rayleighPhase(float cosTheta) {
-    const float rayleigh = 3.0 / (16.0 * PI);
-    return rayleigh * (1.0 + (cosTheta * cosTheta));
-}
-
-float miePhase(float g, float cosTheta) {
-    const float mie = 3.0 / (8.0 * PI);
-    float gg = g*g; // The direction mie scatters the light in. Closer to -1 means more towards a single direction (ShaderToy - Atmospheric scattering explained by skythedragon)
-    float num = (1.0 - gg) * (1.0 + (cosTheta*cosTheta));
-    float denom = (2.0 + gg) * pow(1.0 + gg - 2.0 * g * cosTheta, 1.5);
-    return mie * (num / denom);
-}
-
-float heyneyGreensteinPhase(float g, float cosTheta) {
-    const float heyney = 1.0 / (4.0 * PI);
-    return heyney * ((1.0 - (g*g)) / pow(1.0 + (g*g) - 2.0 * g * cosTheta, 1.5));
-}
-
 // Provided by LVutner.#1925
 vec3 hemisphereSample(vec2 r) {
     float phi = r.x * PI2;
