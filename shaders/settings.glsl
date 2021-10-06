@@ -39,25 +39,25 @@ const float shadowDistanceRenderMul = 1.0;
 #define WAVE_SPEED     0.20 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // POST-EFFECTS
-#define WATER_FOAM 1 // [0 1]
-#define FOAM_BRIGHTNESS 0.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
+#define WATER_FOAM               1 // [0 1]
+#define FOAM_BRIGHTNESS       0.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
 #define FOAM_FALLOFF_DISTANCE 0.75
-#define FOAM_EDGE_FALLOFF 0.4
-#define FOAM_FALLOFF_BIAS 0.1
+#define FOAM_EDGE_FALLOFF      0.4
+#define FOAM_FALLOFF_BIAS      0.1
 
-#define UNDERWATER_DISTORTION 1 // [0 1]
-#define WATER_DISTORTION_SPEED 0.65
+#define UNDERWATER_DISTORTION         1 // [0 1]
+#define WATER_DISTORTION_SPEED     0.65
 #define WATER_DISTORTION_AMPLITUDE 0.40 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 /*------------------ LIGHTING ------------------*/
-#define AMBIENT vec3(0.155, 0.100, 0.100)
+#define AMBIENT vec3(0.135, 0.100, 0.090)
 #define PTGI_AMBIENT vec3(0.0009)
 
 #define TORCHLIGHT_MULTIPLIER 2.0
 #define TORCHLIGHT_EXPONENT 3.0
 #define TORCH_COLOR vec3(0.70, 0.79, 0.62)
 
-#define SUN_INTENSITY 4.0
+#define SUN_INTENSITY       4.0
 #define EMISSION_INTENSITY 10.0
 
 #define SPECULAR 1 // [0 1]
@@ -68,11 +68,11 @@ const float shadowDistanceRenderMul = 1.0;
 #define AO_TYPE   0 // [0 1]
 #define AO_FILTER 1 // [0 1]
 
-#define SSAO_SAMPLES    8 // [4 8 16 32]
-#define SSAO_RADIUS   0.7
-#define SSAO_STRENGTH 1.5
+#define SSAO_SAMPLES   12 // [4 8 12 16 20]
+#define SSAO_RADIUS   0.5
+#define SSAO_STRENGTH 1.2
 
-#define RTAO_SAMPLES    4 // [4 32]
+#define RTAO_SAMPLES    4 // [4 16]
 #define RTAO_STEPS     16
 #define RTAO_STRENGTH 0.1
 
@@ -86,10 +86,10 @@ const float shadowDistanceRenderMul = 1.0;
 #define SHADOW_BIAS    0.8
 
 // Soft Shadows
-#define PCSS_SAMPLES 24 // [24 64]
-#define LIGHT_SIZE  120.0
+#define PCSS_SAMPLES            24 // [24 64]
+#define LIGHT_SIZE           120.0
 #define BLOCKER_SEARCH_RADIUS 12.0
-#define BLOCKER_SEARCH_SAMPLES 20 // [20 64]
+#define BLOCKER_SEARCH_SAMPLES  20 // [20 64]
 
 /*------------------ RAY TRACING ------------------*/
 #define BINARY_REFINEMENT 1 // [0 1]
@@ -132,8 +132,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define REFRACT_STEPS        48
 
 /*------------------ ATMOSPHERICS ------------------*/
-#define VL 0 // [0 1]
-#define VL_FILTER 1 // [0 1]
+#define VL         0 // [0 1]
+#define VL_FILTER  1 // [0 1]
 #define VL_SAMPLES 8
 
 #define VL_BRIGHTNESS 1.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
@@ -142,25 +142,25 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define RAIN_FOG 1 // [0 1]
 
 /*------------------ POST PROCESSING ------------------*/
-#define TAA 1 // [0 1]
-#define TAA_STRENGTH 0.975 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
+#define TAA               1 // [0 1]
+#define TAA_STRENGTH  0.975 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
 #define NEIGHBORHOOD_SIZE 3
 
 #define TAA_LUMA_WEIGHT 1 // [0 1]
 #define TAA_LUMA_MIN 0.15
 #define TAA_FEEDBACK_MAX (TAA_STRENGTH + 0.01)
 
-#define DOF 0 // [0 1]
+#define DOF           0 // [0 1]
 #define DOF_RADIUS 20.0 // [5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0]
 
-#define BLOOM 1 // [0 1]
-#define BLOOM_STRENGTH 0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define BLOOM_LUMA_THRESHOLD 0.5
+#define BLOOM                   1 // [0 1]
+#define BLOOM_STRENGTH       0.50 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define BLOOM_LUMA_THRESHOLD 0.35
 
-#define VIGNETTE 0 // [0 1]
+#define VIGNETTE             0 // [0 1]
 #define VIGNETTE_STRENGTH 0.25 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50]
 
-#define CHROMATIC_ABERRATION 0 // [0 1]
+#define CHROMATIC_ABERRATION   0 // [0 1]
 #define ABERRATION_STRENGTH 1.50 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]
 
 /*------------------ CAMERA ------------------*/
@@ -172,7 +172,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
-#define EXPOSURE 0 // [0 1]
+#define EXPOSURE 1 // [0 1]
 #define MIN_EXPOSURE 1e-4
 #define MAX_EXPOSURE 15.0
 

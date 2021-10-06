@@ -16,27 +16,31 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 
 		vec3 samplePos = viewPos + sampleDir * SSAO_RADIUS;
 		float sampleDepth = getViewPos(viewToScreen(samplePos).xy).z;
-        occlusion += step(sampleDepth, samplePos.z + EPS);
+
+		// https://learnopengl.com/Advanced-Lighting/SSAO
+		float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPos.z - sampleDepth));
+        occlusion += (sampleDepth >= samplePos.z + EPS ? 1.0 : 0.0) * rangeCheck;
 	}
-	occlusion /= SSAO_SAMPLES;
+	occlusion = 1.0 - (occlusion / SSAO_SAMPLES);
 	return saturate(pow(occlusion, SSAO_STRENGTH));
 }
 
 float computeRTAO(vec3 viewPos, vec3 normal) {
-	float occlusion = 1.0;
+	float occlusion = 0.0;
 	vec3 samplePos = viewPos + normal * EPS;
 
 	mat3 TBN = getTBN(normal);
 	vec3 hitPos;
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
-		vec2 noise = TAA == 1 ? uniformAnimatedNoise(blueNoise.xy) : uniformNoise(i, blueNoise);
+		vec2 noise = TAA == 1 ? uniformAnimatedNoise(animBlueNoise.xy) : uniformNoise(i, blueNoise);
 		vec3 sampleDir = TBN * randomHemisphereDirection(noise);
-		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, -noise.x, hitPos)) continue;
+		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.x, hitPos)) continue;
 
-		float dist = 1.0 - pow(distance(samplePos, getViewPos(hitPos.xy)), 2.0);
+		float delta = (samplePos.z + EPS) - screenToView(hitPos).z;
+    	float dist = pow(max(0.0, exp(-(delta*delta) * 5.0)), 5.0);
 		occlusion += dist;
 	}
 	occlusion = 1.0 - (occlusion / RTAO_SAMPLES);
-	return saturate(occlusion);
+	return saturate(pow(occlusion, 8.0));
 }

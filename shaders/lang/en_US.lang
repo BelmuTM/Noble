@@ -79,10 +79,11 @@ value.AO_TYPE.1 = §eRTAO
 
 option.SSAO_SAMPLES = SSAO Samples
 option.SSAO_SAMPLES.comment = Influences §bSSAO§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
-value.SSAO_SAMPLES.4 = §a4
-value.SSAO_SAMPLES.8 = §e8
+value.SSAO_SAMPLES.4 = §24
+value.SSAO_SAMPLES.8 = §a8
+value.SSAO_SAMPLES.12 = §e12
 value.SSAO_SAMPLES.16 = §616
-value.SSAO_SAMPLES.32 = §c32
+value.SSAO_SAMPLES.20 = §c20
 
 option.sunPathRotation = Sun Path Rotation
 option.sunPathRotation.comment = Adjusts sun's rotation.

@@ -189,7 +189,7 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
 
     /* Energy Conservation */
     vec3 F0vec = vec3(mat.F0);
-    vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0vec) + 5.0 * vec3(F0vec) * vec3(F0vec)) * 0.11111111;
+    vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0vec) + 5.0 * F0vec * F0vec) * 0.11111111;
     vec3 fNdotL = 1.0 - schlickGaussian(NdotL, F0vec);
     vec3 fNdotV = 1.0 - schlickGaussian(NdotV, F0vec);
 
@@ -198,9 +198,9 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
 
     /* Calculating Indirect / Direct Lighting */
     vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * getDayColor();
-    Lighting += mat.emission * mat.albedo;
 
     if(!isMetal) {
+        Lighting += mat.emission * mat.albedo;
         vec3 ambient = GI == 0 ? AMBIENT : PTGI_AMBIENT;
 
         Lighting += ambient * mat.albedo;
