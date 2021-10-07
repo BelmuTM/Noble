@@ -42,11 +42,15 @@ void main() {
           shadowmap = shadowMap(viewPos, shadowMapResolution);
      #endif
 
-     /*
-     if(isEyeInWater == 1) {
-          shadowmap = texelFetch(colortex9, ivec2(mod(gl_FragCoord + (frameTimeCounter * 10.0), 250)), 0).rgb;
-     }
-     */
+     #if WATER_CAUSTICS == 1
+          if(isEyeInWater == 1) {
+               vec2 worldPos = viewToWorld(viewPos).xz * 0.5 + 0.5;
+
+               float causticsSpeed = frameTimeCounter * WATER_CAUSTICS_SPEED;
+               vec3 caustics = texelFetch(colortex9, ivec2(mod((worldPos * 80.0) + causticsSpeed, 250)), 0).rgb;
+               shadowmap += caustics * WATER_CAUSTICS_STRENGTH * shadowmap;
+          }
+     #endif
 
      /*DRAWBUFFERS:49*/
      if(isSky(texCoords)) {

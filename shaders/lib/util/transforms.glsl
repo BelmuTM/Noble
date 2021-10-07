@@ -48,11 +48,11 @@ vec3 viewToScreen(vec3 viewPos) {
 }
 
 vec3 worldToView(vec3 worldPos) {
-	return mat3(gbufferModelView) * worldPos;
+	return mat3(gbufferModelView) * (worldPos - cameraPosition);
 }
 
 vec3 viewToWorld(vec3 viewPos) {
-	return mat3(gbufferModelViewInverse) * viewPos;
+	return (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
 }
 
 mat3 getTBN(vec3 normal) {

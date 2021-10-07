@@ -32,7 +32,7 @@ const bool colortex6Clear = false;
 
         vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
         vec3 delta = viewToWorld(viewPos) - prevPos;
-        float posWeight = max(0.0, exp(-dot(delta, delta)));
+        float posWeight = max(0.0, exp(-dot(delta, delta) * 3.0));
         float totalWeight = 0.96 * posWeight;
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 1

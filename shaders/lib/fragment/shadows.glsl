@@ -8,8 +8,8 @@
 
 #if SHADOWS == 1
     vec4 viewToShadow(vec3 viewPos) {
-	    vec4 worldPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
-	    vec4 shadowSpace = shadowProjection * shadowModelView * worldPos;
+	    vec4 playerPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
+	    vec4 shadowSpace = shadowProjection * shadowModelView * playerPos;
 	    shadowSpace.xy = distort(shadowSpace.xy);
 	    return shadowSpace;
     }

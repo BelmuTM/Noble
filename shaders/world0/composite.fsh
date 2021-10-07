@@ -63,8 +63,8 @@ void main() {
          // Absorption
          depthDist = max(0.0, depthDist);
          float density = depthDist * 6.5e-1;
-
-	      vec3 transmittance = exp2(-(density / log(2.0)) * WATER_ABSORPTION_COEFFICIENTS);
+         //                                     log(2.0)
+	      vec3 transmittance = exp2(-(density * 0.301029995) * WATER_ABSORPTION_COEFFICIENTS);
          if(isEyeInWater == 0) data.albedo *= transmittance;
 
          // Foam

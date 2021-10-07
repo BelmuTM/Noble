@@ -172,6 +172,14 @@ option.WHITE_WORLD.comment = §fSets all block colors to white.
 value.WHITE_WORLD.0 = §cOFF
 value.WHITE_WORLD.1 = §aON
 
+option.WATER_CAUSTICS = Water Caustics
+option.WATER_CAUSTICS.comment = Caustics provoked by the refraction of light on water waves. They appear underwater.
+value.WATER_CAUSTICS.0 = §cOFF
+value.WATER_CAUSTICS.1 = §aON
+
+option.WATER_CAUSTICS_STRENGTH = Caustics Strength
+option.WATER_CAUSTICS_STRENGTH.comment = Adjusts §bWater Caustics§f' intensity.
+
 option.WATER_FOAM = Water Foam
 option.WATER_FOAM.comment = Foam that appears when water encounters an edge.
 value.WATER_FOAM.0 = §cOFF
