@@ -96,7 +96,7 @@ vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, 
     viewPos += normal * EPS;
 
     vec3 refracted = refract(normalize(viewPos), normal, 1.0 / ior);
-    float hit = float(raytrace(viewPos, refracted, REFRACT_STEPS, taaJitter, hitPos));
+    float hit = float(raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos));
     if(isHand(texture(depthtex1, hitPos.xy).r)) return vec3(0.0);
 
     vec3 fresnel = fresnelSchlick(NdotV, vec3(F0));
