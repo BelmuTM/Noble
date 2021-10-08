@@ -70,7 +70,8 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
 
         blendWeight = lumaWeight * normalWeight;
     #else
-        blendWeight = 0.985 * float(distance(texCoords, prevTexCoords) <= 1e-6);
+        vec2 velocity = (texCoords - prevTexCoords) * viewSize;
+        blendWeight = exp(-length(velocity)) * 0.6 + 0.3;
     #endif
 
     blendWeight *= float(saturate(prevTexCoords) == prevTexCoords);
