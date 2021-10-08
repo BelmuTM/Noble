@@ -37,19 +37,19 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 }
 
 vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
-    vec3 minColor = vec3(1.0), maxColor = vec3(0.0);
+    vec3 minColor = vec3(1.0), maxColor = vec3(-1.0);
 
     for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
         for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {
-            vec3 color = texture(currColorTex, texCoords + vec2(x, y) * pixelSize).rgb;
-            color = linearToYCoCg(color);
+            vec3 color = linearToYCoCg(texture(currColorTex, texCoords + vec2(x, y) * pixelSize).rgb);
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
     }
     return clipAABB(prevColor, minColor, maxColor);
 }
 
-// Thanks LVutner for the help with previous / current textures management!
+// Thanks LVutner for the help with TAA (buffer management, luma weight)
+// https://github.com/LVutner
 vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex1, texCoords).r)).xy;
 
@@ -57,15 +57,22 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevTexCoords).rgb);
     prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    vec2 velocity = (texCoords - prevTexCoords) * viewSize;
-    float blendWeight = exp(-length(velocity)) * 0.5 + 0.5;
+    float blendWeight = 1.0;
+    #if TAA_VELOCITY_WEIGHT == 0
+        float currLuma = luma(currColor), prevLuma = luma(prevColor);
+        float lumaWeight = exp(-(abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN))));
+	    lumaWeight = mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
 
-    // Luma weight by LVutner: https://github.com/LVutner/NobleRT/commit/0c679af04c83500a158ec6604448c74202ef403e
-    // Thanks to them!
-    float currLuma = luma(currColor), prevLuma = luma(prevColor);
-    float lumaWeight = 1.0 - (abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN)));
-	blendWeight *= mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
+        vec3 normal   = viewToWorld(normalize(decodeNormal(texture(colortex1, texCoords).xy)));
+        vec3 normalAt = viewToWorld(normalize(decodeNormal(texture(colortex1, prevTexCoords).xy)));
+        vec3 delta = normal - normalAt;
+        float normalWeight = max(0.0, exp(-dot(delta, delta) * 1.20));
+
+        blendWeight = lumaWeight * normalWeight;
+    #else
+        blendWeight = 0.985 * float(distance(texCoords, prevTexCoords) <= 1e-6);
+    #endif
 
     blendWeight *= float(saturate(prevTexCoords) == prevTexCoords);
-    return YCoCgToLinear(mix(currColor, prevColor, blendWeight)); 
+    return YCoCgToLinear(mix(currColor, prevColor, saturate(blendWeight))); 
 }

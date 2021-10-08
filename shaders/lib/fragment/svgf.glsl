@@ -61,12 +61,12 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction)
     viewPos = viewToWorld(viewPos);
 
     float centerLuma = luma(currCol);
-    float variance = computeVariance(tex, texCoords);
+    float variance = gaussianVariance(tex, texCoords);
     float colorPhi = sqrt(max(0.0, variance + 1e-8)) * cPhi;
 
     for(int x = -KERNEL_SIZE; x <= KERNEL_SIZE; x++) {
         for(int y = -KERNEL_SIZE; y <= KERNEL_SIZE; y++) {
-            vec2 sampleCoords = coords + vec2(x, y) * pixelSize;
+            vec2 sampleCoords = coords + (vec2(x, y) * (1.7 / viewSize));
             float kernel = kernelWeights[abs(x)] * kernelWeights[abs(y)];
 
             vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
@@ -77,8 +77,8 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction)
             delta = viewPos - samplePos;
             float posWeight = max(0.0, exp(-dot(delta, delta) / pPhi));
   
-            vec3 sampleColor = texture(tex, sampleCoords).rgb;
-            float lumaWeight = colorPhi * abs(luma(sampleColor) - centerLuma);
+            float sampleLuma = luma(texture(tex, sampleCoords).rgb);
+            float lumaWeight = colorPhi * (abs(sampleLuma - centerLuma) / max(centerLuma, max(sampleLuma, 0.15)));
             lumaWeight = exp(-lumaWeight);
 
             float weight = saturate(normalWeight * posWeight * lumaWeight);
