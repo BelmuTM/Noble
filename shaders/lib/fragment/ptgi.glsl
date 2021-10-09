@@ -74,7 +74,7 @@ vec3 computePTGI(in vec3 screenPos) {
             vec3 albedo = isMetal ? vec3(0.0) : texture(colortex4, hitPos.xy).rgb;
             vec3 fresnel = cookTorranceFresnel(NdotD, params.g, albedo, isMetal);
 
-            radiance += throughput * albedo * texture(colortex1, hitPos.xy).z;
+            radiance += throughput * albedo * texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY;
             radiance += throughput * BRDFDirect(normal, -prevDir, sunDir, params, albedo, isMetal) * texture(colortex9, hitPos.xy).rgb * skyColor * SUN_INTENSITY;
 
             float fresnelLum = luma(fresnel);
