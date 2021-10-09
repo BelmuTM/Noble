@@ -62,7 +62,7 @@ vec3 computePTGI(in vec3 screenPos) {
             mat3 TBN = getTBN(normal);
             vec3 viewHitPos = screenToView(hitPos);
 
-            if(!raytrace(viewHitPos, prevDir, GI_STEPS, uniformNoise(j, blueNoise).x, hitPos)) continue;
+            if(!raytrace(viewHitPos, prevDir, GI_STEPS, uniformNoise(j, hash32(gl_FragCoord.xy + frameTimeCounter)).x, hitPos)) continue;
 
             vec2 params = texture(colortex2, hitPos.xy).rg; // F0 and Roughness
             bool isMetal = params.g * 255.0 > 229.5;
