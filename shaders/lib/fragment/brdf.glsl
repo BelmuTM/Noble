@@ -23,7 +23,7 @@ float D_GGX(float NdotH, in float alpha) {
     return alpha / (PI * denom * denom);
 }
 
-float G_SchlickBeckmann(float cosTheta, float roughness) {
+float G_SchlickGGX(float cosTheta, float roughness) {
     // SchlickGGX(N,V,k) = N*V/(N*V)*(1 - k) + k
     float denom = cosTheta * (1.0 - roughness) + roughness;
     return cosTheta / denom;
@@ -33,13 +33,9 @@ float G_Smith(float NdotV, float NdotL, float roughness) {
     float r = roughness + 1.0;
     roughness = (r * r) / 8.0;
 
-    float ggxV = G_SchlickBeckmann(NdotV, roughness);
-    float ggxL = G_SchlickBeckmann(NdotL, roughness);
+    float ggxV = G_SchlickGGX(NdotV, roughness);
+    float ggxL = G_SchlickGGX(NdotL, roughness);
     return ggxV * ggxL;
-}
-
-float G_GGX(float NdotV, float alpha) {
-    return (2.0 * NdotV) / (NdotV + sqrt(alpha + (1.0 - alpha) * (NdotV + NdotV)));
 }
 
 float G_CookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
@@ -144,12 +140,18 @@ vec3 cookTorranceFresnel(float cosTheta, float F0, vec3 albedo, bool isMetal) {
     return isMetal ? schlickGaussian(cosTheta, albedo) : vec3(dielectricFresnel(cosTheta, F0toIOR(F0)));
 }
 
-vec3 cookTorranceSpecular(float NdotH, float HdotL, float NdotV, float NdotL, float roughness, float F0, vec3 albedo, bool isMetal) {
+vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, float roughness, float F0, vec3 albedo, bool isMetal) {
+    vec3 H = normalize(V + L);
+    float NdotV = max(EPS, dot(N, V));
+    float NdotL = max(EPS, dot(N, L));
+    float HdotL = max(EPS, dot(H, L));
+    float NdotH = max(EPS, dot(N, H));
+
     float D = D_GGX(NdotH, roughness * roughness);
     vec3 F = cookTorranceFresnel(HdotL, F0, getSpecularColor(F0, albedo), isMetal);
     float G = G_Smith(NdotV, NdotL, roughness);
         
-    return saturate((D * F * G) / max(0.0, 4.0 * NdotL * NdotV));
+    return saturate((D * F * G) / max(EPS, 4.0 * NdotL * NdotV));
 }
 
 // OREN-NAYAR MODEL - QUALITATIVE 
@@ -170,43 +172,32 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
     vec3 V = -normalize(viewPos);
     bool isMetal = mat.F0 * 255.0 > 229.5;
     float alpha = mat.roughness * mat.roughness;
-
+    
     vec3 H = normalize(V + L);
+    float HdotL = max(EPS, dot(H, L));
     float NdotV = max(EPS, dot(N, V));
     float NdotL = max(EPS, dot(N, L));
-    float VdotL = max(EPS, dot(V, L));
-    float HdotL = max(EPS, dot(H, L));
-    float HdotV = max(EPS, dot(H, V));
-    float NdotH = max(EPS, dot(N, H));
 
     vec3 specular = vec3(0.0);
     #if SPECULAR == 1
-        specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, mat.roughness, mat.F0, mat.albedo, isMetal);
+        specular = cookTorranceSpecular(N, V, L, mat.roughness, mat.F0, mat.albedo, isMetal);
     #endif
 
     vec3 diffuse = vec3(0.0);
     if(!isMetal) { diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, mat.albedo); }
 
     /* Energy Conservation */
-    vec3 F0vec = vec3(mat.F0);
-    vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0vec) + 5.0 * F0vec * F0vec) * 0.11111111;
-    vec3 fNdotL = 1.0 - schlickGaussian(NdotL, F0vec);
-    vec3 fNdotV = 1.0 - schlickGaussian(NdotV, F0vec);
-
-    vec3 fresnel = (fNdotL * fNdotV) / energyConservationFactor;
-    diffuse *= fresnel;
+    float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * 0.11111111;
+    diffuse *= 1.0 - cookTorranceFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), isMetal);;
+    diffuse /= energyConservationFactor;
 
     /* Calculating Indirect / Direct Lighting */
     vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * getDayColor();
 
     if(!isMetal) {
         Lighting += mat.emission * mat.albedo;
-        vec3 ambient = GI == 0 ? AMBIENT : PTGI_AMBIENT;
-
-        Lighting += ambient * mat.albedo;
-        #if GI == 0
-            Lighting *= lightmap;
-        #endif
+        Lighting += AMBIENT * mat.albedo;
+        Lighting *= lightmap;
     }
     return Lighting;
 }

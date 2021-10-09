@@ -40,7 +40,7 @@ const bool colortex6Clear = false;
         #endif
         totalWeight *= float(saturate(prevTexCoords) == prevTexCoords);
 
-        return mix(currColor, prevColor, totalWeight);
+        return mix(currColor, prevColor, saturate(totalWeight));
     }
 #endif
 
@@ -61,7 +61,7 @@ void main() {
                 vec3 viewPos = getViewPos(texCoords);
                 vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
             
-                globalIllumination = saturate(temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
+                globalIllumination = temporalAccumulation(colortex6, globalIllumination, viewPos, normal);
             #endif
         }
     #else

@@ -33,7 +33,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 	vec3 hitPos;
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
-		vec2 noise = TAA == 1 ? uniformAnimatedNoise(animBlueNoise.xy) : uniformNoise(i, blueNoise);
+		vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)) : uniformNoise(i, blueNoise);
 		vec3 sampleDir = TBN * randomHemisphereDirection(noise);
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.x, hitPos)) continue;
 

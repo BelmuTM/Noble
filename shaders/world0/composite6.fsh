@@ -26,6 +26,18 @@ void main() {
     vec3 viewPos = getViewPos(texCoords);
     vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
+    if(!sky) {
+        #if GI == 1
+            vec3 globalIllumination = vec3(0.0);
+            #if GI_FILTER == 1
+                globalIllumination = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
+            #else
+                globalIllumination = texture(colortex9, texCoords).rgb;
+            #endif
+            Result.rgb = max(vec3(0.0), globalIllumination);
+        #endif
+    }
+
     #if SSR == 1
         if(!sky) {
             float NdotV = max(EPS, dot(normal, -normalize(viewPos)));
@@ -59,23 +71,6 @@ void main() {
     #if BLOOM == 1
         brightSpots = luma(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
     #endif
-
-    if(!sky) {
-        bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
-
-        if(!isMetal) {
-            #if GI == 1
-                vec3 globalIllumination = vec3(0.0);
-                #if GI_FILTER == 1
-                    globalIllumination = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
-                #else
-                    globalIllumination = texture(colortex9, texCoords).rgb;
-                #endif
-                globalIllumination = saturate(globalIllumination * texture(colortex4, texCoords).rgb);
-                Result.rgb = GI_VISUALIZATION == 0 ? Result.rgb + globalIllumination : globalIllumination;
-            #endif
-        }
-    }
 
     /*DRAWBUFFERS:05*/
     gl_FragData[0] = Result;

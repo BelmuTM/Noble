@@ -39,7 +39,7 @@ vec3 getHitColor(vec3 hitPos) {
 vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isMetal) {
     vec3 reflected = reflect(normalize(viewPos), normal), hitPos;
 
-    float jitter = TAA == 1 ? uniformAnimatedNoise(animBlueNoise.xy).x : blueNoise.x;
+    float jitter = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)).x : blueNoise.x;
     float hit = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos));
 
     vec3 fresnel = cookTorranceFresnel(NdotV, F0.r, F0, isMetal);
@@ -68,7 +68,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
     mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-        vec2 noise = TAA == 1 ? uniformAnimatedNoise(animBlueNoise.xy) : uniformNoise(i, blueNoise);
+        vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)) : uniformNoise(i, blueNoise);
         
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise, alpha);
 		vec3 reflected = reflect(viewDir, TBN * microfacet);	

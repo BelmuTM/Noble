@@ -22,7 +22,7 @@ void main() {
 
     bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
 
-    if(!isSky(texCoords) && !isMetal) {
+    if(!isSky(texCoords)) {
         vec3 viewPos = getViewPos(texCoords);
         vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
         
@@ -39,7 +39,7 @@ void main() {
         #else 
             #if AO == 1
                 #if AO_FILTER == 1
-                    ambientOcclusion = gaussianBlur(texCoords, colortex5, vec2(1.0, 0.0), 1.0).a;
+                    ambientOcclusion = isMetal ? 1.0 : gaussianBlur(texCoords, colortex5, vec2(1.0, 0.0), 1.0).a;
                 #endif
             #endif
         #endif

@@ -12,6 +12,9 @@ const float gg       = g * g;
 const float earthRad = 6371e3;
 const float atmosRad = 110e3;
 
+const float hR = 7994.0;
+const float hM = 1200.0;
+
 /*
     SOURCES / CREDITS:
 
@@ -41,20 +44,28 @@ float raySphere(vec3 ro, vec3 rd, float radius) {
     return -b - sqrt(h);
 }
 
-#define IN_SCATTER_STEPS 16
+#define SCATTER_STEPS 16
 
-vec3 inScattered(vec3 rayOrigin, vec3 rayDir, float rayLength) {
+vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, float rayLength) {
     vec3 rayPos = rayOrigin;
-    float stepSize = 1.0 / IN_SCATTER_STEPS;
-    vec3 scattered = vec3(0.0);
+    float stepSize = 1.0 / SCATTER_STEPS;
+    
+    vec3 totalR = vec3(0.0), totalM = vec3(0.0);
+    float oDepthRlh = 0.0, oDepthMie = 0.0;
 
     float VdotL = max(0.0, dot(normalize(rayOrigin), sunDir));
     float pMie  = miePhase(VdotL);
-    float pRylh = rayleighPhase(VdotL);
+    float pRlh = rayleighPhase(VdotL);
 
-    for(int i = 0; i < IN_SCATTER_STEPS; i++) {
+    for(int i = 0; i < SCATTER_STEPS; i++) {
         float sunRayLength = raySphere(rayOrigin, rayDir, atmosRad);
+
+        for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
+            
+        }
 
         rayPos += stepSize;
     }
+
+    return SUN_INTENSITY * (totalR * pRlh + totalM * pMie);
 }

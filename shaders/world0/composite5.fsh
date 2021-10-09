@@ -18,20 +18,16 @@ varying vec2 texCoords;
 void main() {
     vec3 globalIllumination = vec3(0.0);
     if(!isSky(texCoords)) {
-        bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
+        vec3 viewPos = getViewPos(texCoords);
+        vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
-        if(!isMetal) {
-            vec3 viewPos = getViewPos(texCoords);
-            vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-
-            #if GI == 1
-                #if GI_FILTER == 1
-                    globalIllumination = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
-                #else
-                    globalIllumination = texture(colortex9, texCoords).rgb;
-                #endif
+        #if GI == 1
+            #if GI_FILTER == 1
+                globalIllumination = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
+            #else
+                globalIllumination = texture(colortex9, texCoords).rgb;
             #endif
-        }
+        #endif
     }
     /*DRAWBUFFERS:9*/
     gl_FragData[0] = vec4(globalIllumination, 1.0);

@@ -38,18 +38,20 @@ void main() {
     #endif
 
     vec3 Lighting = mat.albedo;
-    if(!isSky(texCoords)) {
-        vec3 normal = normalize(mat.normal.xyz);
-        vec3 shadowmap = texture(colortex9, texCoords).rgb;
-        vec3 lightmapColor = vec3(1.0);
+    #if GI == 0
+        if(!isSky(texCoords)) {
+            vec3 normal = normalize(mat.normal.xyz);
+            vec3 shadowmap = texture(colortex9, texCoords).rgb;
+            vec3 lightmapColor = vec3(1.0);
     
-        #if GI == 0
-            vec2 lightMap = texture(colortex2, texCoords).zw;
-            lightmapColor = max(vec3(0.003), getLightmapColor(lightMap, viewPosSkyColor(viewPos)));
-        #endif
+            #if GI == 0
+                vec2 lightMap = texture(colortex2, texCoords).zw;
+                lightmapColor = max(vec3(0.003), getLightmapColor(lightMap, viewPosSkyColor(viewPos)));
+            #endif
 
-        Lighting = cookTorrance(viewPos, normal, sunDir, mat, lightmapColor, shadowmap);
-    }
+            Lighting = cookTorrance(viewPos, normal, sunDir, mat, lightmapColor, shadowmap);
+        }
+    #endif
 
     /*DRAWBUFFERS:048*/
     gl_FragData[0] = vec4(Lighting, 1.0);

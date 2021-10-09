@@ -29,7 +29,7 @@ const float rainAmbientDarkness = 0.3;
 
 float getSkyLightmap(vec2 coords) {
     float lightmap = texture(colortex2, coords).w;
-    return saturate((lightmap * lightmap * lightmap) * 2.0 - 1.0);
+    return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
 }
 
 vec3 getLightmapColor(vec2 lightMap, vec3 dayTimeColor) {
