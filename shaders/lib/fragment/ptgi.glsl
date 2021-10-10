@@ -19,6 +19,9 @@ vec3 BRDFSpecular(vec3 N, vec3 V, vec3 L, vec3 fresnel, float roughness) {
 
 vec3 BRDFDirect(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, bool isMetal) {
     float alpha = params.r * params.r;
+
+    vec3 H = normalize(V + L);
+    float HdotL = max(EPS, dot(H, L));
     float NdotV = max(EPS, dot(N, V));
     float NdotL = max(EPS, dot(N, L));
 
@@ -27,13 +30,9 @@ vec3 BRDFDirect(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, bool isMetal) 
     vec3 diffuse = vec3(0.0);
     if(!isMetal) { diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, albedo); }
 
-    vec3 F0vec = vec3(params.g);
-    vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0vec) + 5.0 * F0vec * F0vec) * 0.11111111;
-    vec3 fNdotL = 1.0 - schlickGaussian(NdotL, F0vec);
-    vec3 fNdotV = 1.0 - schlickGaussian(NdotV, F0vec);
-
-    vec3 fresnel = (fNdotL * fNdotV) / energyConservationFactor;
-    diffuse *= fresnel;
+    float energyConservationFactor = 1.0 - (4.0 * sqrt(params.g) + 5.0 * params.g * params.g) * 0.11111111;
+    diffuse *= 1.0 - cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);;
+    diffuse /= energyConservationFactor;
 
     return (diffuse + specular) * NdotL;
 }
@@ -62,7 +61,7 @@ vec3 computePTGI(in vec3 screenPos) {
             mat3 TBN = getTBN(normal);
             vec3 viewHitPos = screenToView(hitPos);
 
-            if(!raytrace(viewHitPos, prevDir, GI_STEPS, uniformNoise(j, hash32(gl_FragCoord.xy + frameTimeCounter)).x, hitPos)) continue;
+            if(!raytrace(viewHitPos, prevDir, GI_STEPS, uniformAnimatedNoise(blueNoise.xy).y, hitPos)) continue;
 
             vec2 params = texture(colortex2, hitPos.xy).rg; // F0 and Roughness
             bool isMetal = params.g * 255.0 > 229.5;
@@ -86,7 +85,7 @@ vec3 computePTGI(in vec3 screenPos) {
                 rayDir = reflect(prevDir, TBN * microfacet);
 
                 throughput /= specBounceProbability;
-                throughput *= BRDFSpecular(normal, -prevDir, rayDir, fresnel, params.r);
+                throughput *= BRDFSpecular(microfacet, -prevDir, rayDir, fresnel, params.r);
             } else {
                 throughput /= 1.0 - specBounceProbability;
 
