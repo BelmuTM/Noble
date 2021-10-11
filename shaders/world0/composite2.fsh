@@ -61,7 +61,7 @@ void main() {
                 vec3 viewPos = getViewPos(texCoords);
                 vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
             
-                globalIllumination = temporalAccumulation(colortex6, globalIllumination, viewPos, normal);
+                globalIllumination = max(vec3(EPS), temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
             #endif
         }
     #else
