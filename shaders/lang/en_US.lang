@@ -17,6 +17,7 @@ profile.comment = §lNormal§r profile refers to Noble with default settings. §
 ##################### SCREENS #####################
 
 screen.LIGHTING = Lighting & Shadows
+screen.AMBIENT_COLOR = Ambient Color
 screen.RAYTRACING = Ray Tracing
 screen.ATMOSPHERICS = Atmospherics
 screen.WORLD = World
@@ -87,6 +88,12 @@ value.SSAO_SAMPLES.20 = §c20
 
 option.sunPathRotation = Sun Path Rotation
 option.sunPathRotation.comment = Adjusts sun's rotation.
+
+##################### AMBIENT LIGHTING #####################
+
+option.AMBIENT_R = Red
+option.AMBIENT_G = Green
+option.AMBIENT_B = Blue
 
 ##################### RAY TRACING #####################
 

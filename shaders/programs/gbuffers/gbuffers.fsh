@@ -56,7 +56,7 @@ void main() {
 	normal = clamp(normal, -1.0, 1.0);
 
 	/*
-	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 10 && emission < EPS) {
+	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 10 && emission < 0.1) {
 		emission = 0.8;
 	}
 	*/
