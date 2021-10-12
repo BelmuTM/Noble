@@ -66,7 +66,7 @@ void main() {
     // Bloom
     #if BLOOM == 1
         // I wasn't supposed to use magic numbers like this in Noble :Sadge:
-        Result.rgb += saturate(readBloom().rgb * 0.02 * saturate(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
+        Result.rgb += saturate(readBloom().rgb * 0.08 * saturate(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
     #endif
 
     // Purkinje

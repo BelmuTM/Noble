@@ -195,7 +195,7 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
     vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * getDayColor();
 
     if(!isMetal) {
-        Lighting += mat.emission * mat.albedo;
+        Lighting += mat.emission * mat.albedo * EMISSION_INTENSITY;
         Lighting += AMBIENT * mat.albedo;
         Lighting *= lightmap;
     }

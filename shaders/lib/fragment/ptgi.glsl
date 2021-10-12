@@ -50,7 +50,7 @@ vec3 computePTGI(in vec3 screenPos) {
             prevDir = rayDir;
 
             vec2 noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter));
-            float rng = rand(gl_FragCoord.xy + frameTimeCounter);
+            float rng = rand(gl_FragCoord.xy * frameTimeCounter);
 
             if(j > 3) {
                 float roulette = max(throughput.x, max(throughput.y, throughput.z));
