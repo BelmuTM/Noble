@@ -86,20 +86,20 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
         #endif
         weight += NdotL;
 	}
-	return saturate(filteredColor / max(EPS, weight));
+	return filteredColor / max(EPS, weight);
 }
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/
 
 vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
-    float ior = F0toIOR(F0);
     viewPos += normal * EPS;
 
-    vec3 refracted = refract(normalize(viewPos), normal, 1.0 / ior);
-    float hit = float(raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos));
-    if(isHand(texture(depthtex1, hitPos.xy).r)) return vec3(0.0);
+    vec3 refracted = refract(normalize(viewPos), normal, airIOR / F0toIOR(F0));
+    float hit  = float(raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos));
+    float hand = float(!isHand(texture(depthtex1, hitPos.xy).r));
 
     vec3 fresnel = fresnelSchlick(NdotV, vec3(F0));
     vec3 hitColor = texture(colortex4, hitPos.xy).rgb;
-    return mix(background, hitColor, Kneemund_Attenuation(hitPos.xy, 0.07) * hit) * (1.0 - fresnel);
+
+    return mix(background, hitColor, Kneemund_Attenuation(hitPos.xy, 0.07) * hit * hand) * (1.0 - fresnel);
 }

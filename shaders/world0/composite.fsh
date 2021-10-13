@@ -18,7 +18,7 @@ varying vec2 texCoords;
 #include "/lib/fragment/ssr.glsl"
 
 void main() {
-   vec4 temp = sRGBToLinear(texture(colortex4, texCoords));
+   vec4 temp = texture(colortex4, texCoords);
    vec4 rain = sRGBToLinear(texture(colortex5, texCoords));
 
    vec3 viewPos = getViewPos(texCoords);

@@ -26,7 +26,7 @@
             contactShadow = float(contactShadows(getViewPos(texCoords), hitPos));
         #endif
 
-        return step(sampleCoords.z - 0.001, texture(tex, sampleCoords.xy).r * contactShadow);
+        return step(sampleCoords.z - 1e-3, texture(tex, sampleCoords.xy).r * contactShadow);
     }
 
     vec3 sampleTransparentShadow(vec3 sampleCoords) {

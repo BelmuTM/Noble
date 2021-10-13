@@ -55,7 +55,7 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
 
     vec3 currColor = linearToYCoCg(texture(currTex, texCoords).rgb);
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevTexCoords).rgb);
-    prevColor = neighbourhoodClipping(currTex, prevColor);
+    prevColor      = neighbourhoodClipping(currTex, prevColor);
 
     float blendWeight = 1.0;
     #if TAA_VELOCITY_WEIGHT == 0
@@ -63,16 +63,16 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
         float lumaWeight = exp(-(abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN))));
 	    lumaWeight       = mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
 
-        vec3 normal   = viewToWorld(normalize(decodeNormal(texture(colortex1, texCoords).xy)));
-        vec3 normalAt = viewToWorld(normalize(decodeNormal(texture(colortex1, prevTexCoords).xy)));
-        vec3 delta    = normal - normalAt;
-        float normalWeight = max(0.0, exp(-dot(delta, delta) * 0.4));
+        vec3 normal      = viewToWorld(normalize(decodeNormal(texture(colortex1, texCoords).xy)));
+        vec3 normalAt    = viewToWorld(normalize(decodeNormal(texture(colortex1, prevTexCoords).xy)));
+        vec3 delta       = normal - normalAt;
+        float normWeight = max(0.0, exp(-dot(delta, delta) * 0.2));
 
-        vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
-        delta        = viewToWorld(getViewPos(texCoords)) - prevPos;
-        float posWeight = max(0.0, exp(-dot(delta, delta) * 2.4));
+        vec3 prevPos     = viewToWorld(getViewPos(prevTexCoords));
+        delta            = viewToWorld(getViewPos(texCoords)) - prevPos;
+        float posWeight  = max(0.0, exp(-dot(delta, delta) * 1.5));
 
-        blendWeight = lumaWeight * normalWeight * posWeight;
+        blendWeight = lumaWeight * posWeight * normWeight;
     #else
         blendWeight = TAA_STRENGTH * float(distance(texCoords, prevTexCoords) <= 1e-6);
     #endif

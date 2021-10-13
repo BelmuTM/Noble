@@ -159,8 +159,8 @@ option.VL.comment = Simulates light scattering in fog.
 value.VL.0 = §cOFF
 value.VL.1 = §aON
 
-option.VL_BRIGHTNESS = VL Brightness
-option.VL_BRIGHTNESS.comment = Adjusts §bVL§f's brightness.
+option.VL_EXTINCTION = VL Extinction
+option.VL_EXTINCTION.comment = Adjusts §bVolumetric Lighting§f's extinction coefficient. It influences how much light is being absorbed by the atmosphere.
 
 option.VL_FILTER = VL Filter
 option.VL_FILTER.comment = Blurs §bVL §fto reduce the noise. §cGives a cleaner result, but reduces performance.

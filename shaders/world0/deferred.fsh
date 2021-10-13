@@ -57,12 +57,13 @@ void main() {
           vec3 viewPos = getViewPos(texCoords);
           vec3 eyeDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
-          float angle = quintic(0.9998, 0.99995, dot(sunDir, normalize(viewPos)));
-          vec3 sky = mix(getDayTimeSkyGradient(eyeDir, viewPos), vec3(2.0), angle); 
-          
-          gl_FragData[0] = vec4(sky, 1.0);
+          float VdotL = max(EPS, dot(normalize(viewPos), sunDir));
+          float angle = quintic(0.9998, 0.99995, VdotL);
+
+          vec3 sky = getDayTimeSkyGradient(eyeDir, viewPos) + (SUN_COLOR * angle); 
+          gl_FragData[0] = sRGBToLinear(vec4(sky, 1.0));
      } else {
-          gl_FragData[0] = texture(colortex0, texCoords);
+          gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));
      }
      gl_FragData[1] = vec4(shadowmap, 1.0);
 }

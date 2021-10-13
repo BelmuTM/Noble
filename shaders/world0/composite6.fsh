@@ -55,16 +55,19 @@ void main() {
             #endif
 
             vec3 DFG = envBRDFApprox(specularColor, roughness, NdotV);
-            Result.rgb = saturate(mix(Result.rgb, reflections, DFG));
+            Result.rgb = mix(Result.rgb, reflections, DFG);
         }
     #endif
 
-    vec3 volumetricLighting = texture(colortex8, texCoords).rgb;
     #if VL == 1
+        vec3 volumetricLighting = vec3(0.0);
         #if VL_FILTER == 1
             volumetricLighting = boxBlur(texCoords, colortex8, 5).rgb;
+        #else
+            volumetricLighting = texture(colortex8, texCoords).rgb;
         #endif
-        Result.rgb += (viewPosSkyColor(viewPos) * volumetricLighting) * VL_BRIGHTNESS;
+        
+        Result.rgb += (viewPosSkyColor(viewPos) * volumetricLighting);
     #endif
 
     vec3 brightSpots;

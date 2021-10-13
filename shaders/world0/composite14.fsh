@@ -17,10 +17,6 @@ varying vec2 texCoords;
 #include "/lib/post/bloom.glsl"
 #include "/lib/atmospherics/fog.glsl"
 
-/*
-const bool colortex5MipmapEnabled = true;
-*/
-
 vec3 computeDOF(vec3 color, float depth) {
     float coc = getCoC(linearizeDepth(depth), linearizeDepth(centerDepthSmooth));
     vec4 outOfFocusColor = bokeh(texCoords, colortex0, pixelSize, 6, DOF_RADIUS);

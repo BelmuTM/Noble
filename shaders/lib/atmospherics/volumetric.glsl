@@ -22,8 +22,8 @@ vec3 computeVL(vec3 viewPos) {
         rayPos += rayDir;
         vec3 samplePos = vec3(distort(rayPos.xy), rayPos.z) * 0.5 + 0.5;
 
-        float shadowVisibility0 = step(samplePos.z - EPS, texture(shadowtex0, samplePos.xy).r);
-        float shadowVisibility1 = step(samplePos.z - EPS, texture(shadowtex1, samplePos.xy).r);
+        float shadowVisibility0 = step(samplePos.z - 1e-3, texture(shadowtex0, samplePos.xy).r);
+        float shadowVisibility1 = step(samplePos.z - 1e-3, texture(shadowtex1, samplePos.xy).r);
 
         vec4 shadowColor      = texture(shadowcolor0, samplePos.xy);
         vec3 transmittedColor = shadowColor.rgb * (1.0 - shadowColor.a);
