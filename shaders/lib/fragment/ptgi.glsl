@@ -11,7 +11,7 @@
     Thanks Bálint#1673 and Jessie#7257 for the huge help!
 */
 
-vec3 BRDFSpecular(vec3 N, vec3 V, vec3 L, vec3 fresnel, float roughness) {
+vec3 BRDFSpecular(vec3 N, vec3 L, vec3 fresnel, float roughness) {
     float NdotL = max(EPS, dot(N, L));
     float r = roughness + 1.0;
     return fresnel * G_SchlickGGX(NdotL, (r * r) / 8.0);
@@ -66,12 +66,13 @@ vec3 computePTGI(in vec3 screenPos) {
             vec2 params = texture(colortex2, hitPos.xy).rg; // F0 and Roughness
             bool isMetal = params.g * 255.0 > 229.5;
 
-            float NdotD = max(EPS, dot(normal, -prevDir));
+            vec3 H = normalize(-prevDir + rayDir);
+            float HdotD = max(EPS, dot(H, -prevDir));
             float NdotL = max(EPS, dot(normal, sunDir));
 
             vec3 skyColor = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * -prevDir, viewHitPos);
-            vec3 albedo = isMetal ? vec3(0.0) : texture(colortex4, hitPos.xy).rgb;
-            vec3 fresnel = cookTorranceFresnel(NdotD, params.g, albedo, isMetal);
+            vec3 albedo = texture(colortex4, hitPos.xy).rgb;
+            vec3 fresnel = cookTorranceFresnel(HdotD, params.g, getSpecularColor(params.g, albedo), isMetal);
 
             radiance += max(vec3(EPS), throughput * albedo * texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);
             radiance += throughput * BRDFDirect(normal, -prevDir, sunDir, params, albedo, isMetal) * texture(colortex9, hitPos.xy).rgb * skyColor * SUN_INTENSITY;
@@ -85,13 +86,13 @@ vec3 computePTGI(in vec3 screenPos) {
                 rayDir = reflect(prevDir, TBN * microfacet);
 
                 throughput /= specBounceProbability;
-                throughput *= BRDFSpecular(microfacet, -prevDir, rayDir, fresnel, params.r);
+                throughput *= BRDFSpecular(microfacet, rayDir, fresnel, params.r);
             } else {
                 throughput /= 1.0 - specBounceProbability;
 
-                float energyConservationFactor = 1.0 - (4.0 * sqrt(params.g) + 5.0 * params.g * params.g) * 0.11111111;
-                throughput *= 1.0 - fresnel;
-                throughput /= energyConservationFactor;
+                //float energyConservationFactor = 1.0 - (4.0 * sqrt(params.g) + 5.0 * params.g * params.g) * 0.11111111;
+                //throughput *= 1.0 - fresnel;
+                //throughput /= energyConservationFactor;
 
                 throughput *= albedo;
                 rayDir = TBN * randomHemisphereDirection(noise);
