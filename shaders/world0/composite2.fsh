@@ -55,7 +55,7 @@ void main() {
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords && !isSky(scaledUv)) {
             vec3 positionAt = vec3(scaledUv, texture(depthtex0, scaledUv).r);
-            globalIllumination = computePTGI(positionAt);
+            globalIllumination = pathTrace(positionAt);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
                 vec3 viewPos = getViewPos(texCoords);

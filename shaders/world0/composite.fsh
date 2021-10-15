@@ -46,7 +46,7 @@ void main() {
 
    #if REFRACTION == 1
       float NdotV = max(EPS, dot(normal, normalize(-viewPos)));
-      if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 3) {
+      if(F0toIOR(data.F0) > 1.0) {
          opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);
          coords = hitPos.xy;
       }
@@ -81,6 +81,6 @@ void main() {
    #endif
 
    /*DRAWBUFFERS:09*/
-   gl_FragData[0] = vec4(data.albedo, 1.0) + rain;
+   gl_FragData[0] = saturate(vec4(data.albedo, 1.0) + rain);
    gl_FragData[1] = vec4(shadowmap, 1.0);
 }

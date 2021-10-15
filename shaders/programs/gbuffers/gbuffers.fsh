@@ -43,6 +43,7 @@ void main() {
 	float emission = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
 
 	vec3 normal;
+	// WOTAH
 	if(int(blockId + 0.5) == 1) { 
 		albedoTex.a = 0.0;
 		F0 = 0.02;
@@ -56,7 +57,7 @@ void main() {
 	normal = clamp(normal, -1.0, 1.0);
 
 	/*
-	if(int(blockId + 0.5) > 3 && int(blockId + 0.5) <= 10 && emission < 0.1) {
+	if(int(blockId + 0.5) > 4 && int(blockId + 0.5) <= 10 && emission < 0.1) {
 		emission = 0.8;
 	}
 	*/

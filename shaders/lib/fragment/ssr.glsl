@@ -92,7 +92,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 /*------------------ SIMPLE REFRACTIONS ------------------*/
 
 vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
-    viewPos += normal * EPS;
+    viewPos += normal * 1e-3;
 
     vec3 refracted = refract(normalize(viewPos), normal, airIOR / F0toIOR(F0));
     float hit  = float(raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos));

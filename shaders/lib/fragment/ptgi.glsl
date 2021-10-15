@@ -11,91 +11,91 @@
     Thanks Bálint#1673 and Jessie#7257 for the huge help!
 */
 
-vec3 BRDFSpecular(vec3 N, vec3 L, vec3 fresnel, float roughness) {
+vec3 specularBRDF(vec3 N, vec3 L, vec3 fresnel, in float roughness) {
     float NdotL = max(EPS, dot(N, L));
-    float r = roughness + 1.0;
-    return fresnel * G_SchlickGGX(NdotL, (r * r) / 8.0);
+    float k = roughness + 1.0;
+    return fresnel * G_SchlickGGX(NdotL, (k * k) * 0.125);
 }
 
-vec3 BRDFDirect(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, bool isMetal) {
+vec3 directBRDF(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, vec3 shadowmap, bool isMetal) {
     float alpha = params.r * params.r;
-
-    vec3 H = normalize(V + L);
-    float HdotL = max(EPS, dot(H, L));
     float NdotV = max(EPS, dot(N, V));
     float NdotL = max(EPS, dot(N, L));
 
     vec3 specular = cookTorranceSpecular(N, V, L, params.r, params.g, albedo, isMetal);
-
     vec3 diffuse = vec3(0.0);
-    if(!isMetal) { diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, albedo); }
 
-    float energyConservationFactor = 1.0 - (4.0 * sqrt(params.g) + 5.0 * params.g * params.g) * 0.11111111;
-    diffuse *= 1.0 - cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);;
-    diffuse /= energyConservationFactor;
+    if(!isMetal) { 
+        diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, albedo);
 
-    return (diffuse + specular) * NdotL;
+        float energyConservationFactor = 1.0 - (4.0 * sqrt(params.g) + 5.0 * params.g * params.g) * 0.11111111;
+        diffuse *= 1.0 - cookTorranceFresnel(NdotV, params.g, getSpecularColor(params.g, albedo), isMetal);
+        diffuse /= energyConservationFactor;
+    }
+    return (diffuse + specular) * (NdotL * shadowmap);
 }
 
-vec3 computePTGI(in vec3 screenPos) {
+vec3 pathTrace(in vec3 screenPos) {
     vec3 radiance = vec3(0.0);
 
     for(int i = 0; i < GI_SAMPLES; i++) {
         vec3 hitPos = screenPos; 
         vec3 viewPos = screenToView(screenPos); 
-        vec3 rayDir = normalize(viewPos); vec3 prevDir;
+        vec3 rayDir = normalize(viewPos);
+        vec3 prevDir;
 
         vec3 throughput = vec3(1.0);
         for(int j = 0; j < GI_BOUNCES; j++) {
             prevDir = rayDir;
 
-            vec2 noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter));
-            float rng = rand(gl_FragCoord.xy * frameTimeCounter);
+            vec2 noise = uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter)));
+            float rng = rand(gl_FragCoord.xy - frameTimeCounter);
 
             if(j > 3) {
-                float roulette = max(throughput.x, max(throughput.y, throughput.z));
+                float roulette = saturate(max(throughput.x, max(throughput.y, throughput.z)));
                 if(roulette < rng) break;
                 throughput /= roulette;
             }
-            vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
-            mat3 TBN = getTBN(normal);
-            vec3 viewHitPos = screenToView(hitPos);
-
-            if(!raytrace(viewHitPos, prevDir, GI_STEPS, uniformAnimatedNoise(blueNoise.xy).y, hitPos)) continue;
 
             vec2 params = texture(colortex2, hitPos.xy).rg; // F0 and Roughness
             bool isMetal = params.g * 255.0 > 229.5;
 
             vec3 H = normalize(-prevDir + rayDir);
-            float HdotD = max(EPS, dot(H, -prevDir));
-            float NdotL = max(EPS, dot(normal, sunDir));
+            float HdotV = max(EPS, dot(H, -prevDir));
+            float HdotL = max(EPS, dot(H, rayDir));
 
-            vec3 skyColor = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * -prevDir, viewHitPos);
             vec3 albedo = texture(colortex4, hitPos.xy).rgb;
-            vec3 fresnel = cookTorranceFresnel(HdotD, params.g, getSpecularColor(params.g, albedo), isMetal);
+            radiance += throughput * albedo * texture(colortex1, hitPos.xy).z;
 
-            radiance += max(vec3(EPS), throughput * albedo * texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);
-            radiance += throughput * BRDFDirect(normal, -prevDir, sunDir, params, albedo, isMetal) * texture(colortex9, hitPos.xy).rgb * skyColor * SUN_INTENSITY;
-
-            float fresnelLum = luma(fresnel);
+            float fresnelLum = saturate(luma(cookTorranceFresnel(HdotV, params.g, getSpecularColor(params.g, albedo), isMetal)));
             float diffuseLum = fresnelLum / (fresnelLum + luma(albedo) * (1.0 - float(isMetal)) * (1.0 - fresnelLum));
             float specBounceProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
+            bool specBounce = specBounceProbability > rng;
 
-            if(specBounceProbability > rng) {
-                vec3 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, params.r * params.r);
+            vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
+            mat3 TBN = getTBN(normal);
+
+            vec3 microfacet;
+            if(specBounce) {
+                microfacet = sampleGGXVNDF(-prevDir * TBN, noise, params.r * params.r);
                 rayDir = reflect(prevDir, TBN * microfacet);
-
-                throughput /= specBounceProbability;
-                throughput *= BRDFSpecular(microfacet, rayDir, fresnel, params.r);
             } else {
-                throughput /= 1.0 - specBounceProbability;
+                rayDir = TBN * hemisphereSample(noise);
+            }
 
-                //float energyConservationFactor = 1.0 - (4.0 * sqrt(params.g) + 5.0 * params.g * params.g) * 0.11111111;
-                //throughput *= 1.0 - fresnel;
-                //throughput /= energyConservationFactor;
+            vec3 viewHitPos = screenToView(hitPos) + normal * 1e-3;
+            if(!raytrace(viewHitPos, rayDir, GI_STEPS, noise.y, hitPos)) continue;
 
+            radiance += throughput * directBRDF(normal, -prevDir, sunDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * SUN_INTENSITY;
+
+            if(specBounce) {
+                throughput /= specBounceProbability;
+
+                vec3 specularFresnel = cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);
+                throughput *= specularBRDF(microfacet, rayDir, specularFresnel, params.r);
+            } else {
+                throughput /= (1.0 - specBounceProbability);
                 throughput *= albedo;
-                rayDir = TBN * randomHemisphereDirection(noise);
             }
         }
     }
