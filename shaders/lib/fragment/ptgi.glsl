@@ -47,17 +47,15 @@ vec3 pathTrace(in vec3 screenPos) {
         vec3 throughput = vec3(1.0);
         for(int j = 0; j < GI_BOUNCES; j++) {
             prevDir = rayDir;
-
             vec2 noise = uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter)));
-            float rng = rand(gl_FragCoord.xy - frameTimeCounter);
 
             if(j > 3) {
                 float roulette = saturate(max(throughput.x, max(throughput.y, throughput.z)));
-                if(roulette < rng) break;
+                if(roulette < noise.x) break;
                 throughput /= roulette;
             }
 
-            vec2 params = texture(colortex2, hitPos.xy).rg; // F0 and Roughness
+            vec2 params = texture(colortex2, hitPos.xy).rg; // R = roughness | G = F0
             bool isMetal = params.g * 255.0 > 229.5;
 
             vec3 H = normalize(-prevDir + rayDir);
@@ -70,7 +68,7 @@ vec3 pathTrace(in vec3 screenPos) {
             float fresnelLum = saturate(luma(cookTorranceFresnel(HdotV, params.g, getSpecularColor(params.g, albedo), isMetal)));
             float diffuseLum = fresnelLum / (fresnelLum + luma(albedo) * (1.0 - float(isMetal)) * (1.0 - fresnelLum));
             float specBounceProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
-            bool specBounce = specBounceProbability > rng;
+            bool specBounce = specBounceProbability > rand(gl_FragCoord.xy - frameTimeCounter);
 
             vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
             mat3 TBN = getTBN(normal);
@@ -80,22 +78,26 @@ vec3 pathTrace(in vec3 screenPos) {
                 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, params.r * params.r);
                 rayDir = reflect(prevDir, TBN * microfacet);
             } else {
-                rayDir = TBN * hemisphereSample(noise);
+                rayDir = TBN * randomHemisphereDirection(noise);
             }
 
             vec3 viewHitPos = screenToView(hitPos) + normal * 1e-3;
-            if(!raytrace(viewHitPos, rayDir, GI_STEPS, noise.y, hitPos)) continue;
+            bool hit = raytrace(viewHitPos, rayDir, GI_STEPS, noise.y, hitPos);
 
-            radiance += throughput * directBRDF(normal, -prevDir, sunDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * SUN_INTENSITY;
+            if(hit) {
+                radiance += throughput * directBRDF(normal, -prevDir, sunDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * SUN_INTENSITY;
 
-            if(specBounce) {
-                throughput /= specBounceProbability;
+                if(specBounce) {
+                    throughput /= specBounceProbability;
 
-                vec3 specularFresnel = cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);
-                throughput *= specularBRDF(microfacet, rayDir, specularFresnel, params.r);
+                    vec3 specularFresnel = cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);
+                    throughput *= specularBRDF(microfacet, rayDir, specularFresnel, params.r);
+                } else {
+                    throughput /= (1.0 - specBounceProbability);
+                    throughput *= albedo;
+                }
             } else {
-                throughput /= (1.0 - specBounceProbability);
-                throughput *= albedo;
+                break;
             }
         }
     }

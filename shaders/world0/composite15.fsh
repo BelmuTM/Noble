@@ -20,7 +20,7 @@ varying vec2 texCoords;
 /*
 const int colortex3Format = RGB16F;
 const bool colortex3Clear = false;
-const int colortex7Format = RGB16F;
+const int colortex7Format = RGBA16F;
 const bool colortex7Clear = false;
 */
 
@@ -34,5 +34,5 @@ void main() {
     /*DRAWBUFFERS:037*/
     gl_FragData[0] = Result;
     gl_FragData[1] = Result;
-    gl_FragData[2] = vec4(computeAverageLuminance(colortex7));
+    gl_FragData[2] = vec4(computeAverageLuminance(colortex7), 0.0, 0.0, 1.0);
 }
