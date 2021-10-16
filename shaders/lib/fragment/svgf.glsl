@@ -41,7 +41,7 @@ float gaussianVariance(sampler2D tex, vec2 coords) {
     return sum;
 }
 
-const float cPhi = 0.23;
+const float cPhi = 0.001;
 const float nPhi = 0.03;
 const float pPhi = 0.3;
 
@@ -62,11 +62,11 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction)
 
     float centerLuma = luma(currCol);
     float variance = gaussianVariance(tex, texCoords);
-    float colorPhi = sqrt(max(0.0, variance + 1e-8)) * cPhi;
+    float colorPhi = sqrt(max(1e-7, variance + 1e-8)) * 10.0;
 
     for(int x = -KERNEL_SIZE; x <= KERNEL_SIZE; x++) {
         for(int y = -KERNEL_SIZE; y <= KERNEL_SIZE; y++) {
-            vec2 sampleCoords = coords + (vec2(x, y) * (1.7 / viewSize));
+            vec2 sampleCoords = coords + (vec2(x, y) * pixelSize);
             float kernel = kernelWeights[abs(x)] * kernelWeights[abs(y)];
 
             vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
@@ -78,7 +78,7 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction)
             float posWeight = max(0.0, exp(-dot(delta, delta) / pPhi));
   
             float sampleLuma = luma(texture(tex, sampleCoords).rgb);
-            float lumaWeight = colorPhi * (abs(sampleLuma - centerLuma) / max(centerLuma, max(sampleLuma, 0.15)));
+            float lumaWeight = colorPhi * (abs(sampleLuma - centerLuma) / max(centerLuma, max(sampleLuma, 0.01)));
             lumaWeight = exp(-lumaWeight);
 
             float weight = saturate(normalWeight * posWeight * lumaWeight);
@@ -86,5 +86,5 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction)
             totalWeight += weight * kernel;
         }
     }
-    return color / totalWeight;
+    return color / max(EPS, totalWeight);
 }

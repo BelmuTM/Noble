@@ -24,22 +24,6 @@ bool isSky(vec2 coords) {
     return texture(depthtex0, coords).r == 1.0;
 }
 
-/*------------------ LIGHTMAP ------------------*/
-const float rainAmbientDarkness = 0.3;
-
-float getSkyLightmap(vec2 coords) {
-    float lightmap = texture(colortex2, coords).w;
-    return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
-}
-
-vec3 getLightmapColor(vec2 lightMap, vec3 dayTimeColor) {
-    lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, TORCHLIGHT_EXPONENT);
-
-    vec3 torchLight = TORCH_COLOR * lightMap.x;
-    vec3 skyLight   = dayTimeColor * (lightMap.y - clamp(rainStrength, 0.0, rainAmbientDarkness));
-    return torchLight + saturate(skyLight);
-}
-
 /*------------------ WORLD TIME & SKY ------------------*/
 float wTime = float(worldTime);
 float timeSunrise  = ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTime, 0.0, 2000.0) / 2000.0));
@@ -66,6 +50,7 @@ float drawStars(vec3 viewPos) {
 	return (saturate(star - 0.83) * multiplier) * 2.0;
 }
 
+/*
 vec3 getDayColor() {
     const vec3 ambient_sunrise  = vec3(0.943, 0.572, 0.397);
     const vec3 ambient_noon     = vec3(1.000, 0.850, 0.800);
@@ -74,6 +59,7 @@ vec3 getDayColor() {
 
     return ambient_sunrise * timeSunrise + ambient_noon * timeNoon + ambient_sunset * timeSunset + ambient_midnight * timeMidnight;
 }
+*/
 
 vec3 getDayTimeSkyGradient(in vec3 pos, vec3 viewPos) {  // Bottom Color -> Top Color
 	pos.y += 0.1;
@@ -86,5 +72,21 @@ vec3 getDayTimeSkyGradient(in vec3 pos, vec3 viewPos) {  // Bottom Color -> Top 
 }
 
 vec3 viewPosSkyColor(vec3 viewPos) {
-    return getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * -normalize(viewPos), viewPos);
+    return getDayTimeSkyGradient(normalize(mat3(gbufferModelViewInverse) * viewPos), viewPos);
+}
+
+/*------------------ LIGHTMAP ------------------*/
+const float rainAmbientDarkness = 0.3;
+
+float getSkyLightmap(vec2 coords) {
+    float lightmap = texture(colortex2, coords).w;
+    return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
+}
+
+vec3 getLightmapColor(vec2 lightMap, vec3 skyColor) {
+    lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, TORCHLIGHT_EXPONENT);
+
+    vec3 torchLight = TORCH_COLOR * lightMap.x;
+    vec3 skyLight   = skyColor * (lightMap.y - clamp(rainStrength, 0.0, rainAmbientDarkness));
+    return max(vec3(EPS), torchLight + skyLight);
 }

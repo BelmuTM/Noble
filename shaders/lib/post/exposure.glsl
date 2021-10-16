@@ -17,7 +17,7 @@ float computeAverageLuminance(sampler2D prevTex) {
      float previousLuma = texture(prevTex, vec2(0.5)).r;
      previousLuma = previousLuma > 0.0 ? previousLuma : currLuma;
 
-     float exposureTime = currLuma > previousLuma ? 0.5 : 2.5;
+     float exposureTime = currLuma > previousLuma ? 0.1 : 1.8;
      float exposureFrameTime = exp(-exposureTime * frameTime);
      return mix(currLuma, previousLuma, EXPOSURE == 0 ? 0.0 : exposureFrameTime);
 }

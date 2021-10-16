@@ -152,7 +152,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, float roughness, float F0, vec
     vec3 F = cookTorranceFresnel(HdotL, F0, getSpecularColor(F0, albedo), isMetal);
     float G = G_Smith(NdotV, NdotL, roughness);
         
-    return saturate((D * F * G) / max(EPS, 4.0 * NdotL * NdotV));
+    return (D * F * G) / max(EPS, 4.0 * NdotL * NdotV);
 }
 
 // OREN-NAYAR MODEL - QUALITATIVE 
@@ -193,7 +193,7 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
     diffuse /= energyConservationFactor;
 
     /* Calculating Indirect / Direct Lighting */
-    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * getDayColor();
+    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * viewPosSkyColor(viewPos);
 
     if(!isMetal) {
         Lighting += mat.emission * mat.albedo;

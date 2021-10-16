@@ -54,7 +54,7 @@ void main() {
     #endif
 
     /*DRAWBUFFERS:048*/
-    gl_FragData[0] = vec4(Lighting, 1.0);
+    gl_FragData[0] = vec4(max(vec3(0.0), Lighting), 1.0);
     gl_FragData[1] = vec4(mat.albedo, 1.0);
     gl_FragData[2] = vec4(volumetricLighting, 1.0);
 }

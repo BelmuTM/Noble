@@ -35,12 +35,11 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
 		vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)) : uniformNoise(i, blueNoise);
 		vec3 sampleDir = TBN * randomHemisphereDirection(noise);
-		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.x, hitPos)) continue;
+		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.x, hitPos)) { break; }
 
-		float delta = (samplePos.z + EPS) - screenToView(hitPos).z;
-    	float dist = pow(max(0.0, exp(-(delta*delta) * 5.0)), 5.0);
+		float delta = samplePos.z - screenToView(hitPos).z;
+    	float dist = max(0.0, exp(-(delta * delta) * 8.0));
 		occlusion += dist;
 	}
-	occlusion = 1.0 - (occlusion / RTAO_SAMPLES);
-	return saturate(pow(occlusion, 8.0));
+	return saturate(1.0 - (pow(occlusion, RTAO_STRENGTH) / RTAO_SAMPLES));
 }

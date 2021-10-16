@@ -106,8 +106,8 @@ vec2 uniformNoise(int i, vec3 seed) {
 }
 
 // Gold Noise ©2015 dcerisano@standard3d.com
-float goldNoise(vec2 xy, float seed){
-    return fract(tan(distance(xy * GOLDEN_RATIO, xy) * seed) * xy.x);
+float goldNoise(vec2 xy, int seed){
+    return fract(tan(distance(xy * GOLDEN_RATIO, xy) * float(seed)) * xy.x);
 }
 
 //	<https://www.shadertoy.com/view/Xd23Dh>

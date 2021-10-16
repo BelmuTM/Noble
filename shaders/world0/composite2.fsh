@@ -36,7 +36,7 @@ const bool colortex6Clear = false;
         float totalWeight = 0.96 * posWeight;
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 1
-            totalWeight = 0.987 * float(distance(texCoords, prevTexCoords) <= 1e-6);
+            totalWeight = 0.99 * float(distance(texCoords, prevTexCoords) <= 1e-6);
         #endif
         totalWeight *= float(saturate(prevTexCoords) == prevTexCoords);
 
@@ -61,7 +61,7 @@ void main() {
                 vec3 viewPos = getViewPos(texCoords);
                 vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
             
-                globalIllumination = max(vec3(EPS), temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
+                globalIllumination = saturate(temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
             #endif
         }
     #else

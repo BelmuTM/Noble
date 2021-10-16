@@ -37,7 +37,7 @@ void main() {
      vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
      /*    ------- SHADOW MAPPING -------    */
-     vec3 shadowmap = vec3(1.0);
+     vec3 shadowmap = vec3(0.0);
      #if SHADOWS == 1
           shadowmap = shadowMap(viewPos, shadowMapResolution);
      #endif
