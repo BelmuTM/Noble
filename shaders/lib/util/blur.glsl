@@ -50,7 +50,7 @@ vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float 
         color += texture(tex, sampleCoords);
         SAMPLES++;
     }
-    return saturate(color / SAMPLES);
+    return clamp01(color / SAMPLES);
 }
 
 const float gaussianWeights49[] = float[](
@@ -174,7 +174,7 @@ float edgeWeight(vec2 sampleCoords, vec3 pos, vec3 normal) {
         && abs(normalAt.x - normal.x) <= normalThresh
         && abs(normalAt.y - normal.y) <= normalThresh
         && abs(normalAt.z - normal.z) <= normalThresh
-        && saturate(sampleCoords) == sampleCoords // Is on screen
+        && clamp01(sampleCoords) == sampleCoords // Is on screen
     );
 }
 
@@ -189,7 +189,7 @@ vec4 heavyGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, 
         color += texture(tex, sampleCoords) * weight;
         totalWeight += weight;
     }
-    return saturate(color / max(1e-5, totalWeight));
+    return clamp01(color / max(1e-5, totalWeight));
 }
 
 vec4 fastGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, vec2 direction) {
@@ -203,5 +203,5 @@ vec4 fastGaussianFilter(vec2 coords, vec3 viewPos, vec3 normal, sampler2D tex, v
         color += texture(tex, sampleCoords) * weight;
         totalWeight += weight;
     }
-    return saturate(color / max(1e-5, totalWeight));
+    return clamp01(color / max(1e-5, totalWeight));
 }

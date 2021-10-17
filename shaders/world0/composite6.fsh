@@ -55,7 +55,7 @@ void main() {
             #endif
 
             vec3 DFG = envBRDFApprox(specularColor, roughness, NdotV);
-            Result.rgb = mix(Result.rgb, saturate(reflections), DFG);
+            Result.rgb = mix(Result.rgb, clamp01(reflections), DFG);
         }
     #endif
 

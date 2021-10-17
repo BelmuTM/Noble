@@ -9,7 +9,7 @@
 // LVutner's Border Attenuation
 float LVutner_Attenuation(vec2 pos, float edgeFactor) {
     float borderDist = min(1.0 - max(pos.x, pos.y), min(pos.x, pos.y));
-    float border = saturate(borderDist > edgeFactor ? 1.0 : borderDist / edgeFactor);
+    float border = clamp01(borderDist > edgeFactor ? 1.0 : borderDist / edgeFactor);
     return border;
 }
 

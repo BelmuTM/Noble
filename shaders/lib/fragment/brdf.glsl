@@ -19,7 +19,7 @@ float D_Beckmann(float NdotH, in float alpha) {
 float D_GGX(float NdotH, in float alpha) {
     // GGXTR(N,H,α) = α² / π*((N*H)²*(α² + 1)-1)²
     alpha *= alpha;
-    float denom = ((NdotH * NdotH) * (alpha - 1.0) + 1.0);
+    float denom = (NdotH * NdotH) * (alpha - 1.0) + 1.0;
     return alpha / (PI * denom * denom);
 }
 
@@ -46,7 +46,7 @@ float G_CookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
 }
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0) {
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+    return F0 + (1.0 - F0) * pow5(1.0 - cosTheta);
 }
 
 vec3 schlickGaussian(float HdotL, vec3 F0) {
@@ -56,49 +56,13 @@ vec3 schlickGaussian(float HdotL, vec3 F0) {
 
 float dielectricFresnel(float NdotV, float surfaceIOR) {
     float n1 = airIOR, n2 = surfaceIOR, eta = n1 / n2;
-    float sinThetaT = eta * saturate(1.0 - (NdotV * NdotV));
+    float sinThetaT = eta * clamp01(1.0 - (NdotV * NdotV));
     float cosThetaT = 1.0 - (sinThetaT * sinThetaT);
 
-    float sPolar = pow((n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT), 2.0);
-    float pPolar = pow((n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV), 2.0);
+    float sPolar = pow2((n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT));
+    float pPolar = pow2((n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV));
 
     return (sPolar + pPolar) * 0.5;
-}
-
-// https://d3ihk4j6ie4n1g.cloudfront.net/downloads/assets/DecimaSiggraph2017.pdf?mtime=20200402092944&focal=none
-float NdotHSquared(float radiusTan, float NoL, float NoV, float VoL) {
-    float radiusCos = 1.0 / sqrt(1.0 + radiusTan * radiusTan);
-    
-    // Early out if R falls within the disc
-    float RoL = 2.0 * NoL * NoV - VoL;
-    if(RoL >= radiusCos) return 1.0;
-
-    float rOverLengthT = radiusCos * radiusTan * (1.0 / sqrt(1.0 - RoL * RoL));
-    float NoTr = rOverLengthT * (NoV - RoL * NoL);
-    float VoTr = rOverLengthT * (2.0 * NoV * NoV - 1.0 - RoL * VoL);
-
-    // Calculate dot(cross(N, L), V). This could already be calculated and available.
-    float triple = sqrt(saturate(1.0 - NoL * NoL - NoV * NoV - VoL * VoL + 2.0 * NoL * NoV * VoL));
-    
-    // Do one Newton iteration to improve the bent light vector
-    float NoBr = rOverLengthT * triple, VoBr = rOverLengthT * (2.0 * triple * NoV);
-    float NoLVTr = NoL * radiusCos + NoV + NoTr, VoLVTr = VoL * radiusCos + 1.0 + VoTr;
-    float p = NoBr * VoLVTr, q = NoLVTr * VoLVTr, s = VoBr * NoLVTr;    
-    float xNum = q * (-0.5 * p + 0.25 * VoBr * NoLVTr);
-    float xDenom = p * p + s * ((s - 2.0 * p)) + NoLVTr * ((NoL * radiusCos + NoV) * VoLVTr * VoLVTr + 
-                   q * (-0.5 * (VoLVTr + VoL * radiusCos) - 0.5));
-    float twoX1 = 2.0 * xNum / (xDenom * xDenom + xNum * xNum);
-    float sinTheta = twoX1 * xDenom;
-    float cosTheta = 1.0 - twoX1 * xNum;
-    NoTr = cosTheta * NoTr + sinTheta * NoBr; // use new T to update NoTr
-    VoTr = cosTheta * VoTr + sinTheta * VoBr; // use new T to update VoTr
-    
-    // Calculate (N.H)^2 based on the bent light vector
-    float newNoL = NoL * radiusCos + NoTr;
-    float newVoL = VoL * radiusCos + VoTr;
-    float NoH = NoV + newNoL;
-    float HoH = 2.0 * newVoL + 2.0;
-    return max(0.0, NoH * NoH / HoH);
 }
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
@@ -152,7 +116,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, float roughness, float F0, vec
     vec3 F = cookTorranceFresnel(HdotL, F0, getSpecularColor(F0, albedo), isMetal);
     float G = G_Smith(NdotV, NdotL, roughness);
         
-    return (D * F * G) / max(EPS, 4.0 * NdotL * NdotV);
+    return clamp01((D * F * G) / max(EPS, 4.0 * NdotL * NdotV));
 }
 
 // OREN-NAYAR MODEL - QUALITATIVE 
@@ -160,11 +124,31 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, float roughness, float F0, vec
 vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float alpha, vec3 albedo) {
     vec2 angles = acos(vec2(NdotL, NdotV));
     if(angles.x < angles.y) angles = angles.yx;
-    float cosA = saturate(dot(normalize(V - NdotV * N), normalize(L - NdotL * N)));
+    float cosA = clamp01(dot(normalize(V - NdotV * N), normalize(L - NdotL * N)));
 
     vec3 A = albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
     vec3 B = albedo * (0.125 * (alpha /  (alpha + 0.18)));
     return A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y);
+}
+
+// HAMMON DIFFUSE
+// https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
+vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, float alpha, vec3 albedo) {
+
+    vec3 H = normalize(V + L);
+    float LdotV = max(EPS, dot(L, V));
+    float NdotH = max(EPS, dot(N, H));
+    float NdotV = max(EPS, dot(N, V));
+    float NdotL = max(EPS, dot(N, L));
+
+    float facing     = 0.5 + 0.5 * LdotV;
+    float roughSurf  = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
+    float smoothSurf = 1.05 * (1.0 - pow5(1.0 - NdotL)) * (1.0 - pow5(1.0 - NdotV));
+
+    float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
+    float multi  = 0.1159 * alpha;
+
+    return albedo * (single + albedo * multi);
 }
 
 // Thanks LVutner for the help!
@@ -185,12 +169,14 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
     #endif
 
     vec3 diffuse = vec3(0.0);
-    if(!isMetal) { diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, mat.albedo); }
+    if(!isMetal) { 
+        diffuse = hammonDiffuse(N, V, L, alpha, mat.albedo);
 
-    /* Energy Conservation */
-    float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * 0.11111111;
-    diffuse *= 1.0 - cookTorranceFresnel(NdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), isMetal);;
-    diffuse /= energyConservationFactor;
+        /* Energy Conservation */
+        float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * 0.11111111;
+        diffuse *= 1.0 - cookTorranceFresnel(NdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), isMetal);;
+        diffuse /= energyConservationFactor;
+    }
 
     /* Calculating Indirect / Direct Lighting */
     vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * SUN_INTENSITY * viewPosSkyColor(viewPos);

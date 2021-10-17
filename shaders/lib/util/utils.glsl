@@ -39,7 +39,7 @@ float drawStars(vec3 viewPos) {
 	vec2 coord = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-4 + frameTime * 0.00125;
 	coord = floor(coord * 1024.0) / 1024.0;
 
-	float VdotU = saturate(dot(normalize(viewPos), normalize(upPosition)));
+	float VdotU = clamp01(dot(normalize(viewPos), normalize(upPosition)));
 	float multiplier = sqrt(sqrt(VdotU)) * (1.0 - rainStrength);
 
 	float star = 1.0;
@@ -47,7 +47,7 @@ float drawStars(vec3 viewPos) {
 		star *= rand(coord.xy);
 		star *= rand(-coord.xy + 0.1);
 	}
-	return (saturate(star - 0.83) * multiplier) * 2.0;
+	return (clamp01(star - 0.83) * multiplier) * 2.0;
 }
 
 /*

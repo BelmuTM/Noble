@@ -26,7 +26,7 @@ vec3 directBRDF(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, vec3 shadowmap
     vec3 diffuse = vec3(0.0);
 
     if(!isMetal) { 
-        diffuse = orenNayarDiffuse(N, V, L, NdotL, NdotV, alpha, albedo);
+        diffuse = hammonDiffuse(N, V, L, alpha, albedo);
 
         float energyConservationFactor = 1.0 - (4.0 * sqrt(params.g) + 5.0 * params.g * params.g) * 0.11111111;
         diffuse *= 1.0 - cookTorranceFresnel(NdotV, params.g, getSpecularColor(params.g, albedo), isMetal);
@@ -51,7 +51,7 @@ vec3 pathTrace(in vec3 screenPos) {
 
             /* Russian Roulette */
             if(j > 3) {
-                float roulette = saturate(max(throughput.x, max(throughput.y, throughput.z)));
+                float roulette = clamp01(max(throughput.x, max(throughput.y, throughput.z)));
                 if(roulette < noise.x * noise.y) {
                     throughput = vec3(0.0);
                     break;
@@ -71,7 +71,7 @@ vec3 pathTrace(in vec3 screenPos) {
 
             /* Specular Bounce Probability */
             vec3 fresnel = cookTorranceFresnel(HdotV, params.g, getSpecularColor(params.g, albedo), isMetal);
-            float fresnelLum = saturate(luma(fresnel));
+            float fresnelLum = clamp01(luma(fresnel));
             float diffuseLum = fresnelLum / (fresnelLum + luma(albedo) * (1.0 - float(isMetal)) * (1.0 - fresnelLum));
 
             float specBounceProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);

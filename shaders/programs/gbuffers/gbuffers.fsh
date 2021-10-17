@@ -32,7 +32,6 @@ void main() {
 	vec4 specularTex = texture(specular, texCoords);
 
 	#ifdef ENTITY
-		// Alpha blending on entities
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 	#endif
 
@@ -65,5 +64,5 @@ void main() {
 	/*DRAWBUFFERS:012*/
 	gl_FragData[0] = color * albedoTex;
 	gl_FragData[1] = vec4(encodeNormal(normal), emission, (blockId + 0.25) / 255.0);
-	gl_FragData[2] = vec4(saturate(roughness), F0, lightmap);
+	gl_FragData[2] = vec4(clamp01(roughness), F0, lightmap);
 }

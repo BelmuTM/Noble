@@ -78,10 +78,10 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction)
             float posWeight = max(0.0, exp(-dot(delta, delta) / pPhi));
   
             float sampleLuma = luma(texture(tex, sampleCoords).rgb);
-            float lumaWeight = colorPhi * (abs(sampleLuma - centerLuma) / max(centerLuma, max(sampleLuma, 0.01)));
+            float lumaWeight = colorPhi * (exp(-(abs(sampleLuma - centerLuma) / max(sampleLuma, max(centerLuma, TAA_LUMA_MIN)))));
             lumaWeight = exp(-lumaWeight);
 
-            float weight = saturate(normalWeight * posWeight * lumaWeight);
+            float weight = clamp01(normalWeight * posWeight * lumaWeight);
             color += texture(tex, sampleCoords).rgb * weight * kernel;
             totalWeight += weight * kernel;
         }

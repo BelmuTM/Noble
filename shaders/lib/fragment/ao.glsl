@@ -22,7 +22,7 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
         occlusion += (sampleDepth >= samplePos.z + EPS ? 1.0 : 0.0) * rangeCheck;
 	}
 	occlusion = 1.0 - (occlusion / SSAO_SAMPLES);
-	return saturate(pow(occlusion, SSAO_STRENGTH));
+	return clamp01(pow(occlusion, SSAO_STRENGTH));
 }
 
 float computeRTAO(vec3 viewPos, vec3 normal) {
@@ -41,5 +41,5 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
     	float dist = max(0.0, exp(-(delta * delta) * 8.0));
 		occlusion += dist;
 	}
-	return saturate(1.0 - (pow(occlusion, RTAO_STRENGTH) / RTAO_SAMPLES));
+	return clamp01(1.0 - (pow(occlusion, RTAO_STRENGTH) / RTAO_SAMPLES));
 }

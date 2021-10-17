@@ -286,13 +286,13 @@ suffix.SHUTTER_SPEED = s
 
 ##################### COLOR CORRECTION #####################
 
-option.TONEMAPPING = Tone Mapping
-option.TONEMAPPING.comment = Applies a color correction filter.
-value.TONEMAPPING.-1 = None
-value.TONEMAPPING.0 = Reinhard
-value.TONEMAPPING.1 = Uncharted
-value.TONEMAPPING.2 = Burgess
-value.TONEMAPPING.3 = ACES
+option.TONEMAP = Tone Mapping
+option.TONEMAP.comment = Applies a color correction filter.
+value.TONEMAP.-1 = None
+value.TONEMAP.0 = Reinhard
+value.TONEMAP.1 = Uncharted
+value.TONEMAP.2 = Burgess
+value.TONEMAP.3 = ACES Fitted
 
 option.PURKINJE = Purkinje Effect
 option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.

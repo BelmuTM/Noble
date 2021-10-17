@@ -20,7 +20,7 @@ varying vec2 texCoords;
 vec3 computeDOF(vec3 color, float depth) {
     float coc = getCoC(linearizeDepth(depth), linearizeDepth(centerDepthSmooth));
     vec4 outOfFocusColor = bokeh(texCoords, colortex0, pixelSize, 6, DOF_RADIUS);
-    return saturate(mix(color, outOfFocusColor.rgb, quintic(0.0, 1.0, coc)));
+    return clamp01(mix(color, outOfFocusColor.rgb, quintic(0.0, 1.0, coc)));
 }
 
 void main() {

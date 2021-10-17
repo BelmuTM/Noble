@@ -23,7 +23,7 @@ vec2 underwaterDistortionCoords(vec2 coords) {
         WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
     );
 
-    return saturate(distorted) != distorted ? coords : distorted;
+    return clamp01(distorted) != distorted ? coords : distorted;
 } 
 
 // Rod response coefficients & blending method provided by Jessie#7257
@@ -35,19 +35,31 @@ vec3 purkinje(vec3 color) {
     vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
     float purkinje = dot(rodResponse, XYZtoLinear(scotopicLuma));
 
-    return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 150.0));
+    return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 100.0));
 }
 
 vec3 computeAberration(vec3 color) {
-     float depth = linearizeDepth(texture(depthtex0, texCoords).r);
-     float coc = getCoC(depth, linearizeDepth(centerDepthSmooth));
-     vec2 offset = coc * ABERRATION_STRENGTH * pixelSize;
+    float depth = linearizeDepth(texture(depthtex0, texCoords).r);
+    float coc = getCoC(depth, linearizeDepth(centerDepthSmooth));
+    vec2 offset = coc * ABERRATION_STRENGTH * pixelSize;
 
-     return vec3(
-          texture(colortex0, texCoords + offset).r,
-          texture(colortex0, texCoords).g,
-          texture(colortex0, texCoords - offset).b
-     );
+    return vec3(
+        texture(colortex0, texCoords + offset).r,
+        texture(colortex0, texCoords).g,
+        texture(colortex0, texCoords - offset).b
+    );
+}
+
+void tonemap(inout vec3 color) {
+    #if TONEMAPPING == 0
+        color = whitePreservingReinhard(color); // Reinhard
+    #elif TONEMAPPING == 1
+        color = uncharted2(color); // Uncharted 2
+    #elif TONEMAPPING == 2
+        color = burgess(color); // Burgess
+    #elif TONEMAPPING == 3
+        color = ACESFitted(color); // ACES
+    #endif
 }
 
 void main() {
@@ -58,48 +70,36 @@ void main() {
     
     vec4 Result = texture(colortex0, tempCoords);
 
-    // Chromatic Aberration
     #if CHROMATIC_ABERRATION == 1
         Result.rgb = computeAberration(Result.rgb);
     #endif
 
-    // Bloom
     #if BLOOM == 1
         // I wasn't supposed to use magic numbers like this in Noble :Sadge:
-        Result.rgb += saturate(readBloom().rgb * 0.01 * saturate(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
+        Result.rgb += clamp01(readBloom().rgb * 0.01 * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
     #endif
 
-    // Purkinje
     #if PURKINJE == 1
         Result.rgb = purkinje(Result.rgb);
     #endif
     
-    // Tonemapping
-    vec3 exposedColor = Result.rgb * computeExposure(texture(colortex7, texCoords).r);
-    #if TONEMAPPING == 0
-        Result.rgb = whitePreservingReinhard(exposedColor); // Reinhard
-    #elif TONEMAPPING == 1
-        Result.rgb = uncharted2(exposedColor); // Uncharted 2
-    #elif TONEMAPPING == 2
-        Result.rgb = burgess(exposedColor); // Burgess
-    #elif TONEMAPPING == 3
-        Result.rgb = ACESFitted(exposedColor); // ACES
-    #endif
-
-    Result.rgb = vibrance_saturation(Result.rgb, VIBRANCE, SATURATION);
-    Result.rgb = adjustContrast(Result.rgb, CONTRAST) + BRIGHTNESS;
+    // Tonemapping & Color Correction
+    vec3 finalCol = Result.rgb * max(0.0, computeExposure(texture(colortex7, texCoords).r));
+    tonemap(finalCol);
+    finalCol = vibranceSaturation(finalCol, VIBRANCE, SATURATION);
+    finalCol = contrast(finalCol, CONTRAST) + BRIGHTNESS;
 
     // Vignette
     #if VIGNETTE == 1
         vec2 coords = texCoords * (1.0 - texCoords.yx);
-        Result.rgb *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
+        finalCol *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    Result.rgb += bayer2(gl_FragCoord.xy) * (1.0 / 255.0); // Removes color banding from the screen
-    #if TONEMAPPING != 2
-        Result = linearToSRGB(Result);
+    #if TONEMAP != 2
+        finalCol = linearToSRGB(vec4(finalCol, 1.0)).rgb;
     #endif
 
     /*DRAWBUFFERS:0*/
-    gl_FragData[0] = Result;
+    finalCol += bayer64(gl_FragCoord.xy) / 255.0;
+    gl_FragData[0] = vec4(finalCol, 1.0);
 }

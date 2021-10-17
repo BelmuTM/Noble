@@ -68,7 +68,7 @@ vec3 ACESFitted(vec3 color) {
     return clamp(RRTAndODTFit(color * ACESInputMat) * ACESOutputMat, 0.0, 1.0);
 }
 
-vec3 ACESFilm(vec3 x) {
+vec3 ACESApprox(vec3 x) {
     float a = 2.51;
     float b = 0.03;
     float c = 2.43;
@@ -77,11 +77,11 @@ vec3 ACESFilm(vec3 x) {
     return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
 
-vec3 vibrance_saturation(vec3 color, float vibrance, float saturation) {
+vec3 vibranceSaturation(vec3 color, float vibrance, float saturation) {
     float luma = luma(color);
     float mn = min(min(color.r, color.g), color.b);
     float mx = max(max(color.r, color.g), color.b);
-    float sat = (1.0 - saturate(mx - mn)) * saturate(1.0 - mx) * luma * 5.0;
+    float sat = (1.0 - clamp01(mx - mn)) * clamp01(1.0 - mx) * luma * 5.0;
     vec3 light = vec3((mn + mx) / 2.0);
 
     color = mix(color, mix(light, color, vibrance), sat);
@@ -90,7 +90,7 @@ vec3 vibrance_saturation(vec3 color, float vibrance, float saturation) {
     return color;
 }
 
-vec3 adjustContrast(vec3 color, float contrast) {
+vec3 contrast(vec3 color, float contrast) {
     return color * contrast + (0.5 - contrast * 0.5);
 }
 

@@ -37,8 +37,9 @@ void main() {
    material data = getMaterial(tex0, tex1, tex2);
    data.albedo = sRGBToLinear(tex0).rgb;
 
+   float depth0 = texture(depthtex0, texCoords).r;
    float depthDist = distance(
-		linearizeDepth(texture(depthtex0, texCoords).r),
+		linearizeDepth(depth0),
 		linearizeDepth(texture(depthtex1, texCoords).r)
 	);
    vec3 hitPos; vec2 coords = texCoords;
@@ -46,7 +47,7 @@ void main() {
 
    #if REFRACTION == 1
       float NdotV = max(EPS, dot(normal, normalize(-viewPos)));
-      if(F0toIOR(data.F0) > 1.0) {
+      if(F0toIOR(data.F0) > 1.0 && !isHand(depth0) && getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
          opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);
          coords = hitPos.xy;
       }
@@ -81,6 +82,6 @@ void main() {
    #endif
 
    /*DRAWBUFFERS:09*/
-   gl_FragData[0] = saturate(vec4(data.albedo, 1.0) + rain);
+   gl_FragData[0] = clamp01(vec4(data.albedo, 1.0) + rain);
    gl_FragData[1] = vec4(shadowmap, 1.0);
 }
