@@ -40,9 +40,7 @@ Noble RT is licensed under the GPL v3.0 License. Please consider reading the ter
 Please consider contacting me if needed.
 **Thanks for supporting this project!**
 
-**Credits:** L4mbads#6227
-![Showcase 01](https://i.imgur.com/TthCtFn.png)
-![Showcase 02](https://i.imgur.com/xlAyfbF.png)
-**Credits:** L4mbads#6227
-![Showcase 03](https://i.imgur.com/tQiQ1ZD.png)
-![Showcase 04](https://i.imgur.com/MuBdaBX.png)
+![Showcase 01](https://i.imgur.com/RUTs7yS.jpg)
+![Showcase 02](https://i.imgur.com/Q0VpEJX.png)
+![Showcase 03](https://i.imgur.com/Jnwsoeu.png)
+![Showcase 04](https://i.imgur.com/sd2uBTF.jpg)
