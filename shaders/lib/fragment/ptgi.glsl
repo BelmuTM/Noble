@@ -45,19 +45,9 @@ vec3 pathTrace(in vec3 screenPos) {
         vec3 prevDir;
 
         vec3 throughput = vec3(1.0);
-        for(int j = 0; j < GI_BOUNCES; j++) {
+        for(int j = 0; j < GI_BOUNCES + 1; j++) {
             prevDir = rayDir;
             vec2 noise = uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter * 5.0)));
-
-            /* Russian Roulette */
-            if(j > 3) {
-                float roulette = clamp01(max(throughput.x, max(throughput.y, throughput.z)));
-                if(roulette < noise.x * noise.y) {
-                    throughput = vec3(0.0);
-                    break;
-                }
-                throughput /= roulette;
-            }
 
             /* Material Parameters and Emitted Light */
             vec2 params = texture(colortex2, hitPos.xy).rg; // R = roughness | G = F0
@@ -73,8 +63,18 @@ vec3 pathTrace(in vec3 screenPos) {
             vec3 fresnel = cookTorranceFresnel(HdotV, params.g, getSpecularColor(params.g, albedo), isMetal);
             float fresnelLum = clamp01(luma(fresnel));
             float diffuseLum = fresnelLum / (fresnelLum + luma(albedo) * (1.0 - float(isMetal)) * (1.0 - fresnelLum));
+            float totalLum = max(EPS, fresnelLum + diffuseLum);
 
-            float specBounceProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
+            /* Russian Roulette */
+            if(j > 3) {
+                if(noise.x * noise.y > (1.0 - totalLum)) {
+                    throughput = vec3(0.0);
+                    break;
+                }
+                throughput /= totalLum;
+            }
+
+            float specBounceProbability = fresnelLum / totalLum;
             bool specularBounce = specBounceProbability > rand(gl_FragCoord.xy + (frameTimeCounter * 5.0));
 
             vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));

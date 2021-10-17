@@ -61,7 +61,7 @@ void main() {
           float angle = quintic(0.9998, 0.99995, VdotL);
 
           vec3 sky = getDayTimeSkyGradient(eyeDir, viewPos) + (SUN_COLOR * angle); 
-          gl_FragData[0] = sRGBToLinear(vec4(sky, 1.0));
+          gl_FragData[0] = vec4(sky, 1.0);
      } else {
           gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));
      }

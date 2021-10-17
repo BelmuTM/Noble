@@ -154,3 +154,43 @@ vec3 YCoCgToLinear(vec3 YCoCg) {
     vec3 RGB = YCoCgToRGBMatrix * YCoCg;
     return isSky(texCoords) ? YCoCg : sRGBToLinear(vec4(RGB, 1.0)).rgb;
 }
+
+/*------------------ WORLD TIME & SKY ------------------*/
+float wTime = float(worldTime);
+float timeSunrise  = ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTime, 0.0, 2000.0) / 2000.0));
+float timeNoon     = ((clamp(wTime, 0.0, 2000.0)) / 2000.0) - ((clamp(wTime, 10000.0, 12000.0) - 10000.0) / 2000.0);
+float timeSunset   = ((clamp(wTime, 10000.0, 12000.0) - 10000.0) / 2000.0) - ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0);
+float timeMidnight = ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0);
+ 
+// Originally written by Capt Tatsu#7124
+// Modified by Belmu#4066
+float drawStars(vec3 viewPos) {
+	vec3 worldPos = mat3(gbufferModelViewInverse) * viewPos;
+	vec3 planeCoords = worldPos / (worldPos.y + length(worldPos.xz));
+	vec2 coord = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-4 + frameTime * 0.00125;
+	coord = floor(coord * 1024.0) / 1024.0;
+
+	float VdotU = clamp01(dot(normalize(viewPos), normalize(upPosition)));
+	float multiplier = sqrt(sqrt(VdotU)) * (1.0 - rainStrength);
+
+	float star = 1.0;
+	if(VdotU > 0.0) {
+		star *= rand(coord.xy);
+		star *= rand(-coord.xy + 0.1);
+	}
+	return (clamp01(star - 0.83) * multiplier) * 2.0;
+}
+
+vec3 getDayTimeSkyGradient(in vec3 pos, vec3 viewPos) {  // Bottom Color -> Top Color
+	pos.y += 0.1;
+    vec3 skyGradient_sunrise  = mix(vec3(0.395, 0.435, 0.471), vec3(0.245, 0.305, 0.371), pos.y);
+    vec3 skyGradient_noon     = mix(vec3(0.495, 0.625, 0.821), vec3(0.200, 0.245, 0.359), pos.y);
+    vec3 skyGradient_sunset   = mix(vec3(0.395, 0.435, 0.471), vec3(0.245, 0.305, 0.371), pos.y);
+    vec3 skyGradient_midnight = mix(vec3(0.058, 0.062, 0.088), vec3(0.000, 0.004, 0.025), pos.y) + (drawStars(viewPos) * float(isSky(texCoords)));
+
+    return sRGBToLinear(vec4(skyGradient_sunrise * timeSunrise + skyGradient_noon * timeNoon + skyGradient_sunset * timeSunset + skyGradient_midnight * timeMidnight, 1.0)).rgb;
+}
+
+vec3 viewPosSkyColor(vec3 viewPos) {
+    return getDayTimeSkyGradient(normalize(mat3(gbufferModelViewInverse) * viewPos), viewPos);
+}
