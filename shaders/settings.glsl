@@ -9,8 +9,8 @@
 #define ABOUT 0 // [0 1]
 
 /*------------------ MATH ------------------*/
-#define REC709 vec3(0.2126, 0.7152, 0.0722)
-#define EPS 1e-5
+#define REC_709 vec3(0.2126, 0.7152, 0.0722)
+#define EPS 1e-4
 
 #define HALF_PI      1.570796
 #define PI           3.14159265
@@ -40,7 +40,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define TORCH_COLOR vec3(0.79, 0.5, 0.3)
 
 #define SUN_COLOR vec3(1.5, 1.4, 1.25)
-#define SUN_INTENSITY     10.0
+#define SUN_INTENSITY      8.0
 #define EMISSION_INTENSITY 2.0
 
 #define SPECULAR 1 // [0 1]
@@ -148,7 +148,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA               1 // [0 1]
-#define TAA_STRENGTH  0.950 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
+#define TAA_STRENGTH  0.925 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
 #define NEIGHBORHOOD_SIZE 2
 
 #define TAA_VELOCITY_WEIGHT 0 // [0 1]

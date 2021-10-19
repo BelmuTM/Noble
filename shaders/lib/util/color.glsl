@@ -7,7 +7,7 @@
 
 // REC. 709 -> https://en.wikipedia.org/wiki/Luma_(video)
 float luma(vec3 color) {
-    return dot(color, REC709);
+    return dot(color, REC_709);
 }
 
 vec3 whitePreservingReinhard(vec3 color) {

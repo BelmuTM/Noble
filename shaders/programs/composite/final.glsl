@@ -95,9 +95,7 @@ void main() {
         finalCol *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    #if TONEMAP != 2
-        finalCol = linearToSRGB(vec4(finalCol, 1.0)).rgb;
-    #endif
+    finalCol = linearToSRGB(vec4(finalCol, 1.0)).rgb;
 
     /*DRAWBUFFERS:0*/
     finalCol += bayer64(gl_FragCoord.xy) / 255.0;
