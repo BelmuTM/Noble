@@ -42,12 +42,11 @@ void main() {
 
      vec3 globalIllumination = vec3(0.0);
      if(!isSky(texCoords)) {
-          bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
-          vec3 viewPos = getViewPos(texCoords);
-          vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-
           #if GI == 1
                #if GI_FILTER == 1
+                    vec3 viewPos = getViewPos(texCoords);
+                    vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+
                     globalIllumination = SVGF(colortex5, viewPos, normal, texCoords, vec2(0.0, 1.0));
                #else
                     globalIllumination = texture(colortex5, texCoords).rgb;
@@ -55,6 +54,7 @@ void main() {
           #else
                #if AO == 1
                     #if AO_FILTER == 1
+                         bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
                          Result.rgb *= isMetal ? 1.0 : gaussianBlur(texCoords, colortex5, vec2(0.0, 1.0), 1.0).a;
                     #endif
                #endif

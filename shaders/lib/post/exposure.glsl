@@ -35,6 +35,5 @@ float EV100ToExposure(float EV100) {
 
 float computeExposure(float avgLuminance) {
      float EV100 = EXPOSURE == 0 ? computeEV100() : computeEV100fromLuma(avgLuminance);
-     float exposure = EV100ToExposure(EV100);
-     return clamp(exposure, MIN_EXPOSURE, MAX_EXPOSURE);
+     return EV100ToExposure(EV100);
 }

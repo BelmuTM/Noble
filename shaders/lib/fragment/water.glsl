@@ -34,35 +34,35 @@ float computeWaves(vec2 coords) {
     waveLength    *= 1.8;
     waveDir  = sincos2(windRad + 0.9);
 
-    noise          = voronoise(coords * 0.3 / sqrt(waveLength) - noiseMovement, 0.0, 0.0);
+    noise          = voronoise(coords * 0.03 / sqrt(waveLength) - noiseMovement, 0.0, 0.0);
     waves         += -gerstnerWaves(coords + noise * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
     waveSteepness *= 1.0;
     waveAmplitude *= 0.6;
     waveLength    *= 0.7;
     waveDir  = sincos2(windRad - 1.8);
 
-    noise          = voronoise(coords * 0.1 / sqrt(waveLength) - noiseMovement, 0.0, 1.0);
+    noise          = voronoise(coords * 0.01 / sqrt(waveLength) - noiseMovement, 0.0, 1.0);
     waves         += -gerstnerWaves(coords + noise * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
     waveSteepness *= 1.0;
     waveAmplitude *= 2.6;
     waveLength    *= 0.8;
     waveDir  = sincos2(windRad + 2.7);
 
-    noise          = voronoise(coords * 0.1 / sqrt(waveLength) - noiseMovement, 1.0, 1.0);
+    noise          = voronoise(coords * 0.01 / sqrt(waveLength) - noiseMovement, 1.0, 1.0);
     waves         += -gerstnerWaves(coords + noise * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
     waveSteepness *= 1.3;
     waveAmplitude *= 0.3;
     waveLength    *= 0.4;
     waveDir  = sincos2(windRad - 3.6);
 
-    noise          = voronoise(coords * 0.2 / sqrt(waveLength) - noiseMovement, 0.0, 1.0);
+    noise          = voronoise(coords * 0.03 / sqrt(waveLength) - noiseMovement, 0.0, 1.0);
     waves         += -gerstnerWaves(coords + noise * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
     waveSteepness *= 1.5;
     waveAmplitude *= 0.4;
     waveLength    *= 0.6;
     waveDir  = sincos2(windRad - 0.4);
 
-    noise          = voronoise(coords * 2.4 / sqrt(waveLength) - noiseMovement, 0.0, 1.0);
+    noise          = voronoise(coords * 2.3 / sqrt(waveLength) - noiseMovement, 0.0, 1.0);
     waves         += -gerstnerWaves(coords + noise * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
 	return waves;
 }
@@ -70,7 +70,7 @@ float computeWaves(vec2 coords) {
 vec3 getWaveNormals(vec3 worldPos) {
     vec2 coords = worldPos.xz - worldPos.y;
 
-    const float delta = 1e-3;
+    const float delta = 1e-2;
     float normal0 = computeWaves(coords);
 	float normal1 = computeWaves(coords + vec2(delta, 0.0));
 	float normal2 = computeWaves(coords + vec2(0.0, delta));

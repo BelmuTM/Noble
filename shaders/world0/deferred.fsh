@@ -21,17 +21,6 @@ const int colortex4Format = RGBA16F;
 const int colortex9Format = RGBA16F;
 */
 
-float computeCaustics(vec3 pos, vec3 normal) {
-   pos = viewToShadow(pos).xyz * 0.5 + 0.5;
-   normal = viewToShadow(normal).xyz * 0.5 + 0.5;
-   vec3 samplePos = pos + refract(vec3(0.0, 0.0, 1.0), normal, 1.0 / 1.333);
-
-   float oldArea = length(dFdx(pos) * dFdy(pos));
-   float newArea = length(dFdx(samplePos) * dFdy(samplePos));
-    
-   return oldArea / newArea * 0.2;
-}
-
 void main() {
      vec3 viewPos = getViewPos(texCoords);
      vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
@@ -62,6 +51,7 @@ void main() {
 
           vec3 sky = getDayTimeSkyGradient(eyeDir, viewPos) + (SUN_COLOR * angle); 
           gl_FragData[0] = vec4(sky, 1.0);
+          return;
      } else {
           gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));
      }

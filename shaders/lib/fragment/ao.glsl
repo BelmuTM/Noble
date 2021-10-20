@@ -12,7 +12,7 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
     mat3 TBN = getTBN(normal);
 
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
-		vec3 sampleDir = TBN * randomHemisphereDirection(uniformNoise(i, blueNoise));
+		vec3 sampleDir = TBN * cosineWeightedHemisphereDirection(uniformNoise(i, blueNoise));
 
 		vec3 samplePos = viewPos + sampleDir * SSAO_RADIUS;
 		float sampleDepth = getViewPos(viewToScreen(samplePos).xy).z;
@@ -34,7 +34,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
 		vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)) : uniformNoise(i, blueNoise);
-		vec3 sampleDir = TBN * randomHemisphereDirection(noise);
+		vec3 sampleDir = TBN * cosineWeightedHemisphereDirection(noise);
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.x, hitPos)) { break; }
 
 		float delta = samplePos.z - screenToView(hitPos).z;

@@ -20,12 +20,7 @@ void main() {
     vec3 globalIllumination = vec3(0.0);
     float ambientOcclusion = 1.0;
 
-    bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
-
     if(!isSky(texCoords)) {
-        vec3 viewPos = getViewPos(texCoords);
-        vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-        
         #if GI == 1
             vec2 scaledUv = texCoords * GI_RESOLUTION; 
             #if GI_FILTER == 1
@@ -39,6 +34,7 @@ void main() {
         #else 
             #if AO == 1
                 #if AO_FILTER == 1
+                    bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
                     ambientOcclusion = isMetal ? 1.0 : gaussianBlur(texCoords, colortex5, vec2(1.0, 0.0), 1.0).a;
                 #endif
             #endif

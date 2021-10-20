@@ -40,7 +40,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define TORCH_COLOR vec3(0.79, 0.5, 0.3)
 
 #define SUN_COLOR vec3(1.5, 1.4, 1.25)
-#define SUN_INTENSITY      8.0
+#define SUN_INTENSITY     10.0
 #define EMISSION_INTENSITY 2.0
 
 #define SPECULAR 1 // [0 1]
@@ -177,8 +177,6 @@ const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 #define EXPOSURE 1 // [0 1]
-#define MIN_EXPOSURE 1e-3
-#define MAX_EXPOSURE 10.0
 
 /*------------------ COLOR CORRECTION ------------------*/
 #define TONEMAP  3 // [-1 0 1 2 3]

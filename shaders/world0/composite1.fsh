@@ -46,7 +46,7 @@ void main() {
     
             #if GI == 0
                 vec2 lightMap = texture(colortex2, texCoords).zw;
-                lightmapColor = max(vec3(0.003), getLightmapColor(lightMap, viewPosSkyColor(viewPos)));
+                lightmapColor = max(vec3(0.0), getLightmapColor(lightMap, viewPosSkyColor(viewPos)));
             #endif
 
             Lighting = cookTorrance(viewPos, normal, sunDir, mat, lightmapColor, shadowmap);

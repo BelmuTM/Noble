@@ -93,7 +93,7 @@ vec3 hemisphereSample(vec2 r) {
 }
 
 // Provided by lith#0281
-vec3 randomHemisphereDirection(vec2 r) {
+vec3 cosineWeightedHemisphereDirection(vec2 r) {
     float radius = sqrt(r.y);
     float xOffset = radius * cos(PI2 * r.x);
     float yOffset = radius * sin(PI2 * r.x);

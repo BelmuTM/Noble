@@ -29,7 +29,7 @@ void main() {
     if(!sky) {
         #if GI == 1
             vec3 globalIllumination = vec3(0.0);
-            #if GI_FILTER == 1
+            #if GI_FILTER == 1                
                 globalIllumination = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
             #else
                 globalIllumination = texture(colortex9, texCoords).rgb;

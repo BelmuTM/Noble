@@ -39,9 +39,15 @@ vec3 purkinje(vec3 color) {
 }
 
 vec3 computeAberration(vec3 color) {
-    float depth = linearizeDepth(texture(depthtex0, texCoords).r);
-    float coc = getCoC(depth, linearizeDepth(centerDepthSmooth));
-    vec2 offset = coc * ABERRATION_STRENGTH * pixelSize;
+    vec2 offset;
+    #if DOF == 0
+        vec2 dist = texCoords - vec2(0.5);
+        offset = (1.0 - (dist * dist)) * ABERRATION_STRENGTH * pixelSize;
+    #else
+        float depth = linearizeDepth(texture(depthtex0, texCoords).r);
+        float coc = getCoC(depth, linearizeDepth(centerDepthSmooth));
+        offset = coc * ABERRATION_STRENGTH * pixelSize;
+    #endif
 
     return vec3(
         texture(colortex0, texCoords + offset).r,

@@ -18,11 +18,11 @@ varying vec2 texCoords;
 void main() {
     vec3 globalIllumination = vec3(0.0);
     if(!isSky(texCoords)) {
-        vec3 viewPos = getViewPos(texCoords);
-        vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-
         #if GI == 1
             #if GI_FILTER == 1
+                vec3 viewPos = getViewPos(texCoords);
+                vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+                
                 globalIllumination = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
             #else
                 globalIllumination = texture(colortex9, texCoords).rgb;

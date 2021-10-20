@@ -184,7 +184,7 @@ float drawStars(vec3 viewPos) {
 vec3 getDayTimeSkyGradient(in vec3 pos, vec3 viewPos) {  // Bottom Color -> Top Color
 	pos.y += 0.1;
     vec3 skyGradient_sunrise  = mix(vec3(0.395, 0.435, 0.471), vec3(0.245, 0.305, 0.371), pos.y);
-    vec3 skyGradient_noon     = mix(vec3(0.495, 0.625, 0.821), vec3(0.200, 0.245, 0.359), pos.y);
+    vec3 skyGradient_noon     = mix(vec3(0.675, 0.800, 0.946), vec3(0.300, 0.345, 0.459), pos.y);
     vec3 skyGradient_sunset   = mix(vec3(0.395, 0.435, 0.471), vec3(0.245, 0.305, 0.371), pos.y);
     vec3 skyGradient_midnight = mix(vec3(0.058, 0.062, 0.088), vec3(0.000, 0.004, 0.025), pos.y) + (drawStars(viewPos) * float(isSky(texCoords)));
 

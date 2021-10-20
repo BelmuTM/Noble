@@ -101,8 +101,8 @@ vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
     return F0 * AB.x + AB.y;
 }
 
-vec3 cookTorranceFresnel(float cosTheta, float F0, vec3 albedo, bool isMetal) {
-    return isMetal ? schlickGaussian(cosTheta, albedo) : vec3(dielectricFresnel(cosTheta, F0toIOR(F0)));
+vec3 cookTorranceFresnel(float cosTheta, float F0, vec3 metalColor, bool isMetal) {
+    return isMetal ? schlickGaussian(cosTheta, metalColor) : vec3(dielectricFresnel(cosTheta, F0toIOR(F0)));
 }
 
 vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, float roughness, float F0, vec3 albedo, bool isMetal) {
