@@ -90,7 +90,7 @@ vec3 pathTrace(in vec3 screenPos) {
 
             /* Ray Tracing */
             vec3 viewHitPos = screenToView(hitPos) + normal * 1e-3;
-            if(!raytrace(viewHitPos, rayDir, GI_STEPS, noise.y, hitPos)) { break; }
+            if(!raytrace(viewHitPos, rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
 
             /* Computing Diffuse, Specular and Direct BRDFs */
             vec3 skyCol = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * prevDir, viewHitPos);
