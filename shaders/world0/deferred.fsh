@@ -15,6 +15,7 @@ varying vec2 texCoords;
 #include "/programs/common.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/shadows.glsl"
+#include "/lib/atmospherics/atmosphere.glsl"
 
 /*
 const int colortex4Format = RGBA16F;
@@ -43,14 +44,10 @@ void main() {
 
      /*DRAWBUFFERS:49*/
      if(isSky(texCoords)) {
-          vec3 viewPos = getViewPos(texCoords);
-          vec3 eyeDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
+          vec3 rayPos = vec3(0.0, earthRad + cameraPosition.y, 0.0);
+          vec3 rayDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
-          float VdotL = max(EPS, dot(normalize(viewPos), sunDir));
-          float angle = quintic(0.9998, 0.99995, VdotL);
-
-          vec3 sky = getDayTimeSkyGradient(eyeDir, viewPos) + (SUN_COLOR * angle); 
-          gl_FragData[0] = vec4(sky, 1.0);
+          gl_FragData[0] = vec4(atmosphericScattering(rayPos, rayDir), 1.0);
           return;
      } else {
           gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));

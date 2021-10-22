@@ -8,7 +8,7 @@
 
 float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmplitude, float waveLength, vec2 waveDir) {
 	float k = PI2 / waveLength;
-    float w = sqrt(g * k);
+    float w = sqrt(9.81 * k);
 
     float x = w * time - k * dot(waveDir, coords);
     return waveAmplitude * pow(sin(x) * 0.5 + 0.5, waveSteepness);

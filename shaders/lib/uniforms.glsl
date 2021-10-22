@@ -63,5 +63,19 @@ vec2 viewSize = vec2(viewWidth, viewHeight);
 vec2 pixelSize = 1.0 / viewSize;
 const int noiseRes = 512;
 
-const float g = 9.81;
 const float airIOR = 1.00028;
+
+/* ATMOSPHERIC SCATTERING CONSTANTS */
+
+const float g  = 0.76;
+const float gg = g*g;
+
+const float earthRad = 6371e3;
+const float atmosRad = 6471e3;
+
+const float hR = 7.9e3;
+const float hM = 1.2e3;
+
+// Coefficients
+const vec3 kRlh   = vec3(5.8e-6, 13.3e-6, 33.31-6); // Provided by Jessie#7257
+const mat2x3 kMie = mat2x3(vec3(21e-6), vec3(21e-6) * 1.1);
