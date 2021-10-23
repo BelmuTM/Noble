@@ -49,7 +49,7 @@ vec3 densities(float height, float atmosphereRadius) {
 vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
     vec3 lightDir = normalize((mat3(gbufferModelViewInverse) * sunPosition));
     vec2 atmosDist  = raySphere(rayOrigin, rayDir, atmosRad);
-    vec2 planetDist = raySphere(rayOrigin, rayDir, earthRad);
+    vec2 planetDist = raySphere(rayOrigin, rayDir, earthRad + 5e3);
 
     // Step size method from Jessie#7257
     bool planetIntersect = planetDist.y >= 0.0;
