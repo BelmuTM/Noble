@@ -87,5 +87,5 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
 
         rayPos += iIncrement;
     }
-    return SUN_INTENSITY * totalScattering;
+    return max(vec3(0.0), SUN_INTENSITY * totalScattering);
 }
