@@ -8,12 +8,13 @@
 
 /*
     SOURCES / CREDITS:
+    Thanks LVutner#5199 and Jessie#7257 for the help!
 
     ScratchaPixel:   https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/simulating-sky/simulating-colors-of-the-sky
     Wikipedia:       https://fr.wikipedia.org/wiki/Th%C3%A9orie_de_Mie
     Sebastian Lague: https://www.youtube.com/watch?v=DxfEbulyFcY
     LVutner:         https://www.shadertoy.com/view/stSGRy
-    gltracy:   https://www.shadertoy.com/view/lslXDr
+    gltracy:         https://www.shadertoy.com/view/lslXDr
 */
 
 float rayleighPhase(float cosTheta) {
@@ -38,57 +39,53 @@ vec2 raySphere(vec3 ro, vec3 rd, float rad) {
 	return vec2(-b - d, -b + d);
 }
 
-#define SCATTER_STEPS      16
-#define TRANSMITTANCE_STEPS 8
+vec3 densities(float height, float atmosphereRadius) {
+    float rayLeigh = exp(-height / hR);
+    float mie      = exp(-height / hM);
+    float ozone    = exp(-max(0.0, (35e3 - height) - atmosphereRadius) / 5e3) * exp(-max(0.0, (height - 35e3) - atmosphereRadius) / 15e3);
+    return vec3(rayLeigh, mie, ozone);
+}
 
 vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
-    vec3 lightDir = normalize(viewToWorld(sunPosition));
-    vec2 dist = raySphere(rayOrigin, rayDir, atmosRad);
+    vec3 lightDir = normalize((mat3(gbufferModelViewInverse) * sunPosition));
+    vec2 atmosDist  = raySphere(rayOrigin, rayDir, atmosRad);
+    vec2 planetDist = raySphere(rayOrigin, rayDir, earthRad);
 
-    float tMin = 0.0, tMax = 1e8;
-    float t0 = dist.x, t1 = dist.y;
-    if(t0 > tMin && t0 > 0.0) { tMin = t0; }
-    if(t1 < tMax) { tMax = t1; }
+    // Step size method from Jessie#7257
+    bool planetIntersect = planetDist.y >= 0.0;
+    vec2 sd = vec2((planetIntersect && planetDist.x < 0.0) ? planetDist.y : max(atmosDist.x, 0.0), (planetIntersect && planetDist.x > 0.0) ? planetDist.x : atmosDist.y);
+    float iStepSize = length(sd.y - sd.x) / float(SCATTER_STEPS);
 
-    float iStepSize = (tMax - tMin) / float(SCATTER_STEPS);
-    vec3 rayPos = rayOrigin + (rayDir * iStepSize) * 0.5;
+    vec3 iIncrement = rayDir * iStepSize;
+    vec3 rayPos = rayOrigin + iIncrement * 0.5;
     
-    vec3 totalRlh = vec3(0.0), totalMie = vec3(0.0);
-    float iOdRlh = 0.0, iOdMie = 0.0;
+    vec3 totalScattering = vec3(0.0), iOptDepth = vec3(0.0);
 
     float VdotL = max(0.0, dot(rayDir, lightDir));
-    float pMie  = miePhase(VdotL);
-    float pRlh  = rayleighPhase(VdotL);
+    vec2 phase = vec2(rayleighPhase(VdotL), miePhase(VdotL));
 
     for(int i = 0; i < SCATTER_STEPS; i++) {
-
         float iHeight = length(rayPos) - earthRad;
-        float oDStepRlh = exp(-iHeight / hR) * iStepSize;
-        float oDStepMie = exp(-iHeight / hM) * iStepSize;
-
-        iOdRlh += oDStepRlh;
-        iOdMie += oDStepMie;
+        vec3 iDensity = densities(iHeight, atmosRad);
+        iOptDepth += iDensity * iStepSize;
 
         float jStepSize = raySphere(rayPos, lightDir, atmosRad).y / float(TRANSMITTANCE_STEPS);
-        vec3 jRayPos = rayPos + (lightDir * jStepSize) * 0.5;
+        vec3 jIncrement = lightDir * jStepSize;
+        vec3 jRayPos = rayPos + jIncrement * 0.5;
 
-        float jOdRlh = 0.0, jOdMie = 0.0;
-
+        vec3 jTransmittance = vec3(1.0);
         for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
             float jHeight = length(jRayPos) - earthRad;
+            vec3 jDensity = densities(jHeight, atmosRad);
+            jTransmittance *= exp(-kExtinction * jDensity * jStepSize);
 
-            jOdRlh += exp(-jHeight / hR) * jStepSize;
-            jOdMie += exp(-jHeight / hM) * jStepSize;
-
-            jRayPos += sunDir * jStepSize;
+            jRayPos += jIncrement;
         }
+        vec3 iTransmittance = exp(-(kExtinction * iOptDepth));
+        vec3 scattering = kScattering * (iStepSize * iDensity.xy * phase);
+        totalScattering += (scattering * jTransmittance) * iTransmittance;
 
-        vec3 extinction = exp(-(kMie[1] * (iOdMie + jOdMie) + kRlh * (iOdRlh + jOdRlh)));
-        totalRlh += oDStepRlh * extinction;
-        totalMie += oDStepMie * extinction;
-
-        rayPos += rayDir * iStepSize;
+        rayPos += iIncrement;
     }
-
-    return 22.0 * (pRlh * kRlh * totalRlh + pMie * kMie[0] * totalMie);
+    return SUN_INTENSITY * totalScattering;
 }

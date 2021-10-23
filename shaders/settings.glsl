@@ -114,6 +114,9 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define REFRACT_STEPS        48
 
 /*------------------ ATMOSPHERICS ------------------*/
+#define SCATTER_STEPS       24 // [8 12 16 20 24 28 32 36]
+#define TRANSMITTANCE_STEPS 12 // [8 12 16 20 24 28 32 26]
+
 #define VL               0 // [0 1]
 #define VL_FILTER        1 // [0 1]
 #define VL_SAMPLES       8
@@ -154,6 +157,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define TAA_VELOCITY_WEIGHT 0 // [0 1]
 #define TAA_LUMA_MIN 0.01
 
+#define PURKINJE 1 // [0 1]
+
 #define DOF           0 // [0 1]
 #define DOF_RADIUS 20.0 // [5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0]
 
@@ -180,7 +185,6 @@ const float S = 100.0; // Sensor sensitivity
 
 /*------------------ COLOR CORRECTION ------------------*/
 #define TONEMAP  3 // [-1 0 1 2 3]
-#define PURKINJE 1 // [0 1]
 
 #define VIBRANCE   1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
 #define SATURATION 1.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]

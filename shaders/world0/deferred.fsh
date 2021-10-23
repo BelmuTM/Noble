@@ -35,22 +35,21 @@ void main() {
      #if WATER_CAUSTICS == 1
           if(isEyeInWater == 1) {
                vec2 worldPos = viewToWorld(viewPos).xz * 0.5 + 0.5;
-
                float causticsSpeed = frameTimeCounter * WATER_CAUSTICS_SPEED;
                vec3 caustics = texelFetch(colortex9, ivec2(mod((worldPos * 80.0) + causticsSpeed, 250)), 0).rgb;
                shadowmap += caustics * WATER_CAUSTICS_STRENGTH * shadowmap;
           }
      #endif
 
-     /*DRAWBUFFERS:49*/
-     if(isSky(texCoords)) {
-          vec3 rayPos = vec3(0.0, earthRad + cameraPosition.y, 0.0);
-          vec3 rayDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
+     /*DRAWBUFFERS:049*/
+     vec3 rayPos = vec3(0.0, earthRad + cameraPosition.y, 0.0);
+     vec3 rayDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
-          gl_FragData[0] = vec4(atmosphericScattering(rayPos, rayDir), 1.0);
-          return;
-     } else {
-          gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));
-     }
-     gl_FragData[1] = vec4(shadowmap, 1.0);
+     vec4 sky = isSky(texCoords) ? vec4(atmosphericScattering(rayPos, rayDir), 1.0) : vec4(0.0);
+     float VdotL = max(EPS, dot(normalize(viewPos), sunDir));
+     float angle = quintic(0.9997, 0.99995, VdotL);
+
+     gl_FragData[0] = sky + (vec4(SUN_INTENSITY) * angle * sky);
+     gl_FragData[1] = sRGBToLinear(texture(colortex0, texCoords));
+     gl_FragData[2] = vec4(shadowmap, 1.0);
 }

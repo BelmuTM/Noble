@@ -75,8 +75,8 @@ value.AO_FILTER.1 = §aON
 
 option.AO_TYPE = AO Type
 option.AO_TYPE.comment = §aRTAO §7-> §fRay Traced Ambient Occlusion. §aSSAO §7-> §fScreen Space Ambient Occlusion.
-value.AO_TYPE.0 = §eSSAO
-value.AO_TYPE.1 = §eRTAO
+value.AO_TYPE.0 = §e§lSSAO
+value.AO_TYPE.1 = §e§lRTAO
 
 option.SSAO_SAMPLES = SSAO Samples
 option.SSAO_SAMPLES.comment = Influences §bSSAO§f's quality. §cHigher value gives smoother results, but reduces §cperformance.
@@ -154,6 +154,25 @@ value.SSR_REPROJECTION.0 = §cOFF
 value.SSR_REPROJECTION.1 = §aON
 
 ##################### ATMOSPHERICS #####################
+option.SCATTER_STEPS = Scattering Samples
+option.SCATTER_STEPS.comment = Influences how accurate light scatters in §bAtmospheric §bScattering. §cWould preferably be higher than transmittance samples.
+value.SCATTER_STEPS.8  = §38
+value.SCATTER_STEPS.12 = §212
+value.SCATTER_STEPS.16 = §a16
+value.SCATTER_STEPS.20 = §e20
+value.SCATTER_STEPS.24 = §624
+value.SCATTER_STEPS.28 = §c28
+value.SCATTER_STEPS.32 = §432
+
+option.TRANSMITTANCE_STEPS = Transmittance Samples
+option.TRANSMITTANCE_STEPS.comment = Influences how accurate light transmits in §bAtmospheric §bScattering. §cWould preferably be lower than scattering samples.
+value.TRANSMITTANCE_STEPS.8  = §38
+value.TRANSMITTANCE_STEPS.12 = §212
+value.TRANSMITTANCE_STEPS.16 = §a16
+value.TRANSMITTANCE_STEPS.20 = §e20
+value.TRANSMITTANCE_STEPS.24 = §624
+value.TRANSMITTANCE_STEPS.28 = §c28
+value.TRANSMITTANCE_STEPS.32 = §432
 
 option.VL = Volumetric Lighting (VL)
 option.VL.comment = Simulates light scattering in fog.
@@ -227,9 +246,14 @@ option.TAA_STRENGTH = TAA Strength
 option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§f's intensity.
 
 option.EXPOSURE = Exposure
-option.EXPOSURE.comment = §eManual§r exposure lets you use the camera settings to adjust the image. §eAutomatic§r exposure tweaks the camera settings depending on the average screen brightness.
+option.EXPOSURE.comment = §aManual§r exposure lets you use the camera settings to adjust the image. §aAutomatic§r exposure tweaks the camera settings depending on the average screen brightness.
 value.EXPOSURE.0 = §e§lManual
 value.EXPOSURE.1 = §e§lAutomatic
+
+option.PURKINJE = Purkinje Effect
+option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.
+value.PURKINJE.0 = §cOFF
+value.PURKINJE.1 = §aON
 
 option.DOF = Depth of Field (DOF)
 option.DOF.comment = Blurs objects that are out of focus. Influenced by the §eaperture§r and §efocal length§r in the camera settings.
@@ -293,11 +317,6 @@ value.TONEMAP.0 = Reinhard
 value.TONEMAP.1 = Uncharted
 value.TONEMAP.2 = Burgess
 value.TONEMAP.3 = ACES Fitted
-
-option.PURKINJE = Purkinje Effect
-option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.
-value.PURKINJE.0 = §cOFF
-value.PURKINJE.1 = §aON
 
 option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.

@@ -77,5 +77,9 @@ const float hR = 7.9e3;
 const float hM = 1.2e3;
 
 // Coefficients
-const vec3 kRlh   = vec3(5.8e-6, 13.3e-6, 33.31-6); // Provided by Jessie#7257
-const mat2x3 kMie = mat2x3(vec3(21e-6), vec3(21e-6) * 1.1);
+const vec3 kRlh   = vec3(5.8e-6, 13.3e-6, 33.31e-6);        // Provided by Jessie#7257
+const mat2x3 kMie = mat2x3(vec3(21e-6), vec3(21e-6) * 1.1); // Provided by LVutner#5199
+const vec3 kOzo   = vec3(3.426e-7, 8.298e-7, 0.356e-7);     // Provided by LVutner#5199
+
+const mat2x3 kScattering = mat2x3(kRlh, kMie[0]);
+const mat3x3 kExtinction = mat3x3(kRlh, kMie[0] + kMie[1], kOzo);
