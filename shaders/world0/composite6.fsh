@@ -40,21 +40,12 @@ void main() {
 
     #if SSR == 1
         if(!sky) {
+            float resolution = SSR_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
             float NdotV = max(EPS, dot(normal, -normalize(viewPos)));
-            float F0 = texture(colortex2, texCoords).g;
-            bool isMetal = F0 * 255.0 > 229.5;
-
-            vec3 specularColor = getSpecularColor(F0, texture(colortex4, texCoords).rgb);
-            float roughness = texture(colortex2, texCoords).r;
-
-            vec3 reflections;
-            #if SSR_TYPE == 1
-                reflections = texture(colortex5, texCoords * ROUGH_REFLECT_RES).rgb;
-            #else
-                reflections = simpleReflections(texCoords, viewPos, normal, NdotV, specularColor, isMetal);
-            #endif
-
-            vec3 DFG = envBRDFApprox(specularColor, roughness, NdotV);
+            vec3 specularColor = texture(colortex4, texCoords * resolution).rgb;
+            
+            vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
+            vec3 DFG = envBRDFApprox(specularColor, texture(colortex2, texCoords).r, NdotV);
             Result.rgb = mix(Result.rgb, clamp01(reflections), DFG);
         }
     #endif

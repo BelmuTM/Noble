@@ -93,8 +93,8 @@ vec3 pathTrace(in vec3 screenPos) {
             if(!raytrace(viewHitPos, rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
 
             /* Computing Diffuse, Specular and Direct BRDFs */
-            vec3 skyCol = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * prevDir, viewHitPos);
-            radiance += throughput * directBRDF(normal, -prevDir, sunDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * SUN_INTENSITY * skyCol;
+            vec3 illuminance = SUN_INTENSITY * atmosphereTransmittance(vec3(0.0, earthRad, 0.0), worldSunDir);
+            radiance += throughput * directBRDF(normal, -prevDir, sunDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * illuminance;
 
             if(specularBounce) {
                 throughput /= specBounceProbability;
@@ -105,7 +105,7 @@ vec3 pathTrace(in vec3 screenPos) {
                 throughput *= specularBRDF(microfacet, rayDir, specularFresnel, params.r);
             } else {
                 throughput /= (1.0 - specBounceProbability);
-                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, albedo) * PI;
+                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, albedo) / (dot(normal, rayDir) * INV_PI);
             }
         }
     }

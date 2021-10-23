@@ -13,11 +13,11 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/programs/common.glsl"
+#include "/lib/atmospherics/atmosphere.glsl"
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/ao.glsl"
 #include "/lib/fragment/ptgi.glsl"
-#include "/lib/post/taa.glsl"
 
 /*
 const int colortex5Format = RGBA16F;
@@ -26,6 +26,8 @@ const bool colortex6Clear = false;
 */
 
 #if GI_TEMPORAL_ACCUMULATION == 1
+    #include "/lib/post/taa.glsl"
+
     vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 viewPos, vec3 normal) {
         vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
         vec3 prevColor = texture(prevTex, prevTexCoords).rgb;

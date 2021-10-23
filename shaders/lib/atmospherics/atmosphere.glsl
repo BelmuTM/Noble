@@ -46,8 +46,23 @@ vec3 densities(float height, float atmosphereRadius) {
     return vec3(rayLeigh, mie, ozone);
 }
 
+vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
+    float stepSize = raySphere(rayOrigin, lightDir, atmosRad).y / float(TRANSMITTANCE_STEPS);
+    vec3 increment = lightDir * stepSize;
+    vec3 rayPos = rayOrigin + increment * 0.5;
+
+    vec3 transmittance = vec3(1.0);
+    for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
+        float height = length(rayPos) - earthRad;
+        vec3 density = densities(height, atmosRad);
+        transmittance *= exp(-kExtinction * density * stepSize);
+
+        rayPos += increment;
+    }
+    return transmittance;
+}
+
 vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
-    vec3 lightDir = normalize((mat3(gbufferModelViewInverse) * sunPosition));
     vec2 atmosDist  = raySphere(rayOrigin, rayDir, atmosRad);
     vec2 planetDist = raySphere(rayOrigin, rayDir, earthRad + 5e3);
 
@@ -61,7 +76,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
     
     vec3 totalScattering = vec3(0.0), iOptDepth = vec3(0.0);
 
-    float VdotL = max(0.0, dot(rayDir, lightDir));
+    float VdotL = max(0.0, dot(rayDir, worldSunDir));
     vec2 phase = vec2(rayleighPhase(VdotL), miePhase(VdotL));
 
     for(int i = 0; i < SCATTER_STEPS; i++) {
@@ -69,19 +84,9 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
         vec3 iDensity = densities(iHeight, atmosRad);
         iOptDepth += iDensity * iStepSize;
 
-        float jStepSize = raySphere(rayPos, lightDir, atmosRad).y / float(TRANSMITTANCE_STEPS);
-        vec3 jIncrement = lightDir * jStepSize;
-        vec3 jRayPos = rayPos + jIncrement * 0.5;
-
-        vec3 jTransmittance = vec3(1.0);
-        for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
-            float jHeight = length(jRayPos) - earthRad;
-            vec3 jDensity = densities(jHeight, atmosRad);
-            jTransmittance *= exp(-kExtinction * jDensity * jStepSize);
-
-            jRayPos += jIncrement;
-        }
         vec3 iTransmittance = exp(-(kExtinction * iOptDepth));
+        vec3 jTransmittance = atmosphereTransmittance(rayPos, worldSunDir);
+
         vec3 scattering = kScattering * (iStepSize * iDensity.xy * phase);
         totalScattering += (scattering * jTransmittance) * iTransmittance;
 

@@ -58,12 +58,21 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
-vec3 sunDir = shadowLightPosition * 0.01;
 vec2 viewSize = vec2(viewWidth, viewHeight);
 vec2 pixelSize = 1.0 / viewSize;
 const int noiseRes = 512;
 
+/* PBR & CELESTIAL VARIABLES / CONSTANTS */
 const float airIOR = 1.00028;
+
+vec3 sunDir = shadowLightPosition * 0.01;
+vec3 worldSunDir = normalize((mat3(gbufferModelViewInverse) * sunPosition));
+
+float wTime = float(worldTime);
+float timeSunrise  = ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTime, 0.0, 2000.0) / 2000.0));
+float timeNoon     = ((clamp(wTime, 0.0, 2000.0)) / 2000.0) - ((clamp(wTime, 10000.0, 12000.0) - 10000.0) / 2000.0);
+float timeSunset   = ((clamp(wTime, 10000.0, 12000.0) - 10000.0) / 2000.0) - ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0);
+float timeMidnight = ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0);
 
 /* ATMOSPHERIC SCATTERING CONSTANTS */
 

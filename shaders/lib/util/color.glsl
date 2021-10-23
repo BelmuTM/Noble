@@ -156,12 +156,6 @@ vec3 YCoCgToLinear(vec3 YCoCg) {
 }
 
 /*------------------ WORLD TIME & SKY ------------------*/
-float wTime = float(worldTime);
-float timeSunrise  = ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTime, 0.0, 2000.0) / 2000.0));
-float timeNoon     = ((clamp(wTime, 0.0, 2000.0)) / 2000.0) - ((clamp(wTime, 10000.0, 12000.0) - 10000.0) / 2000.0);
-float timeSunset   = ((clamp(wTime, 10000.0, 12000.0) - 10000.0) / 2000.0) - ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0);
-float timeMidnight = ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0);
- 
 // Originally written by Capt Tatsu#7124
 // Modified by Belmu#4066
 float drawStars(vec3 viewPos) {
@@ -178,7 +172,12 @@ float drawStars(vec3 viewPos) {
 		star *= rand(coord.xy);
 		star *= rand(-coord.xy + 0.1);
 	}
-	return (clamp01(star - 0.83) * multiplier) * 2.0;
+	return (clamp01(star - 0.88) * multiplier) * 2.0;
+}
+
+float getStars(vec3 viewPos) {
+    float nightStars = drawStars(viewPos) * float(isSky(texCoords));
+    return 0.0 * timeSunrise + 0.0 * timeNoon + 0.0 * timeSunset + nightStars * timeMidnight;
 }
 
 vec3 getDayTimeSkyGradient(in vec3 pos, vec3 viewPos) {  // Bottom Color -> Top Color

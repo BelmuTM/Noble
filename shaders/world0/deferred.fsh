@@ -19,6 +19,7 @@ varying vec2 texCoords;
 
 /*
 const int colortex4Format = RGBA16F;
+const int colortex7Format = RGB16F;
 const int colortex9Format = RGBA16F;
 */
 
@@ -41,7 +42,7 @@ void main() {
           }
      #endif
 
-     /*DRAWBUFFERS:049*/
+     /*DRAWBUFFERS:749*/
      vec3 rayPos = vec3(0.0, earthRad + cameraPosition.y, 0.0);
      vec3 rayDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
@@ -49,7 +50,7 @@ void main() {
      float VdotL = max(EPS, dot(normalize(viewPos), sunDir));
      float angle = quintic(0.9997, 0.99995, VdotL);
 
-     gl_FragData[0] = sky + (vec4(SUN_INTENSITY) * angle * sky);
+     gl_FragData[0] = sky + (vec4(SUN_INTENSITY) * angle) + getStars(viewPos);
      gl_FragData[1] = sRGBToLinear(texture(colortex0, texCoords));
      gl_FragData[2] = vec4(shadowmap, 1.0);
 }

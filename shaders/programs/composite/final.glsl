@@ -82,7 +82,7 @@ void main() {
 
     #if BLOOM == 1
         // I wasn't supposed to use magic numbers like this in Noble :Sadge:
-        Result.rgb += clamp01(readBloom().rgb * 0.01 * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
+        Result.rgb += clamp01(readBloom().rgb * 0.006 * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
     #endif
 
     #if PURKINJE == 1
@@ -90,7 +90,7 @@ void main() {
     #endif
     
     // Tonemapping & Color Correction
-    vec3 finalCol = Result.rgb * max(0.0, computeExposure(texture(colortex7, texCoords).r));
+    vec3 finalCol = Result.rgb * max(0.0, computeExposure(texture(colortex3, texCoords).a));
     tonemap(finalCol);
     finalCol = vibranceSaturation(finalCol, VIBRANCE, SATURATION);
     finalCol = contrast(finalCol, CONTRAST) + BRIGHTNESS;

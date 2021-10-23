@@ -6,19 +6,6 @@
 
 #include "/lib/post/taa.glsl"
 
-// LVutner's Border Attenuation
-float LVutner_Attenuation(vec2 pos, float edgeFactor) {
-    float borderDist = min(1.0 - max(pos.x, pos.y), min(pos.x, pos.y));
-    float border = clamp01(borderDist > edgeFactor ? 1.0 : borderDist / edgeFactor);
-    return border;
-}
-
-// Belmu's Border Attenuation
-float Belmu_Attenuation(vec2 pos, float edgeFactor) {
-    vec2 att = 1.0 - smoothstep(vec2(edgeFactor), vec2(1.0), abs(pos));
-    return att.x * att.y;
-}
-
 // Kneemund's Border Attenuation
 float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
     pos *= 1.0 - pos;

@@ -15,6 +15,7 @@ varying vec2 texCoords;
 #include "/programs/common.glsl"
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
+#include "/lib/atmospherics/atmosphere.glsl"
 
 /*
 const int colortex8Format = RGBA16F;
@@ -49,7 +50,8 @@ void main() {
                 lightmapColor = max(vec3(0.0), getLightmapColor(lightMap, viewPosSkyColor(viewPos)));
             #endif
 
-            Lighting = cookTorrance(viewPos, normal, sunDir, mat, lightmapColor, shadowmap);
+            vec3 illuminance = SUN_INTENSITY * atmosphereTransmittance(vec3(0.0, earthRad, 0.0), worldSunDir);
+            Lighting = cookTorrance(viewPos, normal, sunDir, mat, lightmapColor, shadowmap, illuminance);
         }
     #endif
 

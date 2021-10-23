@@ -26,7 +26,7 @@ void main() {
 
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
-      gl_FragData[0] = texture(colortex0, texCoords) + rain;
+      gl_FragData[0] = texture(colortex7, texCoords) + rain;
       return;
    }
 
