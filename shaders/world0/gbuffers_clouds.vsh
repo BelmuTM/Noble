@@ -1,5 +1,4 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */

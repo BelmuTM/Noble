@@ -1,5 +1,4 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
@@ -10,5 +9,5 @@
 /***********************************************/
 
 void main() {
-	gl_Position = ftransform();
+    gl_Position = vec4(-1.0);
 }

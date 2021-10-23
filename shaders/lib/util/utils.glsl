@@ -39,3 +39,9 @@ vec3 getLightmapColor(vec2 lightMap, vec3 skyColor) {
     vec3 skyLight   = skyColor * (lightMap.y - clamp(rainStrength, 0.0, rainAmbientDarkness));
     return max(vec3(EPS), torchLight + skyLight);
 }
+
+vec4 sun(vec3 viewDir, vec3 lightDir) {
+    float VdotL = max(EPS, dot(viewDir, lightDir));
+    float angle = quintic(0.9997, 0.99995, VdotL);
+    return vec4(4.0) * angle;
+}

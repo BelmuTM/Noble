@@ -78,7 +78,7 @@ vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float alpha) {
 
 	// Section 4.2: parameterization of the projected area
 	float r = sqrt(Xi.x);
-    float phi = PI2 * Xi.y;
+    float phi = TAU * Xi.y;
 	float t1 = r * cos(phi);
 	float t2 = r * sin(phi);
 	float s = 0.5 * (1.0 + Vh.z);

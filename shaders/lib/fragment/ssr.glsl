@@ -34,7 +34,7 @@ vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3
 
     vec3 color = vec3(0.0);
     #if SKY_FALLBACK == 1
-        vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap(coords);
+        vec3 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected))).rgb * getSkyLightmap(coords) + sun(reflected, sunDir).rgb;
         color = mix(sky, hitColor, Kneemund_Attenuation(hitPos.xy, 0.2) * hit);
     #else
         color = hitColor * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
@@ -66,7 +66,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
         vec3 fresnel = cookTorranceFresnel(NdotL, F0.r, F0, isMetal);
 
         #if SKY_FALLBACK == 1
-            vec3 sky = getDayTimeSkyGradient(mat3(gbufferModelViewInverse) * reflected, viewPos) * getSkyLightmap(coords);
+            vec3 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected))).rgb * getSkyLightmap(coords) + sun(reflected, sunDir).rgb;
 			filteredColor += (mix(sky, hitColor, Kneemund_Attenuation(hitPos.xy, 0.15) * hit) * NdotL) * fresnel;
         #else
             filteredColor += ((hitColor * NdotL) * (Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit)) * fresnel;

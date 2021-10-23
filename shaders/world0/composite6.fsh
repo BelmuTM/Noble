@@ -36,10 +36,8 @@ void main() {
             #endif
             Result.rgb = max(vec3(0.0), globalIllumination);
         #endif
-    }
 
-    #if SSR == 1
-        if(!sky) {
+        #if SSR == 1
             float resolution = SSR_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
             float NdotV = max(EPS, dot(normal, -normalize(viewPos)));
             vec3 specularColor = texture(colortex4, texCoords * resolution).rgb;
@@ -47,18 +45,15 @@ void main() {
             vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
             vec3 DFG = envBRDFApprox(specularColor, texture(colortex2, texCoords).r, NdotV);
             Result.rgb = mix(Result.rgb, clamp01(reflections), DFG);
-        }
-    #endif
+        #endif
+    }
 
     #if VL == 1
-        vec3 volumetricLighting = vec3(0.0);
         #if VL_FILTER == 1
-            volumetricLighting = boxBlur(texCoords, colortex8, 5).rgb;
+            Result.rgb += boxBlur(texCoords, colortex8, 5).rgb;
         #else
-            volumetricLighting = texture(colortex8, texCoords).rgb;
+            Result.rgb += texture(colortex8, texCoords).rgb;
         #endif
-        
-        Result.rgb += (viewPosSkyColor(viewPos) * volumetricLighting);
     #endif
 
     vec3 brightSpots;

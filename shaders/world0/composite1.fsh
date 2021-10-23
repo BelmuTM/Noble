@@ -14,8 +14,8 @@ varying vec2 texCoords;
 #include "/settings.glsl"
 #include "/programs/common.glsl"
 #include "/lib/fragment/brdf.glsl"
-#include "/lib/atmospherics/volumetric.glsl"
 #include "/lib/atmospherics/atmosphere.glsl"
+#include "/lib/atmospherics/volumetric.glsl"
 
 /*
 const int colortex8Format = RGBA16F;
@@ -47,7 +47,8 @@ void main() {
     
             #if GI == 0
                 vec2 lightMap = texture(colortex2, texCoords).zw;
-                lightmapColor = max(vec3(0.0), getLightmapColor(lightMap, viewPosSkyColor(viewPos)));
+                vec3 sky = texture(colortex7, projectSphere(normalize(viewToWorld(viewPos)))).rgb;
+                lightmapColor = max(vec3(0.0), getLightmapColor(lightMap, sky));
             #endif
 
             vec3 illuminance = SUN_INTENSITY * atmosphereTransmittance(vec3(0.0, earthRad, 0.0), worldSunDir);

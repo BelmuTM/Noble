@@ -94,3 +94,22 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
     }
     return max(vec3(0.0), SUN_INTENSITY * totalScattering);
 }
+
+// Originally written by Capt Tatsu#7124
+// Modified by Belmu#4066
+float drawStars(vec3 viewPos) {
+	vec3 worldPos = mat3(gbufferModelViewInverse) * viewPos;
+	vec3 planeCoords = worldPos / (worldPos.y + length(worldPos.xz));
+	vec2 coord = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-4 + frameTime * 0.00125;
+	coord = floor(coord * 1024.0) / 1024.0;
+
+	float VdotU = clamp01(dot(normalize(viewPos), normalize(upPosition)));
+	float multiplier = sqrt(sqrt(VdotU)) * (1.0 - rainStrength);
+
+	float star = 1.0;
+	if(VdotU > 0.0) {
+		star *= rand(coord.xy);
+		star *= rand(-coord.xy + 0.1);
+	}
+	return (clamp01(star - 0.88) * multiplier) * 2.0;
+}

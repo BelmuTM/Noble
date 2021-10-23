@@ -25,7 +25,6 @@ const int colortex9Format = RGBA16F;
 
 void main() {
      vec3 viewPos = getViewPos(texCoords);
-     vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
      /*    ------- SHADOW MAPPING -------    */
      vec3 shadowmap = vec3(0.0);
@@ -33,6 +32,7 @@ void main() {
           shadowmap = shadowMap(viewPos, shadowMapResolution);
      #endif
 
+     /*    ------- CAUSTICS -------    */
      #if WATER_CAUSTICS == 1
           if(isEyeInWater == 1) {
                vec2 worldPos = viewToWorld(viewPos).xz * 0.5 + 0.5;
@@ -42,15 +42,13 @@ void main() {
           }
      #endif
 
-     /*DRAWBUFFERS:749*/
+     /*    ------- ATMOSPHERIC SCATTERING -------    */
      vec3 rayPos = vec3(0.0, earthRad + cameraPosition.y, 0.0);
-     vec3 rayDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
+     vec3 rayDir = unprojectSphere(texCoords);
+     vec4 sky = vec4(atmosphericScattering(rayPos, rayDir), 1.0);
 
-     vec4 sky = isSky(texCoords) ? vec4(atmosphericScattering(rayPos, rayDir), 1.0) : vec4(0.0);
-     float VdotL = max(EPS, dot(normalize(viewPos), sunDir));
-     float angle = quintic(0.9997, 0.99995, VdotL);
-
-     gl_FragData[0] = sky + (vec4(SUN_INTENSITY) * angle) + getStars(viewPos);
-     gl_FragData[1] = sRGBToLinear(texture(colortex0, texCoords));
+     /*DRAWBUFFERS:479*/
+     gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));
+     gl_FragData[1] = sky;
      gl_FragData[2] = vec4(shadowmap, 1.0);
 }

@@ -44,7 +44,7 @@ vec4 radialBlur(vec2 coords, sampler2D tex, vec2 resolution, int quality, float 
 
     int SAMPLES = 1;
     for(int i = 0; i < quality; i++){
-        float d = (i * PI2) / quality;
+        float d = (i * TAU) / quality;
         vec2 sampleCoords = coords + vec2(sin(d), cos(d)) * radius;
             
         color += texture(tex, sampleCoords);

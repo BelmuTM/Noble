@@ -84,9 +84,22 @@ vec2 sincos2(float x) {
 
 /* MISC */
 
+vec2 projectSphere(in vec3 direction) {
+    float longitude = atan(-direction.x, -direction.z);
+    float latitude = acos(direction.y);
+
+    return vec2(longitude * (1.0 / TAU) + 0.5, latitude * (1.0 / PI));
+}
+
+vec3 unprojectSphere(in vec2 coord) {
+    float longitude = coord.x * TAU;
+    float latitude = coord.y * PI;
+    return vec3(vec2(sin(longitude), cos(longitude)) * sin(latitude), cos(latitude)).xzy;
+}
+
 // Provided by LVutner.#1925
 vec3 hemisphereSample(vec2 r) {
-    float phi = r.x * PI2;
+    float phi = r.x * TAU;
     float cosTheta = 1.0 - r.y;
     float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
@@ -95,8 +108,8 @@ vec3 hemisphereSample(vec2 r) {
 // Provided by lith#0281
 vec3 cosineWeightedHemisphereDirection(vec2 r) {
     float radius = sqrt(r.y);
-    float xOffset = radius * cos(PI2 * r.x);
-    float yOffset = radius * sin(PI2 * r.x);
+    float xOffset = radius * cos(TAU * r.x);
+    float yOffset = radius * sin(TAU * r.x);
     float zOffset = sqrt(1.0 - r.y);
     return normalize(vec3(xOffset, yOffset, zOffset));
 }

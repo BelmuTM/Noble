@@ -14,7 +14,7 @@
 
 #define HALF_PI      1.570796
 #define PI           3.14159265
-#define PI2          6.28318530
+#define TAU          6.28318530
 #define INV_PI       0.31831
 
 #define GOLDEN_RATIO 1.618033988
