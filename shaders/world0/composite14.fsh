@@ -38,7 +38,7 @@ void main() {
           Result.rgb = computeDOF(Result.rgb, depth);
      #endif
      
-     vec3 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos))).rgb;
+     vec3 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos)) * ATMOSPHERE_RESOLUTION).rgb;
      Result.rgb += fog(viewPos, vec3(0.0), vec3(0.6) + sky, (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.03); // Applying Fog
 
      /*DRAWBUFFERS:05*/

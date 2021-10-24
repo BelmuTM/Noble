@@ -43,9 +43,12 @@ void main() {
      #endif
 
      /*    ------- ATMOSPHERIC SCATTERING -------    */
-     vec3 rayPos = vec3(0.0, earthRad + cameraPosition.y, 0.0);
-     vec3 rayDir = unprojectSphere(texCoords);
-     vec4 sky = vec4(atmosphericScattering(rayPos, rayDir), 1.0);
+
+     vec4 sky = vec4(0.0);
+     if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-3)) == texCoords) {
+          vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));
+          sky = vec4(atmosphericScattering(atmosRayPos, rayDir), 1.0);
+     }
 
      /*DRAWBUFFERS:479*/
      gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));

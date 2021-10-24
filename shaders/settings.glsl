@@ -112,8 +112,9 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define REFRACT_STEPS        48
 
 /*------------------ ATMOSPHERICS ------------------*/
-#define SCATTER_STEPS      16 // [8 12 16 20 24 28 32 36]
-#define TRANSMITTANCE_STEPS 8 // [8 12 16 20 24 28 32 36]
+#define ATMOSPHERE_RESOLUTION 0.5
+#define SCATTER_STEPS          16 // [8 12 16 20 24 28 32 36]
+#define TRANSMITTANCE_STEPS     8 // [8 12 16 20 24 28 32 36]
 
 #define VL               0 // [0 1]
 #define VL_FILTER        1 // [0 1]

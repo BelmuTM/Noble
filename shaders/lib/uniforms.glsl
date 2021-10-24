@@ -92,3 +92,5 @@ const vec3 kOzo   = vec3(3.426e-7, 8.298e-7, 0.356e-7);     // Provided by LVutn
 
 const mat2x3 kScattering = mat2x3(kRlh, kMie[0]);
 const mat3x3 kExtinction = mat3x3(kRlh, kMie[0] + kMie[1], kOzo);
+
+const vec3 atmosRayPos = vec3(0.0, earthRad, 0.0);

@@ -26,7 +26,7 @@ void main() {
 
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
-      vec4 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos)));
+      vec4 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos)) * ATMOSPHERE_RESOLUTION);
       gl_FragData[0] = sky + rain + (sun(normalize(viewPos), sunDir));
       return;
    }

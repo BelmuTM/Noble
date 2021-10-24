@@ -51,11 +51,8 @@ vec3 pathTrace(in vec3 screenPos) {
 
             /* Russian Roulette */
             if(j > 3) {
-                float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
-                if(roulette < noise.x * noise.y) {
-                    throughput = vec3(0.0);
-                    break;
-                }
+                float roulette = max(throughput.r, max(throughput.g, throughput.b));
+                if(roulette < noise.x) { break; }
                 throughput /= roulette;
             }
 
@@ -88,12 +85,10 @@ vec3 pathTrace(in vec3 screenPos) {
                 rayDir = TBN * cosineWeightedHemisphereDirection(noise);
             }
 
-            /* Ray Tracing */
             vec3 viewHitPos = screenToView(hitPos) + normal * 1e-3;
             if(!raytrace(viewHitPos, rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
 
-            /* Computing Diffuse, Specular and Direct BRDFs */
-            vec3 illuminance = SUN_INTENSITY * atmosphereTransmittance(vec3(0.0, earthRad, 0.0), worldSunDir);
+            vec3 illuminance = SUN_INTENSITY * atmosphereTransmittance(atmosRayPos, worldSunDir);
             radiance += throughput * directBRDF(normal, -prevDir, sunDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * illuminance;
 
             if(specularBounce) {
@@ -104,8 +99,8 @@ vec3 pathTrace(in vec3 screenPos) {
 
                 throughput *= specularBRDF(microfacet, rayDir, specularFresnel, params.r);
             } else {
-                throughput /= (1.0 - specBounceProbability);
-                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, albedo) / (dot(normal, rayDir) * INV_PI);
+                throughput /= 1.0 - specBounceProbability;
+                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, albedo) / (max(EPS, dot(normal, rayDir)) * INV_PI);
             }
         }
     }

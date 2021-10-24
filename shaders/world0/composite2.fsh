@@ -55,7 +55,7 @@ void main() {
         /* Downscaling Global Illumination */
         vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
 
-        if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords && !isSky(scaledUv)) {
+        if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
             vec3 positionAt = vec3(scaledUv, texture(depthtex0, scaledUv).r);
             globalIllumination = pathTrace(positionAt);
 

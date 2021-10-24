@@ -27,7 +27,7 @@ void main() {
           float resolution = SSR_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
           vec2 scaledUv = texCoords * (1.0 / resolution);
         
-          if(clamp(texCoords, vec2(0.0), vec2(resolution)) == texCoords && !isSky(scaledUv)) {
+          if(clamp(texCoords, vec2(0.0), vec2(resolution + 1e-3)) == texCoords && !isSky(scaledUv)) {
                vec3 normalAt = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
                vec3 posAt = getViewPos(scaledUv);
 
