@@ -82,7 +82,7 @@ const float gg = g*g;
 const float earthRad = 6371e3;
 const float atmosRad = 6471e3;
 
-const float hR = 7.9e3;
+const float hR = 8.0e3;
 const float hM = 1.2e3;
 
 // Coefficients

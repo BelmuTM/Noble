@@ -24,7 +24,7 @@ float rayleighPhase(float cosTheta) {
 
 float miePhase(float cosTheta) {
     const float mie = 3.0 / (8.0 * PI);
-    float num = (1.0 - gg) * (1.0 + (cosTheta*cosTheta));
+    float num = (1.0 - gg) * (1.0 + (cosTheta * cosTheta));
     float denom = (2.0 + gg) * pow(1.0 + gg - 2.0 * g * cosTheta, 1.5);
     return mie * (num / denom);
 }
