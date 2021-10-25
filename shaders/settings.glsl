@@ -81,7 +81,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define RAY_STEP_LENGTH 1.7
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
-#define GI         0 // [0 1]
+#define GI        0 // [0 1]
 #define GI_FILTER 0 // [0 1]
 
 #define GI_SAMPLES 1 // [1 2 3]
@@ -89,7 +89,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define GI_STEPS  40 // [40 128]
 #define GI_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
-#define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
+#define GI_TEMPORAL_ACCUMULATION     1 // [0 1]
 #define ACCUMULATION_VELOCITY_WEIGHT 0 //[0 1]
 
 /*------------------ REFLECTIONS | REFRACTIONS ------------------*/
@@ -108,7 +108,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ROUGH_REFLECT_RES 0.80 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define SIMPLE_REFLECT_STEPS 64
-#define REFRACT_STEPS        32
+#define REFRACT_STEPS        56
 
 /*------------------ ATMOSPHERICS ------------------*/
 #define ATMOSPHERE_RESOLUTION 0.5
@@ -149,7 +149,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 /*------------------ POST PROCESSING ------------------*/
 #define TAA               1 // [0 1]
-#define TAA_STRENGTH  0.925 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
+#define TAA_STRENGTH  0.950 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
 #define NEIGHBORHOOD_SIZE 2
 
 #define TAA_VELOCITY_WEIGHT 0 // [0 1]

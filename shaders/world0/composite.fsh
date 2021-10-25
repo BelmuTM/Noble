@@ -17,6 +17,12 @@ varying vec2 texCoords;
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/ssr.glsl"
 
+vec3 getCausticsViewPos(vec2 coords) {
+   vec3 clipPos = vec3(coords, texture(depthtex1, coords).r) * 2.0 - 1.0;
+   vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
+   return tmp.xyz / tmp.w;
+}
+
 void main() {
    vec4 temp = texture(colortex4, texCoords);
    vec4 rain = sRGBToLinear(texture(colortex5, texCoords));
@@ -56,6 +62,20 @@ void main() {
       depthDist = distance(viewPos.z, hitPos.z);
    #endif
    vec3 shadowmap = texture(colortex9, coords).rgb;
+
+   /*    ------- CAUSTICS -------    */
+
+   // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
+   #if WATER_CAUSTICS == 1
+      bool canCast = isEyeInWater == 1 ? true : getBlockId(coords) == 1;
+
+      if(canCast) {
+         vec2 worldPos = viewToWorld(getCausticsViewPos(coords)).xz * 0.5 + 0.5;
+         float causticsSpeed = frameTimeCounter * WATER_CAUSTICS_SPEED;
+         vec3 caustics = texelFetch(depthtex2, ivec2(mod((worldPos * 80.0) + causticsSpeed, 250)), 0).rgb;
+         shadowmap += caustics * WATER_CAUSTICS_STRENGTH * shadowmap;
+      }
+   #endif
 
    // Alpha Blending
    data.albedo = mix(opaques * mix(vec3(1.0), data.albedo, data.alpha), data.albedo, data.alpha);

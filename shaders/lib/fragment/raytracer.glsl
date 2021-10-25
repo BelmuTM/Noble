@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float taaNoise = TAA == 1 ? uniformAnimatedNoise(blueNoise.xy).x : hash22(gl_FragCoord.xy).x;
+float taaNoise = TAA == 1 ? uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter))).x : hash22(gl_FragCoord.xy).x;
 
 vec3 binarySearch(vec3 rayPos, vec3 rayDir) {
 

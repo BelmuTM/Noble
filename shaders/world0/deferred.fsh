@@ -24,26 +24,13 @@ const int colortex9Format = RGB16F;
 */
 
 void main() {
-     vec3 viewPos = getViewPos(texCoords);
-
      /*    ------- SHADOW MAPPING -------    */
      vec3 shadowmap = vec3(0.0);
      #if SHADOWS == 1
-          shadowmap = shadowMap(viewPos, shadowMapResolution);
-     #endif
-
-     /*    ------- CAUSTICS -------    */
-     #if WATER_CAUSTICS == 1
-          if(isEyeInWater == 1) {
-               vec2 worldPos = viewToWorld(viewPos).xz * 0.5 + 0.5;
-               float causticsSpeed = frameTimeCounter * WATER_CAUSTICS_SPEED;
-               vec3 caustics = texelFetch(colortex9, ivec2(mod((worldPos * 80.0) + causticsSpeed, 250)), 0).rgb;
-               shadowmap += caustics * WATER_CAUSTICS_STRENGTH * shadowmap;
-          }
+          shadowmap = shadowMap(getViewPos(texCoords), shadowMapResolution);
      #endif
 
      /*    ------- ATMOSPHERIC SCATTERING -------    */
-
      vec4 sky = vec4(0.0);
      if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-3)) == texCoords) {
           vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));

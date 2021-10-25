@@ -83,12 +83,13 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 
 vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
     viewPos += normal * 1e-3;
+    float ior = F0toIOR(F0);
 
-    vec3 refracted = refract(normalize(viewPos), normal, airIOR / F0toIOR(F0));
+    vec3 refracted = refract(normalize(viewPos), normal, airIOR / ior);
     float hit  = float(raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos));
     float hand = float(!isHand(texture(depthtex1, hitPos.xy).r));
 
-    vec3 fresnel = fresnelSchlick(NdotV, vec3(F0));
+    float fresnel = dielectricFresnel(NdotV, ior);
     vec3 hitColor = texture(colortex4, hitPos.xy).rgb;
 
     return mix(background, hitColor, Kneemund_Attenuation(hitPos.xy, 0.07) * hit * hand) * (1.0 - fresnel);
