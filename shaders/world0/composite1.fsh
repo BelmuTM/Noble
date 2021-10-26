@@ -51,7 +51,7 @@ void main() {
                 lightmapColor = max(vec3(0.0), getLightmapColor(lightMap, sky));
             #endif
 
-            vec3 illuminance = SUN_INTENSITY * atmosphereTransmittance(atmosRayPos, worldSunDir);
+            vec3 illuminance = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
             Lighting = cookTorrance(viewPos, normal, sunDir, mat, lightmapColor, shadowmap, illuminance);
         }
     #endif

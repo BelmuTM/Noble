@@ -92,7 +92,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
 
         rayPos += iIncrement;
     }
-    return max(vec3(0.0), SUN_INTENSITY * totalScattering);
+    return max(vec3(0.0), SUN_ILLUMINANCE * totalScattering);
 }
 
 // Originally written by Capt Tatsu#7124

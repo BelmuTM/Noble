@@ -67,7 +67,8 @@ const int noiseRes = 512;
 const float airIOR = 1.00028;
 
 vec3 sunDir = shadowLightPosition * 0.01;
-vec3 worldSunDir = normalize((mat3(gbufferModelViewInverse) * sunPosition));
+vec3 worldSunDir  = normalize((mat3(gbufferModelViewInverse) * sunPosition));
+vec3 worldMoonDir = normalize((mat3(gbufferModelViewInverse) * moonPosition));
 
 float wTime = float(worldTime);
 float timeSunrise  = ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTime, 0.0, 2000.0) / 2000.0));

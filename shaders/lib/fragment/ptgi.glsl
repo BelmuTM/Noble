@@ -8,7 +8,7 @@
 
 /*
                         - CREDITS -
-    Thanks Bálint#1673 and Jessie#7257 for the huge help!
+    Thanks Bálint#1673 and Jessie#7257 for their huge help!
 */
 
 vec3 specularBRDF(vec3 N, vec3 L, vec3 fresnel, in float roughness) {
@@ -36,7 +36,9 @@ vec3 directBRDF(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, vec3 shadowmap
 }
 
 vec3 pathTrace(in vec3 screenPos) {
-    vec3 radiance = vec3(0.0);
+    vec3 radiance      = vec3(0.0);
+    vec3 transmittance = atmosphereTransmittance(atmosRayPos, worldSunDir);
+    vec3 illuminance   = SUN_ILLUMINANCE * transmittance;
 
     for(int i = 0; i < GI_SAMPLES; i++) {
         vec3 hitPos = screenPos; 
@@ -63,8 +65,12 @@ vec3 pathTrace(in vec3 screenPos) {
             vec3 H = normalize(-prevDir + rayDir);
             float HdotV = max(EPS, dot(H, -prevDir));
 
-            vec3 albedo = texture(colortex4, hitPos.xy).rgb;
+            vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
+            mat3 TBN = getTBN(normal);
+
+            vec3 albedo = texture(colortex0, hitPos.xy).rgb;
             radiance += throughput * albedo * texture(colortex1, hitPos.xy).z;
+            radiance += throughput * directBRDF(normal, -prevDir, sunDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * illuminance;
 
             /* Specular Bounce Probability */
             vec3 fresnel = cookTorranceFresnel(HdotV, params.g, getSpecularColor(params.g, albedo), isMetal);
@@ -73,9 +79,6 @@ vec3 pathTrace(in vec3 screenPos) {
 
             float specBounceProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
             bool specularBounce = specBounceProbability > rand(gl_FragCoord.xy + frameTimeCounter);
-
-            vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
-            mat3 TBN = getTBN(normal);
 
             vec3 microfacet = normal;
             if(specularBounce) {
@@ -87,9 +90,6 @@ vec3 pathTrace(in vec3 screenPos) {
 
             vec3 viewHitPos = screenToView(hitPos) + normal * 1e-3;
             if(!raytrace(viewHitPos, rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
-
-            vec3 illuminance = SUN_INTENSITY * atmosphereTransmittance(atmosRayPos, worldSunDir);
-            radiance += throughput * directBRDF(normal, -prevDir, sunDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * illuminance;
 
             if(specularBounce) {
                 throughput /= specBounceProbability;
@@ -161,7 +161,7 @@ vec3 computePTGI(in vec3 screenPos) {
 
             radiance += throughput * albedo * (texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);
             throughput *= BRDF;
-            radiance += throughput * texture(colortex9, hitPos.xy).rgb * viewPosSkyColor(viewPos) * SUN_INTENSITY;
+            radiance += throughput * texture(colortex9, hitPos.xy).rgb * viewPosSkyColor(viewPos) * SUN_ILLUMINANCE;
         }
     }
     radiance /= GI_SAMPLES;

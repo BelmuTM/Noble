@@ -22,7 +22,7 @@ vec3 getHitColor(vec3 hitPos) {
 }
 
 vec3 getSkyFallback(vec2 coords, vec3 reflected) {
-    return texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected)) * ATMOSPHERE_RESOLUTION).rgb * getSkyLightmap(coords) + sun(reflected, sunDir).rgb;
+    return (texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected)) * ATMOSPHERE_RESOLUTION).rgb + sun(reflected, sunDir).rgb) * getSkyLightmap(coords);
 }
 
 /*------------------ SIMPLE REFLECTIONS ------------------*/
@@ -69,7 +69,6 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
         vec3 fresnel = cookTorranceFresnel(NdotL, F0.r, F0, isMetal);
 
         #if SKY_FALLBACK == 1
-            vec3 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected))).rgb * getSkyLightmap(coords) + sun(reflected, sunDir).rgb;
 			filteredColor += (mix(getSkyFallback(coords, reflected), hitColor, Kneemund_Attenuation(hitPos.xy, 0.15) * hit) * NdotL) * fresnel;
         #else
             filteredColor += ((hitColor * NdotL) * (Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit)) * fresnel;
