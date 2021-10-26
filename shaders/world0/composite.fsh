@@ -50,7 +50,7 @@ void main() {
 		linearizeDepth(texture(depthtex1, texCoords).r)
 	);
    vec3 hitPos; vec2 coords = texCoords;
-   vec3 opaques = temp.rgb;
+   vec3 opaques = temp.rgb * INV_PI * max(EPS, dot(normal, sunDir));
 
    #if REFRACTION == 1
       float NdotV = max(EPS, dot(normal, normalize(-viewPos)));
