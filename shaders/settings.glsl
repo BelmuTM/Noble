@@ -40,7 +40,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define TORCH_COLOR vec3(0.79, 0.5, 0.3)
 #define EMISSION_INTENSITY 2.0
 
-#define SUN_INTENSITY 15.0
+#define SUN_INTENSITY 22.0
 #define SUN_COLOR vec3(1.0, 0.97, 0.94)
 #define SUN_ILLUMINANCE (SUN_COLOR * SUN_INTENSITY)
 
