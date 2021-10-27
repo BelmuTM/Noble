@@ -85,11 +85,11 @@ vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, 
     float ior = F0toIOR(F0);
 
     vec3 refracted = refract(normalize(viewPos), normal, airIOR / ior);
-    float hit  = float(raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos));
+    bool hit  = raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos);
     float hand = float(!isHand(texture(depthtex1, hitPos.xy).r));
+    if(!hit) hitPos.xy = texCoords;
 
     float fresnel = dielectricFresnel(NdotV, ior);
     vec3 hitColor = texture(colortex4, hitPos.xy).rgb;
-
-    return mix(background, hitColor, Kneemund_Attenuation(hitPos.xy, 0.07) * hit * hand) * (1.0 - fresnel);
+    return hitColor * hand * (1.0 - fresnel);
 }
