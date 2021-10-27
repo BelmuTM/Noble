@@ -17,7 +17,7 @@ float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmpl
 const float windRad = 0.785398;
 
 float computeWaves(vec2 coords) {
-	float speed = frameTimeCounter * WAVE_SPEED;
+	float speed = ANIMATED_WATER == 1 ? frameTimeCounter * WAVE_SPEED : 0.0;
 
     float waveSteepness = WAVE_STEEPNESS;
 	float waveAmplitude = WAVE_AMPLITUDE;

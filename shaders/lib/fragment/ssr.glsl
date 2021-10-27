@@ -85,8 +85,8 @@ vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, 
     float ior = F0toIOR(F0);
 
     vec3 refracted = refract(normalize(viewPos), normal, airIOR / ior);
-    bool hit  = raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos);
-    float hand = float(!isHand(texture(depthtex1, hitPos.xy).r));
+    bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos);
+    float hand     = float(!isHand(texture(depthtex1, hitPos.xy).r));
     if(!hit) hitPos.xy = texCoords;
 
     float fresnel = dielectricFresnel(NdotV, ior);

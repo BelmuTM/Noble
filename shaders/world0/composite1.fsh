@@ -43,13 +43,10 @@ void main() {
         if(!isSky(texCoords)) {
             vec3 normal = normalize(mat.normal.xyz);
             vec3 shadowmap = texture(colortex9, texCoords).rgb;
-            vec3 lightmapColor = vec3(1.0);
-    
-            #if GI == 0
-                vec2 lightMap = texture(colortex2, texCoords).zw;
-                vec3 sky = texture(colortex7, projectSphere(normalize(viewToWorld(viewPos))) * ATMOSPHERE_RESOLUTION).rgb;
-                lightmapColor = max(vec3(0.0), getLightmapColor(lightMap, sky));
-            #endif
+
+            vec2 lightMap = texture(colortex2, texCoords).zw;
+            vec3 sky = texture(colortex7, projectSphere(normalize(viewToWorld(viewPos))) * ATMOSPHERE_RESOLUTION).rgb;
+            vec3 lightmapColor = max(vec3(0.0), getLightmapColor(lightMap, sky));
 
             vec3 illuminance = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
             Lighting = cookTorrance(viewPos, normal, sunDir, mat, lightmapColor, shadowmap, illuminance);

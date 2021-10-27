@@ -71,7 +71,7 @@ void main() {
 
       if(canCast) {
          vec2 worldPos = viewToWorld(getCausticsViewPos(coords)).xz * 0.5 + 0.5;
-         float causticsSpeed = frameTimeCounter * WATER_CAUSTICS_SPEED;
+         float causticsSpeed = ANIMATED_WATER == 1 ? frameTimeCounter * WATER_CAUSTICS_SPEED : 0.0;
          vec3 caustics = texelFetch(depthtex2, ivec2(mod((worldPos * 80.0) + causticsSpeed, 250)), 0).rgb;
          shadowmap += caustics * WATER_CAUSTICS_STRENGTH * shadowmap;
       }
