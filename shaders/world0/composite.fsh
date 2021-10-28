@@ -33,7 +33,7 @@ void main() {
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
       vec4 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos)) * ATMOSPHERE_RESOLUTION);
-      gl_FragData[0] = sky + rain + (sun(normalize(viewPos), sunDir) * sky);
+      gl_FragData[0] = sky + rain + sun(normalize(viewPos), shadowDir);
       return;
    }
 
@@ -50,7 +50,7 @@ void main() {
 		linearizeDepth(texture(depthtex1, texCoords).r)
 	);
    vec3 hitPos; vec2 coords = texCoords;
-   vec3 opaques = temp.rgb * INV_PI * max(EPS, dot(normal, sunDir));
+   vec3 opaques = temp.rgb * INV_PI * max(EPS, dot(normal, shadowDir));
 
    #if REFRACTION == 1
       float NdotV = max(EPS, dot(normal, normalize(-viewPos)));

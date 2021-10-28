@@ -22,7 +22,7 @@ vec3 getHitColor(vec3 hitPos) {
 }
 
 vec3 getSkyFallback(vec2 coords, vec3 reflected) {
-    return (texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected)) * ATMOSPHERE_RESOLUTION).rgb + sun(reflected, sunDir).rgb) * getSkyLightmap(coords);
+    return (texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected)) * ATMOSPHERE_RESOLUTION).rgb + sun(reflected, shadowDir).rgb) * getSkyLightmap(coords);
 }
 
 /*------------------ SIMPLE REFLECTIONS ------------------*/

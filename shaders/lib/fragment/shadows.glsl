@@ -14,7 +14,7 @@ vec4 viewToShadow(vec3 viewPos) {
 }
 
 bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
-    bool hit = raytrace(viewPos, sunDir, 16, taaNoise, hitPos);
+    bool hit = raytrace(viewPos, shadowDir, 16, taaNoise, hitPos);
     return hit && abs(linearizeDepth(texture(depthtex0, hitPos.xy).r) - linearizeDepth(hitPos.z)) <= 0.15 ? false : true;
 }
 

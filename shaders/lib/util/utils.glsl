@@ -32,11 +32,11 @@ float getSkyLightmap(vec2 coords) {
     return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
 }
 
-vec3 getLightmapColor(vec2 lightMap, vec3 skyColor) {
+vec3 getLightmapColor(vec2 lightMap, vec3 skyIlluminance) {
     lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, TORCHLIGHT_EXPONENT);
 
     vec3 torchLight = TORCH_COLOR * lightMap.x;
-    vec3 skyLight   = skyColor * (lightMap.y - clamp(rainStrength, 0.0, rainAmbientDarkness));
+    vec3 skyLight   = skyIlluminance * (lightMap.y - clamp(rainStrength, 0.0, rainAmbientDarkness));
     return max(vec3(EPS), torchLight + skyLight);
 }
 

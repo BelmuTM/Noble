@@ -72,8 +72,9 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
     vec3 increment = rayDir * stepSize;
     vec3 rayPos = rayOrigin + increment * 0.5;
 
-    float VdotL = max(0.0, dot(rayDir, worldSunDir));
-    vec2 phase = vec2(rayleighPhase(VdotL), miePhase(VdotL));
+    float sunVdotL = max(0.0, dot(rayDir, worldSunDir));
+    float moonVdotL = max(0.0, dot(rayDir, worldMoonDir));
+    vec4 phase = vec4(rayleighPhase(sunVdotL), miePhase(sunVdotL), rayleighPhase(moonVdotL), miePhase(moonVdotL));
 
     vec3 scattering = vec3(0.0), transmittance = vec3(1.0), opticalDepth = vec3(0.0);
     
@@ -83,15 +84,18 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
         vec3 stepOpticalDepth = kExtinction * airmass;
 
         vec3 stepTransmittance = exp(-stepOpticalDepth);
-        vec3 stepScattering = kScattering * (airmass.xy * phase) * (transmittance * ((stepTransmittance - 1.0) / -stepOpticalDepth));
+        vec3 visibleScattering = transmittance * ((stepTransmittance - 1.0) / -stepOpticalDepth);
+        vec3 sunStepScattering = kScattering * (airmass.xy * phase.xy) * visibleScattering;
+        vec3 moonStepScattering = kScattering * (airmass.xy * phase.zw) * visibleScattering;
 
-        scattering += stepScattering * atmosphereTransmittance(rayPos, worldSunDir);
+        scattering += sunStepScattering * atmosphereTransmittance(rayPos, worldSunDir) * SUN_ILLUMINANCE;
+        scattering += moonStepScattering * atmosphereTransmittance(rayPos, worldMoonDir) * MOON_ILLUMINANCE;
 
         transmittance *= stepTransmittance;
         opticalDepth += stepOpticalDepth;
         rayPos += increment;
     }
-    return max(vec3(0.0), SUN_ILLUMINANCE * scattering);
+    return max(vec3(0.0), scattering);
 }
 
 // Originally written by Capt Tatsu#7124

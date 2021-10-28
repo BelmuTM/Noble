@@ -66,7 +66,7 @@ const int noiseRes = 512;
 /* PBR & CELESTIAL VARIABLES / CONSTANTS */
 const float airIOR = 1.00028;
 
-vec3 sunDir = shadowLightPosition * 0.01;
+vec3 shadowDir = shadowLightPosition * 0.01;
 vec3 worldSunDir  = normalize((mat3(gbufferModelViewInverse) * sunPosition));
 vec3 worldMoonDir = normalize((mat3(gbufferModelViewInverse) * moonPosition));
 

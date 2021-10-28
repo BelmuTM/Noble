@@ -36,13 +36,13 @@ vec3 directBRDF(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, vec3 shadowmap
 }
 
 vec3 pathTrace(in vec3 screenPos) {
+    vec3 viewPos = screenToView(screenPos); 
     vec3 radiance      = vec3(0.0);
-    vec3 transmittance = atmosphereTransmittance(atmosRayPos, worldSunDir);
-    vec3 illuminance   = SUN_ILLUMINANCE * transmittance;
+    vec3 sunIlluminance  = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
+    vec3 moonIlluminance = MOON_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldMoonDir);
 
     for(int i = 0; i < GI_SAMPLES; i++) {
         vec3 hitPos = screenPos; 
-        vec3 viewPos = screenToView(screenPos); 
         vec3 rayDir = normalize(viewPos);
         vec3 prevDir;
 
@@ -70,7 +70,7 @@ vec3 pathTrace(in vec3 screenPos) {
 
             vec3 albedo = texture(colortex0, hitPos.xy).rgb;
             radiance += throughput * albedo * texture(colortex1, hitPos.xy).z;
-            radiance += throughput * directBRDF(normal, -prevDir, sunDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * illuminance;
+            radiance += throughput * directBRDF(normal, -prevDir, shadowDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * (sunIlluminance + moonIlluminance);
 
             /* Specular Bounce Probability */
             vec3 fresnel = cookTorranceFresnel(HdotV, params.g, getSpecularColor(params.g, albedo), isMetal);
