@@ -44,12 +44,12 @@ void main() {
             vec3 normal = normalize(mat.normal.xyz);
             vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
-            vec3 illuminance = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
+            vec3 skyIlluminance = atmosphereTransmittance(atmosRayPos, normalize((mat3(gbufferModelViewInverse) * -viewPos)));
+            vec3 sunIlluminance = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
+            
             vec2 lightMap = texture(colortex2, texCoords).zw;
-            vec3 sky = texture(colortex7, projectSphere(normalize(viewToWorld(viewPos))) * ATMOSPHERE_RESOLUTION).rgb;
-            vec3 lightmapColor = max(vec3(0.0), getLightmapColor(lightMap, illuminance));
-
-            Lighting = cookTorrance(viewPos, normal, sunDir, mat, lightmapColor, shadowmap, illuminance);
+            vec3 lightmapColor = max(vec3(0.0), getLightmapColor(lightMap, skyIlluminance));
+            Lighting = cookTorrance(viewPos, normal, sunDir, mat, lightmapColor, shadowmap, sunIlluminance);
         }
     #endif
 
