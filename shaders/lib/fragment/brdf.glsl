@@ -179,7 +179,7 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
     }
 
     /* Calculating Indirect / Direct Lighting */
-    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * illuminance;
+    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap);
 
     if(!isMetal) {
         Lighting += mat.emission * mat.albedo;
