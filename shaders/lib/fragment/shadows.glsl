@@ -28,7 +28,7 @@ float visibility(sampler2D tex, vec3 sampleCoords) {
     return step(sampleCoords.z - 1e-3, texture(tex, sampleCoords.xy).r * contactShadow);
 }
 
-vec3 sampleTransparentShadow(vec3 sampleCoords) {
+vec3 sampleShadowColor(vec3 sampleCoords) {
     float shadowVisibility0 = visibility(shadowtex0, sampleCoords);
     float shadowVisibility1 = visibility(shadowtex1, sampleCoords);
     
@@ -63,7 +63,7 @@ vec3 PCF(vec3 sampleCoords, float radius, mat2 rotation) {
                 vec2 offset = rotation * vec2(x, y);
                 vec3 currentSampleCoordinate = vec3(sampleCoords.xy + offset, sampleCoords.z);
 
-                shadowResult += sampleTransparentShadow(currentSampleCoordinate);
+                shadowResult += sampleShadowColor(currentSampleCoordinate);
                 SAMPLES++;
             }
         }
@@ -72,7 +72,7 @@ vec3 PCF(vec3 sampleCoords, float radius, mat2 rotation) {
             vec2 offset = rotation * (radius * vogelDisk(i, PCSS_SAMPLES));
             vec3 currentSampleCoordinate = vec3(sampleCoords.xy + offset, sampleCoords.z);
 
-            shadowResult += sampleTransparentShadow(currentSampleCoordinate);
+            shadowResult += sampleShadowColor(currentSampleCoordinate);
             SAMPLES++;
         }
     #endif

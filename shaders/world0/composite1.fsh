@@ -14,6 +14,8 @@ varying vec2 texCoords;
 #include "/settings.glsl"
 #include "/programs/common.glsl"
 #include "/lib/fragment/brdf.glsl"
+#include "/lib/fragment/raytracer.glsl"
+#include "/lib/fragment/shadows.glsl"
 #include "/lib/atmospherics/atmosphere.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
 
@@ -31,7 +33,7 @@ void main() {
     
     vec3 volumetricLighting = vec3(1.0);
     #if VL == 1
-        volumetricLighting = computeVL(viewPos);
+        volumetricLighting = computeVL1(viewPos);
     #endif
 
     #if WHITE_WORLD == 1
@@ -44,11 +46,11 @@ void main() {
             vec3 normal = normalize(mat.normal.xyz);
             vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
-            vec3 skyIlluminance = atmosphereTransmittance(atmosRayPos, normalize(viewToWorld(-viewPos)));
+            vec3 skyIlluminance = atmosphereTransmittance(atmosRayPos, normalize(viewToWorld(upPosition)));
             vec3 sunIlluminance = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
             vec3 moonIlluminance = MOON_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldMoonDir);
             
-            vec3 lightmap = max(vec3(0.0), getLightmapColor(texture(colortex2, texCoords).zw, skyIlluminance));
+            vec3 lightmap = getLightmapColor(texture(colortex2, texCoords).zw, skyIlluminance);
             Lighting = cookTorrance(viewPos, normal, shadowDir, mat, lightmap, shadowmap, sunIlluminance + moonIlluminance);
         }
     #endif

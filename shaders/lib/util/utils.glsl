@@ -35,9 +35,9 @@ float getSkyLightmap(vec2 coords) {
 vec3 getLightmapColor(vec2 lightMap, vec3 skyIlluminance) {
     lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, TORCHLIGHT_EXPONENT);
 
-    vec3 torchLight = TORCH_COLOR * lightMap.x;
+    vec3 blockLight = TORCH_COLOR * lightMap.x;
     vec3 skyLight   = skyIlluminance * (lightMap.y - clamp(rainStrength, 0.0, rainAmbientDarkness));
-    return max(vec3(EPS), torchLight + skyLight);
+    return blockLight + skyLight;
 }
 
 vec4 sun(vec3 viewDir, vec3 lightDir) {

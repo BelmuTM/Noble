@@ -39,10 +39,10 @@ vec2 raySphere(vec3 ro, vec3 rd, float rad) {
 	return vec2(-b - d, -b + d);
 }
 
-vec3 densities(float height, float atmosphereRadius) {
+vec3 densities(float height) {
     float rayLeigh = exp(-height / hR);
     float mie      = exp(-height / hM);
-    float ozone    = exp(-max(0.0, (35e3 - height) - atmosphereRadius) / 5e3) * exp(-max(0.0, (height - 35e3) - atmosphereRadius) / 15e3);
+    float ozone    = exp(-max(0.0, (35e3 - height) - atmosRad) / 5e3) * exp(-max(0.0, (height - 35e3) - atmosRad) / 15e3);
     return vec3(rayLeigh, mie, ozone);
 }
 
@@ -53,7 +53,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
     vec3 transmittance = vec3(1.0);
     for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
-        vec3 density = densities(length(rayPos) - earthRad, atmosRad);
+        vec3 density = densities(length(rayPos) - earthRad);
         transmittance *= exp(-kExtinction * density * stepSize);
         rayPos += increment;
     }
@@ -79,8 +79,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
     vec3 scattering = vec3(0.0), transmittance = vec3(1.0), opticalDepth = vec3(0.0);
     
     for(int i = 0; i < SCATTER_STEPS; i++) {
-        vec3 density = densities(length(rayPos) - earthRad, atmosRad);
-        vec3 airmass = density * stepSize;
+        vec3 airmass = densities(length(rayPos) - earthRad) * stepSize;
         vec3 stepOpticalDepth = kExtinction * airmass;
 
         vec3 stepTransmittance = exp(-stepOpticalDepth);
