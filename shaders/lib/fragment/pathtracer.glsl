@@ -74,38 +74,32 @@ vec3 pathTrace(in vec3 screenPos) {
 
             /* Specular Bounce Probability */
             vec3 fresnel = cookTorranceFresnel(HdotV, params.g, getSpecularColor(params.g, albedo), isMetal);
-            float fresnelLum = clamp01(luma(fresnel));
+            float fresnelLum = luma(fresnel);
             float diffuseLum = fresnelLum / (fresnelLum + luma(albedo) * (1.0 - float(isMetal)) * (1.0 - fresnelLum));
 
-            float specBounceProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
-            bool specularBounce = specBounceProbability > rand(gl_FragCoord.xy + frameTimeCounter);
+            float specularProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
+            bool specularBounce = specularProbability > rand(gl_FragCoord.xy * 5.0 + frameTimeCounter);
 
-            vec3 microfacet = normal;
-            if(specularBounce) {
-                if(params.r > 1e-3) { microfacet = sampleGGXVNDF(-prevDir * TBN, noise, params.r * params.r); }
-                rayDir = reflect(prevDir, TBN * microfacet);
-            } else {
-                rayDir = TBN * cosineWeightedHemisphereDirection(noise);
-            }
+            vec3 microfacet = params.r > 1e-2 ? sampleGGXVNDF(-prevDir * TBN, noise, params.r * params.r) : normal;
+            rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : TBN * cosineWeightedHemisphereDirection(noise);
 
             vec3 viewHitPos = screenToView(hitPos) + normal * 1e-3;
             if(!raytrace(viewHitPos, rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
 
+            float HdotL = max(EPS, dot(normalize(-prevDir + rayDir), rayDir));
+            vec3 specularFresnel = cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);
+
             if(specularBounce) {
-                throughput /= specBounceProbability;
-
-                float HdotL = max(EPS, dot(normalize(-prevDir + rayDir), rayDir));
-                vec3 specularFresnel = cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);
-
+                throughput /= specularProbability;
                 throughput *= specularBRDF(microfacet, rayDir, specularFresnel, params.r);
             } else {
-                throughput /= 1.0 - specBounceProbability;
-                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, albedo) / (max(EPS, dot(normal, rayDir)) * INV_PI);
+                float NdotV = max(EPS, dot(normal, rayDir));
+                throughput *= (1.0 - fresnelDielectric(NdotV, F0toIOR(params.g))) / (1.0 - specularProbability);
+                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, albedo) / (NdotV * INV_PI);
             }
         }
     }
-    radiance /= GI_SAMPLES;
-    return max(vec3(0.0), radiance);
+    return max(vec3(0.0), radiance / float(GI_SAMPLES));
 }
 
 /*

@@ -54,41 +54,40 @@ vec3 schlickGaussian(float cosTheta, vec3 F0) {
     return sphericalGaussian * (1.0 - F0) + F0;
 }
 
-float dielectricFresnel(float NdotV, float surfaceIOR) {
+float fresnelDielectric(float NdotV, float surfaceIOR) {
     float n1 = airIOR, n2 = surfaceIOR, eta = n1 / n2;
     float sinThetaT = eta * clamp01(1.0 - (NdotV * NdotV));
     float cosThetaT = 1.0 - (sinThetaT * sinThetaT);
 
-    float sPolar = pow2((n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT));
-    float pPolar = pow2((n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV));
+    float sPolar = (n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT);
+    float pPolar = (n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV);
 
-    return (sPolar + pPolar) * 0.5;
+    return clamp01((sPolar * sPolar + pPolar * pPolar) * 0.5);
 }
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
-vec3 sampleGGXVNDF(vec3 Ve, vec2 Xi, float alpha) {
-
+// Modified by Belmu
+vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
 	// Section 3.2: transforming the view direction to the hemisphere configuration
-	vec3 Vh = normalize(vec3(alpha * Ve.x, alpha * Ve.y, Ve.z));
+	viewDir = normalize(vec3(alpha * viewDir.xy, viewDir.z));
 
 	// Section 4.1: orthonormal basis (with special case if cross product is zero)
-	float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
-	vec3 T1 = lensq > 0.0 ? vec3(-Vh.y, Vh.x, 0.0) * inversesqrt(lensq) : vec3(1.0, 0.0, 0.0);
-	vec3 T2 = cross(T1, Vh);
+	float lensq = dot(viewDir.yx, viewDir.yx);
+	vec3 T1 = vec3(lensq > 0.0 ? vec2(-viewDir.y, viewDir.x) * inversesqrt(lensq) : vec2(1.0, 0.0), 0.0);
+	vec3 T2 = cross(T1, viewDir);
 
 	// Section 4.2: parameterization of the projected area
-	float r = sqrt(Xi.x);
-    float phi = TAU * Xi.y;
+	float r = sqrt(seed.x);
+    float phi = TAU * seed.y;
 	float t1 = r * cos(phi);
-	float t2 = r * sin(phi);
-	float s = 0.5 * (1.0 + Vh.z);
-	t2 = mix(sqrt(1.0 - t1 * t1), t2, s);
+    float tmp = clamp01(1.0 - t1 * t1);
+	float t2 = mix(sqrt(tmp), r * sin(phi), 0.5 + 0.5 * viewDir.z);
 
 	// Section 4.3: reprojection onto hemisphere
-	vec3 Nh = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - t1 * t1 - t2 * t2)) * Vh;
+	vec3 Nh = t1 * T1 + t2 * T2 + sqrt(clamp01(tmp - t2 * t2)) * viewDir;
 
 	// Section 3.4: transforming the normal back to the ellipsoid configuration
-	return normalize(vec3(alpha * Nh.x, alpha * Nh.y, max(0.0, Nh.z)));	
+	return normalize(vec3(alpha * Nh.xy, Nh.z));	
 }
 
 // https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true
@@ -102,7 +101,7 @@ vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
 }
 
 vec3 cookTorranceFresnel(float cosTheta, float F0, vec3 metalColor, bool isMetal) {
-    return isMetal ? schlickGaussian(cosTheta, metalColor) : vec3(dielectricFresnel(cosTheta, F0toIOR(F0)));
+    return isMetal ? schlickGaussian(cosTheta, metalColor) : vec3(fresnelDielectric(cosTheta, F0toIOR(F0)));
 }
 
 vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, float roughness, float F0, vec3 albedo, bool isMetal) {

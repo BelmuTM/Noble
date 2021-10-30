@@ -110,8 +110,7 @@ vec3 cosineWeightedHemisphereDirection(vec2 r) {
     float radius = sqrt(r.y);
     float xOffset = radius * cos(TAU * r.x);
     float yOffset = radius * sin(TAU * r.x);
-    float zOffset = sqrt(1.0 - r.y);
-    return normalize(vec3(xOffset, yOffset, zOffset));
+    return normalize(vec3(xOffset, yOffset, sqrt(1.0 - r.y)));
 }
 
 // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field

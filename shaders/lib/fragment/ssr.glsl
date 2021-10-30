@@ -89,7 +89,7 @@ vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, 
     float hand     = float(!isHand(texture(depthtex1, hitPos.xy).r));
     if(!hit) hitPos.xy = texCoords;
 
-    float fresnel = dielectricFresnel(NdotV, ior);
+    float fresnel = fresnelDielectric(NdotV, ior);
     vec3 hitColor = texture(colortex4, hitPos.xy).rgb;
     return hitColor * hand * (1.0 - fresnel);
 }

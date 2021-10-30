@@ -16,8 +16,8 @@ varying vec2 texCoords;
 #include "/lib/atmospherics/atmosphere.glsl"
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
+#include "/lib/fragment/pathtracer.glsl"
 #include "/lib/fragment/ao.glsl"
-#include "/lib/fragment/ptgi.glsl"
 
 /*
 const int colortex5Format = RGBA16F;
@@ -42,7 +42,7 @@ const bool colortex6Clear = false;
         #endif
         totalWeight *= float(clamp01(prevTexCoords) == prevTexCoords);
 
-        return mix(currColor, prevColor, clamp01(totalWeight));
+        return clamp(mix(currColor, prevColor, clamp01(totalWeight)), vec3(0.0), vec3(65e3));
     }
 #endif
 
@@ -63,7 +63,7 @@ void main() {
                 vec3 viewPos = getViewPos(texCoords);
                 vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
             
-                globalIllumination = clamp01(temporalAccumulation(colortex6, globalIllumination, viewPos, normal));
+                globalIllumination = temporalAccumulation(colortex6, globalIllumination, viewPos, normal);
             #endif
         }
     #else
