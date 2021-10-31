@@ -20,6 +20,12 @@ vec3 reprojection(vec3 pos) {
     return (prevClipPos.xyz / prevClipPos.w) * 0.5 + 0.5;
 }
 
+bool hasMoved() {
+    return gbufferProjection != gbufferPreviousProjection
+		|| gbufferModelView  != gbufferPreviousModelView
+		|| cameraPosition    != previousCameraPosition;
+}
+
 /*
     AABB Clipping from "Temporal Reprojection Anti-Aliasing in INSIDE"
     http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
@@ -73,7 +79,7 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
 
         blendWeight = lumaWeight * normWeight * posWeight;
     #else
-        blendWeight = TAA_STRENGTH * float(distance(texCoords, prevTexCoords) <= 1e-6);
+        blendWeight = TAA_STRENGTH * float(hasMoved());
     #endif
 
     blendWeight *= float(clamp01(prevTexCoords) == prevTexCoords);

@@ -28,21 +28,24 @@ const bool colortex6Clear = false;
 #if GI_TEMPORAL_ACCUMULATION == 1
     #include "/lib/post/taa.glsl"
 
-    vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 viewPos, vec3 normal) {
+    vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 viewPos, vec3 normal, inout float historyFrames) {
         vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
         vec3 prevColor = texture(prevTex, prevTexCoords).rgb;
 
-        vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
-        vec3 delta = viewToWorld(viewPos) - prevPos;
-        float posWeight = max(0.0, exp(-dot(delta, delta) * 3.0));
-        float totalWeight = 0.96 * posWeight;
+        float totalWeight = 0.0;
+        #if ACCUMULATION_VELOCITY_WEIGHT == 0
+            vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
+            vec3 delta = viewToWorld(viewPos) - prevPos;
+            float posWeight = max(0.0, exp(-dot(delta, delta) * 3.0));
+            totalWeight = 0.96 * posWeight;
 
-        #if ACCUMULATION_VELOCITY_WEIGHT == 1
-            totalWeight = (1.0 / float(frameTime + 1)) * float(distance(texCoords, prevTexCoords) <= 1e-6);
+        #else
+            historyFrames = hasMoved() ? 1.0 : texture(prevTex, texCoords).a + 1.0;
+            totalWeight = 1.0 / max(historyFrames, 1.0);
         #endif
-        totalWeight *= float(clamp01(prevTexCoords) == prevTexCoords);
+        totalWeight = clamp01(prevTexCoords) == prevTexCoords ? totalWeight : 1.0;
 
-        return clamp(mix(currColor, prevColor, clamp01(totalWeight)), vec3(0.0), vec3(65e3));
+        return clamp(mix(prevColor, currColor, totalWeight), vec3(0.0), vec3(65e3));
     }
 #endif
 
@@ -50,6 +53,7 @@ void main() {
     vec4 Result = texture(colortex0, texCoords);
     vec3 globalIllumination = vec3(0.0);
     float ambientOcclusion = 1.0;
+    float historyFrames = texture(colortex6, texCoords).a;
 
     #if GI == 1
         /* Downscaling Global Illumination */
@@ -63,7 +67,7 @@ void main() {
                 vec3 viewPos = getViewPos(texCoords);
                 vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
             
-                globalIllumination = temporalAccumulation(colortex6, globalIllumination, viewPos, normal);
+                globalIllumination = temporalAccumulation(colortex6, globalIllumination, viewPos, normal, historyFrames);
             #endif
         }
     #else
@@ -84,5 +88,5 @@ void main() {
     /*DRAWBUFFERS:056*/
     gl_FragData[0] = Result;
     gl_FragData[1] = vec4(globalIllumination, ambientOcclusion);
-    gl_FragData[2] = vec4(globalIllumination, 1.0);
+    gl_FragData[2] = vec4(globalIllumination, historyFrames);
 }

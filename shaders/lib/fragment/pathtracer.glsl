@@ -81,7 +81,7 @@ vec3 pathTrace(in vec3 screenPos) {
             bool specularBounce = specularProbability > rand(gl_FragCoord.xy * 5.0 + frameTimeCounter);
 
             vec3 microfacet = params.r > 1e-2 ? sampleGGXVNDF(-prevDir * TBN, noise, params.r * params.r) : normal;
-            rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : TBN * cosineWeightedHemisphereDirection(noise);
+            rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : TBN * generateCosineVector(noise);
 
             vec3 viewHitPos = screenToView(hitPos) + normal * 1e-3;
             if(!raytrace(viewHitPos, rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
@@ -90,8 +90,7 @@ vec3 pathTrace(in vec3 screenPos) {
             vec3 specularFresnel = cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);
 
             if(specularBounce) {
-                throughput /= specularProbability;
-                throughput *= specularBRDF(microfacet, rayDir, specularFresnel, params.r);
+                throughput *= specularBRDF(microfacet, rayDir, specularFresnel, params.r) / specularProbability;
             } else {
                 float NdotV = max(EPS, dot(normal, rayDir));
                 throughput *= (1.0 - fresnelDielectric(NdotV, F0toIOR(params.g))) / (1.0 - specularProbability);
@@ -148,7 +147,7 @@ vec3 computePTGI(in vec3 screenPos) {
             mat3 TBN = getTBN(normal);
             hitPos = screenToView(hitPos) + normal * EPS;
         
-            vec3 sampleDir = TBN * cosineWeightedHemisphereDirection(noise);
+            vec3 sampleDir = TBN * generateUnitVector(noise);
             if(!raytrace(hitPos, sampleDir, GI_STEPS, uniformNoise(j, blueNoise).x, hitPos)) continue;
 
             vec3 BRDF = PTGIBRDF(viewDir, hitPos.xy, sampleDir, TBN, normal, noise, albedo);
