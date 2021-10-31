@@ -78,7 +78,7 @@ vec3 pathTrace(in vec3 screenPos) {
             float diffuseLum = fresnelLum / (fresnelLum + luma(albedo) * (1.0 - float(isMetal)) * (1.0 - fresnelLum));
 
             float specularProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
-            bool specularBounce = specularProbability > rand(gl_FragCoord.xy * 5.0 + frameTimeCounter);
+            bool specularBounce = specularProbability > rand(gl_FragCoord.xy + frameTimeCounter);
 
             vec3 microfacet = params.r > 1e-2 ? sampleGGXVNDF(-prevDir * TBN, noise, params.r * params.r) : normal;
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : TBN * generateCosineVector(noise);
