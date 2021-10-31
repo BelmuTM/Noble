@@ -79,7 +79,7 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
 
         blendWeight = lumaWeight * normWeight * posWeight;
     #else
-        blendWeight = TAA_STRENGTH * float(hasMoved());
+        blendWeight = TAA_STRENGTH * float(!hasMoved());
     #endif
 
     blendWeight *= float(clamp01(prevTexCoords) == prevTexCoords);
