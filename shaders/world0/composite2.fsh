@@ -37,15 +37,13 @@ const bool colortex6Clear = false;
             vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
             vec3 delta = viewToWorld(viewPos) - prevPos;
             float posWeight = max(0.0, exp(-dot(delta, delta) * 3.0));
-            totalWeight *= 0.987;
-
-            return clamp(mix(currColor, prevColor, totalWeight), vec3(0.0), vec3(65e3));
+            totalWeight *= 0.96 * posWeight;
         #else
             historyFrames = hasMoved() ? 1.0 : texture(prevTex, texCoords).a + 1.0;
-            totalWeight *= 1.0 / max(historyFrames, 1.0);
-
-            return clamp(mix(prevColor, currColor, totalWeight), vec3(0.0), vec3(65e3));
+            totalWeight *= 1.0 - (1.0 / max(historyFrames, 1.0));
         #endif
+
+        return clamp(mix(currColor, prevColor, totalWeight), vec3(0.0), vec3(65e3));
     }
 #endif
 
