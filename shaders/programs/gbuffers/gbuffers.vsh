@@ -66,6 +66,7 @@ void main() {
 	#endif
 
 	#if TAA == 1
-        gl_Position.xy += taaJitter(gl_Position);
+		bool canJitter = ACCUMULATION_VELOCITY_WEIGHT == 0 ? true : gbufferModelView == gbufferPreviousModelView || cameraPosition == previousCameraPosition;
+		if(canJitter) { gl_Position.xy += taaJitter(gl_Position); }
     #endif
 }

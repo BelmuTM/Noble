@@ -11,16 +11,15 @@
     Thanks Bálint#1673 and Jessie#7257 for their huge help!
 */
 
-vec3 specularBRDF(vec3 N, vec3 L, vec3 fresnel, in float roughness) {
-    float NdotL = max(EPS, dot(N, L));
+vec3 specularBRDF(float NdotL, vec3 fresnel, in float roughness) {
     float k = roughness + 1.0;
     return fresnel * G_SchlickGGX(NdotL, (k * k) * 0.125);
 }
 
 vec3 directBRDF(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, vec3 shadowmap, bool isMetal) {
     float alpha = params.r * params.r;
-    float NdotV = max(EPS, dot(N, V));
-    float NdotL = max(EPS, dot(N, L));
+    float NdotV = max(0.0, dot(N, V));
+    float NdotL = max(0.0, dot(N, L));
 
     vec3 specular = cookTorranceSpecular(N, V, L, params.r, params.g, albedo, isMetal);
     vec3 diffuse = vec3(0.0);
@@ -63,7 +62,7 @@ vec3 pathTrace(in vec3 screenPos) {
             bool isMetal = params.g * 255.0 > 229.5;
 
             vec3 H = normalize(-prevDir + rayDir);
-            float HdotV = max(EPS, dot(H, -prevDir));
+            float HdotV = max(0.0, dot(H, -prevDir));
 
             vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
             mat3 TBN = getTBN(normal);
@@ -83,18 +82,19 @@ vec3 pathTrace(in vec3 screenPos) {
             vec3 microfacet = params.r > 1e-2 ? sampleGGXVNDF(-prevDir * TBN, noise, params.r * params.r) : normal;
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : TBN * generateCosineVector(noise);
 
-            vec3 viewHitPos = screenToView(hitPos) + normal * 1e-3;
-            if(!raytrace(viewHitPos, rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
+            float NdotL = dot(normal, rayDir);
+            if(NdotL <= 0.0) { break; }
 
-            float HdotL = max(EPS, dot(normalize(-prevDir + rayDir), rayDir));
+            if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
+
+            float HdotL = max(0.0, dot(normalize(-prevDir + rayDir), rayDir));
             vec3 specularFresnel = cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);
 
             if(specularBounce) {
-                throughput *= specularBRDF(microfacet, rayDir, specularFresnel, params.r) / specularProbability;
+                throughput *= specularBRDF(NdotL, specularFresnel, params.r) / specularProbability;
             } else {
-                float NdotV = max(EPS, dot(normal, rayDir));
-                throughput *= (1.0 - fresnelDielectric(NdotV, F0toIOR(params.g))) / (1.0 - specularProbability);
-                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, albedo) / (NdotV * INV_PI);
+                throughput *= (1.0 - fresnelDielectric(NdotL, F0toIOR(params.g))) / (1.0 - specularProbability);
+                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, albedo) / (NdotL * INV_PI);
             }
         }
     }

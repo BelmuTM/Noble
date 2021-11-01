@@ -21,8 +21,7 @@ vec3 reprojection(vec3 pos) {
 }
 
 bool hasMoved() {
-    return gbufferProjection != gbufferPreviousProjection
-		|| gbufferModelView  != gbufferPreviousModelView
+    return gbufferModelView  != gbufferPreviousModelView
 		|| cameraPosition    != previousCameraPosition;
 }
 

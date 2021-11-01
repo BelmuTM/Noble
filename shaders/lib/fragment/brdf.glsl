@@ -133,7 +133,6 @@ vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float al
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
 vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, float alpha, vec3 albedo) {
-
     vec3 H = normalize(V + L);
     float LdotV = max(EPS, dot(L, V));
     float NdotH = max(EPS, dot(N, H));

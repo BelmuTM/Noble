@@ -45,7 +45,7 @@ const bool colortex6Clear = false;
         #endif
         totalWeight = clamp01(prevTexCoords) == prevTexCoords ? totalWeight : 1.0;
 
-        return clamp(mix(prevColor, currColor, totalWeight), vec3(0.0), vec3(65e3));
+        return clamp(mix(prevColor, currColor, totalWeight), vec3(0.0), vec3(1e3));
     }
 #endif
 
