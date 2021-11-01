@@ -17,20 +17,12 @@ vec3 specularBRDF(float NdotL, vec3 fresnel, in float roughness) {
 }
 
 vec3 directBRDF(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, vec3 shadowmap, bool isMetal) {
-    float alpha = params.r * params.r;
     float NdotV = max(0.0, dot(N, V));
     float NdotL = max(0.0, dot(N, L));
 
     vec3 specular = cookTorranceSpecular(N, V, L, params.r, params.g, albedo, isMetal);
-    vec3 diffuse = vec3(0.0);
+    vec3 diffuse = isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, params.r * params.r, params.g, albedo);
 
-    if(!isMetal) { 
-        diffuse = hammonDiffuse(N, V, L, alpha, albedo);
-
-        float energyConservationFactor = 1.0 - (4.0 * sqrt(params.g) + 5.0 * params.g * params.g) * 0.11111111;
-        diffuse *= 1.0 - cookTorranceFresnel(NdotV, params.g, getSpecularColor(params.g, albedo), isMetal);
-        diffuse /= energyConservationFactor;
-    }
     return (diffuse + specular) * (NdotL * shadowmap);
 }
 
@@ -94,7 +86,7 @@ vec3 pathTrace(in vec3 screenPos) {
                 throughput *= specularBRDF(NdotL, specularFresnel, params.r) / specularProbability;
             } else {
                 throughput *= (1.0 - fresnelDielectric(NdotL, F0toIOR(params.g))) / (1.0 - specularProbability);
-                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, albedo) / (NdotL * INV_PI);
+                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, params.g, albedo) / (NdotL * INV_PI);
             }
         }
     }
