@@ -67,16 +67,16 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
         float currLuma   = luma(currColor), prevLuma = luma(prevColor);
         float lumaWeight = exp(-(abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN))));
 	    lumaWeight       = mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
-
+        
         vec3 normal      = normalize(decodeNormal(texture(colortex1, texCoords).xy));
         vec3 normalAt    = normalize(decodeNormal(texture(colortex1, prevTexCoords).xy));
         vec3 delta       = abs(normal - normalAt);
-        float normWeight = max(0.0, pow5(exp(-dot(delta, delta) * 0.6)));
+        float normWeight = max(0.0, pow5(exp(-dot(delta, delta) * 0.4)));
 
         delta            = abs(viewToWorld(getViewPos(texCoords)) - viewToWorld(getViewPos(prevTexCoords)));
-        float posWeight  = max(0.0, exp(-dot(delta, delta) * 9.0));
-
-        blendWeight = lumaWeight * normWeight * posWeight;
+        float posWeight  = max(0.0, exp(-dot(delta, delta) * 1.2));
+        
+        blendWeight = lumaWeight * posWeight * normWeight;
     #else
         blendWeight = TAA_STRENGTH * float(!hasMoved());
     #endif

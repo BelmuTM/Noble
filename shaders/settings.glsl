@@ -159,7 +159,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 /*------------------ POST PROCESSING ------------------*/
 #define TAA               1 // [0 1]
 #define TAA_STRENGTH  0.950 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
-#define NEIGHBORHOOD_SIZE 2
+#define NEIGHBORHOOD_SIZE 1 // [1 2 3]
 
 #define TAA_VELOCITY_WEIGHT 0 // [0 1]
 #define TAA_LUMA_MIN 0.15
