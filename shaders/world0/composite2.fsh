@@ -32,20 +32,20 @@ const bool colortex6Clear = false;
         vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
         vec3 prevColor = texture(prevTex, prevTexCoords).rgb;
 
-        float totalWeight = 0.0;
+        float totalWeight = float(clamp01(prevTexCoords) == prevTexCoords);
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
             vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
             vec3 delta = viewToWorld(viewPos) - prevPos;
             float posWeight = max(0.0, exp(-dot(delta, delta) * 3.0));
-            totalWeight = 0.96 * posWeight;
+            totalWeight *= 0.987;
 
+            return clamp(mix(currColor, prevColor, totalWeight), vec3(0.0), vec3(65e3));
         #else
             historyFrames = hasMoved() ? 1.0 : texture(prevTex, texCoords).a + 1.0;
-            totalWeight = 1.0 / max(historyFrames, 1.0);
-        #endif
-        totalWeight = clamp01(prevTexCoords) == prevTexCoords ? totalWeight : 1.0;
+            totalWeight *= 1.0 / max(historyFrames, 1.0);
 
-        return clamp(mix(prevColor, currColor, totalWeight), vec3(0.0), vec3(1e3));
+            return clamp(mix(prevColor, currColor, totalWeight), vec3(0.0), vec3(65e3));
+        #endif
     }
 #endif
 

@@ -62,7 +62,7 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction)
 
     float centerLuma = luma(currCol);
     float variance = gaussianVariance(tex, texCoords);
-    float colorPhi = sqrt(max(1e-7, variance + 1e-8)) * 10.0;
+    float colorPhi = sqrt(max(1e-7, variance + 1e-8)) * 2.0;
 
     for(int x = -KERNEL_SIZE; x <= KERNEL_SIZE; x++) {
         for(int y = -KERNEL_SIZE; y <= KERNEL_SIZE; y++) {

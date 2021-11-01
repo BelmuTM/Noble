@@ -17,7 +17,7 @@ vec3 specularBRDF(float NdotL, vec3 fresnel, in float roughness) {
 }
 
 vec3 directBRDF(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, vec3 shadowmap, bool isMetal) {
-    float NdotV = max(0.0, dot(N, V));
+    float NdotV = max(EPS, dot(N, V));
     float NdotL = max(0.0, dot(N, L));
 
     vec3 specular = cookTorranceSpecular(N, V, L, params.r, params.g, albedo, isMetal);
@@ -54,7 +54,7 @@ vec3 pathTrace(in vec3 screenPos) {
             bool isMetal = params.g * 255.0 > 229.5;
 
             vec3 H = normalize(-prevDir + rayDir);
-            float HdotV = max(0.0, dot(H, -prevDir));
+            float HdotV = max(EPS, dot(H, -prevDir));
 
             vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
             mat3 TBN = getTBN(normal);
