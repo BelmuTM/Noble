@@ -71,10 +71,10 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
         vec3 normal      = normalize(decodeNormal(texture(colortex1, texCoords).xy));
         vec3 normalAt    = normalize(decodeNormal(texture(colortex1, prevTexCoords).xy));
         vec3 delta       = abs(normal - normalAt);
-        float normWeight = max(0.0, pow5(exp(-dot(delta, delta) * 0.4)));
+        float normWeight = max(0.0, pow5(exp(-dot(delta, delta) * 0.35)));
 
         delta            = abs(viewToWorld(getViewPos(texCoords)) - viewToWorld(getViewPos(prevTexCoords)));
-        float posWeight  = max(0.0, exp(-dot(delta, delta) * 1.2));
+        float posWeight  = max(0.0, exp(-dot(delta, delta) * 1.4));
         
         blendWeight = lumaWeight * posWeight * normWeight;
     #else

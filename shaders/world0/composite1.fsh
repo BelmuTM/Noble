@@ -13,9 +13,11 @@ varying vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/programs/common.glsl"
+
 #include "/lib/fragment/brdf.glsl"
 #include "/lib/fragment/raytracer.glsl"
 #include "/lib/fragment/shadows.glsl"
+
 #include "/lib/atmospherics/atmosphere.glsl"
 #include "/lib/atmospherics/volumetric.glsl"
 

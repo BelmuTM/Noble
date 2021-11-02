@@ -9,52 +9,60 @@
 #include "/settings.glsl"
 #include "/programs/common.glsl"
 #include "/lib/util/blur.glsl"
+
 #include "/lib/post/bloom.glsl"
 #include "/lib/post/exposure.glsl"
 
-vec2 underwaterDistortionCoords(vec2 coords) {
-    const float scale = 25.0;
-    float speed = frameTimeCounter * WATER_DISTORTION_SPEED;
-    float offsetX = coords.x * scale + speed;
-    float offsetY = coords.y * scale + speed;
+#if UNDERWATER_DISTORTION == 1
+    vec2 underwaterDistortionCoords(vec2 coords) {
+        const float scale = 25.0;
+        float speed = frameTimeCounter * WATER_DISTORTION_SPEED;
+        float offsetX = coords.x * scale + speed;
+        float offsetY = coords.y * scale + speed;
 
-    vec2 distorted = coords + vec2(
-        WATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
-        WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
-    );
+        vec2 distorted = coords + vec2(
+            WATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
+            WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
+        );
 
-    return clamp01(distorted) != distorted ? coords : distorted;
-} 
+        return clamp01(distorted) != distorted ? coords : distorted;
+    }
+#endif
 
 // Rod response coefficients & blending method provided by Jessie#7257
 // SOURCE: http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
-vec3 purkinje(vec3 color) {
-    vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
-    vec3 xyzColor = linearToXYZ(color);
+#if PURKINJE == 1
+    vec3 purkinje(vec3 color) {
+        vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
+        vec3 xyzColor = linearToXYZ(color);
 
-    vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
-    float purkinje = dot(rodResponse, XYZtoLinear(scotopicLuma));
+        vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
+        float purkinje = dot(rodResponse, XYZtoLinear(scotopicLuma));
 
-    return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 100.0));
-}
+        return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 100.0));
+    }
+#endif
 
-vec3 computeAberration(vec3 color) {
-    vec2 offset;
-    #if DOF == 0
-        vec2 dist = texCoords - vec2(0.5);
-        offset = (1.0 - (dist * dist)) * ABERRATION_STRENGTH * pixelSize;
-    #else
-        float depth = linearizeDepth(texture(depthtex0, texCoords).r);
-        float coc = getCoC(depth, linearizeDepth(centerDepthSmooth));
-        offset = coc * ABERRATION_STRENGTH * pixelSize;
-    #endif
 
-    return vec3(
-        texture(colortex0, texCoords + offset).r,
-        texture(colortex0, texCoords).g,
-        texture(colortex0, texCoords - offset).b
-    );
-}
+#if CHROMATIC_ABERRATION == 1
+    vec3 computeAberration(vec3 color) {
+        vec2 offset;
+        #if DOF == 0
+            vec2 dist = texCoords - vec2(0.5);
+            offset = (1.0 - (dist * dist)) * ABERRATION_STRENGTH * pixelSize;
+        #else
+            float depth = linearizeDepth(texture(depthtex0, texCoords).r);
+            float coc = getCoC(depth, linearizeDepth(centerDepthSmooth));
+            offset = coc * ABERRATION_STRENGTH * pixelSize;
+        #endif
+
+        return vec3(
+            texture(colortex0, texCoords + offset).r,
+            texture(colortex0, texCoords).g,
+            texture(colortex0, texCoords - offset).b
+        );
+    }
+#endif
 
 void tonemap(inout vec3 color) {
     #if TONEMAPPING == 0
@@ -67,6 +75,31 @@ void tonemap(inout vec3 color) {
         color = ACESFitted(color); // ACES
     #endif
 }
+
+#if LUT == 1
+    const float lutRes      = 512.0;
+    const float sqrTileSize = pow(lutRes, 2.0 / 3.0);
+    const int tileSize      = int(sqrt(sqrTileSize));
+    const float invTileSize = 1.0 / tileSize;
+
+    const float minColLUT = 0.025;
+    // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
+    void applyLUT(sampler2D lut, inout vec3 color) {
+        color = clamp(color, vec3(minColLUT), vec3(255.0 / 256.0));
+
+        int b0 = int(floor(color.b * sqrTileSize));
+        int b1 = int( ceil(color.b * sqrTileSize));
+
+        vec2 off0 = vec2(mod(b0, tileSize), b0 / tileSize) * invTileSize;
+        vec2 off1 = vec2(mod(b1, tileSize), b1 / tileSize) * invTileSize;
+
+        color = mix(
+            texture(lut, off0 + color.rg * invTileSize).rgb,
+            texture(lut, off1 + color.rg * invTileSize).rgb,
+            fract(color.b * sqrTileSize)
+        );
+    }
+#endif
 
 void main() {
     vec2 tempCoords = texCoords;
@@ -102,9 +135,13 @@ void main() {
         finalCol *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
+    #if LUT == 1
+        applyLUT(colortex10, finalCol);
+    #endif
+
     finalCol = linearToSRGB(vec4(finalCol, 1.0)).rgb;
+    finalCol += bayer64(gl_FragCoord.xy) / 255.0;
 
     /*DRAWBUFFERS:0*/
-    finalCol += bayer64(gl_FragCoord.xy) / 255.0;
     gl_FragData[0] = vec4(finalCol, 1.0);
 }
