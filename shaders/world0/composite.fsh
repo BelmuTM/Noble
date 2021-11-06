@@ -38,11 +38,8 @@ void main() {
    }
 
    /*    ------- WATER ABSORPTION / REFRACTION -------    */
-   vec4 tex0 = texture(colortex0, texCoords);
-   vec4 tex1 = texture(colortex1, texCoords);
-   vec4 tex2 = texture(colortex2, texCoords);
-   material data = getMaterial(tex0, tex1, tex2);
-   data.albedo = sRGBToLinear(tex0).rgb;
+   material mat = getMaterial(texCoords);
+   mat.albedo = sRGBToLinear(vec4(mat.albedo, 1.0)).rgb;
 
    float depth0 = texture(depthtex0, texCoords).r;
    float depthDist = distance(
@@ -54,8 +51,8 @@ void main() {
 
    #if REFRACTION == 1
       float NdotV = max(EPS, dot(normal, normalize(-viewPos)));
-      if(F0toIOR(data.F0) > 1.0 && !isHand(depth0) && getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
-         opaques = simpleRefractions(opaques, viewPos, normal, NdotV, data.F0, hitPos);
+      if(F0toIOR(mat.F0) > 1.0 && !isHand(depth0) && getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
+         opaques = simpleRefractions(opaques, viewPos, normal, NdotV, mat.F0, hitPos);
          coords = hitPos.xy;
       }
 
@@ -78,7 +75,7 @@ void main() {
    #endif
 
    // Alpha Blending
-   data.albedo = mix(opaques * mix(vec3(1.0), data.albedo, data.alpha), data.albedo, data.alpha);
+   mat.albedo = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
 
    #if WHITE_WORLD == 0
       if(getBlockId(texCoords) == 1) {
@@ -87,7 +84,7 @@ void main() {
          float density = depthDist * 6.5e-1;
          //                                     log(2.0)
 	      vec3 transmittance = exp2(-(density * 0.301029995) * WATER_ABSORPTION_COEFFICIENTS);
-         if(isEyeInWater == 0) data.albedo *= transmittance;
+         if(isEyeInWater == 0) mat.albedo *= transmittance;
 
          // Foam
          #if WATER_FOAM == 1
@@ -96,13 +93,13 @@ void main() {
                vec3 edge = transmittance * falloff * FOAM_BRIGHTNESS * shadowmap;
 
                float leading = depthDist / (FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF);
-	            data.albedo += edge * (1.0 - leading);
+	            mat.albedo += edge * (1.0 - leading);
             }
          #endif
       }
    #endif
 
    /*DRAWBUFFERS:09*/
-   gl_FragData[0] = clamp01(vec4(data.albedo, 1.0) + rain);
+   gl_FragData[0] = clamp01(vec4(mat.albedo, 1.0) + rain);
    gl_FragData[1] = vec4(shadowmap, 1.0);
 }

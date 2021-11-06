@@ -28,20 +28,26 @@ struct material {
     float alpha;
     vec3 normal;
 
-    float roughness;
+    float rough;
     float F0;
+    bool isMetal;
     float emission;
 };
 
-material getMaterial(vec4 tex0, vec4 tex1, vec4 tex2) {
+material getMaterial(vec2 coords) {
+    vec4 tex0 = texture(colortex0, coords);
+    vec4 tex1 = texture(colortex1, coords);
+    vec4 tex2 = texture(colortex2, coords);
+
     material mat;
 
     mat.albedo = tex0.xyz;
     mat.alpha = tex0.w;
     mat.normal = decodeNormal(tex1.xy);
 
-    mat.roughness = tex2.x;
+    mat.rough = tex2.x;
     mat.F0 = tex2.y;
+    mat.isMetal = mat.F0 * 255.0 > 229.5;
     mat.emission = tex1.z;
 
     return mat;

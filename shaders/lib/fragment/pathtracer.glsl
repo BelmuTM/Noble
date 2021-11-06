@@ -16,12 +16,12 @@ vec3 specularBRDF(float NdotL, vec3 fresnel, in float roughness) {
     return fresnel * G_SchlickGGX(NdotL, (k * k) * 0.125);
 }
 
-vec3 directBRDF(vec3 N, vec3 V, vec3 L, vec2 params, vec3 albedo, vec3 shadowmap, bool isMetal) {
+vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap) {
     float NdotV = max(EPS, dot(N, V));
     float NdotL = max(0.0, dot(N, L));
 
-    vec3 specular = cookTorranceSpecular(N, V, L, params.r, params.g, albedo, isMetal);
-    vec3 diffuse = isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, params.r * params.r, params.g, albedo);
+    vec3 specular = cookTorranceSpecular(N, V, L, mat);
+    vec3 diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
     return (diffuse + specular) * (NdotL * shadowmap);
 }
@@ -50,28 +50,26 @@ vec3 pathTrace(in vec3 screenPos) {
             }
 
             /* Material Parameters and Emitted Light */
-            vec2 params = texture(colortex2, hitPos.xy).rg; // R = roughness | G = F0
-            bool isMetal = params.g * 255.0 > 229.5;
+            material mat = getMaterial(hitPos.xy);
 
             vec3 H = normalize(-prevDir + rayDir);
             float HdotV = max(EPS, dot(H, -prevDir));
 
-            vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
+            vec3 normal = normalize(mat.normal);
             mat3 TBN = getTBN(normal);
 
-            vec3 albedo = texture(colortex0, hitPos.xy).rgb;
-            radiance += throughput * albedo * texture(colortex1, hitPos.xy).z;
-            radiance += throughput * directBRDF(normal, -prevDir, shadowDir, params, albedo, texture(colortex9, hitPos.xy).rgb, isMetal) * (sunIlluminance + moonIlluminance);
+            radiance += throughput * mat.albedo * mat.emission;
+            radiance += throughput * directBRDF(normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb) * (sunIlluminance + moonIlluminance);
 
             /* Specular Bounce Probability */
-            vec3 fresnel = cookTorranceFresnel(HdotV, params.g, getSpecularColor(params.g, albedo), isMetal);
+            vec3 fresnel = cookTorranceFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
             float fresnelLum = luma(fresnel);
-            float diffuseLum = fresnelLum / (fresnelLum + luma(albedo) * (1.0 - float(isMetal)) * (1.0 - fresnelLum));
+            float diffuseLum = fresnelLum / (fresnelLum + luma(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
 
             float specularProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
             bool specularBounce = specularProbability > rand(gl_FragCoord.xy + frameTimeCounter);
 
-            vec3 microfacet = params.r > 1e-2 ? sampleGGXVNDF(-prevDir * TBN, noise, params.r * params.r) : normal;
+            vec3 microfacet = mat.rough > 1e-2 ? sampleGGXVNDF(-prevDir * TBN, noise, mat.rough * mat.rough) : normal;
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : TBN * generateCosineVector(noise);
 
             float NdotL = dot(normal, rayDir);
@@ -80,13 +78,13 @@ vec3 pathTrace(in vec3 screenPos) {
             if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
 
             float HdotL = max(0.0, dot(normalize(-prevDir + rayDir), rayDir));
-            vec3 specularFresnel = cookTorranceFresnel(HdotL, params.g, getSpecularColor(params.g, albedo), isMetal);
+            vec3 specularFresnel = cookTorranceFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
 
             if(specularBounce) {
-                throughput *= specularBRDF(NdotL, specularFresnel, params.r) / specularProbability;
+                throughput *= specularBRDF(NdotL, specularFresnel, mat.rough) / specularProbability;
             } else {
-                throughput *= (1.0 - fresnelDielectric(NdotL, F0toIOR(params.g))) / (1.0 - specularProbability);
-                throughput *= hammonDiffuse(normal, -prevDir, rayDir, params.r * params.r, params.g, albedo) / (NdotL * INV_PI);
+                throughput *= (1.0 - fresnelDielectric(NdotL, F0toIOR(mat.F0))) / (1.0 - specularProbability);
+                throughput *= hammonDiffuse(normal, -prevDir, rayDir, mat) / (NdotL * INV_PI);
             }
         }
     }
@@ -98,9 +96,9 @@ vec3 pathTrace(in vec3 screenPos) {
 |        OLD PTGI CODE        |
 -------------------------------
 
-vec3 PTGIBRDF(in vec3 viewDir, in vec2 screenPos, in vec3 sampleDir, in mat3 TBN, in vec3 normal, in vec2 noise, out vec3 albedo) {
+vec3 PTGIBRDF(in vec3 viewDir, in vec2 screenPos, in vec3 sampleDir, in mat3 TBN, in vec3 normal, in vec2 noise, out vec3 mat.albedo) {
     float F0 = texture(colortex2, screenPos).g;
-    bool isMetal = F0 * 255.0 > 229.5;
+    bool mat.isMetal = F0 * 255.0 > 229.5;
     float roughness = texture(colortex2, screenPos).r;
 
     vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise, roughness);
@@ -113,13 +111,13 @@ vec3 PTGIBRDF(in vec3 viewDir, in vec2 screenPos, in vec3 sampleDir, in mat3 TBN
     float NdotH = max(EPS, dot(normal, H));
     float HdotL = max(EPS, dot(H, reflected));
 
-    albedo = isMetal ? vec3(0.0) : texture(colortex4, screenPos).rgb;
-    vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0, albedo, isMetal);
-    // vec3 diffuse = orenNayarDiffuse(normal, viewDir, sampleDir, NdotD, NdotV, roughness * roughness, albedo) / (NdotD * INV_PI);
+    mat.albedo = mat.isMetal ? vec3(0.0) : texture(colortex4, screenPos).rgb;
+    vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0, mat.albedo, mat.isMetal);
+    // vec3 diffuse = orenNayarDiffuse(normal, viewDir, sampleDir, NdotD, NdotV, roughness * roughness, mat.albedo) / (NdotD * INV_PI);
 
-    vec3 fresnel = cookTorranceFresnel(NdotD, F0, albedo, isMetal);
-    albedo *= 1.0 - fresnel;
-    return albedo + specular;
+    vec3 fresnel = cookTorranceFresnel(NdotD, F0, mat.albedo, mat.isMetal);
+    mat.albedo *= 1.0 - fresnel;
+    return mat.albedo + specular;
 }
 
 vec3 computePTGI(in vec3 screenPos) {
@@ -129,7 +127,7 @@ vec3 computePTGI(in vec3 screenPos) {
 
     vec3 throughput = vec3(1.0);
     vec3 radiance = vec3(0.0);
-    vec3 albedo;
+    vec3 mat.albedo;
 
     for(int i = 0; i < GI_SAMPLES; i++) {
         for(int j = 0; j < GI_BOUNCES; j++) {
@@ -142,9 +140,9 @@ vec3 computePTGI(in vec3 screenPos) {
             vec3 sampleDir = TBN * generateUnitVector(noise);
             if(!raytrace(hitPos, sampleDir, GI_STEPS, uniformNoise(j, blueNoise).x, hitPos)) continue;
 
-            vec3 BRDF = PTGIBRDF(viewDir, hitPos.xy, sampleDir, TBN, normal, noise, albedo);
+            vec3 BRDF = PTGIBRDF(viewDir, hitPos.xy, sampleDir, TBN, normal, noise, mat.albedo);
 
-            radiance += throughput * albedo * (texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);
+            radiance += throughput * mat.albedo * (texture(colortex1, hitPos.xy).z * EMISSION_INTENSITY);
             throughput *= BRDF;
             radiance += throughput * texture(colortex9, hitPos.xy).rgb * viewPosSkyColor(viewPos) * SUN_ILLUMINANCE;
         }

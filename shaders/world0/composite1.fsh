@@ -27,11 +27,7 @@ const int colortex8Format = RGBA16F;
 
 void main() {
     vec3 viewPos = getViewPos(texCoords);
-
-    vec4 tex0 = texture(colortex0, texCoords);
-    vec4 tex1 = texture(colortex1, texCoords);
-    vec4 tex2 = texture(colortex2, texCoords);
-    material mat = getMaterial(tex0, tex1, tex2);
+    material mat = getMaterial(texCoords);
     
     vec3 volumetricLighting = vec3(1.0);
     #if VL == 1
@@ -48,7 +44,7 @@ void main() {
             vec3 normal = normalize(mat.normal.xyz);
             vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
-            vec3 skyIlluminance = atmosphereTransmittance(atmosRayPos, normalize(viewToWorld(upPosition)));
+            vec3 skyIlluminance = atmosphereTransmittance(atmosRayPos, vec3(0.0, 1.0, 0.0));
             vec3 sunIlluminance = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
             vec3 moonIlluminance = MOON_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldMoonDir);
             

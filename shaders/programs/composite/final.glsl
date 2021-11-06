@@ -122,12 +122,16 @@ void main() {
     #if PURKINJE == 1
         Result.rgb = purkinje(Result.rgb);
     #endif
+
+    #if LUT == 1
+        applyLUT(colortex10, Result.rgb);
+    #endif
     
     // Tonemapping & Color Correction
-    vec3 finalCol = Result.rgb * exposure;
-    tonemap(finalCol);
-    finalCol = vibranceSaturation(finalCol, VIBRANCE, SATURATION);
-    finalCol = contrast(finalCol, CONTRAST) + BRIGHTNESS;
+    Result.rgb *= exposure;
+    tonemap(Result.rgb);
+    Result.rgb = vibranceSaturation(Result.rgb, VIBRANCE, SATURATION);
+    Result.rgb = contrast(Result.rgb, CONTRAST) + BRIGHTNESS;
 
     // Vignette
     #if VIGNETTE == 1
@@ -135,13 +139,9 @@ void main() {
         finalCol *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    #if LUT == 1
-        applyLUT(colortex10, finalCol);
-    #endif
-
-    finalCol = linearToSRGB(vec4(finalCol, 1.0)).rgb;
-    finalCol += bayer64(gl_FragCoord.xy) / 255.0;
+    Result = linearToSRGB(Result);
+    Result.rgb += bayer64(gl_FragCoord.xy) / 255.0;
 
     /*DRAWBUFFERS:0*/
-    gl_FragData[0] = vec4(finalCol, 1.0);
+    gl_FragData[0] = Result;
 }

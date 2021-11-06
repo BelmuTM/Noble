@@ -113,16 +113,16 @@ vec3 cookTorranceFresnel(float cosTheta, float F0, vec3 metalColor, bool isMetal
     return isMetal ? schlickGaussian(cosTheta, metalColor) : vec3(fresnelDielectric(cosTheta, F0toIOR(F0)));
 }
 
-vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, float roughness, float F0, vec3 albedo, bool isMetal) {
+vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 H = normalize(V + L);
     float NdotV = max(EPS, dot(N, V));
     float NdotL = max(EPS, dot(N, L));
     float HdotL = max(EPS, dot(H, L));
     float NdotH = max(EPS, dot(N, H));
 
-    float D = D_GGX(NdotH, roughness * roughness);
-    vec3 F = cookTorranceFresnel(HdotL, F0, getSpecularColor(F0, albedo), isMetal);
-    float G = G_Smith(NdotV, NdotL, roughness);
+    float D = D_GGX(NdotH, mat.rough * mat.rough);
+    vec3 F = cookTorranceFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+    float G = G_Smith(NdotV, NdotL, mat.rough);
         
     return clamp01((D * F * G) / max(EPS, 4.0 * NdotL * NdotV));
 }
@@ -141,7 +141,9 @@ vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float al
 
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
-vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, float alpha, float F0, vec3 albedo) {
+vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
+    float alpha = mat.rough * mat.rough;
+
     vec3 H = normalize(V + L);
     float VdotL = max(EPS, dot(V, L));
     float NdotH = max(EPS, dot(N, H));
@@ -149,9 +151,9 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, float alpha, float F0, vec3 albedo) {
     float NdotL = max(EPS, dot(N, L));
 
     // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
-    float energyConservationFactor = 1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * 0.11111111;
-    float fresnelNL = 1.0 - schlickGaussian(NdotL, F0);
-    float fresnelNV = 1.0 - schlickGaussian(NdotV, F0);
+    float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * 0.11111111;
+    float fresnelNL = 1.0 - schlickGaussian(NdotL, mat.F0);
+    float fresnelNV = 1.0 - schlickGaussian(NdotV, mat.F0);
 
     float facing     = 0.5 + 0.5 * VdotL;
     float roughSurf  = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
@@ -160,15 +162,14 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, float alpha, float F0, vec3 albedo) {
     float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
     float multi  = 0.1159 * alpha;
 
-    return albedo * (single + albedo * multi);
+    return mat.albedo * (single + mat.albedo * multi);
 }
 
 // Thanks LVutner for the help!
 // https://github.com/LVutner
 vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec3 shadowmap, vec3 illuminance) {
     vec3 V = -normalize(viewPos);
-    bool isMetal = mat.F0 * 255.0 > 229.5;
-    float alpha = mat.roughness * mat.roughness;
+    float alpha = mat.rough * mat.rough;
     
     vec3 H = normalize(V + L);
     float HdotL = max(EPS, dot(H, L));
@@ -177,14 +178,14 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
 
     vec3 specular = vec3(0.0);
     #if SPECULAR == 1
-        specular = cookTorranceSpecular(N, V, L, mat.roughness, mat.F0, mat.albedo, isMetal);
+        specular = cookTorranceSpecular(N, V, L, mat);
     #endif
-    vec3 diffuse = isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, alpha, mat.F0, mat.albedo);
+    vec3 diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
     /* Calculating Indirect / Direct Lighting */
     vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * illuminance;
 
-    if(!isMetal) {
+    if(!mat.isMetal) {
         Lighting += mat.emission * mat.albedo;
         Lighting += AMBIENT * mat.albedo;
         Lighting *= lightmap;

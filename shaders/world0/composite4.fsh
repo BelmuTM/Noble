@@ -28,19 +28,17 @@ void main() {
           vec2 scaledUv = texCoords * (1.0 / resolution);
         
           if(clamp(texCoords, vec2(0.0), vec2(resolution + 1e-3)) == texCoords && !isSky(scaledUv)) {
-               vec3 normalAt = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
                vec3 posAt = getViewPos(scaledUv);
 
-               float roughness = texture(colortex2, scaledUv).r;
-               float F0 = texture(colortex2, scaledUv).g;
-               bool isMetal = F0 * 255.0 > 229.5;
-               specularColor = getSpecularColor(F0, texture(colortex4, scaledUv).rgb);
+               material mat = getMaterial(scaledUv);
+               vec3 normalAt = normalize(mat.normal);
+               specularColor = getSpecularColor(mat.F0, texture(colortex4, scaledUv).rgb);
                     
                #if SSR_TYPE == 1
-                    reflections = prefilteredReflections(scaledUv, posAt, normalAt, roughness * roughness, specularColor, isMetal);
+                    reflections = prefilteredReflections(scaledUv, posAt, normalAt, mat.rough * mat.rough, specularColor, mat.isMetal);
                #else
                     float NdotV = max(EPS, dot(normalAt, -normalize(posAt)));
-                    reflections = simpleReflections(scaledUv, posAt, normalAt, NdotV, specularColor, isMetal);
+                    reflections = simpleReflections(scaledUv, posAt, normalAt, NdotV, specularColor, mat.isMetal);
                #endif
           }
      #endif
