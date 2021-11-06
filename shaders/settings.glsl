@@ -56,7 +56,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define AO_TYPE   0 // [0 1]
 #define AO_FILTER 1 // [0 1]
 
-#define SSAO_SAMPLES   12 // [4 8 12 16 20]
+#define SSAO_SAMPLES    8 // [4 8 12 16 20]
 #define SSAO_RADIUS   0.5
 #define SSAO_STRENGTH 1.5
 
@@ -81,7 +81,7 @@ const float shadowDistanceRenderMul = 1.0;
 
 /*------------------ RAY TRACING ------------------*/
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT 6 // [6 12]
+#define BINARY_COUNT      4 // [4 6 12]
 #define BINARY_DECREASE 0.5
 
 #define RAY_STEP_LENGTH 1.7
@@ -157,7 +157,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 /*------------------ POST PROCESSING ------------------*/
 #define TAA               1 // [0 1]
 #define TAA_STRENGTH  0.950 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
-#define NEIGHBORHOOD_SIZE 1 // [1 2 3]
+#define NEIGHBORHOOD_SIZE 2 // [1 2 3]
 
 #define TAA_VELOCITY_WEIGHT 0 // [0 1]
 #define TAA_LUMA_MIN 0.15
@@ -169,7 +169,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define BLOOM                  1 // [0 1]
 #define BLOOM_STRENGTH      1.00 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00]
-#define BLOOM_LUMA_THRESHOLD 0.6
+#define BLOOM_LUMA_THRESHOLD 0.5
 
 #define VIGNETTE             0 // [0 1]
 #define VIGNETTE_STRENGTH 0.25 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50]

@@ -23,18 +23,16 @@ void main() {
     vec4 Result = texture(colortex0, texCoords);
     bool sky = isSky(texCoords);
 
-    vec3 viewPos = getViewPos(texCoords);
-    vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-
     if(!sky) {
+        vec3 viewPos = getViewPos(texCoords);
+        vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+
         #if GI == 1
-            vec3 globalIllumination = vec3(0.0);
             #if GI_FILTER == 1                
-                globalIllumination = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
+                Result.rgb = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
             #else
-                globalIllumination = texture(colortex9, texCoords).rgb;
+                Result.rgb = texture(colortex9, texCoords).rgb;
             #endif
-            Result.rgb = max(vec3(0.0), globalIllumination);
         #endif
 
         #if SSR == 1

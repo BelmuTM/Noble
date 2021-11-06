@@ -86,10 +86,10 @@ vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, 
 
     vec3 refracted = refract(normalize(viewPos), normal, airIOR / ior);
     bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos);
-    float hand     = float(!isHand(texture(depthtex1, hitPos.xy).r));
-    if(!hit) hitPos.xy = texCoords;
+    bool hand      = isHand(texture(depthtex1, hitPos.xy).r);
+    if(!hit || hand) hitPos.xy = texCoords;
 
     float fresnel = fresnelDielectric(NdotV, ior);
     vec3 hitColor = texture(colortex4, hitPos.xy).rgb;
-    return hitColor * hand * (1.0 - fresnel);
+    return hitColor * (1.0 - fresnel);
 }

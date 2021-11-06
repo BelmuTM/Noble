@@ -27,8 +27,8 @@ vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap) {
 }
 
 vec3 pathTrace(in vec3 screenPos) {
-    vec3 viewPos = screenToView(screenPos); 
-    vec3 radiance      = vec3(0.0);
+    vec3 viewPos         = screenToView(screenPos); 
+    vec3 radiance        = vec3(0.0);
     vec3 sunIlluminance  = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
     vec3 moonIlluminance = MOON_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldMoonDir);
 
@@ -48,13 +48,11 @@ vec3 pathTrace(in vec3 screenPos) {
                 if(roulette < noise.x) { break; }
                 throughput /= roulette;
             }
-
-            /* Material Parameters and Emitted Light */
-            material mat = getMaterial(hitPos.xy);
-
             vec3 H = normalize(-prevDir + rayDir);
             float HdotV = max(EPS, dot(H, -prevDir));
 
+            /* Material Parameters and Emitted Light */
+            material mat = getMaterial(hitPos.xy);
             vec3 normal = normalize(mat.normal);
             mat3 TBN = getTBN(normal);
 
