@@ -27,7 +27,7 @@ void main() {
      /*    ------- SHADOW MAPPING -------    */
      vec3 shadowmap = vec3(0.0);
      #if SHADOWS == 1
-          shadowmap = shadowMap(getViewPos(texCoords), shadowMapResolution);
+          shadowmap = shadowMap(getViewPos(texCoords));
      #endif
 
      /*    ------- ATMOSPHERIC SCATTERING -------    */

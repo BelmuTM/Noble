@@ -34,10 +34,6 @@ void main() {
         volumetricLighting = computeVL1(viewPos);
     #endif
 
-    #if WHITE_WORLD == 1
-		mat.albedo = vec3(1.0);
-    #endif
-
     vec3 Lighting = mat.albedo;
     #if GI == 0
         if(!isSky(texCoords)) {

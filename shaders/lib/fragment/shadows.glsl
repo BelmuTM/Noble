@@ -6,11 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec4 viewToShadow(vec3 viewPos) {
-	vec4 playerPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
-	vec4 shadowSpace = shadowProjection * shadowModelView * playerPos;
-	shadowSpace.xy = distort(shadowSpace.xy);
-	return shadowSpace;
+vec3 viewToShadow(vec3 viewPos) {
+	vec3 shadowPos = projMAD3(shadowProjection, transMAD3(shadowModelView, mat3(gbufferModelViewInverse) * viewPos));
+	shadowPos.xy = distort(shadowPos.xy);
+	return shadowPos;
 }
 
 bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
@@ -54,29 +53,27 @@ float findBlockerDepth(vec3 sampleCoords) {
 }
 
 vec3 PCF(vec3 sampleCoords, float radius, mat2 rotation) {
-    int SAMPLES;
 	vec3 shadowResult = vec3(0.0);
+    int SAMPLES;
 
     #if SOFT_SHADOWS == 0
         for(int x = 0; x < SHADOW_SAMPLES; x++) {
             for(int y = 0; y < SHADOW_SAMPLES; y++) {
-                vec2 offset = rotation * vec2(x, y);
-                vec3 currentSampleCoordinate = vec3(sampleCoords.xy + offset, sampleCoords.z);
+                vec3 currSampleCoords = vec3(sampleCoords.xy + (rotation * vec2(x, y)), sampleCoords.z);
 
-                shadowResult += sampleShadowColor(currentSampleCoordinate);
+                shadowResult += sampleShadowColor(currSampleCoords);
                 SAMPLES++;
             }
         }
     #else
         for(int i = 0; i < PCSS_SAMPLES; i++) {
             vec2 offset = rotation * (radius * vogelDisk(i, PCSS_SAMPLES));
-            vec3 currentSampleCoordinate = vec3(sampleCoords.xy + offset, sampleCoords.z);
+            vec3 currSampleCoords = vec3(sampleCoords.xy + offset, sampleCoords.z);
 
-            shadowResult += sampleShadowColor(currentSampleCoordinate);
+            shadowResult += sampleShadowColor(currSampleCoords);
             SAMPLES++;
         }
     #endif
-
     return shadowResult / SAMPLES;
 }
 
@@ -88,8 +85,8 @@ vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
     return PCF(sampleCoords, penumbraSize, rotation);
 }
 
-vec3 shadowMap(vec3 viewPos, float shadowMapResolution) {
-    vec3 sampleCoords = clamp01(viewToShadow(viewPos).xyz * 0.5 + 0.5);
+vec3 shadowMap(vec3 viewPos) {
+    vec3 sampleCoords = clamp01(viewToShadow(viewPos) * 0.5 + 0.5);
     float theta = TAA == 1 ? taaNoise : uniformNoise(1, blueNoise).r;
     theta *= TAU;
     

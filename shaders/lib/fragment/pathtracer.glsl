@@ -69,9 +69,7 @@ vec3 pathTrace(in vec3 screenPos) {
 
             vec3 microfacet = mat.rough > 1e-2 ? sampleGGXVNDF(-prevDir * TBN, noise, mat.rough * mat.rough) : normal;
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : TBN * generateCosineVector(noise);
-
-            float NdotL = dot(normal, rayDir);
-            if(NdotL <= 0.0) { break; }
+            float NdotL = max(EPS, dot(normal, rayDir));
 
             if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, uniformNoise(i, blueNoise).x, hitPos)) { break; }
 
