@@ -67,14 +67,14 @@ vec3 viewToWorld(vec3 viewPos) {
 	return (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
 }
 
-mat3 getTBN(vec3 normal) {
-	vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
-	return mat3(tangent, cross(tangent, normal), normal);
+mat3 constructViewTBN(vec3 viewNormal) {
+	vec3 tangent = normalize(cross(gbufferModelViewInverse[1].xyz, viewNormal));
+	return mat3(tangent, cross(tangent, viewNormal), viewNormal);
 }
 
-vec3 tangentToWorld(vec3 normal, vec3 H) {
-    vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
-    return vec3((tangent * H.x) + (cross(tangent, normal) * H.y) + (normal * H.z));
+vec3 tangentToView(vec3 viewNormal, vec3 H) {
+    vec3 tangent = normalize(cross(gbufferModelViewInverse[1].xyz, viewNormal));
+    return vec3((tangent * H.x) + (cross(tangent, viewNormal) * H.y) + (viewNormal * H.z));
 }
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth

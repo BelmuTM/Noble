@@ -77,8 +77,8 @@ void tonemap(inout vec3 color) {
 }
 
 #if LUT == 1
-    const float lutRes      = 512.0;
-    const float sqrTileSize = pow(lutRes, 2.0 / 3.0);
+    const int lutRes        = 512;
+    const int sqrTileSize   = int(pow(lutRes, 2.0 / 3.0));
     const int tileSize      = int(sqrt(sqrTileSize));
     const float invTileSize = 1.0 / tileSize;
 

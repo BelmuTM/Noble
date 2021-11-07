@@ -29,20 +29,21 @@ void main() {
 
         #if GI == 1
             #if GI_FILTER == 1                
-                Result.rgb = SVGF(colortex9, viewPos, normal, texCoords, vec2(0.0, 1.0));
+                Result.rgb = SVGF(colortex5, viewPos, normal, texCoords, vec2(0.0, 1.0));
             #else
-                Result.rgb = texture(colortex9, texCoords).rgb;
+                Result.rgb = texture(colortex5, texCoords).rgb;
             #endif
-        #endif
+        #else
 
-        #if SSR == 1
-            float resolution = SSR_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
-            float NdotV = max(EPS, dot(normal, -normalize(viewPos)));
-            vec3 specularColor = texture(colortex4, texCoords * resolution).rgb;
+            #if SSR == 1
+                float resolution = SSR_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
+                float NdotV = max(EPS, dot(normal, -normalize(viewPos)));
+                vec3 specularColor = texture(colortex4, texCoords * resolution).rgb;
             
-            vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
-            vec3 DFG = envBRDFApprox(specularColor, texture(colortex2, texCoords).r, NdotV);
-            Result.rgb = mix(Result.rgb, clamp01(reflections), DFG);
+                vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
+                vec3 DFG = envBRDFApprox(specularColor, texture(colortex2, texCoords).r, NdotV);
+                Result.rgb = mix(Result.rgb, clamp01(reflections), DFG);
+            #endif
         #endif
     }
 

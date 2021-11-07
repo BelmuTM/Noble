@@ -47,8 +47,8 @@ void main() {
     vec3 viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
 
     vec3 tangent = normalize(gl_NormalMatrix * at_tangent.xyz);
-    vec3 binormal = normalize(cross(tangent, normal) * sign(at_tangent.w));
-	TBN = mat3(tangent, binormal, normal);
+    vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
+	TBN = mat3(tangent, bitangent, normal);
 
 	blockId = mc_Entity.x - 1000.0;
 	gl_Position = ftransform();

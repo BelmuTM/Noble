@@ -9,10 +9,9 @@
 float computeSSAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 1.0;
 	vec3 sampleOrigin = viewPos + normal * EPS;
-    mat3 TBN = getTBN(normal);
 
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
-		vec3 sampleDir = TBN * generateCosineVector(uniformNoise(i, blueNoise));
+		vec3 sampleDir = normalize(normal + generateUnitVector(uniformNoise(i, blueNoise)));
 
 		vec3 samplePos = viewPos + sampleDir * SSAO_RADIUS;
 		float sampleDepth = getViewPos(viewToScreen(samplePos).xy).z;
@@ -28,13 +27,11 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 float computeRTAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 0.0;
 	vec3 samplePos = viewPos + normal * EPS;
-
-	mat3 TBN = getTBN(normal);
 	vec3 hitPos;
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
 		vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)) : uniformNoise(i, blueNoise);
-		vec3 sampleDir = TBN * generateCosineVector(noise);
+		vec3 sampleDir = normalize(normal + generateUnitVector(noise));
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.x, hitPos)) { break; }
 
 		float delta = samplePos.z - screenToView(hitPos).z;

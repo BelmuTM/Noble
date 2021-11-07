@@ -56,8 +56,7 @@ vec3 pathTrace(in vec3 screenPos) {
             /* Material Parameters */
             material mat = getMaterial(hitPos.xy);
             vec3 normal = normalize(mat.normal);
-            vec3 geometricNormal = j > 0 ? normal : normalize(cross(dFdx(viewPos), dFdy(viewPos)));
-            mat3 TBN = getTBN(geometricNormal);
+            mat3 TBN = constructViewTBN(normal);
 
             /* Specular Bounce Probability */
             vec3 fresnel = cookTorranceFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
@@ -67,11 +66,9 @@ vec3 pathTrace(in vec3 screenPos) {
             float specularProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
             bool specularBounce = specularProbability > rand(gl_FragCoord.xy + frameTimeCounter);
 
-            vec3 microfacet = mat.rough > 1e-2 ? sampleGGXVNDF(-prevDir * TBN, noise, mat.rough * mat.rough) : geometricNormal;
-            rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : TBN * generateCosineVector(noise);
+            vec3 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, mat.rough * mat.rough);
+            rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : normalize(normal + generateUnitVector(noise));
             float NdotL = max(EPS, dot(normal, rayDir));
-
-            if(dot(normalize(rayDir), geometricNormal) <= 0.0) { break; }
 
             radiance += throughput * mat.albedo * mat.emission;
             radiance += throughput * directBRDF(normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb) * (sunIlluminance + moonIlluminance);
@@ -135,7 +132,7 @@ vec3 computePTGI(in vec3 screenPos) {
             vec2 noise = uniformAnimatedNoise(animBlueNoise.xy);
 
             vec3 normal = normalize(decodeNormal(texture(colortex1, hitPos.xy).xy));
-            mat3 TBN = getTBN(normal);
+            mat3 TBN = constructViewTBN(normal);
             hitPos = screenToView(hitPos) + normal * EPS;
         
             vec3 sampleDir = TBN * generateUnitVector(noise);

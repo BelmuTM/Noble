@@ -23,7 +23,7 @@ varying vec2 texCoords;
 
 /*
 const int colortex5Format = RGBA16F;
-const int colortex6Format = RGBA16F;
+const int colortex6Format = RGBA32F;
 const bool colortex6Clear = false;
 */
 

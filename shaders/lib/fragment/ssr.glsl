@@ -51,11 +51,9 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 	vec3 filteredColor = vec3(0.0);
 	float weight = 0.0;
 
+    mat3 TBN = constructViewTBN(normal);
     vec3 viewDir = normalize(viewPos);
     vec3 hitPos; vec2 noise;
-	
-    vec3 tangent = normalize(cross(gbufferModelView[1].xyz, normal));
-    mat3 TBN = mat3(tangent, cross(normal, tangent), normal);
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
         vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)) : uniformNoise(i, blueNoise);
