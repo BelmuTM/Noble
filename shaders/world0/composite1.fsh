@@ -37,7 +37,6 @@ void main() {
     vec3 Lighting = mat.albedo;
     #if GI == 0
         if(!isSky(texCoords)) {
-            vec3 normal = normalize(mat.normal.xyz);
             vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
             vec3 skyIlluminance = atmosphereTransmittance(atmosRayPos, vec3(0.0, 1.0, 0.0));
@@ -45,7 +44,7 @@ void main() {
             vec3 moonIlluminance = MOON_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldMoonDir);
             
             vec3 lightmap = getLightmapColor(texture(colortex2, texCoords).zw, skyIlluminance);
-            Lighting = cookTorrance(viewPos, normal, shadowDir, mat, lightmap, shadowmap, sunIlluminance + moonIlluminance);
+            Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, lightmap, shadowmap, sunIlluminance + moonIlluminance);
         }
     #endif
 

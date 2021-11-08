@@ -55,6 +55,9 @@ void main() {
     float ambientOcclusion = 1.0;
     float historyFrames = texture(colortex6, texCoords).a;
 
+    vec3 viewPos = getViewPos(texCoords);
+    vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+
     #if GI == 1
         /* Downscaling Global Illumination */
         vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
@@ -64,20 +67,14 @@ void main() {
             globalIllumination = pathTrace(positionAt);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                vec3 viewPos = getViewPos(texCoords);
-                vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-            
                 globalIllumination = temporalAccumulation(colortex6, globalIllumination, viewPos, normal, historyFrames);
             #endif
         }
     #else
         if(!isSky(texCoords)) {
             #if AO == 1
-                vec3 viewPos = getViewPos(texCoords);
-                vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-            
                 ambientOcclusion = AO_TYPE == 0 ? computeSSAO(viewPos, normal) : computeRTAO(viewPos, normal);
-
+                
                 #if AO_FILTER == 0
                     Result.rgb *= ambientOcclusion;
                 #endif

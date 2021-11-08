@@ -26,9 +26,7 @@ vec3 getCausticsViewPos(vec2 coords) {
 void main() {
    vec4 temp = texture(colortex4, texCoords);
    vec4 rain = sRGBToLinear(texture(colortex5, texCoords));
-
    vec3 viewPos = getViewPos(texCoords);
-   vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
@@ -40,6 +38,7 @@ void main() {
    /*    ------- WATER ABSORPTION / REFRACTION -------    */
    material mat = getMaterial(texCoords);
    mat.albedo = sRGBToLinear(vec4(mat.albedo, 1.0)).rgb;
+   vec3 normal = mat.normal;
 
    float depth0 = texture(depthtex0, texCoords).r;
    float depthDist = distance(

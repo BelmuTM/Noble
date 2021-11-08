@@ -30,16 +30,14 @@ void main() {
         
                if(clamp(texCoords, vec2(0.0), vec2(resolution + 1e-3)) == texCoords && !isSky(scaledUv)) {
                     vec3 posAt = getViewPos(scaledUv);
-
                     material mat = getMaterial(scaledUv);
-                    vec3 normalAt = normalize(mat.normal);
                     specularColor = getSpecularColor(mat.F0, texture(colortex4, scaledUv).rgb);
                     
                     #if SSR_TYPE == 1
-                         outColor = prefilteredReflections(scaledUv, posAt, normalAt, mat.rough * mat.rough, specularColor, mat.isMetal);
+                         outColor = prefilteredReflections(scaledUv, posAt, mat.normal, mat.rough * mat.rough, specularColor, mat.isMetal);
                     #else
-                         float NdotV = max(EPS, dot(normalAt, -normalize(posAt)));
-                         outColor = simpleReflections(scaledUv, posAt, normalAt, NdotV, specularColor, mat.isMetal);
+                         float NdotV = max(EPS, dot(mat.normal, -normalize(posAt)));
+                         outColor = simpleReflections(scaledUv, posAt, mat.normal, NdotV, specularColor, mat.isMetal);
                     #endif
                }
           #endif

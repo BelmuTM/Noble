@@ -94,15 +94,12 @@ float FBM(vec2 p, int octaves) {
     return value;
 }
 
-vec2 uniformAnimatedNoise(vec2 seed) {
+vec2 uniformAnimatedNoise(in vec2 seed) {
     return fract(seed + vec2(GOLDEN_RATIO * frameTimeCounter, (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter, 100.0)));
 }
 
-vec2 uniformNoise(int i, vec3 seed) {
-    vec2 noise = seed.xy;
-    noise.x = fract(noise.x + GOLDEN_RATIO * i);
-    noise.y = fract(noise.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i);
-    return noise;
+vec2 uniformNoise(int i, in vec3 seed) {
+    return vec2(fract(seed.x + GOLDEN_RATIO * i), fract(seed.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i));
 }
 
 // Gold Noise ©2015 dcerisano@standard3d.com

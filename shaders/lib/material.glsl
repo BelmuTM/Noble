@@ -43,7 +43,7 @@ material getMaterial(vec2 coords) {
 
     mat.albedo = tex0.xyz;
     mat.alpha = tex0.w;
-    mat.normal = decodeNormal(tex1.xy);
+    mat.normal = normalize(decodeNormal(tex1.xy));
 
     mat.rough = tex2.x;
     mat.F0 = tex2.y;

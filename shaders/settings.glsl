@@ -45,7 +45,7 @@ const float shadowDistance    = 200.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80
 #define SUN_INTENSITY   4.0
 #define SUN_COLOR       vec3(1.0, 0.97, 0.94)
 #define SUN_ILLUMINANCE (SUN_INTENSITY * SUN_COLOR)
-#define MOON_ILLUMINANCE 0.03
+#define MOON_ILLUMINANCE 0.01
 
 #define SPECULAR    1 // [0 1]
 #define WHITE_WORLD 0 // [0 1]
