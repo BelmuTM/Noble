@@ -31,14 +31,14 @@ void main() {
      #endif
 
      /*    ------- ATMOSPHERIC SCATTERING -------    */
-     vec4 sky = vec4(0.0);
-     if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-3)) == texCoords) {
+     vec3 sky = vec3(0.0);
+     if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {
           vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));
-          sky = vec4(atmosphericScattering(atmosRayPos, rayDir), 1.0);
+          sky = atmosphericScattering(atmosRayPos, rayDir);
      }
 
      /*DRAWBUFFERS:479*/
      gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));
-     gl_FragData[1] = sky;
+     gl_FragData[1] = vec4(sky, 1.0);
      gl_FragData[2] = vec4(shadowmap, 1.0);
 }
