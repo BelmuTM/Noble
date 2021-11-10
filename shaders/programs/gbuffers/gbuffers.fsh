@@ -23,7 +23,7 @@ varying float blockId;
 
 /*
 const int colortex0Format = RGBA16F;
-const int colortex2Format = RGBA16F;
+const int colortex2Format = RGBA8F;
 */
 
 void main() {
@@ -37,6 +37,7 @@ void main() {
 
     float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x;
 	float F0 = specularTex.y;
+	float ao = normalTex.z;
 
 	vec2 lightmap = lmCoords.xy;
 	float emission = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
@@ -53,7 +54,7 @@ void main() {
 		normal.z = sqrt(1.0 - dot(normal.xy, normal.xy));
 	}
 	normal = TBN * normal;
-	normal = clamp(normal, -1.0, 1.0);
+	normal *= 0.5 + 0.5;
 
 	/*
 	if(int(blockId + 0.5) > 4 && int(blockId + 0.5) <= 10 && emission < 0.1) {
@@ -63,6 +64,6 @@ void main() {
 	
 	/*DRAWBUFFERS:012*/
 	gl_FragData[0] = color * albedoTex;
-	gl_FragData[1] = vec4(encodeNormal(normal), emission, (blockId + 0.25) / 255.0);
+	gl_FragData[1] = vec4(encodeNormal(normal), pack2x4(vec2(ao, emission)), (blockId + 0.25) / 255.0);
 	gl_FragData[2] = vec4(clamp01(roughness), F0, lightmap);
 }

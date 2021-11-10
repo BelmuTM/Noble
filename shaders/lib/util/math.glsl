@@ -121,12 +121,21 @@ vec3 decodeNormal(vec2 enc) {
     return vec3(g * nn.xy, g - 1.0);
 }
 
-float pack2x8(vec2 x, float pattern) {
-	return dot(floor(255.0 * x + pattern), vec2(1.0 / 65535.0, 256.0 / 65535.0));
+float pack2x8(vec2 x) {
+	return dot(floor(255.0 * x + 0.5), vec2(1.0 / 65535.0, 256.0 / 65535.0));
 }
 
 vec2 unpack2x8(float pack) {
 	pack *= 65535.0 / 256.0;
 	vec2 xy; xy.y = floor(pack); xy.x = pack - xy.y;
 	return vec2(256.0 / 255.0, 1.0 / 255.0) * xy;
+}
+
+float pack2x4(vec2 xy) {
+	return dot(floor(15.0 * xy + 0.5), vec2(1.0 / 255.0, 16.0 / 255.0));
+}
+
+vec2 unpack2x4(float pack) {
+	vec2 xy; xy.x = modf(pack * 255.0 / 16.0, xy.y);
+	return xy * vec2(16.0 / 15.0, 1.0 / 15.0);
 }

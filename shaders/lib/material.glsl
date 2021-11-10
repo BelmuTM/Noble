@@ -30,14 +30,16 @@ struct material {
 
     float rough;
     float F0;
-    bool isMetal;
     float emission;
+    float ao;
+    bool isMetal;
 };
 
 material getMaterial(vec2 coords) {
     vec4 tex0 = texture(colortex0, coords);
     vec4 tex1 = texture(colortex1, coords);
     vec4 tex2 = texture(colortex2, coords);
+    vec2 unpacked = unpack2x4(tex1.z);
 
     material mat;
 
@@ -47,8 +49,9 @@ material getMaterial(vec2 coords) {
 
     mat.rough = tex2.x;
     mat.F0 = tex2.y;
+    mat.emission = unpacked.y;
+    mat.ao = unpacked.x;
     mat.isMetal = mat.F0 * 255.0 > 229.5;
-    mat.emission = tex1.z;
 
     return mat;
 }

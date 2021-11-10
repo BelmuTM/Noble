@@ -183,12 +183,7 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
     vec3 diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
     /* Calculating Indirect / Direct Lighting */
-    vec3 Lighting = (diffuse + specular) * (NdotL * shadowmap) * illuminance;
-
-    if(!mat.isMetal) {
-        Lighting += mat.emission * mat.albedo;
-        Lighting += AMBIENT * mat.albedo;
-        Lighting *= lightmap;
-    }
-    return Lighting;
+    vec3 direct   = (diffuse + specular) * (NdotL * shadowmap) * illuminance;
+    vec3 indirect = mat.isMetal ? vec3(0.0) : (mat.albedo * (AMBIENT * mat.ao + mat.emission)) * lightmap;
+    return direct + indirect;
 }
