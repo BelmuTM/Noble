@@ -72,26 +72,25 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
     vec3 increment = rayDir * stepSize;
     vec3 rayPos = rayOrigin + increment * 0.5;
 
-    float sunVdotL  = max(0.0, dot(rayDir, worldSunDir));
-    float moonVdotL = max(0.0, dot(rayDir, worldMoonDir));
+    float sunVdotL  = max(0.0, dot(rayDir, playerSunDir));
+    float moonVdotL = max(0.0, dot(rayDir, playerMoonDir));
     vec4 phase = vec4(rayleighPhase(sunVdotL), miePhase(sunVdotL), rayleighPhase(moonVdotL), miePhase(moonVdotL));
 
-    vec3 scattering = vec3(0.0), transmittance = vec3(1.0), opticalDepth = vec3(0.0);
+    vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
     
     for(int i = 0; i < SCATTER_STEPS; i++) {
         vec3 airmass = densities(length(rayPos) - earthRad) * stepSize;
-        vec3 stepOpticalDepth = kExtinction * airmass;
+        vec3 stepOpticalDepth = -kExtinction * airmass;
 
-        vec3 stepTransmittance  = exp(-stepOpticalDepth);
-        vec3 visibleScattering  = transmittance * ((stepTransmittance - 1.0) / -stepOpticalDepth);
-        vec3 sunStepScattering  = kScattering * (airmass.xy * phase.xy) * visibleScattering;
-        vec3 moonStepScattering = kScattering * (airmass.xy * phase.zw) * visibleScattering;
+        vec3 stepTransmittance  = exp(stepOpticalDepth);
+        vec3 scatteringIntegral  = transmittance * (stepTransmittance - 1.0) / stepOpticalDepth;
+        vec3 sunStepScattering  = kScattering * (airmass.xy * phase.xy) * scatteringIntegral;
+        vec3 moonStepScattering = kScattering * (airmass.xy * phase.zw) * scatteringIntegral;
 
-        scattering += sunStepScattering * atmosphereTransmittance(rayPos, worldSunDir) * SUN_ILLUMINANCE;
-        scattering += moonStepScattering * atmosphereTransmittance(rayPos, worldMoonDir) * MOON_ILLUMINANCE;
+        scattering += sunStepScattering  * atmosphereTransmittance(rayPos, playerSunDir)  * SUN_ILLUMINANCE;
+        scattering += moonStepScattering * atmosphereTransmittance(rayPos, playerMoonDir) * MOON_ILLUMINANCE;
 
         transmittance *= stepTransmittance;
-        opticalDepth  += stepOpticalDepth;
         rayPos += increment;
     }
     return max(vec3(0.0), scattering);

@@ -31,7 +31,7 @@ void main() {
     
     vec3 volumetricLighting = vec3(1.0);
     #if VL == 1
-        volumetricLighting = computeVL1(viewPos);
+        volumetricLighting = computeVL(viewPos);
     #endif
 
     vec3 Lighting = mat.albedo;
@@ -39,9 +39,9 @@ void main() {
         if(!isSky(texCoords)) {
             vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
-            vec3 skyIlluminance = atmosphereTransmittance(atmosRayPos, vec3(0.0, 1.0, 0.0));
-            vec3 sunIlluminance = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
-            vec3 moonIlluminance = MOON_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldMoonDir);
+            vec3 skyIlluminance  = atmosphereTransmittance(atmosRayPos, vec3(0.0, 1.0, 0.0));
+            vec3 sunIlluminance  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * SUN_ILLUMINANCE;
+            vec3 moonIlluminance = atmosphereTransmittance(atmosRayPos, playerMoonDir) * MOON_ILLUMINANCE;
             
             vec3 lightmap = getLightmapColor(texture(colortex2, texCoords).zw, skyIlluminance);
             Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, lightmap, shadowmap, sunIlluminance + moonIlluminance);
@@ -49,7 +49,7 @@ void main() {
     #endif
 
     /*DRAWBUFFERS:048*/
-    gl_FragData[0] = vec4(max(vec3(0.0), Lighting), 1.0);
+    gl_FragData[0] = vec4(Lighting, 1.0);
     gl_FragData[1] = vec4(mat.albedo, 1.0);
     gl_FragData[2] = vec4(volumetricLighting, 1.0);
 }

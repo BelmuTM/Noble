@@ -24,13 +24,13 @@ vec3 getCausticsViewPos(vec2 coords) {
 }
 
 void main() {
-   vec4 temp = texture(colortex4, texCoords);
    vec4 rain = sRGBToLinear(texture(colortex5, texCoords));
    vec3 viewPos = getViewPos(texCoords);
 
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
-      vec4 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos)) * ATMOSPHERE_RESOLUTION);
+      vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
+      vec4 sky = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION);
       gl_FragData[0] = sky + rain + sun(normalize(viewPos), shadowDir);
       return;
    }
@@ -46,12 +46,13 @@ void main() {
 		linearizeDepth(texture(depthtex1, texCoords).r)
 	);
    vec3 hitPos; vec2 coords = texCoords;
-   vec3 opaques = temp.rgb * INV_PI * max(EPS, dot(normal, shadowDir));
+   vec3 opaques = texture(colortex4, texCoords).rgb * INV_PI * max(EPS, dot(normal, shadowDir));
 
+   vec3 refraction = vec3(0.0);
    #if REFRACTION == 1
       float NdotV = max(EPS, dot(normal, normalize(-viewPos)));
       if(F0toIOR(mat.F0) > 1.0 && !isHand(depth0) && getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
-         opaques = simpleRefractions(opaques, viewPos, normal, NdotV, mat.F0, hitPos);
+         refraction = simpleRefractions(viewPos, normal, NdotV, mat.F0, hitPos);
          coords = hitPos.xy;
       }
 
@@ -74,7 +75,7 @@ void main() {
    #endif
 
    // Alpha Blending
-   mat.albedo = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
+   mat.albedo = mix(refraction * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
 
    #if WHITE_WORLD == 0
       if(getBlockId(texCoords) == 1) {

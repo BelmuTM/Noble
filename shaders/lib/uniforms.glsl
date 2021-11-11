@@ -13,6 +13,9 @@ uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 
+uniform vec2 viewResolution;
+uniform vec2 pixelSize;
+
 uniform float rainStrength;
 uniform int frameCounter;
 uniform float frameTime;
@@ -60,22 +63,12 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
-vec2 viewSize = vec2(viewWidth, viewHeight);
-vec2 pixelSize = 1.0 / viewSize;
 const int noiseRes = 256;
+const float airIOR = 1.00029;
 
-/* PBR & CELESTIAL VARIABLES / CONSTANTS */
-const float airIOR = 1.00028;
-
-vec3 shadowDir = shadowLightPosition * 0.01;
-vec3 worldSunDir  = normalize((mat3(gbufferModelViewInverse) * sunPosition));
-vec3 worldMoonDir = normalize((mat3(gbufferModelViewInverse) * moonPosition));
-
-float wTime = float(worldTime);
-float timeSunrise  = ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0) + (1.0 - (clamp(wTime, 0.0, 2000.0) / 2000.0));
-float timeNoon     = ((clamp(wTime, 0.0, 2000.0)) / 2000.0) - ((clamp(wTime, 10000.0, 12000.0) - 10000.0) / 2000.0);
-float timeSunset   = ((clamp(wTime, 10000.0, 12000.0) - 10000.0) / 2000.0) - ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0);
-float timeMidnight = ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0);
+vec3 shadowDir     = shadowLightPosition * 0.01;
+vec3 playerSunDir  = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+vec3 playerMoonDir = normalize(mat3(gbufferModelViewInverse) * moonPosition);
 
 /* ATMOSPHERIC SCATTERING CONSTANTS */
 
@@ -83,7 +76,7 @@ const float g  = 0.76;
 const float gg = g*g;
 
 const float earthRad = 6371e3;
-const float atmosRad = 6471e3;
+const float atmosRad = 6481e3;
 
 const float hR = 8.0e3;
 const float hM = 1.2e3;

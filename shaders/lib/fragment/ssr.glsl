@@ -78,7 +78,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/
 
-vec3 simpleRefractions(vec3 background, vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
+vec3 simpleRefractions(vec3 viewPos, vec3 normal, float NdotV, float F0, out vec3 hitPos) {
     viewPos += normal * 1e-3;
     float ior = F0toIOR(F0);
 

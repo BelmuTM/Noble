@@ -29,8 +29,8 @@ vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap) {
 vec3 pathTrace(in vec3 screenPos) {
     vec3 viewPos         = screenToView(screenPos); 
     vec3 radiance        = vec3(0.0);
-    vec3 sunIlluminance  = SUN_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldSunDir);
-    vec3 moonIlluminance = MOON_ILLUMINANCE * atmosphereTransmittance(atmosRayPos, worldMoonDir);
+    vec3 sunIlluminance  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * SUN_ILLUMINANCE;
+    vec3 moonIlluminance = atmosphereTransmittance(atmosRayPos, playerMoonDir) * MOON_ILLUMINANCE;
 
     for(int i = 0; i < GI_SAMPLES; i++) {
         vec3 hitPos = screenPos; 

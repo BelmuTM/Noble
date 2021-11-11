@@ -48,11 +48,7 @@ void main() {
     }
 
     #if VL == 1
-        #if VL_FILTER == 1
-            Result.rgb += boxBlur(texCoords, colortex8, 5).rgb;
-        #else
-            Result.rgb += texture(colortex8, texCoords).rgb;
-        #endif
+        Result.rgb += VL_FILTER == 1 ? boxBlur(texCoords, colortex8, 5).rgb : texture(colortex8, texCoords).rgb;
     #endif
 
     vec3 brightSpots;
