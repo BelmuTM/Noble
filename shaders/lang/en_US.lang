@@ -159,7 +159,7 @@ value.SSR_REPROJECTION.1 = §aON
 
 ##################### ATMOSPHERICS #####################
 option.SCATTER_STEPS = Scattering Samples
-option.SCATTER_STEPS.comment = Influences how accurate light scatters in §bAtmospheric §bScattering. §cWould preferably be higher than transmittance samples.
+option.SCATTER_STEPS.comment = Influences how accurate light scatters. This influences §bAtmospheric §bScattering§r and §bVolumetric §bLighting. §cWould preferably be higher than transmittance samples.
 value.SCATTER_STEPS.8  = §38
 value.SCATTER_STEPS.12 = §212
 value.SCATTER_STEPS.16 = §a16

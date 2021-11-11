@@ -7,8 +7,8 @@
 /***********************************************/
 
 float computeSSAO(vec3 viewPos, vec3 normal) {
-	float occlusion = 1.0;
 	vec3 sampleOrigin = viewPos + normal * EPS;
+	float occlusion = 1.0;
 
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
 		vec3 sampleDir = normalize(normal + generateUnitVector(uniformNoise(i, blueNoise)));
@@ -25,18 +25,18 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 }
 
 float computeRTAO(vec3 viewPos, vec3 normal) {
-	float occlusion = 0.0;
 	vec3 samplePos = viewPos + normal * EPS;
-	vec3 hitPos;
+	float occlusion = 0.0; vec3 hitPos;
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
-		vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)) : uniformNoise(i, blueNoise);
+		vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter))) : uniformNoise(i, blueNoise);
 		vec3 sampleDir = normalize(normal + generateUnitVector(noise));
+
+		if(dot(sampleDir, normal) < 0.0) { sampleDir = -sampleDir; }
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.x, hitPos)) { break; }
 
-		float delta = samplePos.z - screenToView(hitPos).z;
-    	float dist = max(0.0, exp(-(delta * delta) * 8.0));
-		occlusion += dist;
+		float delta = viewToWorld(samplePos).z - viewToWorld(screenToView(hitPos)).z;
+		occlusion += max(0.0, exp(-(delta * delta)));
 	}
-	return clamp01(1.0 - (pow(occlusion, RTAO_STRENGTH) / RTAO_SAMPLES));
+	return clamp01(1.0 - (occlusion / RTAO_SAMPLES));
 }

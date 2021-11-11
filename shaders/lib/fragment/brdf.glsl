@@ -165,17 +165,18 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
     return mat.albedo * (single + mat.albedo * multi);
 }
 
-// Thanks LVutner for the help!
+// Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
+// https://github.com/Jessie-LC
 vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec3 shadowmap, vec3 illuminance) {
     vec3 V = -normalize(viewPos);
     float NdotL = max(EPS, dot(N, L));
 
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
-    vec3 diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
+    vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
-    /* Calculating Indirect / Direct Lighting */
-    vec3 direct = (diffuse + specular) * (NdotL * shadowmap) * illuminance;
-    direct += (mat.isMetal ? vec3(0.0) : (mat.emission + sRGBToLinear(vec4(AMBIENT, 1.0)).rgb) * mat.albedo);
-    return direct * lightmap * mat.ao;
+    vec3 lighting = vec3(0.0);
+    /* DIRECT ->   */ lighting += (diffuse + specular) * (NdotL * shadowmap) * illuminance;
+    /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + sRGBToLinear(vec4(AMBIENT, 1.0)).rgb + lightmap) * mat.albedo * mat.ao);
+    return lighting;
 }

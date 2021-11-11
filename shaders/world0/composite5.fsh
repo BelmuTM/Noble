@@ -23,7 +23,7 @@ void main() {
                 vec3 viewPos = getViewPos(texCoords);
                 vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
                 
-                globalIllumination = SVGF(colortex5, viewPos, normal, texCoords, vec2(0.0, 1.0));
+                globalIllumination = SVGF(colortex5, viewPos, normal, texCoords);
             #endif
         #endif
     }

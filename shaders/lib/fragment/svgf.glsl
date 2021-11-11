@@ -45,7 +45,7 @@ const float cPhi = 0.01;
 const float nPhi = 0.05;
 const float pPhi = 0.02;
 
-vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords, vec2 direction) {
+vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords) {
     vec3 color = vec3(0.0);
     float totalWeight = 0.0;
 

@@ -27,7 +27,7 @@ void main() {
                 vec3 scaledViewPos = getViewPos(scaledUv);
                 vec3 scaledNormal = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
 
-                globalIllumination = SVGF(colortex5, scaledViewPos, scaledNormal, scaledUv, vec2(1.0, 0.0));
+                globalIllumination = SVGF(colortex5, scaledViewPos, scaledNormal, scaledUv);
             #else
                 globalIllumination = texture(colortex5, scaledUv).rgb;
             #endif

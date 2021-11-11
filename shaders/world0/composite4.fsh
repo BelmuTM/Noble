@@ -49,7 +49,7 @@ void main() {
                     vec3 viewPos = getViewPos(texCoords);
                     vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
-                    outColor = SVGF(colortex5, viewPos, normal, texCoords, vec2(0.0, 1.0));
+                    outColor = SVGF(colortex5, viewPos, normal, texCoords);
                #else
                     outColor = texture(colortex5, texCoords).rgb;
                #endif

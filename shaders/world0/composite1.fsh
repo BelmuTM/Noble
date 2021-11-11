@@ -28,18 +28,15 @@ const int colortex8Format = RGBA16F;
 void main() {
     vec3 viewPos = getViewPos(texCoords);
     material mat = getMaterial(texCoords);
-    
-    vec3 volumetricLighting = vec3(1.0);
-    #if VL == 1
-        volumetricLighting = computeVL(viewPos);
-    #endif
 
+    vec3 volumetricLighting = VL == 0 ? vec3(0.0) : computeVL(viewPos);
     vec3 Lighting = mat.albedo;
+    
     #if GI == 0
         if(!isSky(texCoords)) {
             vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
-            vec3 skyIlluminance  = atmosphereTransmittance(atmosRayPos, vec3(0.0, 1.0, 0.0));
+            vec3 skyIlluminance  = texture(colortex7, projectSphere(vec3(0.0, 1.0, 0.0)) * ATMOSPHERE_RESOLUTION).rgb;
             vec3 sunIlluminance  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * SUN_ILLUMINANCE;
             vec3 moonIlluminance = atmosphereTransmittance(atmosRayPos, playerMoonDir) * MOON_ILLUMINANCE;
             
@@ -49,7 +46,7 @@ void main() {
     #endif
 
     /*DRAWBUFFERS:048*/
-    gl_FragData[0] = vec4(Lighting, 1.0);
-    gl_FragData[1] = vec4(mat.albedo, 1.0);
+    gl_FragData[0] = vec4(Lighting,           1.0);
+    gl_FragData[1] = vec4(mat.albedo,         1.0);
     gl_FragData[2] = vec4(volumetricLighting, 1.0);
 }

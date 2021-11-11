@@ -29,7 +29,7 @@ void main() {
 
         #if GI == 1
             #if GI_FILTER == 1                
-                Result.rgb = SVGF(colortex5, viewPos, normal, texCoords, vec2(0.0, 1.0));
+                Result.rgb = SVGF(colortex5, viewPos, normal, texCoords);
             #else
                 Result.rgb = texture(colortex5, texCoords).rgb;
             #endif
@@ -48,7 +48,7 @@ void main() {
     }
 
     #if VL == 1
-        Result.rgb += VL_FILTER == 1 ? boxBlur(texCoords, colortex8, 5).rgb : texture(colortex8, texCoords).rgb;
+        Result.rgb += VL_FILTER == 1 ? boxBlur(texCoords, colortex8, 2).rgb : texture(colortex8, texCoords).rgb;
     #endif
 
     vec3 brightSpots;
