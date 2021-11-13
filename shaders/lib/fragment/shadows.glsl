@@ -86,7 +86,9 @@ vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
 }
 
 vec3 shadowMap(vec3 viewPos) {
-    vec3 sampleCoords = min(vec3(1.0), viewToShadow(viewPos) * 0.5 + 0.5);
+    vec3 sampleCoords = viewToShadow(viewPos) * 0.5 + 0.5;
+    if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
+    
     float theta = TAA == 1 ? taaNoise : uniformNoise(1, blueNoise).r;
     theta *= TAU;
     
