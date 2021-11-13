@@ -29,7 +29,7 @@ void main() {
     vec3 viewPos = getViewPos(texCoords);
     material mat = getMaterial(texCoords);
 
-    vec3 volumetricLighting = VL == 0 ? vec3(0.0) : computeVL(viewPos);
+    vec3 volumetricLighting = VL == 0 ? vec3(0.0) : volumetricLighting(viewPos);
     vec3 Lighting = mat.albedo;
     
     #if GI == 0

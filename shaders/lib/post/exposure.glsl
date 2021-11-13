@@ -11,7 +11,7 @@ const bool colortex0MipmapEnabled = true;
 */
 
 float computeAverageLuminance(sampler2D prevTex) {
-     float currLuma = luma(textureLod(colortex0, vec2(0.5), log2(max(viewResolution.x, viewResolution.y))).rgb);
+     float currLuma = luminance(textureLod(colortex0, vec2(0.5), log2(max(viewResolution.x, viewResolution.y))).rgb);
 
      float previousLuma = texture(prevTex, vec2(0.5)).a;
      previousLuma = previousLuma > 0.0 ? previousLuma : currLuma;

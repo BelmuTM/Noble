@@ -91,10 +91,6 @@ option.sunPathRotation.comment = Adjusts sun's rotation.
 
 ##################### LIGHTING COLOR #####################
 
-option.AMBIENT_R = Ambient Color §cRed
-option.AMBIENT_G = Ambient Color §aGreen
-option.AMBIENT_B = Ambient Color §9Blue
-
 option.TORCH_COLOR_R = Torch Color §cRed
 option.TORCH_COLOR_G = Torch Color §aGreen
 option.TORCH_COLOR_B = Torch Color §9Blue

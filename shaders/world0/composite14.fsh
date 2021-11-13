@@ -17,7 +17,7 @@ varying vec2 texCoords;
 #include "/lib/post/bloom.glsl"
 #include "/lib/atmospherics/fog.glsl"
 
-vec3 computeDOF(vec3 color, float depth) {
+vec3 depthOfField(vec3 color, float depth) {
     float coc = getCoC(linearizeDepth(depth), linearizeDepth(centerDepthSmooth));
     vec4 outOfFocusColor = bokeh(texCoords, colortex0, pixelSize, 6, DOF_RADIUS);
     return clamp01(mix(color, outOfFocusColor.rgb, quintic(0.0, 1.0, coc)));
@@ -35,7 +35,7 @@ void main() {
      // Depth of Field
      #if DOF == 1
           float depth = texture(depthtex0, texCoords).r;
-          Result.rgb = computeDOF(Result.rgb, depth);
+          Result.rgb = depthOfField(Result.rgb, depth);
      #endif
      
      vec3 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos)) * ATMOSPHERE_RESOLUTION).rgb;

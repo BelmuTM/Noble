@@ -41,14 +41,14 @@ vec2 taaJitter(vec4 pos) {
 void main() {
 	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmCoords  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-	color = gl_Color;
+	color     = gl_Color;
 
-    vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
+    vec3 normal  = normalize(gl_NormalMatrix * gl_Normal);
     vec3 viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
 
-    vec3 tangent = normalize(gl_NormalMatrix * at_tangent.xyz);
+    vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
     vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
-	TBN = mat3(tangent, bitangent, normal);
+	TBN 		   = mat3(tangent, bitangent, normal);
 
 	blockId = mc_Entity.x - 1000.0;
 	gl_Position = ftransform();
@@ -56,12 +56,12 @@ void main() {
 	#ifdef WATER
 		if(int(blockId + 0.5) == 1) {
 			vec3 worldPos = (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
-			worldPos.y += computeWaves(worldPos.xz);
-			waterNormals = getWaveNormals(worldPos);
+			worldPos.y   += computeWaves(worldPos.xz);
+			waterNormals  = getWaveNormals(worldPos);
 
 			vec3 worldToView = mat3(gbufferModelView) * (worldPos - cameraPosition);
-    		vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView, 1.0);
-			gl_Position += viewToClip;
+    		vec4 viewToClip  = gl_ProjectionMatrix * vec4(worldToView, 1.0);
+			gl_Position     += viewToClip;
 		}
 	#endif
 

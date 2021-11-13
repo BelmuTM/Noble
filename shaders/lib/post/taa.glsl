@@ -53,9 +53,9 @@ vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
     return clipAABB(prevColor, minColor, maxColor);
 }
 
-// Thanks LVutner for the help with TAA (buffer management, luma weight)
+// Thanks LVutner for the help with TAA (buffer management, luminance weight)
 // https://github.com/LVutner
-vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
+vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
     vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex1, texCoords).r)).xy;
 
     vec3 currColor = linearToYCoCg(texture(currTex, texCoords).rgb);
@@ -64,7 +64,7 @@ vec3 computeTAA(sampler2D currTex, sampler2D prevTex) {
 
     float blendWeight = 1.0;
     #if TAA_VELOCITY_WEIGHT == 0
-        float currLuma   = luma(currColor), prevLuma = luma(prevColor);
+        float currLuma   = luminance(currColor), prevLuma = luminance(prevColor);
         float lumaWeight = exp(-(abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN))));
 	    lumaWeight       = mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
         

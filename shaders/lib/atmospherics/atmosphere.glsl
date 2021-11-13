@@ -83,9 +83,9 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
         vec3 stepOpticalDepth = -kExtinction * airmass;
 
         vec3 stepTransmittance  = exp(stepOpticalDepth);
-        vec3 scatteringIntegral  = transmittance * (stepTransmittance - 1.0) / stepOpticalDepth;
-        vec3 sunStepScattering  = kScattering * (airmass.xy * phase.xy) * scatteringIntegral;
-        vec3 moonStepScattering = kScattering * (airmass.xy * phase.zw) * scatteringIntegral;
+        vec3 visibleScattering  = transmittance * (stepTransmittance - 1.0) / stepOpticalDepth;
+        vec3 sunStepScattering  = kScattering * (airmass.xy * phase.xy) * visibleScattering;
+        vec3 moonStepScattering = kScattering * (airmass.xy * phase.zw) * visibleScattering;
 
         scattering += sunStepScattering  * atmosphereTransmittance(rayPos, playerSunDir)  * SUN_ILLUMINANCE;
         scattering += moonStepScattering * atmosphereTransmittance(rayPos, playerMoonDir) * MOON_ILLUMINANCE;

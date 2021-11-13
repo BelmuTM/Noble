@@ -8,7 +8,7 @@
 
 // Thanks Jessie, LVutner and SixthSurge for the help!
 
-vec3 computeVL(vec3 viewPos) {
+vec3 volumetricLighting(vec3 viewPos) {
     vec3 startPos  = gbufferModelViewInverse[3].xyz;
     vec3 endPos    = mat3(gbufferModelViewInverse) * viewPos;
     float stepSize = distance(startPos, endPos) / float(SCATTER_STEPS);
@@ -24,7 +24,7 @@ vec3 computeVL(vec3 viewPos) {
 
     for(int i = 0; i < SCATTER_STEPS; i++) {
         vec3 samplePos   = projMAD3(shadowProjection, transMAD3(shadowModelView, rayPos));
-        vec3 sampleColor = sampleShadowColor(min(vec3(1.0), vec3(distort(samplePos.xy), samplePos.z) * 0.5 + 0.5));
+        vec3 sampleColor = sampleShadowColor(vec3(distort(samplePos.xy), samplePos.z) * 0.5 + 0.5);
 
         float airmass         = densities(rayPos.y).y * stepSize;
         vec3 stepOpticalDepth = kExtinction[1] * airmass;
@@ -33,7 +33,7 @@ vec3 computeVL(vec3 viewPos) {
         vec3 visibleScattering = transmittance * ((stepTransmittance - 1.0) / -stepOpticalDepth);
         vec3 stepScattering    = kScattering[1] * (airmass * phase) * visibleScattering;
 
-        scattering    += sampleColor * stepScattering * (worldTime <= 12750 ? 22.0 : 2.0);
+        scattering    += sampleColor * stepScattering * (worldTime <= 12750 ? SUN_ILLUMINANCE : MOON_ILLUMINANCE);
         transmittance *= stepTransmittance;
         rayPos        += rayDir;
     }

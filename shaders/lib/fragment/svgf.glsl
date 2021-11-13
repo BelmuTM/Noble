@@ -13,7 +13,7 @@ float computeVariance(sampler2D tex, vec2 coords) {
     int SAMPLES;
     for(int y = -radius; y <= radius; y++) {
         for(int x = -radius; x <= radius; x++) {
-            float samp = luma(texture(tex, coords + vec2(x, x) * pixelSize).rgb);
+            float samp = luminance(texture(tex, coords + vec2(x, x) * pixelSize).rgb);
             sigmaVariancePair += vec2(samp, samp * samp);
             SAMPLES++;
         }
@@ -60,7 +60,7 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords) {
     vec3 currCol = texture(tex, texCoords).rgb;
     viewPos = viewToWorld(viewPos);
 
-    float centerLuma = luma(currCol);
+    float centerLuma = luminance(currCol);
     float variance = gaussianVariance(tex, texCoords);
     float colorPhi = sqrt(max(1e-7, variance + 1e-8)) * 2.0;
 
@@ -77,7 +77,7 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords) {
             delta = viewPos - samplePos;
             float posWeight = max(0.0, exp(-dot(delta, delta) / pPhi));
   
-            float sampleLuma = luma(texture(tex, sampleCoords).rgb);
+            float sampleLuma = luminance(texture(tex, sampleCoords).rgb);
             float lumaWeight = colorPhi * (exp(-(abs(sampleLuma - centerLuma) / max(sampleLuma, max(centerLuma, TAA_LUMA_MIN)))));
 
             float weight = normalWeight * posWeight * lumaWeight;

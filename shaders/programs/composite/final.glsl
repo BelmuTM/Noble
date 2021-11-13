@@ -45,7 +45,7 @@
 
 
 #if CHROMATIC_ABERRATION == 1
-    vec3 computeAberration(vec3 color) {
+    vec3 chromaticAberration(vec3 color) {
         vec2 offset;
         #if DOF == 0
             vec2 dist = texCoords - vec2(0.5);
@@ -111,7 +111,7 @@ void main() {
     float exposure = max(0.0, computeExposure(texture(colortex3, texCoords).a));
 
     #if CHROMATIC_ABERRATION == 1
-        Result.rgb = computeAberration(Result.rgb);
+        Result.rgb = chromaticAberration(Result.rgb);
     #endif
 
     #if BLOOM == 1

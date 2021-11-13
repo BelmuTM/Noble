@@ -121,7 +121,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     float NdotH = max(EPS, dot(N, H));
 
     float D = D_GGX(NdotH, mat.rough * mat.rough);
-    vec3 F = cookTorranceFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+    vec3 F  = cookTorranceFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
     float G = G_Smith(NdotV, NdotL, mat.rough);
         
     return clamp01((D * F * G) / max(EPS, 4.0 * NdotL * NdotV));
@@ -169,7 +169,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec3 shadowmap, vec3 illuminance) {
-    vec3 V = -normalize(viewPos);
+    vec3 V      = -normalize(viewPos);
     float NdotL = max(EPS, dot(N, L));
 
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
@@ -177,6 +177,6 @@ vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec
 
     vec3 lighting = vec3(0.0);
     /* DIRECT ->   */ lighting += (diffuse + specular) * (NdotL * shadowmap) * illuminance;
-    /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + sRGBToLinear(vec4(AMBIENT, 1.0)).rgb + lightmap) * mat.albedo * mat.ao);
+    /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + lightmap) * mat.albedo * mat.ao);
     return lighting;
 }

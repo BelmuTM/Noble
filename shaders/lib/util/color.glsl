@@ -6,20 +6,20 @@
 // Most sources are: Github, ShaderToy or Discord.
 
 // REC. 709 -> https://en.wikipedia.org/wiki/Luma_(video)
-float luma(vec3 color) {
+float luminance(vec3 color) {
     return dot(color, REC_709);
 }
 
 vec3 whitePreservingReinhard(vec3 color) {
 	const float white = 10.0;
-	float luma = luma(color);
+	float luma = luminance(color);
 	float toneMappedLuma = luma * (1.0 + luma / (white * white)) / (1.0 + luma);
 	color *= toneMappedLuma / luma;
 	return color;
 }
 
 vec3 reinhardJodie(vec3 color) {
-    float luma = luma(color);
+    float luma = luminance(color);
     vec3 tv = color / (1.0 + color);
     return mix(color / (1.0 + luma), tv, tv);
 }
@@ -78,7 +78,7 @@ vec3 ACESApprox(vec3 x) {
 }
 
 vec3 vibranceSaturation(vec3 color, float vibrance, float saturation) {
-    float luma = luma(color);
+    float luma = luminance(color);
     float mn = min(min(color.r, color.g), color.b);
     float mx = max(max(color.r, color.g), color.b);
     float sat = (1.0 - clamp01(mx - mn)) * clamp01(1.0 - mx) * luma * 5.0;
@@ -134,8 +134,8 @@ vec3 XYZtoLinear(vec3 XYZ) {
 }
 
 // https://www.shadertoy.com/view/ltjBWG
-const mat3 RGBToYCoCgMatrix = mat3(0.25, 0.5, -0.25, 0.5, 0.0, 0.5, 0.25, -0.5, -0.25);
-const mat3 YCoCgToRGBMatrix = mat3(1.0, 1.0, 1.0, 1.0, 0.0, -1.0, -1.0, 1.0, -1.0);
+const mat3 RGBToYCoCgMatrix = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
+const mat3 YCoCgToRGBMatrix = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
 
 vec3 RGBToYCoCg(vec3 RGB) {
     return RGBToYCoCgMatrix * RGB;

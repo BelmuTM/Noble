@@ -7,9 +7,10 @@
 /***********************************************/
 
 vec3 viewToShadow(vec3 viewPos) {
-	vec3 shadowPos = projMAD3(shadowProjection, transMAD3(shadowModelView, mat3(gbufferModelViewInverse) * viewPos));
-	shadowPos.xy = distort(shadowPos.xy);
-	return shadowPos;
+	vec4 shadowPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
+	     shadowPos = shadowModelView  * shadowPos;
+         shadowPos = shadowProjection * shadowPos;
+	return vec3(distort(shadowPos.xy), shadowPos.z);
 }
 
 bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
@@ -28,6 +29,7 @@ float visibility(sampler2D tex, vec3 sampleCoords) {
 }
 
 vec3 sampleShadowColor(vec3 sampleCoords) {
+    if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
     float shadowVisibility0 = visibility(shadowtex0, sampleCoords);
     float shadowVisibility1 = visibility(shadowtex1, sampleCoords);
     
@@ -37,8 +39,7 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
 }
 
 float findBlockerDepth(vec3 sampleCoords) {
-    float BLOCKERS;
-    float avgBlockerDepth = 0.0;
+    float BLOCKERS = 0.0, avgBlockerDepth = 0.0;
 
     for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
         vec2 offset = BLOCKER_SEARCH_RADIUS * vogelDisk(i, BLOCKER_SEARCH_SAMPLES) * pixelSize;
@@ -53,8 +54,7 @@ float findBlockerDepth(vec3 sampleCoords) {
 }
 
 vec3 PCF(vec3 sampleCoords, float radius, mat2 rotation) {
-	vec3 shadowResult = vec3(0.0);
-    int SAMPLES;
+	vec3 shadowResult = vec3(0.0); int SAMPLES;
 
     #if SOFT_SHADOWS == 0
         for(int x = 0; x < SHADOW_SAMPLES; x++) {

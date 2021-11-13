@@ -30,13 +30,13 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
 vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isMetal) {
     vec3 reflected = reflect(normalize(viewPos), normal), hitPos;
 
-    float jitter = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)).x : blueNoise.x;
+    float jitter = TAA == 1 ? uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter))).x : blueNoise.x;
     float hit = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos));
 
     vec3 fresnel = cookTorranceFresnel(NdotV, F0.r, F0, isMetal);
     vec3 hitColor = getHitColor(hitPos);
 
-    vec3 color = vec3(0.0);
+    vec3 color;
     #if SKY_FALLBACK == 1
         color = mix(getSkyFallback(coords, reflected), hitColor, Kneemund_Attenuation(hitPos.xy, 0.2) * hit);
     #else

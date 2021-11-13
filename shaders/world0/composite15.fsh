@@ -26,7 +26,7 @@ void main() {
     vec4 Result = texture(colortex0, texCoords);
 
     #if TAA == 1
-        Result.rgb = clamp01(computeTAA(colortex0, colortex3));
+        Result.rgb = clamp01(temporalAntiAliasing(colortex0, colortex3));
     #endif
     
     /*DRAWBUFFERS:03*/

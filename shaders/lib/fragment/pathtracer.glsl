@@ -58,8 +58,8 @@ vec3 pathTrace(in vec3 screenPos) {
             mat3 TBN = constructViewTBN(mat.normal);
 
             /* Specular Bounce Probability */
-            float fresnelLum = luma(cookTorranceFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
-            float diffuseLum = fresnelLum / (fresnelLum + luma(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
+            float fresnelLum = luminance(cookTorranceFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
+            float diffuseLum = fresnelLum / (fresnelLum + luminance(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
             float specularProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
             bool specularBounce = specularProbability > rand(gl_FragCoord.xy + frameTimeCounter);
 
