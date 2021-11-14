@@ -7,7 +7,7 @@
 Noble RT is a Minecraft shaderpack that enhances one's experience with the help of good-looking graphics and light simulations.
 It offers a handful of customizable options to tweak according to your desires. **Most versions should properly work as long as Optifine is being used.**
 
-##I nstall
+## Install
 ### Releases
 The project is in constant evolution. Therefore, you can expect some issues to be fixed,
 some features to be added, and some problems to appear. However, it will remain free and
