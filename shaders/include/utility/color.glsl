@@ -79,9 +79,9 @@ vec3 ACESApprox(vec3 x) {
 
 vec3 vibranceSaturation(vec3 color, float vibrance, float saturation) {
     float luma = luminance(color);
-    float mn = min(min(color.r, color.g), color.b);
-    float mx = max(max(color.r, color.g), color.b);
-    float sat = (1.0 - clamp01(mx - mn)) * clamp01(1.0 - mx) * luma * 5.0;
+    float mn   = min(min(color.r, color.g), color.b);
+    float mx   = max(max(color.r, color.g), color.b);
+    float sat  = (1.0 - clamp01(mx - mn)) * clamp01(1.0 - mx) * luma * 5.0;
     vec3 light = vec3((mn + mx) / 2.0);
 
     color = mix(color, mix(light, color, vibrance), sat);
@@ -95,20 +95,16 @@ vec3 contrast(vec3 color, float contrast) {
 }
 
 // https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x
-vec4 linearToSRGB(vec4 linear) {
-    bvec4 cutoff = lessThan(linear, vec4(0.0031308));
-    vec4 higher = vec4(1.055) * pow(linear, vec4(1.0 / 2.4)) - vec4(0.055);
-    vec4 lower = linear * vec4(12.92);
-
-    return mix(higher, lower, cutoff);
+vec4 linearToSRGB(vec4 linear) {;
+    vec4 higher = (pow(abs(linear), vec4(1.0 / 2.4)) * 1.055) - 0.055;
+    vec4 lower  = linear * 12.92;
+    return mix(higher, lower, step(linear, vec4(0.0031308)));
 }
 
 vec4 sRGBToLinear(vec4 sRGB) {
-    bvec4 cutoff = lessThan(sRGB, vec4(0.04045));
-    vec4 higher = pow((sRGB + vec4(0.055)) / vec4(1.055), vec4(2.4));
-    vec4 lower = sRGB / vec4(12.92);
-
-    return mix(higher, lower, cutoff);
+    vec4 higher = pow((sRGB + 0.055) / 1.055, vec4(2.4));
+    vec4 lower  = sRGB / 12.92;
+    return mix(higher, lower, step(sRGB, vec4(0.04045)));
 }
 
 // Adobe RGB (1998) color space matrix from:
