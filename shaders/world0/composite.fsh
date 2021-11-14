@@ -1,5 +1,5 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
+#include "/include/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
@@ -12,10 +12,10 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/programs/common.glsl"
-#include "/lib/fragment/brdf.glsl"
-#include "/lib/fragment/raytracer.glsl"
-#include "/lib/fragment/ssr.glsl"
+#include "/include/common.glsl"
+#include "/include/fragment/brdf.glsl"
+#include "/include/fragment/raytracer.glsl"
+#include "/include/fragment/ssr.glsl"
 
 vec3 getCausticsViewPos(vec2 coords) {
    vec3 clipPos = vec3(coords, texture(depthtex1, coords).r) * 2.0 - 1.0;

@@ -6,6 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+int getBlockId(vec2 coords) {
+    return int(texture(colortex1, coords).w * 255.0 + 0.5);
+}
+
 // Hardcoded values provided by Bálint#1673
 const vec3 HARDCODED_F0[] = vec3[](
     vec3(0.53123, 0.51236, 0.49583), // Iron

@@ -1,5 +1,5 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
+#include "/include/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
@@ -10,8 +10,8 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/util/math.glsl"
+#include "/include/uniforms.glsl"
+#include "/include/utility/math.glsl"
 
 varying vec2 texCoords;
 varying vec4 color;

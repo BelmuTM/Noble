@@ -1,5 +1,5 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
+#include "/include/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
@@ -12,14 +12,14 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/programs/common.glsl"
+#include "/include/common.glsl"
 
-#include "/lib/atmospherics/atmosphere.glsl"
+#include "/include/atmospherics/atmosphere.glsl"
 
-#include "/lib/fragment/brdf.glsl"
-#include "/lib/fragment/raytracer.glsl"
-#include "/lib/fragment/pathtracer.glsl"
-#include "/lib/fragment/ao.glsl"
+#include "/include/fragment/brdf.glsl"
+#include "/include/fragment/raytracer.glsl"
+#include "/include/fragment/pathtracer.glsl"
+#include "/include/fragment/ao.glsl"
 
 /*
 const int colortex5Format = RGBA16F;
@@ -28,7 +28,7 @@ const bool colortex6Clear = false;
 */
 
 #if GI_TEMPORAL_ACCUMULATION == 1
-    #include "/lib/post/taa.glsl"
+    #include "/include/post/taa.glsl"
 
     vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 viewPos, vec3 normal, inout float historyFrames) {
         vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;

@@ -1,5 +1,5 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
+#include "/include/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
@@ -12,9 +12,9 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/programs/common.glsl"
-#include "/lib/util/blur.glsl"
-#include "/lib/fragment/svgf.glsl"
+#include "/include/common.glsl"
+#include "/include/utility/blur.glsl"
+#include "/include/fragment/svgf.glsl"
 
 void main() {
     vec3 globalIllumination = vec3(0.0);

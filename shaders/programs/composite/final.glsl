@@ -7,11 +7,11 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#include "/programs/common.glsl"
-#include "/lib/util/blur.glsl"
+#include "/include/common.glsl"
+#include "/include/utility/blur.glsl"
 
-#include "/lib/post/bloom.glsl"
-#include "/lib/post/exposure.glsl"
+#include "/include/post/bloom.glsl"
+#include "/include/post/exposure.glsl"
 
 #if UNDERWATER_DISTORTION == 1
     vec2 underwaterDistortionCoords(vec2 coords) {

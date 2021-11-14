@@ -1,5 +1,5 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
+#include "/include/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
@@ -12,10 +12,10 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/programs/common.glsl"
-#include "/lib/util/blur.glsl"
-#include "/lib/post/taa.glsl"
-#include "/lib/post/exposure.glsl"
+#include "/include/common.glsl"
+#include "/include/utility/blur.glsl"
+#include "/include/post/taa.glsl"
+#include "/include/post/exposure.glsl"
 
 /*
 const int colortex3Format = RGBA16F;

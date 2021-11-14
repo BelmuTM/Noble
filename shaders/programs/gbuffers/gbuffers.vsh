@@ -17,10 +17,10 @@ varying mat3 TBN;
 varying float blockId;
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/noise/noise.glsl"
-#include "/lib/util/math.glsl"
-#include "/lib/fragment/water.glsl"
+#include "/include/uniforms.glsl"
+#include "/include/utility/noise.glsl"
+#include "/include/utility/math.glsl"
+#include "/include/fragment/water.glsl"
 
 vec2 taaOffsets[8] = vec2[8](
 	vec2( 0.125,-0.375),

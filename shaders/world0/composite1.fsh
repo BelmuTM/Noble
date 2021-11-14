@@ -1,5 +1,5 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
+#include "/include/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
@@ -12,14 +12,14 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/programs/common.glsl"
+#include "/include/common.glsl"
 
-#include "/lib/fragment/brdf.glsl"
-#include "/lib/fragment/raytracer.glsl"
-#include "/lib/fragment/shadows.glsl"
+#include "/include/fragment/brdf.glsl"
+#include "/include/fragment/raytracer.glsl"
+#include "/include/fragment/shadows.glsl"
 
-#include "/lib/atmospherics/atmosphere.glsl"
-#include "/lib/atmospherics/volumetric.glsl"
+#include "/include/atmospherics/atmosphere.glsl"
+#include "/include/atmospherics/volumetric.glsl"
 
 /*
 const int colortex8Format = RGBA16F;

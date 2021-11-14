@@ -4,7 +4,7 @@
 /*   Please do not claim my work as your own.  */
 /***********************************************/
 
-#include "/lib/post/taa.glsl"
+#include "/include/post/taa.glsl"
 
 // Kneemund's Border Attenuation
 float Kneemund_Attenuation(vec2 pos, float edgeFactor) {

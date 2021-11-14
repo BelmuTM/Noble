@@ -1,5 +1,5 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
+#include "/include/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
@@ -12,7 +12,7 @@
 varying vec2 texCoords;
 varying vec4 color;
 
-#include "/lib/uniforms.glsl"
+#include "/include/uniforms.glsl"
 
 void main() {
     /*DRAWBUFFERS:5*/

@@ -14,8 +14,8 @@ varying mat3 TBN;
 varying float blockId;
 
 #include "/settings.glsl"
-#include "/lib/uniforms.glsl"
-#include "/lib/util/math.glsl"
+#include "/include/uniforms.glsl"
+#include "/include/utility/math.glsl"
 
 #ifdef ENTITY
 	uniform vec4 entityColor;

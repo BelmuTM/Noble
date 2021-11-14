@@ -1,5 +1,5 @@
 #version 400 compatibility
-#include "/programs/extensions.glsl"
+#include "/include/extensions.glsl"
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
@@ -12,10 +12,10 @@
 varying vec2 texCoords;
 
 #include "/settings.glsl"
-#include "/programs/common.glsl"
-#include "/lib/util/blur.glsl"
-#include "/lib/post/bloom.glsl"
-#include "/lib/atmospherics/fog.glsl"
+#include "/include/common.glsl"
+#include "/include/utility/blur.glsl"
+#include "/include/post/bloom.glsl"
+#include "/include/atmospherics/fog.glsl"
 
 vec3 depthOfField(vec3 color, float depth) {
     float coc = getCoC(linearizeDepth(depth), linearizeDepth(centerDepthSmooth));
