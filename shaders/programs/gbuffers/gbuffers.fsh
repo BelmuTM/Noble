@@ -56,8 +56,8 @@ void main() {
 	normal = TBN * normal;
 	normal *= 0.5 + 0.5;
 
-	/*
-	if(int(blockId + 0.5) > 4 && int(blockId + 0.5) <= 10 && emission < 0.1) {
+	/*	
+	if(int(blockId + 0.5) > 4 && int(blockId + 0.5) <= 11 && emission < 0.1) {
 		emission = 0.8;
 	}
 	*/

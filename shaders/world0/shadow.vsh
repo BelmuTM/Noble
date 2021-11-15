@@ -11,15 +11,6 @@
 
 #include "/settings.glsl"
 #include "/include/uniforms.glsl"
-#include "/include/utility/math.glsl"
+#define STAGE STAGE_VERTEX
 
-varying vec2 texCoords;
-varying vec4 color;
-
-void main(){
-    texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    color = gl_Color;
-
-    gl_Position = ftransform();
-    gl_Position.xy = distort(gl_Position.xy);
-}
+#include "/programs/gbuffers/shadow.glsl"

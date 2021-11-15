@@ -9,10 +9,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-varying vec2 texCoords;
-varying vec4 color;
-uniform sampler2D colortex0;
+#include "/settings.glsl"
+#include "/include/uniforms.glsl"
+#define STAGE STAGE_FRAGMENT
 
-void main() {
-    gl_FragData[0] = texture(colortex0, texCoords) * color;
-}
+#include "/programs/gbuffers/shadow.glsl"

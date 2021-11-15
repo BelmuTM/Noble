@@ -8,6 +8,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-void main() {
-	gl_Position = ftransform();
-}
+#include "/settings.glsl"
+#define STAGE STAGE_VERTEX
+
+#include "/programs/discard.glsl"

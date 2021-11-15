@@ -6,6 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#define OVERWORLD 0
+#define NETHER   -1
+
+#define STAGE_VERTEX   0
+#define STAGE_FRAGMENT 1
+
 #define ABOUT 0 // [0 1]
 
 /*------------------ MATH ------------------*/

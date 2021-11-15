@@ -10,4 +10,4 @@
 /***********************************************/
 
 varying vec2 texCoords;
-#include "/programs/composite/final.glsl"
+#include "/programs/composite/post2.glsl"

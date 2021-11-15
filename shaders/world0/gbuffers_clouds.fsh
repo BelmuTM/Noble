@@ -8,6 +8,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-void main() {
-    discard;
-}
+#include "/settings.glsl"
+#define STAGE STAGE_FRAGMENT
+
+#include "/programs/discard.glsl"
