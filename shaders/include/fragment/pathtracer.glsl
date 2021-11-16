@@ -40,18 +40,15 @@ vec3 pathTrace(in vec3 screenPos) {
         vec3 throughput = vec3(1.0);
         for(int j = 0; j <= GI_BOUNCES; j++) {
             prevDir = rayDir;
-            vec3 viewHitPos = screenToView(hitPos);
-
             vec2 noise = uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter)));
 
             /* Russian Roulette */
             if(j > 3) {
-                float roulette = max(throughput.r, max(throughput.g, throughput.b));
-                if(roulette < rand(gl_FragCoord.xy - frameTimeCounter)) { break; }
+                float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
+                if(roulette < rand(gl_FragCoord.xy + frameTimeCounter)) { break; }
                 throughput /= roulette;
             }
-            vec3 H = normalize(-prevDir + rayDir);
-            float HdotV = max(EPS, dot(H, -prevDir));
+            float HdotV = max(EPS, dot(normalize(-prevDir + rayDir), -prevDir));
 
             /* Material Parameters */
             material mat = getMaterial(hitPos.xy);
@@ -61,18 +58,18 @@ vec3 pathTrace(in vec3 screenPos) {
             float fresnelLum = luminance(cookTorranceFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
             float diffuseLum = fresnelLum / (fresnelLum + luminance(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
             float specularProbability = fresnelLum / max(EPS, fresnelLum + diffuseLum);
-            bool specularBounce = specularProbability > rand(gl_FragCoord.xy + frameTimeCounter);
+            bool specularBounce = specularProbability > rand(gl_FragCoord.xy + frameTimeCounter * 2.0);
 
             vec3 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, mat.rough * mat.rough);
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : normalize(mat.normal + generateUnitVector(noise));
-            float NdotL = max(EPS, dot(mat.normal, rayDir));
 
             radiance += throughput * mat.albedo * mat.emission;
             radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb) * (sunIlluminance + moonIlluminance);
 
-            if(!raytrace(viewHitPos, rayDir, GI_STEPS, uniformNoise(i, blueNoise).y, hitPos)) { break; }
+            if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, uniformNoise(i, blueNoise).y, hitPos)) { break; }
 
-            float HdotL = max(0.0, dot(normalize(-prevDir + rayDir), rayDir));
+            float NdotL = max(EPS, dot(mat.normal, rayDir));
+            float HdotL = max(EPS, dot(normalize(-prevDir + rayDir), rayDir));
             vec3 specularFresnel = cookTorranceFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
 
             if(specularBounce) {
