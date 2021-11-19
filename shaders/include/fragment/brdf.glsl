@@ -115,16 +115,16 @@ vec3 cookTorranceFresnel(float cosTheta, float F0, vec3 metalColor, bool isMetal
 
 vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 H = normalize(V + L);
-    float NdotV = max(EPS, dot(N, V));
-    float NdotL = max(EPS, dot(N, L));
-    float HdotL = max(EPS, dot(H, L));
-    float NdotH = max(EPS, dot(N, H));
+    float NdotV = maxEps(dot(N, V));
+    float NdotL = maxEps(dot(N, L));
+    float HdotL = maxEps(dot(H, L));
+    float NdotH = maxEps(dot(N, H));
 
     float D = D_GGX(NdotH, mat.rough * mat.rough);
     vec3 F  = cookTorranceFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
     float G = G_Smith(NdotV, NdotL, mat.rough);
         
-    return clamp01((D * F * G) / max(EPS, 4.0 * NdotL * NdotV));
+    return clamp01((D * F * G) / maxEps(4.0 * NdotL * NdotV));
 }
 
 // OREN-NAYAR MODEL - QUALITATIVE 
@@ -136,7 +136,7 @@ vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float al
 
     vec3 A = albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
     vec3 B = albedo * (0.125 * (alpha /  (alpha + 0.18)));
-    return A + B * max(0.0, cosA) * sin(angles.x) * tan(angles.y);
+    return A + B * max0(cosA) * sin(angles.x) * tan(angles.y);
 }
 
 // HAMMON DIFFUSE
@@ -145,10 +145,10 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
     float alpha = mat.rough * mat.rough;
 
     vec3 H = normalize(V + L);
-    float VdotL = max(EPS, dot(V, L));
-    float NdotH = max(EPS, dot(N, H));
-    float NdotV = max(EPS, dot(N, V));
-    float NdotL = max(EPS, dot(N, L));
+    float VdotL = maxEps(dot(V, L));
+    float NdotH = maxEps(dot(N, H));
+    float NdotV = maxEps(dot(N, V));
+    float NdotL = maxEps(dot(N, L));
 
     // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
     float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * 0.11111111;
@@ -170,7 +170,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
 // https://github.com/Jessie-LC
 vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec3 shadowmap, vec3 illuminance) {
     vec3 V      = -normalize(viewPos);
-    float NdotL = max(EPS, dot(N, L));
+    float NdotL = maxEps(dot(N, L));
 
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
     vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat);

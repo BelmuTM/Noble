@@ -17,8 +17,14 @@ vec4 projMAD4(mat4 mat, vec4 v) { return diag4(mat) * v + mat[3].xyzw; }
 vec3 transMAD3(mat4 mat, vec3 v) { return mat3(mat) * v + mat[3].xyz; }
 vec4 transMAD4(mat4 mat, vec4 v) { return mat * v + mat[3].xyzw; }
 
-vec3 viewToClip(vec3 viewPos) {
-	return projMAD3(gbufferProjection, viewPos);
+vec2 distort(vec2 coords) {
+	return coords / (length(coords) * SHADOW_BIAS + (1.0 - SHADOW_BIAS));
+}
+
+vec3 getViewPos(vec2 coords) {
+    vec3 clipPos = vec3(coords, texture(depthtex0, coords).r) * 2.0 - 1.0;
+    vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
+    return tmp.xyz / tmp.w;
 }
 
 vec3 screenToWorld(float depth, vec2 coords, mat4 projection, mat4 modelView) {

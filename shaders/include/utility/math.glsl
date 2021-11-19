@@ -8,6 +8,12 @@
 
 /* MATH FUNCTIONS */
 
+float maxEps(float x) { return max(EPS, x);       }
+float max0(float x)   { return max(0.0, x);       }
+vec2  max0(vec2 x)    { return max(vec2(0.0), x); }
+vec3  max0(vec3 x)    { return max(vec3(0.0), x); }
+vec4  max0(vec4 x)    { return max(vec4(0.0), x); }
+
 float clamp01(float x) { return clamp(x, 0.0, 1.0); }
 vec2 clamp01(vec2 x)   { return clamp(x, vec2(0.0), vec2(1.0)); }
 vec3 clamp01(vec3 x)   { return clamp(x, vec3(0.0), vec3(1.0)); }
@@ -94,15 +100,6 @@ vec3 generateUnitVector(vec2 xy) {
 vec3 generateCosineVector(vec2 xy) {
     xy.x *= TAU;
     return normalize(vec3(vec2(cos(xy.x), sin(xy.x)) * sqrt(xy.y), sqrt(1.0 - xy.y)));
-}
-
-// https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
-float getCoC(float fragDepth, float cursorDepth) {
-    return fragDepth < 0.56 ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - FOCAL)))) * 0.5;
-}
-
-vec2 distort(vec2 coords) {
-	return coords / (length(coords) * SHADOW_BIAS + (1.0 - SHADOW_BIAS));
 }
 
 /* ENCODING */

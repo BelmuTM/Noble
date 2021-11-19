@@ -39,11 +39,11 @@ void main() {
 		linearizeDepth(texture(depthtex1, texCoords).r)
 	);
    vec3 hitPos; vec2 coords = texCoords;
-   vec3 opaques = texture(colortex4, texCoords).rgb * INV_PI * max(EPS, dot(normal, shadowDir));
+   vec3 opaques = texture(colortex4, texCoords).rgb * INV_PI * maxEps(dot(normal, shadowDir));
 
    vec3 refraction = vec3(0.0);
    #if REFRACTION == 1
-      float NdotV = max(EPS, dot(normal, normalize(-viewPos)));
+      float NdotV = maxEps(dot(normal, normalize(-viewPos)));
       if(F0toIOR(mat.F0) > 1.0 && !isHand(depth0) && getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
          refraction = simpleRefractions(viewPos, normal, NdotV, mat.F0, hitPos);
          coords = hitPos.xy;
@@ -73,7 +73,7 @@ void main() {
    #if WHITE_WORLD == 0
       if(getBlockId(texCoords) == 1) {
          // Absorption
-         depthDist = max(0.0, depthDist);
+         depthDist = max0(depthDist);
          float density = depthDist * 6.5e-1;
          //                                     log(2.0)
 	      vec3 transmittance = exp2(-(density * 0.301029995) * WATER_ABSORPTION_COEFFICIENTS);

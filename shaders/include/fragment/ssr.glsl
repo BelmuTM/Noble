@@ -62,7 +62,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 		vec3 reflected = reflect(viewDir, TBN * microfacet);	
 		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, -noise.y, hitPos));
 
-        float NdotL = max(EPS, dot(microfacet, reflected));
+        float NdotL = maxEps(dot(microfacet, reflected));
         vec3 hitColor = getHitColor(hitPos);
         vec3 fresnel = cookTorranceFresnel(NdotL, F0.r, F0, isMetal);
 
@@ -73,7 +73,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
         #endif
         weight += NdotL;
 	}
-	return filteredColor / max(EPS, weight);
+	return filteredColor / maxEps(weight);
 }
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/

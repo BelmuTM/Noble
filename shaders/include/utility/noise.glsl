@@ -6,8 +6,16 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-// Certain functions below aren't my property. They either are public domain
-// or require to credit the author.
+// MOST FUNCTIONS HERE ARE NOT MY PROPERTY
+
+// Noise distribution: https://www.pcg-random.org/
+void pcg(inout uint seed) {
+    uint state = seed * 747796405u + 2891336453u;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    seed = (word >> 22u) ^ word;
+}
+
+float randF(inout uint seed) { pcg(seed); return float(seed) / float(0xffffffffu); }
 
 vec2 vogelDisk(int index, int samplesCount) {
     float r = sqrt(index + 0.5) / sqrt(samplesCount);

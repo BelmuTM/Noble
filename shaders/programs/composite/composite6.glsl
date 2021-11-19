@@ -30,8 +30,8 @@ void main() {
 
             #if SSR == 1
                 float resolution = SSR_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
-                float NdotV = max(EPS, dot(normal, -normalize(viewPos)));
-                vec3 specularColor = texture(colortex4, texCoords * resolution).rgb;
+                float NdotV = maxEps(dot(normal, -normalize(viewPos)));
+                vec3 specularColor = texture(colortex9, texCoords * resolution).rgb;
             
                 vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
                 vec3 DFG = envBRDFApprox(specularColor, texture(colortex2, texCoords).r, NdotV);

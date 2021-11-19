@@ -29,7 +29,7 @@ void main() {
                 #if SSR_TYPE == 1
                     outColor = prefilteredReflections(scaledUv, posAt, mat.normal, mat.rough * mat.rough, specularColor, mat.isMetal);
                 #else
-                    float NdotV = max(EPS, dot(mat.normal, -normalize(posAt)));
+                    float NdotV = maxEps(dot(mat.normal, -normalize(posAt)));
                     outColor = simpleReflections(scaledUv, posAt, mat.normal, NdotV, specularColor, mat.isMetal);
                 #endif
             }
@@ -56,7 +56,7 @@ void main() {
         #endif
     }
 
-    /*DRAWBUFFERS:045*/
+    /*DRAWBUFFERS:095*/
     gl_FragData[0] = Result;
     gl_FragData[1] = vec4(specularColor, 1.0);
     gl_FragData[2] = vec4(outColor, 1.0);

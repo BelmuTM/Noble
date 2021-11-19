@@ -19,7 +19,7 @@ float computeVariance(sampler2D tex, vec2 coords) {
         }
     }
     sigmaVariancePair /= SAMPLES;
-    return max(0.0, sigmaVariancePair.y - sigmaVariancePair.x * sigmaVariancePair.x);
+    return max0(sigmaVariancePair.y - sigmaVariancePair.x * sigmaVariancePair.x);
 }
 
 float gaussianVariance(sampler2D tex, vec2 coords) {
@@ -71,11 +71,11 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords) {
 
             vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
             vec3 delta = viewToWorld(normal) -  viewToWorld(normalAt);
-            float normalWeight = max(0.0, exp(-dot(delta, delta) / nPhi));
+            float normalWeight = max0(exp(-dot(delta, delta) / nPhi));
 
             vec3 samplePos = viewToWorld(getViewPos(sampleCoords));
             delta = viewPos - samplePos;
-            float posWeight = max(0.0, exp(-dot(delta, delta) / pPhi));
+            float posWeight = max0(exp(-dot(delta, delta) / pPhi));
   
             float sampleLuma = luminance(texture(tex, sampleCoords).rgb);
             float lumaWeight = colorPhi * (exp(-(abs(sampleLuma - centerLuma) / max(sampleLuma, max(centerLuma, TAA_LUMA_MIN)))));
@@ -85,5 +85,5 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords) {
             totalWeight += weight * kernel;
         }
     }
-    return color / max(EPS, totalWeight);
+    return color / maxEps(totalWeight);
 }

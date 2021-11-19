@@ -29,7 +29,7 @@ const bool colortex6Clear = false;
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
             vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
             vec3 delta = viewToWorld(viewPos) - prevPos;
-            float posWeight = max(0.0, exp(-dot(delta, delta) * 3.0));
+            float posWeight = max0(exp(-dot(delta, delta) * 3.0));
             totalWeight *= 0.96 * posWeight;
         #else
             historyFrames = hasMoved() ? 1.0 : texture(prevTex, texCoords).a + 1.0;

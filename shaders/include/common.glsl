@@ -7,12 +7,6 @@ vec3 animBlueNoise = texelFetch(noisetex, (ivec2(gl_FragCoord + (frameCounter % 
 #include "/include/utility/math.glsl"
 #include "/include/utility/transforms.glsl"
 
-vec3 getViewPos(vec2 coords) {
-    vec3 clipPos = vec3(coords, texture(depthtex0, coords).r) * 2.0 - 1.0;
-    vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
-    return tmp.xyz / tmp.w;
-}
-
 bool isSky(vec2 coords) {
     return texture(depthtex0, coords).r == 1.0;
 }

@@ -36,7 +36,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 		if(!raytrace(samplePos, sampleDir, RTAO_STEPS, noise.x, hitPos)) { break; }
 
 		float delta = viewToWorld(samplePos).z - viewToWorld(screenToView(hitPos)).z;
-		occlusion += max(0.0, exp(-(delta * delta)));
+		occlusion += max0(exp(-(delta * delta)));
 	}
 	return clamp01(1.0 - (occlusion / RTAO_SAMPLES));
 }

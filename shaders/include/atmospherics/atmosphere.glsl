@@ -42,7 +42,7 @@ vec2 raySphere(vec3 ro, vec3 rd, float rad) {
 vec3 densities(float height) {
     float rayLeigh = exp(-height / hR);
     float mie      = exp(-height / hM);
-    float ozone    = exp(-max(0.0, (35e3 - height) - atmosRad) / 5e3) * exp(-max(0.0, (height - 35e3) - atmosRad) / 15e3);
+    float ozone    = exp(-max0((35e3 - height) - atmosRad) / 5e3) * exp(-max0((height - 35e3) - atmosRad) / 15e3);
     return vec3(rayLeigh, mie, ozone);
 }
 
@@ -72,8 +72,8 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
     vec3 increment = rayDir * stepSize;
     vec3 rayPos = rayOrigin + increment * 0.5;
 
-    float sunVdotL  = max(0.0, dot(rayDir, playerSunDir));
-    float moonVdotL = max(0.0, dot(rayDir, playerMoonDir));
+    float sunVdotL  = max0(dot(rayDir, playerSunDir));
+    float moonVdotL = max0(dot(rayDir, playerMoonDir));
     vec4 phase = vec4(rayleighPhase(sunVdotL), miePhase(sunVdotL), rayleighPhase(moonVdotL), miePhase(moonVdotL));
 
     vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
@@ -93,7 +93,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
         transmittance *= stepTransmittance;
         rayPos += increment;
     }
-    return max(vec3(0.0), scattering);
+    return max0(scattering);
 }
 
 // Originally written by Capt Tatsu#7124

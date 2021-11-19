@@ -51,8 +51,7 @@
             vec2 dist = texCoords - vec2(0.5);
             offset = (1.0 - (dist * dist)) * ABERRATION_STRENGTH * pixelSize;
         #else
-            float depth = linearizeDepth(texture(depthtex0, texCoords).r);
-            float coc = getCoC(depth, linearizeDepth(centerDepthSmooth));
+            float coc = texture(colortex5, texCoords).a;
             offset = coc * ABERRATION_STRENGTH * pixelSize;
         #endif
 
@@ -108,14 +107,13 @@ void main() {
     #endif
     
     vec4 Result = texture(colortex0, tempCoords);
-    float exposure = max(0.0, computeExposure(texture(colortex3, texCoords).a));
+    float exposure = max0(computeExposure(texture(colortex3, texCoords).a));
 
     #if CHROMATIC_ABERRATION == 1
         Result.rgb = chromaticAberration(Result.rgb);
     #endif
 
     #if BLOOM == 1
-        // I wasn't supposed to use magic numbers like this in Noble :Sadge:
         Result.rgb += clamp01(readBloom().rgb * 0.009 * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
     #endif
 

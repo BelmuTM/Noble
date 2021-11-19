@@ -19,7 +19,7 @@ vec3 getLightmapColor(vec2 lightMap, vec3 skyIlluminance) {
 }
 
 vec4 sun(vec3 viewDir, vec3 lightDir) {
-    float VdotL = max(EPS, dot(viewDir, lightDir));
+    float VdotL = maxEps(dot(viewDir, lightDir));
     float angle = quintic(0.9997, 0.99995, VdotL);
     return vec4(4.0) * angle;
 }

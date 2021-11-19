@@ -8,7 +8,7 @@
 
 #if STAGE == STAGE_VERTEX
 
-    #include "/include/utility/math.glsl"
+    #include "/include/utility/transforms.glsl"
 
     varying vec2 texCoords;
     varying vec4 color;

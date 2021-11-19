@@ -123,6 +123,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define VL        0 // [0 1]
 #define VL_FILTER 1 // [0 1]
+#define VL_STEPS int(SCATTER_STEPS * 0.5)
 
 #define RAIN_FOG 1 // [0 1]
 
@@ -181,7 +182,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ISO          200 // [50 100 200 400 800 1600 3200 6400 12800 25600 51200]
 #define SHUTTER_SPEED 60 // [4 5 6 8 10 15 20 30 40 50 60 80 100 125 160 200 250 320 400 500 640 800 1000 1250 1600 2000 2500 3200 4000]
 
-const float K =  17.0; // Light meter calibration
+const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 #define EXPOSURE 1 // [0 1]
