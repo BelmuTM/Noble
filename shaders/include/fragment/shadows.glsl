@@ -19,13 +19,7 @@ bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
 }
 
 float visibility(sampler2D tex, vec3 sampleCoords) {
-    float contactShadow = 1.0;
-    #if SOFT_SHADOWS == 0 && CONTACT_SHADOWS == 1
-        vec3 hitPos;
-        contactShadow = float(contactShadows(getViewPos(texCoords), hitPos));
-    #endif
-
-    return step(sampleCoords.z - 1e-3, texture(tex, sampleCoords.xy).r * contactShadow);
+    return step(sampleCoords.z - 1e-3, texture(tex, sampleCoords.xy).r);
 }
 
 vec3 sampleShadowColor(vec3 sampleCoords) {

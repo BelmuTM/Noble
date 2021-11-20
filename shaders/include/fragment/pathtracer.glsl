@@ -21,18 +21,18 @@ vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap) {
     float NdotL = max0(dot(N, L));
 
     vec3 specular = cookTorranceSpecular(N, V, L, mat);
-    vec3 diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
+    vec3 diffuse  = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
     return (diffuse + specular) * (NdotL * shadowmap);
 }
 
 vec3 pathTrace(in vec3 screenPos) {
-    vec3 viewPos         = screenToView(screenPos); 
     vec3 radiance        = vec3(0.0);
+    vec3 viewPos         = screenToView(screenPos); 
     vec3 sunIlluminance  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * SUN_ILLUMINANCE;
     vec3 moonIlluminance = atmosphereTransmittance(atmosRayPos, playerMoonDir) * MOON_ILLUMINANCE;
 
-    uint rngState = 185730U * uint(frameTimeCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
+    uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
 
     for(int i = 0; i < GI_SAMPLES; i++) {
         vec3 hitPos = screenPos; 
@@ -47,7 +47,7 @@ vec3 pathTrace(in vec3 screenPos) {
             /* Russian Roulette */
             if(j > 3) {
                 float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
-                if(roulette < rand(gl_FragCoord.xy + frameTimeCounter)) { break; }
+                if(roulette < randF(rngState)) { break; }
                 throughput /= roulette;
             }
             float HdotV = maxEps(dot(normalize(-prevDir + rayDir), -prevDir));
@@ -60,7 +60,7 @@ vec3 pathTrace(in vec3 screenPos) {
             float fresnelLum = luminance(cookTorranceFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
             float diffuseLum = fresnelLum / (fresnelLum + luminance(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
             float specularProbability = fresnelLum / maxEps(fresnelLum + diffuseLum);
-            bool specularBounce = specularProbability > rand(gl_FragCoord.xy + frameTimeCounter * 2.0);
+            bool specularBounce = specularProbability > randF(rngState);
 
             vec3 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, mat.rough * mat.rough);
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : normalize(mat.normal + generateUnitVector(noise));

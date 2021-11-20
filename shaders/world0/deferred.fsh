@@ -9,7 +9,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-varying vec2 texCoords;
+in vec2 texCoords;
 
 #include "/settings.glsl"
 #define WORLD OVERWORLD

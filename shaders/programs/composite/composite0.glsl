@@ -28,30 +28,23 @@ void main() {
       return;
    }
 
-   /*    ------- WATER ABSORPTION / REFRACTION -------    */
+   /*    ------- WATER EFFECTS -------    */
    material mat = getMaterial(texCoords);
    mat.albedo = sRGBToLinear(vec4(mat.albedo, 1.0)).rgb;
    vec3 normal = mat.normal;
 
-   float depth0 = texture(depthtex0, texCoords).r;
-   float depthDist = distance(
-		linearizeDepth(depth0),
-		linearizeDepth(texture(depthtex1, texCoords).r)
-	);
    vec3 hitPos; vec2 coords = texCoords;
-   vec3 opaques = texture(colortex4, texCoords).rgb * INV_PI * maxEps(dot(normal, shadowDir));
+   vec3 opaques = texture(colortex4, texCoords).rgb;
 
-   vec3 refraction = vec3(0.0);
    #if REFRACTION == 1
       float NdotV = maxEps(dot(normal, normalize(-viewPos)));
-      if(F0toIOR(mat.F0) > 1.0 && !isHand(depth0) && getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
-         refraction = simpleRefractions(viewPos, normal, NdotV, mat.F0, hitPos);
+      if(F0toIOR(mat.F0) > 1.0 && getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
+         opaques = simpleRefractions(viewPos, normal, NdotV, mat.F0, hitPos);
          coords = hitPos.xy;
       }
-
-      depthDist = distance(viewPos.z, hitPos.z);
    #endif
-   vec3 shadowmap = texture(colortex9, coords).rgb;
+
+   vec3 shadowmap = texture(colortex9, coords).rgb * INV_PI * maxEps(dot(normal, shadowDir));
 
    /*    ------- CAUSTICS -------    */
 
@@ -68,16 +61,19 @@ void main() {
    #endif
 
    // Alpha Blending
-   mat.albedo = mix(refraction * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
+   mat.albedo = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
+
+   float depthDist = abs(distance(
+		linearizeDepth(texture(depthtex0, coords).r),
+		linearizeDepth(texture(depthtex1, coords).r)
+	));
 
    #if WHITE_WORLD == 0
       if(getBlockId(texCoords) == 1) {
-         // Absorption
-         depthDist = max0(depthDist);
+         // Transmittance
          float density = depthDist * 6.5e-1;
-         //                                     log(2.0)
 	      vec3 transmittance = exp2(-(density * 0.301029995) * WATER_ABSORPTION_COEFFICIENTS);
-         if(isEyeInWater == 0) mat.albedo *= transmittance;
+         if(isEyeInWater == 0) { mat.albedo *= transmittance; }
 
          // Foam
          #if WATER_FOAM == 1

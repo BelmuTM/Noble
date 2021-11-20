@@ -9,12 +9,12 @@
 attribute vec4 at_tangent;
 attribute vec3 mc_Entity;
 
-varying vec2 texCoords;
-varying vec2 lmCoords;
-varying vec3 waterNormals;
-varying vec4 color;
-varying mat3 TBN;
-varying float blockId;
+out vec2 texCoords;
+out vec2 lmCoords;
+out vec3 waterNormals;
+out vec4 color;
+out mat3 TBN;
+out float blockId;
 
 #include "/settings.glsl"
 #include "/include/uniforms.glsl"

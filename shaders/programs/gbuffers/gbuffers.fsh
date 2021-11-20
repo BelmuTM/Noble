@@ -6,12 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-varying vec2 texCoords;
-varying vec2 lmCoords;
-varying vec3 waterNormals;
-varying vec4 color;
-varying mat3 TBN;
-varying float blockId;
+in vec2 texCoords;
+in vec2 lmCoords;
+in vec3 waterNormals;
+in vec4 color;
+in mat3 TBN;
+in float blockId;
 
 #include "/settings.glsl"
 #include "/include/uniforms.glsl"
@@ -27,20 +27,18 @@ const int colortex2Format = RGBA8F;
 */
 
 void main() {
-	vec4 albedoTex = texture(colortex0, texCoords);
-	vec4 normalTex = texture(normals, texCoords);
+	vec4 albedoTex   = texture(colortex0, texCoords);
+	vec4 normalTex   = texture(normals, texCoords);
 	vec4 specularTex = texture(specular, texCoords);
 
 	#ifdef ENTITY
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 	#endif
 
-    float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x;
-	float F0 = specularTex.y;
-	float ao = normalTex.z;
-
-	vec2 lightmap = lmCoords.xy;
-	float emission = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
+	float F0 		= specularTex.y;
+	float ao 		= normalTex.z;
+	float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x;
+	float emission  = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
 
 	vec3 normal;
 	// WOTAH
@@ -65,5 +63,5 @@ void main() {
 	/*DRAWBUFFERS:012*/
 	gl_FragData[0] = color * albedoTex;
 	gl_FragData[1] = vec4(encodeNormal(normal), pack2x4(vec2(ao, emission)), (blockId + 0.25) / 255.0);
-	gl_FragData[2] = vec4(clamp01(roughness), F0, lightmap);
+	gl_FragData[2] = vec4(clamp01(roughness), F0, lmCoords.xy);
 }

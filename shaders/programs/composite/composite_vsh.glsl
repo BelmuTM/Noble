@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-varying vec2 texCoords;
+out vec2 texCoords;
 
 void main() {
     gl_Position = ftransform();

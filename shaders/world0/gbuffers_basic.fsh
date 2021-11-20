@@ -9,8 +9,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-varying vec2 texCoords;
-varying vec4 color;
+in vec2 texCoords;
+in vec4 color;
 uniform sampler2D colortex0;
 
 void main() {

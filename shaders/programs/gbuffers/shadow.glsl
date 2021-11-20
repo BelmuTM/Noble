@@ -7,11 +7,10 @@
 /***********************************************/
 
 #if STAGE == STAGE_VERTEX
-
     #include "/include/utility/transforms.glsl"
 
-    varying vec2 texCoords;
-    varying vec4 color;
+    out vec2 texCoords;
+    out vec4 color;
 
     void main(){
         texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -21,8 +20,8 @@
         gl_Position.xy = distort(gl_Position.xy);
     }
 #elif
-    varying vec2 texCoords;
-    varying vec4 color;
+    in vec2 texCoords;
+    in vec4 color;
     uniform sampler2D colortex0;
 
     void main() {

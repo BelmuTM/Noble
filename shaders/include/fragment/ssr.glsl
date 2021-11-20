@@ -49,7 +49,7 @@ vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3
 
 vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha, vec3 F0, bool isMetal) {
 	vec3 filteredColor = vec3(0.0);
-	float weight = 0.0;
+	float totalWeight  = 0.0;
 
     mat3 TBN = constructViewTBN(normal);
     vec3 viewDir = normalize(viewPos);
@@ -59,21 +59,21 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
         vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter)) : uniformNoise(i, blueNoise);
         
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise, alpha);
-		vec3 reflected = reflect(viewDir, TBN * microfacet);	
+		vec3 reflected  = reflect(viewDir, TBN * microfacet);	
 		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, -noise.y, hitPos));
 
-        float NdotL = maxEps(dot(microfacet, reflected));
+        float NdotL   = maxEps(dot(microfacet, reflected));
         vec3 hitColor = getHitColor(hitPos);
-        vec3 fresnel = cookTorranceFresnel(NdotL, F0.r, F0, isMetal);
+        vec3 fresnel  = cookTorranceFresnel(NdotL, F0.r, F0, isMetal);
 
         #if SKY_FALLBACK == 1
 			filteredColor += (mix(getSkyFallback(coords, reflected), hitColor, Kneemund_Attenuation(hitPos.xy, 0.15) * hit) * NdotL) * fresnel;
         #else
             filteredColor += ((hitColor * NdotL) * (Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit)) * fresnel;
         #endif
-        weight += NdotL;
+        totalWeight += NdotL;
 	}
-	return filteredColor / maxEps(weight);
+	return filteredColor / maxEps(totalWeight);
 }
 
 /*------------------ SIMPLE REFRACTIONS ------------------*/

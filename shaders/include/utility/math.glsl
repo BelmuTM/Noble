@@ -81,7 +81,7 @@ vec2 sincos2(float x) {
 
 vec2 projectSphere(in vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
-    float latitude = acos(direction.y);
+    float latitude  = ACos(direction.y);
 
     return vec2(longitude * (1.0 / TAU) + 0.5, latitude * (1.0 / PI));
 }

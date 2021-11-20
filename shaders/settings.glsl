@@ -18,20 +18,21 @@
 #define REC_709 vec3(0.2126, 0.7152, 0.0722)
 #define EPS 1e-4
 
-#define HALF_PI      1.570796
+#define QUARTER_PI   0.78539816
+#define HALF_PI      1.57079632
 #define PI           3.14159265
 #define TAU          6.28318530
-#define INV_PI       0.31831
+#define INV_PI       0.31830988
 
-#define GOLDEN_RATIO 1.618033988
-#define GOLDEN_ANGLE 2.399963229
+#define GOLDEN_RATIO 1.61803398
+#define GOLDEN_ANGLE 2.39996322
 
 /*------------------ OPTIFINE CONSTANTS ------------------*/
 const float sunPathRotation      = -40.0; // [-85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0]
 const int noiseTextureResolution =   256;
 
 const int shadowMapResolution =  3072; // [512 1024 2048 3072 4096 6144]
-const float shadowDistance    = 200.0; // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 100.0 110.0 120.0 130.0 140.0 150.0 160.0 170.0 180.0 190.0 200.0 210.0 220.0 230.0 240.0 250.0 260.0 270.0 280.0 290.0 300.0]
+const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 
 /*------------------ LIGHTING ------------------*/
 const float rainAmbientDarkness = 0.3;
