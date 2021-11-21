@@ -10,35 +10,33 @@
 
 // http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
 
-float D_Beckmann(float NdotH, in float alpha) {
+float distributionBeckmann(float NdotH, in float alpha) {
     alpha *= alpha;
     float NdotH2 = NdotH * NdotH;
     return (1.0 / (PI * alpha * (NdotH2 * NdotH2))) * exp((NdotH2 - 1.0) / (alpha * NdotH2));
 }
 
-float D_GGX(float NdotH, in float alpha) {
-    // GGXTR(N,H,α) = α² / π*((N*H)²*(α² + 1)-1)²
+float distributionGGX(float NdotH, in float alpha) {
     alpha *= alpha;
     float denom = (NdotH * NdotH) * (alpha - 1.0) + 1.0;
     return alpha / (PI * denom * denom);
 }
 
-float G_SchlickGGX(float cosTheta, float roughness) {
-    // SchlickGGX(N,V,k) = N*V/(N*V)*(1 - k) + k
+float geometrySchlickGGX(float cosTheta, float roughness) {
     float denom = cosTheta * (1.0 - roughness) + roughness;
     return cosTheta / denom;
 }
 
-float G_Smith(float NdotV, float NdotL, float roughness) {
+float geometrySmith(float NdotV, float NdotL, float roughness) {
     float r = roughness + 1.0;
     roughness = (r * r) / 8.0;
 
-    float ggxV = G_SchlickGGX(NdotV, roughness);
-    float ggxL = G_SchlickGGX(NdotL, roughness);
+    float ggxV = geometrySchlickGGX(NdotV, roughness);
+    float ggxL = geometrySchlickGGX(NdotL, roughness);
     return ggxV * ggxL;
 }
 
-float G_CookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
+float geometryCookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
     float NdotH2 = 2.0 * NdotH;
     float g1 = (NdotH2 * NdotV) / VdotH;
     float g2 = (NdotH2 * NdotL) / VdotH;
@@ -101,7 +99,7 @@ vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
     return F0 * AB.x + AB.y;
 }
 
-vec3 cookTorranceFresnel(float cosTheta, float F0, vec3 metalColor, bool isMetal) {
+vec3 specularFresnel(float cosTheta, float F0, vec3 metalColor, bool isMetal) {
     return isMetal ? schlickGaussian(cosTheta, metalColor) : vec3(fresnelDielectric(cosTheta, F0toIOR(F0)));
 }
 
@@ -112,11 +110,11 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     float HdotL = maxEps(dot(H, L));
     float NdotH = maxEps(dot(N, H));
 
-    float D = D_GGX(NdotH, mat.rough * mat.rough);
-    vec3 F  = cookTorranceFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
-    float G = G_Smith(NdotV, NdotL, mat.rough);
+    float D = distributionGGX(NdotH, mat.rough * mat.rough);
+    vec3 F  = specularFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+    float G = geometrySmith(NdotV, NdotL, mat.rough);
         
-    return clamp01((D * F * G) / maxEps(4.0 * NdotL * NdotV));
+    return max0((D * F * G) / maxEps(4.0 * NdotL * NdotV));
 }
 
 // OREN-NAYAR MODEL - QUALITATIVE 
@@ -143,7 +141,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
     float NdotL = maxEps(dot(N, L));
 
     // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
-    float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * 0.11111111;
+    float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * (1.0 / 9.0);
     float fresnelNL = 1.0 - schlickGaussian(NdotL, mat.F0);
     float fresnelNV = 1.0 - schlickGaussian(NdotV, mat.F0);
 
@@ -160,15 +158,19 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
-vec3 cookTorrance(vec3 viewPos, vec3 N, vec3 L, material mat, vec3 lightmap, vec3 shadowmap, vec3 illuminance) {
-    vec3 V      = -normalize(viewPos);
+vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celestialIlluminance, vec3 skyIlluminance) {
+    V = -normalize(V);
     float NdotL = maxEps(dot(N, L));
 
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
     vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
+    vec2 lightmap   = texture(colortex2, texCoords).zw;
+    vec3 skyLight   = skyIlluminance * ((lightmap.y * lightmap.y) - clamp(rainStrength, 0.0, rainAmbientDarkness));
+    vec3 blockLight = getBlockLight(lightmap);
+
     vec3 lighting = vec3(0.0);
-    /* DIRECT ->   */ lighting += (diffuse + specular) * (NdotL * shadowmap) * illuminance;
-    /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + lightmap) * mat.albedo * mat.ao);
+    /* DIRECT ->   */ lighting += celestialIlluminance * ((diffuse + specular) * NdotL * shadows);
+    /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + blockLight + skyLight) * mat.albedo) * mat.ao;
     return lighting;
 }

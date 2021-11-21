@@ -11,11 +11,8 @@ float getSkyLightmap(vec2 coords) {
     return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
 }
 
-vec3 getLightmapColor(vec2 lightMap, vec3 skyIlluminance) {
-    lightMap.x = TORCHLIGHT_MULTIPLIER * pow(lightMap.x, TORCHLIGHT_EXPONENT);
-    vec3 blockLight = TORCH_COLOR * lightMap.x;
-    vec3 skyLight   = skyIlluminance * (lightMap.y - clamp(rainStrength, 0.0, rainAmbientDarkness));
-    return blockLight + skyLight;
+vec3 getBlockLight(vec2 lightmap) {
+    return TORCH_COLOR * (TORCHLIGHT_MULTIPLIER * pow(lightmap.x, TORCHLIGHT_EXPONENT));
 }
 
 vec4 sun(vec3 viewDir, vec3 lightDir) {

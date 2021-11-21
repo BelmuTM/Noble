@@ -17,6 +17,7 @@ uniform vec2 viewResolution;
 uniform vec2 pixelSize;
 
 uniform float rainStrength;
+uniform int framemod;
 uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;

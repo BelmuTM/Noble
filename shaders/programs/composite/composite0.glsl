@@ -86,10 +86,6 @@ void main() {
       }
    #endif
 
-   #if WHITE_WORLD == 1
-	   mat.albedo = vec3(1.0);
-   #endif
-
    /*DRAWBUFFERS:09*/
    gl_FragData[0] = clamp01(vec4(mat.albedo, 1.0) + rain);
    gl_FragData[1] = vec4(shadowmap, 1.0);

@@ -33,7 +33,6 @@ vec2 taaOffsets[8] = vec2[8](
 	vec2( 0.875, 0.875)
 );
 
-uniform int framemod;
 vec2 taaJitter(vec4 pos) {
     return taaOffsets[framemod] * (pos.w * pixelSize);
 }
@@ -67,6 +66,6 @@ void main() {
 
 	#if TAA == 1
 		bool canJitter = ACCUMULATION_VELOCITY_WEIGHT == 0 ? true : gbufferModelView == gbufferPreviousModelView || cameraPosition == previousCameraPosition;
-		if(canJitter) { gl_Position.xy += taaJitter(gl_Position); }
+		if(canJitter) { gl_Position.xy += taaJitter2(gl_Position); }
     #endif
 }

@@ -13,7 +13,7 @@
 
 vec3 specularBRDF(float NdotL, vec3 fresnel, in float roughness) {
     float k = roughness + 1.0;
-    return fresnel * G_SchlickGGX(NdotL, (k * k) * 0.125);
+    return fresnel * geometrySchlickGGX(NdotL, (k * k) * 0.125);
 }
 
 vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap) {
@@ -56,7 +56,7 @@ vec3 pathTrace(in vec3 screenPos) {
             mat3 TBN = constructViewTBN(mat.normal);
 
             /* Specular Bounce Probability */
-            float fresnelLum = luminance(cookTorranceFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
+            float fresnelLum = luminance(specularFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
             float diffuseLum = fresnelLum / (fresnelLum + luminance(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
             float specularProbability = fresnelLum / maxEps(fresnelLum + diffuseLum);
             bool specularBounce = specularProbability > randF(rngState);
@@ -71,7 +71,7 @@ vec3 pathTrace(in vec3 screenPos) {
 
             float NdotL = maxEps(dot(mat.normal, rayDir));
             float HdotL = maxEps(dot(normalize(-prevDir + rayDir), rayDir));
-            vec3 specularFresnel = cookTorranceFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+            vec3 specularFresnel = specularFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
 
             if(specularBounce) {
                 throughput *= specularBRDF(NdotL, specularFresnel, mat.rough) / specularProbability;
@@ -108,7 +108,7 @@ vec3 PTGIBRDF(in vec3 viewDir, in vec2 screenPos, in vec3 sampleDir, in mat3 TBN
     vec3 specular = cookTorranceSpecular(NdotH, HdotL, NdotV, NdotL, roughness, F0, mat.albedo, mat.isMetal);
     // vec3 diffuse = orenNayarDiffuse(normal, viewDir, sampleDir, NdotD, NdotV, roughness * roughness, mat.albedo) / (NdotD * INV_PI);
 
-    vec3 fresnel = cookTorranceFresnel(NdotD, F0, mat.albedo, mat.isMetal);
+    vec3 fresnel = specularFresnel(NdotD, F0, mat.albedo, mat.isMetal);
     mat.albedo *= 1.0 - fresnel;
     return mat.albedo + specular;
 }

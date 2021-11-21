@@ -19,6 +19,10 @@ void main() {
     vec3 viewPos = getViewPos(texCoords);
     material mat = getMaterial(texCoords);
 
+    #if WHITE_WORLD == 1
+	   mat.albedo = vec3(1.0);
+    #endif
+
     vec3 volumetricLighting = VL == 0 ? vec3(0.0) : volumetricLighting(viewPos);
     vec3 Lighting = mat.albedo;
     
@@ -30,8 +34,7 @@ void main() {
             vec3 sunIlluminance  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * SUN_ILLUMINANCE;
             vec3 moonIlluminance = atmosphereTransmittance(atmosRayPos, playerMoonDir) * MOON_ILLUMINANCE;
             
-            vec3 lightmap = getLightmapColor(texture(colortex2, texCoords).zw, skyIlluminance);
-            Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, lightmap, shadowmap, sunIlluminance + moonIlluminance);
+            Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, sunIlluminance + moonIlluminance, skyIlluminance);
         }
     #endif
 

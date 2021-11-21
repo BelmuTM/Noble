@@ -32,7 +32,7 @@ vec3 volumetricLighting(vec3 viewPos) {
     vec4 rayDir  = (normalize(endPos - startPos) * stepSize) * jitter;
     vec4 rayPos  = startPos + rayDir * stepSize;
 
-    float VdotL = max0(dot(normalize(endPos + startPos).xyz, worldTime <= 12750 ? playerSunDir : playerMoonDir));
+    float VdotL = dot(normalize(endPos + startPos).xyz, worldTime <= 12750 ? playerSunDir : playerMoonDir);
     float phase = miePhase(VdotL);
 
     vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
@@ -48,7 +48,7 @@ vec3 volumetricLighting(vec3 viewPos) {
         vec3 visibleScattering = transmittance * ((stepTransmittance - 1.0) / -stepOpticalDepth);
         vec3 stepScattering    = kScattering[1] * (airmass * phase) * visibleScattering;
 
-        scattering    += sampleColor * stepScattering * (worldTime <= 12750 ? 22.0 * SUN_COLOR : MOON_ILLUMINANCE);
+        scattering    += sampleColor * stepScattering * (worldTime <= 12750 ? SUN_ILLUMINANCE : MOON_ILLUMINANCE);
         transmittance *= stepTransmittance;
         rayPos        += rayDir;
     }

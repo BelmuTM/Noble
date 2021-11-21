@@ -33,7 +33,7 @@ vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3
     float jitter = TAA == 1 ? uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter))).x : blueNoise.x;
     float hit = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos));
 
-    vec3 fresnel = cookTorranceFresnel(NdotV, F0.r, F0, isMetal);
+    vec3 fresnel = specularFresnel(NdotV, F0.r, F0, isMetal);
     vec3 hitColor = getHitColor(hitPos);
 
     vec3 color;
@@ -66,7 +66,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 
         float NdotL   = maxEps(dot(microfacet, reflected));
         vec3 hitColor = getHitColor(hitPos);
-        vec3 fresnel  = cookTorranceFresnel(NdotL, F0.r, F0, isMetal);
+        vec3 fresnel  = specularFresnel(NdotL, F0.r, F0, isMetal);
 
         #if SKY_FALLBACK == 1
 			filteredColor += (mix(getSkyFallback(coords, reflected), hitColor, Kneemund_Attenuation(hitPos.xy, 0.15) * hit) * NdotL) * fresnel;
