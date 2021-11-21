@@ -26,10 +26,7 @@ void main() {
     vec3 viewPos = getViewPos(texCoords);
     vec4 Result = texture(colortex0, texCoords);
 
-    vec4 bloom = vec4(0.0);
-    #if BLOOM == 1
-        bloom = writeBloom();
-    #endif
+    vec4 bloom = BLOOM == 1 ? writeBloom() : vec4(0.0);
 
     float coc = 1.0;
     #if DOF == 1
@@ -38,7 +35,7 @@ void main() {
     #endif
      
     vec3 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos)) * ATMOSPHERE_RESOLUTION).rgb;
-    Result.rgb += fog(viewPos, vec3(0.0), vec3(0.6) + sky, (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.03); // Applying Fog
+    Result.rgb += fog(viewPos, vec3(0.0), 1.0 + sky, (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.03); // Applying Fog
 
     /*DRAWBUFFERS:05*/
     gl_FragData[0] = Result;

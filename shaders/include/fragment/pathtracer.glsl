@@ -17,8 +17,7 @@ vec3 specularBRDF(float NdotL, vec3 fresnel, in float roughness) {
 }
 
 vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap) {
-    float NdotV = maxEps(dot(N, V));
-    float NdotL = max0(dot(N, L));
+    float NdotL = maxEps(dot(N, L));
 
     vec3 specular = cookTorranceSpecular(N, V, L, mat);
     vec3 diffuse  = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
@@ -65,7 +64,7 @@ vec3 pathTrace(in vec3 screenPos) {
             vec3 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, mat.rough * mat.rough);
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : normalize(mat.normal + generateUnitVector(noise));
 
-            radiance += throughput * mat.albedo * mat.emission;
+            radiance += throughput * mat.emission * mat.albedo;
             radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb) * (sunIlluminance + moonIlluminance);
 
             if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, uniformNoise(i, blueNoise).y, hitPos)) { break; }

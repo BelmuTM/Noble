@@ -83,9 +83,7 @@ vec3 shadowMap(vec3 viewPos) {
     vec3 sampleCoords = viewToShadow(viewPos) * 0.5 + 0.5;
     if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
     
-    float theta = TAA == 1 ? taaNoise : uniformNoise(1, blueNoise).r;
-    theta *= TAU;
-    
+    float theta = (TAA == 1 ? taaNoise : uniformNoise(1, blueNoise).r) * TAU;
     float cosTheta = cos(theta), sinTheta = sin(theta);
     mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta) / shadowMapResolution;
 

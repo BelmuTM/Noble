@@ -28,8 +28,8 @@ const int colortex2Format = RGBA8F;
 
 void main() {
 	vec4 albedoTex   = texture(colortex0, texCoords);
-	vec4 normalTex   = texture(normals, texCoords);
-	vec4 specularTex = texture(specular, texCoords);
+	vec4 normalTex   = texture(normals,   texCoords);
+	vec4 specularTex = texture(specular,  texCoords);
 
 	#ifdef ENTITY
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
@@ -43,7 +43,7 @@ void main() {
 	vec3 normal;
 	// WOTAH
 	if(int(blockId + 0.5) == 1) { 
-		albedoTex.a = 0.0;
+		albedoTex = vec4(0.0);
 		F0 = 0.02;
 		roughness = 0.0;
 		normal = waterNormals;

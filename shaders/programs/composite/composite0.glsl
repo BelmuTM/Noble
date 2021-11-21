@@ -31,20 +31,18 @@ void main() {
    /*    ------- WATER EFFECTS -------    */
    material mat = getMaterial(texCoords);
    mat.albedo = sRGBToLinear(vec4(mat.albedo, 1.0)).rgb;
-   vec3 normal = mat.normal;
 
    vec3 hitPos; vec2 coords = texCoords;
-   vec3 opaques = texture(colortex4, texCoords).rgb;
+   vec3 opaques = texture(colortex4, texCoords).rgb * INV_PI * maxEps(dot(mat.normal, shadowDir));
 
    #if REFRACTION == 1
-      float NdotV = maxEps(dot(normal, normalize(-viewPos)));
       if(F0toIOR(mat.F0) > 1.0 && getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
-         opaques = simpleRefractions(viewPos, normal, NdotV, mat.F0, hitPos);
-         coords = hitPos.xy;
+         opaques = simpleRefractions(viewPos, mat.normal, mat.F0, hitPos);
+         coords  = hitPos.xy;
       }
    #endif
 
-   vec3 shadowmap = texture(colortex9, coords).rgb * INV_PI * maxEps(dot(normal, shadowDir));
+   vec3 shadowmap = texture(colortex9, coords).rgb;
 
    /*    ------- CAUSTICS -------    */
 
@@ -64,7 +62,7 @@ void main() {
    mat.albedo = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
 
    float depthDist = abs(distance(
-		linearizeDepth(texture(depthtex0, coords).r),
+	   linearizeDepth(texture(depthtex0, coords).r),
 		linearizeDepth(texture(depthtex1, coords).r)
 	));
 

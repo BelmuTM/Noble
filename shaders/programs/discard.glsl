@@ -11,7 +11,7 @@
         gl_Position = vec4(-1.0);
         return;
     }
-#elif
+#elif STAGE == STAGE_FRAGMENT
     void main() {
 	    discard;
     }
