@@ -16,7 +16,7 @@
 #if UNDERWATER_DISTORTION == 1
     vec2 underwaterDistortionCoords(vec2 coords) {
         const float scale = 25.0;
-        float speed = frameTimeCounter * WATER_DISTORTION_SPEED;
+        float speed   = frameTimeCounter * WATER_DISTORTION_SPEED;
         float offsetX = coords.x * scale + speed;
         float offsetY = coords.y * scale + speed;
 
@@ -134,11 +134,11 @@ void main() {
     // Vignette
     #if VIGNETTE == 1
         vec2 coords = texCoords * (1.0 - texCoords.yx);
-        finalCol *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
+        finalCol   *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    Result = linearToSRGB(Result);
-    Result.rgb += bayer64(gl_FragCoord.xy) / 255.0;
+    Result      = linearToSRGB(Result);
+    Result.rgb += bayer64(gl_FragCoord.xy) / 64.0;
 
     /*DRAWBUFFERS:0*/
     gl_FragData[0] = Result;

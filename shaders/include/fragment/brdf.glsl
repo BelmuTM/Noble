@@ -45,14 +45,6 @@ float G_CookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
     return min(1.0, min(g1, g2));
 }
 
-float fresnelSchlick(float cosTheta, float F0) {
-    return F0 + (1.0 - F0) * pow5(1.0 - cosTheta);
-}
-
-vec3 fresnelSchlick(float cosTheta, vec3 F0) {
-    return F0 + (1.0 - F0) * pow5(1.0 - cosTheta);
-}
-
 float schlickGaussian(float cosTheta, float F0) {
     float sphericalGaussian = exp2(((-5.55473 * cosTheta) - 6.98316) * cosTheta);
     return sphericalGaussian * (1.0 - F0) + F0;
