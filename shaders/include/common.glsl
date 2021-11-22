@@ -16,5 +16,5 @@ bool isHand(float depth) {
     return linearizeDepth(depth) < 0.56;
 }
 
-#include "/include/fragment/lightmap.glsl"
 #include "/include/utility/color.glsl"
+#include "/include/fragment/lightmap.glsl"

@@ -7,7 +7,7 @@
 ##################### OTHERS #####################
 option.ABOUT = §6Noble
 option.ABOUT.comment = §f§lTwitter: §r§7@Belmu_. §f§lDiscord: §r§7Belmu#4066. §f§lPatreon: §r§6https://www.patreon.com/Belmu. §f§lGithub: §r§6https://www.github.com/BelmuTM.
-value.ABOUT.0 = §7§ov0.9.9 §r- Belmu
+value.ABOUT.0 = §rby Belmu
 value.ABOUT.1 = §b§lBoop!
 
 profile.RENDER = §bRender
@@ -17,7 +17,6 @@ profile.comment = §lNormal§r profile refers to Noble with default settings. §
 ##################### SCREENS #####################
 
 screen.LIGHTING = Lighting & Shadows
-screen.LIGHTING_COLOR = Lighting Color
 screen.RAYTRACING = Ray Tracing
 screen.ATMOSPHERICS = Atmospherics
 screen.WORLD = World
@@ -26,6 +25,13 @@ screen.CAMERA_SETTINGS = Camera Settings
 screen.COLOR_CORRECTION = Color Correction
 
 ##################### LIGHTING & SHADOWS #####################
+
+option.BLOCKLIGHT_TEMPERATURE = Blocklight Temperature
+option.BLOCKLIGHT_TEMPERATURE.comment = Adjusts the temperature of blocklight (in Kelvins). It influences the blocklight color.
+suffix.BLOCKLIGHT_TEMPERATURE = K
+
+option.sunPathRotation = Sun Path Rotation
+option.sunPathRotation.comment = Adjusts sun's rotation.
 
 option.SHADOWS = Shadows
 option.SHADOWS.comment = Adds shadows.
@@ -86,15 +92,6 @@ value.SSAO_SAMPLES.12 = §e12
 value.SSAO_SAMPLES.16 = §616
 value.SSAO_SAMPLES.20 = §c20
 
-option.sunPathRotation = Sun Path Rotation
-option.sunPathRotation.comment = Adjusts sun's rotation.
-
-##################### LIGHTING COLOR #####################
-
-option.TORCH_COLOR_R = Torch Color §cRed
-option.TORCH_COLOR_G = Torch Color §aGreen
-option.TORCH_COLOR_B = Torch Color §9Blue
-
 ##################### RAY TRACING #####################
 
 option.SSR = Screen Space Reflections (SSR)
@@ -113,7 +110,7 @@ value.SSR_TYPE.0 = §eSimple Reflections
 value.SSR_TYPE.1 = §eRough Reflections
 
 option.ROUGH_REFLECT_RES = Rough Reflections Resolution
-option.ROUGH_REFLECT_RES.comment = Adjusts §bRough Reflections §fquality. §cHigher value gives better results, but reduces §cperformance.
+option.ROUGH_REFLECT_RES.comment = Adjusts §bRough Reflections§f' resolution. §cHigher value gives better results, but reduces §cperformance.
 
 option.GI = Global Illumination (GI)
 option.GI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it. §cCan only sample what's being displayed §con your screen.
@@ -154,6 +151,15 @@ value.SSR_REPROJECTION.0 = §cOFF
 value.SSR_REPROJECTION.1 = §aON
 
 ##################### ATMOSPHERICS #####################
+
+option.RAIN_FOG = Rain Fog
+option.RAIN_FOG.comment = A fog that appears when it rains.
+value.RAIN_FOG.0 = §cOFF
+value.RAIN_FOG.1 = §aON
+
+option.ATMOSPHERE_RESOLUTION = Atmosphere Resolution
+option.ATMOSPHERE_RESOLUTION.comment = Adjusts the §bAtmosphere§f's resolution. §cHigher value gives better results, but reduces §cperformance.
+
 option.SCATTER_STEPS = Scattering Samples
 option.SCATTER_STEPS.comment = Influences how accurate light scatters. This influences §bAtmospheric §bScattering§r and §bVolumetric §bLighting. §cWould preferably be higher than transmittance samples.
 value.SCATTER_STEPS.8  = §38
@@ -185,11 +191,6 @@ option.VL_FILTER = VL Filter
 option.VL_FILTER.comment = Blurs §bVL §fto reduce the noise. §cGives a cleaner result, but reduces performance.
 value.VL_FILTER.0 = §cOFF
 value.VL_FILTER.1 = §aON
-
-option.RAIN_FOG = Rain Fog
-option.RAIN_FOG.comment = A fog that appears when it rains.
-value.RAIN_FOG.0 = §cOFF
-value.RAIN_FOG.1 = §aON
 
 option.STARS_AMOUNT = Stars Amount
 option.STARS_AMOUNT.comment = Adjusts the amount of stars in the night sky.

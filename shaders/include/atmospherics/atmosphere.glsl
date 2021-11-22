@@ -60,7 +60,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     return transmittance;
 }
 
-vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
+vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     vec2 atmosDist  = raySphere(rayOrigin, rayDir, atmosRad);
     vec2 planetDist = raySphere(rayOrigin, rayDir, earthRad - 5e3);
 
@@ -89,12 +89,15 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
 
         scattering += sunStepScattering  * atmosphereTransmittance(rayPos, playerSunDir)  * SUN_ILLUMINANCE;
         scattering += moonStepScattering * atmosphereTransmittance(rayPos, playerMoonDir) * MOON_ILLUMINANCE;
-        //multipleScattering += visibleScattering * (kScattering * airmass.xy * (0.25 / PI));
+        multipleScattering += visibleScattering * (kScattering * airmass.xy);
 
         transmittance *= stepTransmittance;
         rayPos += increment;
     }
-    return max0(scattering);
+    skyIlluminance = PI * mix(skyIlluminance, vec3(skyIlluminance.b) * sqrt(2.0), INV_PI);
+    multipleScattering *= skyIlluminance * (0.25 / PI);
+    
+    return max0(multipleScattering + scattering);
 }
 
 // Originally written by Capt Tatsu#7124

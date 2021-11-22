@@ -12,11 +12,11 @@ float getSkyLightmap(vec2 coords) {
 }
 
 vec3 getBlockLight(vec2 lightmap) {
-    return TORCH_COLOR * (TORCHLIGHT_MULTIPLIER * pow(lightmap.x, TORCHLIGHT_EXPONENT));
+    return blackbody(BLOCKLIGHT_TEMPERATURE) * (BLOCKLIGHT_MULTIPLIER * pow(lightmap.x, BLOCKLIGHT_EXPONENT));
 }
 
 vec3 sun(vec3 viewDir, vec3 lightDir) {
     float VdotL = maxEps(dot(viewDir, lightDir));
-    float angle = quintic(0.9997, 0.99995, VdotL);
+    float angle = quintic(0.9998, 0.99995, VdotL);
     return SUN_ILLUMINANCE * angle;
 }

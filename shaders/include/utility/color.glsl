@@ -10,6 +10,22 @@ float luminance(vec3 color) {
     return dot(color, REC_709);
 }
 
+// Black body radiation from https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl
+vec3 plancks(in float t, in vec3 lambda) {
+    const float h = 6.63e-16; // Planck's constant
+    const float c = 3.0e17;   // Speed of light
+    const float k = 1.38e-5;  // Boltzmann's constant
+    vec3 p1 = (2.0 * h * pow(c, 2.0)) / pow(lambda, vec3(5.0));
+    vec3 p2 = exp(h * c / (lambda * k * t)) - vec3(1.0);
+    return (p1 / p2) * pow(1e9, 2.0);
+}
+
+vec3 blackbody(in float t) {
+    vec3 rgb = plancks(t, vec3(660.0, 550.0, 440.0));
+         rgb = rgb / max(rgb.x, max(rgb.y, rgb.z));
+    return rgb;
+}
+
 vec3 whitePreservingReinhard(vec3 color) {
 	const float white = 10.0;
 	float luma = luminance(color);
