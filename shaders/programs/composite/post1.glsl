@@ -10,11 +10,6 @@
 #include "/include/post/taa.glsl"
 #include "/include/post/exposure.glsl"
 
-/*
-const int colortex3Format = RGBA16F;
-const bool colortex3Clear = false;
-*/
-
 void main() {
     vec4 Result = texture(colortex0, texCoords);
 

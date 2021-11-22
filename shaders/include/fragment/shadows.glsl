@@ -13,11 +13,6 @@ vec3 viewToShadow(vec3 viewPos) {
 	return vec3(distort(shadowPos.xy), shadowPos.z);
 }
 
-bool contactShadows(vec3 viewPos, inout vec3 hitPos) {
-    bool hit = raytrace(viewPos, shadowDir, 32, taaNoise, hitPos);
-    return hit && abs(linearizeDepth(texture(depthtex0, hitPos.xy).r) - linearizeDepth(hitPos.z)) <= 0.01 ? false : true;
-}
-
 float visibility(sampler2D tex, vec3 sampleCoords) {
     return step(sampleCoords.z - 1e-3, texture(tex, sampleCoords.xy).r);
 }

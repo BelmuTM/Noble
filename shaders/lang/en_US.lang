@@ -191,6 +191,12 @@ option.RAIN_FOG.comment = A fog that appears when it rains.
 value.RAIN_FOG.0 = §cOFF
 value.RAIN_FOG.1 = §aON
 
+option.STARS_AMOUNT = Stars Amount
+option.STARS_AMOUNT.comment = Adjusts the amount of stars in the night sky.
+
+option.STARS_BRIGHTNESS = Stars Brightness
+option.STARS_BRIGHTNESS.comment = Adjusts the brightness of stars in the night sky.
+
 ##################### WORLD #####################
 
 option.WHITE_WORLD = White World

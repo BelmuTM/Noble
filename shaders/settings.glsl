@@ -18,11 +18,11 @@
 #define REC_709 vec3(0.2126, 0.7152, 0.0722)
 #define EPS 1e-4
 
-#define QUARTER_PI   0.78539816
-#define HALF_PI      1.57079632
-#define PI           3.14159265
-#define TAU          6.28318530
-#define INV_PI       0.31830988
+#define QUARTER_PI 0.78539816
+#define HALF_PI    1.57079632
+#define PI         3.14159265
+#define TAU        6.28318530
+#define INV_PI     0.31830988
 
 #define GOLDEN_RATIO 1.61803398
 #define GOLDEN_ANGLE 2.39996322
@@ -128,6 +128,9 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define RAIN_FOG 1 // [0 1]
 
+#define STARS_AMOUNT     0.10 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define STARS_BRIGHTNESS 0.25 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+
 /*------------------ WATER ------------------*/
 #define ANIMATED_WATER 1 // [0 1]
 
@@ -154,7 +157,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define WATER_CAUSTICS_STRENGTH 5.00 // [1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00 3.25 3.50 3.75 4.00 4.25 4.50 4.75 5.00 5.25 5.50 5.75 6.00 6.25 6.50 6.75 7.00 7.25 7.50 7.75 8.00 8.25 8.50 8.75 9.00 9.25 9.50 9.75 10.00]
 #define WATER_CAUSTICS_SPEED    10.0
 
-/*------------------ POST PROCESSING ------------------*/
+/*------------------ CAMERA ------------------*/
 #define TAA               1 // [0 1]
 #define TAA_STRENGTH  0.900 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
 #define NEIGHBORHOOD_SIZE 1 // [1 2 3]
@@ -177,7 +180,6 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define CHROMATIC_ABERRATION   0 // [0 1]
 #define ABERRATION_STRENGTH 1.50 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]
 
-/*------------------ CAMERA ------------------*/
 #define FOCAL        7.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0]
 #define APERTURE     4.0 // [1.0 1.2 1.4 2.0 2.8 4.0 5.6 8.0 11.0 16.0 22.0 32.0]
 #define ISO          200 // [50 100 200 400 800 1600 3200 6400 12800 25600 51200]

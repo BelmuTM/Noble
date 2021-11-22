@@ -12,12 +12,6 @@
 #include "/include/fragment/pathtracer.glsl"
 #include "/include/fragment/ao.glsl"
 
-/*
-const int colortex5Format = RGBA16F;
-const int colortex6Format = RGBA32F;
-const bool colortex6Clear = false;
-*/
-
 #if GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 

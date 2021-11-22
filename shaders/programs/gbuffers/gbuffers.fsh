@@ -21,11 +21,6 @@ in float blockId;
 	uniform vec4 entityColor;
 #endif
 
-/*
-const int colortex0Format = RGBA16F;
-const int colortex2Format = RGBA8F;
-*/
-
 void main() {
 	vec4 albedoTex   = texture(colortex0, texCoords);
 	vec4 normalTex   = texture(normals,   texCoords);

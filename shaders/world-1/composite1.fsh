@@ -13,4 +13,6 @@ in vec2 texCoords;
 
 #include "/settings.glsl"
 #include "/include/common.glsl"
+#define STAGE STAGE_FRAGMENT
+
 #include "/programs/composite/composite1.glsl"

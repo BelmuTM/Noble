@@ -6,15 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#include "/fragmentSettings.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/shadows.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
-
-/*
-const int colortex4Format = RGBA16F;
-const int colortex7Format = RGB16F;
-const int colortex9Format = RGB16F;
-*/
 
 void main() {
     vec3 shadowmap = vec3(0.0);

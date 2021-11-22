@@ -6,8 +6,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-// Bloom tiles concept from Capt Tatsu#7124
-// Gaussian blur by Belmu#4066
+// Bloom tiles concept originally from Capt Tatsu#7124
+// Heavily modified by Belmu#4066
 
 /*
 const bool colortex5MipmapEnabled = true;

@@ -76,7 +76,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
     float moonVdotL = max0(dot(rayDir, playerMoonDir));
     vec4 phase = vec4(rayleighPhase(sunVdotL), miePhase(sunVdotL), rayleighPhase(moonVdotL), miePhase(moonVdotL));
 
-    vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
+    vec3 scattering = vec3(0.0), multipleScattering = vec3(0.0), transmittance = vec3(1.0);
     
     for(int i = 0; i < SCATTER_STEPS; i++) {
         vec3 airmass = densities(length(rayPos) - earthRad) * stepSize;
@@ -89,6 +89,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
 
         scattering += sunStepScattering  * atmosphereTransmittance(rayPos, playerSunDir)  * SUN_ILLUMINANCE;
         scattering += moonStepScattering * atmosphereTransmittance(rayPos, playerMoonDir) * MOON_ILLUMINANCE;
+        //multipleScattering += visibleScattering * (kScattering * airmass.xy * (0.25 / PI));
 
         transmittance *= stepTransmittance;
         rayPos += increment;
@@ -99,8 +100,8 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir) {
 // Originally written by Capt Tatsu#7124
 // Modified by Belmu#4066
 float drawStars(vec3 viewPos) {
-	vec3 worldPos = mat3(gbufferModelViewInverse) * viewPos;
-	vec3 planeCoords = worldPos / (worldPos.y + length(worldPos.xz));
+	vec3 playerPos = mat3(gbufferModelViewInverse) * viewPos;
+	vec3 planeCoords = playerPos / (playerPos.y + length(playerPos.xz));
 	vec2 coord = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-4 + frameTime * 0.00125;
 	coord = floor(coord * 1024.0) / 1024.0;
 
@@ -112,5 +113,5 @@ float drawStars(vec3 viewPos) {
 		star *= rand(coord.xy);
 		star *= rand(-coord.xy + 0.1);
 	}
-	return (clamp01(star - 0.88) * multiplier) * 2.0;
+	return clamp01(star - (1.0 - STARS_AMOUNT)) * multiplier;
 }

@@ -9,6 +9,10 @@
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/ssr.glsl"
+#include "/include/atmospherics/atmosphere.glsl"
+
+float wTime = float(worldTime);
+float timeMidnight = ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0);
 
 vec3 getCausticsViewPos(vec2 coords) {
    vec3 clipPos = vec3(coords, texture(depthtex1, coords).r) * 2.0 - 1.0;
@@ -23,8 +27,12 @@ void main() {
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
       vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
-      vec4 sky = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION);
-      gl_FragData[0] = sky + rain + sun(normalize(viewPos), shadowDir);
+
+      vec4 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION);            // Atmosphere
+      vec4 sky = tmp + vec4(vec3((drawStars(viewPos) * STARS_BRIGHTNESS) * exp(-timeMidnight)), 1.0); // + Stars
+      sky.rgb += sun(normalize(viewPos), shadowDir) * tmp.rgb;                                        // + Sun
+
+      gl_FragData[0] = sky + rain;
       return;
    }
 
