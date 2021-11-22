@@ -12,6 +12,7 @@
 out vec2 texCoords;
 
 #include "/settings.glsl"
+#define WORLD NETHER
 #define STAGE STAGE_VERTEX
 
 #include "/include/uniforms.glsl"

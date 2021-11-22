@@ -27,10 +27,13 @@ void main() {
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
       vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
+      vec4 sky = vec4(0.0);
 
-      vec4 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION);            // Atmosphere
-      vec4 sky = tmp + vec4(vec3((drawStars(viewPos) * STARS_BRIGHTNESS) * exp(-timeMidnight)), 1.0); // + Stars
-      sky.rgb += sun(normalize(viewPos), shadowDir) * tmp.rgb;                                        // + Sun
+      #if WORLD == OVERWORLD
+         vec4 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION);            // Atmosphere
+         sky      = tmp + vec4(vec3((drawStars(viewPos) * STARS_BRIGHTNESS) * exp(-timeMidnight)), 1.0); // + Stars
+         sky.rgb += sun(normalize(viewPos), shadowDir) * tmp.rgb;                                        // + Sun
+      #endif
 
       gl_FragData[0] = sky + rain;
       return;

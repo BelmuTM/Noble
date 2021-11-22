@@ -12,5 +12,7 @@
 in vec2 texCoords;
 
 #include "/settings.glsl"
+#define WORLD OVERWORLD
+
 #include "/include/common.glsl"
 #include "/programs/composite/composite0.glsl"

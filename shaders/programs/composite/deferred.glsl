@@ -20,13 +20,15 @@
         ivec2 samples = ivec2(8);
         skyIlluminance = vec3(0.0);
 
-        for(int x = 0; x < samples.x; x++) {
-            for(int y = 0; y < samples.y; y++) {
-                vec3 dir = generateUnitVector(vec2(x, y));
-                skyIlluminance += texture(colortex7, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
+        #if WORLD == OVERWORLD
+            for(int x = 0; x < samples.x; x++) {
+                for(int y = 0; y < samples.y; y++) {
+                    vec3 dir = generateUnitVector(vec2(x, y));
+                    skyIlluminance += texture(colortex7, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
+                }
             }
-        }
-        skyIlluminance *= 1.0 / (samples.x * samples.y);
+            skyIlluminance *= 1.0 / (samples.x * samples.y);
+        #endif
     }
 
 #elif STAGE == STAGE_FRAGMENT
