@@ -48,9 +48,11 @@ void main() {
             #endif
         #else
             #if AO == 1
-                #if AO_FILTER == 1
-                    bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
-                    Result.rgb *= isMetal ? 1.0 : gaussianBlur(texCoords, colortex5, vec2(0.0, 1.0), 1.0).a;
+                #if AO_TYPE == 0
+                    #if SSAO_FILTER == 1
+                        bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
+                        Result.rgb *= isMetal ? 1.0 : gaussianBlur(texCoords, colortex5, vec2(0.0, 1.0), 1.0).a;
+                    #endif
                 #endif
             #endif
         #endif

@@ -10,19 +10,19 @@ vec3 reprojection(vec3 pos) {
     pos = pos * 2.0 - 1.0;
 
     vec4 currViewPos = gbufferProjectionInverse * vec4(pos, 1.0);
-    currViewPos /= currViewPos.w;
+    currViewPos.xyz /= currViewPos.w;
     vec3 currWorldPos = (gbufferModelViewInverse * currViewPos).xyz;
 
     vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(pos.z > 0.56);
-
+    
     vec3 prevWorldPos = currWorldPos + cameraOffset;
     vec4 prevClipPos = gbufferPreviousProjection * gbufferPreviousModelView * vec4(prevWorldPos, 1.0);
     return (prevClipPos.xyz / prevClipPos.w) * 0.5 + 0.5;
 }
 
 bool hasMoved() {
-    return gbufferModelView  != gbufferPreviousModelView
-		|| cameraPosition    != previousCameraPosition;
+    return gbufferModelView != gbufferPreviousModelView
+		|| cameraPosition   != previousCameraPosition;
 }
 
 /*
@@ -71,10 +71,10 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
         vec3 normal      = normalize(decodeNormal(texture(colortex1, texCoords).xy));
         vec3 normalAt    = normalize(decodeNormal(texture(colortex1, prevTexCoords).xy));
         vec3 delta       = abs(normal - normalAt);
-        float normWeight = max0(exp(-dot(delta, delta) * 0.8));
+        float normWeight = max0(exp(-dot(delta, delta) * 1.8));
 
         delta            = abs(viewToWorld(getViewPos(texCoords)) - viewToWorld(getViewPos(prevTexCoords)));
-        float posWeight  = max0(exp(-dot(delta, delta) * 1.7));
+        float posWeight  = max0(exp(-dot(delta, delta) * 2.0));
         
         blendWeight = lumaWeight * posWeight * normWeight;
     #else

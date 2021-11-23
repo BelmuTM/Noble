@@ -26,7 +26,7 @@ void main() {
             #endif
         #else 
             #if AO == 1
-                #if AO_FILTER == 1
+                #if SSAO_FILTER == 1
                     bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
                     ambientOcclusion = isMetal ? 1.0 : gaussianBlur(texCoords, colortex5, vec2(1.0, 0.0), 1.0).a;
                 #endif

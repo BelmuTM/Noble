@@ -17,17 +17,17 @@
         gl_Position = ftransform();
         texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-        ivec2 samples = ivec2(8);
+        int samples = 8;
         skyIlluminance = vec3(0.0);
 
         #if WORLD == OVERWORLD
-            for(int x = 0; x < samples.x; x++) {
-                for(int y = 0; y < samples.y; y++) {
-                    vec3 dir = generateUnitVector(vec2(x, y));
+            for(int x = 0; x < samples; x++) {
+                for(int y = 0; y < samples; y++) {
+                    vec3 dir = generateUnitVector((1.0 / samples) * vec2(x, y));
                     skyIlluminance += texture(colortex7, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
                 }
             }
-            skyIlluminance *= 1.0 / (samples.x * samples.y);
+            skyIlluminance *= 1.0 / (samples * samples);
         #endif
     }
 
@@ -58,8 +58,8 @@
 
         /*DRAWBUFFERS:4789*/
         gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));
-        gl_FragData[1] = vec4(sky, 1.0);
+        gl_FragData[1] = vec4(sky,            1.0);
         gl_FragData[2] = vec4(skyIlluminance, 1.0);
-        gl_FragData[3] = vec4(shadowmap, 1.0);
+        gl_FragData[3] = vec4(shadowmap,      1.0);
     }
 #endif

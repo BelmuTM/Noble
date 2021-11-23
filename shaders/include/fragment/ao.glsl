@@ -29,7 +29,7 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 	float occlusion = 0.0; vec3 hitPos;
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
-		vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter))) : uniformNoise(i, blueNoise);
+		vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter * 10.0)) : uniformNoise(i, blueNoise);
 		vec3 sampleDir = normalize(normal + generateUnitVector(noise));
 
 		if(dot(sampleDir, normal) < 0.0) { sampleDir = -sampleDir; }

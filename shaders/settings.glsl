@@ -52,8 +52,8 @@ const float rainAmbientDarkness = 0.3;
 /*------------------ AMBIENT OCCLUSION ------------------*/
 #define AO        1 // [0 1]
 #define AO_TYPE   0 // [0 1]
-#define AO_FILTER 1 // [0 1]
 
+#define SSAO_FILTER     1 // [0 1]
 #define SSAO_SAMPLES    8 // [4 8 12 16 20]
 #define SSAO_RADIUS   0.5
 #define SSAO_STRENGTH 1.5
@@ -81,7 +81,7 @@ const float rainAmbientDarkness = 0.3;
 #define BINARY_COUNT      4 // [4 6 12]
 #define BINARY_DECREASE 0.5
 
-#define RAY_STEP_LENGTH 1.7
+#define RAY_STEP_LENGTH 1.5 // [1.0 1.5]
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
 #define GI        0 // [0 1]

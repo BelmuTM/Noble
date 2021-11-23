@@ -59,8 +59,8 @@ void main() {
             #if AO == 1
                 ambientOcclusion = AO_TYPE == 0 ? computeSSAO(viewPos, normal) : computeRTAO(viewPos, normal);
                 
-                #if AO_FILTER == 0
-                    Result.rgb *= ambientOcclusion;
+                #if SSAO_FILTER == 0
+                    Result.rgb *= AO_TYPE == 0 ? ambientOcclusion : 1.0;
                 #endif
             #endif
         }

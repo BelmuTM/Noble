@@ -105,7 +105,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
 float drawStars(vec3 viewPos) {
 	vec3 playerPos = mat3(gbufferModelViewInverse) * viewPos;
 	vec3 planeCoords = playerPos / (playerPos.y + length(playerPos.xz));
-	vec2 coord = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-4 + frameTime * 0.00125;
+	vec2 coord = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-5 + frameTime * 0.00125;
 	coord = floor(coord * 1024.0) / 1024.0;
 
 	float VdotU = clamp01(dot(normalize(viewPos), normalize(upPosition)));
