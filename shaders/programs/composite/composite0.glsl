@@ -11,9 +11,6 @@
 #include "/include/fragment/ssr.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
 
-float wTime = float(worldTime);
-float timeMidnight = ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0);
-
 vec3 getCausticsViewPos(vec2 coords) {
    vec3 clipPos = vec3(coords, texture(depthtex1, coords).r) * 2.0 - 1.0;
    vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);

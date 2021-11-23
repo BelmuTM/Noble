@@ -44,7 +44,7 @@ const float rainAmbientDarkness = 0.3;
 #define SUN_INTENSITY    22.0
 #define SUN_COLOR        vec3(1.0, 0.97, 0.94)
 #define SUN_ILLUMINANCE  (SUN_INTENSITY * SUN_COLOR)
-#define MOON_ILLUMINANCE vec3(0.01)
+#define MOON_ILLUMINANCE vec3(0.05)
 
 #define SPECULAR    1 // [0 1]
 #define WHITE_WORLD 0 // [0 1]
