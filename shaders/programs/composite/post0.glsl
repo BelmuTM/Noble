@@ -34,8 +34,7 @@ void main() {
         Result.rgb = depthOfField(Result.rgb, coc);
     #endif
      
-    vec3 sky = texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos)) * ATMOSPHERE_RESOLUTION).rgb;
-    Result.rgb += fog(viewPos, vec3(0.0), 1.0 + sky, (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.03); // Applying Fog
+    Result.rgb += fog(viewPos, vec3(0.0), vec3(1.0), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.03); // Applying Fog
 
     /*DRAWBUFFERS:05*/
     gl_FragData[0] = Result;
