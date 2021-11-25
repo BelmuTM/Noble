@@ -71,10 +71,10 @@ const float rainAmbientDarkness = 0.3;
 #define SHADOW_BIAS    0.8
 
 // Soft Shadows
-#define PCSS_SAMPLES            24 // [24 64]
+#define PCSS_SAMPLES            16 // [16 64]
 #define LIGHT_SIZE           100.0
 #define BLOCKER_SEARCH_RADIUS 12.0
-#define BLOCKER_SEARCH_SAMPLES  20 // [20 64]
+#define BLOCKER_SEARCH_SAMPLES  8 // [8 64]
 
 /*------------------ RAY TRACING ------------------*/
 #define BINARY_REFINEMENT 1 // [0 1]

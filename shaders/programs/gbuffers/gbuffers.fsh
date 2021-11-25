@@ -57,6 +57,6 @@ void main() {
 	
 	/*DRAWBUFFERS:012*/
 	gl_FragData[0] = color * albedoTex;
-	gl_FragData[1] = vec4(encodeNormal(normal), pack2x4(vec2(ao, emission)), (blockId + 0.25) / 255.0);
-	gl_FragData[2] = vec4(clamp01(roughness), F0, lmCoords.xy);
+	gl_FragData[1] = vec4(encodeNormal(normal), lmCoords.xy);
+	gl_FragData[2] = vec4(clamp01(roughness), F0, pack2x4(vec2(ao, emission)), (blockId + 0.25) / 255.0);
 }

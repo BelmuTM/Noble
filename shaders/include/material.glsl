@@ -7,7 +7,7 @@
 /***********************************************/
 
 int getBlockId(vec2 coords) {
-    return int(texture(colortex1, coords).w * 255.0 + 0.5);
+    return int(texture(colortex2, coords).w * 255.0 + 0.5);
 }
 
 // Hardcoded values provided by Bálint#1673
@@ -43,7 +43,7 @@ material getMaterial(vec2 coords) {
     vec4 tex0 = texture(colortex0, coords);
     vec4 tex1 = texture(colortex1, coords);
     vec4 tex2 = texture(colortex2, coords);
-    vec2 unpacked = unpack2x4(tex1.z);
+    vec2 unpacked = unpack2x4(tex2.z);
 
     material mat;
 

@@ -165,7 +165,7 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celes
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
     vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
-    vec2 lightmap   = texture(colortex2, texCoords).zw;
+    vec2 lightmap   = texture(colortex1, texCoords).zw;
     vec3 skyLight   = skyIlluminance * ((lightmap.y * lightmap.y) - clamp(rainStrength, 0.0, rainAmbientDarkness));
     vec3 blockLight = getBlockLight(lightmap);
 

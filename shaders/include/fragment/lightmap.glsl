@@ -10,7 +10,7 @@ float wTime = float(worldTime);
 float timeMidnight = ((clamp(wTime, 12500.0, 12750.0) - 12500.0) / 250.0) - ((clamp(wTime, 23000.0, 24000.0) - 23000.0) / 1000.0);
 
 float getSkyLightmap(vec2 coords) {
-    float lightmap = texture(colortex2, coords).w;
+    float lightmap = texture(colortex1, coords).w;
     return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
 }
 
