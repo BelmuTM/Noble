@@ -10,7 +10,7 @@ vec3 reprojection(vec3 pos) {
     pos = pos * 2.0 - 1.0;
 
     vec4 currViewPos = gbufferProjectionInverse * vec4(pos, 1.0);
-    currViewPos.xyz /= currViewPos.w;
+    currViewPos /= currViewPos.w;
     vec3 currWorldPos = (gbufferModelViewInverse * currViewPos).xyz;
 
     vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(pos.z > 0.56);

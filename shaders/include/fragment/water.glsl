@@ -70,7 +70,7 @@ float computeWaves(vec2 coords) {
 vec3 getWaveNormals(vec3 worldPos) {
     vec2 coords = worldPos.xz - worldPos.y;
 
-    const float delta = 1e-2;
+    const float delta = 1e-1;
     float normal0 = computeWaves(coords);
 	float normal1 = computeWaves(coords + vec2(delta, 0.0));
 	float normal2 = computeWaves(coords + vec2(0.0, delta));

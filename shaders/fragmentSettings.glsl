@@ -8,6 +8,7 @@
 
 /*
 const int colortex0Format = RGBA16F;
+const int colortex1Format = RGBA16F;
 const int colortex2Format = RGBA8F;
 const int colortex3Format = RGBA16F;
 const bool colortex3Clear = false;
