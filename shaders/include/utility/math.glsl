@@ -81,14 +81,14 @@ vec2 sincos2(float x) {
 
 vec2 projectSphere(in vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
-    float latitude  = ACos(direction.y);
+    float latitude  = acos(direction.y);
 
-    return vec2(longitude * (1.0 / TAU) + 0.5, latitude * (1.0 / PI));
+    return vec2(longitude * (1.0 / TAU) + 0.5, latitude * INV_PI);
 }
 
 vec3 unprojectSphere(in vec2 coord) {
     float longitude = coord.x * TAU;
-    float latitude = coord.y * PI;
+    float latitude  = coord.y * PI;
     return vec3(vec2(sin(longitude), cos(longitude)) * sin(latitude), cos(latitude)).xzy;
 }
 

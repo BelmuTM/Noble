@@ -53,7 +53,7 @@ vec3 PCF(vec3 sampleCoords, mat2 rotation) {
             SAMPLES++;
         }
     }
-    return shadowResult / SAMPLES;
+    return shadowResult / float(SAMPLES);
 }
 
 vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
