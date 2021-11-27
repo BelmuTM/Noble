@@ -114,7 +114,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 F  = specularFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
-    return max0((D * F * G) / maxEps(4.0 * NdotL * NdotV));
+    return clamp01((D * F * G) / (4.0 * NdotL * NdotV));
 }
 
 // OREN-NAYAR MODEL - QUALITATIVE 

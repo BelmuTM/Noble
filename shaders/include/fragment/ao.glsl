@@ -7,7 +7,6 @@
 /***********************************************/
 
 float computeSSAO(vec3 viewPos, vec3 normal) {
-	vec3 sampleOrigin = viewPos + normal * EPS;
 	float occlusion = 1.0;
 
 	for(int i = 0; i < SSAO_SAMPLES; i++) {
@@ -25,7 +24,7 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 }
 
 float computeRTAO(vec3 viewPos, vec3 normal) {
-	vec3 samplePos = viewPos + normal * EPS;
+	vec3 samplePos = viewPos + normal * 1e-2;
 	float occlusion = 0.0; vec3 hitPos;
 
 	for(int i = 0; i < RTAO_SAMPLES; i++) {

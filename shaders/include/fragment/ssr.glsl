@@ -28,6 +28,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
 /*------------------ SIMPLE REFLECTIONS ------------------*/
 
 vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isMetal) {
+    viewPos += normal * 1e-2;
     vec3 reflected = reflect(normalize(viewPos), normal), hitPos;
 
     float jitter = TAA == 1 ? uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter))).x : blueNoise.x;
@@ -55,7 +56,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
     vec3 viewDir = normalize(viewPos);
     vec3 hitPos; vec2 noise;
 
-    viewPos += normal * 1e-3;
+    viewPos += normal * 1e-2;
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
         vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter * 10.0)) : uniformNoise(i, blueNoise);
@@ -81,7 +82,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 /*------------------ SIMPLE REFRACTIONS ------------------*/
 
 vec3 simpleRefractions(vec3 viewPos, vec3 normal, float F0, out vec3 hitPos) {
-    viewPos += normal * 1e-3;
+    viewPos += normal * 1e-2;
     float ior = F0toIOR(F0);
 
     vec3 refracted = refract(normalize(viewPos), normal, airIOR / ior);
