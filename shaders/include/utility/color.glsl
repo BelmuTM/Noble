@@ -150,11 +150,11 @@ const mat3 XYZtoRGBMatrix = (mat3(
 ));
 
 vec3 linearToXYZ(vec3 linear) {
-    return RGBtoXYZMatrix * linear;
+    return RGBtoXYZMatrix * linearToSRGB(vec4(linear, 1.0)).rgb;
 }
 
 vec3 XYZtoLinear(vec3 XYZ) {
-    return XYZtoRGBMatrix * XYZ;
+    return XYZtoRGBMatrix * sRGBToLinear(vec4(XYZ, 1.0)).rgb;
 }
 
 // https://www.shadertoy.com/view/ltjBWG

@@ -10,6 +10,7 @@
 #include "/include/fragment/svgf.glsl"
 
 void main() {
+    vec4 Result = texture(colortex0, texCoords);
     vec3 globalIllumination = vec3(0.0);
     float ambientOcclusion = 1.0;
 
@@ -22,7 +23,7 @@ void main() {
 
                 globalIllumination = SVGF(colortex5, scaledViewPos, scaledNormal, scaledUv);
             #else
-                globalIllumination = texture(colortex5, scaledUv).rgb;
+                Result.rgb = texture(colortex5, scaledUv).rgb;
             #endif
         #else 
             #if AO == 1
@@ -34,6 +35,7 @@ void main() {
         #endif
     }
 
-    /*DRAWBUFFERS:5*/
-    gl_FragData[0] = vec4(globalIllumination, ambientOcclusion);
+    /*DRAWBUFFERS:05*/
+    gl_FragData[0] = Result;
+    gl_FragData[1] = vec4(globalIllumination, ambientOcclusion);
 }

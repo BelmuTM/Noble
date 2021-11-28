@@ -50,13 +50,13 @@ vec3 volumetricLighting(vec3 viewPos) {
     vec2 phase = vec2(rayleighPhase(VdotL), miePhase(VdotL));
 
     vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
-    vec3 illuminance = (worldTime <= 12750 ? SUN_ILLUMINANCE : MOON_ILLUMINANCE);
+    vec3 illuminance = (worldTime <= 12750 ? sunIlluminance : moonIlluminance);
 
     for(int i = 0; i < VL_STEPS; i++, rayPos += rayDir) {
         vec4 samplePos   = shadowProjection * shadowModelView * rayPos;
         vec3 sampleColor = sampleShadowColor(vec3(distort(samplePos.xy), samplePos.z) * 0.5 + 0.5);
 
-        vec3 airmass     = (densities(rayPos.y) * VL_DENSITY) * stepSize;
+        vec3 airmass      = (densities(rayPos.y) * VL_DENSITY) * stepSize;
         vec3 opticalDepth = kExtinction * airmass;
 
         vec3 stepTransmittance = exp(-opticalDepth);
@@ -66,5 +66,5 @@ vec3 volumetricLighting(vec3 viewPos) {
         scattering    += stepScattering * vlTransmittance(rayPos.xyz, rayDir.xyz) * sampleColor * illuminance;
         transmittance *= stepTransmittance;
     }
-    return scattering;
+    return max0(scattering);
 }

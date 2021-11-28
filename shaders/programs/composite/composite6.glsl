@@ -23,8 +23,6 @@ void main() {
         #if GI == 1
             #if GI_FILTER == 1                
                 Result.rgb = SVGF(colortex5, viewPos, normal, texCoords);
-            #else
-                Result.rgb = texture(colortex5, texCoords).rgb;
             #endif
         #else
 

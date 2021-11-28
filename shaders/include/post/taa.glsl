@@ -34,15 +34,15 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
     vec3 pClip = 0.5 * (maxColor + minColor); // Center
     vec3 eClip = 0.5 * (maxColor - minColor); // Size
 
-    vec3 vClip = prevColor - pClip;
-    vec3 aUnit = abs(vClip / eClip);
+    vec3 vClip  = prevColor - pClip;
+    vec3 aUnit  = abs(vClip / eClip);
     float denom = max(aUnit.x, max(aUnit.y, aUnit.z));
 
     return denom > 1.0 ? pClip + vClip / denom : prevColor;
 }
 
 vec3 neighbourhoodClipping(sampler2D currColorTex, vec3 prevColor) {
-    vec3 minColor = vec3(1.0), maxColor = vec3(-1.0);
+    vec3 minColor = vec3(1000.0), maxColor = vec3(-1000.0);
 
     for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
         for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {
@@ -76,7 +76,7 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
         delta            = abs(viewToWorld(getViewPos(texCoords)) - viewToWorld(getViewPos(prevTexCoords)));
         float posWeight  = max0(exp(-dot(delta, delta) * 2.0));
         
-        blendWeight = lumaWeight * posWeight * normWeight;
+        blendWeight = pow2(lumaWeight) * posWeight * normWeight;
     #else
         blendWeight = TAA_STRENGTH * float(!hasMoved());
     #endif

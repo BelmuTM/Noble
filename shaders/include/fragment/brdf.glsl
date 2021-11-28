@@ -180,7 +180,7 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celes
     vec3 blockLight = getBlockLight(lightmap);
 
     vec3 lighting = vec3(0.0);
-    /* DIRECT ->   */ lighting += celestialIlluminance * ((diffuse + specular) * NdotL * shadows);
+    /* DIRECT ->   */ lighting += ((diffuse + specular) * NdotL * shadows) * celestialIlluminance;
     /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + blockLight + skyLight) * mat.albedo) * mat.ao;
     return lighting;
 }

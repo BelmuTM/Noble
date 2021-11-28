@@ -26,10 +26,10 @@ vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap) {
 }
 
 vec3 pathTrace(in vec3 screenPos) {
-    vec3 radiance        = vec3(0.0);
-    vec3 viewPos         = screenToView(screenPos); 
-    vec3 sunIlluminance  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * SUN_ILLUMINANCE;
-    vec3 moonIlluminance = atmosphereTransmittance(atmosRayPos, playerMoonDir) * MOON_ILLUMINANCE;
+    vec3 radiance     = vec3(0.0);
+    vec3 viewPos      = screenToView(screenPos); 
+    vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
+    vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
 
     uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
 
@@ -65,7 +65,7 @@ vec3 pathTrace(in vec3 screenPos) {
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : normalize(mat.normal + generateUnitVector(noise));
 
             radiance += throughput * mat.emission * mat.albedo;
-            radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb) * (sunIlluminance + moonIlluminance);
+            radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb) * (sunTransmit + moonTransmit);
 
             if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, uniformNoise(i, blueNoise).y, hitPos)) { break; }
 

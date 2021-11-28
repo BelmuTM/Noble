@@ -26,11 +26,11 @@ void main() {
         if(!isSky(texCoords)) {
             vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
-            vec3 skyIlluminance  = texture(colortex8, texCoords).rgb;
-            vec3 sunIlluminance  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * SUN_ILLUMINANCE;
-            vec3 moonIlluminance = atmosphereTransmittance(atmosRayPos, playerMoonDir) * MOON_ILLUMINANCE;
+            vec3 skyIlluminance = texture(colortex8, texCoords).rgb;
+            vec3 sunTransmit    = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
+            vec3 moonTransmit   = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
             
-            Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, sunIlluminance + moonIlluminance, skyIlluminance);
+            Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, sunTransmit + moonTransmit, skyIlluminance);
         }
     #endif
 

@@ -41,11 +41,6 @@ const float rainAmbientDarkness = 0.3;
 #define BLOCKLIGHT_MULTIPLIER   2.0
 #define BLOCKLIGHT_EXPONENT     5.0
 
-#define SUN_INTENSITY    22.0
-#define SUN_COLOR        vec3(1.0, 0.97, 0.94)
-#define SUN_ILLUMINANCE  (SUN_INTENSITY * SUN_COLOR)
-#define MOON_ILLUMINANCE vec3(0.05)
-
 #define CELESTIAL_SIZE_MULTIPLIER 3.0
 
 #define SPECULAR    1 // [0 1]

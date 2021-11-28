@@ -33,7 +33,7 @@ const int colortex7Format = R11F_G11F_B10F;
 const bool colortex7Clear = false;
 
 VOLUMETRIC LIGHTING
-const int colortex8Format = RGBA16;
+const int colortex8Format = RGBA16F;
 
 SHADOWMAP
 const int colortex9Format = RGB16;

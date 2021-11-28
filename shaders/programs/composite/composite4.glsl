@@ -43,8 +43,6 @@ void main() {
                 vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
                 outColor = SVGF(colortex5, viewPos, normal, texCoords);
-            #else
-                outColor = texture(colortex5, texCoords).rgb;
             #endif
         #else
             #if AO == 1

@@ -28,12 +28,18 @@ const vec3 atmosRayPos = vec3(0.0, earthRad, 0.0);
 
 /* CELESTIAL CONSTANTS */
 const float moonRad    = 1.7374e3;
-const float moonDist   = 384.40e3;
-const vec3  moonAlbedo = vec3(0.12);
+const float moonDist   = 3.8440e5;
+const float moonAlbedo = 0.12;
 
 const float sunRad  = 6.9634e8;
 const float sunDist = 1.496e11;
 const float sunTemp = 5778.0;
 
-const float sunAngularRad  = CELESTIAL_SIZE_MULTIPLIER * sunRad / sunDist;
+const float sunAngularRad  = CELESTIAL_SIZE_MULTIPLIER * sunRad  / sunDist;
 const float moonAngularRad = CELESTIAL_SIZE_MULTIPLIER * moonRad / moonDist;
+
+const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 120e3; // Brightness of light reaching the earth
+const vec3 sunLuminance   = sunIlluminance / (TAU * (1.0 - cos(sunAngularRad)));
+
+const vec3 moonIlluminance = vec3(moonAlbedo);
+const vec3 moonLuminance   = moonIlluminance / (TAU * (1.0 - cos(moonAngularRad)));
