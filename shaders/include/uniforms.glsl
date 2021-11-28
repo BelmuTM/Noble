@@ -70,24 +70,3 @@ const float airIOR = 1.00029;
 vec3 shadowDir     = shadowLightPosition * 0.01;
 vec3 playerSunDir  = normalize(mat3(gbufferModelViewInverse) * sunPosition);
 vec3 playerMoonDir = normalize(mat3(gbufferModelViewInverse) * moonPosition);
-
-/* ATMOSPHERIC SCATTERING CONSTANTS */
-
-const float g  = 0.76;
-const float gg = g*g;
-
-const float earthRad = 6371e3;
-const float atmosRad = 6481e3;
-
-const float hR = 8.0e3;
-const float hM = 1.2e3;
-
-// Coefficients
-const vec3 kRlh   = vec3(5.8e-6, 13.3e-6, 33.31e-6);        // Provided by Jessie#7257
-const mat2x3 kMie = mat2x3(vec3(21e-6), vec3(21e-6) * 1.1); // Provided by LVutner#5199
-const vec3 kOzo   = vec3(3.426e-7, 8.298e-7, 0.356e-7);     // Provided by LVutner#5199
-
-const mat2x3 kScattering = mat2x3(kRlh, kMie[0]);
-const mat3x3 kExtinction = mat3x3(kRlh, kMie[0] + kMie[1], kOzo);
-
-const vec3 atmosRayPos = vec3(0.0, earthRad, 0.0);

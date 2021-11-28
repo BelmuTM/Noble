@@ -79,6 +79,15 @@ vec2 sincos2(float x) {
 
 /* MISC */
 
+vec2 raySphere(vec3 ro, vec3 rd, float rad) {
+	float b = dot(ro, rd);
+	float c = dot(ro, ro) - rad * rad;
+	float d = b * b - c;
+	if(d < 0.0) return vec2(1.0, -1.0);
+	d = sqrt(d);
+	return vec2(-b - d, -b + d);
+}
+
 vec2 projectSphere(in vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
     float latitude  = acos(direction.y);

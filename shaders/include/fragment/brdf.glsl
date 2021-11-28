@@ -110,7 +110,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     float HdotL = maxEps(dot(H, L));
     float NdotH = maxEps(dot(N, H));
 
-    float D = distributionGGX(NdotH, mat.rough * mat.rough);
+    float D = distributionGGX(NdotH, pow2(mat.rough));
     vec3 F  = specularFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
@@ -132,7 +132,7 @@ vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float al
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
 vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
-    float alpha = mat.rough * mat.rough;
+    float alpha = pow2(mat.rough);
 
     vec3 H = normalize(V + L);
     float VdotL = maxEps(dot(V, L));
@@ -153,6 +153,16 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
     float multi  = 0.1159 * alpha;
 
     return mat.albedo * (single + mat.albedo * multi);
+}
+
+/* UNPHYSICALLY BASED STUFF */
+float getSkyLightmap(vec2 coords) {
+    float lightmap = texture(colortex1, coords).w;
+    return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
+}
+
+vec3 getBlockLight(vec2 lightmap) {
+    return blackbody(BLOCKLIGHT_TEMPERATURE) * (BLOCKLIGHT_MULTIPLIER * pow(lightmap.x, BLOCKLIGHT_EXPONENT));
 }
 
 // Thanks LVutner and Jessie for the help!

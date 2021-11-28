@@ -27,7 +27,7 @@ void main() {
                 specularColor = getSpecularColor(mat.F0, texture(colortex4, scaledUv).rgb);
                     
                 #if SSR_TYPE == 1
-                    outColor = prefilteredReflections(scaledUv, posAt, mat.normal, mat.rough * mat.rough, specularColor, mat.isMetal);
+                    outColor = prefilteredReflections(scaledUv, posAt, mat.normal, pow2(mat.rough), specularColor, mat.isMetal);
                 #else
                     float NdotV = maxEps(dot(mat.normal, -normalize(posAt)));
                     outColor = simpleReflections(scaledUv, posAt, mat.normal, NdotV, specularColor, mat.isMetal);

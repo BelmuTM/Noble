@@ -46,6 +46,8 @@ const float rainAmbientDarkness = 0.3;
 #define SUN_ILLUMINANCE  (SUN_INTENSITY * SUN_COLOR)
 #define MOON_ILLUMINANCE vec3(0.05)
 
+#define CELESTIAL_SIZE_MULTIPLIER 3.0
+
 #define SPECULAR    1 // [0 1]
 #define WHITE_WORLD 0 // [0 1]
 
@@ -118,9 +120,10 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define SCATTER_STEPS           16 // [8 12 16 20 24 28 32 36]
 #define TRANSMITTANCE_STEPS      8 // [8 12 16 20 24 28 32 36]
 
-#define VL        0 // [0 1]
-#define VL_FILTER 1 // [0 1]
-#define VL_STEPS int(SCATTER_STEPS * 0.5)
+#define VL         0 // [0 1]
+#define VL_FILTER  1 // [0 1]
+#define VL_DENSITY 1.0
+#define VL_STEPS   int(SCATTER_STEPS * 0.5)
 
 #define RAIN_FOG 1 // [0 1]
 

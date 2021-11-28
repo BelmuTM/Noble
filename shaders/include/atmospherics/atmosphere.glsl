@@ -29,27 +29,17 @@ float miePhase(float cosTheta) {
     return mie * (num / denom);
 }
 
-// Provided by LVutner#5199
-vec2 raySphere(vec3 ro, vec3 rd, float rad) {
-	float b = dot(ro, rd);
-	float c = dot(ro, ro) - rad * rad;
-	float d = b * b - c;
-	if(d < 0.0) return vec2(1.0, -1.0);
-	d = sqrt(d);
-	return vec2(-b - d, -b + d);
-}
-
 vec3 densities(float height) {
-    float rayLeigh = exp(-height / hR);
+    float rayleigh = exp(-height / hR);
     float mie      = exp(-height / hM);
     float ozone    = exp(-max0((35e3 - height) - atmosRad) / 5e3) * exp(-max0((height - 35e3) - atmosRad) / 15e3);
-    return vec3(rayLeigh, mie, ozone);
+    return vec3(rayleigh, mie, ozone);
 }
 
 vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     float stepSize = raySphere(rayOrigin, lightDir, atmosRad).y / float(TRANSMITTANCE_STEPS);
     vec3 increment = lightDir * stepSize;
-    vec3 rayPos = rayOrigin + increment * 0.5;
+    vec3 rayPos    = rayOrigin + increment * 0.5;
 
     vec3 transmittance = vec3(1.0);
     for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
@@ -62,13 +52,14 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
 vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     vec2 atmosDist  = raySphere(rayOrigin, rayDir, atmosRad);
-    vec2 planetDist = raySphere(rayOrigin, rayDir, earthRad - 5e3);
+    vec2 planetDist = raySphere(rayOrigin, rayDir, earthRad * 0.9999);
 
     // Step size method from Jessie#7257
-    bool planetIntersect = planetDist.y >= 0.0;
-    vec2 sd = vec2((planetIntersect && planetDist.x < 0.0) ? planetDist.y : max(atmosDist.x, 0.0), (planetIntersect && planetDist.x > 0.0) ? planetDist.x : atmosDist.y);
-    float stepSize = length(sd.y - sd.x) / float(SCATTER_STEPS);
+    bool intersect = planetDist.y >= 0.0;
+    float pos0 = (intersect && planetDist.x < 0.0) ? planetDist.y : max0(atmosDist.x);
+    float pos1 = (intersect && planetDist.x > 0.0) ? planetDist.x : atmosDist.y;
 
+    float stepSize = length(pos1 - pos0) / float(SCATTER_STEPS);
     vec3 increment = rayDir * stepSize;
     vec3 rayPos = rayOrigin + increment * 0.5;
 
@@ -80,14 +71,14 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     
     for(int i = 0; i < SCATTER_STEPS; i++) {
         vec3 airmass = densities(length(rayPos) - earthRad) * stepSize;
-        vec3 stepOpticalDepth = -kExtinction * airmass;
+        vec3 stepOpticalDepth = kExtinction * airmass;
 
-        vec3 stepTransmittance  = exp(stepOpticalDepth);
-        vec3 visibleScattering  = transmittance * (stepTransmittance - 1.0) / stepOpticalDepth;
+        vec3 stepTransmittance  = exp(-stepOpticalDepth);
+        vec3 visibleScattering  = transmittance * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
         vec3 sunStepScattering  = kScattering * (airmass.xy * phase.xy) * visibleScattering;
         vec3 moonStepScattering = kScattering * (airmass.xy * phase.zw) * visibleScattering;
 
-        scattering += sunStepScattering  * atmosphereTransmittance(rayPos, playerSunDir)  * SUN_ILLUMINANCE;
+        scattering += sunStepScattering  * atmosphereTransmittance(rayPos, playerSunDir)  * blackbody(sunTemp);
         scattering += moonStepScattering * atmosphereTransmittance(rayPos, playerMoonDir) * MOON_ILLUMINANCE;
         multipleScattering += visibleScattering * (kScattering * airmass.xy);
 
@@ -98,23 +89,4 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     multipleScattering *= skyIlluminance * (0.25 / PI);
     
     return max0(multipleScattering + scattering);
-}
-
-// Originally written by Capt Tatsu#7124
-// Modified by Belmu#4066
-float drawStars(vec3 viewPos) {
-	vec3 playerPos = mat3(gbufferModelViewInverse) * viewPos;
-	vec3 planeCoords = playerPos / (playerPos.y + length(playerPos.xz));
-	vec2 coord = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-5 + frameTime * 0.00125;
-	coord = floor(coord * 1024.0) / 1024.0;
-
-	float VdotU = clamp01(dot(normalize(viewPos), normalize(upPosition)));
-	float multiplier = sqrt(sqrt(VdotU)) * (1.0 - rainStrength);
-
-	float star = 1.0;
-	if(VdotU > 0.0) {
-		star *= rand(coord.xy);
-		star *= rand(-coord.xy + 0.1);
-	}
-	return clamp01(star - (1.0 - STARS_AMOUNT)) * multiplier;
 }

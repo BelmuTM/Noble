@@ -9,7 +9,6 @@
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/ssr.glsl"
-#include "/include/atmospherics/atmosphere.glsl"
 
 vec3 getCausticsViewPos(vec2 coords) {
    vec3 clipPos = vec3(coords, texture(depthtex1, coords).r) * 2.0 - 1.0;
@@ -23,13 +22,14 @@ void main() {
 
    if(isSky(texCoords)) {
       /*DRAWBUFFERS:0*/
-      vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
-      vec4 sky = vec4(0.0);
+      vec4 sky = vec4(0.0, 0.0, 0.0, 1.0);
 
       #if WORLD == OVERWORLD
-         vec4 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION);            // Atmosphere
-         sky      = tmp + vec4(vec3((drawStars(viewPos) * STARS_BRIGHTNESS) * exp(-timeMidnight)), 1.0); // + Stars
-         sky.rgb += sun(normalize(viewPos), shadowDir) * tmp.rgb;                                        // + Sun
+         vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
+
+         vec4 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION);
+         sky.rgb  = tmp.rgb + (starfield(viewPos) * STARS_BRIGHTNESS * exp(-timeMidnight));
+         sky.rgb += celestialBody(normalize(viewPos), shadowDir) * tmp.rgb;
       #endif
 
       gl_FragData[0] = sky + rain;

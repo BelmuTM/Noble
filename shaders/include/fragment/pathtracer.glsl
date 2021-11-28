@@ -61,7 +61,7 @@ vec3 pathTrace(in vec3 screenPos) {
             float specularProbability = fresnelLum / maxEps(fresnelLum + diffuseLum);
             bool specularBounce = specularProbability > randF(rngState);
 
-            vec3 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, mat.rough * mat.rough);
+            vec3 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, pow2(mat.rough));
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : normalize(mat.normal + generateUnitVector(noise));
 
             radiance += throughput * mat.emission * mat.albedo;

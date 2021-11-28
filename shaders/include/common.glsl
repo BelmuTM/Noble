@@ -1,3 +1,11 @@
+/***********************************************/
+/*       Copyright (C) Noble RT - 2021         */
+/*   Belmu | GNU General Public License V3.0   */
+/*                                             */
+/* By downloading this content you have agreed */
+/*     to the license and its terms of use.    */
+/***********************************************/
+
 #include "/include/uniforms.glsl"
 
 vec3 blueNoise     = texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
@@ -17,4 +25,5 @@ bool isHand(float depth) {
 }
 
 #include "/include/utility/color.glsl"
-#include "/include/fragment/lightmap.glsl"
+#include "/include/atmospherics/constants.glsl"
+#include "/include/atmospherics/celestial.glsl"
