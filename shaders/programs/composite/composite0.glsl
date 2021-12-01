@@ -29,7 +29,7 @@ void main() {
       #if WORLD == OVERWORLD
          vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
-         vec3 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION).rgb;
+         vec3 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
          sky.rgb  = tmp + (starfield(viewPos) * STARS_BRIGHTNESS * exp(-timeMidnight));
          sky.rgb += celestialBody(normalize(viewPos), shadowDir);
       #endif
