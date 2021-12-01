@@ -157,6 +157,10 @@ option.RAIN_FOG.comment = A fog that appears when it rains.
 value.RAIN_FOG.0 = §cOFF
 value.RAIN_FOG.1 = §aON
 
+option.CELESTIAL_SIZE_MULTIPLIER = Celestial Size Multiplier
+option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the Sun/Moon.
+suffix.CELESTIAL_SIZE_MULTIPLIER = x
+
 option.ATMOSPHERE_RESOLUTION = Atmosphere Resolution
 option.ATMOSPHERE_RESOLUTION.comment = Adjusts the §bAtmosphere§f's resolution. §cHigher value gives better results, but reduces §cperformance.
 

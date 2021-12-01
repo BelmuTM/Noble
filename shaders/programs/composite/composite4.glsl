@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/include/utility/blur.glsl"
+#include "/include/atmospherics/celestial.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/ssr.glsl"
@@ -22,8 +22,8 @@ void main() {
             vec2 scaledUv = texCoords * (1.0 / resolution);
         
             if(clamp(texCoords, vec2(0.0), vec2(resolution + 1e-3)) == texCoords && !isSky(scaledUv)) {
-                vec3 posAt = getViewPos(scaledUv);
-                material mat = getMaterial(scaledUv);
+                vec3 posAt    = getViewPos(scaledUv);
+                material mat  = getMaterial(scaledUv);
                 specularColor = getSpecularColor(mat.F0, texture(colortex4, scaledUv).rgb);
                     
                 #if SSR_TYPE == 1
@@ -40,18 +40,9 @@ void main() {
         #if GI == 1
             #if GI_FILTER == 1
                 vec3 viewPos = getViewPos(texCoords);
-                vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+                vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
                 outColor = SVGF(colortex5, viewPos, normal, texCoords);
-            #endif
-        #else
-            #if AO == 1
-                #if AO_TYPE == 0
-                    #if SSAO_FILTER == 1
-                        bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
-                        Result.rgb *= isMetal ? 1.0 : gaussianBlur(texCoords, colortex5, vec2(0.0, 1.0), 1.0).a;
-                    #endif
-                #endif
             #endif
         #endif
     }

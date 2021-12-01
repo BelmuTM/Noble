@@ -67,6 +67,6 @@ uniform mat4 gbufferPreviousProjection;
 const int noiseRes = 256;
 const float airIOR = 1.00029;
 
-vec3 shadowDir     = shadowLightPosition * 0.01;
+vec3 shadowDir     = normalize(shadowLightPosition);
 vec3 playerSunDir  = normalize(mat3(gbufferModelViewInverse) * sunPosition);
 vec3 playerMoonDir = normalize(mat3(gbufferModelViewInverse) * moonPosition);

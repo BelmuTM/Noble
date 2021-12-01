@@ -34,12 +34,12 @@
 #if PURKINJE == 1
     vec3 purkinje(vec3 color) {
         vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
-        vec3 xyzColor = linearToXYZ(color);
+        vec3 xyzColor    = linearToXYZ(color);
 
         vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
-        float purkinje = dot(rodResponse, XYZtoLinear(scotopicLuma));
+        float purkinje    = dot(rodResponse, XYZtoLinear(scotopicLuma));
 
-        return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 100.0));
+        return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 20.0));
     }
 #endif
 
@@ -114,7 +114,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        Result.rgb += clamp01(readBloom().rgb * 0.009 * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
+        Result.rgb += max0(readBloom().rgb * 1e-3 * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
     #endif
 
     #if PURKINJE == 1

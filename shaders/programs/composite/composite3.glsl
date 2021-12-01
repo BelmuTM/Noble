@@ -6,36 +6,27 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/include/utility/blur.glsl"
 #include "/include/fragment/svgf.glsl"
 
 void main() {
     vec4 Result = texture(colortex0, texCoords);
     vec3 globalIllumination = vec3(0.0);
-    float ambientOcclusion = 1.0;
 
     if(!isSky(texCoords)) {
         #if GI == 1
             vec2 scaledUv = texCoords * GI_RESOLUTION; 
             #if GI_FILTER == 1
                 vec3 scaledViewPos = getViewPos(scaledUv);
-                vec3 scaledNormal = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
+                vec3 scaledNormal  = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
 
                 globalIllumination = SVGF(colortex5, scaledViewPos, scaledNormal, scaledUv);
             #else
                 Result.rgb = texture(colortex5, scaledUv).rgb;
-            #endif
-        #else 
-            #if AO == 1
-                #if SSAO_FILTER == 1
-                    bool isMetal = texture(colortex2, texCoords).g * 255.0 > 229.5;
-                    ambientOcclusion = isMetal ? 1.0 : gaussianBlur(texCoords, colortex5, vec2(1.0, 0.0), 1.0).a;
-                #endif
             #endif
         #endif
     }
 
     /*DRAWBUFFERS:05*/
     gl_FragData[0] = Result;
-    gl_FragData[1] = vec4(globalIllumination, ambientOcclusion);
+    gl_FragData[1] = vec4(globalIllumination, 1.0);
 }

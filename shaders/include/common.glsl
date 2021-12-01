@@ -26,4 +26,3 @@ bool isHand(float depth) {
 
 #include "/include/utility/color.glsl"
 #include "/include/atmospherics/constants.glsl"
-#include "/include/atmospherics/celestial.glsl"

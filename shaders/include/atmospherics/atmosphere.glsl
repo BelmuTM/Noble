@@ -88,5 +88,5 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     skyIlluminance = PI * mix(skyIlluminance, vec3(skyIlluminance.b) * sqrt(2.0), INV_PI);
     multipleScattering *= skyIlluminance * (0.25 / PI);
     
-    return max0(multipleScattering + scattering);
+    return max0((multipleScattering * PI) + scattering);
 }

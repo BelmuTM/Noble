@@ -10,11 +10,12 @@
 
 void main() {
     vec3 globalIllumination = texture(colortex5, texCoords).rgb;
+    
     if(!isSky(texCoords)) {
         #if GI == 1
             #if GI_FILTER == 1
                 vec3 viewPos = getViewPos(texCoords);
-                vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+                vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
                 
                 globalIllumination = SVGF(colortex5, viewPos, normal, texCoords);
             #endif

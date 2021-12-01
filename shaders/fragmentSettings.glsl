@@ -22,7 +22,7 @@ const bool colortex3Clear = false;
 
 MULTIPLE THINGS
 const int colortex4Format = RGBA16;
-const int colortex5Format = RGBA16;
+const int colortex5Format = RGBA16F;
 
 PTGI ACCUMULATION BUFFER
 const int colortex6Format = RGBA32F;
@@ -36,5 +36,5 @@ VOLUMETRIC LIGHTING
 const int colortex8Format = RGBA16F;
 
 SHADOWMAP
-const int colortex9Format = RGB16;
+const int colortex9Format = RGBA16;
 */

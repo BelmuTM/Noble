@@ -168,7 +168,7 @@ vec3 getBlockLight(vec2 lightmap) {
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
-vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celestialIlluminance, vec3 skyIlluminance) {
+vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celestialIlluminance, vec3 skyIlluminance, float ambientOcclusion) {
     V = -normalize(V);
     float NdotL = maxEps(dot(N, L));
 
@@ -181,6 +181,6 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celes
 
     vec3 lighting = vec3(0.0);
     /* DIRECT ->   */ lighting += ((diffuse + specular) * NdotL * shadows) * celestialIlluminance;
-    /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + blockLight + skyLight) * mat.albedo) * mat.ao;
+    /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + blockLight + skyLight) * mat.albedo) * mat.ao * ambientOcclusion;
     return lighting;
 }

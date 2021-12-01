@@ -30,15 +30,15 @@ vec4 bloomTile(int LOD) {
 	vec2 coords = (texCoords - offset) * scale;
 	float padding = 0.5 + 0.005 * scale;
 
-	vec4 color;
+	vec4 color = vec4(0.0);
 	if(abs(coords.x - 0.5) < padding && abs(coords.y - 0.5) < padding) {
-		color = gaussianBlur(texCoords - offset, colortex5, vec2(1.0, 0.0), scale);
+		color = twoPassGaussianBlur(texCoords - offset, colortex5, scale);
 	}
 	return color;
 }
 
 vec4 getBloomTile(int LOD) {
-	return gaussianBlur(texCoords / exp2(LOD) + bloomOffsets[LOD - 2], colortex5, vec2(0.0, 1.0), 1.0);
+	return texture(colortex5, texCoords / exp2(LOD) + bloomOffsets[LOD - 2]);
 }
 
 vec4 writeBloom() {

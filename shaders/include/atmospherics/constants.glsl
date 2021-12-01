@@ -38,7 +38,7 @@ const float sunTemp = 5778.0;
 const float sunAngularRad  = CELESTIAL_SIZE_MULTIPLIER * sunRad  / sunDist;
 const float moonAngularRad = CELESTIAL_SIZE_MULTIPLIER * moonRad / moonDist;
 
-const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 120e3; // Brightness of light reaching the earth
+const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 22.0; // Brightness of light reaching the earth
 const vec3 sunLuminance   = sunIlluminance / (TAU * (1.0 - cos(sunAngularRad)));
 
 const vec3 moonIlluminance = vec3(moonAlbedo);

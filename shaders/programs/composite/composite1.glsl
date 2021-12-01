@@ -6,6 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#include "/include/utility/blur.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/shadows.glsl"
@@ -24,13 +25,20 @@ void main() {
     
     #if GI == 0
         if(!isSky(texCoords)) {
+            float ambientOcclusion = 1.0;
+            #if AO == 1
+                if(!mat.isMetal) { 
+                    ambientOcclusion = SSAO_FILTER == 0 ? texture(colortex9, texCoords).a : twoPassGaussianBlur(texCoords, colortex9, 1.0).a;
+                }
+            #endif
+            
             vec3 shadowmap = texture(colortex9, texCoords).rgb;
 
             vec3 skyIlluminance = texture(colortex8, texCoords).rgb;
             vec3 sunTransmit    = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
             vec3 moonTransmit   = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
             
-            Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, sunTransmit + moonTransmit, skyIlluminance);
+            Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, sunTransmit + moonTransmit, skyIlluminance, ambientOcclusion);
         }
     #endif
 

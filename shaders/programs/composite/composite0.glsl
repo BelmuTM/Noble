@@ -6,9 +6,11 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#include "/include/atmospherics/celestial.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/ssr.glsl"
+#include "/include/fragment/ao.glsl"
 
 vec3 getCausticsViewPos(vec2 coords) {
    vec3 clipPos = vec3(coords, texture(depthtex1, coords).r) * 2.0 - 1.0;
@@ -27,9 +29,9 @@ void main() {
       #if WORLD == OVERWORLD
          vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
-         vec4 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION);
-         sky.rgb  = tmp.rgb + (starfield(viewPos) * STARS_BRIGHTNESS * exp(-timeMidnight));
-         sky.rgb += celestialBody(normalize(viewPos), shadowDir) * tmp.rgb;
+         vec3 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION).rgb;
+         sky.rgb  = tmp + (starfield(viewPos) * STARS_BRIGHTNESS * exp(-timeMidnight));
+         sky.rgb += celestialBody(normalize(viewPos), shadowDir);
       #endif
 
       gl_FragData[0] = sky + rain;
@@ -38,7 +40,7 @@ void main() {
 
    /*    ------- WATER EFFECTS -------    */
    material mat = getMaterial(texCoords);
-   mat.albedo = sRGBToLinear(vec4(mat.albedo, 1.0)).rgb;
+   mat.albedo   = sRGBToLinear(vec4(mat.albedo, 1.0)).rgb;
 
    vec3 hitPos; vec2 coords = texCoords;
    vec3 opaques = texture(colortex4, texCoords).rgb * INV_PI * maxEps(dot(mat.normal, shadowDir));
@@ -59,10 +61,10 @@ void main() {
       bool canCast = isEyeInWater == 1 ? true : getBlockId(coords) == 1;
 
       if(canCast) {
-         vec2 worldPos = viewToWorld(getCausticsViewPos(coords)).xz * 0.5 + 0.5;
+         vec2 worldPos       = viewToWorld(getCausticsViewPos(coords)).xz * 0.5 + 0.5;
          float causticsSpeed = ANIMATED_WATER == 1 ? frameTimeCounter * WATER_CAUSTICS_SPEED : 0.0;
-         vec3 caustics = texelFetch(depthtex2, ivec2(mod((worldPos * 80.0) + causticsSpeed, 250)), 0).rgb;
-         shadowmap += caustics * WATER_CAUSTICS_STRENGTH * shadowmap;
+         vec3 caustics       = texelFetch(depthtex2, ivec2(mod((worldPos * 80.0) + causticsSpeed, 250)), 0).rgb;
+         shadowmap          += caustics * WATER_CAUSTICS_STRENGTH * shadowmap;
       }
    #endif
 
@@ -85,16 +87,21 @@ void main() {
          #if WATER_FOAM == 1
             if(depthDist < FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF) {
                float falloff = (depthDist / FOAM_FALLOFF_DISTANCE) + FOAM_FALLOFF_BIAS;
-               vec3 edge = transmittance * falloff * FOAM_BRIGHTNESS * shadowmap;
+               vec3 edge     = transmittance * falloff * FOAM_BRIGHTNESS * shadowmap;
 
                float leading = depthDist / (FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF);
-	            mat.albedo += edge * (1.0 - leading);
+	            mat.albedo   += edge * (1.0 - leading);
             }
          #endif
       }
    #endif
 
+   float ambientOcclusion = 1.0;
+   #if AO == 1
+      ambientOcclusion = AO_TYPE == 0 ? computeSSAO(viewPos, mat.normal) : computeRTAO(viewPos, mat.normal);
+   #endif
+
    /*DRAWBUFFERS:09*/
    gl_FragData[0] = clamp01(vec4(mat.albedo, 1.0) + rain);
-   gl_FragData[1] = vec4(shadowmap, 1.0);
+   gl_FragData[1] = vec4(shadowmap, ambientOcclusion);
 }

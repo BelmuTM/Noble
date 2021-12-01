@@ -41,8 +41,6 @@ const float rainAmbientDarkness = 0.3;
 #define BLOCKLIGHT_MULTIPLIER   2.0
 #define BLOCKLIGHT_EXPONENT     5.0
 
-#define CELESTIAL_SIZE_MULTIPLIER 3.0
-
 #define SPECULAR    1 // [0 1]
 #define WHITE_WORLD 0 // [0 1]
 
@@ -111,16 +109,17 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define REFRACT_STEPS        56
 
 /*------------------ ATMOSPHERICS ------------------*/
-#define ATMOSPHERE_RESOLUTION 0.25 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define SCATTER_STEPS           16 // [8 12 16 20 24 28 32 36]
-#define TRANSMITTANCE_STEPS      8 // [8 12 16 20 24 28 32 36]
+#define RAIN_FOG 1 // [0 1]
+
+#define CELESTIAL_SIZE_MULTIPLIER 3 // [1 2 3 4 5]
+#define ATMOSPHERE_RESOLUTION  0.25 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define SCATTER_STEPS            16 // [8 12 16 20 24 28 32 36]
+#define TRANSMITTANCE_STEPS       8 // [8 12 16 20 24 28 32 36]
 
 #define VL         0 // [0 1]
 #define VL_FILTER  1 // [0 1]
 #define VL_DENSITY 1.0
 #define VL_STEPS   int(SCATTER_STEPS * 0.5)
-
-#define RAIN_FOG 1 // [0 1]
 
 #define STARS_AMOUNT     0.10 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define STARS_BRIGHTNESS 0.30 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
@@ -157,7 +156,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define NEIGHBORHOOD_SIZE 1 // [1 2 3]
 
 #define TAA_VELOCITY_WEIGHT 0 // [0 1]
-#define TAA_LUMA_MIN 0.15
+#define TAA_LUMA_MIN     0.15
 
 #define PURKINJE 0 // [0 1]
 
@@ -193,7 +192,7 @@ const float S = 100.0; // Sensor sensitivity
 #define CONTRAST   1.00 // [0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50]
 #define BRIGHTNESS 0.00 // [-0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25]
 
-/*------------------ OTHER ------------------*/
+/*------------------ VANILLA AO ------------------*/
 #if AO == 1 || GI == 1
      const float ambientOcclusionLevel = 0.0;
 #else

@@ -10,7 +10,6 @@
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/pathtracer.glsl"
-#include "/include/fragment/ao.glsl"
 
 #if GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
@@ -37,37 +36,25 @@
 void main() {
     vec4 Result = texture(colortex0, texCoords);
     vec3 globalIllumination = vec3(0.0);
-    float ambientOcclusion = 1.0;
     float historyFrames = texture(colortex6, texCoords).a;
 
-    vec3 viewPos = getViewPos(texCoords);
-    vec3 normal = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-
     #if GI == 1
-        /* Downscaling Global Illumination */
         vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
             globalIllumination = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r));
 
             #if GI_TEMPORAL_ACCUMULATION == 1
+                vec3 viewPos = getViewPos(texCoords);
+                vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+
                 globalIllumination = temporalAccumulation(colortex6, globalIllumination, viewPos, normal, historyFrames);
-            #endif
-        }
-    #else
-        if(!isSky(texCoords)) {
-            #if AO == 1
-                ambientOcclusion = AO_TYPE == 0 ? computeSSAO(viewPos, normal) : computeRTAO(viewPos, normal);
-                
-                #if SSAO_FILTER == 0
-                    Result.rgb *= AO_TYPE == 0 ? ambientOcclusion : 1.0;
-                #endif
             #endif
         }
     #endif
 
     /*DRAWBUFFERS:056*/
     gl_FragData[0] = Result;
-    gl_FragData[1] = vec4(globalIllumination, ambientOcclusion);
+    gl_FragData[1] = vec4(globalIllumination, 1.0);
     gl_FragData[2] = vec4(globalIllumination, historyFrames);
 }

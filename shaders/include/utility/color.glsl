@@ -154,7 +154,7 @@ vec3 linearToXYZ(vec3 linear) {
 }
 
 vec3 XYZtoLinear(vec3 XYZ) {
-    return XYZtoRGBMatrix * sRGBToLinear(vec4(XYZ, 1.0)).rgb;
+    return sRGBToLinear(vec4(XYZtoRGBMatrix * XYZ, 1.0)).rgb;
 }
 
 // https://www.shadertoy.com/view/ltjBWG

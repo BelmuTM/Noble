@@ -33,9 +33,9 @@
 
 #elif STAGE == STAGE_FRAGMENT
 
+    #include "/include/atmospherics/atmosphere.glsl"
     #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/shadows.glsl"
-    #include "/include/atmospherics/atmosphere.glsl"
 
     in vec3 skyIlluminance;
 
