@@ -80,7 +80,7 @@ void main() {
       if(getBlockId(texCoords) == 1) {
          // Transmittance
          float density = depthDist * 6.5e-1;
-	      vec3 transmittance = exp2(-(density * 0.301029995) * WATER_ABSORPTION_COEFFICIENTS);
+	      vec3 transmittance = exp2(-(density * log(2.0)) * WATER_ABSORPTION_COEFFICIENTS);
          if(isEyeInWater == 0) { mat.albedo *= transmittance; }
 
          // Foam

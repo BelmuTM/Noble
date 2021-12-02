@@ -67,7 +67,7 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords) {
     for(int x = -KERNEL_SIZE; x <= KERNEL_SIZE; x++) {
         for(int y = -KERNEL_SIZE; y <= KERNEL_SIZE; y++) {
             vec2 sampleCoords = coords + (vec2(x, y) * pixelSize);
-            float kernel = kernelWeights[x] * kernelWeights[y];
+            float kernel = kernelWeights[abs(x)] * kernelWeights[abs(y)];
 
             vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
             vec3 delta = viewToWorld(normal) -  viewToWorld(normalAt);

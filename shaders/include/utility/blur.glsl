@@ -22,7 +22,7 @@ vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
 
 vec4 bokeh(vec2 coords, sampler2D tex, vec2 resolution, int quality, float radius) {
     vec4 color = texture(tex, coords);
-    vec2 noise = uniformAnimatedNoise(animBlueNoise.yz);
+    vec2 noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter * 10.0));
 
     int SAMPLES = 1;
     for(int i = 0; i < quality; i++) {
@@ -70,8 +70,8 @@ vec4 onePassGaussianBlur(vec2 coords, sampler2D tex, vec2 direction, float scale
     const int KERNEL_SIZE = 6;
 
     for(int i = -KERNEL_SIZE; i < KERNEL_SIZE; i++) {
-        vec2 sampleCoords = (coords + (direction * i * pixelSize)) * scale;
-        color            += texture(tex, sampleCoords) * gaussianWeights6[i];
+        vec2 sampleCoords = (coords + (direction * abs(i) * pixelSize)) * scale;
+        color            += texture(tex, sampleCoords) * gaussianWeights6[abs(i)];
     }
     return color;
 }
@@ -83,28 +83,10 @@ vec4 twoPassGaussianBlur(vec2 coords, sampler2D tex, float scale) {
     for(int x = -KERNEL_SIZE; x < KERNEL_SIZE; x++) {
         for(int y = -KERNEL_SIZE; y < KERNEL_SIZE; y++) {
             vec2 sampleCoords = (coords + (vec2(x, y) * pixelSize)) * scale;
-            float kernel      = gaussianWeights7[x] * gaussianWeights7[y];
+            float kernel      = gaussianWeights7[abs(x)] * gaussianWeights7[abs(y)];
 
             color += texture(tex, sampleCoords) * kernel;
         }
     }
     return color;
-}
-
-float edgeWeight(vec2 sampleCoords, vec3 pos, vec3 normal) { 
-    vec3 posAt    = getViewPos(sampleCoords);
-    vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
-
-    const float posThresh    = 0.6;
-    const float normalThresh = 0.1;
-
-    return float(
-           abs(posAt.x - pos.x) <= posThresh
-        && abs(posAt.y - pos.y) <= posThresh
-        && abs(posAt.z - pos.z) <= posThresh
-        && abs(normalAt.x - normal.x) <= normalThresh
-        && abs(normalAt.y - normal.y) <= normalThresh
-        && abs(normalAt.z - normal.z) <= normalThresh
-        && clamp01(sampleCoords) == sampleCoords // Is on screen
-    );
 }
