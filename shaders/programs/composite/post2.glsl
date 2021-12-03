@@ -136,7 +136,7 @@ void main() {
     // Vignette
     #if VIGNETTE == 1
         vec2 coords = texCoords * (1.0 - texCoords.yx);
-        finalCol   *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
+        color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
     color = linearToSRGB(color);
