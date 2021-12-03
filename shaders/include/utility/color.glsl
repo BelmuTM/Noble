@@ -105,21 +105,23 @@ vec3 ACESApprox(vec3 x) {
     return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
 
-vec3 vibranceSaturation(vec3 color, float vibrance, float saturation) {
+void vibrance(vec3 color, float intensity) {
     float luma = luminance(color);
     float mn   = min(min(color.r, color.g), color.b);
     float mx   = max(max(color.r, color.g), color.b);
     float sat  = (1.0 - clamp01(mx - mn)) * clamp01(1.0 - mx) * luma * 5.0;
     vec3 light = vec3((mn + mx) / 2.0);
 
-    color = mix(color, mix(light, color, vibrance), sat);
-    color = mix(color, light, (1.0 - light) * (1.0 - vibrance) / 2.0 * abs(vibrance));
-    color = mix(vec3(luma), color, saturation);
-    return color;
+    color = mix(color, mix(light, color, intensity), sat);
+    color = mix(color, light, (1.0 - light) * (1.0 - intensity) / 2.0 * abs(intensity));
 }
 
-vec3 contrast(vec3 color, float contrast) {
-    return color * contrast + (0.5 - contrast * 0.5);
+void saturation(inout vec3 color, float intensity) {
+    color = mix(vec3(luminance(color)), color, intensity);
+}
+
+void contrast(vec3 color, float contrast) {
+    color = (color - 0.5) * contrast + 0.5;
 }
 
 // https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x

@@ -24,19 +24,19 @@ vec3 depthOfField(vec3 color, float coc) {
 
 void main() {
     vec3 viewPos = getViewPos(texCoords);
-    vec4 Result = texture(colortex0, texCoords);
+    vec4 color = texture(colortex0, texCoords);
 
     vec4 bloom = BLOOM == 1 ? writeBloom() : vec4(0.0);
 
     float coc = 1.0;
     #if DOF == 1
         coc = getCoC(linearizeDepth(texture(depthtex0, texCoords).r), linearizeDepth(centerDepthSmooth));
-        Result.rgb = depthOfField(Result.rgb, coc);
+        color.rgb = depthOfField(color.rgb, coc);
     #endif
      
-    Result.rgb += fog(viewPos, vec3(0.0), vec3(1.0), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.03); // Applying Fog
+    color.rgb += fog(viewPos, vec3(0.0), vec3(1.0), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.03); // Applying Fog
 
     /*DRAWBUFFERS:05*/
-    gl_FragData[0] = Result;
+    gl_FragData[0] = color;
     gl_FragData[1] = vec4(bloom.rgb, coc);
 }

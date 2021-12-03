@@ -77,11 +77,11 @@ void tonemap(inout vec3 color) {
 
 #if LUT == 1
     const int lutRes        = 512;
-    const int sqrTileSize   = int(pow(lutRes, 2.0 / 3.0));
-    const int tileSize      = int(sqrt(sqrTileSize));
+    const int sqrTileSize   = 64;
+    const int tileSize      = 8;
     const float invTileSize = 1.0 / tileSize;
 
-    const float minColLUT = 0.025;
+    const float minColLUT = 0.03;
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lut, inout vec3 color) {
         color = clamp(color, vec3(minColLUT), vec3(255.0 / 256.0));
@@ -105,31 +105,33 @@ void main() {
     #if UNDERWATER_DISTORTION == 1
         if(isEyeInWater == 1) tempCoords = underwaterDistortionCoords(tempCoords);
     #endif
-    
-    vec4 Result = texture(colortex0, tempCoords);
-    float exposure = max0(computeExposure(texture(colortex3, texCoords).a));
+    vec4 color = texture(colortex0, tempCoords);
 
     #if CHROMATIC_ABERRATION == 1
-        Result.rgb = chromaticAberration(Result.rgb);
+        color.rgb = chromaticAberration(color.rgb);
     #endif
 
     #if BLOOM == 1
-        Result.rgb += max0(readBloom().rgb * 1e-3 * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
+        color.rgb += max0(readBloom().rgb * 1e-3 * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
     #endif
 
     #if PURKINJE == 1
-        Result.rgb = purkinje(Result.rgb);
+        color.rgb = purkinje(color.rgb);
     #endif
 
-    #if LUT == 1
-        applyLUT(colortex10, Result.rgb);
+    #if FILM_GRAIN == 1
+        color.rgb += uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter * 5.0)).x * color.rgb * FILM_GRAIN_STRENGTH;
     #endif
     
     // Tonemapping & Color Correction
-    Result.rgb *= exposure;
-    tonemap(Result.rgb);
-    Result.rgb = vibranceSaturation(Result.rgb, VIBRANCE, SATURATION);
-    Result.rgb = contrast(Result.rgb, CONTRAST) + BRIGHTNESS;
+
+    color.rgb *= computeExposure(texture(colortex3, texCoords).a);
+
+    tonemap(color.rgb);
+    vibrance(color.rgb, VIBRANCE);
+    saturation(color.rgb, SATURATION);
+    contrast(color.rgb, CONTRAST);
+    color.rgb += BRIGHTNESS;
 
     // Vignette
     #if VIGNETTE == 1
@@ -137,9 +139,14 @@ void main() {
         finalCol   *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    Result      = linearToSRGB(Result);
-    Result.rgb += bayer64(gl_FragCoord.xy) / 64.0;
+    color = linearToSRGB(color);
+
+    #if LUT == 1
+        applyLUT(colortex10, color.rgb);
+    #endif
+
+    color.rgb += bayer64(gl_FragCoord.xy) / 64.0;
 
     /*DRAWBUFFERS:0*/
-    gl_FragData[0] = Result;
+    gl_FragData[0] = color;
 }

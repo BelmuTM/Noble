@@ -11,7 +11,7 @@
 #include "/include/fragment/svgf.glsl"
 
 void main() {
-    vec4 Result = texture(colortex0, texCoords);
+    vec4 color = texture(colortex0, texCoords);
 
     if(!isSky(texCoords)) {
         vec3 viewPos = getViewPos(texCoords);
@@ -19,7 +19,7 @@ void main() {
 
         #if GI == 1
             #if GI_FILTER == 1                
-                Result.rgb = SVGF(colortex5, viewPos, normal, texCoords);
+                color.rgb = SVGF(colortex5, viewPos, normal, texCoords);
             #endif
         #else
             #if SSR == 1
@@ -29,21 +29,21 @@ void main() {
             
                 vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
                 vec3 DFG         = envBRDFApprox(specularColor, texture(colortex2, texCoords).r, NdotV);
-                Result.rgb       = mix(Result.rgb, clamp01(reflections), DFG);
+                color.rgb       = mix(color.rgb, clamp01(reflections), DFG);
             #endif
         #endif
     }
 
     #if VL == 1
-        Result.rgb += VL_FILTER == 1 ? boxBlur(texCoords, colortex8, 2).rgb : texture(colortex8, texCoords).rgb;
+        color.rgb += VL_FILTER == 1 ? boxBlur(texCoords, colortex8, 2).rgb : texture(colortex8, texCoords).rgb;
     #endif
 
     vec3 brightSpots = vec3(0.0);
     #if BLOOM == 1
-        brightSpots = luminance(Result.rgb) > BLOOM_LUMA_THRESHOLD ? Result.rgb : vec3(0.0);
+        brightSpots = luminance(color.rgb) > BLOOM_LUMA_THRESHOLD ? color.rgb : vec3(0.0);
     #endif
 
     /*DRAWBUFFERS:05*/
-    gl_FragData[0] = Result;
+    gl_FragData[0] = color;
     gl_FragData[1] = vec4(brightSpots, 1.0);
 }

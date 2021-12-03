@@ -37,4 +37,7 @@ const int colortex8Format = RGBA16F;
 
 SHADOWMAP
 const int colortex9Format = RGBA16;
+
+LUT
+const int colortex10Format = RGB16;
 */

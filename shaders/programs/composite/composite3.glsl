@@ -9,7 +9,7 @@
 #include "/include/fragment/svgf.glsl"
 
 void main() {
-    vec4 Result = texture(colortex0, texCoords);
+    vec4 color = texture(colortex0, texCoords);
     vec3 globalIllumination = vec3(0.0);
 
     if(!isSky(texCoords)) {
@@ -21,12 +21,12 @@ void main() {
 
                 globalIllumination = SVGF(colortex5, scaledViewPos, scaledNormal, scaledUv);
             #else
-                Result.rgb = texture(colortex5, scaledUv).rgb;
+                color.rgb = texture(colortex5, scaledUv).rgb;
             #endif
         #endif
     }
 
     /*DRAWBUFFERS:05*/
-    gl_FragData[0] = Result;
+    gl_FragData[0] = color;
     gl_FragData[1] = vec4(globalIllumination, 1.0);
 }

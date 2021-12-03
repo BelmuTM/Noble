@@ -297,6 +297,14 @@ value.CHROMATIC_ABERRATION.1 = §aON
 option.ABERRATION_STRENGTH = Aberration Strength
 option.ABERRATION_STRENGTH.comment = Adjusts §bAberration§f's intensity.
 
+option.FILM_GRAIN = Film Grain
+option.FILM_GRAIN.comment = Moving granularity displaying on top of the screen to imitate old movies.
+value.FILM_GRAIN.0 = §cOFF
+value.FILM_GRAIN.1 = §aON
+
+option.FILM_GRAIN_STRENGTH = Film Grain Strength
+option.FILM_GRAIN_STRENGTH.comment = Adjusts §bFilm Grain§f's intensity.
+
 ##################### CAMERA SETTINGS #####################
 
 # https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-focal-length.html#:~:text=Focal%20length%2C%20usually%20represented%20in,description%20of%20a%20photographic%20lens.&text=The%20longer%20the%20focal%20length,and%20the%20lower%20the%20magnification.

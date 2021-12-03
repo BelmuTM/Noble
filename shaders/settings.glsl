@@ -67,9 +67,9 @@ const float rainAmbientDarkness = 0.3;
 
 // Soft Shadows
 #define PCSS_SAMPLES            16 // [16 64]
-#define LIGHT_SIZE           100.0
+#define BLOCKER_SEARCH_SAMPLES   8 // [8 64]
 #define BLOCKER_SEARCH_RADIUS 12.0
-#define BLOCKER_SEARCH_SAMPLES  8 // [8 64]
+#define LIGHT_SIZE           100.0
 
 /*------------------ RAY TRACING ------------------*/
 #define BINARY_REFINEMENT 1 // [0 1]
@@ -169,6 +169,9 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define VIGNETTE             0 // [0 1]
 #define VIGNETTE_STRENGTH 0.25 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50]
+
+#define FILM_GRAIN             0 // [0 1]
+#define FILM_GRAIN_STRENGTH 2.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00 2.10 2.20 2.30 2.40 2.50 2.60 2.70 2.80 2.90 3.00 3.10 3.20 3.30 3.40 3.50 3.60 3.70 3.80 3.90 4.00 4.10 4.20 4.30 4.40 4.50 4.60 4.70 4.80 4.90 5.00]
 
 #define CHROMATIC_ABERRATION   0 // [0 1]
 #define ABERRATION_STRENGTH 1.50 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]

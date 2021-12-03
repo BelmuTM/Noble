@@ -13,7 +13,7 @@
 #include "/include/fragment/svgf.glsl"
 
 void main() {
-    vec4 Result = texture(colortex0, texCoords);
+    vec4 color = texture(colortex0, texCoords);
     vec3 outColor = vec3(0.0), specularColor = vec3(0.0);
 
     #if SSR == 1
@@ -48,7 +48,7 @@ void main() {
     }
 
     /*DRAWBUFFERS:095*/
-    gl_FragData[0] = Result;
+    gl_FragData[0] = color;
     gl_FragData[1] = vec4(specularColor, 1.0);
     gl_FragData[2] = vec4(outColor, 1.0);
 }

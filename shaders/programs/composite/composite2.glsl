@@ -34,7 +34,7 @@
 #endif
 
 void main() {
-    vec4 Result = texture(colortex0, texCoords);
+    vec4 color = texture(colortex0, texCoords);
     vec3 globalIllumination = vec3(0.0);
     float historyFrames = texture(colortex6, texCoords).a;
 
@@ -54,7 +54,7 @@ void main() {
     #endif
 
     /*DRAWBUFFERS:056*/
-    gl_FragData[0] = Result;
+    gl_FragData[0] = color;
     gl_FragData[1] = vec4(globalIllumination, 1.0);
     gl_FragData[2] = vec4(globalIllumination, historyFrames);
 }
