@@ -52,7 +52,7 @@ void main() {
       }
    #endif
 
-   vec3 shadowmap = texture(colortex9, coords).rgb;
+   vec3 shadowmap = SHADOWS == 0 ? vec3(0.0) : texture(colortex9, coords).rgb;
 
    /*    ------- CAUSTICS -------    */
 
@@ -71,16 +71,17 @@ void main() {
    // Alpha Blending
    mat.albedo = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
 
-   float depthDist = abs(distance(
-	   linearizeDepth(texture(depthtex0, coords).r),
-		linearizeDepth(texture(depthtex1, coords).r)
-	));
-
    #if WHITE_WORLD == 0
       if(getBlockId(texCoords) == 1) {
+
+         float depthDist = max0(distance(
+	         linearizeDepth(texture(depthtex0, coords).r),
+		      linearizeDepth(texture(depthtex1, coords).r)
+	      ));
+
          // Transmittance
          float density = depthDist * 6.5e-1;
-	      vec3 transmittance = exp2(-(density * log(2.0)) * WATER_ABSORPTION_COEFFICIENTS);
+	      vec3 transmittance = exp2(-(density / log(2.0)) * WATER_ABSORPTION_COEFFICIENTS);
          if(isEyeInWater == 0) { mat.albedo *= transmittance; }
 
          // Foam
