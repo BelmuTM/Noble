@@ -9,7 +9,7 @@
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/ssr.glsl"
+#include "/include/fragment/reflections.glsl"
 #include "/include/fragment/svgf.glsl"
 
 void main() {
@@ -21,7 +21,7 @@ void main() {
             float resolution = SSR_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
             vec2 scaledUv = texCoords * (1.0 / resolution);
         
-            if(clamp(texCoords, vec2(0.0), vec2(resolution + 1e-3)) == texCoords && !isSky(scaledUv)) {
+            if(clamp(texCoords, vec2(0.0), vec2(resolution + 1e-3)) == texCoords) {
                 vec3 posAt    = getViewPos(scaledUv);
                 material mat  = getMaterial(scaledUv);
                 specularColor = getSpecularColor(mat.F0, texture(colortex4, scaledUv).rgb);

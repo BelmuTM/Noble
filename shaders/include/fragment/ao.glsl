@@ -27,8 +27,10 @@ float computeRTAO(vec3 viewPos, vec3 normal) {
 	vec3 samplePos = viewPos + normal * 1e-2;
 	float occlusion = 0.0; vec3 hitPos;
 
+	uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
+
 	for(int i = 0; i < RTAO_SAMPLES; i++) {
-		vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter * 10.0)) : uniformNoise(i, blueNoise);
+		vec2 noise = TAA == 1 ? uniformAnimatedNoise(vec2(randF(rngState), randF(rngState))) : uniformNoise(i, blueNoise);
 		vec3 sampleDir = normalize(normal + generateUnitVector(noise));
 
 		if(dot(sampleDir, normal) < 0.0) { sampleDir = -sampleDir; }

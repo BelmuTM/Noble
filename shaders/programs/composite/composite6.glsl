@@ -29,7 +29,7 @@ void main() {
             
                 vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
                 vec3 DFG         = envBRDFApprox(specularColor, texture(colortex2, texCoords).r, NdotV);
-                color.rgb       = mix(color.rgb, clamp01(reflections), DFG);
+                color.rgb        = mix(color.rgb, reflections, DFG);
             #endif
         #endif
     }

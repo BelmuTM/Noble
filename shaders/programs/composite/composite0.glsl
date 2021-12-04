@@ -9,7 +9,7 @@
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/ssr.glsl"
+#include "/include/fragment/reflections.glsl"
 #include "/include/fragment/ao.glsl"
 
 vec3 getCausticsViewPos(vec2 coords) {
@@ -103,6 +103,6 @@ void main() {
    #endif
 
    /*DRAWBUFFERS:09*/
-   gl_FragData[0] = clamp01(vec4(mat.albedo, 1.0) + rain);
+   gl_FragData[0] = vec4(mat.albedo, 1.0) + rain;
    gl_FragData[1] = vec4(shadowmap, ambientOcclusion);
 }

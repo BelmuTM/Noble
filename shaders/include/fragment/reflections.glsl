@@ -54,12 +54,13 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 
     mat3 TBN = constructViewTBN(normal);
     vec3 viewDir = normalize(viewPos);
-    vec3 hitPos; vec2 noise;
+    vec3 hitPos;
 
     viewPos += normal * 1e-2;
+    uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
 	
     for(int i = 0; i < PREFILTER_SAMPLES; i++) {
-        vec2 noise = TAA == 1 ? uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter * 10.0)) : uniformNoise(i, blueNoise);
+        vec2 noise = TAA == 1 ? uniformAnimatedNoise(vec2(randF(rngState), randF(rngState))) : uniformNoise(i, blueNoise);
         
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise, alpha);
 		vec3 reflected  = reflect(viewDir, TBN * microfacet);	
