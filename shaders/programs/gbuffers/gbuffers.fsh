@@ -22,7 +22,7 @@ in float blockId;
 #endif
 
 void main() {
-	vec4 albedoTex   = texture(colortex0, texCoords);
+	vec4 albedoTex   = texture(tex, texCoords);
 	vec4 normalTex   = texture(normals,   texCoords);
 	vec4 specularTex = texture(specular,  texCoords);
 

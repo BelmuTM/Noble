@@ -32,7 +32,7 @@ void main() {
                 }
             #endif
             
-            vec3 shadowmap = texture(colortex9, texCoords).rgb;
+            vec3 shadowmap      = texture(colortex9, texCoords).rgb;
 
             vec3 skyIlluminance = texture(colortex8, texCoords).rgb;
             vec3 sunTransmit    = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;

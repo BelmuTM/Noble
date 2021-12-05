@@ -48,14 +48,14 @@ material getMaterial(vec2 coords) {
     material mat;
 
     mat.albedo = tex0.xyz;
-    mat.alpha = tex0.w;
+    mat.alpha  = tex0.w;
     mat.normal = normalize(decodeNormal(tex1.xy));
 
-    mat.rough = tex2.x;
-    mat.F0 = tex2.y;
+    mat.rough    = tex2.x;
+    mat.F0       = tex2.y;
     mat.emission = unpacked.y;
-    mat.ao = unpacked.x;
-    mat.isMetal = mat.F0 * 255.0 > 229.5;
+    mat.ao       = unpacked.x;
+    mat.isMetal  = mat.F0 * 255.0 > 229.5;
 
     return mat;
 }

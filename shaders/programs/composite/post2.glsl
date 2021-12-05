@@ -139,7 +139,8 @@ void main() {
         color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    color = linearToSRGB(color);
+    color.rgb = clamp01(color.rgb);
+    color     = linearToSRGB(color);
 
     #if LUT == 1
         applyLUT(colortex10, color.rgb);

@@ -40,8 +40,7 @@
     in vec3 skyIlluminance;
 
     void main() {
-        vec3 shadowmap = vec3(0.0);
-        vec3 sky       = vec3(0.0);
+        vec3 shadowmap = vec3(0.0), sky = vec3(0.0);
 
         #if WORLD == OVERWORLD
             /*    ------- SHADOW MAPPING -------    */

@@ -79,9 +79,9 @@ vec2 sincos2(float x) {
 
 /* MISC */
 
-vec2 raySphere(vec3 ro, vec3 rd, float rad) {
-	float b = dot(ro, rd);
-	float c = dot(ro, ro) - rad * rad;
+vec2 raySphere(vec3 origin, vec3 dir, float radius) {
+	float b = dot(origin, dir);
+	float c = dot(origin, origin) - radius * radius;
 	float d = b * b - c;
 	if(d < 0.0) return vec2(1.0, -1.0);
 	d = sqrt(d);

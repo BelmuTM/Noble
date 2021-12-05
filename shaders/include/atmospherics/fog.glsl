@@ -30,7 +30,7 @@ vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
     vec3 transmittance = vec3(1.0);
     for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
-        vec3 density = densities(rayPos.y);
+        vec3 density   = densities(rayPos.y);
         transmittance *= exp(-kExtinction * density * stepSize);
         rayPos += increment;
     }
@@ -44,15 +44,17 @@ vec3 volumetricLighting(vec3 viewPos) {
 
     float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
     vec4 rayDir  = (normalize(endPos - startPos) * stepSize) * jitter;
-    vec4 rayPos  = startPos + rayDir * stepSize;
+
+    vec4 increment = rayDir * stepSize;
+    vec4 rayPos    = startPos + increment;
 
     float VdotL = dot(normalize(endPos + startPos).xyz, worldTime <= 12750 ? playerSunDir : playerMoonDir);
-    vec2 phase = vec2(rayleighPhase(VdotL), miePhase(VdotL));
+    vec2 phase  = vec2(rayleighPhase(VdotL), miePhase(VdotL));
 
-    vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
+    vec3 scattering  = vec3(0.0), transmittance = vec3(1.0);
     vec3 illuminance = (worldTime <= 12750 ? sunIlluminance : moonIlluminance);
 
-    for(int i = 0; i < VL_STEPS; i++, rayPos += rayDir) {
+    for(int i = 0; i < VL_STEPS; i++, rayPos += increment) {
         vec4 samplePos   = shadowProjection * shadowModelView * rayPos;
         vec3 sampleColor = sampleShadowColor(vec3(distort(samplePos.xy), samplePos.z) * 0.5 + 0.5);
 

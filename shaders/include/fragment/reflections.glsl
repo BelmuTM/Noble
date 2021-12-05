@@ -34,7 +34,7 @@ vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3
     float jitter = TAA == 1 ? uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter))).x : blueNoise.x;
     float hit = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos));
 
-    vec3 fresnel = specularFresnel(NdotV, F0.r, F0, isMetal);
+    vec3 fresnel  = specularFresnel(NdotV, F0.r, F0, isMetal);
     vec3 hitColor = getHitColor(hitPos);
 
     vec3 color;
@@ -52,7 +52,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 	vec3 filteredColor = vec3(0.0);
 	float totalWeight  = 0.0;
 
-    mat3 TBN = constructViewTBN(normal);
+    mat3 TBN     = constructViewTBN(normal);
     vec3 viewDir = normalize(viewPos);
     vec3 hitPos;
 
@@ -84,14 +84,21 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
 
 vec3 simpleRefractions(vec3 viewPos, vec3 normal, float F0, out vec3 hitPos) {
     viewPos += normal * 1e-2;
-    float ior = F0toIOR(F0);
 
-    vec3 refracted = refract(normalize(viewPos), normal, airIOR / ior);
+    float  ior   = F0toIOR(F0);
+    vec3 viewDir = normalize(viewPos);
+
+    vec3 refracted = refract(viewDir, normal, airIOR / ior);
     bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, taaNoise, hitPos);
     bool hand      = isHand(texture(depthtex1, hitPos.xy).r);
     if(!hit || hand) hitPos.xy = texCoords;
 
-    float fresnel = fresnelDielectric(maxEps(dot(normal, -normalize(viewPos))), ior);
-    vec3 hitColor = texture(colortex4, hitPos.xy).rgb;
+    float fresnel = fresnelDielectric(maxEps(dot(normal, -viewDir)), ior);
+    vec3 hitColor = vec3(
+        texture(colortex4, hitPos.xy + vec2(2e-3 * rand(gl_FragCoord.xy))).r,
+        texture(colortex4, hitPos.xy).g,
+        texture(colortex4, hitPos.xy - vec2(2e-3 * rand(gl_FragCoord.yx))).b
+    );
+
     return hitColor * (1.0 - fresnel);
 }

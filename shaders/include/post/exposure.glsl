@@ -16,13 +16,13 @@ float computeAverageLuminance(sampler2D prevTex) {
      float previousLuma = texture(prevTex, vec2(0.5)).a;
      previousLuma = previousLuma > 0.0 ? previousLuma : currLuma;
 
-     float exposureTime = currLuma > previousLuma ? 0.1 : 1.8; // <----- Concept from SixSeven#0150
+     float exposureTime = currLuma > previousLuma ? 0.3 : 1.8; // <----- Concept from SixSeven#0150
      float exposureFrameTime = exp(-exposureTime * frameTime);
      return mix(currLuma, previousLuma, EXPOSURE == 0 ? 0.0 : exposureFrameTime);
 }
 
 float computeEV100() {
-     return log2((APERTURE * APERTURE) / SHUTTER_SPEED * 100.0 / ISO);
+     return log2(pow2(APERTURE) / SHUTTER_SPEED * 100.0 / ISO);
 }
 
 float computeEV100fromLuma(float avgLuminance) {
@@ -35,5 +35,5 @@ float EV100ToExposure(float EV100) {
 
 float computeExposure(float avgLuminance) {
      float EV100 = EXPOSURE == 0 ? computeEV100() : computeEV100fromLuma(avgLuminance);
-     return min(EV100ToExposure(EV100), 10.0);
+     return clamp(EV100ToExposure(EV100), MIN_EXPOSURE, MAX_EXPOSURE);
 }

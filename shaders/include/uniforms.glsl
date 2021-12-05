@@ -30,6 +30,7 @@ uniform float viewHeight;
 uniform int worldTime;
 uniform int isEyeInWater;
 
+uniform sampler2D tex;
 uniform sampler2D normals;
 uniform sampler2D specular;
 uniform sampler2D colortex0;

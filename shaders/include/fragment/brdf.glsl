@@ -72,15 +72,15 @@ vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
 
 	// Section 4.1: orthonormal basis (with special case if cross product is zero)
 	float lensq = dot(viewDir.yx, viewDir.yx);
-	vec3 T1 = vec3(lensq > 0.0 ? vec2(-viewDir.y, viewDir.x) * inversesqrt(lensq) : vec2(1.0, 0.0), 0.0);
-	vec3 T2 = cross(T1, viewDir);
+	vec3 T1     = vec3(lensq > 0.0 ? vec2(-viewDir.y, viewDir.x) * inversesqrt(lensq) : vec2(1.0, 0.0), 0.0);
+	vec3 T2     = cross(T1, viewDir);
 
 	// Section 4.2: parameterization of the projected area
-	float r = sqrt(seed.x);
+	float r   = sqrt(seed.x);
     float phi = TAU * seed.y;
-	float t1 = r * cos(phi);
+	float t1  = r * cos(phi);
     float tmp = clamp01(1.0 - t1 * t1);
-	float t2 = mix(sqrt(tmp), r * sin(phi), 0.5 + 0.5 * viewDir.z);
+	float t2  = mix(sqrt(tmp), r * sin(phi), 0.5 + 0.5 * viewDir.z);
 
 	// Section 4.3: reprojection onto hemisphere
 	vec3 Nh = t1 * T1 + t2 * T2 + sqrt(clamp01(tmp - t2 * t2)) * viewDir;
@@ -93,9 +93,9 @@ vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
 vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
     const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
     const vec4 c1 = vec4( 1.0,  0.0425,  1.04,  -0.04);
-    vec4 r = roughness * c0 + c1;
-    float a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
-    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+    vec4 r        = roughness * c0 + c1;
+    float a004    = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
+    vec2 AB       = vec2(-1.04, 1.04) * a004 + r.zw;
     return F0 * AB.x + AB.y;
 }
 
@@ -114,19 +114,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 F  = specularFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
-    return clamp01((D * F * G) / (4.0 * NdotL * NdotV));
-}
-
-// OREN-NAYAR MODEL - QUALITATIVE 
-// http://www1.cs.columbia.edu/CAVE/publications/pdfs/Oren_CVPR93.pdf
-vec3 orenNayarDiffuse(vec3 N, vec3 V, vec3 L, float NdotL, float NdotV, float alpha, vec3 albedo) {
-    vec2 angles = acos(vec2(NdotL, NdotV));
-    if(angles.x < angles.y) angles = angles.yx;
-    float cosA = clamp01(dot(normalize(V - NdotV * N), normalize(L - NdotL * N)));
-
-    vec3 A = albedo * (INV_PI - 0.09 * (alpha / (alpha + 0.4)));
-    vec3 B = albedo * (0.125 * (alpha /  (alpha + 0.18)));
-    return A + B * max0(cosA) * sin(angles.x) * tan(angles.y);
+    return clamp01((D * F * G) / (4.0 * NdotL * NdotV) * NdotL);
 }
 
 // HAMMON DIFFUSE
@@ -152,7 +140,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
     float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
     float multi  = 0.1159 * alpha;
 
-    return mat.albedo * (single + mat.albedo * multi);
+    return mat.albedo * (single + mat.albedo * multi) * NdotL;
 }
 
 /* UNPHYSICALLY BASED STUFF */
@@ -180,7 +168,7 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celes
     vec3 blockLight = getBlockLight(lightmap);
 
     vec3 lighting = vec3(0.0);
-    /* DIRECT ->   */ lighting += ((diffuse + specular) * NdotL * shadows) * celestialIlluminance;
+    /* DIRECT ->   */ lighting += (diffuse + specular) * shadows * celestialIlluminance;
     /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + blockLight + skyLight) * mat.albedo) * mat.ao * ambientOcclusion;
     return lighting;
 }
