@@ -34,7 +34,7 @@ void main() {
         color.rgb = depthOfField(color.rgb, coc);
     #endif
      
-    color.rgb += fog(viewPos, vec3(0.0), vec3(1.0), (rainStrength * float(RAIN_FOG == 1)) + isEyeInWater, 0.03); // Applying Fog
+    color.rgb += fog(viewPos, vec3(0.0), vec3(1.0), (rainStrength * float(RAIN_FOG == 1)), 0.03); // Applying Fog
 
     /*DRAWBUFFERS:05*/
     gl_FragData[0] = color;

@@ -30,7 +30,6 @@ uniform float viewHeight;
 uniform int worldTime;
 uniform int isEyeInWater;
 
-uniform sampler2D tex;
 uniform sampler2D normals;
 uniform sampler2D specular;
 uniform sampler2D colortex0;
@@ -53,6 +52,7 @@ uniform sampler2D noisetex;
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
+uniform sampler2D shadowcolor1;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -65,8 +65,9 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
-const int noiseRes = 256;
-const float airIOR = 1.00029;
+const int noiseRes    = 256;
+const int causticsRes = (256 - 1);
+const float airIOR    = 1.00029;
 
 vec3 shadowDir     = normalize(shadowLightPosition);
 vec3 playerSunDir  = normalize(mat3(gbufferModelViewInverse) * sunPosition);

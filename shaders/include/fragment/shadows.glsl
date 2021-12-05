@@ -6,10 +6,16 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 viewToShadow(vec3 viewPos) {
+vec3 viewToShadowClip(vec3 viewPos) {
 	vec4 shadowPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
 	     shadowPos = shadowModelView  * shadowPos;
          shadowPos = shadowProjection * shadowPos;
+	return vec3(distort(shadowPos.xy), shadowPos.z);
+}
+
+vec3 viewToShadowView(vec3 viewPos) {
+	vec4 shadowPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
+	     shadowPos = shadowModelView  * shadowPos;
 	return vec3(distort(shadowPos.xy), shadowPos.z);
 }
 
@@ -21,14 +27,24 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
     if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
     float shadowVisibility0 = visibility(shadowtex0, sampleCoords);
     float shadowVisibility1 = visibility(shadowtex1, sampleCoords);
+
+    /*
+    float currDepth   = getViewPos(texCoords).z;
+    float shadowDepth = getViewPos(sampleCoords.xy).z;
+
+    float sss           = unpack2x8(texture(colortex2, sampleCoords.xy).y).y;
+    float dist          = abs(currDepth - shadowDepth);
+    float transmittance = exp(-(1.0 / sss) * dist);
+    */
     
     vec4 shadowColor0 = texture(shadowcolor0, sampleCoords.xy);
     vec3 transmittedColor = shadowColor0.rgb * (1.0 - shadowColor0.a);
     return mix(transmittedColor * shadowVisibility1, vec3(1.0), shadowVisibility0);
 }
 
-float findBlockerDepth(vec3 sampleCoords) {
-    float BLOCKERS = 0.0, avgBlockerDepth = 0.0;
+float findBlockerDepth(vec3 sampleCoords, mat2 rotation) {
+    float avgBlockerDepth = 0.0;
+    int BLOCKERS = 0;
 
     for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
         vec2 offset = BLOCKER_SEARCH_RADIUS * vogelDisk(i, BLOCKER_SEARCH_SAMPLES) * pixelSize;
@@ -39,7 +55,7 @@ float findBlockerDepth(vec3 sampleCoords) {
             BLOCKERS++;
         }
     }
-    return BLOCKERS > 0.0 ? avgBlockerDepth / BLOCKERS : -1.0;
+    return BLOCKERS > 0 ? avgBlockerDepth / BLOCKERS : -1.0;
 }
 
 vec3 PCF(vec3 sampleCoords, mat2 rotation) {
@@ -57,8 +73,8 @@ vec3 PCF(vec3 sampleCoords, mat2 rotation) {
 }
 
 vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
-    float avgBlockerDepth = findBlockerDepth(sampleCoords);
-    if(avgBlockerDepth < EPS) return vec3(1.0);
+    float avgBlockerDepth = findBlockerDepth(sampleCoords, rotation);
+    if(avgBlockerDepth < 0.0) return vec3(1.0);
 
     float penumbraSize = (max(sampleCoords.z - avgBlockerDepth, 0.0) / avgBlockerDepth) * LIGHT_SIZE;
 
@@ -73,7 +89,7 @@ vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
 }
 
 vec3 shadowMap(vec3 viewPos) {
-    vec3 sampleCoords = viewToShadow(viewPos) * 0.5 + 0.5;
+    vec3 sampleCoords = viewToShadowClip(viewPos) * 0.5 + 0.5;
     if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
     
     float theta = (TAA == 1 ? taaNoise : uniformNoise(1, blueNoise).r) * TAU;

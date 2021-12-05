@@ -6,6 +6,50 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+vec3 getCausticsViewPos(vec2 coords) {
+    vec3 clipPos = vec3(coords, texture(depthtex1, coords).r) * 2.0 - 1.0;
+    vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
+    return tmp.xyz / tmp.w;
+}
+
+vec3 waterCaustics(vec2 coords) {
+    vec2 worldPos       = viewToWorld(getCausticsViewPos(coords)).xz * 0.5 + 0.5;
+    float causticsSpeed = ANIMATED_WATER == 0 ? 0.0 : frameTimeCounter * WATER_CAUSTICS_SPEED;
+
+    vec2 uv0 = (worldPos * (WATER_CAUSTICS_MAX_SIZE - WATER_CAUSTICS_SIZE)) + (causticsSpeed * 0.75);
+    vec2 uv1 = (worldPos * ((WATER_CAUSTICS_MAX_SIZE - WATER_CAUSTICS_SIZE) * 0.75)) - causticsSpeed;
+
+    mat3x2 shift = mat3x2(
+        vec2( WATER_CAUSTICS_SHIFT, WATER_CAUSTICS_SHIFT),
+        vec2( WATER_CAUSTICS_SHIFT,-WATER_CAUSTICS_SHIFT),
+        vec2(-WATER_CAUSTICS_SHIFT,-WATER_CAUSTICS_SHIFT)
+    );
+
+    vec3 caustics0 = vec3(
+        texelFetch(depthtex2, ivec2(uv0 + shift[0]) & causticsRes, 0).r,
+        texelFetch(depthtex2, ivec2(uv0 + shift[1]) & causticsRes, 0).g,
+        texelFetch(depthtex2, ivec2(uv0 + shift[2]) & causticsRes, 0).b
+    );
+
+    vec3 caustics1 = vec3(
+        texelFetch(shadowcolor1, ivec2(uv1 + shift[0]) & causticsRes, 0).r,
+        texelFetch(shadowcolor1, ivec2(uv1 + shift[1]) & causticsRes, 0).g,
+        texelFetch(shadowcolor1, ivec2(uv1 + shift[2]) & causticsRes, 0).b
+    );
+
+    return min(caustics0, caustics1) * WATER_CAUSTICS_STRENGTH;
+}
+
+float waterFoam(float dist) {
+    if(dist < FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF) {
+        float falloff = (dist / FOAM_FALLOFF_DISTANCE) + FOAM_FALLOFF_BIAS;
+        float leading = dist / (FOAM_FALLOFF_DISTANCE * FOAM_EDGE_FALLOFF);
+        
+	    return falloff * (1.0 - leading);
+    }
+    return 0.0;
+}
+
 float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmplitude, float waveLength, vec2 waveDir) {
 	float k = TAU / waveLength;
     float w = sqrt(9.81 * k);

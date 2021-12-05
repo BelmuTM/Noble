@@ -36,7 +36,7 @@ VOLUMETRIC LIGHTING
 const int colortex8Format = RGBA16F;
 
 SHADOWMAP
-const int colortex9Format = RGBA16;
+const int colortex9Format = RGBA16F;
 
 LUT
 const int colortex10Format = RGB16;

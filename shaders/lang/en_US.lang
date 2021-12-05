@@ -216,6 +216,13 @@ value.WATER_CAUSTICS.1 = §aON
 
 option.WATER_CAUSTICS_STRENGTH = Caustics Strength
 option.WATER_CAUSTICS_STRENGTH.comment = Adjusts §bWater Caustics§f' intensity.
+suffix.WATER_CAUSTICS_STRENGTH = %
+
+option.WATER_CAUSTICS_SPEED = Caustics Speed
+option.WATER_CAUSTICS_SPEED.comment = Adjusts §bWater Caustics§f' speed.
+
+option.WATER_CAUSTICS_SIZE = Caustics Size
+option.WATER_CAUSTICS_SIZE.comment = Adjusts §bWater Caustics§f' size.
 
 option.WATER_FOAM = Water Foam
 option.WATER_FOAM.comment = Foam that appears when water encounters an edge.
@@ -224,14 +231,6 @@ value.WATER_FOAM.1 = §aON
 
 option.FOAM_BRIGHTNESS = Foam Brightness
 option.FOAM_BRIGHTNESS.comment = Adjusts §bWater Foam§f's darkness.
-
-option.UNDERWATER_DISTORTION = Underwater Distortion
-option.UNDERWATER_DISTORTION.comment = Wiggles the entire screen when you are underwater.
-value.UNDERWATER_DISTORTION.0 = §cOFF
-value.UNDERWATER_DISTORTION.1 = §aON
-
-option.WATER_DISTORTION_AMPLITUDE = Distortion Amplitude
-option.WATER_DISTORTION_AMPLITUDE.comment = Adjusts §bUnderwater Distortion§f's amplitude.
 
 option.WAVE_STEEPNESS = Wave Steepness
 option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of height to width.
@@ -254,16 +253,6 @@ value.TAA.1 = §aON
 
 option.TAA_STRENGTH = TAA Strength
 option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§f's intensity.
-
-option.EXPOSURE = Exposure
-option.EXPOSURE.comment = §aManual§r exposure lets you use the camera settings to adjust the image. §aAutomatic§r exposure tweaks the camera settings depending on the average screen brightness.
-value.EXPOSURE.0 = §e§lManual
-value.EXPOSURE.1 = §e§lAutomatic
-
-option.PURKINJE = Purkinje Effect
-option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.
-value.PURKINJE.0 = §cOFF
-value.PURKINJE.1 = §aON
 
 option.DOF = Depth of Field (DOF)
 option.DOF.comment = Blurs objects that are out of focus. Influenced by the §eaperture§r and §efocal length§r in the camera settings.
@@ -305,7 +294,25 @@ value.FILM_GRAIN.1 = §aON
 option.FILM_GRAIN_STRENGTH = Film Grain Strength
 option.FILM_GRAIN_STRENGTH.comment = Adjusts §bFilm Grain§f's intensity.
 
+option.UNDERWATER_DISTORTION = Underwater Distortion
+option.UNDERWATER_DISTORTION.comment = Wiggles the entire screen when you are underwater.
+value.UNDERWATER_DISTORTION.0 = §cOFF
+value.UNDERWATER_DISTORTION.1 = §aON
+
+option.WATER_DISTORTION_AMPLITUDE = Distortion Amplitude
+option.WATER_DISTORTION_AMPLITUDE.comment = Adjusts §bUnderwater Distortion§f's amplitude.
+
 ##################### CAMERA SETTINGS #####################
+
+option.EXPOSURE = Exposure
+option.EXPOSURE.comment = §aManual§r exposure lets you use the camera settings to adjust the image. §aAutomatic§r exposure tweaks the camera settings depending on the average screen brightness.
+value.EXPOSURE.0 = §e§lManual
+value.EXPOSURE.1 = §e§lAutomatic
+
+option.PURKINJE = Purkinje Effect
+option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.
+value.PURKINJE.0 = §cOFF
+value.PURKINJE.1 = §aON
 
 # https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-focal-length.html#:~:text=Focal%20length%2C%20usually%20represented%20in,description%20of%20a%20photographic%20lens.&text=The%20longer%20the%20focal%20length,and%20the%20lower%20the%20magnification.
 option.FOCAL = Focal Length

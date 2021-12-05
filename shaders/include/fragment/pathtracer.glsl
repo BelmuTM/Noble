@@ -16,13 +16,11 @@ vec3 specularBRDF(float NdotL, vec3 fresnel, in float roughness) {
     return fresnel * geometrySchlickGGX(NdotL, (k * k) * 0.125);
 }
 
-vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap) {
-    float NdotL = maxEps(dot(N, L));
+vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap, vec3 celestialIlluminance) {
+    vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
+    vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
-    vec3 specular = cookTorranceSpecular(N, V, L, mat);
-    vec3 diffuse  = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
-
-    return (diffuse + specular) * (NdotL * shadowmap);
+    return (diffuse + specular) * shadowmap * celestialIlluminance;
 }
 
 vec3 pathTrace(in vec3 screenPos) {
@@ -53,19 +51,19 @@ vec3 pathTrace(in vec3 screenPos) {
 
             /* Material Parameters */
             material mat = getMaterial(hitPos.xy);
-            mat3 TBN = constructViewTBN(mat.normal);
+            mat3 TBN     = constructViewTBN(mat.normal);
 
             /* Specular Bounce Probability */
-            float fresnelLum = luminance(specularFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
-            float diffuseLum = fresnelLum / (fresnelLum + luminance(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
-            float specularProbability = fresnelLum / maxEps(fresnelLum + diffuseLum);
-            bool specularBounce = specularProbability > randF(rngState);
+            float fresnelLum    = luminance(specularFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
+            float diffuseLum    = fresnelLum / (fresnelLum + luminance(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
+            float specularProb  = fresnelLum / maxEps(fresnelLum + diffuseLum);
+            bool specularBounce = specularProb > randF(rngState);
 
             vec3 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, pow2(mat.rough));
             rayDir = specularBounce ? reflect(prevDir, TBN * microfacet) : normalize(mat.normal + generateUnitVector(noise));
 
             radiance += throughput * mat.emission * mat.albedo;
-            radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb) * (sunTransmit + moonTransmit);
+            radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb, sunTransmit + moonTransmit);
 
             if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, uniformNoise(i, blueNoise).y, hitPos)) { break; }
 
@@ -74,9 +72,9 @@ vec3 pathTrace(in vec3 screenPos) {
             vec3 specularFresnel = specularFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
 
             if(specularBounce) {
-                throughput *= specularBRDF(NdotL, specularFresnel, mat.rough) / specularProbability;
+                throughput *= specularBRDF(NdotL, specularFresnel, mat.rough) / specularProb;
             } else {
-                throughput *= (1.0 - fresnelDielectric(NdotL, F0toIOR(mat.F0))) / (1.0 - specularProbability);
+                throughput *= (1.0 - fresnelDielectric(NdotL, F0toIOR(mat.F0))) / (1.0 - specularProb);
                 throughput *= hammonDiffuse(mat.normal, -prevDir, rayDir, mat) / (NdotL * INV_PI);
             }
         }

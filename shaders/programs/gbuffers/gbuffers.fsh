@@ -22,7 +22,7 @@ in float blockId;
 #endif
 
 void main() {
-	vec4 albedoTex   = texture(tex, texCoords);
+	vec4 albedoTex   = texture(colortex0, texCoords);
 	vec4 normalTex   = texture(normals,   texCoords);
 	vec4 specularTex = texture(specular,  texCoords);
 
@@ -30,10 +30,11 @@ void main() {
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 	#endif
 
-	float F0 		= specularTex.y;
-	float ao 		= normalTex.z;
-	float roughness = hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x;
-	float emission  = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
+	float F0 		 = specularTex.y;
+	float ao 		 = normalTex.z;
+	float roughness  = hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x;
+	float emission   = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
+	float subsurface = (specularTex.z * 255.0) < 65.0 ? 0.0 : specularTex.z;
 
 	vec3 normal;
 	// WOTAH

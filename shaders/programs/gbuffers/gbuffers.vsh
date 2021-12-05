@@ -20,6 +20,7 @@ out float blockId;
 #include "/include/uniforms.glsl"
 #include "/include/utility/noise.glsl"
 #include "/include/utility/math.glsl"
+#include "/include/utility/transforms.glsl"
 #include "/include/fragment/water.glsl"
 
 vec2 taaOffsets[8] = vec2[8](
@@ -54,13 +55,12 @@ void main() {
 
 	#ifdef WATER
 		if(int(blockId + 0.5) == 1) {
-			vec3 worldPos = (mat3(gbufferModelViewInverse) * viewPos) + (cameraPosition + gbufferModelViewInverse[3].xyz);
+			vec3 worldPos = viewToWorld(viewPos);
 			worldPos.y   += computeWaves(worldPos.xz);
 			waterNormals  = getWaveNormals(worldPos);
 
-			vec3 worldToView = mat3(gbufferModelView) * (worldPos - cameraPosition);
-    		vec4 viewToClip  = gl_ProjectionMatrix * vec4(worldToView, 1.0);
-			gl_Position     += viewToClip;
+    		vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView(worldPos), 1.0);
+			gl_Position    += viewToClip;
 		}
 	#endif
 
