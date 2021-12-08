@@ -51,7 +51,7 @@
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {
                 vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));
-                sky = atmosphericScattering(atmosRayPos, rayDir, skyIlluminance);
+                sky = atmosphericScattering(atmosRayPos, normalize(rayDir), skyIlluminance);
             }
         #endif
 

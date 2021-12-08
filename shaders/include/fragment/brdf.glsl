@@ -54,14 +54,18 @@ vec3 schlickGaussian(float cosTheta, vec3 F0) {
 }
 
 float fresnelDielectric(float NdotV, float surfaceIOR) {
-    float n1 = airIOR, n2 = surfaceIOR, eta = n1 / n2;
-    float sinThetaT = eta * clamp01(1.0 - (NdotV * NdotV));
-    float cosThetaT = 1.0 - (sinThetaT * sinThetaT);
+    float n1 = airIOR, n2 = surfaceIOR;
+    float sinThetaT = (n1 / n2) * max0(1.0 - pow2(NdotV));
+    float cosThetaT = 1.0 - pow2(sinThetaT);
 
-    float sPolar = (n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT);
-    float pPolar = (n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV);
+    if(sinThetaT >= 1.0) {
+        return 1.0;
+    } else {
+        float sPolar = (n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT);
+        float pPolar = (n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV);
 
-    return clamp01((sPolar * sPolar + pPolar * pPolar) * 0.5);
+        return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
+    }
 }
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/

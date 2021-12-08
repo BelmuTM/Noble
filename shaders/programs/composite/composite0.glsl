@@ -25,7 +25,7 @@ void main() {
          vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
          vec3 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
-         sky.rgb  = tmp + (starfield(viewPos) * STARS_BRIGHTNESS * exp(-timeMidnight));
+         sky.rgb  = tmp + (starfield(viewPos) * exp2(STARS_BRIGHTNESS * STARS_BRIGHTNESS_RANGE) * exp(-timeMidnight));
          sky.rgb += celestialBody(normalize(viewPos), shadowDir);
       #endif
 
@@ -41,7 +41,7 @@ void main() {
 
    /*    ------- REFRACTION -------    */
    #if REFRACTION == 1
-      if(F0toIOR(mat.F0) > 1.0 && getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
+      if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
          opaques = simpleRefractions(viewPos, mat.normal, mat.F0, hitPos);
          coords  = hitPos.xy;
       }
@@ -57,11 +57,15 @@ void main() {
    #endif
 
    bool isWater    = getBlockId(texCoords) == 1;
-   float depthDist = length(mat3(gbufferModelViewInverse) * viewPos);
+   float depthDist = 0.0;
 
    /*    ------- WATER FOAM -------    */
    if(isWater) {
-      depthDist = max0(distance(
+      depthDist = isEyeInWater == 1 ? 
+
+      length(mat3(gbufferModelViewInverse) * viewPos)
+      :
+      max0(distance(
 	      linearizeDepth(texture(depthtex0, coords).r),
 		   linearizeDepth(texture(depthtex1, coords).r)
 	   ));

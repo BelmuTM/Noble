@@ -70,7 +70,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     float sunVdotL = dot(rayDir, playerSunDir); float moonVdotL = dot(rayDir, playerMoonDir);
     vec4 phase = vec4(rayleighPhase(sunVdotL), miePhase(sunVdotL), rayleighPhase(moonVdotL), miePhase(moonVdotL));
 
-    vec3 scattering = vec3(0.0), multipleScattering = vec3(0.0), transmittance = vec3(1.0);
+    vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), multipleScattering = vec3(0.0), transmittance = vec3(1.0);
     
     for(int i = 0; i < SCATTER_STEPS; i++) {
         vec3 airmass          = densities(length(rayPos) - earthRad) * stepSize;
@@ -81,8 +81,8 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
         vec3 sunStepScattering  = kScattering * (airmass.xy * phase.xy) * visibleScattering;
         vec3 moonStepScattering = kScattering * (airmass.xy * phase.zw) * visibleScattering;
 
-        scattering         += sunStepScattering  * atmosphereTransmittance(rayPos, playerSunDir)  * sunIlluminance;
-        scattering         += moonStepScattering * atmosphereTransmittance(rayPos, playerMoonDir) * moonIlluminance;
+        sunScattering      += sunStepScattering  * atmosphereTransmittance(rayPos, playerSunDir);
+        moonScattering     += moonStepScattering * atmosphereTransmittance(rayPos, playerMoonDir);
         multipleScattering += visibleScattering * (kScattering * airmass.xy);
 
         transmittance *= stepTransmittance;
@@ -91,5 +91,5 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     skyIlluminance      = PI * mix(skyIlluminance, vec3(skyIlluminance.b) * sqrt(2.0), INV_PI);
     multipleScattering *= skyIlluminance * (0.25 * INV_PI);
     
-    return (multipleScattering * PI) + scattering;
+    return (multipleScattering * PI) + (sunScattering * sunIlluminance) + (moonScattering * moonIlluminance);
 }

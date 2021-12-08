@@ -99,8 +99,8 @@ option.SSR.comment = §cCan only reflect what's being displayed §con your scree
 value.SSR.0 = §cOFF
 value.SSR.1 = §aON
 
-option.REFRACTION = Refractions
-option.REFRACTION.comment = Applies §bScreen Space Refractions §fto stained glass and water. §cCan only refract what's being displayed §con your screen.
+option.REFRACTION = Screen Space Refractions
+option.REFRACTION.comment = Applies §bScreen Space Refractions §fto refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen.
 value.REFRACTION.0 = §cOFF
 value.REFRACTION.1 = §aON
 

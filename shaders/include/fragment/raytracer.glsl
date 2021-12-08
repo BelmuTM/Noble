@@ -24,17 +24,19 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int steps, float jitter, inout vec3 hit
 
     hitPos = screenPos + screenDir * jitter;
     for(int i = 0; i < steps; i++) {
-        hitPos += screenDir;
-        
         if(clamp01(hitPos.xy) != hitPos.xy) { return false; }
+
         float depth = texture(depthtex1, hitPos.xy).r;
+        if(depth >= 1.0) { return false; }
 
         if(abs(1e-2 - (hitPos.z - depth)) < 1e-2 && !isHand(depth)) {
+
             #if BINARY_REFINEMENT == 1
                 hitPos = binarySearch(hitPos, screenDir);
             #endif
             return true;
         }
+        hitPos += screenDir;
     }
     return false;
 }
