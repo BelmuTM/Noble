@@ -56,7 +56,7 @@
         #endif
 
         /*DRAWBUFFERS:4789*/
-        gl_FragData[0] = sRGBToLinear(texture(colortex0, texCoords));
+        gl_FragData[0] = texture(colortex0, texCoords);
         gl_FragData[1] = vec4(sky,            1.0);
         gl_FragData[2] = vec4(skyIlluminance, 1.0);
         gl_FragData[3] = vec4(shadowmap,      1.0);

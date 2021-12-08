@@ -16,17 +16,17 @@
 
     vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 viewPos, vec3 normal, inout float historyFrames) {
         vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
-        vec3 prevColor = texture(prevTex, prevTexCoords).rgb;
+        vec3 prevColor     = texture(prevTex, prevTexCoords).rgb;
 
         float totalWeight = float(clamp01(prevTexCoords) == prevTexCoords);
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            vec3 prevPos = viewToWorld(getViewPos(prevTexCoords));
-            vec3 delta = viewToWorld(viewPos) - prevPos;
+            vec3 prevPos    = viewToWorld(getViewPos(prevTexCoords));
+            vec3 delta      = viewToWorld(viewPos) - prevPos;
             float posWeight = max0(exp(-dot(delta, delta) * 3.0));
-            totalWeight *= 0.96 * posWeight;
+            totalWeight    *= 0.96 * posWeight;
         #else
             historyFrames = hasMoved() ? 1.0 : texture(prevTex, texCoords).a + 1.0;
-            totalWeight *= 1.0 - (1.0 / max(historyFrames, 1.0));
+            totalWeight  *= 1.0 - (1.0 / max(historyFrames, 1.0));
         #endif
 
         return clamp(mix(currColor, prevColor, totalWeight), vec3(0.0), vec3(65e3));

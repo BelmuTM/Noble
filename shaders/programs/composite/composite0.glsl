@@ -14,7 +14,7 @@
 #include "/include/fragment/water.glsl"
 
 void main() {
-   vec4 rain = sRGBToLinear(texture(colortex5, texCoords));
+   vec4 rain    = sRGBToLinear(texture(colortex5, texCoords));
    vec3 viewPos = getViewPos(texCoords);
 
    if(isSky(texCoords)) {
@@ -35,9 +35,9 @@ void main() {
 
    material mat = getMaterial(texCoords);
    mat.albedo   = sRGBToLinear(vec4(mat.albedo, 1.0)).rgb;
+   vec3 opaques = sRGBToLinear(texture(colortex4, texCoords)).rgb * INV_PI;
 
    vec3 hitPos; vec2 coords = texCoords;
-   vec3 opaques = texture(colortex4, texCoords).rgb * INV_PI * maxEps(dot(mat.normal, shadowDir));
 
    /*    ------- REFRACTION -------    */
    #if REFRACTION == 1
@@ -56,8 +56,8 @@ void main() {
       if(canCast) { shadowmap *= waterCaustics(coords); }
    #endif
 
-   bool isWater = getBlockId(texCoords) == 1;
-   float depthDist = 0.0;
+   bool isWater    = getBlockId(texCoords) == 1;
+   float depthDist = length(mat3(gbufferModelViewInverse) * viewPos);
 
    /*    ------- WATER FOAM -------    */
    if(isWater) {
@@ -73,7 +73,7 @@ void main() {
    mat.albedo = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
 
    /*    ------- WATER ABSORPTION -------    */
-   if(isWater) {
+   if(isWater || isEyeInWater == 1) {
       // Transmittance
 	   vec3 transmittance = exp2(-depthDist * WATER_ABSORPTION_COEFFICIENTS);
       mat.albedo *= transmittance;

@@ -177,11 +177,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define WATER_DISTORTION_SPEED     0.65
 #define WATER_DISTORTION_AMPLITUDE 0.40 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
+#define EXPOSURE 1 // [0 1]
 #define PURKINJE 1 // [0 1]
-
-#define EXPOSURE        1 // [0 1]
-#define MIN_EXPOSURE 5e-5
-#define MAX_EXPOSURE  2.0
 
 const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
