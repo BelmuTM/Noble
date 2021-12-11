@@ -94,20 +94,20 @@ value.SSAO_SAMPLES.20 = §c20
 
 ##################### RAY TRACING #####################
 
-option.SSR = Screen Space Reflections (SSR)
-option.SSR.comment = §cCan only reflect what's being displayed §con your screen.
-value.SSR.0 = §cOFF
-value.SSR.1 = §aON
+option.REFLECTIONS = Screen Space Reflections (REFLECTIONS)
+option.REFLECTIONS.comment = §cCan only reflect what's being displayed §con your screen.
+value.REFLECTIONS.0 = §cOFF
+value.REFLECTIONS.1 = §aON
 
 option.REFRACTION = Screen Space Refractions
 option.REFRACTION.comment = Applies §bScreen Space Refractions §fto refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen.
 value.REFRACTION.0 = §cOFF
 value.REFRACTION.1 = §aON
 
-option.SSR_TYPE = SSR Type
-option.SSR_TYPE.comment = §bSimple reflections §fdo not consider a material's roughness. §bRough reflections §fdo consider it, §cthey give a better §cresult but reduce performance.
-value.SSR_TYPE.0 = §eSimple Reflections
-value.SSR_TYPE.1 = §eRough Reflections
+option.REFLECTIONS_TYPE = REFLECTIONS Type
+option.REFLECTIONS_TYPE.comment = §bSimple reflections §fdo not consider a material's roughness. §bRough reflections §fdo consider it, §cthey give a better §cresult but reduce performance.
+value.REFLECTIONS_TYPE.0 = §eSimple Reflections
+value.REFLECTIONS_TYPE.1 = §eRough Reflections
 
 option.ROUGH_REFLECT_RES = Rough Reflections Resolution
 option.ROUGH_REFLECT_RES.comment = Adjusts §bRough Reflections§f' resolution. §cHigher value gives better results, but reduces §cperformance.
@@ -145,7 +145,7 @@ option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make 
 value.BINARY_REFINEMENT.0 = §cOFF
 value.BINARY_REFINEMENT.1 = §aON
 
-option.SSR_REPROJECTION = SSR reprojection
+option.SSR_REPROJECTION = REFLECTIONS reprojection
 option.SSR_REPROJECTION.comment = Reflects the last frame to make the light bounce infinitely. §aIt doesn't affect performance.
 value.SSR_REPROJECTION.0 = §cOFF
 value.SSR_REPROJECTION.1 = §aON
@@ -209,6 +209,11 @@ option.WHITE_WORLD.comment = §fSets all block colors to white.
 value.WHITE_WORLD.0 = §cOFF
 value.WHITE_WORLD.1 = §aON
 
+option.WATER_FOAM = Water Foam
+option.WATER_FOAM.comment = Foam that appears when water encounters an edge.
+value.WATER_FOAM.0 = §cOFF
+value.WATER_FOAM.1 = §aON
+
 option.WATER_CAUSTICS = Water Caustics
 option.WATER_CAUSTICS.comment = Caustics provoked by the refraction of light on water waves. They appear underwater.
 value.WATER_CAUSTICS.0 = §cOFF
@@ -224,22 +229,14 @@ option.WATER_CAUSTICS_SPEED.comment = Adjusts §bWater Caustics§f' speed.
 option.WATER_CAUSTICS_SIZE = Caustics Size
 option.WATER_CAUSTICS_SIZE.comment = Adjusts §bWater Caustics§f' size.
 
-option.WATER_FOAM = Water Foam
-option.WATER_FOAM.comment = Foam that appears when water encounters an edge.
-value.WATER_FOAM.0 = §cOFF
-value.WATER_FOAM.1 = §aON
-
-option.FOAM_BRIGHTNESS = Foam Brightness
-option.FOAM_BRIGHTNESS.comment = Adjusts §bWater Foam§f's darkness.
-
 option.WAVE_STEEPNESS = Wave Steepness
 option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of height to width.
 
-option.WAVE_AMPLITUDE = Wave Amplitude
-option.WAVE_AMPLITUDE.comment = Adjusts the amplitude of water waves. Height from sea level to top.
-
 option.WAVE_LENGTH = Wave Length
 option.WAVE_LENGTH.comment = Adjusts the length of water waves. Length between 2 waves.
+
+option.WAVE_AMPLITUDE = Wave Amplitude
+option.WAVE_AMPLITUDE.comment = Adjusts the amplitude of water waves. Height from sea level to top.
 
 option.WAVE_SPEED = Wave Speed
 option.WAVE_SPEED.comment = Adjusts the speed of water waves.

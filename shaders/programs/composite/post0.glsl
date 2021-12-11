@@ -23,14 +23,14 @@ vec3 depthOfField(vec3 color, float coc) {
 }
 
 void main() {
-    vec3 viewPos = getViewPos(texCoords);
-    vec4 color = texture(colortex0, texCoords);
+    vec3 viewPos = getViewPos0(texCoords);
+    vec4 color   = texture(colortex0, texCoords);
 
     vec4 bloom = BLOOM == 1 ? writeBloom() : vec4(0.0);
 
     float coc = 1.0;
     #if DOF == 1
-        coc = getCoC(linearizeDepth(texture(depthtex0, texCoords).r), linearizeDepth(centerDepthSmooth));
+        coc       = getCoC(linearizeDepth(texture(depthtex0, texCoords).r), linearizeDepth(centerDepthSmooth));
         color.rgb = depthOfField(color.rgb, coc);
     #endif
      

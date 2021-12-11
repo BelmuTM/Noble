@@ -16,7 +16,7 @@ void main() {
         #if GI == 1
             vec2 scaledUv = texCoords * GI_RESOLUTION; 
             #if GI_FILTER == 1
-                vec3 scaledViewPos = getViewPos(scaledUv);
+                vec3 scaledViewPos = getViewPos0(scaledUv);
                 vec3 scaledNormal  = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
 
                 globalIllumination = SVGF(colortex5, scaledViewPos, scaledNormal, scaledUv);

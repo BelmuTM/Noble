@@ -83,11 +83,11 @@ vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
 	float r   = sqrt(seed.x);
     float phi = TAU * seed.y;
 	float t1  = r * cos(phi);
-    float tmp = clamp01(1.0 - t1 * t1);
+    float tmp = clamp01(1.0 - pow2(t1));
 	float t2  = mix(sqrt(tmp), r * sin(phi), 0.5 + 0.5 * viewDir.z);
 
 	// Section 4.3: reprojection onto hemisphere
-	vec3 Nh = t1 * T1 + t2 * T2 + sqrt(clamp01(tmp - t2 * t2)) * viewDir;
+	vec3 Nh = t1 * T1 + t2 * T2 + sqrt(clamp01(tmp - pow2(t2))) * viewDir;
 
 	// Section 3.4: transforming the normal back to the ellipsoid configuration
 	return normalize(vec3(alpha * Nh.xy, Nh.z));	
@@ -153,23 +153,21 @@ float getSkyLightmap(vec2 coords) {
     return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
 }
 
-vec3 getBlockLight(vec2 lightmap) {
-    return blackbody(BLOCKLIGHT_TEMPERATURE) * (BLOCKLIGHT_MULTIPLIER * pow(lightmap.x, BLOCKLIGHT_EXPONENT));
-}
-
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celestialIlluminance, vec3 skyIlluminance, float ambientOcclusion) {
     V = -normalize(V);
-    float NdotL = maxEps(dot(N, L));
 
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
     vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
     vec2 lightmap   = texture(colortex1, texCoords).zw;
-    vec3 skyLight   = skyIlluminance * ((lightmap.y * lightmap.y) - clamp(rainStrength, 0.0, rainAmbientDarkness));
-    vec3 blockLight = getBlockLight(lightmap);
+    lightmap.x      = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(lightmap.x), BLOCKLIGHTMAP_EXPONENT);
+    lightmap.y      = pow2(clamp01(lightmap.y));
+
+    vec3 skyLight   = skyIlluminance * lightmap.y;
+    vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * lightmap.x * BLOCKLIGHT_MULTIPLIER;
 
     vec3 lighting = vec3(0.0);
     /* DIRECT ->   */ lighting += (diffuse + specular) * shadows * celestialIlluminance;

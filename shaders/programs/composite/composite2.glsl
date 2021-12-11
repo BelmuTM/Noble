@@ -20,7 +20,7 @@
 
         float totalWeight = float(clamp01(prevTexCoords) == prevTexCoords);
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            vec3 prevPos    = viewToWorld(getViewPos(prevTexCoords));
+            vec3 prevPos    = viewToWorld(getViewPos0(prevTexCoords));
             vec3 delta      = viewToWorld(viewPos) - prevPos;
             float posWeight = max0(exp(-dot(delta, delta) * 3.0));
             totalWeight    *= 0.96 * posWeight;
@@ -29,14 +29,14 @@
             totalWeight  *= 1.0 - (1.0 / max(historyFrames, 1.0));
         #endif
 
-        return clamp(mix(currColor, prevColor, totalWeight), vec3(0.0), vec3(65e3));
+        return clamp16(mix(currColor, prevColor, totalWeight));
     }
 #endif
 
 void main() {
-    vec4 color = texture(colortex0, texCoords);
+    vec4 color              = texture(colortex0, texCoords);
     vec3 globalIllumination = vec3(0.0);
-    float historyFrames = texture(colortex6, texCoords).a;
+    float historyFrames     = texture(colortex6, texCoords).a;
 
     #if GI == 1
         vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
@@ -45,7 +45,7 @@ void main() {
             globalIllumination = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r));
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                vec3 viewPos = getViewPos(texCoords);
+                vec3 viewPos = getViewPos0(texCoords);
                 vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
                 globalIllumination = temporalAccumulation(colortex6, globalIllumination, viewPos, normal, historyFrames);

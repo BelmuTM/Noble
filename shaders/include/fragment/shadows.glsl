@@ -29,8 +29,8 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
     float shadowVisibility1 = visibility(shadowtex1, sampleCoords);
 
     /*
-    float currDepth   = getViewPos(texCoords).z;
-    float shadowDepth = getViewPos(sampleCoords.xy).z;
+    float currDepth   = getViewPos0(texCoords).z;
+    float shadowDepth = getViewPos0(sampleCoords.xy).z;
 
     float sss           = unpack2x8(texture(colortex2, sampleCoords.xy).y).y;
     float dist          = abs(currDepth - shadowDepth);
@@ -76,7 +76,7 @@ vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
     float avgBlockerDepth = findBlockerDepth(sampleCoords, rotation);
     if(avgBlockerDepth < 0.0) return vec3(1.0);
 
-    float penumbraSize = (max(sampleCoords.z - avgBlockerDepth, 0.0) / avgBlockerDepth) * LIGHT_SIZE;
+    float penumbraSize = (max0(sampleCoords.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;
 
     vec3 shadowResult = vec3(0.0);
     for(int i = 0; i < PCSS_SAMPLES; i++) {

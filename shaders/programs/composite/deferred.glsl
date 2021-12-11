@@ -23,11 +23,11 @@
         #if WORLD == OVERWORLD
             for(int x = 0; x < samples; x++) {
                 for(int y = 0; y < samples; y++) {
-                    vec3 dir = generateUnitVector((1.0 / samples) * vec2(x, y));
+                    vec3 dir = generateUnitVector(vec2(x, y));
                     skyIlluminance += texture(colortex7, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
                 }
             }
-            skyIlluminance *= 1.0 / (samples * samples);
+            skyIlluminance *= 1.0 / pow2(samples);
         #endif
     }
 
@@ -45,13 +45,13 @@
         #if WORLD == OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
             #if SHADOWS == 1
-                shadowmap = shadowMap(getViewPos(texCoords));
+                shadowmap = shadowMap(getViewPos0(texCoords));
             #endif
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {
                 vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));
-                sky = atmosphericScattering(atmosRayPos, normalize(rayDir), skyIlluminance);
+                sky         = atmosphericScattering(atmosRayPos, normalize(rayDir), skyIlluminance);
             }
         #endif
 

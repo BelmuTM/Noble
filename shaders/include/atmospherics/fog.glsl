@@ -19,28 +19,28 @@ vec3 fog(vec3 viewPos, vec3 fogColorStart, vec3 fogColorEnd, float fogCoef, floa
 // Thanks Jessie, LVutner and SixthSurge for the help!
 
 vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
-    float stepSize = (25.0 / TRANSMITTANCE_STEPS) / abs(lightDir.y);
-    vec3 increment = lightDir * stepSize;
-    vec3 rayPos = rayOrigin + increment * 0.5;
+    float rayLength = (25.0 / TRANSMITTANCE_STEPS) / abs(lightDir.y);
+    vec3 increment  = lightDir * rayLength;
+    vec3 rayPos     = rayOrigin + increment * 0.5;
 
     vec3 transmittance = vec3(1.0);
     for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
-        vec3 density   = densities(rayPos.y);
-        transmittance *= exp(-kExtinction * density * stepSize);
-        rayPos += increment;
+        vec2 density   = densities(rayPos.y).xy;
+        transmittance *= exp(-kExtinction * vec3(density, 0.0) * rayLength);
+        rayPos        += increment;
     }
     return transmittance;
 }
 
 vec3 volumetricLighting(vec3 viewPos) {
-    vec4 startPos  = gbufferModelViewInverse * vec4(0.0, 0.0, 0.0, 1.0);
-    vec4 endPos    = gbufferModelViewInverse * vec4(viewPos, 1.0);
-    float stepSize = distance(startPos, endPos) / float(VL_STEPS);
+    vec4 startPos   = gbufferModelViewInverse * vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 endPos     = gbufferModelViewInverse * vec4(viewPos, 1.0);
+    float rayLength = distance(startPos, endPos) / float(VL_STEPS);
 
     float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
-    vec4 rayDir  = (normalize(endPos - startPos) * stepSize) * jitter;
+    vec4 rayDir  = (normalize(endPos - startPos) * rayLength) * jitter;
 
-    vec4 increment = rayDir * stepSize;
+    vec4 increment = rayDir * rayLength;
     vec4 rayPos    = startPos + increment;
 
     float VdotL = dot(normalize(endPos + startPos).xyz, worldTime <= 12750 ? playerSunDir : playerMoonDir);
@@ -53,7 +53,7 @@ vec3 volumetricLighting(vec3 viewPos) {
         vec4 samplePos   = shadowProjection * shadowModelView * rayPos;
         vec3 sampleColor = sampleShadowColor(vec3(distort(samplePos.xy), samplePos.z) * 0.5 + 0.5);
 
-        vec3 airmass      = (densities(rayPos.y) * VL_DENSITY) * stepSize;
+        vec3 airmass      = (densities(rayPos.y) * VL_DENSITY) * rayLength;
         vec3 opticalDepth = kExtinction * airmass;
 
         vec3 stepTransmittance = exp(-opticalDepth);

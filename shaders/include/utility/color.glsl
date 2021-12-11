@@ -38,8 +38,7 @@ vec3 blackbody(in float t) {
     return rgb;
 }
 
-vec3 whitePreservingReinhard(vec3 color) {
-	const float white = 10.0;
+vec3 whitePreservingReinhard(vec3 color, float white) {
 	float luma = luminance(color);
 	float toneMappedLuma = luma * (1.0 + luma / (white * white)) / (1.0 + luma);
 	color *= toneMappedLuma / luma;
@@ -137,6 +136,18 @@ vec4 sRGBToLinear(vec4 sRGB) {
     return mix(higher, lower, step(sRGB, vec4(0.04045)));
 }
 
+vec3 linearToSRGB(vec3 linear) {;
+    vec3 higher = (pow(abs(linear), vec3(1.0 / 2.4)) * 1.055) - 0.055;
+    vec3 lower  = linear * 12.92;
+    return mix(higher, lower, step(linear, vec3(0.0031308)));
+}
+
+vec3 sRGBToLinear(vec3 sRGB) {
+    vec3 higher = pow((sRGB + 0.055) / 1.055, vec3(2.4));
+    vec3 lower  = sRGB / 12.92;
+    return mix(higher, lower, step(sRGB, vec3(0.04045)));
+}
+
 // Adobe RGB (1998) color space matrix from:
 // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 const mat3 RGBtoXYZMatrix = (mat3(
@@ -152,11 +163,11 @@ const mat3 XYZtoRGBMatrix = (mat3(
 ));
 
 vec3 linearToXYZ(vec3 linear) {
-    return RGBtoXYZMatrix * linearToSRGB(vec4(linear, 1.0)).rgb;
+    return RGBtoXYZMatrix * linearToSRGB(linear).rgb;
 }
 
 vec3 XYZtoLinear(vec3 XYZ) {
-    return sRGBToLinear(vec4(XYZtoRGBMatrix * XYZ, 1.0)).rgb;
+    return sRGBToLinear(XYZtoRGBMatrix * XYZ).rgb;
 }
 
 // https://www.shadertoy.com/view/ltjBWG
@@ -172,11 +183,11 @@ vec3 YCoCgToRGB(vec3 YCoCg) {
 }
 
 vec3 linearToYCoCg(vec3 linear) {
-    vec3 RGB = linearToSRGB(vec4(linear, 1.0)).rgb;
+    vec3 RGB = linearToSRGB(linear).rgb;
     return isSky(texCoords) ? linear : RGBToYCoCgMatrix * RGB;
 }
 
 vec3 YCoCgToLinear(vec3 YCoCg) {
     vec3 RGB = YCoCgToRGBMatrix * YCoCg;
-    return isSky(texCoords) ? YCoCg : sRGBToLinear(vec4(RGB, 1.0)).rgb;
+    return isSky(texCoords) ? YCoCg : sRGBToLinear(RGB).rgb;
 }

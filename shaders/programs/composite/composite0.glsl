@@ -13,12 +13,13 @@
 #include "/include/fragment/ao.glsl"
 #include "/include/fragment/water.glsl"
 
+/*DRAWBUFFERS:09*/
 void main() {
    vec4 rain    = sRGBToLinear(texture(colortex5, texCoords));
-   vec3 viewPos = getViewPos(texCoords);
+   vec3 viewPos = getViewPos0(texCoords);
 
+   /*    ------- SKY -------    */
    if(isSky(texCoords)) {
-      /*DRAWBUFFERS:0*/
       vec4 sky = vec4(0.0, 0.0, 0.0, 1.0);
 
       #if WORLD == OVERWORLD
@@ -30,11 +31,12 @@ void main() {
       #endif
 
       gl_FragData[0] = sky + rain;
+      gl_FragData[1] = vec4(0.0);
       return;
    }
 
    material mat = getMaterial(texCoords);
-   mat.albedo   = sRGBToLinear(vec4(mat.albedo, 1.0)).rgb;
+   mat.albedo   = sRGBToLinear(mat.albedo).rgb;
    vec3 opaques = sRGBToLinear(texture(colortex4, texCoords)).rgb * INV_PI;
 
    vec3 hitPos; vec2 coords = texCoords;
@@ -60,35 +62,32 @@ void main() {
    float depthDist = 0.0;
 
    /*    ------- WATER FOAM -------    */
-   if(isWater) {
+   if(isWater || isEyeInWater == 1) {
       depthDist = isEyeInWater == 1 ? 
 
-      length(mat3(gbufferModelViewInverse) * viewPos)
+      length(transMAD3(gbufferModelViewInverse, viewPos))
       :
-      max0(distance(
-	      linearizeDepth(texture(depthtex0, coords).r),
-		   linearizeDepth(texture(depthtex1, coords).r)
-	   ));
+      distance(
+	      transMAD3(gbufferModelViewInverse, viewPos),
+		   transMAD3(gbufferModelViewInverse, getViewPos1(coords))
+	   );
 
       opaques += WATER_FOAM == 0 ? 0.0 : waterFoam(depthDist);
    }
 
-   // Alpha Blending
+   /*    ------- WATER ABSORPTION -------    */
+   vec3 transmittance = isWater || isEyeInWater == 1 ? exp(-depthDist * WATER_ABSORPTION_COEFFICIENTS) : vec3(1.0);
+   opaques           *= transmittance;
+
+   /*    ------- ALPHA BLENDING -------    */
    mat.albedo = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
 
-   /*    ------- WATER ABSORPTION -------    */
-   if(isWater || isEyeInWater == 1) {
-      // Transmittance
-	   vec3 transmittance = exp2(-depthDist * WATER_ABSORPTION_COEFFICIENTS);
-      mat.albedo *= transmittance;
-   }
-
+   /*    ------- AMBIENT OCCLUSION -------    */
    float ambientOcclusion = 1.0;
    #if AO == 1
       ambientOcclusion = AO_TYPE == 0 ? computeSSAO(viewPos, mat.normal) : computeRTAO(viewPos, mat.normal);
    #endif
 
-   /*DRAWBUFFERS:09*/
    gl_FragData[0] = vec4(mat.albedo, 1.0) + rain;
    gl_FragData[1] = vec4(shadowmap, ambientOcclusion);
 }

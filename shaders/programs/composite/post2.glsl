@@ -64,13 +64,13 @@
 #endif
 
 void tonemap(inout vec3 color) {
-    #if TONEMAPPING == 0
-        color = whitePreservingReinhard(color); // Reinhard
-    #elif TONEMAPPING == 1
+    #if TONEMAP == 0
+        color = whitePreservingReinhard(color, 15.0); // Reinhard
+    #elif TONEMAP == 1
         color = uncharted2(color); // Uncharted 2
-    #elif TONEMAPPING == 2
+    #elif TONEMAP == 2
         color = burgess(color); // Burgess
-    #elif TONEMAPPING == 3
+    #elif TONEMAP == 3
         color = ACESFitted(color); // ACES
     #endif
 }
@@ -112,7 +112,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        color.rgb += max0(readBloom().rgb * 1e-3 * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5)));
+        //color.rgb += readBloom().rgb * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5));
     #endif
 
     #if PURKINJE == 1
@@ -128,10 +128,10 @@ void main() {
     color.rgb *= computeExposure(texture(colortex3, texCoords).a);
 
     tonemap(color.rgb);
-    vibrance(color.rgb, VIBRANCE);
+    vibrance(color.rgb,   VIBRANCE);
     saturation(color.rgb, SATURATION);
-    contrast(color.rgb, CONTRAST);
-    color.rgb += BRIGHTNESS;
+    contrast(color.rgb,   CONTRAST);
+    color.rgb +=          BRIGHTNESS;
 
     // Vignette
     #if VIGNETTE == 1
@@ -140,7 +140,7 @@ void main() {
     #endif
 
     color.rgb = clamp01(color.rgb);
-    color     = linearToSRGB(color);
+    color     = TONEMAP == 2 ? color : linearToSRGB(color);
 
     #if LUT == 1
         applyLUT(colortex10, color.rgb);

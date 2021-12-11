@@ -15,9 +15,14 @@ vec3  max0(vec3 x)    { return max(vec3(0.0), x); }
 vec4  max0(vec4 x)    { return max(vec4(0.0), x); }
 
 float clamp01(float x) { return clamp(x, 0.0, 1.0); }
-vec2 clamp01(vec2 x)   { return clamp(x, vec2(0.0), vec2(1.0)); }
-vec3 clamp01(vec3 x)   { return clamp(x, vec3(0.0), vec3(1.0)); }
-vec4 clamp01(vec4 x)   { return clamp(x, vec4(0.0), vec4(1.0)); }
+vec2  clamp01(vec2 x)  { return clamp(x, vec2(0.0), vec2(1.0)); }
+vec3  clamp01(vec3 x)  { return clamp(x, vec3(0.0), vec3(1.0)); }
+vec4  clamp01(vec4 x)  { return clamp(x, vec4(0.0), vec4(1.0)); }
+
+float clamp16(float x) { return clamp(x, 0.0, 65535.0); }
+vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(65535.0)); }
+vec3  clamp16(vec3 x)  { return clamp(x, vec3(0.0), vec3(65535.0)); }
+vec4  clamp16(vec4 x)  { return clamp(x, vec4(0.0), vec4(65535.0)); }
 
 float pow2(float x) { return x*x; }
 float pow3(float x) { return x*x*x; }
@@ -83,7 +88,7 @@ vec2 raySphere(vec3 origin, vec3 dir, float radius) {
 	float b = dot(origin, dir);
 	float c = dot(origin, origin) - radius * radius;
 	float d = b * b - c;
-	if(d < 0.0) return vec2(1.0, -1.0);
+	if(d < 0.0) return vec2(-1.0, -1.0);
 	d = sqrt(d);
 	return vec2(-b - d, -b + d);
 }

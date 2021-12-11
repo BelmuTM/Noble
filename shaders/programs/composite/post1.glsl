@@ -14,7 +14,7 @@ void main() {
     vec4 color = texture(colortex0, texCoords);
 
     #if TAA == 1
-        color.rgb = max0(temporalAntiAliasing(colortex0, colortex3));
+        color.rgb = clamp16(temporalAntiAliasing(colortex0, colortex3));
     #endif
     
     /*DRAWBUFFERS:03*/

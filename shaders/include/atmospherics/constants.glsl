@@ -26,6 +26,8 @@ const mat3x3 kExtinction = mat3x3(kRlh, kMie[0] + kMie[1], kOzo);
 
 const vec3 atmosRayPos = vec3(0.0, earthRad, 0.0);
 
+const float isotropicPhase = 0.079577471;
+
 /* CELESTIAL CONSTANTS */
 const float moonRad    = 1.7374e3;
 const float moonDist   = 3.8440e5;
@@ -38,7 +40,7 @@ const float sunTemp = 5778.0;
 const float sunAngularRad  = CELESTIAL_SIZE_MULTIPLIER * sunRad  / sunDist;
 const float moonAngularRad = CELESTIAL_SIZE_MULTIPLIER * moonRad / moonDist;
 
-const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 120e3; // Brightness of light reaching the earth (J/m²)
+const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 125e3; // Brightness of light reaching the earth (J/m²)
 const vec3 sunLuminance   = sunIlluminance / (TAU * (1.0 - cos(sunAngularRad)));
 
 const vec3 moonLuminance   = moonAlbedo * sunIlluminance;

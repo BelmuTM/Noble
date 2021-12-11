@@ -14,7 +14,7 @@ void main() {
     vec4 color = texture(colortex0, texCoords);
 
     if(!isSky(texCoords)) {
-        vec3 viewPos = getViewPos(texCoords);
+        vec3 viewPos = getViewPos0(texCoords);
         vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
         #if GI == 1
@@ -22,14 +22,20 @@ void main() {
                 color.rgb = SVGF(colortex5, viewPos, normal, texCoords);
             #endif
         #else
-            #if SSR == 1
-                float resolution   = SSR_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
+            #if REFLECTIONS == 1
+                float resolution   = REFLECTIONS_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
                 float NdotV        = maxEps(dot(normal, -normalize(viewPos)));
+                float roughness    = texture(colortex2, texCoords).r;
                 vec3 specularColor = texture(colortex9, texCoords * resolution).rgb;
             
                 vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
-                vec3 DFG         = envBRDFApprox(specularColor, texture(colortex2, texCoords).r, NdotV);
-                color.rgb        = mix(color.rgb, reflections, DFG);
+
+                if(roughness > 0.05) {
+                    vec3 DFG  = envBRDFApprox(specularColor, roughness, NdotV);
+                    color.rgb = mix(color.rgb, reflections, DFG);
+                } else {
+                    color.rgb += reflections;
+                }
             #endif
         #endif
     }

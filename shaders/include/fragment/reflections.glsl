@@ -5,6 +5,7 @@
 /***********************************************/
 
 #include "/include/post/taa.glsl"
+#include "/include/utility/hammersley.glsl"
 
 // Kneemund's Border Attenuation
 float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
@@ -64,7 +65,7 @@ vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha,
         
         vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise, alpha);
 		vec3 reflected  = reflect(viewDir, TBN * microfacet);	
-		float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, noise.y, hitPos));
+		float hit       = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, noise.y, hitPos));
 
         float NdotL   = maxEps(dot(microfacet, reflected));
         vec3 hitColor = getHitColor(hitPos);

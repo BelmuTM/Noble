@@ -17,7 +17,7 @@ vec3 waterCaustics(vec2 coords) {
     float causticsSpeed = ANIMATED_WATER == 0 ? 0.0 : frameTimeCounter * WATER_CAUSTICS_SPEED;
 
     vec2 uv0 = (worldPos * (WATER_CAUSTICS_MAX_SIZE - WATER_CAUSTICS_SIZE)) + (causticsSpeed * 0.75);
-    vec2 uv1 = (worldPos * ((WATER_CAUSTICS_MAX_SIZE - WATER_CAUSTICS_SIZE) * 0.75)) - causticsSpeed;
+    vec2 uv1 = (worldPos * ((WATER_CAUSTICS_MAX_SIZE - WATER_CAUSTICS_SIZE) * 0.85)) - causticsSpeed;
 
     mat3x2 shift = mat3x2(
         vec2( WATER_CAUSTICS_SHIFT, WATER_CAUSTICS_SHIFT),
@@ -119,11 +119,10 @@ vec3 getWaveNormals(vec3 worldPos) {
 	float normal1 = computeWaves(coords + vec2(delta, 0.0));
 	float normal2 = computeWaves(coords + vec2(0.0, delta));
 
-    vec3 n;
-	n.x = (normal0 - normal1) / delta;
-    n.y = (normal0 - normal2) / delta;
-    n.z = 1.0;
-
-    return normalize(n);
+    return normalize(vec3(
+        (normal0 - normal1) / delta,
+        (normal0 - normal2) / delta,
+        1.0
+    ));
 }
     

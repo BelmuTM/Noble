@@ -40,14 +40,14 @@ void main() {
 	// WOTAH
 	if(int(blockId + 0.5) == 1) { 
 		albedoTex = vec4(0.0);
-		F0 = 0.02;
+		F0 		  = 0.02;
 		roughness = 0.0;
-		normal = waterNormals;
+		normal 	  = waterNormals;
 	} else {
 		normal.xy = normalTex.xy * 2.0 - 1.0;
-		normal.z = sqrt(1.0 - dot(normal.xy, normal.xy));
+		normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
 	}
-	normal = TBN * normal;
+	normal  = TBN * normal;
 	normal *= 0.5 + 0.5;
 
 	/*	

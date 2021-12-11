@@ -13,7 +13,7 @@ float computeSSAO(vec3 viewPos, vec3 normal) {
 		vec3 sampleDir = normalize(normal + generateUnitVector(uniformNoise(i, blueNoise)));
 
 		vec3 samplePos = viewPos + sampleDir * SSAO_RADIUS;
-		float sampleDepth = getViewPos(viewToScreen(samplePos).xy).z;
+		float sampleDepth = getViewPos0(viewToScreen(samplePos).xy).z;
 
 		// https://learnopengl.com/Advanced-Lighting/SSAO
 		float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPos.z - sampleDepth));

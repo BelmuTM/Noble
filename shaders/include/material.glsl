@@ -33,8 +33,8 @@ struct material {
     vec3 normal;
 
     float F0;
-    float ao;
     float rough;
+    float ao;
     float emission;
     bool isMetal;
 };
@@ -52,8 +52,8 @@ material getMaterial(vec2 coords) {
     mat.normal = normalize(decodeNormal(tex1.xy));
 
     mat.F0         = tex2.y;
-    mat.ao         = unpacked.x;
     mat.rough      = tex2.x;
+    mat.ao         = unpacked.x;
     mat.emission   = unpacked.y;
     mat.isMetal    = mat.F0 * 255.0 > 229.5;
 

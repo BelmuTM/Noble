@@ -14,7 +14,7 @@ void main() {
     if(!isSky(texCoords)) {
         #if GI == 1
             #if GI_FILTER == 1
-                vec3 viewPos = getViewPos(texCoords);
+                vec3 viewPos = getViewPos0(texCoords);
                 vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
                 
                 globalIllumination = SVGF(colortex5, viewPos, normal, texCoords);

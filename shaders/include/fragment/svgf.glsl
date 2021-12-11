@@ -73,7 +73,7 @@ vec3 SVGF(sampler2D tex, vec3 viewPos, vec3 normal, vec2 coords) {
             vec3 delta = viewToWorld(normal) -  viewToWorld(normalAt);
             float normalWeight = max0(exp(-dot(delta, delta) / nPhi));
 
-            vec3 samplePos = viewToWorld(getViewPos(sampleCoords));
+            vec3 samplePos = viewToWorld(getViewPos0(sampleCoords));
             delta = viewPos - samplePos;
             float posWeight = max0(exp(-dot(delta, delta) / pPhi));
   

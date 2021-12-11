@@ -13,7 +13,7 @@
 #include "/include/atmospherics/fog.glsl"
 
 void main() {
-    vec3 viewPos = getViewPos(texCoords);
+    vec3 viewPos = getViewPos0(texCoords);
     material mat = getMaterial(texCoords);
 
     #if WHITE_WORLD == 1
