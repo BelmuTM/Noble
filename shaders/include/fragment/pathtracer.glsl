@@ -84,7 +84,7 @@
                     throughput *= hammonDiffuse(mat.normal, -prevDir, rayDir, mat) / (NdotL * INV_PI);
                 }
 
-                if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(rngState), hitPos)) { hitPos = vec3(0.0, 1.0, 0.0); }
+                if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(rngState), hitPos)) { break; }
             }
         }
         return max0(radiance) / GI_SAMPLES;
