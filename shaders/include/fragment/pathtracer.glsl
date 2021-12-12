@@ -27,8 +27,13 @@
     vec3 pathTrace(in vec3 screenPos) {
         vec3 radiance     = vec3(0.0);
         vec3 viewPos      = screenToView(screenPos); 
-        vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
-        vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
+
+        vec3 celestialIlluminance = vec3(1.0);
+        #if WORLD == OVERWORLD
+            vec3 sunTransmit     = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
+            vec3 moonTransmit    = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
+            celestialIlluminance = sunTransmit + moonTransmit;
+        #endif
 
         uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
 
@@ -59,7 +64,7 @@
                 mat3 TBN     = constructViewTBN(mat.normal);
 
                 radiance += throughput * mat.albedo * mat.emission * BLOCKLIGHT_MULTIPLIER;
-                radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb, sunTransmit + moonTransmit);
+                radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb, celestialIlluminance);
 
                 /* Specular Bounce Probability */
                 float fresnelLum    = luminance(specularFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));

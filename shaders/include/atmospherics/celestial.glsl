@@ -29,18 +29,18 @@ vec3 celestialBody(vec3 viewDir, vec3 lightDir) {
 // Originally written by Capt Tatsu#7124
 // Modified by Belmu#4066
 float starfield(vec3 viewPos) {
-	vec3 playerPos = mat3(gbufferModelViewInverse) * viewPos;
+	vec3 playerPos   = mat3(gbufferModelViewInverse) * viewPos;
 	vec3 planeCoords = playerPos / (playerPos.y + length(playerPos.xz));
-	vec2 coord = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-5 + frameTime * 0.00125;
-	coord = floor(coord * 1024.0) / 1024.0;
+	vec2 coords 	 = planeCoords.xz * 0.7 + cameraPosition.xz * 1e-5 + frameTime * 0.00125;
+	coords 			 = floor(coords * 1024.0) / 1024.0;
 
-	float VdotU = clamp01(dot(normalize(viewPos), normalize(upPosition)));
-	float multiplier = sqrt(sqrt(VdotU)) * (1.0 - rainStrength);
+	float VdotU  = clamp01(dot(normalize(viewPos), normalize(upPosition)));
+	float factor = sqrt(sqrt(VdotU)) * (1.0 - rainStrength);
 
 	float star = 1.0;
 	if(VdotU > 0.0) {
-		star *= rand(coord.xy);
-		star *= rand(-coord.xy + 0.1);
+		star *= rand( coords.xy);
+		star *= rand(-coords.xy + 0.1);
 	}
-	return clamp01(star - (1.0 - STARS_AMOUNT)) * multiplier;
+	return max0(star - (1.0 - STARS_AMOUNT)) * factor;
 }

@@ -66,8 +66,8 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define SHADOW_BIAS    0.8
 
 // Soft Shadows
-#define PCSS_SAMPLES            16 // [16 64]
-#define BLOCKER_SEARCH_SAMPLES   8 // [8 64]
+#define PCSS_SAMPLES            16 // [16 32]
+#define BLOCKER_SEARCH_SAMPLES   8 // [8 16]
 #define BLOCKER_SEARCH_RADIUS 12.0
 #define LIGHT_SIZE           100.0
 
@@ -76,7 +76,8 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define BINARY_COUNT      4 // [4 6 12]
 #define BINARY_DECREASE 0.5
 
-#define RAY_STEP_LENGTH 1.5 // [1.0 1.5]
+#define RAY_STEP_LENGTH       1.5 // [1.0 1.5]
+#define RAY_DEPTH_TOLERANCE 0.002
 
 /*------------------ GLOBAL ILLUMINATION ------------------*/
 #define GI        0 // [0 1]
@@ -121,9 +122,10 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define VL_DENSITY 5.0
 #define VL_STEPS   int(SCATTER_STEPS * 0.5)
 
-#define STARS_AMOUNT           0.10 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define STARS_BRIGHTNESS       0.50 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define STARS_BRIGHTNESS_RANGE 10.0
+#define STARS_AMOUNT      0.10 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define STARS_BRIGHTNESS  0.50 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define STARS_MIN_TEMP  2500.0
+#define STARS_MAX_TEMP 50000.0
 
 /*------------------ WATER ------------------*/
 #define ANIMATED_WATER 1 // [0 1]

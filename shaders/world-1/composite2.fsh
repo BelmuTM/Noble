@@ -12,5 +12,7 @@
 in vec2 texCoords;
 
 #include "/settings.glsl"
+#define WORLD NETHER
+
 #include "/include/common.glsl"
 #include "/programs/composite/composite2.glsl"
