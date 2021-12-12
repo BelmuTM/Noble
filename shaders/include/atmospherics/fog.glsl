@@ -8,12 +8,9 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-vec3 fog(vec3 viewPos, vec3 fogColorStart, vec3 fogColorEnd, float fogCoef, float density) {
-    const float sqrt2 = -sqrt(2.0);
-    float d = density * pow(-viewPos.z - near, 0.6);
-
-    float fogDensity = 1.0 - clamp01(exp2(d * d * sqrt2));
-    return mix(fogColorStart, fogColorEnd, fogDensity) * clamp01(fogCoef);
+vec3 groundFog(vec3 viewPos, vec3 background, vec3 fogColor, float fogCoef, float d) {
+    float dist    = length(transMAD3(gbufferModelViewInverse, viewPos));
+    return mix(vec3(0.0), fogColor, dist * d * fogCoef);
 }
 
 // Thanks Jessie, LVutner and SixthSurge for the help!

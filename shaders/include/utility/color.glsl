@@ -124,25 +124,25 @@ void contrast(vec3 color, float contrast) {
 }
 
 // https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x
-vec4 linearToSRGB(vec4 linear) {;
+vec4 linearToRGB(vec4 linear) {;
     vec4 higher = (pow(abs(linear), vec4(1.0 / 2.4)) * 1.055) - 0.055;
     vec4 lower  = linear * 12.92;
     return mix(higher, lower, step(linear, vec4(0.0031308)));
 }
 
-vec4 sRGBToLinear(vec4 sRGB) {
+vec4 RGBtoLinear(vec4 sRGB) {
     vec4 higher = pow((sRGB + 0.055) / 1.055, vec4(2.4));
     vec4 lower  = sRGB / 12.92;
     return mix(higher, lower, step(sRGB, vec4(0.04045)));
 }
 
-vec3 linearToSRGB(vec3 linear) {;
+vec3 linearToRGB(vec3 linear) {;
     vec3 higher = (pow(abs(linear), vec3(1.0 / 2.4)) * 1.055) - 0.055;
     vec3 lower  = linear * 12.92;
     return mix(higher, lower, step(linear, vec3(0.0031308)));
 }
 
-vec3 sRGBToLinear(vec3 sRGB) {
+vec3 RGBtoLinear(vec3 sRGB) {
     vec3 higher = pow((sRGB + 0.055) / 1.055, vec3(2.4));
     vec3 lower  = sRGB / 12.92;
     return mix(higher, lower, step(sRGB, vec3(0.04045)));
@@ -163,11 +163,11 @@ const mat3 XYZtoRGBMatrix = (mat3(
 ));
 
 vec3 linearToXYZ(vec3 linear) {
-    return RGBtoXYZMatrix * linearToSRGB(linear).rgb;
+    return RGBtoXYZMatrix * linearToRGB(linear);
 }
 
-vec3 XYZtoLinear(vec3 XYZ) {
-    return sRGBToLinear(XYZtoRGBMatrix * XYZ).rgb;
+vec3 xyzToLinear(vec3 xyz) {
+    return RGBtoLinear(XYZtoRGBMatrix * xyz);
 }
 
 // https://www.shadertoy.com/view/ltjBWG
@@ -183,11 +183,11 @@ vec3 YCoCgToRGB(vec3 YCoCg) {
 }
 
 vec3 linearToYCoCg(vec3 linear) {
-    vec3 RGB = linearToSRGB(linear).rgb;
+    vec3 RGB = linearToRGB(linear).rgb;
     return isSky(texCoords) ? linear : RGBToYCoCgMatrix * RGB;
 }
 
 vec3 YCoCgToLinear(vec3 YCoCg) {
     vec3 RGB = YCoCgToRGBMatrix * YCoCg;
-    return isSky(texCoords) ? YCoCg : sRGBToLinear(RGB).rgb;
+    return isSky(texCoords) ? YCoCg : RGBtoLinear(RGB).rgb;
 }

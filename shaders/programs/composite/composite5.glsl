@@ -9,18 +9,18 @@
 #include "/include/fragment/svgf.glsl"
 
 void main() {
-    vec3 globalIllumination = texture(colortex5, texCoords).rgb;
+    vec3 outColor = texture(colortex5, texCoords).rgb;
     
-    if(!isSky(texCoords)) {
-        #if GI == 1
+    #if GI == 1
+        if(!isSky(texCoords)) {
             #if GI_FILTER == 1
                 vec3 viewPos = getViewPos0(texCoords);
                 vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-                
-                globalIllumination = SVGF(colortex5, viewPos, normal, texCoords);
+
+                outColor = SVGF(colortex5, viewPos, normal, texCoords);
             #endif
-        #endif
-    }
+        }
+    #endif
     /*DRAWBUFFERS:5*/
-    gl_FragData[0] = vec4(globalIllumination, 1.0);
+    gl_FragData[0] = vec4(outColor, 1.0);
 }

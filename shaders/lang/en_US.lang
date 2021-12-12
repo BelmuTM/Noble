@@ -94,17 +94,17 @@ value.SSAO_SAMPLES.20 = §c20
 
 ##################### RAY TRACING #####################
 
-option.REFLECTIONS = Screen Space Reflections (REFLECTIONS)
+option.REFLECTIONS = Screen Space Reflections (SSR)
 option.REFLECTIONS.comment = §cCan only reflect what's being displayed §con your screen.
 value.REFLECTIONS.0 = §cOFF
 value.REFLECTIONS.1 = §aON
 
-option.REFRACTION = Screen Space Refractions
-option.REFRACTION.comment = Applies §bScreen Space Refractions §fto refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen.
-value.REFRACTION.0 = §cOFF
-value.REFRACTION.1 = §aON
+option.REFRACTIONS = Screen Space Refractions
+option.REFRACTIONS.comment = Applies §bScreen Space Refractions §fto refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen.
+value.REFRACTIONS.0 = §cOFF
+value.REFRACTIONS.1 = §aON
 
-option.REFLECTIONS_TYPE = REFLECTIONS Type
+option.REFLECTIONS_TYPE = SSR Type
 option.REFLECTIONS_TYPE.comment = §bSimple reflections §fdo not consider a material's roughness. §bRough reflections §fdo consider it, §cthey give a better §cresult but reduce performance.
 value.REFLECTIONS_TYPE.0 = §eSimple Reflections
 value.REFLECTIONS_TYPE.1 = §eRough Reflections
@@ -145,7 +145,7 @@ option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make 
 value.BINARY_REFINEMENT.0 = §cOFF
 value.BINARY_REFINEMENT.1 = §aON
 
-option.SSR_REPROJECTION = REFLECTIONS reprojection
+option.SSR_REPROJECTION = SSR reprojection
 option.SSR_REPROJECTION.comment = Reflects the last frame to make the light bounce infinitely. §aIt doesn't affect performance.
 value.SSR_REPROJECTION.0 = §cOFF
 value.SSR_REPROJECTION.1 = §aON

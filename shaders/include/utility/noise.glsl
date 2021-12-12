@@ -15,7 +15,8 @@ void pcg(inout uint seed) {
     seed = (word >> 22u) ^ word;
 }
 
-float randF(inout uint seed) { pcg(seed); return float(seed) / float(0xffffffffu); }
+float randF(inout uint seed)  { pcg(seed); return float(seed) / float(0xffffffffu);         }
+vec2 rand2F(inout uint seed)  { return vec2(uvec2(randF(seed), randF(seed))) / float(0xffffffffu); }
 
 vec2 vogelDisk(int index, int samplesCount) {
     float r = sqrt(index + 0.5) / sqrt(samplesCount);

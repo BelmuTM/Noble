@@ -13,8 +13,43 @@
 #include "/include/post/bloom.glsl"
 #include "/include/post/exposure.glsl"
 
+#if DOF == 1
+    // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
+    float getCoC(float fragDepth, float cursorDepth) {
+        return fragDepth < 0.56 ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - FOCAL)))) * 0.5;
+    }
+
+    void depthOfField(inout vec3 background, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
+        vec3 color = texture(tex, coords).rgb;
+        vec2 noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter * 10.0));
+
+        for(int i = 0; i < quality; i++) {
+            for(int j = 0; j < quality; j++) {
+                vec2 offset = ((vec2(i, j) + noise) - quality * 0.5) / quality;
+            
+                if(length(offset) < 0.5) {
+                    vec2 sampleCoords = coords + (offset * radius * pixelSize);
+
+                    #if CHROMATIC_ABERRATION == 1
+                        vec2 aberrationOffset = coc * ABERRATION_STRENGTH * pixelSize;
+
+                        color += vec3(
+                            texture(tex, sampleCoords + aberrationOffset).r,
+                            texture(tex, sampleCoords).g,
+                            texture(tex, sampleCoords - aberrationOffset).b
+                        );
+                    #else
+                        color += texture(tex, sampleCoords).rgb;
+                    #endif
+                }
+            }
+        }
+        background = mix(background, color * (1.0 / pow2(quality)), quintic(0.0, 1.0, coc));
+    }
+#endif
+
 #if UNDERWATER_DISTORTION == 1
-    vec2 underwaterDistortionCoords(vec2 coords) {
+    void underwaterDistortion(inout vec2 coords) {
         const float scale = 25.0;
         float speed   = frameTimeCounter * WATER_DISTORTION_SPEED;
         float offsetX = coords.x * scale + speed;
@@ -25,41 +60,36 @@
             WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
         );
 
-        return clamp01(distorted) != distorted ? coords : distorted;
+        coords = clamp01(distorted) != distorted ? coords : distorted;
     }
 #endif
 
 // Rod response coefficients & blending method provided by Jessie#7257
 // SOURCE: http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
 #if PURKINJE == 1
-    vec3 purkinje(vec3 color) {
+    void purkinje(inout vec3 color, float exposure) {
         vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
         vec3 xyzColor    = linearToXYZ(color);
 
         vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
-        float purkinje    = dot(rodResponse, XYZtoLinear(scotopicLuma));
+        float purkinje    = dot(rodResponse, xyzToLinear(scotopicLuma));
 
-        return mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 20.0));
+        color = mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 20.0 * exposure));
     }
 #endif
 
 
 #if CHROMATIC_ABERRATION == 1
-    vec3 chromaticAberration(vec3 color) {
-        vec2 offset;
+    void chromaticAberration(inout vec3 color, float coc) {
         #if DOF == 0
-            vec2 dist = texCoords - vec2(0.5);
-            offset = (1.0 - (dist * dist)) * ABERRATION_STRENGTH * pixelSize;
-        #else
-            float coc = texture(colortex5, texCoords).a;
-            offset = coc * ABERRATION_STRENGTH * pixelSize;
-        #endif
+            vec2 offset = (1.0 - pow2(texCoords - vec2(0.5))) * ABERRATION_STRENGTH * pixelSize;
 
-        return vec3(
-            texture(colortex0, texCoords + offset).r,
-            texture(colortex0, texCoords).g,
-            texture(colortex0, texCoords - offset).b
-        );
+            color = vec3(
+                texture(colortex0, texCoords + offset).r,
+                texture(colortex0, texCoords).g,
+                texture(colortex0, texCoords - offset).b
+            );
+        #endif
     }
 #endif
 
@@ -103,20 +133,28 @@ void tonemap(inout vec3 color) {
 void main() {
     vec2 tempCoords = texCoords;
     #if UNDERWATER_DISTORTION == 1
-        if(isEyeInWater == 1) tempCoords = underwaterDistortionCoords(tempCoords);
+        if(isEyeInWater == 1) underwaterDistortion(tempCoords);
     #endif
-    vec4 color = texture(colortex0, tempCoords);
+    vec4 color     = texture(colortex0, tempCoords);
+    float exposure = computeExposure(texture(colortex3, texCoords).a);
+
+    float coc = 1.0;
+    #if DOF == 1
+        coc = getCoC(linearizeDepth(texture(depthtex0, texCoords).r), linearizeDepth(centerDepthSmooth));
+        depthOfField(color.rgb, texCoords, colortex0, 6, DOF_RADIUS, coc);
+    #endif
 
     #if CHROMATIC_ABERRATION == 1
-        color.rgb = chromaticAberration(color.rgb);
+        chromaticAberration(color.rgb, coc);
     #endif
 
     #if BLOOM == 1
-        //color.rgb += readBloom().rgb * clamp01(BLOOM_STRENGTH + clamp(rainStrength, 0.0, 0.5));
+        float bloomStrength = clamp01(BLOOM_STRENGTH + rainStrength);
+        color.rgb += readBloom().rgb * exp2(exposure - 3.0 + bloomStrength);
     #endif
 
     #if PURKINJE == 1
-        color.rgb = purkinje(color.rgb);
+        purkinje(color.rgb, exposure);
     #endif
 
     #if FILM_GRAIN == 1
@@ -125,7 +163,7 @@ void main() {
     
     // Tonemapping & Color Correction
 
-    color.rgb *= computeExposure(texture(colortex3, texCoords).a);
+    color.rgb *= exposure;
 
     tonemap(color.rgb);
     vibrance(color.rgb,   VIBRANCE);
@@ -140,7 +178,7 @@ void main() {
     #endif
 
     color.rgb = clamp01(color.rgb);
-    color     = TONEMAP == 2 ? color : linearToSRGB(color);
+    color     = TONEMAP == 2 ? color : linearToRGB(color);
 
     #if LUT == 1
         applyLUT(colortex10, color.rgb);

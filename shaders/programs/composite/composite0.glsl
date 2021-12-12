@@ -15,7 +15,7 @@
 
 /*DRAWBUFFERS:09*/
 void main() {
-   vec4 rain    = sRGBToLinear(texture(colortex5, texCoords));
+   vec4 rain    = RGBtoLinear(texture(colortex5, texCoords));
    vec3 viewPos = getViewPos0(texCoords);
 
    /*    ------- SKY -------    */
@@ -26,7 +26,7 @@ void main() {
          vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
 
          vec3 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
-         sky.rgb  = tmp + (starfield(viewPos) * exp2(STARS_BRIGHTNESS * STARS_BRIGHTNESS_RANGE) * exp(-timeMidnight));
+         sky.rgb  = tmp + ((starfield(viewPos) * exp(-timeMidnight)) * blackbody(mix(2500.0, 50000.0, rand(gl_FragCoord.xy))));
          sky.rgb += celestialBody(normalize(viewPos), shadowDir);
       #endif
 
@@ -36,20 +36,25 @@ void main() {
    }
 
    material mat = getMaterial(texCoords);
-   mat.albedo   = sRGBToLinear(mat.albedo).rgb;
-   vec3 opaques = sRGBToLinear(texture(colortex4, texCoords)).rgb * INV_PI;
+   mat.albedo   = RGBtoLinear(mat.albedo).rgb;
+   vec3 opaques = RGBtoLinear(texture(colortex4, texCoords)).rgb * INV_PI;
 
    vec3 hitPos; vec2 coords = texCoords;
 
-   /*    ------- REFRACTION -------    */
-   #if REFRACTION == 1
+   /*    ------- REFRACTIONS -------    */
+   #if REFRACTIONS == 1
       if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
          opaques = simpleRefractions(viewPos, mat.normal, mat.F0, hitPos);
          coords  = hitPos.xy;
       }
    #endif
 
-   vec3 shadowmap = SHADOWS == 0 ? vec3(0.0) : texture(colortex9, coords).rgb;
+   vec3 shadowmap;
+   #if SHADOWS == 0
+      shadowmap = vec3(1.0);
+   #else
+      shadowmap = texture(colortex9, coords).rgb;
+   #endif
 
    /*    ------- WATER CAUSTICS -------    */
    // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
@@ -85,7 +90,11 @@ void main() {
    /*    ------- AMBIENT OCCLUSION -------    */
    float ambientOcclusion = 1.0;
    #if AO == 1
-      ambientOcclusion = AO_TYPE == 0 ? computeSSAO(viewPos, mat.normal) : computeRTAO(viewPos, mat.normal);
+      #if AO_TYPE == 0
+         ambientOcclusion = computeSSAO(viewPos, mat.normal);
+      #else
+         ambientOcclusion = computeRTAO(viewPos, mat.normal);
+      #endif
    #endif
 
    gl_FragData[0] = vec4(mat.albedo, 1.0) + rain;

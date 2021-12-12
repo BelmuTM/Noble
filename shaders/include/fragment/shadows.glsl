@@ -42,51 +42,55 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
     return mix(transmittedColor * shadowVisibility1, vec3(1.0), shadowVisibility0);
 }
 
-float findBlockerDepth(vec3 sampleCoords, mat2 rotation) {
-    float avgBlockerDepth = 0.0;
-    int BLOCKERS = 0;
+#if SOFT_SHADOWS == 0
 
-    for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-        vec2 offset = BLOCKER_SEARCH_RADIUS * vogelDisk(i, BLOCKER_SEARCH_SAMPLES) * pixelSize;
-        float z = texture(shadowtex0, sampleCoords.xy + offset).r;
+    vec3 PCF(vec3 sampleCoords, mat2 rotation) {
+	    vec3 shadowResult = vec3(0.0); int SAMPLES;
 
-        if(sampleCoords.z - 1e-3 > z) {
-            avgBlockerDepth += z;
-            BLOCKERS++;
+        for(int x = 0; x < SHADOW_SAMPLES; x++) {
+            for(int y = 0; y < SHADOW_SAMPLES; y++) {
+                vec3 currSampleCoords = vec3(sampleCoords.xy + (rotation * vec2(x, y)), sampleCoords.z);
+
+                shadowResult += sampleShadowColor(currSampleCoords);
+                SAMPLES++;
+            }
         }
+        return shadowResult / float(SAMPLES);
     }
-    return BLOCKERS > 0 ? avgBlockerDepth / BLOCKERS : -1.0;
-}
+#else
 
-vec3 PCF(vec3 sampleCoords, mat2 rotation) {
-	vec3 shadowResult = vec3(0.0); int SAMPLES;
+    float findBlockerDepth(vec3 sampleCoords, mat2 rotation) {
+        float avgBlockerDepth = 0.0;
+        int BLOCKERS = 0;
 
-    for(int x = 0; x < SHADOW_SAMPLES; x++) {
-        for(int y = 0; y < SHADOW_SAMPLES; y++) {
-            vec3 currSampleCoords = vec3(sampleCoords.xy + (rotation * vec2(x, y)), sampleCoords.z);
+        for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
+            vec2 offset = BLOCKER_SEARCH_RADIUS * vogelDisk(i, BLOCKER_SEARCH_SAMPLES) * pixelSize;
+            float z = texture(shadowtex0, sampleCoords.xy + offset).r;
+
+            if(sampleCoords.z - 1e-3 > z) {
+                avgBlockerDepth += z;
+                BLOCKERS++;
+            }
+        }
+        return BLOCKERS > 0 ? avgBlockerDepth / BLOCKERS : -1.0;
+    }
+
+    vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
+        float avgBlockerDepth = findBlockerDepth(sampleCoords, rotation);
+        if(avgBlockerDepth < 0.0) return vec3(1.0);
+
+        float penumbraSize = (max0(sampleCoords.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;
+
+        vec3 shadowResult = vec3(0.0);
+        for(int i = 0; i < PCSS_SAMPLES; i++) {
+            vec2 offset = rotation * (penumbraSize * vogelDisk(i, PCSS_SAMPLES));
+            vec3 currSampleCoords = vec3(sampleCoords.xy + offset, sampleCoords.z);
 
             shadowResult += sampleShadowColor(currSampleCoords);
-            SAMPLES++;
         }
+        return shadowResult / float(PCSS_SAMPLES);
     }
-    return shadowResult / float(SAMPLES);
-}
-
-vec3 PCSS(vec3 sampleCoords, mat2 rotation) {
-    float avgBlockerDepth = findBlockerDepth(sampleCoords, rotation);
-    if(avgBlockerDepth < 0.0) return vec3(1.0);
-
-    float penumbraSize = (max0(sampleCoords.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;
-
-    vec3 shadowResult = vec3(0.0);
-    for(int i = 0; i < PCSS_SAMPLES; i++) {
-        vec2 offset = rotation * (penumbraSize * vogelDisk(i, PCSS_SAMPLES));
-        vec3 currSampleCoords = vec3(sampleCoords.xy + offset, sampleCoords.z);
-
-        shadowResult += sampleShadowColor(currSampleCoords);
-    }
-    return shadowResult / float(PCSS_SAMPLES);
-}
+#endif
 
 vec3 shadowMap(vec3 viewPos) {
     vec3 sampleCoords = viewToShadowClip(viewPos) * 0.5 + 0.5;
@@ -96,5 +100,9 @@ vec3 shadowMap(vec3 viewPos) {
     float cosTheta = cos(theta), sinTheta = sin(theta);
     mat2 rotation = mat2(cosTheta, -sinTheta, sinTheta, cosTheta) / shadowMapResolution;
 
-    return SOFT_SHADOWS == 0 ? PCF(sampleCoords, rotation) : PCSS(sampleCoords, rotation);
+    #if SOFT_SHADOWS == 0
+        return PCF(sampleCoords, rotation);
+    #else
+        return PCSS(sampleCoords, rotation);
+    #endif
 }

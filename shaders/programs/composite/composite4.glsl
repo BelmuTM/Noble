@@ -36,16 +36,16 @@ void main() {
         #endif
     #endif
 
-    if(!isSky(texCoords)) {
-        #if GI == 1
+    #if GI == 1
+        if(!isSky(texCoords)) {
             #if GI_FILTER == 1
                 vec3 viewPos = getViewPos0(texCoords);
                 vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
                 outColor = SVGF(colortex5, viewPos, normal, texCoords);
             #endif
-        #endif
-    }
+        }
+    #endif
 
     /*DRAWBUFFERS:095*/
     gl_FragData[0] = color;

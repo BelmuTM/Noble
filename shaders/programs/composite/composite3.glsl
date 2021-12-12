@@ -12,8 +12,9 @@ void main() {
     vec4 color = texture(colortex0, texCoords);
     vec3 globalIllumination = vec3(0.0);
 
-    if(!isSky(texCoords)) {
-        #if GI == 1
+    #if GI == 1
+        if(!isSky(texCoords)) {
+
             vec2 scaledUv = texCoords * GI_RESOLUTION; 
             #if GI_FILTER == 1
                 vec3 scaledViewPos = getViewPos0(scaledUv);
@@ -23,8 +24,8 @@ void main() {
             #else
                 color.rgb = texture(colortex5, scaledUv).rgb;
             #endif
-        #endif
-    }
+        }
+    #endif
 
     /*DRAWBUFFERS:05*/
     gl_FragData[0] = color;

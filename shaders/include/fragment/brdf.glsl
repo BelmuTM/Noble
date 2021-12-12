@@ -147,12 +147,6 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
     return mat.albedo * (single + mat.albedo * multi) * NdotL;
 }
 
-/* UNPHYSICALLY BASED STUFF */
-float getSkyLightmap(vec2 coords) {
-    float lightmap = texture(colortex1, coords).w;
-    return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
-}
-
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
@@ -162,15 +156,15 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celes
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
     vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
 
-    vec2 lightmap   = texture(colortex1, texCoords).zw;
-    lightmap.x      = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(lightmap.x), BLOCKLIGHTMAP_EXPONENT);
-    lightmap.y      = pow2(clamp01(lightmap.y));
+    vec2 lightmap = texture(colortex1, texCoords).zw;
+    lightmap.x    = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(lightmap.x), BLOCKLIGHTMAP_EXPONENT);
+    lightmap.y    = pow2(clamp01(lightmap.y));
 
     vec3 skyLight   = skyIlluminance * lightmap.y;
     vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * lightmap.x * BLOCKLIGHT_MULTIPLIER;
 
-    vec3 lighting = vec3(0.0);
-    /* DIRECT ->   */ lighting += (diffuse + specular) * shadows * celestialIlluminance;
-    /* INDIRECT -> */ lighting += (mat.isMetal ? vec3(0.0) : (mat.emission + blockLight + skyLight) * mat.albedo) * mat.ao * ambientOcclusion;
-    return lighting;
+    vec3 direct   = (diffuse + specular) * shadows * celestialIlluminance;
+    vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * mat.ao * ambientOcclusion;
+
+    return direct + indirect;
 }
