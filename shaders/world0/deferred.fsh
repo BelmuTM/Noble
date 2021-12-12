@@ -12,8 +12,8 @@
 in vec2 texCoords;
 
 #include "/settings.glsl"
-#define WORLD OVERWORLD
 #define STAGE STAGE_FRAGMENT
+#define WORLD OVERWORLD
 
 #include "/include/common.glsl"
 #include "/programs/composite/deferred.glsl"

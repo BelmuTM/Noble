@@ -15,15 +15,15 @@
 
     void main() {
         gl_Position = ftransform();
-        texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+        texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-        int samples = 8;
+        int samples    = 8;
         skyIlluminance = vec3(0.0);
 
         #if WORLD == OVERWORLD
             for(int x = 0; x < samples; x++) {
                 for(int y = 0; y < samples; y++) {
-                    vec3 dir = generateUnitVector(vec2(x, y));
+                    vec3 dir        = generateUnitVector(vec2(x, y));
                     skyIlluminance += texture(colortex7, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
                 }
             }

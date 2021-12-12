@@ -9,7 +9,7 @@
 #include "/include/fragment/svgf.glsl"
 
 void main() {
-    vec4 color = texture(colortex0, texCoords);
+    vec4 color              = texture(colortex0, texCoords);
     vec3 globalIllumination = vec3(0.0);
 
     #if GI == 1

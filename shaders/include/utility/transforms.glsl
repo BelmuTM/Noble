@@ -76,6 +76,11 @@ float F0toIOR(float F0) {
 	return (1.0 + F0) / (1.0 - F0);
 }
 
+vec3 F0toIOR(vec3 F0) {
+	F0 = sqrt(F0) * 0.99999;
+	return (1.0 + F0) / (1.0 - F0);
+}
+
 float IORtoF0(float ior) {
 	float a = (ior - airIOR) / (ior + airIOR);
 	return a * a;

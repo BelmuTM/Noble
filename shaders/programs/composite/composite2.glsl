@@ -23,7 +23,12 @@
             vec3 prevPos    = viewToWorld(getViewPos0(prevTexCoords));
             vec3 delta      = viewToWorld(viewPos) - prevPos;
             float posWeight = max0(exp(-dot(delta, delta) * 3.0));
-            totalWeight    *= 0.96 * posWeight;
+
+            float currLuma   = luminance(currColor), prevLuma = luminance(prevColor);
+            float lumaWeight = exp(-(abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN))));
+	        lumaWeight       = mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
+
+            totalWeight     *= pow2(lumaWeight) * posWeight;
         #else
             historyFrames = hasMoved() ? 1.0 : texture(prevTex, texCoords).a + 1.0;
             totalWeight  *= 1.0 - (1.0 / max(historyFrames, 1.0));

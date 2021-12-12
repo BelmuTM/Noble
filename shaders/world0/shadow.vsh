@@ -10,7 +10,7 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#include "/include/uniforms.glsl"
 #define STAGE STAGE_VERTEX
 
+#include "/include/uniforms.glsl"
 #include "/programs/gbuffers/shadow.glsl"

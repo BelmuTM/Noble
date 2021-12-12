@@ -17,6 +17,8 @@ out mat3 TBN;
 out float blockId;
 
 #include "/settings.glsl"
+#define STAGE STAGE_VERTEX
+
 #include "/include/uniforms.glsl"
 #include "/include/utility/noise.glsl"
 #include "/include/utility/math.glsl"

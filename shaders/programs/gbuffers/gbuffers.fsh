@@ -14,6 +14,8 @@ in mat3 TBN;
 in float blockId;
 
 #include "/settings.glsl"
+#define STAGE STAGE_FRAGMENT
+
 #include "/include/uniforms.glsl"
 #include "/include/utility/math.glsl"
 

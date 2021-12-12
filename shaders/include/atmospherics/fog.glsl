@@ -44,7 +44,7 @@ vec3 volumetricLighting(vec3 viewPos) {
     vec2 phase  = vec2(rayleighPhase(VdotL), miePhase(VdotL));
 
     vec3 scattering  = vec3(0.0), transmittance = vec3(1.0);
-    vec3 illuminance = (worldTime <= 12750 ? sunIlluminance : moonIlluminance);
+    vec3 illuminance = worldTime <= 12750 ? sunIlluminance : moonIlluminance;
 
     for(int i = 0; i < VL_STEPS; i++, rayPos += increment) {
         vec4 samplePos   = shadowProjection * shadowModelView * rayPos;

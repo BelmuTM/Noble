@@ -9,15 +9,16 @@
 vec3 reprojection(vec3 pos) {
     pos = pos * 2.0 - 1.0;
 
-    vec4 currViewPos = gbufferProjectionInverse * vec4(pos, 1.0);
-    currViewPos /= currViewPos.w;
-    vec3 currWorldPos = (gbufferModelViewInverse * currViewPos).xyz;
+    vec4 currPos = gbufferProjectionInverse * vec4(pos, 1.0);
+    currPos     /= currPos.w;
+    currPos      = gbufferModelViewInverse * currPos;
 
     vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(pos.z > 0.56);
     
-    vec3 prevWorldPos = currWorldPos + cameraOffset;
-    vec4 prevClipPos = gbufferPreviousProjection * gbufferPreviousModelView * vec4(prevWorldPos, 1.0);
-    return (prevClipPos.xyz / prevClipPos.w) * 0.5 + 0.5;
+    vec4 prevPos = currPos + vec4(cameraOffset, 0.0);
+         prevPos = gbufferPreviousModelView  * prevPos;
+         prevPos = gbufferPreviousProjection * prevPos;
+    return (prevPos.xyz / prevPos.w) * 0.5 + 0.5;
 }
 
 bool hasMoved() {

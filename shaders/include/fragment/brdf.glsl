@@ -12,19 +12,31 @@
 
 float distributionBeckmann(float NdotH, in float alpha) {
     alpha *= alpha;
-    float NdotH2 = NdotH * NdotH;
-    return (1.0 / (PI * alpha * (NdotH2 * NdotH2))) * exp((NdotH2 - 1.0) / (alpha * NdotH2));
+    float NdotH2 = pow2(NdotH);
+    return (1.0 / (PI * alpha * pow2(NdotH2))) * exp((NdotH2 - 1.0) / (alpha * NdotH2));
 }
 
 float distributionGGX(float NdotH, in float alpha) {
     alpha *= alpha;
-    float denom = (NdotH * NdotH) * (alpha - 1.0) + 1.0;
-    return alpha / (PI * denom * denom);
+    float denom = (NdotH * alpha - NdotH) * NdotH + 1.0;
+    return alpha / pow2(denom) * INV_PI;
 }
 
 float geometrySchlickGGX(float cosTheta, float roughness) {
     float denom = cosTheta * (1.0 - roughness) + roughness;
     return cosTheta / denom;
+}
+
+float G1SmithGGX(float NdotV, in float roughness) {
+    roughness = pow4(roughness);
+    return clamp01(2.0 * NdotV / (NdotV + sqrt(roughness + (NdotV - NdotV * roughness) * NdotV)));
+}
+
+float G2SmithGGX(float NdotV, float NdotL, in float roughness) {
+	roughness = pow4(roughness);
+	float g1  = NdotL * sqrt(roughness + (NdotV - NdotV * roughness) * NdotV);
+	float g2  = NdotV * sqrt(roughness + (NdotL - NdotL * roughness) * NdotL);
+	return clamp01((2.0 * NdotV * NdotL) / (g1 + g2));
 }
 
 float geometrySmith(float NdotV, float NdotL, float roughness) {
@@ -68,6 +80,17 @@ float fresnelDielectric(float NdotV, float surfaceIOR) {
     }
 }
 
+vec3 fresnelDielectric(float NdotV, vec3 surfaceIOR) {
+    vec3 n1 = vec3(airIOR), n2 = surfaceIOR;
+    vec3 sinThetaT = (n1 / n2) * max0(1.0 - pow2(NdotV));
+    vec3 cosThetaT = 1.0 - pow2(sinThetaT);
+
+    vec3 sPolar = (n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT);
+    vec3 pPolar = (n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV);
+
+    return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
+}
+
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
 // Modified by Belmu
 vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
@@ -103,8 +126,8 @@ vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
     return F0 * AB.x + AB.y;
 }
 
-vec3 specularFresnel(float cosTheta, float F0, vec3 metalColor, bool isMetal) {
-    return isMetal ? schlickGaussian(cosTheta, metalColor) : vec3(fresnelDielectric(cosTheta, F0toIOR(F0)));
+vec3 specularFresnel(float cosTheta, vec3 F0, bool isMetal) {
+    return isMetal ? schlickGaussian(cosTheta, F0) : fresnelDielectric(cosTheta, F0toIOR(F0));
 }
 
 vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
@@ -115,7 +138,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     float NdotH = maxEps(dot(N, H));
 
     float D = distributionGGX(NdotH, pow2(mat.rough));
-    vec3 F  = specularFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+    vec3 F  = specularFresnel(HdotL, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
     return clamp01((D * F * G) / (4.0 * NdotL * NdotV) * NdotL);

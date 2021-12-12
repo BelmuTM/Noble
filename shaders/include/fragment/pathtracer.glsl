@@ -25,17 +25,15 @@
     }
 
     vec3 pathTrace(in vec3 screenPos) {
-        vec3 radiance     = vec3(0.0);
-        vec3 viewPos      = screenToView(screenPos); 
+        vec3 radiance = vec3(0.0);
+        vec3 viewPos  = screenToView(screenPos); 
 
         vec3 celestialIlluminance = vec3(1.0);
         #if WORLD == OVERWORLD
-            vec3 sunTransmit     = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
-            vec3 moonTransmit    = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
-            celestialIlluminance = sunTransmit + moonTransmit;
+            celestialIlluminance = worldTime <= 12750 ? 
+              atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance
+            : atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
         #endif
-
-        uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
 
         for(int i = 0; i < GI_SAMPLES; i++) {
             vec3 throughput = vec3(1.0);
@@ -47,8 +45,6 @@
             for(int j = 0; j <= GI_BOUNCES; j++) {
                 vec2 noise = uniformAnimatedNoise(vec2(randF(rngState), randF(rngState)));
                 prevDir    = rayDir;
-
-                if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(rngState), hitPos)) { break; }
 
                 /* Russian Roulette */
                 if(j > 3) {
@@ -63,30 +59,32 @@
                 mat.albedo   = texture(colortex4, hitPos.xy).rgb;
                 mat3 TBN     = constructViewTBN(mat.normal);
 
-                radiance += throughput * mat.albedo * mat.emission * BLOCKLIGHT_MULTIPLIER;
+                radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
                 radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb, celestialIlluminance);
 
                 /* Specular Bounce Probability */
-                float fresnelLum    = luminance(specularFresnel(HdotV, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
+                float fresnelLum    = luminance(specularFresnel(HdotV, getSpecularColor(mat.F0, mat.albedo), mat.isMetal));
                 float diffuseLum    = fresnelLum / (fresnelLum + luminance(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
                 float specularProb  = fresnelLum / maxEps(fresnelLum + diffuseLum);
                 bool specularBounce = specularProb > randF(rngState);
 
                 vec3 microfacet = sampleGGXVNDF(-prevDir * TBN, noise, pow2(mat.rough));
-                rayDir          = specularBounce ? reflect(prevDir, TBN * microfacet) : normalize(mat.normal + generateUnitVector(noise));
+                rayDir          = specularBounce ? reflect(prevDir, TBN * microfacet) : generateCosineVector(mat.normal, noise);
 
-                float NdotL          = maxEps(dot(mat.normal, rayDir));
-                float HdotL          = maxEps(dot(normalize(-prevDir + rayDir), rayDir));
-                vec3 specularFresnel = specularFresnel(HdotL, mat.F0, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+                float NdotL  = maxEps(dot(mat.normal, rayDir));
+                float HdotL  = maxEps(dot(normalize(-prevDir + rayDir), rayDir));
+                vec3 fresnel = specularFresnel(HdotL, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+
+                if(NdotL <= 0.0) break;
 
                 if(specularBounce) {
-                    throughput *= specularBRDF(NdotL, specularFresnel, mat.rough) / specularProb;
+                    throughput *= specularBRDF(NdotL, fresnel, mat.rough) / specularProb;
                 } else {
                     throughput *= (1.0 - fresnelDielectric(NdotL, F0toIOR(mat.F0))) / (1.0 - specularProb);
                     throughput *= hammonDiffuse(mat.normal, -prevDir, rayDir, mat) / (NdotL * INV_PI);
                 }
 
-                if(NdotL <= 0.0) break;
+                if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(rngState), hitPos)) { hitPos = vec3(0.0, 1.0, 0.0); }
             }
         }
         return max0(radiance) / GI_SAMPLES;

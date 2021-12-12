@@ -111,9 +111,8 @@ vec3 generateUnitVector(vec2 xy) {
     return vec3(vec2(sin(xy.x), cos(xy.x)) * sqrt(1.0 - xy.y * xy.y), xy.y);
 }
 
-vec3 generateCosineVector(vec2 xy) {
-    xy.x *= TAU;
-    return normalize(vec3(vec2(cos(xy.x), sin(xy.x)) * sqrt(xy.y), sqrt(1.0 - xy.y)));
+vec3 generateCosineVector(vec3 normal, vec2 xy) {
+    return normalize(normal + generateUnitVector(xy));
 }
 
 /* ENCODING */

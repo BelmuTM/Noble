@@ -15,12 +15,16 @@ void pcg(inout uint seed) {
     seed = (word >> 22u) ^ word;
 }
 
+#if STAGE == STAGE_FRAGMENT
+    uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
+#endif
+
 float randF(inout uint seed)  { pcg(seed); return float(seed) / float(0xffffffffu);         }
 vec2 rand2F(inout uint seed)  { return vec2(uvec2(randF(seed), randF(seed))) / float(0xffffffffu); }
 
-vec2 vogelDisk(int index, int samplesCount) {
-    float r = sqrt(index + 0.5) / sqrt(samplesCount);
-    float theta = index * GOLDEN_ANGLE;
+vec2 vogelDisk(int index, int samplesCount, float phi) {
+    float r = sqrt(float(index) + 0.5) / sqrt(float(samplesCount));
+    float theta = float(index) * GOLDEN_ANGLE + phi;
     return r * vec2(cos(theta), sin(theta));
 }
 
