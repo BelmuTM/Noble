@@ -65,7 +65,7 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
-const int noiseRes    = 256;
+const int noiseRes    = 128;
 const int causticsRes = (256 - 1);
 const float airIOR    = 1.00029;
 

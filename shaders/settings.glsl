@@ -29,7 +29,7 @@
 
 /*------------------ OPTIFINE CONSTANTS ------------------*/
 const float sunPathRotation      = -40.0; // [-85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0]
-const int noiseTextureResolution =   256;
+const int noiseTextureResolution =   128;
 
 const int shadowMapResolution =  3072; // [512 1024 2048 3072 4096 6144]
 const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
@@ -53,7 +53,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define SSAO_RADIUS   0.5
 #define SSAO_STRENGTH 1.5
 
-#define RTAO_SAMPLES 3 // [3 16]
+#define RTAO_SAMPLES 3 // [3 10]
 #define RTAO_STEPS  16
 
 /*------------------ SHADOWS ------------------*/
@@ -73,7 +73,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 
 /*------------------ RAY TRACING ------------------*/
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT      4 // [4 6 12]
+#define BINARY_COUNT      4 // [4 10]
 #define BINARY_DECREASE 0.5
 
 #define RAY_STEP_LENGTH       1.5 // [1.0 1.5]
