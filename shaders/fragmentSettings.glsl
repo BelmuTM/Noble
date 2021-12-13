@@ -8,12 +8,8 @@
 
 /*
 ALBEDO
-<<<<<<< HEAD
 const int colortex0Format = RGBA16F;
 const vec4 colortex0ClearColor = vec4(0, 0, 0, 0);
-=======
-const int colortex0Format = RGBA32F;
->>>>>>> 70cbfafac088457970cf9ef9c064a4a3c48f10c8
 
 NORMALS / LIGHTMAP
 const int colortex1Format = RGBA16;
@@ -26,12 +22,8 @@ const int colortex3Format = RGBA32F;
 const bool colortex3Clear = false;
 
 MULTIPLE THINGS
-<<<<<<< HEAD
 const int colortex4Format = RGBA16;
 const vec4 colortex4ClearColor = vec4(0, 0, 0, 0);
-=======
-const int colortex4Format = RGBA32;
->>>>>>> 70cbfafac088457970cf9ef9c064a4a3c48f10c8
 const int colortex5Format = RGBA16F;
 
 PTGI ACCUMULATION BUFFER
