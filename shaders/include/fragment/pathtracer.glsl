@@ -61,8 +61,8 @@
 
                     /* Specular Bounce Probability */
                     float fresnelLum    = luminance(fresnel);
-                    float diffuseLum    = fresnelLum / (fresnelLum + luminance(mat.albedo) * (1.0 - float(mat.isMetal)) * (1.0 - fresnelLum));
-                    float specularProb  = fresnelLum / maxEps(fresnelLum + diffuseLum);
+                    float totalLum      = luminance(mat.albedo) * (1.0 - fresnelLum) + fresnelLum;
+                    float specularProb  = fresnelLum / totalLum;
                     bool specularBounce = specularProb > randF(rngState);
 
                     if(specularBounce) {
@@ -71,7 +71,7 @@
                     } else {
                         throughput *= (1.0 - fresnel) / (1.0 - specularProb);
                         rayDir      = generateCosineVector(mat.normal, noise);
-                        throughput *= hammonDiffuse(mat.normal, -prevDir, rayDir, mat, false);
+                        throughput *= mat.albedo;
                         // throughput *= hammonDiffuse(mat.normal, -prevDir, rayDir, mat, false) * (clamp01(dot(mat.normal, rayDir)) * INV_PI);
                     }
                     if(dot(mat.normal, rayDir) <= 0.0) { break; }

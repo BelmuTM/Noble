@@ -70,7 +70,6 @@ const int causticsRes = (256 - 1);
 const float airIOR    = 1.00029;
 
 const float bits16 = 65535.0;
-const float bits32 = 16777215.0;
 
 vec3 shadowDir     = normalize(shadowLightPosition);
 vec3 playerSunDir  = normalize(mat3(gbufferModelViewInverse) * sunPosition);
