@@ -61,8 +61,12 @@
 
                     /* Specular Bounce Probability */
                     float fresnelLum    = luminance(fresnel);
+<<<<<<< HEAD
                     float totalLum      = luminance(mat.albedo) * (1.0 - fresnelLum) + fresnelLum;
                     float specularProb  = fresnelLum / totalLum;
+=======
+                    float specularProb  = fresnelLum + luminance(mat.albedo) * (1.0 - fresnelLum);
+>>>>>>> 70cbfafac088457970cf9ef9c064a4a3c48f10c8
                     bool specularBounce = specularProb > randF(rngState);
 
                     if(specularBounce) {
