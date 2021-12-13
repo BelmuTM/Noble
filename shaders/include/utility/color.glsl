@@ -67,7 +67,7 @@ vec3 uncharted2(vec3 color) {
 }
 
 // Originally made by Richard Burgess-Dawson
-// Modified by JustTech#2594
+// Modified by https://github.com/TechDevOnGitHub
 vec3 burgess(vec3 color) {
     vec3 maxColor = color * min(vec3(1.0), 1.0 - exp(-1.0 / 0.004 * color)) * 0.8;
     return (maxColor * (6.2 * maxColor + 0.5)) / (maxColor * (6.2 * maxColor + 1.7) + 0.06);
