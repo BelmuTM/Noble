@@ -8,7 +8,7 @@
 
 /*
 ALBEDO
-const int colortex0Format = RGBA16F;
+const int colortex0Format = RGBA32F;
 
 NORMALS / LIGHTMAP
 const int colortex1Format = RGBA16;
@@ -21,7 +21,7 @@ const int colortex3Format = RGBA16F;
 const bool colortex3Clear = false;
 
 MULTIPLE THINGS
-const int colortex4Format = RGBA16;
+const int colortex4Format = RGBA32;
 const int colortex5Format = RGBA16F;
 
 PTGI ACCUMULATION BUFFER

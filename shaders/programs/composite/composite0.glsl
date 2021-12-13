@@ -19,25 +19,22 @@ void main() {
    vec3 viewPos = getViewPos0(texCoords);
 
    /*    ------- SKY -------    */
+   if(isSky(texCoords)) {
+      vec4 sky = vec4(0.0, 0.0, 0.0, 1.0);
 
-   #if WORLD == OVERWORLD
-      if(isSky(texCoords)) {
-         vec4 sky = vec4(0.0, 0.0, 0.0, 1.0);
+      #ifdef WORLD_OVERWORLD
+         vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
+         vec3 starsColor    = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(gl_FragCoord.xy)));
 
-         #if WORLD == OVERWORLD
-            vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
-            vec3 starsColor    = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(gl_FragCoord.xy)));
+         vec3 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
+         sky.rgb  = tmp + (starfield(viewPos) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
+         sky.rgb += celestialBody(normalize(viewPos), shadowDir);
+      #endif
 
-            vec3 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
-            sky.rgb  = tmp + (starfield(viewPos) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
-            sky.rgb += celestialBody(normalize(viewPos), shadowDir);
-         #endif
-
-         gl_FragData[0] = sky + rain;
-         gl_FragData[1] = vec4(0.0);
-         return;
-      }
-   #endif
+      gl_FragData[0] = sky + rain;
+      gl_FragData[1] = vec4(0.0);
+      return;
+   }
 
    material mat = getMaterial(texCoords);
    mat.albedo   = RGBtoLinear(mat.albedo).rgb;

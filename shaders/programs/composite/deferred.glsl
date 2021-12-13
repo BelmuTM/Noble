@@ -20,7 +20,7 @@
         int samples    = 8;
         skyIlluminance = vec3(0.0);
 
-        #if WORLD == OVERWORLD
+        #ifdef WORLD_OVERWORLD
             for(int x = 0; x < samples; x++) {
                 for(int y = 0; y < samples; y++) {
                     vec3 dir        = generateUnitVector(vec2(x, y));
@@ -42,7 +42,7 @@
     void main() {
         vec3 shadowmap = vec3(0.0), sky = vec3(0.0);
 
-        #if WORLD == OVERWORLD
+        #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
             #if SHADOWS == 1
                 shadowmap = shadowMap(getViewPos0(texCoords));

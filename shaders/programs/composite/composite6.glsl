@@ -46,7 +46,7 @@ void main() {
 
     vec3 brightSpots = vec3(0.0);
     #if BLOOM == 1
-        brightSpots = luminance(color.rgb) / 65535.0 > BLOOM_LUMA_THRESHOLD ? color.rgb : vec3(0.0);
+        brightSpots = luminance(color.rgb) / bits16 > BLOOM_LUMA_THRESHOLD ? color.rgb : vec3(0.0);
     #endif
 
     /*DRAWBUFFERS:05*/

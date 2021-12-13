@@ -13,7 +13,7 @@ out vec2 texCoords;
 
 #include "/settings.glsl"
 #define STAGE STAGE_VERTEX
-#define WORLD NETHER
+#define WORLD_NETHER
 
 #include "/include/uniforms.glsl"
 #include "/programs/composite/deferred.glsl"
