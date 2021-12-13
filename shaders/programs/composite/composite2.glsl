@@ -34,7 +34,7 @@
             totalWeight  *= 1.0 - (1.0 / max(historyFrames, 1.0));
         #endif
 
-        return clamp16(mix(currColor, prevColor, totalWeight));
+        return clamp32(mix(currColor, prevColor, totalWeight));
     }
 #endif
 

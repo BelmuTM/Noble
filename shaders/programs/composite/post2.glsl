@@ -6,7 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/settings.glsl"
 #include "/include/common.glsl"
 #include "/include/utility/blur.glsl"
 
@@ -21,7 +20,7 @@
 
     void depthOfField(inout vec3 background, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
         vec3 color = texture(tex, coords).rgb;
-        vec2 noise = uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter * 10.0));
+        vec2 noise = uniformAnimatedNoise(vec2(randF(rngState), randF(rngState)));
 
         for(int i = 0; i < quality; i++) {
             for(int j = 0; j < quality; j++) {
@@ -158,7 +157,7 @@ void main() {
     #endif
 
     #if FILM_GRAIN == 1
-        color.rgb += uniformAnimatedNoise(hash22(gl_FragCoord.xy + frameTimeCounter * 5.0)).x * color.rgb * FILM_GRAIN_STRENGTH;
+        color.rgb += randF(rngState) * color.rgb * FILM_GRAIN_STRENGTH;
     #endif
     
     // Tonemapping & Color Correction

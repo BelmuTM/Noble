@@ -20,7 +20,6 @@ void pcg(inout uint seed) {
 #endif
 
 float randF(inout uint seed)  { pcg(seed); return float(seed) / float(0xffffffffu);         }
-vec2 rand2F(inout uint seed)  { return vec2(uvec2(randF(seed), randF(seed))) / float(0xffffffffu); }
 
 vec2 vogelDisk(int index, int samplesCount, float phi) {
     float r = sqrt(float(index) + 0.5) / sqrt(float(samplesCount));
@@ -34,44 +33,6 @@ float rand(vec2 p) {
     return fract(sin(mod(dt, PI)) * 43758.5453);
 }
 
-float hash12(vec2 p) {
-    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-    p3 += dot(p3, p3.yzx + 33.33);
-    return fract((p3.x + p3.y) * p3.z);
-}
-
-vec2 hash22(vec2 p) {
-	vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
-    p3 += dot(p3, p3.yzx + 33.33);
-    return fract((p3.xx + p3.yz) * p3.zy);
-}
-
-vec2 hash23(vec3 p) {
-    p = fract(p * vec3(0.1031, 0.1030, 0.0973));
-    p += dot(p, p.yzx + 19.19);
-    return fract((p.xx + p.yz) * p.zy);
-}
-
-vec3 hash32(vec2 p) {
-    vec3 q = vec3(dot(p, vec2(127.1, 311.7)), 
-			      dot(p, vec2(269.5, 183.3)), 
-			      dot(p, vec2(419.2, 371.9)));
-	return fract(sin(q) * 43758.5453);
-}
-
-vec3 hash33(vec3 p) {
-	p = vec3(dot(p, vec3(127.1, 311.7, 74.7)),
-		     dot(p, vec3(269.5, 183.3, 246.1)),
-		     dot(p, vec3(113.5, 271.9, 124.6)));
-	return fract(sin(p) * 43758.5453123);
-}
-
-vec4 hash43(vec3 p) {
-	vec4 p4 = fract(vec4(p.xyzx) * vec4(0.1031, 0.1030, 0.0973, 0.1099));
-    p4 += dot(p4, p4.wzxy + 33.33);
-    return fract((p4.xxyz + p4.yzzw) * p4.zywx);
-}
-
 float noise(vec2 p) {
 	vec2 ip = floor(p);
 	vec2 u = fract(p);
@@ -81,18 +42,6 @@ float noise(vec2 p) {
 		mix(rand(ip), rand(ip + vec2(1.0, 0.0)), u.x),
 		mix(rand(ip + vec2(0.0, 1.0)), rand(ip + vec2(1.0, 1.0)), u.x), u.y);
 	return res * res;
-}
-
-const vec3 interleavedConstants = vec3(0.06711056, 0.00583715, 52.9829189);
-
-float interleavedGradientNoise(vec2 p) {
-    float f = interleavedConstants.x * p.x + interleavedConstants.y * p.y;
-    return fract(interleavedConstants.z * fract(f));
-}
-
-vec2 interleavedGradientNoise2D(vec2 p) {
-    vec2 x = vec2(dot(p, interleavedConstants.xy), dot(p, interleavedConstants.yx));
-    return fract(interleavedConstants.z * fract(x));
 }
 
 float FBM(vec2 p, int octaves) {
@@ -118,6 +67,12 @@ vec2 uniformNoise(int i, in vec3 seed) {
 // Gold Noise ©2015 dcerisano@standard3d.com
 float goldNoise(vec2 xy, int seed){
     return fract(tan(distance(xy * GOLDEN_RATIO, xy) * float(seed)) * xy.x);
+}
+
+vec3 hash32(vec2 p) {
+	vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
+    p3     += dot(p3, p3.yxz + 33.33);
+    return fract((p3.xxy + p3.yzz) * p3.zyx);
 }
 
 //	<https://www.shadertoy.com/view/Xd23Dh>

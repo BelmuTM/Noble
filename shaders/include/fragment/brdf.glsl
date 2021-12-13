@@ -146,7 +146,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
 
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
-vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
+vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool energyCons) {
     float alpha = pow2(mat.rough);
 
     vec3 H = normalize(V + L);
@@ -155,19 +155,24 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat) {
     float NdotV = maxEps(dot(N, V));
     float NdotL = maxEps(dot(N, L));
 
-    // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
-    float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * (1.0 / 9.0);
-    float fresnelNL = 1.0 - schlickGaussian(NdotL, mat.F0);
-    float fresnelNV = 1.0 - schlickGaussian(NdotV, mat.F0);
-
     float facing     = 0.5 + 0.5 * VdotL;
     float roughSurf  = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
-    float smoothSurf = (fresnelNL * fresnelNV) / energyConservationFactor;
 
+    // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
+    float smoothSurf;
+    if(energyCons) {
+        float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * (1.0 / 9.0);
+        float fresnelNL = 1.0 - schlickGaussian(NdotL, mat.F0);
+        float fresnelNV = 1.0 - schlickGaussian(NdotV, mat.F0);
+
+        smoothSurf = (fresnelNL * fresnelNV) / energyConservationFactor;
+    } else {
+        smoothSurf = 1.05 * (1.0 - pow5(1.0 - NdotL)) * (1.0 - pow5(1.0 - NdotV));
+    }
     float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
     float multi  = 0.1159 * alpha;
 
-    return mat.albedo * (single + mat.albedo * multi) * NdotL;
+    return max0((mat.albedo * single + mat.albedo * multi) * NdotL);
 }
 
 // Thanks LVutner and Jessie for the help!
@@ -177,7 +182,7 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celes
     V = -normalize(V);
 
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
-    vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat);
+    vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat, true);
 
     vec2 lightmap = texture(colortex1, texCoords).zw;
     lightmap.x    = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(lightmap.x), BLOCKLIGHTMAP_EXPONENT);

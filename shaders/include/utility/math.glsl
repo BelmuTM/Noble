@@ -19,10 +19,15 @@ vec2  clamp01(vec2 x)  { return clamp(x, vec2(0.0), vec2(1.0)); }
 vec3  clamp01(vec3 x)  { return clamp(x, vec3(0.0), vec3(1.0)); }
 vec4  clamp01(vec4 x)  { return clamp(x, vec4(0.0), vec4(1.0)); }
 
-float clamp16(float x) { return clamp(x, 0.0, 65535.0); }
-vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(65535.0)); }
-vec3  clamp16(vec3 x)  { return clamp(x, vec3(0.0), vec3(65535.0)); }
-vec4  clamp16(vec4 x)  { return clamp(x, vec4(0.0), vec4(65535.0)); }
+float clamp16(float x) { return clamp(x, 0.0, bits16); }
+vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(bits16)); }
+vec3  clamp16(vec3 x)  { return clamp(x, vec3(0.0), vec3(bits16)); }
+vec4  clamp16(vec4 x)  { return clamp(x, vec4(0.0), vec4(bits16)); }
+
+float clamp32(float x) { return clamp(x, 0.0, bits32); }
+vec2  clamp32(vec2 x)  { return clamp(x, vec2(0.0), vec2(bits32)); }
+vec3  clamp32(vec3 x)  { return clamp(x, vec3(0.0), vec3(bits32)); }
+vec4  clamp32(vec4 x)  { return clamp(x, vec4(0.0), vec4(bits32)); }
 
 float pow2(float x) { return x*x; }
 float pow3(float x) { return x*x*x; }

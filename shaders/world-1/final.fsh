@@ -10,4 +10,8 @@
 /***********************************************/
 
 in vec2 texCoords;
+
+#include "/settings.glsl"
+#define STAGE STAGE_FRAGMENT
+
 #include "/programs/composite/post2.glsl"
