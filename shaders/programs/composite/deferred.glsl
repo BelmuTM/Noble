@@ -17,10 +17,11 @@
         gl_Position = ftransform();
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-        int samples    = 8;
         skyIlluminance = vec3(0.0);
 
         #ifdef WORLD_OVERWORLD
+            const int samples = 8;
+
             for(int x = 0; x < samples; x++) {
                 for(int y = 0; y < samples; y++) {
                     vec3 dir        = generateUnitVector(vec2(x, y));

@@ -30,13 +30,19 @@ void main() {
                     ambientOcclusion = SSAO_FILTER == 0 && AO_TYPE == 0 ? texture(colortex9, texCoords).a : twoPassGaussianBlur(texCoords, colortex9, 1.0).a;
                 }
             #endif
+
+            vec3 shadowmap = vec3(0.0), skyIlluminance = vec3(0.0), totalIllum = vec3(1.0);
             
-            vec3 shadowmap      = texture(colortex9, texCoords).rgb;
-            vec3 skyIlluminance = texture(colortex8, texCoords).rgb;
-            vec3 sunTransmit    = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
-            vec3 moonTransmit   = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
+            #ifdef WORLD_OVERWORLD
+                shadowmap      = texture(colortex9, texCoords).rgb;
+                skyIlluminance = texture(colortex8, texCoords).rgb;
+
+                vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
+                vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
+                totalIllum        = sunTransmit + moonTransmit;
+            #endif
             
-            Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, sunTransmit + moonTransmit, skyIlluminance, ambientOcclusion);
+            Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, totalIllum, skyIlluminance, ambientOcclusion);
         }
     #endif
 

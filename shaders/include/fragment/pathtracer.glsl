@@ -17,20 +17,20 @@
         return fresnel * geometrySchlickGGX(NdotL, (k * k) * 0.125);
     }
 
-    vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap, vec3 celestialIlluminance) {
+    vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap, vec3 shadowLightIlluminance) {
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
         vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat, true);
 
-        return (diffuse + specular) * shadowmap * celestialIlluminance;
+        return (diffuse + specular) * shadowmap * shadowLightIlluminance;
     }
 
     vec3 pathTrace(in vec3 screenPos) {
         vec3 radiance = vec3(0.0);
         vec3 viewPos  = screenToView(screenPos); 
 
-        vec3 celestialIlluminance = vec3(1.0);
+        vec3 shadowLightIlluminance = vec3(1.0);
         #ifdef WORLD_OVERWORLD
-            celestialIlluminance = worldTime <= 12750 ? 
+            shadowLightIlluminance = worldTime <= 12750 ? 
               atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance
             : atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
         #endif
@@ -87,7 +87,7 @@
                 radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
 
                 #ifdef WORLD_OVERWORLD
-                    radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb, celestialIlluminance);
+                    radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb, shadowLightIlluminance);
                 #endif
             }
         }

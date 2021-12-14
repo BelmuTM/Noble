@@ -178,7 +178,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool energyCons) {
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
-vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celestialIlluminance, vec3 skyIlluminance, float ambientOcclusion) {
+vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shadowLightIlluminance, vec3 skyIlluminance, float ambientOcclusion) {
     V = -normalize(V);
 
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
@@ -191,7 +191,7 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 celes
     vec3 skyLight   = skyIlluminance * lightmap.y;
     vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * lightmap.x * BLOCKLIGHT_MULTIPLIER;
 
-    vec3 direct   = (diffuse + specular) * shadows * celestialIlluminance;
+    vec3 direct   = (diffuse + specular) * shadows * shadowLightIlluminance;
     vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * mat.ao * ambientOcclusion;
 
     return direct + indirect;
