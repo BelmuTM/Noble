@@ -71,16 +71,18 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
             vec3 fresnel = specularFresnel(NdotL, F0, isMetal);
 
             if(NdotL > 0.0) {
-                bool hit = raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(rngState), hitPos);
+                float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(rngState), hitPos));
                 vec3 hitColor;
 
+                float factor = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
+
                 #if SKY_FALLBACK == 0
-                    hitColor = hit ? getHitColor(hitPos) : vec3(0.0);
+                    hitColor = mix(vec3(0.0), getHitColor(hitPos), factor);
                 #else
-                    hitColor = hit ? getHitColor(hitPos) : getSkyFallback(coords, reflected);
+                    hitColor = mix(getSkyFallback(coords, reflected), getHitColor(hitPos), factor);
                 #endif
 
-		        color       += NdotL * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hitColor * fresnel;
+		        color       += NdotL * hitColor * fresnel;
                 totalWeight += NdotL;
             }
 	    }
