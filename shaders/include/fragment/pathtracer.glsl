@@ -45,7 +45,7 @@
             vec3 prevDir;
             mat3 TBN;
 
-            for(int j = 0; j < GI_BOUNCES + 1; j++) {
+            for(int j = 0; j <= GI_BOUNCES; j++) {
                 vec2 noise = uniformAnimatedNoise(vec2(randF(rngState), randF(rngState)));
                 prevDir    = rayDir;
 
@@ -67,7 +67,7 @@
 
                     if(specularBounce) {
                         throughput *= fresnel / specularProb;
-                        rayDir      = reflect(prevDir, microfacet);
+                        rayDir      = reflect(prevDir, mat.rough <= 0.05 ? mat.normal : microfacet);
                     } else {
                         throughput *= (1.0 - fresnel) / (1.0 - specularProb);
                         rayDir      = generateCosineVector(mat.normal, noise);

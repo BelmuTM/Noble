@@ -104,7 +104,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
         bool hand      = isHand(texture(depthtex1, hitPos.xy).r);
         if(!hit || hand) hitPos.xy = texCoords;
 
-        vec3 fresnel = fresnelDielectric(maxEps(dot(normal, -viewDir)), ior);
+        float fresnel = fresnelDielectric(maxEps(dot(normal, -viewDir)), ior);
         vec3 hitColor = vec3(
             texture(colortex4, hitPos.xy + vec2(2e-3 * rand(gl_FragCoord.xy))).r,
             texture(colortex4, hitPos.xy).g,

@@ -20,13 +20,13 @@ void main() {
 
    /*    ------- SKY -------    */
    if(isSky(texCoords)) {
-      vec4 sky = vec4(0.0, 0.0, 0.0, 1.0);
+      vec4 sky = vec4(0.0);
 
       #ifdef WORLD_OVERWORLD
-         vec3 playerViewDir = normalize(mat3(gbufferModelViewInverse) * viewPos);
-         vec3 starsColor    = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(gl_FragCoord.xy)));
+         vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos));
+         vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(gl_FragCoord.xy)));
 
-         vec3 tmp = texture(colortex7, projectSphere(playerViewDir) * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
+         vec3 tmp = texture(colortex7, coords * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
          sky.rgb  = tmp + (starfield(viewPos) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
          sky.rgb += celestialBody(normalize(viewPos), shadowDir);
       #endif
