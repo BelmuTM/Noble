@@ -57,7 +57,7 @@
 
                     float HdotV     = maxEps(dot(normalize(-prevDir + rayDir), -prevDir));
                     vec3 microfacet = TBN * sampleGGXVNDF(-prevDir * TBN, noise, pow2(mat.rough));
-                    vec3 fresnel    = specularFresnel(dot(-rayDir, microfacet), getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+                    vec3 fresnel    = specularFresnel(dot(-prevDir, microfacet), getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
 
                     /* Specular Bounce Probability */
                     float fresnelLum    = luminance(fresnel);
@@ -69,7 +69,7 @@
                         throughput *= fresnel / specularProb;
                         rayDir      = reflect(prevDir, mat.rough <= 0.05 ? mat.normal : microfacet);
                     } else {
-                        throughput *= (1.0 - fresnel) / (1.0 - specularProb);
+                        throughput *= (1.0 - specularFresnel(dot(-prevDir, mat.normal), vec3(mat.F0), mat.isMetal)) / (1.0 - specularProb);
                         rayDir      = generateCosineVector(mat.normal, noise);
                         throughput *= mat.albedo;
                         // throughput *= hammonDiffuse(mat.normal, -prevDir, rayDir, mat, false) * (clamp01(dot(mat.normal, rayDir)) * INV_PI);
