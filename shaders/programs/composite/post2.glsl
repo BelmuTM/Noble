@@ -6,9 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/include/common.glsl"
 #include "/include/utility/blur.glsl"
-
 #include "/include/post/bloom.glsl"
 #include "/include/post/exposure.glsl"
 

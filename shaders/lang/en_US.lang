@@ -16,7 +16,7 @@ profile.comment = §lNormal§r profile refers to Noble with default settings. §
 
 ##################### SCREENS #####################
 
-screen.LIGHTING = Lighting & Shadows
+screen.LIGHTING = Lighting
 screen.RAYTRACING = Ray Tracing
 screen.ATMOSPHERICS = Atmospherics
 screen.WORLD = World
@@ -291,13 +291,13 @@ value.FILM_GRAIN.1 = §aON
 option.FILM_GRAIN_STRENGTH = Film Grain Strength
 option.FILM_GRAIN_STRENGTH.comment = Adjusts §bFilm Grain§f's intensity.
 
-option.UNDERWATER_DISTORTION = Underwater Distortion
-option.UNDERWATER_DISTORTION.comment = Wiggles the entire screen when you are underwater.
-value.UNDERWATER_DISTORTION.0 = §cOFF
-value.UNDERWATER_DISTORTION.1 = §aON
+option.SHARPEN = Sharpen Filter
+option.SHARPEN.comment = Accentuates colors to make them look sharper.
+value.SHARPEN.0 = §cOFF
+value.SHARPEN.1 = §aON
 
-option.WATER_DISTORTION_AMPLITUDE = Distortion Amplitude
-option.WATER_DISTORTION_AMPLITUDE.comment = Adjusts §bUnderwater Distortion§f's amplitude.
+option.SHARPEN_STRENGTH = Sharpen Strength
+option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§f's intensity.
 
 ##################### CAMERA SETTINGS #####################
 

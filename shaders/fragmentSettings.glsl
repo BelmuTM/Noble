@@ -9,7 +9,6 @@
 /*
 ALBEDO
 const int colortex0Format = RGBA16F;
-const vec4 colortex0ClearColor = vec4(0, 0, 0, 0);
 
 NORMALS / LIGHTMAP
 const int colortex1Format = RGBA16;
@@ -23,7 +22,6 @@ const bool colortex3Clear = false;
 
 MULTIPLE THINGS
 const int colortex4Format = RGBA16;
-const vec4 colortex4ClearColor = vec4(0, 0, 0, 0);
 const int colortex5Format = RGBA16F;
 
 PTGI ACCUMULATION BUFFER

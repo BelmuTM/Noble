@@ -173,9 +173,12 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define CHROMATIC_ABERRATION   0 // [0 1]
 #define ABERRATION_STRENGTH 1.50 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00]
 
-#define UNDERWATER_DISTORTION         1 // [0 1]
+#define SHARPEN             1 // [0 1]
+#define SHARPEN_STRENGTH 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.0]
+
+#define UNDERWATER_DISTORTION         1
 #define WATER_DISTORTION_SPEED     0.65
-#define WATER_DISTORTION_AMPLITUDE 0.40 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define WATER_DISTORTION_AMPLITUDE 0.40
 
 #define EXPOSURE 1 // [0 1]
 #define PURKINJE 1 // [0 1]
