@@ -64,10 +64,10 @@
                     float totalLum      = luminance(mat.albedo) * (1.0 - fresnelLum) + fresnelLum;
                     float specularProb  = fresnelLum / totalLum;
                     bool specularBounce = specularProb > randF(rngState);
-
+ 
                     if(specularBounce) {
-                        throughput *= fresnel / specularProb;
                         rayDir      = reflect(prevDir, mat.rough <= 0.05 ? mat.normal : microfacet);
+                        throughput *= specularBRDF(dot(mat.normal, rayDir), fresnel, mat.rough) / specularProb;
                     } else {
                         throughput *= (1.0 - specularFresnel(dot(-prevDir, mat.normal), vec3(mat.F0), mat.isMetal)) / (1.0 - specularProb);
                         rayDir      = generateCosineVector(mat.normal, noise);
