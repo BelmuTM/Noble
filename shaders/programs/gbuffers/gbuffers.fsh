@@ -9,6 +9,7 @@
 in vec2 texCoords;
 in vec2 lmCoords;
 in vec3 waterNormals;
+in vec3 viewPos;
 in vec4 color;
 in mat3 TBN;
 in float blockId;
@@ -22,6 +23,17 @@ in float blockId;
 #ifdef ENTITY
 	uniform vec4 entityColor;
 #endif
+
+// https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
+float waterCaustics(vec3 oldPos, vec3 normal) {
+	vec3 lightDir = mat3(shadowModelView) * mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+	vec3 newPos   = oldPos + refract(lightDir, normal, 1.0 / 1.333) * 2.5;
+
+	float oldArea = length(dFdy(oldPos) * dFdy(oldPos));
+	float newArea = length(dFdy(newPos) * dFdy(newPos));
+
+	return oldArea / newArea * 0.2;
+}
 
 void main() {
 	vec4 albedoTex   = texture(colortex0, texCoords);
@@ -41,10 +53,11 @@ void main() {
 	vec3 normal;
 	// WOTAH
 	if(int(blockId + 0.5) == 1) { 
-		albedoTex = vec4(0.0);
+		albedoTex = vec4(1.0, 1.0, 1.0, 0.0);
 		F0 		  = 0.02;
 		roughness = 0.0;
 		normal 	  = waterNormals;
+
 	} else {
 		normal.xy = normalTex.xy * 2.0 - 1.0;
 		normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
@@ -61,5 +74,5 @@ void main() {
 	/*DRAWBUFFERS:012*/
 	gl_FragData[0] = color * albedoTex;
 	gl_FragData[1] = vec4(encodeNormal(normal), lmCoords.xy);
-	gl_FragData[2] = vec4(clamp01(roughness), F0, pack2x4(vec2(ao, emission)), (blockId + 0.25) / 255.0);
+	gl_FragData[2] = vec4(clamp01(roughness), (blockId + 0.25) / 255.0, pack2x4(vec2(ao, emission)), pack2x4(vec2(F0, subsurface)));
 }

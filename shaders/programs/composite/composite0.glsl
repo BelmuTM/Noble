@@ -60,7 +60,7 @@ void main() {
    /*    ------- WATER CAUSTICS -------    */
    // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
    #if WATER_CAUSTICS == 1
-      bool canCast = isEyeInWater == 1 ? true : getBlockId(coords) == 1;
+      bool canCast = isEyeInWater > 0.5 ? true : getBlockId(coords) == 1;
       if(canCast) { shadowmap *= waterCaustics(coords); }
    #endif
 
@@ -68,8 +68,8 @@ void main() {
    float depthDist = 0.0;
 
    /*    ------- WATER FOAM -------    */
-   if(isWater || isEyeInWater == 1) {
-      depthDist = isEyeInWater == 1 ? 
+   if(isWater || isEyeInWater > 0.5) {
+      depthDist = isEyeInWater > 0.5 ? 
 
       length(transMAD3(gbufferModelViewInverse, viewPos))
       :
@@ -82,7 +82,7 @@ void main() {
    }
 
    /*    ------- WATER ABSORPTION -------    */
-   vec3 transmittance = isWater || isEyeInWater == 1 ? exp(-depthDist * WATER_ABSORPTION_COEFFICIENTS) : vec3(1.0);
+   vec3 transmittance = isWater || isEyeInWater > 0.5 ? exp(-WATER_ABSORPTION_COEFFICIENTS * depthDist) : vec3(1.0);
    opaques           *= transmittance;
 
    /*    ------- ALPHA BLENDING -------    */

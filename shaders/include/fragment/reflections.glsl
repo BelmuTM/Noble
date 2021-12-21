@@ -64,7 +64,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
             vec2 noise = TAA == 1 ? uniformAnimatedNoise(vec2(randF(rngState), randF(rngState))) : uniformNoise(i, blueNoise);
         
-            vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, noise, alpha);
+            vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, mix(noise, vec2(0.0), 0.4), alpha);
 		    vec3 reflected  = reflect(viewDir, TBN * microfacet);	
 
             float NdotL  = clamp01(dot(normal, reflected));
@@ -79,7 +79,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
                 #if SKY_FALLBACK == 0
                     hitColor = mix(vec3(0.0), getHitColor(hitPos), factor);
                 #else
-                    hitColor = mix(getSkyFallback(coords, reflected), getHitColor(hitPos), factor);
+                    hitColor = mix(getSkyFallback(coords, reflected), getHitColor(hitPos), factor * float(isEyeInWater < 0.5));
                 #endif
 
 		        color       += NdotL * hitColor * fresnel;

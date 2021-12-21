@@ -7,7 +7,12 @@
 /***********************************************/
 
 int getBlockId(vec2 coords) {
-    return int(texture(colortex2, coords).w * 255.0 + 0.5);
+    return int(texture(colortex2, coords).y * 255.0 + 0.5);
+}
+
+float getSkyLightmap(vec2 coords) {
+    float lightmap = clamp01(texture(colortex1, coords).w);
+    return quintic(0.90, 0.96, lightmap); // Concept from Eldeston#3590
 }
 
 // Hardcoded values provided by Bálint#1673
@@ -43,7 +48,8 @@ material getMaterial(vec2 coords) {
     vec4 tex0 = texture(colortex0, coords);
     vec4 tex1 = texture(colortex1, coords);
     vec4 tex2 = texture(colortex2, coords);
-    vec2 unpacked = unpack2x4(tex2.z);
+    vec2 unpacked0 = unpack2x4(tex2.z);
+    vec2 unpacked1 = unpack2x4(tex2.w);
 
     material mat;
 
@@ -51,10 +57,10 @@ material getMaterial(vec2 coords) {
     mat.alpha  = tex0.w;
     mat.normal = normalize(decodeNormal(tex1.xy));
 
-    mat.F0         = tex2.y;
+    mat.F0         = unpacked1.x;
     mat.rough      = tex2.x;
-    mat.ao         = unpacked.x;
-    mat.emission   = unpacked.y;
+    mat.ao         = unpacked0.x;
+    mat.emission   = unpacked0.y;
     mat.isMetal    = mat.F0 * 255.0 > 229.5;
 
     return mat;

@@ -12,6 +12,7 @@ attribute vec3 mc_Entity;
 out vec2 texCoords;
 out vec2 lmCoords;
 out vec3 waterNormals;
+out vec3 viewPos;
 out vec4 color;
 out mat3 TBN;
 out float blockId;
@@ -46,7 +47,7 @@ void main() {
 	color     = gl_Color;
 
     vec3 normal  = normalize(gl_NormalMatrix * gl_Normal);
-    vec3 viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+    	 viewPos = transMAD3(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
     vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));

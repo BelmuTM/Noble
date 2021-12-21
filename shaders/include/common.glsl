@@ -15,11 +15,6 @@ vec3 blueNoise = texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb
 #include "/include/utility/math.glsl"
 #include "/include/utility/transforms.glsl"
 
-float getSkyLightmap(vec2 coords) {
-    float lightmap = clamp01(texture(colortex1, coords).w);
-    return smoothstep(0.90, 0.96, lightmap); // Concept from Eldeston#3590
-}
-
 bool isSky(vec2 coords) {
     return texture(depthtex0, coords).r == 1.0;
 }
