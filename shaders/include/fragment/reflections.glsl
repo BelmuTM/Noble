@@ -79,7 +79,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
                 #if SKY_FALLBACK == 0
                     hitColor = mix(vec3(0.0), getHitColor(hitPos), factor);
                 #else
-                    hitColor = mix(getSkyFallback(coords, reflected), getHitColor(hitPos), factor * float(isEyeInWater < 0.5));
+                    hitColor = mix(getSkyFallback(coords, reflected), getHitColor(hitPos), factor);
                 #endif
 
 		        color       += NdotL * hitColor * fresnel;
