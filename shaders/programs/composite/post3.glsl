@@ -26,7 +26,7 @@
         avgLuma /= weight;
 
         float centerLuma = luminance(color);
-        color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / luminance(color);
+        color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / centerLuma;
     }
 #endif
 

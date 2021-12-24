@@ -58,13 +58,12 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
         return shadowResult / float(SAMPLES);
     }
 #else
-
     float findBlockerDepth(vec3 sampleCoords, mat2 rotation, float phi) {
         float avgBlockerDepth = 0.0;
         int BLOCKERS = 0;
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-            vec2 offset = BLOCKER_SEARCH_RADIUS * vogelDisk(i, BLOCKER_SEARCH_SAMPLES, phi) * pixelSize;
+            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi) * pixelSize;
             float z     = texture(shadowtex0, sampleCoords.xy + offset).r;
 
             if(sampleCoords.z - 1e-3 > z) {
@@ -83,7 +82,7 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
 
         vec3 shadowResult = vec3(0.0);
         for(int i = 0; i < PCSS_SAMPLES; i++) {
-            vec2 offset           = rotation * (penumbraSize * vogelDisk(i, PCSS_SAMPLES, phi));
+            vec2 offset           = rotation * (penumbraSize * diskSampling(i, PCSS_SAMPLES, phi));
             vec3 currSampleCoords = vec3(sampleCoords.xy + offset, sampleCoords.z);
 
             shadowResult += sampleShadowColor(currSampleCoords);

@@ -71,7 +71,7 @@
         vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
         float purkinje    = dot(rodResponse, xyzToLinear(scotopicLuma));
 
-        color = mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 20.0));
+        color = mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 50.0 * exposure));
     }
 #endif
 

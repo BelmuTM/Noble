@@ -78,7 +78,7 @@ float ATan(float x) {
     return (x < 0.0) ? -t0 : t0; 
 }
 
-vec2 sincos2(float x) {
+vec2 sincos(float x) {
     return vec2(sin(x), cos(x));
 }
 
@@ -113,6 +113,17 @@ vec3 generateUnitVector(vec2 xy) {
 
 vec3 generateCosineVector(vec3 normal, vec2 xy) {
     return normalize(normal + generateUnitVector(xy));
+}
+
+vec2 vogelDisk(int i, int n, float phi) {
+    float r = sqrt((float(i) + phi) / float(n));
+    float theta = float(i) * GOLDEN_ANGLE;
+    return sincos(r * theta);
+}
+
+vec2 diskSampling(int i, int n, float phi){
+    float theta = (float(i) + phi) / float(n); 
+    return sincos(theta * TAU * n * GOLDEN_ANGLE) * theta;
 }
 
 /* ENCODING */

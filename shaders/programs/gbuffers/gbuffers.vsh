@@ -9,13 +9,13 @@
 attribute vec4 at_tangent;
 attribute vec3 mc_Entity;
 
+out float blockId;
 out vec2 texCoords;
 out vec2 lmCoords;
 out vec3 waterNormals;
 out vec3 viewPos;
 out vec4 color;
 out mat3 TBN;
-out float blockId;
 
 #include "/settings.glsl"
 #define STAGE STAGE_VERTEX
@@ -53,7 +53,7 @@ void main() {
     vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
 	TBN 		   = mat3(tangent, bitangent, normal);
 
-	blockId = mc_Entity.x - 1000.0;
+	blockId 	= mc_Entity.x - 1000.0;
 	gl_Position = ftransform();
 
 	#ifdef WATER

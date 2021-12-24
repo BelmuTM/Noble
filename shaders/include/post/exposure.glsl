@@ -37,8 +37,8 @@ float EV100ToExposure(float EV100) {
 }
 
 float computeExposure(float avgLuminance) {
-     float minExposure = TAU / luminance(sunIlluminance);
-     float maxExposure = 1.0 / luminance(moonIlluminance);
+     float minExposure = PI / luminance(sunIlluminance);
+     float maxExposure = 0.1 * PI / luminance(moonIlluminance);
 
      float EV100;
      #if EXPOSURE == 0

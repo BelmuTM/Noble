@@ -19,13 +19,7 @@ void pcg(inout uint seed) {
     uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
 #endif
 
-float randF(inout uint seed)  { pcg(seed); return float(seed) / float(0xffffffffu);         }
-
-vec2 vogelDisk(int index, int samplesCount, float phi) {
-    float r = sqrt(float(index) + 0.5) / sqrt(float(samplesCount));
-    float theta = float(index) * GOLDEN_ANGLE + phi;
-    return r * vec2(cos(theta), sin(theta));
-}
+float randF(inout uint seed)  { pcg(seed); return float(seed) / float(0xffffffffu); }
 
 // http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float rand(vec2 p) {
