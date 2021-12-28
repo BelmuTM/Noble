@@ -9,6 +9,7 @@
 /*
 ALBEDO
 const int colortex0Format = RGBA16F;
+const bool colortex0Clear = false;
 
 NORMALS / LIGHTMAP
 const int colortex1Format = RGBA16;
@@ -17,7 +18,7 @@ PBR VALUES
 const int colortex2Format = RGBA8;
 
 TAA / EXPOSURE HISTORY BUFFER
-const int colortex3Format = RGBA32F;
+const int colortex3Format = RGBA16F;
 const bool colortex3Clear = false;
 
 MULTIPLE THINGS

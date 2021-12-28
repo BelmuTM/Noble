@@ -27,15 +27,6 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
     if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
     float shadowVisibility0 = visibility(shadowtex0, sampleCoords);
     float shadowVisibility1 = visibility(shadowtex1, sampleCoords);
-
-    /*
-    float currDepth   = getViewPos0(texCoords).z;
-    float shadowDepth = getViewPos0(sampleCoords.xy).z;
-
-    float sss           = unpack2x8(texture(colortex2, sampleCoords.xy).y).y;
-    float dist          = abs(currDepth - shadowDepth);
-    float transmittance = exp(-(1.0 / sss) * dist);
-    */
     
     vec4 shadowColor0     = texture(shadowcolor0, sampleCoords.xy);
     vec3 transmittedColor = shadowColor0.rgb * (1.0 - shadowColor0.a);

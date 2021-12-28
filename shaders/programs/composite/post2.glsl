@@ -147,7 +147,7 @@ void main() {
 
     #if BLOOM == 1
         float bloomStrength = clamp01(BLOOM_STRENGTH + rainStrength);
-        color.rgb += readBloom().rgb * exp2(exposure - 3.0 + bloomStrength);
+        color.rgb = mix(color.rgb, readBloom().rgb, exp2(exposure - 3.0 + bloomStrength));
     #endif
 
     #if PURKINJE == 1

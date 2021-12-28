@@ -10,11 +10,7 @@
 const bool colortex0MipmapEnabled = true;
 */
 
-#if EXPOSURE == 0
-     float computeEV100() {
-          return log2(pow2(APERTURE) / SHUTTER_SPEED * 100.0 / ISO);
-     }
-#else
+#if EXPOSURE == 1
 
      float computeAverageLuminance(sampler2D prevTex) {
           float currLuma = luminance(textureLod(colortex0, vec2(0.5), log2(max(viewResolution.x, viewResolution.y))).rgb);
@@ -33,7 +29,7 @@ const bool colortex0MipmapEnabled = true;
 #endif
 
 float EV100ToExposure(float EV100) {
-     return 1.0 / (1.2 * exp2(EV100));
+     return 1.0 / (exp2(EV100) * 1.2);
 }
 
 float computeExposure(float avgLuminance) {
@@ -42,7 +38,7 @@ float computeExposure(float avgLuminance) {
 
      float EV100;
      #if EXPOSURE == 0
-          EV100 = computeEV100();
+          EV100 = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
      #else
           EV100 = computeEV100fromLuma(avgLuminance);
      #endif

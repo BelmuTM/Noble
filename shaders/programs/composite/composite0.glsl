@@ -19,6 +19,7 @@ void main() {
    vec3 viewPos = getViewPos0(texCoords);
 
    /*    ------- SKY -------    */
+
    if(isSky(texCoords)) {
       vec4 sky = vec4(0.0);
 
@@ -43,6 +44,7 @@ void main() {
    vec3 hitPos; vec2 coords = texCoords;
 
    /*    ------- REFRACTIONS -------    */
+
    #if REFRACTIONS == 1
       if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
          opaques = simpleRefractions(viewPos, mat.normal, mat.F0, hitPos);
@@ -58,18 +60,21 @@ void main() {
    #endif
 
    /*    ------- WATER CAUSTICS -------    */
+
+   bool isWater    = getBlockId(texCoords) == 1;
+   bool inWater    = isEyeInWater > 0.5;
+   float depthDist = 0.0;
+
    // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
    #if WATER_CAUSTICS == 1
-      bool canCast = isEyeInWater > 0.5 ? true : getBlockId(coords) == 1;
+      bool canCast = inWater ? true : getBlockId(coords) == 1;
       if(canCast) { shadowmap *= waterCaustics(coords); }
    #endif
 
-   bool isWater    = getBlockId(texCoords) == 1;
-   float depthDist = 0.0;
-
    /*    ------- WATER FOAM -------    */
-   if(isWater || isEyeInWater > 0.5) {
-      depthDist = isEyeInWater > 0.5 ? 
+
+   if(isWater || inWater) {
+      depthDist = inWater ? 
 
       length(transMAD3(gbufferModelViewInverse, viewPos))
       :
@@ -77,18 +82,15 @@ void main() {
 	      transMAD3(gbufferModelViewInverse, viewPos),
 		   transMAD3(gbufferModelViewInverse, getViewPos1(coords))
 	   );
-
-      opaques += WATER_FOAM == 0 ? 0.0 : waterFoam(depthDist);
    }
 
-   /*    ------- WATER ABSORPTION -------    */
-   vec3 transmittance = isWater || isEyeInWater > 0.5 ? exp(-WATER_ABSORPTION_COEFFICIENTS * depthDist) : vec3(1.0);
-   opaques           *= transmittance;
+   /*    ------- WATER ABSORPTION & ALPHA BLENDING -------    */
 
-   /*    ------- ALPHA BLENDING -------    */
-   mat.albedo = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
+   vec3 transmittance = inWater || isWater ? exp(-WATER_ABSORPTION_COEFFICIENTS * WATER_DENSITY * depthDist) : vec3(1.0);
+   mat.albedo         = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha) * transmittance;
 
    /*    ------- AMBIENT OCCLUSION -------    */
+
    float ambientOcclusion = 1.0;
    #if AO == 1
       #if AO_TYPE == 0

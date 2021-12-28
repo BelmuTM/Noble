@@ -19,7 +19,7 @@
 
     vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap, vec3 shadowLightIlluminance) {
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
-        vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat, true);
+        vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat, false);
 
         return (diffuse + specular) * shadowmap * shadowLightIlluminance;
     }
@@ -51,9 +51,11 @@
 
                 if(j > 0) {
                     /* Russian Roulette */
-                    float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
-                    if(roulette < randF(rngState)) { break; }
-                    throughput /= roulette;
+                    if(j > 3) {
+                        float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
+                        if(roulette < randF(rngState)) { break; }
+                        throughput /= roulette;
+                    }
 
                     float HdotV     = maxEps(dot(normalize(-prevDir + rayDir), -prevDir));
                     vec3 microfacet = TBN * sampleGGXVNDF(-prevDir * TBN, noise, pow2(mat.rough));
@@ -72,7 +74,6 @@
                         throughput *= (1.0 - specularFresnel(dot(-prevDir, mat.normal), vec3(mat.F0), mat.isMetal)) / (1.0 - specularProb);
                         rayDir      = generateCosineVector(mat.normal, noise);
                         throughput *= mat.albedo;
-                        // throughput *= hammonDiffuse(mat.normal, -prevDir, rayDir, mat, false) * (clamp01(dot(mat.normal, rayDir)) * INV_PI);
                     }
                     if(dot(mat.normal, rayDir) <= 0.0) { break; }
                 }

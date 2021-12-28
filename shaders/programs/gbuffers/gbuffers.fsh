@@ -51,8 +51,7 @@ void main() {
 		normal.xy = normalTex.xy * 2.0 - 1.0;
 		normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
 	}
-	normal  = TBN * normal;
-	normal *= 0.5 + 0.5;
+	normal = TBN * normal;
 
 	/*	
 	if(int(blockId + 0.5) > 4 && int(blockId + 0.5) <= 11 && emission < 0.1) {
