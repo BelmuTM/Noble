@@ -102,7 +102,7 @@ void tonemap(inout vec3 color) {
     #endif
 }
 
-#if LUT == 1
+#if LUT > 0
     const int lutRes        = 512;
     const int sqrTileSize   = 64;
     const int tileSize      = 8;
@@ -113,6 +113,13 @@ void tonemap(inout vec3 color) {
     void applyLUT(sampler2D lut, inout vec3 color) {
         color = clamp(color, vec3(minColLUT), vec3(255.0 / 256.0));
 
+        // lutGrid concept from Raspberry shaders (https://rutherin.netlify.app/)
+        const vec2 invRes = 1.0 / vec2(lutRes, lutRes * 15);
+        const mat2 lutGrid = mat2(
+            vec2(1.0, invRes.y * lutRes),
+            vec2(0.0, (LUT - 1) * invRes.y * lutRes)
+        );
+
         int b0 = int(floor(color.b * sqrTileSize));
         int b1 = int( ceil(color.b * sqrTileSize));
 
@@ -120,9 +127,9 @@ void tonemap(inout vec3 color) {
         vec2 off1 = vec2(mod(b1, tileSize), b1 / tileSize) * invTileSize;
 
         color = mix(
-            texture(lut, off0 + color.rg * invTileSize).rgb,
-            texture(lut, off1 + color.rg * invTileSize).rgb,
-            fract(color.b * sqrTileSize)
+            texture(lut, (off0 + color.rg * invTileSize) * lutGrid[0] + lutGrid[1]).rgb,
+            texture(lut, (off1 + color.rg * invTileSize) * lutGrid[0] + lutGrid[1]).rgb,
+            fract(color.b * (sqrTileSize - 1.0))
         );
     }
 #endif
@@ -177,7 +184,7 @@ void main() {
     color.rgb = clamp01(color.rgb);
     color     = TONEMAP == 2 ? color : linearToRGB(color);
 
-    #if LUT == 1
+    #if LUT > 0
         applyLUT(colortex10, color.rgb);
     #endif
 

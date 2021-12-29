@@ -334,16 +334,30 @@ suffix.SHUTTER_SPEED = s
 
 option.TONEMAP = Tone Mapping
 option.TONEMAP.comment = Applies a color correction filter.
-value.TONEMAP.-1 = None
-value.TONEMAP.0 = Reinhard
-value.TONEMAP.1 = Uncharted
-value.TONEMAP.2 = Burgess
-value.TONEMAP.3 = ACES Fitted
+value.TONEMAP.-1 = §cOFF
+value.TONEMAP.0 = §bReinhard
+value.TONEMAP.1 = §bUncharted
+value.TONEMAP.2 = §bBurgess
+value.TONEMAP.3 = §bACES Fitted
 
 option.LUT = LUT
 option.LUT.comment = Applies a color filter using a lookup table (LUT). It is part of color grading.
 value.LUT.0 = §cOFF
-value.LUT.1 = §aON
+value.LUT.1 = §fFuji 250D Fuji 2510
+value.LUT.2 = §fFuji 250D Kodak 2395
+value.LUT.3 = §fKodak 5218 Kodak 2383
+value.LUT.4 = §fFuji f125 Kodak 2393
+value.LUT.5 = §fCandle Light
+value.LUT.6 = §fArabica
+value.LUT.7 = §fFoggy Night
+value.LUT.8 = §fLate Sunset
+value.LUT.9 = §fEdgy Amber
+value.LUT.10 = §fCrisp Warm
+value.LUT.11 = §fCrisp Winter
+value.LUT.12 = §fMcKinnon 75
+value.LUT.13 = §fMilo 5
+value.LUT.14 = §fZed 32
+value.LUT.15 = §fFilmstock
 
 option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.
