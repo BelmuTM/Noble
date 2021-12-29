@@ -128,7 +128,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ANIMATED_WATER 1 // [0 1]
 
 // PBR
-#define WATER_ABSORPTION_COEFFICIENTS vec3(0.2, 0.07, 0.04)
+#define WATER_ABSORPTION_COEFFICIENTS vec3(0.1, 0.07, 0.04)
 #define WATER_SCATTERING_COEFFICIENTS vec3(0.15, 0.4, 0.58)
 #define WATER_DENSITY 4.0
 

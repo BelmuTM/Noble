@@ -29,6 +29,8 @@ void main() {
 	vec4 normalTex   = texture(normals,   texCoords);
 	vec4 specularTex = texture(specular,  texCoords);
 
+	albedoTex *= color;
+
 	#ifdef ENTITY
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 	#endif
@@ -60,7 +62,7 @@ void main() {
 	*/
 	
 	/*DRAWBUFFERS:012*/
-	gl_FragData[0] = color * albedoTex;
+	gl_FragData[0] = albedoTex;
 	gl_FragData[1] = vec4(encodeNormal(normal), lmCoords.xy);
-	gl_FragData[2] = vec4(clamp01(roughness), (blockId + 0.25) / 255.0, pack2x4(vec2(ao, emission)), pack2x4(vec2(F0, subsurface)));
+	gl_FragData[2] = vec4(clamp01(roughness), (blockId + 0.25) / 255.0, pack2x4(vec2(ao, emission)), pack2x8(vec2(F0, subsurface)));
 }

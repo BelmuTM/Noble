@@ -50,7 +50,7 @@ material getMaterial(vec2 coords) {
     vec4 tex1 = texture(colortex1, coords);
     vec4 tex2 = texture(colortex2, coords);
     vec2 unpacked0 = unpack2x4(tex2.z);
-    vec2 unpacked1 = unpack2x4(tex2.w);
+    vec2 unpacked1 = unpack2x8(tex2.w);
 
     material mat;
 

@@ -15,7 +15,7 @@ NORMALS / LIGHTMAP
 const int colortex1Format = RGBA16;
 
 PBR VALUES
-const int colortex2Format = RGBA8;
+const int colortex2Format = RGBA16;
 
 TAA / EXPOSURE HISTORY BUFFER
 const int colortex3Format = RGBA16F;

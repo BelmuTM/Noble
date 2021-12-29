@@ -37,8 +37,8 @@
 			if(dot(sampleDir, normal) < 0.0) { sampleDir = -sampleDir; }
 			if(!raytrace(samplePos, sampleDir, RTAO_STEPS, randF(rngState), hitPos)) { break; }
 
-			float delta = viewToWorld(samplePos).z - viewToWorld(screenToView(hitPos)).z;
-			occlusion  += max0(exp(-(delta * delta)));
+			float delta = distance(samplePos, screenToView(hitPos));
+			occlusion  += delta;
 		}
 		return clamp01(1.0 - (occlusion / RTAO_SAMPLES));
 	}
