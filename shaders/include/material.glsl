@@ -41,6 +41,7 @@ struct material {
     float rough;
     float ao;
     float emission;
+    float subsurface;
     bool isMetal;
 };
 
@@ -61,6 +62,7 @@ material getMaterial(vec2 coords) {
     mat.rough      = tex2.x;
     mat.ao         = unpacked0.x;
     mat.emission   = unpacked0.y;
+    mat.subsurface = unpacked1.y;
     mat.isMetal    = mat.F0 * 255.0 > 229.5;
 
     return mat;

@@ -175,6 +175,25 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
     return max0((mat.albedo * single + mat.albedo * multi) * (pt ? 1.0 : NdotL));
 }
 
+// Disney SSS from: https://www.shadertoy.com/view/XdyyDd
+float schlickWeight(float cosTheta) {
+    return pow5(clamp01(1.0 - cosTheta));
+}
+
+vec3 disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
+    vec3 H      = normalize(V + L);
+    float NdotV = maxEps(dot(N, V));
+    float NdotL = maxEps(dot(N, L));
+    float LdotH = maxEps(dot(L, H));
+
+    float FL    = schlickWeight(NdotL), FV = schlickWeight(NdotV);
+    float Fss90 = LdotH * LdotH * mat.rough;
+    float Fss   = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
+    float ss    = 1.25 * (Fss * (1.0 / (NdotL + NdotV) - 0.5) + 0.5);
+    
+    return clamp01(INV_PI * ss) * mat.albedo;
+}
+
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
@@ -182,7 +201,7 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shado
     V = -normalize(V);
 
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
-    vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat, false);
+    vec3 diffuse  = mat.isMetal   ? vec3(0.0) : mix(hammonDiffuse(N, V, L, mat, false), disneySubsurface(N, V, L, mat), mat.subsurface);
 
     vec2 lightmap = texture(colortex1, texCoords).zw;
     lightmap.x    = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(lightmap.x), BLOCKLIGHTMAP_EXPONENT);
