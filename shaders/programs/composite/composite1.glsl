@@ -26,8 +26,11 @@ void main() {
         if(!isSky(texCoords)) {
             float ambientOcclusion = 1.0;
             #if AO == 1
-                if(!mat.isMetal) { 
-                    ambientOcclusion = SSAO_FILTER == 0 && AO_TYPE == 0 ? texture(colortex9, texCoords).a : twoPassGaussianBlur(texCoords, colortex9, 1.0).a;
+                if(!mat.isMetal) {
+                    ambientOcclusion = texture(colortex9, texCoords).a;
+                    #if SSAO_FILTER == 1 && AO_TYPE == 0
+                        ambientOcclusion = twoPassGaussianBlur(texCoords, colortex9, 1.0).a;
+                    #endif
                 }
             #endif
 
