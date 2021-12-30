@@ -113,7 +113,7 @@ void tonemap(inout vec3 color) {
     void applyLUT(sampler2D lut, inout vec3 color) {
         color = clamp(color, vec3(minColLUT), vec3(255.0 / 256.0));
 
-        // lutGrid concept from Raspberry shaders (https://rutherin.netlify.app/)
+        // LUT grid concept from Raspberry shaders (https://rutherin.netlify.app/)
         const vec2 invRes = 1.0 / vec2(lutRes, lutRes * 15);
         const mat2 lutGrid = mat2(
             vec2(1.0, invRes.y * lutRes),

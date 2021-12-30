@@ -314,6 +314,7 @@ value.PURKINJE.1 = §aON
 # https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-focal-length.html#:~:text=Focal%20length%2C%20usually%20represented%20in,description%20of%20a%20photographic%20lens.&text=The%20longer%20the%20focal%20length,and%20the%20lower%20the%20magnification.
 option.FOCAL = Focal Length
 option.FOCAL.comment = Usually represented in millimeters, the focal length is the basic description of a photographic lens. The longer the focal length, the narrower the angle of view. It influences §bDepth of Field.
+suffix.FOCAL = mm
 
 # https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-maximum-aperture.html#:~:text=What%20is%20aperture%20in%20photography,diaphragm%20through%20which%20light%20passes.&text=Lower%20f%2Fstops%20give%20more,because%20they%20represent%20smaller%20apertures.
 option.APERTURE = Aperture
