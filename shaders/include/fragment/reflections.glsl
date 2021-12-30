@@ -26,7 +26,9 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
     return (texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected)) * ATMOSPHERE_RESOLUTION).rgb + celestialBody(reflected, shadowDir)) * getSkyLightmap(coords);
 }
 
-/*------------------ SIMPLE REFLECTIONS ------------------*/
+//////////////////////////////////////////////////////////
+/*------------------ SIMPLE REFLECTIONS ----------------*/
+//////////////////////////////////////////////////////////
 
 #if REFLECTIONS_TYPE == 0
     vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isMetal) {
@@ -50,7 +52,9 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
     }
 #else
 
-/*------------------ ROUGH REFLECTIONS ------------------*/
+//////////////////////////////////////////////////////////
+/*------------------ ROUGH REFLECTIONS -----------------*/
+//////////////////////////////////////////////////////////
 
     vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha, vec3 F0, bool isMetal) {
 	    vec3 color        = vec3(0.0);
@@ -90,7 +94,9 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
     }
 #endif
 
-/*------------------ REFRACTIONS ------------------*/
+//////////////////////////////////////////////////////////
+/*--------------------- REFRACTIONS --------------------*/
+//////////////////////////////////////////////////////////
 
 #if REFRACTIONS == 1
     vec3 simpleRefractions(vec3 viewPos, vec3 normal, float F0, out vec3 hitPos) {

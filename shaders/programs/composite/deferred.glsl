@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/fragmentSettings.glsl"
+#include "/bufferSettings.glsl"
 
 #if STAGE == STAGE_VERTEX
 

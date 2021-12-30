@@ -69,9 +69,9 @@
         vec3 xyzColor    = linearToXYZ(color);
 
         vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
-        float purkinje    = dot(rodResponse, xyzToLinear(scotopicLuma));
+        float purkinje    = dot(rodResponse, XYZToLinear(scotopicLuma));
 
-        color = mix(color, purkinje * vec3(0.5, 0.7, 1.0), exp2(-purkinje * 20.0 * exposure));
+        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0 * exposure)));
     }
 #endif
 
@@ -90,46 +90,55 @@
     }
 #endif
 
-void tonemap(inout vec3 color) {
-    #if TONEMAP == 0
-        color = whitePreservingReinhard(color, 15.0); // Reinhard
-    #elif TONEMAP == 1
-        color = uncharted2(color); // Uncharted 2
-    #elif TONEMAP == 2
-        color = burgess(color); // Burgess
-    #elif TONEMAP == 3
-        color = ACESFitted(color); // ACES
-    #endif
-}
+#if TONEMAP >= 0
+    void tonemap(inout vec3 color) {
+        #if TONEMAP == 0
+            whitePreservingReinhard(color, 15.0); // Reinhard
+        #elif TONEMAP == 1
+            uncharted2(color);                    // Uncharted 2
+        #elif TONEMAP == 2
+            lottes(color);                        // Lottes
+        #elif TONEMAP == 3
+            uchimura(color);                      // Uchimura
+        #elif TONEMAP == 4
+            burgess(color);                       // Burgess
+        #elif TONEMAP == 5
+            ACESFitted(color);                    // ACES Fitted
+        #elif TONEMAP == 6
+            ACESApprox(color);                    // ACES Approximation
+        #endif
+    }
+#endif
 
 #if LUT > 0
-    const int lutRes        = 512;
-    const int sqrTileSize   = 64;
-    const int tileSize      = 8;
-    const float invTileSize = 1.0 / tileSize;
+    const int lutCount     = 15;
+    const int lutTile      = 8;
+    const int lutSize      = lutTile * lutTile;
+    const int lutRes       = lutSize * lutTile;
+    const float invLutTile = 1.0 / lutTile;
 
-    const float minColLUT = 0.03;
+    // LUT grid concept from Raspberry shaders (https://rutherin.netlify.app/)
+    const vec2 invRes = 1.0 / vec2(lutRes, lutRes * lutCount);
+    const mat2 lutGrid = mat2(
+        vec2(1.0, invRes.y * lutRes),
+        vec2(0.0, (LUT - 1) * invRes.y * lutRes)
+    );
+
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
-    void applyLUT(sampler2D lut, inout vec3 color) {
-        color = clamp(color, vec3(minColLUT), vec3(255.0 / 256.0));
+    void applyLUT(sampler2D lookupTable, inout vec3 color) {
+        color = clamp(color, vec3(0.03), vec3(255.0 / 256.0));
 
-        // LUT grid concept from Raspberry shaders (https://rutherin.netlify.app/)
-        const vec2 invRes = 1.0 / vec2(lutRes, lutRes * 15);
-        const mat2 lutGrid = mat2(
-            vec2(1.0, invRes.y * lutRes),
-            vec2(0.0, (LUT - 1) * invRes.y * lutRes)
-        );
+        color.b *= lutSize - 1.0;
+        int b0 = int(color.b);
+        int b1 = b0 + 1;
 
-        int b0 = int(floor(color.b * sqrTileSize));
-        int b1 = int( ceil(color.b * sqrTileSize));
-
-        vec2 off0 = vec2(mod(b0, tileSize), b0 / tileSize) * invTileSize;
-        vec2 off1 = vec2(mod(b1, tileSize), b1 / tileSize) * invTileSize;
+        vec2 off0 = vec2(mod(b0, lutTile), b0 / lutTile) * invLutTile;
+        vec2 off1 = vec2(mod(b1, lutTile), b1 / lutTile) * invLutTile;
 
         color = mix(
-            texture(lut, (off0 + color.rg * invTileSize) * lutGrid[0] + lutGrid[1]).rgb,
-            texture(lut, (off1 + color.rg * invTileSize) * lutGrid[0] + lutGrid[1]).rgb,
-            fract(color.b * (sqrTileSize - 1.0))
+            texture(lookupTable, (off0 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
+            texture(lookupTable, (off1 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
+            fract(color.b)
         );
     }
 #endif
@@ -157,23 +166,29 @@ void main() {
         color.rgb = mix(color.rgb, readBloom().rgb, exp2(exposure - 3.0 + bloomStrength));
     #endif
 
-    #if PURKINJE == 1
-        purkinje(color.rgb, exposure);
-    #endif
-
     #if FILM_GRAIN == 1
         color.rgb += randF(rngState) * color.rgb * FILM_GRAIN_STRENGTH;
+    #endif
+
+    #if PURKINJE == 1
+        purkinje(color.rgb, exposure);
     #endif
     
     // Tonemapping & Color Correction
 
     color.rgb *= exposure;
 
-    tonemap(color.rgb);
-    vibrance(color.rgb,   VIBRANCE);
-    saturation(color.rgb, SATURATION);
-    contrast(color.rgb,   CONTRAST);
-    color.rgb +=          BRIGHTNESS;
+    whiteBalance(color.rgb);
+    vibrance(color.rgb,   1.0 + VIBRANCE);
+    saturation(color.rgb, 1.0 + SATURATION);
+    contrast(color.rgb,   1.0 + CONTRAST);
+    liftGammaGain(color.rgb, LIFT * 0.1, 1.0 + GAMMA, 1.0 + GAIN);
+
+    color.rgb = max0(color.rgb);
+
+    #if TONEMAP >= 0
+        tonemap(color.rgb);
+    #endif
 
     // Vignette
     #if VIGNETTE == 1

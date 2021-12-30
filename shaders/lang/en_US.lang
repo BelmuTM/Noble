@@ -336,38 +336,52 @@ suffix.SHUTTER_SPEED = s
 option.TONEMAP = Tone Mapping
 option.TONEMAP.comment = Applies a color correction filter.
 value.TONEMAP.-1 = §cOFF
-value.TONEMAP.0 = §bReinhard
-value.TONEMAP.1 = §bUncharted
-value.TONEMAP.2 = §bBurgess
-value.TONEMAP.3 = §bACES Fitted
+value.TONEMAP.0 = Reinhard
+value.TONEMAP.1 = Uncharted
+value.TONEMAP.2 = Lottes
+value.TONEMAP.3 = Uchimura
+value.TONEMAP.4 = Burgess
+value.TONEMAP.5 = ACES Fitted
+value.TONEMAP.6 = ACES Approx.
 
 option.LUT = LUT
 option.LUT.comment = Applies a color filter using a lookup table (LUT). It is part of color grading.
 value.LUT.0 = §cOFF
-value.LUT.1 = §fFuji 250D Fuji 2510
-value.LUT.2 = §fFuji 250D Kodak 2395
-value.LUT.3 = §fKodak 5218 Kodak 2383
-value.LUT.4 = §fFuji f125 Kodak 2393
-value.LUT.5 = §fCandle Light
-value.LUT.6 = §fArabica
-value.LUT.7 = §fFoggy Night
-value.LUT.8 = §fLate Sunset
-value.LUT.9 = §fEdgy Amber
-value.LUT.10 = §fCrisp Warm
-value.LUT.11 = §fCrisp Winter
-value.LUT.12 = §fMcKinnon 75
-value.LUT.13 = §fMilo 5
-value.LUT.14 = §fZed 32
-value.LUT.15 = §fFilmstock
+value.LUT.1 = §eFuji 250D Fuji 2510
+value.LUT.2 = §eFuji 250D Kodak 2395
+value.LUT.3 = §eKodak 5218 Kodak 2383
+value.LUT.4 = §eFuji f125 Kodak 2393
+value.LUT.5 = §eCandle Light
+value.LUT.6 = §eArabica
+value.LUT.7 = §eFoggy Night
+value.LUT.8 = §eLate Sunset
+value.LUT.9 = §eEdgy Amber
+value.LUT.10 = §eCrisp Warm
+value.LUT.11 = §eCrisp Winter
+value.LUT.12 = §eMcKinnon 75
+value.LUT.13 = §eMilo 5
+value.LUT.14 = §eZed 32
+value.LUT.15 = §eFilmstock
 
+option.WHITE_BALANCE = White Balance
+option.WHITE_BALANCE.comment = Balances the color temperature to keep the image neutral.
+suffix.WHITE_BALANCE = K
+
+# http://www.digital-intermediate.co.uk/colour/colourterminology.htm
 option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.
 
 option.SATURATION = Saturation
-option.SATURATION.comment = Saturation refers to the intensity of color in an image.
+option.SATURATION.comment = Saturation refers to the level of colour saturation within the image or the amount of chrominance information.
 
 option.CONTRAST = Contrast
 option.CONTRAST.comment = Difference in luminance or color that makes an object.
 
-option.BRIGHTNESS = Brightness
-option.BRIGHTNESS.comment = Light intensity of a color.
+option.GAMMA = Gamma
+option.GAMMA.comment = Works the image levels between the shadows and the highlights, commonly known as the mid tones.
+
+option.GAIN = Gain
+option.GAIN.comment = Adjusts the white level (highlights), brighter colors become darker or brighter - the brighter the color the stronger the difference.
+
+option.LIFT = Lift
+option.LIFT.comment = Adjusts the image's black level (dark tones or shadows).

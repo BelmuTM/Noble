@@ -50,7 +50,7 @@ vec3 volumetricLighting(vec3 viewPos) {
         vec4 samplePos   = shadowProjection * shadowModelView * rayPos;
         vec3 sampleColor = sampleShadowColor(vec3(distort(samplePos.xy), samplePos.z) * 0.5 + 0.5);
 
-        vec3 airmass      = (densities(rayPos.y) * VL_DENSITY) * rayLength;
+        vec3 airmass      = (densities(rayPos.y) * 300.0) * rayLength;
         vec3 opticalDepth = kExtinction * airmass;
 
         vec3 stepTransmittance = exp(-opticalDepth);

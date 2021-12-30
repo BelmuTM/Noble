@@ -64,6 +64,7 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
         float lumaWeight = exp(-(abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN))));
 	    lumaWeight       = mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
         
+        /*
         vec3 normal      = normalize(decodeNormal(texture(colortex1, texCoords).xy));
         vec3 normalAt    = normalize(decodeNormal(texture(colortex1, prevTexCoords).xy));
         vec3 delta       = abs(normal - normalAt);
@@ -71,8 +72,9 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
 
         delta            = abs(viewToWorld(getViewPos0(texCoords)) - viewToWorld(getViewPos0(prevTexCoords)));
         float posWeight  = max0(exp(-dot(delta, delta) * 2.0));
+        */
         
-        blendWeight = lumaWeight * posWeight * normWeight;
+        blendWeight = lumaWeight;
     #else
         blendWeight = TAA_STRENGTH * float(!hasMoved());
     #endif

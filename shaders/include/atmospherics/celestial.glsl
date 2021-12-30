@@ -9,13 +9,12 @@
 float timeMidnight = ((clamp(float(worldTime), 12500.0, 12750.0) - 12500.0) / 250.0) - 
                      ((clamp(float(worldTime), 23000.0, 24000.0) - 23000.0) / 1000.0);
 
-// Physical moon concept from Jessie#7257
 vec3 physicalMoon(in vec3 sceneDir) {
     vec2 sphere     = raySphere(-playerMoonDir, sceneDir, moonAngularRad);
     vec3 moonNormal = normalize(sceneDir * sphere.x - playerMoonDir);
     float diffuse   = moonAlbedo * dot(moonNormal, playerSunDir) * INV_PI;
 
-    return sphere.y > 0.0 ? (diffuse * sunIlluminance) : vec3(0.0);
+    return sphere.y > 0.0 ? diffuse * sunIlluminance : vec3(0.0);
 }
 
 vec3 celestialBody(vec3 viewDir, vec3 lightDir) {

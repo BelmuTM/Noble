@@ -26,7 +26,7 @@
 
     vec3 pathTrace(in vec3 screenPos) {
         vec3 radiance = vec3(0.0);
-        vec3 viewPos  = screenToView(screenPos); 
+        vec3 viewPos  = screenToView(screenPos);
 
         vec3 shadowLightIlluminance = vec3(1.0);
         #ifdef WORLD_OVERWORLD
@@ -81,9 +81,8 @@
                 if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(rngState), hitPos)) { break; }
                 
                 /* Material & Direct Lighting */
-                mat        = getMaterial(hitPos.xy);
-                mat.albedo = texture(colortex4, hitPos.xy).rgb;
-                TBN        = constructViewTBN(mat.normal);
+                mat = getMaterial(hitPos.xy);
+                TBN = constructViewTBN(mat.normal);
 
                 radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
 

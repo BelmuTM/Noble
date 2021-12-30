@@ -8,6 +8,17 @@
 
 // MOST FUNCTIONS HERE ARE NOT MY PROPERTY
 
+vec2 taaOffsets[8] = vec2[8](
+	vec2( 0.125,-0.375),
+	vec2(-0.125, 0.375),
+	vec2( 0.625, 0.125),
+	vec2( 0.375,-0.625),
+	vec2(-0.625, 0.625),
+	vec2(-0.875,-0.125),
+	vec2( 0.375,-0.875),
+	vec2( 0.875, 0.875)
+);
+
 // Noise distribution: https://www.pcg-random.org/
 void pcg(inout uint seed) {
     uint state = seed * 747796405u + 2891336453u;

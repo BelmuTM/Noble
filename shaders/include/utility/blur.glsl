@@ -17,7 +17,7 @@ vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
             SAMPLES++;
         }
     }
-    return color / SAMPLES;
+    return color / float(SAMPLES);
 }
 
 const float gaussianWeights7[] = float[](

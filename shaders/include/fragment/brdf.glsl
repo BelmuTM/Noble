@@ -132,10 +132,10 @@ vec3 specularFresnel(float cosTheta, vec3 F0, bool isMetal) {
 
 vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 H = normalize(V + L);
-    float NdotV = maxEps(dot(N, V));
-    float NdotL = maxEps(dot(N, L));
-    float HdotL = maxEps(dot(H, L));
-    float NdotH = maxEps(dot(N, H));
+    float NdotV = clamp01(dot(N, V));
+    float NdotL = clamp01(dot(N, L));
+    float HdotL = clamp01(dot(H, L));
+    float NdotH = clamp01(dot(N, H));
 
     float D = distributionGGX(NdotH, pow2(mat.rough));
     vec3 F  = specularFresnel(HdotL, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
@@ -150,10 +150,10 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
     float alpha = pow2(mat.rough);
 
     vec3 H = normalize(V + L);
-    float VdotL = maxEps(dot(V, L));
-    float NdotH = maxEps(dot(N, H));
-    float NdotV = maxEps(dot(N, V));
-    float NdotL = maxEps(dot(N, L));
+    float VdotL = clamp01(dot(V, L));
+    float NdotH = clamp01(dot(N, H));
+    float NdotV = clamp01(dot(N, V));
+    float NdotL = clamp01(dot(N, L));
 
     float facing     = 0.5 + 0.5 * VdotL;
     float roughSurf  = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);

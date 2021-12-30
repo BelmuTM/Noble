@@ -13,37 +13,17 @@
 #include "/include/fragment/ao.glsl"
 #include "/include/fragment/water.glsl"
 
-/*DRAWBUFFERS:09*/
 void main() {
    vec4 rain    = RGBtoLinear(texture(colortex5, texCoords));
    vec3 viewPos = getViewPos0(texCoords);
 
-   /*    ------- SKY -------    */
-
-   if(isSky(texCoords)) {
-      vec4 sky = vec4(0.0);
-
-      #ifdef WORLD_OVERWORLD
-         vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos));
-         vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(gl_FragCoord.xy)));
-
-         vec3 tmp = texture(colortex7, coords * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
-         sky.rgb  = tmp + (starfield(viewPos) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
-         sky.rgb += celestialBody(normalize(viewPos), shadowDir);
-      #endif
-
-      gl_FragData[0] = sky + rain;
-      gl_FragData[1] = vec4(0.0);
-      return;
-   }
+   if(isSky(texCoords)) { return; }
 
    material mat = getMaterial(texCoords);
-   mat.albedo   = RGBtoLinear(mat.albedo).rgb;
-   vec3 opaques = RGBtoLinear(texture(colortex4, texCoords)).rgb * INV_PI;
+   mat.albedo   = RGBtoLinear(mat.albedo);
+   vec3 opaques = RGBtoLinear(texture(colortex4, texCoords).rgb) * INV_PI;
 
    vec3 hitPos; vec2 coords = texCoords;
-
-   /*    ------- REFRACTIONS -------    */
 
    #if REFRACTIONS == 1
       if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
@@ -59,8 +39,6 @@ void main() {
       shadowmap = texture(colortex9, coords).rgb;
    #endif
 
-   /*    ------- WATER CAUSTICS -------    */
-
    bool isWater    = getBlockId(texCoords) == 1;
    bool inWater    = isEyeInWater > 0.5;
    float depthDist = 0.0;
@@ -70,8 +48,6 @@ void main() {
       bool canCast = inWater ? true : getBlockId(coords) == 1;
       if(canCast) { shadowmap *= waterCaustics(coords); }
    #endif
-
-   /*    ------- WATER FOAM -------    */
 
    if(isWater || inWater) {
       depthDist = inWater ? 
@@ -84,12 +60,8 @@ void main() {
 	   );
    }
 
-   /*    ------- WATER ABSORPTION & ALPHA BLENDING -------    */
-
    vec3 transmittance = inWater || isWater ? exp(-WATER_ABSORPTION_COEFFICIENTS * WATER_DENSITY * depthDist) : vec3(1.0);
    mat.albedo         = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha) * transmittance;
-
-   /*    ------- AMBIENT OCCLUSION -------    */
 
    float ambientOcclusion = 1.0;
    #if AO == 1
@@ -100,6 +72,11 @@ void main() {
       #endif
    #endif
 
+   #if WHITE_WORLD == 1
+	   mat.albedo = vec3(1.0);
+   #endif
+
+   /*DRAWBUFFERS:49*/
    gl_FragData[0] = vec4(mat.albedo, 1.0) + rain;
    gl_FragData[1] = vec4(shadowmap, ambientOcclusion);
 }
