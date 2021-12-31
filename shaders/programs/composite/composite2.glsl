@@ -46,7 +46,7 @@ void main() {
                 vec3 scaledViewPos = getViewPos0(scaledUv);
                 vec3 scaledNormal  = normalize(decodeNormal(texture(colortex1, scaledUv).xy));
 
-                color.rgb = SVGF(colortex0, scaledViewPos, scaledNormal, scaledUv);
+                color.rgb = SVGF(scaledUv, colortex0, scaledViewPos, scaledNormal, 1.5, 3);
             #endif
         }
         color.a = 1.0;

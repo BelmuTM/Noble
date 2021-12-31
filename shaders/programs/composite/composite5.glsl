@@ -24,7 +24,7 @@ void main() {
 
         #if GI == 1
             #if GI_FILTER == 1                
-                color.rgb = SVGF(colortex5, viewPos, normal, texCoords);
+                color.rgb = SVGF(texCoords, colortex5, viewPos, normal, 1.5, 3);
             #endif
         #else
             #if REFLECTIONS == 1

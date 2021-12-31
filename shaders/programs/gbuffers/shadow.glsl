@@ -36,9 +36,10 @@
     
 #elif STAGE == STAGE_FRAGMENT
 
-    /* DRAWBUFFERS:0 */
+    /* DRAWBUFFERS:01 */
 
-    layout (location = 0) out vec4 shadowColor;
+    layout (location = 0) out vec4 shadowColor0;
+    layout (location = 1) out vec4 shadowColor1;
 
     #include "/include/utility/noise.glsl"
     #include "/include/utility/math.glsl"
@@ -63,14 +64,14 @@
     }
 
     void main() {
-        // float caustics = 0.0;
+        //float caustics = 0.0;
 
-        // if(int(blockId + 0.5) == 1) {
-        //     vec3 normal = TBN * getWaveNormals(viewToWorld(viewPos));
-        //     caustics    = waterCaustics(viewPos, normal);
-        // }
+        //if(int(blockId + 0.5) == 1) {
+        //    vec3 normal = TBN * getWaveNormals(viewToWorld(viewPos));
+        //    caustics    = waterCaustics(viewPos, normal);
+        //}
 
-        shadowColor = texture(colortex0, texCoords) * color;
-        // gl_FragData[1] = vec4(caustics * 0.5 + 0.5);
+        shadowColor0 = texture(colortex0, texCoords) * color;
+        //shadowColor1 = vec4(caustics * 0.5 + 0.5);
     }
 #endif
