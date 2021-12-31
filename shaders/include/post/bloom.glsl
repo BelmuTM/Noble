@@ -6,12 +6,13 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-// Bloom tiles concept originally from Capt Tatsu#7124
-// Heavily modified by Belmu#4066
-
 /*
-const bool colortex5MipmapEnabled = true;
+	SOURCES:
+	BSL 	- Capt Tatsu
+	Voyager - SixSeven
 */
+
+const bool colortex5MipmapEnabled = true;
 
 #if BLOOM == 1
 	const vec2 bloomOffsets[] = vec2[](
@@ -24,26 +25,37 @@ const bool colortex5MipmapEnabled = true;
 		vec2(0.1784375, 0.3325)
 	);
 
-	vec4 bloomTile(int LOD) {
+	vec3 bloomTile(int LOD) {
 		float scale = exp2(LOD); 
 		vec2 offset = bloomOffsets[LOD - 2];
 
-		vec2 coords = (texCoords - offset) * scale;
-		float padding = 0.5 + 0.005 * scale;
+		vec2 coords   = (texCoords - offset) * scale;
+		vec2 texScale = pixelSize * scale;
 
-		vec4 color = vec4(0.0);
-		if(abs(coords.x - 0.5) < padding && abs(coords.y - 0.5) < padding) {
-			color = twoPassGaussianBlur(texCoords - offset, colortex5, scale);
-		}
-		return color;
+		vec3 color 		  = vec3(0.0);
+		float totalWeight = 0.0;
+
+		if(any(greaterThanEqual(abs(coords - 0.5), texScale + 0.5))) return vec3(0.0);
+
+		const int steps = 5;
+
+        for(int i = -steps; i <= steps; i++){
+            for(int j = -steps; j <= steps; j++){
+                float weight = gaussianDistrib1D(length(vec2(i, j)), 2.0);
+
+                color  		+= textureLod(colortex5, coords + vec2(i, j) * texScale, LOD).rgb * weight;
+                totalWeight += 2.0 * weight;
+            }
+        }
+		return color / totalWeight;
 	}
 
-	vec4 getBloomTile(int LOD) {
-		return texture(colortex5, texCoords / exp2(LOD) + bloomOffsets[LOD - 2]);
+	vec3 getBloomTile(int LOD) {
+		return texture(colortex5, texCoords / exp2(LOD) + bloomOffsets[LOD - 2]).rgb;
 	}
 
-	vec4 writeBloom() {
-		vec4 bloom  = bloomTile(2);
+	vec3 writeBloom() {
+		vec3 bloom  = bloomTile(2);
 	     	 bloom += bloomTile(3);
 	     	 bloom += bloomTile(4);
 	     	 bloom += bloomTile(5);
@@ -53,8 +65,8 @@ const bool colortex5MipmapEnabled = true;
 		return bloom;
 	}
 
-	vec4 readBloom() {
-    	vec4 bloom  = getBloomTile(2);
+	vec3 readBloom() {
+    	vec3 bloom  = getBloomTile(2);
 	     	 bloom += getBloomTile(3);
 	     	 bloom += getBloomTile(4);
 	     	 bloom += getBloomTile(5);

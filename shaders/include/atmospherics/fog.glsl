@@ -29,7 +29,7 @@ vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
     return transmittance;
 }
 
-vec3 volumetricLighting(vec3 viewPos) {
+vec3 volumetricFog(vec3 viewPos) {
     vec4 startPos   = gbufferModelViewInverse * vec4(0.0, 0.0, 0.0, 1.0);
     vec4 endPos     = gbufferModelViewInverse * vec4(viewPos, 1.0);
     float rayLength = distance(startPos, endPos) / float(VL_STEPS);

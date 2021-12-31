@@ -14,35 +14,35 @@ vec2  max0(vec2 x)    { return max(vec2(0.0), x); }
 vec3  max0(vec3 x)    { return max(vec3(0.0), x); }
 vec4  max0(vec4 x)    { return max(vec4(0.0), x); }
 
-float clamp01(float x) { return clamp(x, 0.0, 1.0); }
+float clamp01(float x) { return clamp(x, 0.0, 1.0);             }
 vec2  clamp01(vec2 x)  { return clamp(x, vec2(0.0), vec2(1.0)); }
 vec3  clamp01(vec3 x)  { return clamp(x, vec3(0.0), vec3(1.0)); }
 vec4  clamp01(vec4 x)  { return clamp(x, vec4(0.0), vec4(1.0)); }
 
-float clamp16(float x) { return clamp(x, 0.0, bits16); }
+float clamp16(float x) { return clamp(x, 0.0, bits16);             }
 vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(bits16)); }
 vec3  clamp16(vec3 x)  { return clamp(x, vec3(0.0), vec3(bits16)); }
 vec4  clamp16(vec4 x)  { return clamp(x, vec4(0.0), vec4(bits16)); }
 
-float pow2(float x) { return x*x; }
-float pow3(float x) { return x*x*x; }
+float pow2(float x) { return x*x;           }
+float pow3(float x) { return x*x*x;         }
 float pow4(float x) { return pow2(pow2(x)); }
-float pow5(float x) { return pow4(x)*x; }
+float pow5(float x) { return pow4(x)*x;     }
 
-vec2 pow2(vec2 x) { return x*x; }
-vec2 pow3(vec2 x) { return x*x*x; }
+vec2 pow2(vec2 x) { return x*x;           }
+vec2 pow3(vec2 x) { return x*x*x;         }
 vec2 pow4(vec2 x) { return pow2(pow2(x)); }
-vec2 pow5(vec2 x) { return pow4(x)*x; }
+vec2 pow5(vec2 x) { return pow4(x)*x;     }
 
-vec3 pow2(vec3 x) { return x*x; }
-vec3 pow3(vec3 x) { return x*x*x; }
+vec3 pow2(vec3 x) { return x*x;           }
+vec3 pow3(vec3 x) { return x*x*x;         }
 vec3 pow4(vec3 x) { return pow2(pow2(x)); }
-vec3 pow5(vec3 x) { return pow4(x)*x; }
+vec3 pow5(vec3 x) { return pow4(x)*x;     }
 
-vec4 pow2(vec4 x) { return x*x; }
-vec4 pow3(vec4 x) { return x*x*x; }
+vec4 pow2(vec4 x) { return x*x;           }
+vec4 pow3(vec4 x) { return x*x*x;         }
 vec4 pow4(vec4 x) { return pow2(pow2(x)); }
-vec4 pow5(vec4 x) { return pow4(x)*x; }
+vec4 pow5(vec4 x) { return pow4(x)*x;     }
 
 // Improved smoothstep function suggested by Ken Perlin
 // https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/improved-perlin-noise
@@ -124,6 +124,15 @@ vec2 vogelDisk(int i, int n, float phi) {
 vec2 diskSampling(int i, int n, float phi){
     float theta = (float(i) + phi) / float(n); 
     return sincos(theta * TAU * n * GOLDEN_ANGLE) * theta;
+}
+
+// https://homepages.inf.ed.ac.uk/rbf/HIPR2/gsmooth.htm
+float gaussianDistrib1D(float x, float sigma) {
+    return (1.0 / sqrt(TAU * sigma)) * exp(-pow2(x) / (2.0 * pow2(sigma)));
+}
+
+float gaussianDistrib2D(vec2 xy, float sigma) {
+    return (1.0 / (TAU * pow2(sigma))) * exp(-(pow2(xy.x) + pow2(xy.y)) / (2.0 * pow2(sigma)));
 }
 
 /* ENCODING */

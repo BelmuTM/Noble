@@ -35,6 +35,11 @@
     }
     
 #elif STAGE == STAGE_FRAGMENT
+
+    /* DRAWBUFFERS:0 */
+
+    layout (location = 0) out vec4 shadowColor;
+
     #include "/include/utility/noise.glsl"
     #include "/include/utility/math.glsl"
     #include "/include/utility/transforms.glsl"
@@ -65,8 +70,7 @@
         //     caustics    = waterCaustics(viewPos, normal);
         // }
 
-        /*DRAWBUFFERS:0*/
-        gl_FragData[0] = texture(colortex0, texCoords) * color;
+        shadowColor = texture(colortex0, texCoords) * color;
         // gl_FragData[1] = vec4(caustics * 0.5 + 0.5);
     }
 #endif

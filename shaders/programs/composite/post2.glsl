@@ -6,6 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* DRAWBUFFERS:0 */
+
+layout (location = 0) out vec4 color;
+
 #include "/include/utility/blur.glsl"
 #include "/include/post/bloom.glsl"
 #include "/include/post/exposure.glsl"
@@ -148,7 +152,7 @@ void main() {
     #if UNDERWATER_DISTORTION == 1
         if(isEyeInWater == 1) underwaterDistortion(tempCoords);
     #endif
-    vec4 color     = texture(colortex0, tempCoords);
+    color          = texture(colortex0, tempCoords);
     float exposure = computeExposure(texture(colortex3, texCoords).a);
 
     float coc = 1.0;
@@ -163,7 +167,7 @@ void main() {
 
     #if BLOOM == 1
         float bloomStrength = clamp01(BLOOM_STRENGTH + rainStrength);
-        color.rgb = mix(color.rgb, readBloom().rgb, exp2(exposure - 3.0 + bloomStrength));
+        color.rgb           = mix(color.rgb, readBloom(), exp2(exposure - 3.0 + bloomStrength));
     #endif
 
     #if FILM_GRAIN == 1
@@ -204,7 +208,4 @@ void main() {
     #endif
 
     color.rgb += bayer64(gl_FragCoord.xy) / 64.0;
-
-    /*DRAWBUFFERS:0*/
-    gl_FragData[0] = color;
 }

@@ -6,12 +6,17 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* DRAWBUFFERS:05 */
+
+layout (location = 0) out vec4 color;
+layout (location = 1) out vec4 bloomBuffer;
+
 #include "/include/utility/blur.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/svgf.glsl"
 
 void main() {
-    vec4 color = texture(colortex0, texCoords);
+    color = texture(colortex0, texCoords);
 
     if(!isSky(texCoords)) {
         vec3 viewPos = getViewPos0(texCoords);
@@ -44,12 +49,11 @@ void main() {
         color.rgb += VL_FILTER == 1 ? boxBlur(texCoords, colortex8, 2).rgb : texture(colortex8, texCoords).rgb;
     #endif
 
-    vec3 brightSpots = vec3(0.0);
     #if BLOOM == 1
-        brightSpots = luminance(color.rgb) / bits16 > BLOOM_LUMA_THRESHOLD ? color.rgb : vec3(0.0);
+        bloomBuffer = luminance(color.rgb) / bits16 > BLOOM_LUMA_THRESH ? color : vec4(0.0);
+    #else
+        bloomBuffer = vec4(0.0);
     #endif
 
-    /*DRAWBUFFERS:05*/
-    gl_FragData[0] = sqrt(max0(color));
-    gl_FragData[1] = vec4(brightSpots, 1.0);
+    color = max0(sqrt(color));
 }

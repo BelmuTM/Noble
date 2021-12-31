@@ -6,6 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* DRAWBUFFERS:012 */
+
+layout (location = 0) out vec4 albedoBuffer;
+layout (location = 1) out vec4 normalBuffer;
+layout (location = 2) out vec4 labPBRBuffer;
+
 in float blockId;
 in vec2 texCoords;
 in vec2 lmCoords;
@@ -42,7 +48,6 @@ void main() {
 	float subsurface = (specularTex.z * 255.0) < 65.0 ? 0.0 : specularTex.z;
 
 	vec3 normal;
-	float caustics = 1.0;
 	// WOTAH
 	if(int(blockId + 0.5) == 1) { 
 		albedoTex = vec4(1.0, 1.0, 1.0, 0.0);
@@ -53,16 +58,8 @@ void main() {
 		normal.xy = normalTex.xy * 2.0 - 1.0;
 		normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
 	}
-	normal = TBN * normal;
-
-	/*	
-	if(int(blockId + 0.5) > 4 && int(blockId + 0.5) <= 11 && emission < 0.1) {
-		emission = 0.8;
-	}
-	*/
 	
-	/*DRAWBUFFERS:012*/
-	gl_FragData[0] = albedoTex;
-	gl_FragData[1] = vec4(encodeNormal(normal), lmCoords.xy);
-	gl_FragData[2] = vec4(clamp01(roughness), (blockId + 0.25) / 255.0, pack2x4(vec2(ao, emission)), pack2x8(vec2(F0, subsurface)));
+	albedoBuffer = albedoTex;
+	normalBuffer = vec4(encodeNormal(TBN * normal), lmCoords.xy);
+	labPBRBuffer = vec4(clamp01(roughness), (blockId + 0.25) / 255.0, pack2x4(vec2(ao, emission)), pack2x8(vec2(F0, subsurface)));
 }

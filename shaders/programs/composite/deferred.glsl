@@ -34,32 +34,53 @@
 
 #elif STAGE == STAGE_FRAGMENT
 
+    /* DRAWBUFFERS:4789 */
+
+    layout (location = 0) out vec4 albedo;
+    layout (location = 1) out vec4 sky;
+    layout (location = 2) out vec4 skyIllum;
+    layout (location = 3) out vec4 shadowmap;
+
     #include "/include/atmospherics/atmosphere.glsl"
     #include "/include/fragment/raytracer.glsl"
+    #include "/include/fragment/ao.glsl"
     #include "/include/fragment/shadows.glsl"
 
     in vec3 skyIlluminance;
 
     void main() {
-        vec3 shadowmap = vec3(0.0), sky = vec3(0.0);
+        vec3 viewPos = getViewPos0(texCoords);
+
+        albedo   = texture(colortex0, texCoords);
+        skyIllum = vec4(skyIlluminance, 1.0);
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
             #if SHADOWS == 1
-                shadowmap = shadowMap(getViewPos0(texCoords));
+                shadowmap.rgb = shadowMap(viewPos);
             #endif
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {
                 vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));
-                sky         = atmosphericScattering(atmosRayPos, normalize(rayDir), skyIlluminance);
+                sky.rgb     = atmosphericScattering(atmosRayPos, normalize(rayDir), skyIlluminance);
+                sky.a       = 1.0;
             }
         #endif
 
-        /*DRAWBUFFERS:4789*/
-        gl_FragData[0] = texture(colortex0, texCoords);
-        gl_FragData[1] = vec4(sky,            1.0);
-        gl_FragData[2] = vec4(skyIlluminance, 1.0);
-        gl_FragData[3] = vec4(shadowmap,      1.0);
+        float ambientOcclusion = 1.0;
+        #if AO == 1
+            if(!isSky(texCoords)) {
+                vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+
+                #if AO_TYPE == 0
+                    ambientOcclusion = computeSSAO(viewPos, normal);
+                #else
+                    ambientOcclusion = computeRTAO(viewPos, normal);
+                #endif
+            }
+        #endif
+
+        shadowmap.a = ambientOcclusion;
     }
 #endif

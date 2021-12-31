@@ -81,8 +81,9 @@
                 if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(rngState), hitPos)) { break; }
                 
                 /* Material & Direct Lighting */
-                mat = getMaterial(hitPos.xy);
-                TBN = constructViewTBN(mat.normal);
+                mat        = getMaterial(hitPos.xy);
+                mat.albedo = texture(colortex4, hitPos.xy).rgb;
+                TBN        = constructViewTBN(mat.normal);
 
                 radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
 

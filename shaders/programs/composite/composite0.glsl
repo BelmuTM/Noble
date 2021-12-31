@@ -6,11 +6,15 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* DRAWBUFFERS:49 */
+
+layout (location = 0) out vec4 albedo;
+layout (location = 1) out vec4 shadowmap;
+
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
-#include "/include/fragment/ao.glsl"
 #include "/include/fragment/water.glsl"
 
 void main() {
@@ -32,12 +36,7 @@ void main() {
       }
    #endif
 
-   vec3 shadowmap;
-   #if SHADOWS == 0
-      shadowmap = vec3(0.0);
-   #else
-      shadowmap = texture(colortex9, coords).rgb;
-   #endif
+   shadowmap = texture(colortex9, coords);
 
    bool isWater    = getBlockId(texCoords) == 1;
    bool inWater    = isEyeInWater > 0.5;
@@ -46,7 +45,7 @@ void main() {
    // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
    #if WATER_CAUSTICS == 1
       bool canCast = inWater ? true : getBlockId(coords) == 1;
-      if(canCast) { shadowmap *= waterCaustics(coords); }
+      if(canCast) { shadowmap.rgb *= waterCaustics(coords); }
    #endif
 
    if(isWater || inWater) {
@@ -61,22 +60,14 @@ void main() {
    }
 
    vec3 transmittance = inWater || isWater ? exp(-WATER_ABSORPTION_COEFFICIENTS * WATER_DENSITY * depthDist) : vec3(1.0);
-   mat.albedo         = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha) * transmittance;
 
-   float ambientOcclusion = 1.0;
-   #if AO == 1
-      #if AO_TYPE == 0
-         ambientOcclusion = computeSSAO(viewPos, mat.normal);
-      #else
-         ambientOcclusion = computeRTAO(viewPos, mat.normal);
-      #endif
-   #endif
+   albedo.rgb  = mix(opaques * mix(vec3(1.0), mat.albedo, mat.alpha), mat.albedo, mat.alpha);
+   albedo.rgb *= transmittance;
+
+   albedo.a = 1.0;
+   albedo  += rain;
 
    #if WHITE_WORLD == 1
-	   mat.albedo = vec3(1.0);
+	   albedo = vec4(1.0);
    #endif
-
-   /*DRAWBUFFERS:49*/
-   gl_FragData[0] = vec4(mat.albedo, 1.0) + rain;
-   gl_FragData[1] = vec4(shadowmap, ambientOcclusion);
 }

@@ -71,8 +71,8 @@ const mat3 YCoCgToRGBMatrix = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -
 vec3 RGBToYCoCg(vec3 RGB)   { return RGBToYCoCgMatrix * RGB;   }
 vec3 YCoCgToRGB(vec3 YCoCg) { return YCoCgToRGBMatrix * YCoCg; }
 
-vec3 linearToYCoCg(vec3 linear) { return isSky(texCoords) ? linear : RGBToYCoCgMatrix * linearToRGB(linear).rgb; }
-vec3 YCoCgToLinear(vec3 YCoCg)  { return isSky(texCoords) ? YCoCg : RGBtoLinear(YCoCgToRGBMatrix * YCoCg).rgb;   }
+vec3 linearToYCoCg(vec3 linear) { return RGBToYCoCgMatrix * linearToRGB(linear).rgb; }
+vec3 YCoCgToLinear(vec3 YCoCg)  { return RGBtoLinear(YCoCgToRGBMatrix * YCoCg).rgb;   }
 
 // Temperature to RGB function from https://www.shadertoy.com/view/4sc3D7
 vec3 colorTemperatureToRGB(const in float temperature){

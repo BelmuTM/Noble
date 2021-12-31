@@ -6,10 +6,13 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* DRAWBUFFERS:5 */
+
+layout (location = 0) out vec4 color;
+
 #include "/include/fragment/svgf.glsl"
 
 void main() {
-    vec4 outColor = texture(colortex5, texCoords);
     
     #if GI == 1
         if(!isSky(texCoords)) {
@@ -17,10 +20,8 @@ void main() {
                 vec3 viewPos = getViewPos0(texCoords);
                 vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
 
-                outColor.rgb = SVGF(colortex5, viewPos, normal, texCoords);
+                color.rgb = SVGF(colortex5, viewPos, normal, texCoords);
             #endif
         }
     #endif
-    /*DRAWBUFFERS:5*/
-    gl_FragData[0] = outColor;
 }

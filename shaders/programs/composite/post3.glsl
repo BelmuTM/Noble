@@ -6,6 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* DRAWBUFFERS:0 */
+
+layout (location = 0) out vec4 color;
+
 #if SHARPEN == 1
     /*
         SOURCES / CREDITS:
@@ -31,12 +35,9 @@
 #endif
 
 void main() {
-    vec4 color = texture(colortex0, texCoords);
+    color = texture(colortex0, texCoords);
 
     #if SHARPEN == 1
         sharpeningFilter(color.rgb);
     #endif
-
-    /*DRAWBUFFERS:0*/
-    gl_FragData[0] = color;
 }

@@ -6,6 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* DRAWBUFFERS:068 */
+
+layout (location = 0) out vec4 color;
+layout (location = 1) out vec4 historyBuffer;
+layout (location = 2) out vec4 volumetricLighting;
+
 #include "/include/utility/blur.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/shadows.glsl"
@@ -17,7 +23,7 @@
 #if GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
-    vec3 temporalAccumulation(sampler2D prevTex, vec3 currColor, vec3 viewPos, vec3 normal, inout float historyFrames) {
+    void temporalAccumulation(sampler2D prevTex, inout vec3 color, vec3 viewPos, vec3 normal, inout float historyFrames) {
         vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
         vec3 prevColor     = texture(prevTex, prevTexCoords).rgb;
 
@@ -27,7 +33,7 @@
             vec3 delta      = viewToWorld(viewPos) - prevPos;
             float posWeight = max0(exp(-dot(delta, delta) * 3.0));
 
-            float currLuma   = luminance(currColor), prevLuma = luminance(prevColor);
+            float currLuma   = luminance(color), prevLuma = luminance(prevColor);
             float lumaWeight = exp(-(abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN))));
 	        lumaWeight       = mix(TAA_STRENGTH, TAA_STRENGTH, lumaWeight * lumaWeight);
 
@@ -37,24 +43,20 @@
             totalWeight  *= 1.0 - (1.0 / max(historyFrames, 1.0));
         #endif
 
-        return clamp16(mix(currColor, prevColor, totalWeight));
+        color = clamp16(mix(color, prevColor, totalWeight));
     }
 #endif
 
-/*DRAWBUFFERS:068*/
 void main() {
-    bool sky     = isSky(texCoords);
     vec3 viewPos = getViewPos0(texCoords);
 
-    material mat = getMaterial(texCoords);
-    mat.albedo   = texture(colortex4, texCoords).rgb;
-
+    material mat        = getMaterial(texCoords);
     vec3 Lighting       = vec3(0.0);
     float historyFrames = texture(colortex6, texCoords).a;
 
-    vec3 volumetricLighting = VL == 0 ? vec3(0.0) : volumetricLighting(viewPos);
+    volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos), 1.0);
 
-    if(sky) {
+    if(isSky(texCoords)) {
         vec3 sky = vec3(0.0);
 
         #ifdef WORLD_OVERWORLD
@@ -62,11 +64,11 @@ void main() {
             vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(gl_FragCoord.xy)));
 
             vec3 tmp = texture(colortex7, coords * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
-            sky  = tmp + (starfield(viewPos) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
-            sky += celestialBody(normalize(viewPos), shadowDir);
+            sky      = tmp + (starfield(viewPos) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
+            sky     += celestialBody(normalize(viewPos), shadowDir);
         #endif
 
-        gl_FragData[0] = vec4(sky, 1.0);
+        color = vec4(sky, 1.0);
         return;
     }
     
@@ -76,7 +78,7 @@ void main() {
             if(!mat.isMetal) {
                 ambientOcclusion = texture(colortex9, texCoords).a;
                 #if SSAO_FILTER == 1 && AO_TYPE == 0
-                    ambientOcclusion = twoPassGaussianBlur(texCoords, colortex9, 1.0).a;
+                    ambientOcclusion = gaussianBlur(texCoords, colortex9, 1.5, 1.8, 4).a;
                 #endif
             }
         #endif
@@ -92,20 +94,21 @@ void main() {
             totalIllum        = sunTransmit + moonTransmit;
         #endif
             
-        Lighting = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, totalIllum, skyIlluminance, ambientOcclusion);
+        mat.albedo = texture(colortex4, texCoords).rgb;
+        color.rgb  = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, totalIllum, skyIlluminance, ambientOcclusion);
     #else
         vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
-            Lighting = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r));
+            color.rgb = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r));
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                Lighting = temporalAccumulation(colortex6, Lighting, viewPos, mat.normal, historyFrames);
+                temporalAccumulation(colortex6, color.rgb, viewPos, mat.normal, historyFrames);
             #endif
+            
+            historyBuffer = vec4(color.rgb, historyFrames);
         }
     #endif
 
-    gl_FragData[0] = vec4(Lighting, 1.0);
-    gl_FragData[1] = vec4(Lighting, historyFrames);
-    gl_FragData[2] = vec4(volumetricLighting, 1.0);
+    color.a = 1.0;
 }

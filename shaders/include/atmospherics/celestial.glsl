@@ -20,9 +20,8 @@ vec3 physicalMoon(in vec3 sceneDir) {
 vec3 celestialBody(vec3 viewDir, vec3 lightDir) {
     float VdotL = dot(viewDir, lightDir);
     
-    vec3 sun  = VdotL < cos(sunAngularRad) ? vec3(0.0) : sunLuminance * INV_PI;
-    vec3 moon = physicalMoon(mat3(gbufferModelViewInverse) * viewDir);
-    return worldTime <= 12750 ? sun : moon;
+    vec3 sun = VdotL < cos(sunAngularRad) ? vec3(0.0) : sunLuminance * INV_PI;
+    return worldTime <= 12750 ? sun : physicalMoon(mat3(gbufferModelViewInverse) * viewDir);
 }
 
 // Originally written by Capt Tatsu#7124
