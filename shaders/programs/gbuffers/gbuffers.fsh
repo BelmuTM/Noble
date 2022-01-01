@@ -35,7 +35,7 @@ void main() {
 	vec4 normalTex   = texture(normals,   texCoords);
 	vec4 specularTex = texture(specular,  texCoords);
 
-	albedoTex *= color;
+	albedoTex *= vertexColor;
 
 	#ifdef ENTITY
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);

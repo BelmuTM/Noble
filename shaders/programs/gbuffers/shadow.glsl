@@ -71,7 +71,7 @@
         //    caustics    = waterCaustics(viewPos, normal);
         //}
 
-        shadowColor0 = texture(colortex0, texCoords) * color;
+        shadowColor0 = texture(colortex0, texCoords) * vertexColor;
         //shadowColor1 = vec4(caustics * 0.5 + 0.5);
     }
 #endif
