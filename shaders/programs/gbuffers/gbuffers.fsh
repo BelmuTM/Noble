@@ -17,7 +17,7 @@ in vec2 texCoords;
 in vec2 lmCoords;
 in vec3 waterNormals;
 in vec3 viewPos;
-in vec4 color;
+in vec4 vertexColor;
 in mat3 TBN;
 
 #include "/settings.glsl"

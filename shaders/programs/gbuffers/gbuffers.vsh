@@ -14,7 +14,7 @@ out vec2 texCoords;
 out vec2 lmCoords;
 out vec3 waterNormals;
 out vec3 viewPos;
-out vec4 color;
+out vec4 vertexColor;
 out mat3 TBN;
 
 #include "/settings.glsl"
@@ -42,9 +42,9 @@ vec2 taaJitter(vec4 pos) {
 }
 
 void main() {
-	texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmCoords  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-	color     = gl_Color;
+	texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	lmCoords    = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+	vertexColor = gl_Color;
 
     vec3 normal  = normalize(gl_NormalMatrix * gl_Normal);
     	 viewPos = transMAD3(gl_ModelViewMatrix, gl_Vertex.xyz);

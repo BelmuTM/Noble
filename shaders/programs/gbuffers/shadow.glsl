@@ -15,13 +15,13 @@
     out float blockId;
     out vec2 texCoords;
     out vec3 viewPos;
-    out vec4 color;
+    out vec4 vertexColor;
     out mat3 TBN;
 
     void main() {
-        texCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-        color     = gl_Color;
-        blockId   = mc_Entity.x - 1000.0;
+        texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+        vertexColor = gl_Color;
+        blockId     = mc_Entity.x - 1000.0;
 
         vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
     	viewPos     = transMAD3(gl_ModelViewMatrix, gl_Vertex.xyz);
@@ -49,7 +49,7 @@
     in float blockId;
     in vec2 texCoords;
     in vec3 viewPos;
-    in vec4 color;
+    in vec4 vertexColor;
     in mat3 TBN;
 
     // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
