@@ -61,18 +61,15 @@ const mat3 XYZtoRGBMatrix = (mat3(
      0.0134474,-0.1183897, 1.0154096
 ));
 
-vec3 linearToXYZ(vec3 linear) { return RGBtoXYZMatrix * linearToRGB(linear); }
-vec3 XYZToLinear(vec3 xyz)    { return RGBtoLinear(XYZtoRGBMatrix * xyz);    }
+vec3 linearToXYZ(vec3 linear) { return linearToRGB(linear) * RGBtoXYZMatrix; }
+vec3 XYZToLinear(vec3 xyz)    { return RGBtoLinear(xyz * XYZtoRGBMatrix);    }
 
 // https://www.shadertoy.com/view/ltjBWG
 const mat3 RGBToYCoCgMatrix = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
 const mat3 YCoCgToRGBMatrix = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
 
-vec3 RGBToYCoCg(vec3 RGB)   { return RGBToYCoCgMatrix * RGB;   }
-vec3 YCoCgToRGB(vec3 YCoCg) { return YCoCgToRGBMatrix * YCoCg; }
-
 vec3 linearToYCoCg(vec3 linear) { return RGBToYCoCgMatrix * linearToRGB(linear).rgb; }
-vec3 YCoCgToLinear(vec3 YCoCg)  { return RGBtoLinear(YCoCgToRGBMatrix * YCoCg).rgb;   }
+vec3 YCoCgToLinear(vec3 YCoCg)  { return RGBtoLinear(YCoCgToRGBMatrix * YCoCg).rgb;  }
 
 // Temperature to RGB function from https://www.shadertoy.com/view/4sc3D7
 vec3 colorTemperatureToRGB(const in float temperature){
@@ -134,8 +131,8 @@ mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
 }
 
 void whiteBalance(inout vec3 color) {
-    vec3 source              = RGBtoXYZMatrix * blackbody(WHITE_BALANCE);
-    vec3 destination         = RGBtoXYZMatrix * blackbody(6500.0);
+    vec3 source              = blackbody(WHITE_BALANCE) * RGBtoXYZMatrix;
+    vec3 destination         = blackbody(6500.0) * RGBtoXYZMatrix;
     mat3 chromaticAdaptation = RGBtoXYZMatrix * chromaticAdaptationMatrix(source, destination) * XYZtoRGBMatrix;
     color                   *= chromaticAdaptation;
 }
@@ -153,11 +150,11 @@ void reinhardJodie(inout vec3 color) {
 }
 
 void lottes(inout vec3 color) {
-    const vec3 a      = vec3(1.0);
-    const vec3 d      = vec3(0.977);
+    const vec3 a      = vec3(1.3);
+    const vec3 d      = vec3(0.877);
     const vec3 hdrMax = vec3(8.0);
-    const vec3 midIn  = vec3(0.05);
-    const vec3 midOut = vec3(0.35);
+    const vec3 midIn  = vec3(0.18);
+    const vec3 midOut = vec3(0.267);
 
     const vec3 b =
         (-pow(midIn, a) + pow(hdrMax, a) * midOut) /
@@ -190,11 +187,11 @@ vec3 uchimura(vec3 x, float P, float a, float m, float l, float c, float b) {
 }
 
 void uchimura(inout vec3 color) {
-    const float P = 1.0;  // max display brightness
+    const float P = 1.3;  // max display brightness
     const float a = 1.0;  // contrast
-    const float m = 0.22; // linear section start
+    const float m = 0.18; // linear section start
     const float l = 0.4;  // linear section length
-    const float c = 1.33; // black
+    const float c = 1.1; // black
     const float b = 0.0;  // pedestal
 
     color = uchimura(color, P, a, m, l, c, b);
@@ -217,8 +214,8 @@ void uncharted2(inout vec3 color) {
 // Originally made by Richard Burgess-Dawson
 // Modified by https://github.com/TechDevOnGitHub
 void burgess(inout vec3 color) {
-    vec3 maxColor = color * min(vec3(1.0), 1.0 - exp(-1.0 / 0.004 * color)) * 0.8;
-    color         = (maxColor * (6.2 * maxColor + 0.5)) / (maxColor * (6.2 * maxColor + 1.7) + 0.06);
+    vec3 maxColor = color * min(vec3(1.0), 1.0 - exp(-1.0 / 0.0004 * color)) * 0.8;
+    color         = (maxColor * (6.2 * maxColor + 0.5)) / (maxColor * (6.2 * maxColor + 1.7) + 0.04);
 }
 
 const mat3 ACESInputMat = mat3(

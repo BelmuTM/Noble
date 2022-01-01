@@ -50,7 +50,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        bloomBuffer = luminance(color.rgb) / bits16 > BLOOM_LUMA_THRESH ? color : vec4(0.0);
+        bloomBuffer = luminance(clamp16(color.rgb)) / bits16 > BLOOM_LUMA_THRESH ? color : vec4(0.0);
     #else
         bloomBuffer = vec4(0.0);
     #endif

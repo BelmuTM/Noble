@@ -21,7 +21,7 @@
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
         vec3 diffuse  = mat.isMetal   ? vec3(0.0) : hammonDiffuse(N, V, L, mat, false);
 
-        return (diffuse + specular) * shadowmap * shadowLightIlluminance;
+        return (diffuse + specular) * (shadowmap * maxEps(dot(N, L))) * shadowLightIlluminance;
     }
 
     vec3 pathTrace(in vec3 screenPos) {
@@ -73,9 +73,9 @@
                     } else {
                         throughput *= (1.0 - specularFresnel(dot(-prevDir, mat.normal), vec3(mat.F0), mat.isMetal)) / (1.0 - specularProb);
                         rayDir      = generateCosineVector(mat.normal, noise);
-                        throughput *= mat.albedo;
+                        throughput *= mat.albedo * maxEps(dot(mat.normal, rayDir));
                     }
-                    if(dot(mat.normal, rayDir) <= 0.0) { break; }
+                    if(dot(mat.normal, rayDir) < 0.0) { break; }
                 }
 
                 if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(rngState), hitPos)) { break; }

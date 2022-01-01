@@ -75,7 +75,7 @@ layout (location = 0) out vec4 color;
         vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
         float purkinje    = dot(rodResponse, XYZToLinear(scotopicLuma));
 
-        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0 * exposure)));
+        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0)));
     }
 #endif
 
@@ -97,7 +97,7 @@ layout (location = 0) out vec4 color;
 #if TONEMAP >= 0
     void tonemap(inout vec3 color) {
         #if TONEMAP == 0
-            whitePreservingReinhard(color, 15.0); // Reinhard
+            whitePreservingReinhard(color, 2.0); // Reinhard
         #elif TONEMAP == 1
             uncharted2(color);                    // Uncharted 2
         #elif TONEMAP == 2
@@ -201,7 +201,7 @@ void main() {
     #endif
 
     color.rgb = clamp01(color.rgb);
-    color     = TONEMAP == 2 ? color : linearToRGB(color);
+    color     = TONEMAP == 4 ? color : linearToRGB(color);
 
     #if LUT > 0
         applyLUT(colortex10, color.rgb);
