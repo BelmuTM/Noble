@@ -64,6 +64,9 @@
     }
 
     void main() {
+        vec4 albedoTex = texture(colortex0, texCoords);
+        if(albedoTex.a < 0.102) discard;
+
         //float caustics = 0.0;
 
         //if(int(blockId + 0.5) == 1) {
@@ -71,7 +74,7 @@
         //    caustics    = waterCaustics(viewPos, normal);
         //}
 
-        shadowColor0 = texture(colortex0, texCoords) * vertexColor;
+        shadowColor0 = albedoTex * vertexColor;
         //shadowColor1 = vec4(caustics * 0.5 + 0.5);
     }
 #endif
