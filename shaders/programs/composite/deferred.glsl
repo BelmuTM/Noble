@@ -14,7 +14,7 @@
     #include "/include/utility/math.glsl"
 
     void main() {
-        gl_Position = ftransform();
+        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
         skyIlluminance = vec3(0.0);
@@ -51,8 +51,9 @@
     void main() {
         vec3 viewPos = getViewPos0(texCoords);
 
-        albedo   = texture(colortex0, texCoords);
-        skyIllum = vec4(skyIlluminance, 1.0);
+        albedo.rgb = texture(colortex0, texCoords).rgb;
+        albedo.a   = texture(colortex4, texCoords).a;
+        skyIllum   = vec4(skyIlluminance, 1.0);
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */

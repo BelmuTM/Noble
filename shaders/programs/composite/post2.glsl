@@ -22,7 +22,7 @@ layout (location = 0) out vec4 color;
 
     void depthOfField(inout vec3 background, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
         vec3 color = texture(tex, coords).rgb;
-        vec2 noise = uniformAnimatedNoise(vec2(randF(rngState), randF(rngState)));
+        vec2 noise = uniformAnimatedNoise(vec2(randF(), randF()));
 
         for(int i = 0; i < quality; i++) {
             for(int j = 0; j < quality; j++) {
@@ -166,12 +166,12 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        float bloomStrength = clamp01(BLOOM_STRENGTH + rainStrength);
+        float bloomStrength = min(BLOOM_STRENGTH + rainStrength, 1.0);
         color.rgb           = mix(color.rgb, readBloom(), exp2(exposure - 3.0 + bloomStrength));
     #endif
 
     #if FILM_GRAIN == 1
-        color.rgb += randF(rngState) * color.rgb * FILM_GRAIN_STRENGTH;
+        color.rgb += randF() * color.rgb * FILM_GRAIN_STRENGTH;
     #endif
 
     #if PURKINJE == 1

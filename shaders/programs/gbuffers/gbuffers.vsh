@@ -12,10 +12,13 @@ attribute vec3 mc_Entity;
 out float blockId;
 out vec2 texCoords;
 out vec2 lmCoords;
-out vec3 waterNormals;
 out vec3 viewPos;
 out vec4 vertexColor;
 out mat3 TBN;
+
+#ifdef TRANSLUCENT
+	out vec3 waterNormals;
+#endif
 
 #include "/settings.glsl"
 #define STAGE STAGE_VERTEX
@@ -54,9 +57,9 @@ void main() {
 	TBN 		   = mat3(tangent, bitangent, normal);
 
 	blockId 	= mc_Entity.x - 1000.0;
-	gl_Position = ftransform();
+	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-	#ifdef WATER
+	#ifdef TRANSLUCENT
 		if(int(blockId + 0.5) == 1) {
 			vec3 worldPos = viewToWorld(viewPos);
 			worldPos.y   += computeWaves(worldPos.xz);

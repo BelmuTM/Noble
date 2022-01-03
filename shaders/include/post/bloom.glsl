@@ -31,23 +31,20 @@ const bool colortex5MipmapEnabled = true;
 
 		vec2 coords   = (texCoords - offset) * scale;
 		vec2 texScale = pixelSize * scale;
-
-		vec3 color 		  = vec3(0.0);
-		float totalWeight = 0.0;
+		vec3 color 	  = vec3(0.0);
 
 		if(any(greaterThanEqual(abs(coords - 0.5), texScale + 0.5))) return vec3(0.0);
 
-		const int steps = 5;
+		const int steps   = 5;
+		const float sigma = 2.0;
 
-        for(int i = -steps; i <= steps; i++){
-            for(int j = -steps; j <= steps; j++){
-                float weight = gaussianDistrib1D(length(vec2(i, j)), 2.0);
-
+        for(int i = -steps; i <= steps; i++) {
+            for(int j = -steps; j <= steps; j++) {
+                float weight = gaussianDistrib1D(i, sigma) * gaussianDistrib1D(j, sigma);
                 color  		+= textureLod(colortex5, coords + vec2(i, j) * texScale, LOD).rgb * weight;
-                totalWeight += 2.0 * weight;
             }
         }
-		return color / totalWeight;
+		return color;
 	}
 
 	vec3 getBloomTile(int LOD) {

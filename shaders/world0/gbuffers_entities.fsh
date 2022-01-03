@@ -10,4 +10,4 @@
 /***********************************************/
 
 #define ENTITY
-#include "/programs/gbuffers/gbuffers.fsh"
+#include "/programs/gbuffers/solid.fsh"

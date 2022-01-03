@@ -81,7 +81,7 @@ float fresnelDielectric(float NdotV, float surfaceIOR) {
 }
 
 vec3 fresnelDielectric(float NdotV, vec3 surfaceIOR) {
-    vec3 n1 = vec3(airIOR), n2 = surfaceIOR;
+    vec3 n1        = vec3(airIOR), n2 = surfaceIOR;
     vec3 sinThetaT = (n1 / n2) * max0(1.0 - pow2(NdotV));
     vec3 cosThetaT = 1.0 - pow2(sinThetaT);
 

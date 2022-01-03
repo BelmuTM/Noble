@@ -13,7 +13,6 @@ layout (location = 0) out vec4 color;
 #include "/include/fragment/svgf.glsl"
 
 void main() {
-
     #if GI == 1
         if(!isSky(texCoords)) {
             #if GI_FILTER == 1

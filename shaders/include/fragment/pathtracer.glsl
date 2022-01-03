@@ -12,9 +12,11 @@
 */
 
 #if GI == 1
-    vec3 specularBRDF(float NdotL, vec3 fresnel, in float roughness) {
-        float k = roughness + 1.0;
-        return fresnel * geometrySchlickGGX(NdotL, (k * k) * 0.125);
+    vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, in float roughness) {
+        float NdotV = maxEps(dot(N, V));
+        float NdotL = maxEps(dot(N, L));;
+
+        return fresnel * G2SmithGGX(NdotV, NdotL, roughness) / G1SmithGGX(NdotV, roughness);
     }
 
     vec3 directBRDF(vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap, vec3 shadowLightIlluminance) {
@@ -46,14 +48,14 @@
             mat3 TBN;
 
             for(int j = 0; j <= GI_BOUNCES; j++) {
-                vec2 noise = uniformAnimatedNoise(vec2(randF(rngState), randF(rngState)));
+                vec2 noise = uniformAnimatedNoise(vec2(randF(), randF()));
                 prevDir    = rayDir;
 
                 if(j > 0) {
                     /* Russian Roulette */
                     if(j > 3) {
                         float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
-                        if(roulette < randF(rngState)) { break; }
+                        if(roulette < randF()) { break; }
                         throughput /= roulette;
                     }
 
@@ -65,25 +67,24 @@
                     float fresnelLum    = luminance(fresnel);
                     float totalLum      = luminance(mat.albedo) * (1.0 - fresnelLum) + fresnelLum;
                     float specularProb  = fresnelLum / totalLum;
-                    bool specularBounce = specularProb > randF(rngState);
+                    bool specularBounce = specularProb > randF();
  
                     if(specularBounce) {
                         rayDir      = reflect(prevDir, mat.rough <= 0.05 ? mat.normal : microfacet);
-                        throughput *= specularBRDF(dot(mat.normal, rayDir), fresnel, mat.rough) / specularProb;
+                        throughput *= specularBRDF(mat.normal, -prevDir, shadowDir, fresnel, mat.rough) / specularProb;
                     } else {
                         throughput *= (1.0 - specularFresnel(dot(-prevDir, mat.normal), vec3(mat.F0), mat.isMetal)) / (1.0 - specularProb);
                         rayDir      = generateCosineVector(mat.normal, noise);
-                        throughput *= mat.albedo * maxEps(dot(mat.normal, rayDir));
+                        throughput *= mat.albedo;
                     }
                     if(dot(mat.normal, rayDir) < 0.0) { break; }
                 }
 
-                if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(rngState), hitPos)) { break; }
+                if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos)) { break; }
                 
                 /* Material & Direct Lighting */
-                mat        = getMaterial(hitPos.xy);
-                mat.albedo = texture(colortex4, hitPos.xy).rgb;
-                TBN        = constructViewTBN(mat.normal);
+                mat = getMaterial(hitPos.xy);
+                TBN = constructViewTBN(mat.normal);
 
                 radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
 

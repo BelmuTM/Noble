@@ -17,9 +17,8 @@ void pcg(inout uint seed) {
 
 #if STAGE == STAGE_FRAGMENT
     uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
+    float randF() { pcg(rngState); return float(rngState) / float(0xffffffffu); }
 #endif
-
-float randF(inout uint seed)  { pcg(seed); return float(seed) / float(0xffffffffu); }
 
 // http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float rand(vec2 p) {

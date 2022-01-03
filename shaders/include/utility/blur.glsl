@@ -7,13 +7,12 @@
 /***********************************************/
 
 vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
-    vec4 color = texture(tex, coords);
-
+    vec4 color  = vec4(0.0);
     int SAMPLES = 1;
+
     for(int x = -size; x <= size; x++) {
         for(int y = -size; y <= size; y++) {
-            vec2 offset = vec2(x, y) * pixelSize;
-            color += texture(tex, coords + offset);
+            color += texture(tex, coords + vec2(x, y) * pixelSize);
             SAMPLES++;
         }
     }
@@ -21,16 +20,13 @@ vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
 }
 
 vec4 gaussianBlur(vec2 coords, sampler2D tex, float radius, float sigma, int steps) {
-    vec4 color        = vec4(0.0);
-    float totalWeight = 0.0;
+    vec4 color = vec4(0.0);
 
     for(int i = -steps; i <= steps; i++) {
         for(int j = -steps; j <= steps; j++) {
-            float weight = gaussianDistrib2D(vec2(i, j), sigma);
-
+            float weight = gaussianDistrib1D(i, sigma) * gaussianDistrib1D(j, sigma);
             color       += texture(tex, coords + vec2(i, j) * radius * pixelSize) * weight;
-            totalWeight += weight;
         }
     }
-    return color / totalWeight;
+    return color;
 }

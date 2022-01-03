@@ -33,10 +33,9 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
 #if REFLECTIONS_TYPE == 0
     vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isMetal) {
         viewPos += normal * 1e-2;
-        vec3 reflected = reflect(normalize(viewPos), normal), hitPos;
 
-        float jitter = TAA == 1 ? uniformAnimatedNoise(hash23(vec3(gl_FragCoord.xy, frameTimeCounter))).x : blueNoise.x;
-        float hit    = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, jitter, hitPos));
+        vec3 reflected = reflect(normalize(viewPos), normal), hitPos;
+        float hit      = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, randF(), hitPos));
 
         vec3 fresnel  = specularFresnel(NdotV, F0, isMetal);
         vec3 hitColor = getHitColor(hitPos);
@@ -66,7 +65,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
         vec3 hitPos;
 	
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
-            vec2 noise = TAA == 1 ? uniformAnimatedNoise(vec2(randF(rngState), randF(rngState))) : uniformNoise(i, blueNoise);
+            vec2 noise = TAA == 1 ? uniformAnimatedNoise(vec2(randF(), randF())) : uniformNoise(i, blueNoise);
         
             vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, mix(noise, vec2(0.0), 0.4), alpha);
 		    vec3 reflected  = reflect(viewDir, TBN * microfacet);	
@@ -75,7 +74,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
             vec3 fresnel = specularFresnel(NdotL, F0, isMetal);
 
             if(NdotL > 0.0) {
-                float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(rngState), hitPos));
+                float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(), hitPos));
                 vec3 hitColor;
 
                 float factor = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
@@ -99,14 +98,15 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
 //////////////////////////////////////////////////////////
 
 #if REFRACTIONS == 1
-    vec3 simpleRefractions(vec3 viewPos, vec3 normal, float F0, out vec3 hitPos) {
+    vec3 simpleRefractions(vec3 viewPos, vec3 normal, float F0) {
         viewPos += normal * 1e-2;
 
         float  ior   = F0toIOR(F0);
         vec3 viewDir = normalize(viewPos);
+        vec3 hitPos;
 
         vec3 refracted = refract(viewDir, normal, airIOR / ior);
-        bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, randF(rngState), hitPos);
+        bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
         bool hand      = isHand(texture(depthtex0, hitPos.xy).r);
         if(!hit || hand) hitPos.xy = texCoords;
 

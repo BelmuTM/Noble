@@ -31,11 +31,11 @@
 		float occlusion = 0.0; vec3 hitPos;
 
 		for(int i = 0; i < RTAO_SAMPLES; i++) {
-			vec2 noise 	   = TAA == 1 ? uniformAnimatedNoise(vec2(randF(rngState), randF(rngState))) : uniformNoise(i, blueNoise);
+			vec2 noise 	   = TAA == 1 ? uniformAnimatedNoise(vec2(randF(), randF())) : uniformNoise(i, blueNoise);
 			vec3 sampleDir = generateCosineVector(normal, noise);
 
 			if(dot(sampleDir, normal) < 0.0) { sampleDir = -sampleDir; }
-			if(!raytrace(samplePos, sampleDir, RTAO_STEPS, randF(rngState), hitPos)) { break; }
+			if(!raytrace(samplePos, sampleDir, RTAO_STEPS, randF(), hitPos)) { break; }
 
 			float delta = distance(samplePos, screenToView(hitPos));
 			occlusion  += delta;

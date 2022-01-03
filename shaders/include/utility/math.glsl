@@ -132,7 +132,7 @@ float gaussianDistrib1D(float x, float sigma) {
 }
 
 float gaussianDistrib2D(vec2 xy, float sigma) {
-    return (1.0 / (TAU * pow2(sigma))) * exp(-(pow2(xy.x) + pow2(xy.y)) / (2.0 * pow2(sigma)));
+    return (1.0 / (TAU * pow2(sigma))) * exp(-dot(xy, xy) / (2.0 * pow2(sigma)));
 }
 
 /* ENCODING */

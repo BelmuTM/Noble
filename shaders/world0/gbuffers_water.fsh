@@ -9,5 +9,5 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#define WATER
-#include "/programs/gbuffers/gbuffers.fsh"
+#define TRANSLUCENT
+#include "/programs/gbuffers/translucent.fsh"

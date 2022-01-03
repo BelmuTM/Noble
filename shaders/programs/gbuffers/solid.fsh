@@ -15,7 +15,6 @@ layout (location = 2) out vec4 labPBRBuffer;
 in float blockId;
 in vec2 texCoords;
 in vec2 lmCoords;
-in vec3 waterNormals;
 in vec3 viewPos;
 in vec4 vertexColor;
 in mat3 TBN;
@@ -48,16 +47,8 @@ void main() {
 	float subsurface = (specularTex.z * 255.0) < 65.0 ? 0.0 : specularTex.z;
 
 	vec3 normal;
-	// WOTAH
-	if(int(blockId + 0.5) == 1) { 
-		albedoTex = vec4(1.0, 1.0, 1.0, 0.0);
-		F0 		  = 0.02;
-		roughness = 0.0;
-		normal 	  = waterNormals;
-	} else {
-		normal.xy = normalTex.xy * 2.0 - 1.0;
-		normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
-	}
+	normal.xy = normalTex.xy * 2.0 - 1.0;
+	normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
 	
 	albedoBuffer = albedoTex;
 	normalBuffer = vec4(encodeNormal(TBN * normal), lmCoords.xy);

@@ -11,8 +11,11 @@
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 bloomBuffer;
 
+#include "/include/atmospherics/celestial.glsl"
 #include "/include/utility/blur.glsl"
 #include "/include/fragment/brdf.glsl"
+#include "/include/fragment/raytracer.glsl"
+#include "/include/fragment/reflections.glsl"
 #include "/include/fragment/svgf.glsl"
 
 void main() {
@@ -20,29 +23,67 @@ void main() {
 
     if(!isSky(texCoords)) {
         vec3 viewPos = getViewPos0(texCoords);
-        vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+        material mat = getMaterial(texCoords);
 
         #if GI == 1
             #if GI_FILTER == 1                
-                color.rgb = SVGF(texCoords, colortex5, viewPos, normal, 1.5, 3);
+                color.rgb = SVGF(texCoords, colortex5, viewPos, mat.normal, 1.5, 3);
             #endif
-        #else
+        #endif
+
+        vec4 tmp    = texture(colortex4, texCoords);
+        float alpha = texture(depthtex0, texCoords).r == texture(depthtex1,texCoords).r ? 0.0 : tmp.a;
+        color.rgb   = mix(color.rgb * mix(vec3(1.0), tmp.rgb, tmp.a), tmp.rgb, tmp.a);
+
+        //////////////////////////////////////////////////////////
+        /*-------------------- REFLECTIONS ---------------------*/
+        //////////////////////////////////////////////////////////
+
+        #if GI == 0
             #if REFLECTIONS == 1
                 float resolution   = REFLECTIONS_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
-                float NdotV        = maxEps(dot(normal, -normalize(viewPos)));
-                float roughness    = texture(colortex2, texCoords).r;
+                float NdotV        = maxEps(dot(mat.normal, -normalize(viewPos)));
                 vec3 specularColor = texture(colortex9, texCoords * resolution).rgb;
             
                 vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
 
-                if(roughness > 0.05) {
-                    vec3 DFG  = envBRDFApprox(specularColor, roughness, NdotV);
+                if(mat.rough > 0.05) {
+                    vec3 DFG  = envBRDFApprox(specularColor, mat.rough, NdotV);
                     color.rgb = mix(color.rgb, reflections, DFG);
                 } else {
                     color.rgb += reflections;
                 }
             #endif
         #endif
+
+        //////////////////////////////////////////////////////////
+        /*-------------------- REFRACTIONS ---------------------*/
+        //////////////////////////////////////////////////////////
+
+        #if REFRACTIONS == 1
+            if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
+                color.rgb = simpleRefractions(viewPos, mat.normal, mat.F0);
+            }
+        #endif
+
+        //////////////////////////////////////////////////////////
+        /*--------------------- WATER FOG ----------------------*/
+        //////////////////////////////////////////////////////////
+
+        bool isWater    = getBlockId(texCoords) == 1;
+        bool inWater    = isEyeInWater > 0.5;
+        float depthDist = 0.0;
+
+        if(isWater || inWater) {
+            depthDist = inWater ? length(transMAD3(gbufferModelViewInverse, viewPos)) :
+            distance(
+	            transMAD3(gbufferModelViewInverse, viewPos),
+		        transMAD3(gbufferModelViewInverse, getViewPos1(texCoords))
+	        );
+
+            vec3 transmittance = exp(-WATER_ABSORPTION_COEFFICIENTS * WATER_DENSITY * depthDist);
+            color.rgb         *= transmittance;
+        }
     }
 
     #if VL == 1

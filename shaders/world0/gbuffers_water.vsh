@@ -9,5 +9,5 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#define WATER
+#define TRANSLUCENT
 #include "/programs/gbuffers/gbuffers.vsh"

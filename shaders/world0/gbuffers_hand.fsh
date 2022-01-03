@@ -9,4 +9,4 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/programs/gbuffers/gbuffers.fsh"
+#include "/programs/gbuffers/solid.fsh"

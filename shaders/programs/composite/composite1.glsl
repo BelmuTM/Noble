@@ -6,11 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:068 */
+/* DRAWBUFFERS:0689 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 historyBuffer;
 layout (location = 2) out vec4 volumetricLighting;
+layout (location = 3) out vec4 shadowmap;
 
 #include "/include/utility/blur.glsl"
 #include "/include/fragment/brdf.glsl"
@@ -42,12 +43,17 @@ layout (location = 2) out vec4 volumetricLighting;
 
 void main() {
     vec3 viewPos = getViewPos0(texCoords);
+    shadowmap    = texture(colortex9, texCoords);
 
     material mat        = getMaterial(texCoords);
     vec3 Lighting       = vec3(0.0);
     float historyFrames = texture(colortex6, texCoords).a;
 
     volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos), 1.0);
+
+    //////////////////////////////////////////////////////////
+    /*------------------------ SKY -------------------------*/
+    //////////////////////////////////////////////////////////
 
     if(isSky(texCoords)) {
         vec3 sky = vec3(0.0);
@@ -66,30 +72,36 @@ void main() {
     }
     
     #if GI == 0
-        float ambientOcclusion = 1.0;
+        //////////////////////////////////////////////////////////
+        /*--------------------- LIGHTING -----------------------*/
+        //////////////////////////////////////////////////////////
+
         #if AO == 1
             if(!mat.isMetal) {
-                ambientOcclusion = texture(colortex9, texCoords).a;
                 #if SSAO_FILTER == 1 && AO_TYPE == 0
-                    ambientOcclusion = gaussianBlur(texCoords, colortex9, 1.5, 1.8, 4).a;
+                    shadowmap.a = gaussianBlur(texCoords, colortex9, 1.5, 1.8, 4).a;
                 #endif
             }
         #endif
 
-        vec3 shadowmap = vec3(0.0), skyIlluminance = vec3(0.0), totalIllum = vec3(1.0);
+        vec3 skyIlluminance = vec3(0.0), totalIllum = vec3(1.0);
             
         #ifdef WORLD_OVERWORLD
-            shadowmap      = texture(colortex9, texCoords).rgb;
             skyIlluminance = texture(colortex8, texCoords).rgb;
 
             vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
             vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
             totalIllum        = sunTransmit + moonTransmit;
+        #else
+            shadowmap.rgb = vec3(0.0);
         #endif
-            
-        mat.albedo = texture(colortex4, texCoords).rgb;
-        color.rgb  = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap, totalIllum, skyIlluminance, ambientOcclusion);
+        
+        color.rgb = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a);
     #else
+        //////////////////////////////////////////////////////////
+        /*------------------- PATH TRACING ---------------------*/
+        //////////////////////////////////////////////////////////
+
         vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
@@ -102,6 +114,4 @@ void main() {
             historyBuffer = vec4(color.rgb, historyFrames);
         }
     #endif
-
-    color.a = 1.0;
 }

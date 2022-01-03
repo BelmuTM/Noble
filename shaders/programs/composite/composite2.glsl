@@ -34,7 +34,7 @@ void main() {
                     color.rgb = prefilteredReflections(scaledUv, posAt, mat.normal, pow2(mat.rough), specCol.rgb, mat.isMetal);
                 #else
                     float NdotV = maxEps(dot(mat.normal, -normalize(posAt)));
-                    color.rgb = simpleReflections(scaledUv, posAt, mat.normal, NdotV, specCol.rgb, mat.isMetal);
+                    color.rgb   = simpleReflections(scaledUv, posAt, mat.normal, NdotV, specCol.rgb, mat.isMetal);
                 #endif
             }
         #endif
@@ -49,6 +49,5 @@ void main() {
                 color.rgb = SVGF(scaledUv, colortex0, scaledViewPos, scaledNormal, 1.5, 3);
             #endif
         }
-        color.a = 1.0;
     #endif
 }
