@@ -31,6 +31,8 @@ void main() {
 	vec4 normalTex   = texture(normals,   texCoords);
 	vec4 specularTex = texture(specular,  texCoords);
 
+	if(albedoTex.a < 0.102) discard;
+
 	albedoTex *= vertexColor;
 
 	float F0 		 = specularTex.y;

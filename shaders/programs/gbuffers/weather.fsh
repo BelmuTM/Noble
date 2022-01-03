@@ -15,5 +15,8 @@ in vec4 vertexColor;
 uniform sampler2D colortex0;
 
 void main() {
-	color = texture(colortex0, texCoords) * color;
+	vec4 albedoTex = texture(colortex0, texCoords);
+	if(albedoTex.a < 0.102) discard;
+
+	color = albedoTex * color;
 }
