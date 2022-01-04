@@ -31,7 +31,7 @@ const bool colortex5MipmapEnabled = true;
 
 		vec2 coords   = (texCoords - offset) * scale;
 		vec2 texScale = pixelSize * scale;
-		vec3 color 	  = vec3(0.0);
+		vec3 color    = vec3(0.0);
 
 		if(any(greaterThanEqual(abs(coords - 0.5), texScale + 0.5))) return vec3(0.0);
 
@@ -48,7 +48,7 @@ const bool colortex5MipmapEnabled = true;
 	}
 
 	vec3 getBloomTile(int LOD) {
-		return texture(colortex5, texCoords / exp2(LOD) + bloomOffsets[LOD - 2]).rgb;
+		return textureBicubic(colortex5, texCoords / exp2(LOD) + bloomOffsets[LOD - 2]).rgb;
 	}
 
 	vec3 writeBloom() {

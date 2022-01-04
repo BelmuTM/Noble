@@ -66,7 +66,7 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
 
     float blendWeight = 1.0;
     #if TAA_VELOCITY_WEIGHT == 0
-	    blendWeight = getLumaWeight(currColor, prevColor);
+	    blendWeight = pow2(getLumaWeight(currColor, prevColor));
     #else
         blendWeight = TAA_STRENGTH * float(!hasMoved());
     #endif

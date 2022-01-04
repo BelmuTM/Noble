@@ -6,7 +6,9 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* MATH FUNCTIONS */
+//////////////////////////////////////////////////////////
+/*--------------------- FAST MATH ----------------------*/
+//////////////////////////////////////////////////////////
 
 float maxEps(float x) { return max(EPS, x);       }
 float max0(float x)   { return max(0.0, x);       }
@@ -82,7 +84,9 @@ vec2 sincos(float x) {
     return vec2(sin(x), cos(x));
 }
 
-/* MISC */
+//////////////////////////////////////////////////////////
+/*------------------------ MISC ------------------------*/
+//////////////////////////////////////////////////////////
 
 vec2 raySphere(vec3 origin, vec3 dir, float radius) {
 	float b = dot(origin, dir);
@@ -128,14 +132,17 @@ vec2 diskSampling(int i, int n, float phi){
 
 // https://homepages.inf.ed.ac.uk/rbf/HIPR2/gsmooth.htm
 float gaussianDistrib1D(float x, float sigma) {
-    return (1.0 / sqrt(TAU * sigma)) * exp(-pow2(x) / (2.0 * pow2(sigma)));
+    return (1.0 / (sqrt(TAU) * sigma)) * exp(-pow2(x) / (2.0 * pow2(sigma)));
 }
 
 float gaussianDistrib2D(vec2 xy, float sigma) {
     return (1.0 / (TAU * pow2(sigma))) * exp(-dot(xy, xy) / (2.0 * pow2(sigma)));
 }
 
-/* ENCODING */
+//////////////////////////////////////////////////////////
+/*---------------------- ENCODING ----------------------*/
+//////////////////////////////////////////////////////////
+
 // Normals encoding / decoding from: https://aras-p.info/texts/CompactNormalStorage.html
 
 const float packingScale = 1.7777;
@@ -168,4 +175,52 @@ float pack2x4(vec2 xy) {
 vec2 unpack2x4(float pack) {
 	vec2 xy; xy.x = modf(pack * 255.0 / 16.0, xy.y);
 	return xy * vec2(16.0 / 15.0, 1.0 / 15.0);
+}
+
+//////////////////////////////////////////////////////////
+/*---------------------- BICUBIC -----------------------*/
+//////////////////////////////////////////////////////////
+
+// Provided by swr#1793
+
+vec4 cubic(float v) {
+    vec4 n = vec4(1.0, 2.0, 3.0, 4.0) - v;
+    vec4 s = pow3(n);
+    float x = s.x;
+    float y = s.y - 4.0 * s.x;
+    float z = s.z - 4.0 * s.y + 6.0 * s.x;
+    float w = 6.0 - x - y - z;
+    return vec4(x, y, z, w) * (1.0 / 6.0);
+}
+ 
+vec4 textureBicubic(sampler2D tex, vec2 texCoords) {
+    vec2 texSize    = textureSize(tex, 0);
+    vec2 invTexSize = 1.0 / texSize;
+ 
+    texCoords = texCoords * texSize - 0.5;
+ 
+    vec2 fxy = fract(texCoords);
+    texCoords -= fxy;
+ 
+    vec4 xcubic = cubic(fxy.x);
+    vec4 ycubic = cubic(fxy.y);
+ 
+    vec4 c = texCoords.xxyy + vec2(-0.5, +1.5).xyxy;
+ 
+    vec4 s = vec4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
+    vec4 offset = c + vec4(xcubic.yw, ycubic.yw) / s;
+ 
+    offset *= invTexSize.xxyy;
+ 
+    vec4 sample0 = texture(tex, offset.xz);
+    vec4 sample1 = texture(tex, offset.yz);
+    vec4 sample2 = texture(tex, offset.xw);
+    vec4 sample3 = texture(tex, offset.yw);
+ 
+    float sx = s.x / (s.x + s.y);
+    float sy = s.z / (s.z + s.w);
+ 
+    return mix(
+       mix(sample3, sample2, sx), mix(sample1, sample0, sx)
+    , sy);
 }

@@ -42,12 +42,10 @@ layout (location = 3) out vec4 shadowmap;
 #endif
 
 void main() {
-    vec3 viewPos = getViewPos0(texCoords);
-    shadowmap    = texture(colortex9, texCoords);
-
-    material mat        = getMaterial(texCoords);
-    vec3 Lighting       = vec3(0.0);
-    float historyFrames = texture(colortex6, texCoords).a;
+    vec3 viewPos  = getViewPos0(texCoords);
+    material mat  = getMaterial(texCoords);
+    shadowmap     = texture(colortex9, texCoords);
+    vec3 Lighting = vec3(0.0);
 
     volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos), 1.0);
 
@@ -79,7 +77,7 @@ void main() {
         #if AO == 1
             if(!mat.isMetal) {
                 #if SSAO_FILTER == 1 && AO_TYPE == 0
-                    shadowmap.a = gaussianBlur(texCoords, colortex9, 1.5, 1.8, 4).a;
+                    shadowmap.a = gaussianBlur(texCoords, colortex9, 2.2, 2.0, 4).a;
                 #endif
             }
         #endif
@@ -102,7 +100,8 @@ void main() {
         /*------------------- PATH TRACING ---------------------*/
         //////////////////////////////////////////////////////////
 
-        vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
+        vec2 scaledUv       = texCoords * (1.0 / GI_RESOLUTION);
+        float historyFrames = texture(colortex6, texCoords).a;
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
             color.rgb = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r));

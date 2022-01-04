@@ -14,7 +14,7 @@
 #if GI == 1
     vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, in float roughness) {
         float NdotV = maxEps(dot(N, V));
-        float NdotL = maxEps(dot(N, L));;
+        float NdotL = maxEps(dot(N, L));
 
         return fresnel * G2SmithGGX(NdotV, NdotL, roughness) / G1SmithGGX(NdotV, roughness);
     }
@@ -44,36 +44,32 @@
             vec3 rayDir = normalize(viewPos);
 
             material mat;
-            vec3 prevDir;
             mat3 TBN;
 
             for(int j = 0; j <= GI_BOUNCES; j++) {
                 vec2 noise = uniformAnimatedNoise(vec2(randF(), randF()));
-                prevDir    = rayDir;
 
                 if(j > 0) {
                     /* Russian Roulette */
-                    if(j > 3) {
+                    if(j > ROULETTE_MIN__BOUNCES) {
                         float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
                         if(roulette < randF()) { break; }
                         throughput /= roulette;
                     }
 
-                    float HdotV     = maxEps(dot(normalize(-prevDir + rayDir), -prevDir));
-                    vec3 microfacet = TBN * sampleGGXVNDF(-prevDir * TBN, noise, pow2(mat.rough));
-                    vec3 fresnel    = specularFresnel(dot(-prevDir, microfacet), getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+                    vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, pow2(mat.rough));
+                    vec3 fresnel    = fresnelDielectric(dot(-rayDir, microfacet), F0toIOR(getSpecularColor(mat.F0, mat.albedo)));
 
                     /* Specular Bounce Probability */
                     float fresnelLum    = luminance(fresnel);
                     float totalLum      = luminance(mat.albedo) * (1.0 - fresnelLum) + fresnelLum;
                     float specularProb  = fresnelLum / totalLum;
-                    bool specularBounce = specularProb > randF();
  
-                    if(specularBounce) {
-                        rayDir      = reflect(prevDir, mat.rough <= 0.05 ? mat.normal : microfacet);
-                        throughput *= specularBRDF(mat.normal, -prevDir, shadowDir, fresnel, mat.rough) / specularProb;
+                    if(specularProb > randF()) {
+                        rayDir      = reflect(rayDir, mat.rough <= 0.05 ? mat.normal : microfacet);
+                        throughput *= specularBRDF(microfacet, -rayDir, rayDir, fresnel, mat.rough) / specularProb;
                     } else {
-                        throughput *= (1.0 - specularFresnel(dot(-prevDir, mat.normal), vec3(mat.F0), mat.isMetal)) / (1.0 - specularProb);
+                        throughput *= (1.0 - fresnelDielectric(dot(-rayDir, microfacet), F0toIOR(mat.F0))) / (1.0 - specularProb);
                         rayDir      = generateCosineVector(mat.normal, noise);
                         throughput *= mat.albedo;
                     }
@@ -89,10 +85,10 @@
                 radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
 
                 #ifdef WORLD_OVERWORLD
-                    radiance += throughput * directBRDF(mat.normal, -prevDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb, shadowLightIlluminance);
+                    radiance += throughput * directBRDF(mat.normal, -rayDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb, shadowLightIlluminance);
                 #endif
             }
         }
-        return max0(radiance) / GI_SAMPLES;
+        return max0(radiance) / float(GI_SAMPLES);
     }
 #endif

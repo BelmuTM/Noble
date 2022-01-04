@@ -95,10 +95,11 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define GI        0 // [0 1]
 #define GI_FILTER 0 // [0 1]
 
-#define GI_SAMPLES 1 // [1 2 3]
-#define GI_BOUNCES 4 // [1 2 3 4 5 6 7 8]
-#define GI_STEPS  40 // [40 128]
-#define GI_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define GI_SAMPLES            1 // [1 2 3]
+#define GI_BOUNCES            4 // [1 2 3 4 5 6 7 8]
+#define GI_STEPS             40 // [40 128]
+#define GI_RESOLUTION      1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define ROULETTE_MIN__BOUNCES 3
 
 #define GI_TEMPORAL_ACCUMULATION     1 // [0 1]
 #define ACCUMULATION_VELOCITY_WEIGHT 0 //[0 1]
@@ -179,7 +180,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 //////////////////////////////////////////////////////////
 
 #define TAA               1 // [0 1]
-#define TAA_STRENGTH  0.900 // [0.800 0.812 0.825 0.837 0.850 0.862 0.875 0.887 0.900 0.912 0.925 0.937 0.950 0.962 0.975 0.987]
+#define TAA_STRENGTH  0.900 // [0.800 0.825 0.850 0.875 0.900 0.925 0.950 0.975]
 #define NEIGHBORHOOD_SIZE 1 // [1 2 3]
 
 #define TAA_VELOCITY_WEIGHT 0 // [0 1]
@@ -209,7 +210,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define WATER_DISTORTION_AMPLITUDE 0.40
 
 #define EXPOSURE 1 // [0 1]
-#define PURKINJE 0 // [0 1]
+#define PURKINJE 1 // [0 1]
 
 const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
@@ -223,7 +224,7 @@ const float S = 100.0; // Sensor sensitivity
 /*------------------ COLOR CORRECTION ------------------*/
 //////////////////////////////////////////////////////////
 
-#define TONEMAP 2 // [-1 0 1 2 3 4 5 6]
+#define TONEMAP 4 // [-1 0 1 2 3 4 5 6]
 #define LUT     0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
 
 #define WHITE_BALANCE 6300 // [5000 5100 5200 5300 5400 5500 5600 5700 5800 5900 6000 6100 6200 6300 6400 6500 6600 6700 6800 6900 7000 7100 7200 7300 7400 7500 7600 7700 7800 7900 8000 8100 8200 8300 8400 8500 8600 8700 8800 8900 9000 9100 9200 9300 9400 9500 9600 9700 9800 9900 10000 10100 10200 10300 10400 10500 10600 10700 10800 10900 11000 11100 11200 11300 11400 11500 11600 11700 11800 11900 12000 12100 12200 12300 12400 12500 12600 12700 12800 12900 13000 13100 13200 13300 13400 13500 13600 13700 13800 13900 14000 14100 14200 14300 14400 14500 14600 14700 14800 14900 15000]

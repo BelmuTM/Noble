@@ -54,16 +54,16 @@ material getMaterial(vec2 coords) {
 
     material mat;
 
-    mat.albedo = tex0.xyz;
-    mat.alpha  = tex0.w;
-    mat.normal = normalize(decodeNormal(tex1.xy));
-
     mat.F0         = unpacked1.x;
     mat.rough      = tex2.x;
     mat.ao         = unpacked0.x;
     mat.emission   = unpacked0.y;
     mat.subsurface = unpacked1.y;
     mat.isMetal    = mat.F0 * 255.0 > 229.5;
+
+    mat.albedo = tex0.xyz;
+    mat.alpha  = tex0.w;
+    mat.normal = normalize(decodeNormal(tex1.xy));
 
     return mat;
 }

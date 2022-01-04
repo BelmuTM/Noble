@@ -30,7 +30,6 @@ void main() {
    #endif
 
    vec4 albedoTex = texture(colortex0, texCoords);
-
-   albedo.rgb = RGBtoLinear(albedoTex.rgb);
-   albedo    += rain;
+   albedo.rgb     = RGBtoLinear(albedoTex.rgb);
+   albedo        += rain;
 }

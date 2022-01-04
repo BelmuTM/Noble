@@ -21,7 +21,7 @@ layout (location = 0) out vec4 color;
     }
 
     void depthOfField(inout vec3 background, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
-        vec3 color = texture(tex, coords).rgb;
+        vec3 color = vec3(0.0);
         vec2 noise = uniformAnimatedNoise(vec2(randF(), randF()));
 
         for(int i = 0; i < quality; i++) {
@@ -75,7 +75,7 @@ layout (location = 0) out vec4 color;
         vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
         float purkinje    = dot(rodResponse, XYZToLinear(scotopicLuma));
 
-        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0)));
+        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 30.0 * exposure)));
     }
 #endif
 
@@ -167,7 +167,7 @@ void main() {
 
     #if BLOOM == 1
         float bloomStrength = min(BLOOM_STRENGTH + rainStrength, 1.0);
-        color.rgb           = mix(color.rgb, readBloom(), exp2(exposure - 3.0 + bloomStrength));
+        color.rgb          += color.rgb + readBloom() * exp2(exposure - 3.0 + bloomStrength);
     #endif
 
     #if FILM_GRAIN == 1

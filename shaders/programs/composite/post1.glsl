@@ -18,7 +18,7 @@ layout (location = 1) out vec4 historyBuffer;
 void main() {
     color = texture(colortex0, texCoords);
 
-    #if TAA == 1
+    #if TAA == 1 && GI == 0
         color.rgb = clamp16(temporalAntiAliasing(colortex0, colortex3));
     #endif
 
