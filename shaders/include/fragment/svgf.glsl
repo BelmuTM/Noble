@@ -54,7 +54,7 @@ vec3 SVGF(vec2 coords, sampler2D tex, vec3 viewPos, vec3 normal, float sigma, in
     for(int i = -steps; i <= steps; i++) {
         for(int j = -steps; j <= steps; j++) {
             vec2 sampleCoords = coords + (vec2(i, j) * pixelSize);
-            float gaussian    = gaussianDistrib2D(vec2(i, j), sigma);
+            float gaussian    = gaussianDistrib1D(i, sigma) * gaussianDistrib1D(j, sigma);
 
             vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
             vec3 delta = viewToWorld(normal) -  viewToWorld(normalAt);

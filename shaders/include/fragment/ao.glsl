@@ -9,7 +9,7 @@
 #if AO_TYPE == 0
 
 	float computeSSAO(vec3 viewPos, vec3 normal) {
-		float occlusion = 1.0;
+		float occlusion = 0.0;
 
 		for(int i = 0; i < SSAO_SAMPLES; i++) {
 			vec3 sampleDir = generateCosineVector(normal, uniformNoise(i, blueNoise));
@@ -26,19 +26,23 @@
 	}
 #else
 
+	float solidAngleOcclusion(float nl, float cosAngle){
+    	return (-1.00062+cosAngle)*(((-0.323768+nl)*0.737338*cosAngle+0.500923)*(-0.997182-nl));
+	}
+
 	float computeRTAO(vec3 viewPos, vec3 normal) {
 		vec3 samplePos  = viewPos + normal * 1e-2;
 		float occlusion = 0.0; vec3 hitPos;
 
 		for(int i = 0; i < RTAO_SAMPLES; i++) {
-			vec2 noise 	   = TAA == 1 ? uniformAnimatedNoise(vec2(randF(), randF())) : uniformNoise(i, blueNoise);
+			vec2 noise 	   = TAA == 1 ? uniformAnimatedNoise(blueNoise.xy) : uniformNoise(i, blueNoise);
 			vec3 sampleDir = generateCosineVector(normal, noise);
 
-			if(dot(sampleDir, normal) < 0.0) { sampleDir = -sampleDir; }
+			if(dot(normal, sampleDir) < 0.0) { sampleDir = -sampleDir; }
 			if(!raytrace(samplePos, sampleDir, RTAO_STEPS, randF(), hitPos)) { break; }
 
-			float delta = distance(samplePos, screenToView(hitPos));
-			occlusion  += delta;
+			float dist = distance(viewToWorld(samplePos), viewToWorld(screenToView(hitPos)));
+			occlusion += 2.0 / (dist + 1.0);
 		}
 		return clamp01(1.0 - (occlusion / RTAO_SAMPLES));
 	}

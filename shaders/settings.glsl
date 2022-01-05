@@ -60,7 +60,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define SSAO_STRENGTH  1.5
 
 #define RTAO_SAMPLES 3 // [3 10]
-#define RTAO_STEPS  16
+#define RTAO_STEPS  40
 
 //////////////////////////////////////////////////////////
 /*---------------------- SHADOWS -----------------------*/
@@ -74,8 +74,8 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define SHADOW_BIAS    0.8
 
 // Soft Shadows
-#define PCSS_SAMPLES            16 // [16 32]
-#define BLOCKER_SEARCH_SAMPLES   8 // [8 16]
+#define PCSS_SAMPLES            16 // [16 24]
+#define BLOCKER_SEARCH_SAMPLES   8 // [8 12]
 #define BLOCKER_SEARCH_RADIUS 12.0
 #define LIGHT_SIZE           100.0
 
@@ -83,11 +83,10 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 /*-------------------- RAY TRACING ---------------------*/
 //////////////////////////////////////////////////////////
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT      4 // [4 10]
+#define BINARY_COUNT      4 // [4 5 6 7 8 9 10]
 #define BINARY_DECREASE 0.5
 
-#define RAY_STEP_LENGTH       1.5 // [1.0 1.5]
-#define RAY_DEPTH_TOLERANCE 0.002
+#define RAY_STEP_LENGTH 1.5 // [1.0 1.5]
 
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/
