@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:03 */
+/* DRAWBUFFERS:08 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 historyBuffer;
@@ -19,12 +19,12 @@ void main() {
     color = texture(colortex0, texCoords);
 
     #if TAA == 1 && GI == 0
-        color.rgb = clamp16(temporalAntiAliasing(colortex0, colortex3));
+        color.rgb = clamp16(temporalAntiAliasing(colortex0, colortex8));
     #endif
 
     float avgLuminance = 0.0;
     #if EXPOSURE == 1
-        avgLuminance = computeAverageLuminance(colortex3);
+        avgLuminance = computeAverageLuminance(colortex8);
     #endif
 
     historyBuffer = vec4(color.rgb, avgLuminance);

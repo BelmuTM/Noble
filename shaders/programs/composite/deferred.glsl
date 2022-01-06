@@ -25,7 +25,7 @@
             for(int x = 0; x < samples; x++) {
                 for(int y = 0; y < samples; y++) {
                     vec3 dir        = generateUnitVector(vec2(x, y));
-                    skyIlluminance += texture(colortex7, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
+                    skyIlluminance += texture(colortex6, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
                 }
             }
             skyIlluminance *= 1.0 / pow2(samples);
@@ -34,12 +34,11 @@
 
 #elif STAGE == STAGE_FRAGMENT
 
-    /* DRAWBUFFERS:4789 */
+    /* DRAWBUFFERS:367 */
 
-    layout (location = 0) out vec4 albedo;
+    layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec4 sky;
     layout (location = 2) out vec4 skyIllum;
-    layout (location = 3) out vec4 shadowmap;
 
     #include "/include/atmospherics/atmosphere.glsl"
     #include "/include/fragment/raytracer.glsl"
@@ -50,10 +49,8 @@
 
     void main() {
         vec3 viewPos = getViewPos0(texCoords);
-
-        albedo.rgb = texture(colortex0, texCoords).rgb;
-        albedo.a   = texture(colortex4, texCoords).a;
-        skyIllum   = vec4(skyIlluminance, 1.0);
+        material mat = getMaterial(texCoords);
+        skyIllum     = vec4(skyIlluminance, 1.0);
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
@@ -72,12 +69,10 @@
         float ambientOcclusion = 1.0;
         #if AO == 1
             if(!isSky(texCoords)) {
-                vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
-
                 #if AO_TYPE == 0
-                    ambientOcclusion = computeSSAO(viewPos, normal);
+                    ambientOcclusion = computeSSAO(viewPos, mat.normal);
                 #else
-                    ambientOcclusion = computeRTAO(viewPos, normal);
+                    ambientOcclusion = computeRTAO(viewPos, mat.normal);
                 #endif
             }
         #endif

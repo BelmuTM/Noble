@@ -6,11 +6,9 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:012 */
+/* DRAWBUFFERS:1 */
 
-layout (location = 0) out vec4 albedoBuffer;
-layout (location = 1) out vec4 normalBuffer;
-layout (location = 2) out vec4 labPBRBuffer;
+layout (location = 0) out uvec4 dataBuffer;
 
 in float blockId;
 in vec2 texCoords;
@@ -24,6 +22,7 @@ in mat3 TBN;
 
 #include "/include/uniforms.glsl"
 #include "/include/utility/math.glsl"
+#include "/include/utility/transforms.glsl"
 
 #ifdef ENTITY
 	uniform vec4 entityColor;
@@ -44,15 +43,18 @@ void main() {
 
 	float F0 		 = specularTex.y;
 	float ao 		 = normalTex.z;
-	float roughness  = hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x;
+	float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
 	float emission   = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
 	float subsurface = (specularTex.z * 255.0) < 65.0 ? 0.0 : specularTex.z;
 
 	vec3 normal;
 	normal.xy = normalTex.xy * 2.0 - 1.0;
 	normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
+
+	vec2 encNormal = encodeUnitVector(TBN * normal);
 	
-	albedoBuffer = albedoTex;
-	normalBuffer = vec4(encodeNormal(TBN * normal), lmCoords.xy);
-	labPBRBuffer = vec4(clamp01(roughness), (blockId + 0.25) / 255.0, pack2x4(vec2(ao, emission)), pack2x8(vec2(F0, subsurface)));
+	dataBuffer.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) / 255.0, clamp01(lmCoords.xy)));
+	dataBuffer.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));
+	dataBuffer.z = (uint(albedoTex.r * 255.0) << 24u) | (uint(albedoTex.g * 255.0) << 16u) | (uint(albedoTex.b * 255.0) << 8u) | uint(encNormal.x * 255.0);
+	dataBuffer.w = uint(encNormal.y * 255.0);
 }

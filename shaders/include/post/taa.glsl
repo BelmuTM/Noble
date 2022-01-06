@@ -58,7 +58,7 @@ float getLumaWeight(vec3 currColor, vec3 prevColor) {
 // Thanks LVutner for the help with TAA (buffer management, luminance weight)
 // https://github.com/LVutner
 vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
-    vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex1, texCoords).r)).xy;
+    vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
 
     vec3 currColor = linearToYCoCg(texture(currTex, texCoords).rgb);
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevTexCoords).rgb);

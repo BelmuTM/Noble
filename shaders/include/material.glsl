@@ -6,15 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-int getBlockId(vec2 coords) {
-    return int(texture(colortex2, coords).y * 255.0 + 0.5);
-}
-
-float getSkyLightmap(vec2 coords) {
-    float lightmap = clamp01(texture(colortex1, coords).w);
-    return quintic(0.90, 0.96, lightmap); // Concept from Eldeston#3590
-}
-
 // Hardcoded values provided by Bálint#1673
 const vec3 HARDCODED_F0[] = vec3[](
     vec3(0.53123, 0.51236, 0.49583), // Iron
@@ -33,37 +24,45 @@ vec3 getSpecularColor(float F0, vec3 albedo) {
 }
 
 struct material {
-    vec3 albedo;
-    float alpha;
-    vec3 normal;
-
     float F0;
     float rough;
     float ao;
     float emission;
     float subsurface;
     bool isMetal;
+
+    vec3 albedo;
+    float alpha;
+    vec3 normal;
+
+    int blockId;
+    vec2 lightmap;
 };
 
 material getMaterial(vec2 coords) {
-    vec4 tex0 = texture(colortex0, coords);
-    vec4 tex1 = texture(colortex1, coords);
-    vec4 tex2 = texture(colortex2, coords);
-    vec2 unpacked0 = unpack2x4(tex2.z);
-    vec2 unpacked1 = unpack2x8(tex2.w);
+    uvec4 tex1     = texture(colortex1, coords);
+    vec4 unpacked0 = unpackUnorm4x8(tex1.x);
+    vec4 unpacked1 = unpackUnorm4x8(tex1.y);
 
     material mat;
 
-    mat.F0         = unpacked1.x;
-    mat.rough      = tex2.x;
-    mat.ao         = unpacked0.x;
-    mat.emission   = unpacked0.y;
-    mat.subsurface = unpacked1.y;
+    mat.rough      = unpacked0.x;
+    mat.ao         = unpacked1.x;
+    mat.emission   = unpacked1.y;
+    mat.F0         = unpacked1.z;
+    mat.subsurface = unpacked1.w;
     mat.isMetal    = mat.F0 * 255.0 > 229.5;
 
-    mat.albedo = tex0.xyz;
-    mat.alpha  = tex0.w;
-    mat.normal = normalize(decodeNormal(tex1.xy));
+    mat.albedo = vec3((tex1.z >> 24u) & 255u, (tex1.z >> 16u) & 255u, (tex1.z >> 8u) & 255u) / 255.0;
+    mat.alpha  = tex1.w;
+    mat.normal = normalize(mat3(gbufferModelView) * decodeUnitVector(vec2((tex1.z & 255u), tex1.w) / 255.0));
+
+    mat.blockId  = int(unpacked0.y * 255.0 + 0.5);
+    mat.lightmap = clamp01(unpacked0.zw);
 
     return mat;
+}
+
+float getSkyLightmap(material mat) {
+    return quintic(0.90, 0.96, mat.lightmap.y);
 }

@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:5 */
+/* DRAWBUFFERS:4 */
 
 layout (location = 0) out vec4 color;
 
@@ -17,9 +17,9 @@ void main() {
         if(!isSky(texCoords)) {
             #if GI_FILTER == 1
                 vec3 viewPos = getViewPos0(texCoords);
-                vec3 normal  = normalize(decodeNormal(texture(colortex1, texCoords).xy));
+                material mat = getMaterial(texCoords);
 
-                color.rgb = SVGF(texCoords, colortex5, viewPos, normal, 1.5, 4);
+                color.rgb = SVGF(texCoords, colortex4, viewPos, mat.normal, 1.5, 4);
             #endif
         }
     #endif

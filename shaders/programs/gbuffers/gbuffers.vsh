@@ -49,12 +49,11 @@ void main() {
 	lmCoords    = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	vertexColor = gl_Color;
 
-    vec3 normal  = normalize(gl_NormalMatrix * gl_Normal);
+    vec3 normal  = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
     	 viewPos = transMAD3(gl_ModelViewMatrix, gl_Vertex.xyz);
 
-    vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
-    vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
-	TBN 		   = mat3(tangent, bitangent, normal);
+    vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
+	TBN 		 = mat3(tangent, cross(tangent, normal), normal);
 
 	blockId 	= mc_Entity.x - 1000.0;
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;

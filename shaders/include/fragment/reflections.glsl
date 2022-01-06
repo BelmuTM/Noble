@@ -16,14 +16,14 @@ float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
 vec3 getHitColor(vec3 hitPos) {
     #if SSR_REPROJECTION == 1
         hitPos = reprojection(hitPos);
-        return texture(colortex3, hitPos.xy).rgb;
+        return texture(colortex8, hitPos.xy).rgb;
     #else
         return texture(colortex0, hitPos.xy).rgb;
     #endif
 }
 
-vec3 getSkyFallback(vec2 coords, vec3 reflected) {
-    return (texture(colortex7, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected)) * ATMOSPHERE_RESOLUTION).rgb + celestialBody(reflected, shadowDir)) * getSkyLightmap(coords);
+vec3 getSkyFallback(vec2 coords, vec3 reflected, material mat) {
+    return (texture(colortex6, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected)) * ATMOSPHERE_RESOLUTION).rgb + celestialBody(reflected, shadowDir)) * getSkyLightmap(mat);
 }
 
 //////////////////////////////////////////////////////////
@@ -31,18 +31,20 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
 //////////////////////////////////////////////////////////
 
 #if REFLECTIONS_TYPE == 0
-    vec3 simpleReflections(vec2 coords, vec3 viewPos, vec3 normal, float NdotV, vec3 F0, bool isMetal) {
-        viewPos += normal * 1e-2;
+    vec3 simpleReflections(vec2 coords, vec3 viewPos, material mat, vec3 F0) {
+        viewPos     += mat.normal * 1e-2;
+        vec3 viewDir = normalize(viewPos);
 
-        vec3 reflected = reflect(normalize(viewPos), normal), hitPos;
+        vec3 reflected = reflect(viewDir, mat.normal), hitPos;
         float hit      = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, randF(), hitPos));
 
-        vec3 fresnel  = specularFresnel(NdotV, F0, isMetal);
+        float NdotV   = maxEps(dot(mat.normal, -viewDir));   
+        vec3 fresnel  = specularFresnel(NdotV, F0, mat.isMetal);
         vec3 hitColor = getHitColor(hitPos);
 
         vec3 color;
         #if SKY_FALLBACK == 1
-            color = mix(getSkyFallback(coords, reflected), hitColor, Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit);
+            color = mix(getSkyFallback(coords, reflected, mat), hitColor, Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit);
         #else
             color = hitColor * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
         #endif
@@ -55,23 +57,23 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
 /*------------------ ROUGH REFLECTIONS -----------------*/
 //////////////////////////////////////////////////////////
 
-    vec3 prefilteredReflections(vec2 coords, vec3 viewPos, vec3 normal, float alpha, vec3 F0, bool isMetal) {
+    vec3 roughReflections(vec2 coords, vec3 viewPos, material mat, vec3 F0) {
 	    vec3 color        = vec3(0.0);
 	    float totalWeight = 0.0;
 
-        viewPos     += normal * 1e-2;
-        mat3 TBN     = constructViewTBN(normal);
+        viewPos     += mat.normal * 1e-2;
+        mat3 TBN     = constructViewTBN(mat.normal);
         vec3 viewDir = normalize(viewPos);
         vec3 hitPos;
 	
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
             vec2 noise = TAA == 1 ? uniformAnimatedNoise(vec2(randF(), randF())) : uniformNoise(i, blueNoise);
         
-            vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, mix(noise, vec2(0.0), 0.4), alpha);
+            vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, mix(noise, vec2(0.0), 0.4), pow2(mat.rough));
 		    vec3 reflected  = reflect(viewDir, TBN * microfacet);	
 
-            float NdotL  = clamp01(dot(normal, reflected));
-            vec3 fresnel = specularFresnel(NdotL, F0, isMetal);
+            float NdotL  = clamp01(dot(mat.normal, reflected));
+            vec3 fresnel = specularFresnel(NdotL, F0, mat.isMetal);
 
             if(NdotL > 0.0) {
                 float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(), hitPos));
@@ -82,7 +84,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
                 #if SKY_FALLBACK == 0
                     hitColor = mix(vec3(0.0), getHitColor(hitPos), factor);
                 #else
-                    hitColor = mix(getSkyFallback(coords, reflected), getHitColor(hitPos), factor);
+                    hitColor = mix(getSkyFallback(coords, reflected, mat), getHitColor(hitPos), factor);
                 #endif
 
 		        color       += NdotL * hitColor * fresnel;
@@ -98,25 +100,21 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected) {
 //////////////////////////////////////////////////////////
 
 #if REFRACTIONS == 1
-    vec3 simpleRefractions(vec3 viewPos, vec3 normal, float F0) {
-        viewPos += normal * 1e-2;
+    vec3 simpleRefractions(vec3 viewPos, material mat) {
+        viewPos += mat.normal * 1e-2;
 
-        float  ior   = F0toIOR(F0);
+        float  ior   = F0toIOR(mat.F0);
         vec3 viewDir = normalize(viewPos);
         vec3 hitPos;
 
-        vec3 refracted = refract(viewDir, normal, airIOR / ior);
+        vec3 refracted = refract(viewDir, mat.normal, airIOR / ior);
         bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
         bool hand      = isHand(texture(depthtex0, hitPos.xy).r);
         if(!hit || hand) hitPos.xy = texCoords;
 
-        float fresnel = fresnelDielectric(maxEps(dot(normal, -viewDir)), ior);
-        vec3 hitColor = vec3(
-            texture(colortex4, hitPos.xy + vec2(2e-3 * rand(gl_FragCoord.xy))).r,
-            texture(colortex4, hitPos.xy).g,
-            texture(colortex4, hitPos.xy - vec2(2e-3 * rand(gl_FragCoord.yx))).b
-        );
+        float fresnel   = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), ior);
+        material hitMat = getMaterial(hitPos.xy);
 
-        return hitColor * (1.0 - fresnel);
+        return mat.albedo * (1.0 - fresnel);
     }
 #endif

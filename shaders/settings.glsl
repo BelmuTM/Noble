@@ -59,8 +59,8 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define SSAO_RADIUS   0.85
 #define SSAO_STRENGTH  1.5
 
-#define RTAO_SAMPLES 3 // [3 10]
-#define RTAO_STEPS  40
+#define RTAO_SAMPLES 3 // [3 7]
+#define RTAO_STEPS  32
 
 //////////////////////////////////////////////////////////
 /*---------------------- SHADOWS -----------------------*/

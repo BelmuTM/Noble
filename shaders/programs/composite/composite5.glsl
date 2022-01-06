@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:05 */
+/* DRAWBUFFERS:04 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 bloomBuffer;
@@ -27,13 +27,15 @@ void main() {
 
         #if GI == 1
             #if GI_FILTER == 1                
-                color.rgb = SVGF(texCoords, colortex5, viewPos, mat.normal, 1.5, 3);
+                color.rgb = SVGF(texCoords, colortex4, viewPos, mat.normal, 1.5, 3);
             #endif
         #endif
 
+        /*
         vec4 tmp    = texture(colortex4, texCoords);
         float alpha = texture(depthtex0, texCoords).r == texture(depthtex1,texCoords).r ? 0.0 : tmp.a;
         color.rgb   = mix(color.rgb * mix(vec3(1.0), tmp.rgb, tmp.a), tmp.rgb, tmp.a);
+        */
 
         //////////////////////////////////////////////////////////
         /*-------------------- REFLECTIONS ---------------------*/
@@ -43,9 +45,9 @@ void main() {
             #if REFLECTIONS == 1
                 float resolution   = REFLECTIONS_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
                 float NdotV        = maxEps(dot(mat.normal, -normalize(viewPos)));
-                vec3 specularColor = texture(colortex9, texCoords * resolution).rgb;
+                vec3 specularColor = texture(colortex3, texCoords * resolution).rgb;
             
-                vec3 reflections = texture(colortex5, texCoords * resolution).rgb;
+                vec3 reflections = texture(colortex4, texCoords * resolution).rgb;
 
                 if(mat.rough > 0.05) {
                     vec3 DFG  = envBRDFApprox(specularColor, mat.rough, NdotV);
@@ -61,8 +63,8 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if REFRACTIONS == 1
-            if(getBlockId(texCoords) > 0 && getBlockId(texCoords) <= 4) {
-                color.rgb = simpleRefractions(viewPos, mat.normal, mat.F0);
+            if(mat.blockId > 0 && mat.blockId <= 4) {
+                color.rgb = simpleRefractions(viewPos, mat);
             }
         #endif
 
@@ -70,7 +72,7 @@ void main() {
         /*--------------------- WATER FOG ----------------------*/
         //////////////////////////////////////////////////////////
 
-        bool isWater    = getBlockId(texCoords) == 1;
+        bool isWater    = mat.blockId == 1;
         bool inWater    = isEyeInWater > 0.5;
         float depthDist = 0.0;
 
@@ -87,7 +89,7 @@ void main() {
     }
 
     #if VL == 1
-        color.rgb += VL_FILTER == 1 ? boxBlur(texCoords, colortex8, 2).rgb : texture(colortex8, texCoords).rgb;
+        color.rgb += VL_FILTER == 1 ? boxBlur(texCoords, colortex7, 2).rgb : texture(colortex7, texCoords).rgb;
     #endif
 
     #if BLOOM == 1

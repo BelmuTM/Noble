@@ -84,6 +84,10 @@ vec2 sincos(float x) {
     return vec2(sin(x), cos(x));
 }
 
+vec2 signNonZero(vec2 v) {
+	return vec2((v.x >= 0.0) ? 1.0 : -1.0, (v.y >= 0.0) ? 1.0 : -1.0);
+}
+
 //////////////////////////////////////////////////////////
 /*------------------------ MISC ------------------------*/
 //////////////////////////////////////////////////////////
@@ -143,38 +147,39 @@ float gaussianDistrib2D(vec2 xy, float sigma) {
 /*---------------------- ENCODING ----------------------*/
 //////////////////////////////////////////////////////////
 
-// Normals encoding / decoding from: https://aras-p.info/texts/CompactNormalStorage.html
+// Thanks to SixthSurge#3922 for redirecting me to those encoding functions
+// http://jcgt.org/published/0003/02/01/
 
-const float packingScale = 1.7777;
-vec2 encodeNormal(vec3 normal) {
-    vec2 enc = normal.xy / (normal.z + 1.0);
-    enc /= packingScale;
-    return enc * 0.5 + 0.5;
+vec2 encodeUnitVector(vec3 v) {
+	vec2 enc = v.xy * (1.0 / (abs(v.x) + abs(v.y) + abs(v.z)));
+	enc      = (v.z <= 0.0) ? ((1.0 - abs(enc.yx)) * signNonZero(enc)) : enc;
+    
+	return 0.5 * enc + 0.5;
 }
 
-vec3 decodeNormal(vec2 enc) {
-    vec3 nn = vec3(enc, 0.0) * vec3(vec2(2.0 * packingScale), 0.0) + vec3(vec2(-packingScale), 1.0);
-    float g = 2.0 / dot(nn.xyz, nn.xyz);
-    return vec3(g * nn.xy, g - 1.0);
+vec3 decodeUnitVector(vec2 enc) {
+	enc    = 2.0 * enc - 1.0;
+	vec3 v = vec3(enc.xy, 1.0 - abs(enc.x) - abs(enc.y));
+	if(v.z < 0) v.xy = (1.0 - abs(v.yx)) * signNonZero(v.xy);
+	return normalize(v);
 }
 
-float pack2x8(vec2 x) {
-	return dot(floor(255.0 * x + 0.5), vec2(1.0 / 65535.0, 256.0 / 65535.0));
-}
-
-vec2 unpack2x8(float pack) {
-	pack *= 65535.0 / 256.0;
-	vec2 xy; xy.y = floor(pack); xy.x = pack - xy.y;
-	return vec2(256.0 / 255.0, 1.0 / 255.0) * xy;
-}
-
-float pack2x4(vec2 xy) {
+float packUnorm2x4(vec2 xy) {
 	return dot(floor(15.0 * xy + 0.5), vec2(1.0 / 255.0, 16.0 / 255.0));
 }
 
-vec2 unpack2x4(float pack) {
+vec2 unpackUnorm2x4(float pack) {
 	vec2 xy; xy.x = modf(pack * 255.0 / 16.0, xy.y);
 	return xy * vec2(16.0 / 15.0, 1.0 / 15.0);
+}
+
+float packUnorm2x8(vec2 xy) {
+	return dot(floor(255.0 * xy + 0.5), vec2(1.0 / bits16, 256.0 / bits16));
+}
+
+vec2 unpackUnorm2x8(float pack) {
+	vec2 xy; xy.x = modf(pack * bits16 / 256.0, xy.y);
+	return xy * vec2(256.0 / 255.0, 1.0 / 255.0);
 }
 
 //////////////////////////////////////////////////////////

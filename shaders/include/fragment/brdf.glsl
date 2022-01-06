@@ -6,8 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/include/material.glsl"
-
 // http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
 
 float distributionBeckmann(float NdotH, in float alpha) {
@@ -204,12 +202,11 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shado
     vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
     vec3 diffuse  = mat.isMetal   ? vec3(0.0) : mix(hammonDiffuse(N, V, L, mat, false), SSS * mat.albedo, mat.subsurface);
 
-    vec2 lightmap = texture(colortex1, texCoords).zw;
-    lightmap.x    = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(lightmap.x), BLOCKLIGHTMAP_EXPONENT);
-    lightmap.y    = pow2(clamp01(lightmap.y));
+    mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);
+    mat.lightmap.y = pow2(clamp01(mat.lightmap.y));
 
-    vec3 skyLight   = skyIlluminance * lightmap.y;
-    vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * lightmap.x * BLOCKLIGHT_MULTIPLIER;
+    vec3 skyLight   = skyIlluminance * mat.lightmap.y;
+    vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * mat.lightmap.x * BLOCKLIGHT_MULTIPLIER;
 
     vec3 direct   = (diffuse + specular) * (shadows * maxEps(dot(N, L))) * shadowLightIlluminance;
     vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * mat.ao * ambientOcclusion;

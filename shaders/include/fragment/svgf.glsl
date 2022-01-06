@@ -56,12 +56,12 @@ vec3 SVGF(vec2 coords, sampler2D tex, vec3 viewPos, vec3 normal, float sigma, in
             vec2 sampleCoords = coords + (vec2(i, j) * pixelSize);
             float gaussian    = gaussianDistrib1D(i, sigma) * gaussianDistrib1D(j, sigma);
 
-            vec3 normalAt = normalize(decodeNormal(texture(colortex1, sampleCoords).xy));
-            vec3 delta = viewToWorld(normal) -  viewToWorld(normalAt);
+            vec3 normalAt      = getMaterial(sampleCoords).normal;
+            vec3 delta         = viewToWorld(normal) -  viewToWorld(normalAt);
             float normalWeight = max0(exp(-dot(delta, delta) / nPhi));
 
-            vec3 samplePos = viewToWorld(getViewPos0(sampleCoords));
-            delta = viewPos - samplePos;
+            vec3 samplePos  = viewToWorld(getViewPos0(sampleCoords));
+            delta           = viewPos - samplePos;
             float posWeight = max0(exp(-dot(delta, delta) / pPhi));
   
             float sampleLuma = luminance(texture(tex, sampleCoords).rgb);

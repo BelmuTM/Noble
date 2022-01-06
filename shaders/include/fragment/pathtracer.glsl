@@ -85,7 +85,7 @@
                 radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
 
                 #ifdef WORLD_OVERWORLD
-                    radiance += throughput * directBRDF(mat.normal, -rayDir, shadowDir, mat, texture(colortex9, hitPos.xy).rgb, shadowLightIlluminance);
+                    radiance += throughput * directBRDF(mat.normal, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb, shadowLightIlluminance);
                 #endif
             }
         }

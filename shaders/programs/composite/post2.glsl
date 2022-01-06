@@ -153,7 +153,7 @@ void main() {
         if(isEyeInWater == 1) underwaterDistortion(tempCoords);
     #endif
     color          = texture(colortex0, tempCoords);
-    float exposure = computeExposure(texture(colortex3, texCoords).a);
+    float exposure = computeExposure(texture(colortex8, texCoords).a);
 
     float coc = 1.0;
     #if DOF == 1
@@ -204,7 +204,7 @@ void main() {
     color     = TONEMAP == 4 ? color : linearToRGB(color);
 
     #if LUT > 0
-        applyLUT(colortex10, color.rgb);
+        applyLUT(colortex9, color.rgb);
     #endif
 
     color.rgb += bayer64(gl_FragCoord.xy) / 64.0;
