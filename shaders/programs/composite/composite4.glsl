@@ -10,7 +10,7 @@
 
 layout (location = 0) out vec4 color;
 
-#include "/include/fragment/svgf.glsl"
+#include "/include/fragment/filter.glsl"
 
 void main() {
     #if GI == 1

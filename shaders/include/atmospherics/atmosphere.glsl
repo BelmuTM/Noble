@@ -17,22 +17,6 @@
     gltracy:         https://www.shadertoy.com/view/lslXDr
 */
 
-float rayleighPhase(float cosTheta) {
-    const float rayleigh = 3.0 / (16.0 * PI);
-    return rayleigh * (1.0 + pow2(cosTheta));
-}
-
-float miePhase(float cosTheta) {
-    const float mie = 3.0 / (8.0 * PI);
-    float num   = (1.0 - gg) * (1.0 + pow2(cosTheta));
-    float denom = (2.0 + gg) * pow(1.0 + gg - 2.0 * g * cosTheta, 1.5);
-    return mie * (num / denom);
-}
-
-float henyeyGreensteinPhase(float cosTheta, float g) {
-    return (1.0 - pow2(g)) / pow(1.0 + pow2(g) - 2.0 * g * cosTheta, 1.5);
-}
-
 vec3 densities(float height) {
     float rayleigh = exp(-height / hR);
     float mie      = exp(-height / hM);
@@ -68,7 +52,9 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     vec3 rayPos     = rayOrigin + increment * 0.5;
 
     float sunVdotL = dot(rayDir, playerSunDir); float moonVdotL = dot(rayDir, playerMoonDir);
-    vec4 phase     = vec4(rayleighPhase(sunVdotL), miePhase(sunVdotL), rayleighPhase(moonVdotL), miePhase(moonVdotL));
+    vec4 phase     = vec4(rayleighPhase(sunVdotL), cornetteShanksPhase(sunVdotL, anisoFactor), 
+                          rayleighPhase(moonVdotL), cornetteShanksPhase(moonVdotL, anisoFactor)
+                    );
 
     vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), multipleScattering = vec3(0.0), transmittance = vec3(1.0);
     

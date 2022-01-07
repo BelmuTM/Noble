@@ -38,12 +38,11 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
     vec3 PCF(vec3 sampleCoords, mat2 rotation) {
 	    vec3 shadowResult = vec3(0.0); int SAMPLES;
 
-        for(int x = 0; x < SHADOW_SAMPLES; x++) {
-            for(int y = 0; y < SHADOW_SAMPLES; y++) {
-                vec3 currSampleCoords = vec3(sampleCoords.xy + (rotation * vec2(x, y)), sampleCoords.z);
+        for(int i = 0; i < SHADOW_SAMPLES; i++) {
+            for(int j = 0; j < SHADOW_SAMPLES; j++, SAMPLES++) {
 
-                shadowResult += sampleShadowColor(currSampleCoords);
-                SAMPLES++;
+                vec3 currSampleCoords = vec3(sampleCoords.xy + (rotation * vec2(i, j)), sampleCoords.z);
+                shadowResult         += sampleShadowColor(currSampleCoords);
             }
         }
         return shadowResult / float(SAMPLES);
@@ -86,13 +85,13 @@ vec3 shadowMap(vec3 viewPos) {
     vec3 sampleCoords = viewToShadowClip(viewPos) * 0.5 + 0.5;
     if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
     
-    float theta    = (TAA == 1 ? randF() : uniformNoise(1, blueNoise).x) * TAU;
+    float theta    = (TAA == 1 ? randF() : uniformNoise(1, blueNoise).x);
     float cosTheta = cos(theta), sinTheta = sin(theta);
     mat2 rotation  = mat2(cosTheta, -sinTheta, sinTheta, cosTheta) / shadowMapResolution;
 
     #if SOFT_SHADOWS == 0
         return PCF(sampleCoords, rotation);
     #else
-        return PCSS(sampleCoords, rotation, theta / TAU);
+        return PCSS(sampleCoords, rotation, theta);
     #endif
 }

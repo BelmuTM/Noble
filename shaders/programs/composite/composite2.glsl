@@ -15,7 +15,7 @@ layout (location = 1) out vec4 color;
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
-#include "/include/fragment/svgf.glsl"
+#include "/include/fragment/filter.glsl"
 
 void main() {
     #if GI == 0

@@ -16,7 +16,7 @@ layout (location = 1) out vec4 bloomBuffer;
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
-#include "/include/fragment/svgf.glsl"
+#include "/include/fragment/filter.glsl"
 
 void main() {
     color = texture(colortex0, texCoords);
@@ -27,7 +27,7 @@ void main() {
 
         #if GI == 1
             #if GI_FILTER == 1                
-                color.rgb = SVGF(texCoords, colortex4, viewPos, mat.normal, 1.5, 3);
+                color.rgb = SVGF(texCoords, colortex0, viewPos, mat.normal, 1.5, 3);
             #endif
         #endif
 

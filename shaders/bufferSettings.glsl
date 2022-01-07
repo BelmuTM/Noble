@@ -8,7 +8,7 @@
 
 /*
 MAIN BUFFER
-const int colortex0Format = RGBA16F;
+const int colortex0Format = RGB32F;
 const bool colortex0Clear = false;
 
 DATA BUFFER (SOLID)

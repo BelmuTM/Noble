@@ -7,8 +7,7 @@
 /***********************************************/
 
 /* ATMOSPHERE CONSTANTS */
-const float g  = 0.76;
-const float gg = g*g;
+const float anisoFactor = 0.76;
 
 const float earthRad = 6371e3;
 const float atmosRad = 6481e3;

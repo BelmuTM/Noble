@@ -14,6 +14,9 @@ vec3 blueNoise = texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb
 #include "/include/utility/noise.glsl"
 #include "/include/utility/math.glsl"
 #include "/include/utility/transforms.glsl"
+#include "/include/utility/color.glsl"
+#include "/include/atmospherics/constants.glsl"
+#include "/include/atmospherics/phase.glsl"
 #include "/include/material.glsl"
 
 bool isSky(vec2 coords) {
@@ -23,6 +26,3 @@ bool isSky(vec2 coords) {
 bool isHand(float depth) {
     return linearizeDepth(depth) < 0.56;
 }
-
-#include "/include/utility/color.glsl"
-#include "/include/atmospherics/constants.glsl"

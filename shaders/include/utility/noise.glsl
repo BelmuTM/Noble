@@ -20,6 +20,20 @@ void pcg(inout uint seed) {
     float randF() { pcg(rngState); return float(rngState) / float(0xffffffffu); }
 #endif
 
+// Hammersley
+float radicalInverse_VdC(uint bits) {
+     bits = (bits << 16u) | (bits >> 16u);
+     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+     bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+     bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+     bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+     return float(bits) * 2.3283064365e-10; // / 0x100000000
+}
+
+vec2 hammersley2d(uint i, uint N) {
+     return vec2(float(i) / float(N), radicalInverse_VdC(i));
+}
+
 // http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float rand(vec2 p) {
     float dt = dot(p.xy, vec2(12.9898, 78.233));

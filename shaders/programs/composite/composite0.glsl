@@ -28,7 +28,6 @@ void main() {
 	   albedo = vec4(1.0);
       return;
    #endif
-
-   albedo.rgb = RGBtoLinear(mat.albedo);
-   albedo    += rain;
+   
+   albedo += rain;
 }

@@ -60,6 +60,8 @@ material getMaterial(vec2 coords) {
     mat.blockId  = int(unpacked0.y * 255.0 + 0.5);
     mat.lightmap = clamp01(unpacked0.zw);
 
+    mat.albedo = RGBtoLinear(mat.albedo);
+
     return mat;
 }
 

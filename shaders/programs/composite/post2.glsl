@@ -152,6 +152,7 @@ void main() {
     #if UNDERWATER_DISTORTION == 1
         if(isEyeInWater == 1) underwaterDistortion(tempCoords);
     #endif
+    
     color          = texture(colortex0, tempCoords);
     float exposure = computeExposure(texture(colortex8, texCoords).a);
 
@@ -187,8 +188,6 @@ void main() {
     saturation(color.rgb, 1.0 + SATURATION);
     contrast(color.rgb,   1.0 + CONTRAST);
     liftGammaGain(color.rgb, LIFT * 0.1, 1.0 + GAMMA, 1.0 + GAIN);
-
-    color.rgb = max0(color.rgb);
 
     #if TONEMAP >= 0
         tonemap(color.rgb);

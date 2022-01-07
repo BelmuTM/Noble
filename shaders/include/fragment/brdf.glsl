@@ -139,7 +139,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 F  = specularFresnel(HdotL, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
-    return clamp01((D * F * G) / (4.0 * NdotL * NdotV));
+    return clamp01((D * F * G) / (4.0 * NdotL * NdotV)) * NdotL;
 }
 
 // HAMMON DIFFUSE
@@ -170,21 +170,21 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
     float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
     float multi  = 0.1159 * alpha;
 
-    return max0(mat.albedo * single + mat.albedo * multi);
+    if(!pt) {
+        return max0((mat.albedo * single + mat.albedo * multi) * NdotL);
+    } else {
+        return max0(mat.albedo * single + mat.albedo * multi);
+    }
 }
 
 // Disney SSS from: https://www.shadertoy.com/view/XdyyDd
-float schlickWeight(float cosTheta) {
-    return pow5(clamp01(1.0 - cosTheta));
-}
-
 float disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 H      = normalize(V + L);
     float NdotV = maxEps(dot(N, V));
     float NdotL = maxEps(dot(N, L));
     float LdotH = maxEps(dot(L, H));
 
-    float FL    = schlickWeight(NdotL), FV = schlickWeight(NdotV);
+    float FL    = cornetteShanksPhase(NdotL, 0.5), FV = cornetteShanksPhase(NdotV, 0.5);
     float Fss90 = LdotH * LdotH * mat.rough;
     float Fss   = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
     float ss    = 1.25 * (Fss * (1.0 / (NdotL + NdotV) - 0.5) + 0.5);
@@ -208,7 +208,7 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shado
     vec3 skyLight   = skyIlluminance * mat.lightmap.y;
     vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * mat.lightmap.x * BLOCKLIGHT_MULTIPLIER;
 
-    vec3 direct   = (diffuse + specular) * (shadows * maxEps(dot(N, L))) * shadowLightIlluminance;
+    vec3 direct   = (diffuse + specular) * (shadowLightIlluminance * shadows);
     vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * mat.ao * ambientOcclusion;
 
     return direct + indirect;

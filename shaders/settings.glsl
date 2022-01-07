@@ -94,9 +94,9 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define GI        0 // [0 1]
 #define GI_FILTER 0 // [0 1]
 
-#define GI_SAMPLES            1 // [1 2 3]
+#define GI_SAMPLES            1 // [1 2 3 30]
 #define GI_BOUNCES            4 // [1 2 3 4 5 6 7 8]
-#define GI_STEPS             40 // [40 128]
+#define GI_STEPS             40 // [40 128 256]
 #define GI_RESOLUTION      1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define ROULETTE_MIN__BOUNCES 3
 

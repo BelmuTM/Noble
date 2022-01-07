@@ -26,7 +26,7 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int steps, float jitter, inout vec3 hit
         if(clamp01(hitPos.xy) != hitPos.xy) { return false; }
         float depth = texture(depthtex1, hitPos.xy).r;
 
-        if(hitPos.z > depth && !isHand(depth)) {
+        if(hitPos.z > depth) {
             #if BINARY_REFINEMENT == 1
                 hitPos = binarySearch(hitPos, screenDir);
             #endif

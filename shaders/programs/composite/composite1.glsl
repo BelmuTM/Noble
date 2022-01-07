@@ -47,7 +47,7 @@ void main() {
     shadowmap     = texture(colortex3, texCoords);
     vec3 Lighting = vec3(0.0);
 
-    volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos), 1.0);
+    //volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos), 1.0);
 
     //////////////////////////////////////////////////////////
     /*------------------------ SKY -------------------------*/
@@ -77,7 +77,7 @@ void main() {
         #if AO == 1
             if(!mat.isMetal) {
                 #if SSAO_FILTER == 1 && AO_TYPE == 0
-                    shadowmap.a = gaussianBlur(texCoords, colortex3, 2.2, 2.0, 4).a;
+                    shadowmap.a = gaussianBlur(texCoords, colortex3, 1.4, 2.0, 4).a;
                 #endif
             }
         #endif
@@ -113,4 +113,6 @@ void main() {
             historyBuffer = vec4(color.rgb, historyFrames);
         }
     #endif
+
+    //color.rgb = isSky(texCoords) ? vec3(0.0) : mat.albedo;
 }

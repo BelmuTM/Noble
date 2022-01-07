@@ -5,7 +5,6 @@
 /***********************************************/
 
 #include "/include/post/taa.glsl"
-#include "/include/utility/hammersley.glsl"
 
 // Kneemund's Border Attenuation
 float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
