@@ -42,12 +42,13 @@ layout (location = 3) out vec4 volumetricLighting;
 #endif
 
 void main() {
-    vec3 viewPos  = getViewPos0(texCoords);
+    vec3 viewPos = getViewPos0(texCoords);
     material mat  = getMaterial(texCoords);
+
     shadowmap     = texture(colortex3, texCoords);
     vec3 Lighting = vec3(0.0);
 
-    //volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos), 1.0);
+    volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos), 1.0);
 
     //////////////////////////////////////////////////////////
     /*------------------------ SKY -------------------------*/
@@ -113,6 +114,4 @@ void main() {
             historyBuffer = vec4(color.rgb, historyFrames);
         }
     #endif
-
-    //color.rgb = isSky(texCoords) ? vec3(0.0) : mat.albedo;
 }

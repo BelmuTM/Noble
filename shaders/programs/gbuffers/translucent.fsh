@@ -23,6 +23,7 @@ in mat3 TBN;
 
 #include "/include/uniforms.glsl"
 #include "/include/utility/math.glsl"
+#include "/include/atmospherics/constants.glsl"
 
 void main() {
 	vec4 albedoTex   = texture(colortex0, texCoords);
@@ -42,7 +43,7 @@ void main() {
 	vec3 normal;
 	// WOTAH
 	if(int(blockId + 0.5) == 1) { 
-		albedoTex = vec4(1.0);
+		albedoTex = vec4(1.0, 1.0, 1.0, 0.0);
 		F0 		  = 0.02;
 		roughness = 0.0;
 		normal 	  = waterNormals;
@@ -54,7 +55,7 @@ void main() {
 	vec2 encNormal = encodeUnitVector(TBN * normal);
 	
 	dataBuffer.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) / 255.0, clamp01(lmCoords.xy)));
-	dataBuffer.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));
+	dataBuffer.y = packUnorm4x8(vec4(ao, albedoTex.a, F0, subsurface));
 	dataBuffer.z = (uint(albedoTex.r * 255.0) << 24u) | (uint(albedoTex.g * 255.0) << 16u) | (uint(albedoTex.b * 255.0) << 8u) | uint(encNormal.x * 255.0);
 	dataBuffer.w = uint(encNormal.y * 255.0);
 }

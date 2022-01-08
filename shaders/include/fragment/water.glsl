@@ -50,6 +50,11 @@ float waterFoam(float dist) {
     return 0.0;
 }
 
+void waterFog(inout vec3 color, float dist) {
+    vec3 transmittance = exp(-WATER_ABSORPTION_COEFFICIENTS * WATER_DENSITY * dist);
+    color             *= transmittance;
+}
+
 float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmplitude, float waveLength, vec2 waveDir) {
 	float k = TAU / waveLength;
     float w = sqrt(9.81 * k);

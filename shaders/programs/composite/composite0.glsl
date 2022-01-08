@@ -16,11 +16,14 @@ layout (location = 1) out vec4 shadowmap;
 void main() {
    vec4 rain    = RGBtoLinear(texture(colortex4, texCoords));
    shadowmap    = texture(colortex3, texCoords);
+   
    material mat = getMaterial(texCoords);
 
    // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
    #if WATER_CAUSTICS == 1
-      bool canCast = isEyeInWater > 0.5 ? true : mat.blockId == 1;
+      material transMat = getMaterialTranslucents(texCoords);
+
+      bool canCast = isEyeInWater > 0.5 ? true : transMat.blockId == 1;
       if(canCast) { shadowmap.rgb *= waterCaustics(texCoords); }
    #endif
 

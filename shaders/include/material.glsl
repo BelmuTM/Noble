@@ -58,7 +58,33 @@ material getMaterial(vec2 coords) {
     mat.normal = normalize(mat3(gbufferModelView) * decodeUnitVector(vec2((tex1.z & 255u), tex1.w) / 255.0));
 
     mat.blockId  = int(unpacked0.y * 255.0 + 0.5);
-    mat.lightmap = clamp01(unpacked0.zw);
+    mat.lightmap = unpacked0.zw;
+
+    mat.albedo = RGBtoLinear(mat.albedo);
+
+    return mat;
+}
+
+material getMaterialTranslucents(vec2 coords) {
+    uvec4 tex2     = texture(colortex2, coords);
+    vec4 unpacked0 = unpackUnorm4x8(tex2.x);
+    vec4 unpacked1 = unpackUnorm4x8(tex2.y);
+
+    material mat;
+
+    mat.rough      = unpacked0.x;
+    mat.ao         = unpacked1.x;
+    mat.emission   = 0.0;
+    mat.F0         = unpacked1.z;
+    mat.subsurface = unpacked1.w;
+    mat.isMetal    = mat.F0 * 255.0 > 229.5;
+
+    mat.albedo = vec3((tex2.z >> 24u) & 255u, (tex2.z >> 16u) & 255u, (tex2.z >> 8u) & 255u) / 255.0;
+    mat.alpha  = unpacked1.y;
+    mat.normal = normalize(mat3(gbufferModelView) * decodeUnitVector(vec2((tex2.z & 255u), tex2.w) / 255.0));
+
+    mat.blockId  = int(unpacked0.y * 255.0 + 0.5);
+    mat.lightmap = unpacked0.zw;
 
     mat.albedo = RGBtoLinear(mat.albedo);
 
