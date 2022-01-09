@@ -50,7 +50,7 @@ void main() {
     /*------------------------ SKY -------------------------*/
     //////////////////////////////////////////////////////////
 
-    if(isSky(texCoords)) {
+    if(texture(depthtex1, texCoords).r == 1.0) {
         vec3 sky = vec3(0.0);
 
         #ifdef WORLD_OVERWORLD

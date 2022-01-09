@@ -17,7 +17,6 @@ layout (location = 2) out vec4 volumetricLighting;
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
 #include "/include/fragment/filter.glsl"
-#include "/include/fragment/water.glsl"
 #include "/include/fragment/shadows.glsl"
 #include "/include/atmospherics/fog.glsl"
 

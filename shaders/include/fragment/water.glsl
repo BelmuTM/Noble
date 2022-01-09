@@ -50,20 +50,6 @@ float waterFoam(float dist) {
     return 0.0;
 }
 
-void waterFog(inout vec3 color, float dist, vec3 skyIlluminance, vec2 lightmap) {
-    vec3 absorptionCoeff = vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) / 255.0;
-    vec3 scatteringCoeff = vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) / 255.0;
-
-    vec3 scattering    = vec3(0.0);
-    vec3 transmittance = exp(-absorptionCoeff * dist);
-
-    scattering  = (skyIlluminance * isotropicPhase) * transmittance * scatteringCoeff;
-    scattering *= (1.0 - transmittance) / absorptionCoeff;
-    scattering *= lightmap.y;
-
-    color = color * transmittance + scattering;
-}
-
 float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmplitude, float waveLength, vec2 waveDir) {
 	float k = TAU / waveLength;
     float w = sqrt(9.81 * k);

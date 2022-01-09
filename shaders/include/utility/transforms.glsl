@@ -18,8 +18,8 @@ vec3 transMAD3(mat4 mat, vec3 v) { return mat3(mat) * v + mat[3].xyz; }
 vec4 transMAD4(mat4 mat, vec4 v) { return mat * v + mat[3].xyzw;      }
 
 bool hasMoved() {
-    return gbufferProjection != gbufferPreviousProjection
-		|| cameraPosition    != previousCameraPosition;
+    return gbufferModelView != gbufferPreviousModelView
+		|| cameraPosition   != previousCameraPosition;
 }
 
 float getDistortionFactor(vec2 coords) {
