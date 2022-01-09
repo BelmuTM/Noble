@@ -26,7 +26,9 @@ out mat3 TBN;
 #include "/include/uniforms.glsl"
 #include "/include/utility/noise.glsl"
 #include "/include/utility/math.glsl"
+#include "/include/atmospherics/constants.glsl"
 #include "/include/utility/transforms.glsl"
+#include "/include/utility/color.glsl"
 #include "/include/fragment/water.glsl"
 
 vec2 taaOffsets[8] = vec2[8](

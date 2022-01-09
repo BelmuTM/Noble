@@ -235,11 +235,23 @@ option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of h
 option.WAVE_LENGTH = Wave Length
 option.WAVE_LENGTH.comment = Adjusts the length of water waves. Length between 2 waves.
 
-option.WAVE_AMPLITUDE = Wave Amplitude
-option.WAVE_AMPLITUDE.comment = Adjusts the amplitude of water waves. Height from sea level to top.
+option.WATER_ABSORPTION_R = Water Absorption §cRed
+option.WATER_ABSORPTION_R.comment = Adjusts how water absorbs light. Higher value means that §cred§r will be absorbed more.
 
-option.WAVE_SPEED = Wave Speed
-option.WAVE_SPEED.comment = Adjusts the speed of water waves.
+option.WATER_ABSORPTION_G = Water Absorption §aGreen
+option.WATER_ABSORPTION_G.comment = Adjusts how water absorbs light. Higher value means that §agreen§r will be absorbed more.
+
+option.WATER_ABSORPTION_B = Water Absorption §9Blue
+option.WATER_ABSORPTION_B.comment = Adjusts how water absorbs light. Higher value means that §9blue§r will be absorbed more.
+
+option.WATER_SCATTERING_R = Water Scattering §cRed
+option.WATER_SCATTERING_R.comment = Adjusts how water scatters light. Higher value means that §cred§r will be scattered more.
+
+option.WATER_SCATTERING_G = Water Scattering §aGreen
+option.WATER_SCATTERING_G.comment = Adjusts how water scatters light. Higher value means that §agreen§r will be scattered more.
+
+option.WATER_SCATTERING_B = Water Scattering §9Blue
+option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher value means that §9blue§r will be scattered more.
 
 ##################### CAMERA #####################
 

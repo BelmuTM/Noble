@@ -12,5 +12,5 @@
 #include "/settings.glsl"
 #define STAGE STAGE_FRAGMENT
 
-#include "/include/uniforms.glsl"
+#include "/include/common.glsl"
 #include "/programs/gbuffers/shadow.glsl"

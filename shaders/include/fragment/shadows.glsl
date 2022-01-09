@@ -10,23 +10,23 @@ vec3 viewToShadowClip(vec3 viewPos) {
 	vec4 shadowPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
 	     shadowPos = shadowModelView  * shadowPos;
          shadowPos = shadowProjection * shadowPos;
-	return vec3(distort(shadowPos.xy), shadowPos.z);
+	return distortShadowSpace(shadowPos.xyz);
 }
 
 vec3 viewToShadowView(vec3 viewPos) {
 	vec4 shadowPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
 	     shadowPos = shadowModelView  * shadowPos;
-	return vec3(distort(shadowPos.xy), shadowPos.z);
+	return distortShadowSpace(shadowPos.xyz);
 }
 
-float visibility(sampler2D tex, vec3 sampleCoords) {
-    return step(sampleCoords.z - 1e-3, texture(tex, sampleCoords.xy).r);
+float visibility(sampler2D tex, vec3 viewPos, vec3 sampleCoords) {
+    return step(sampleCoords.z - SHADOW_BIAS, texture(tex, sampleCoords.xy).r);
 }
 
-vec3 sampleShadowColor(vec3 sampleCoords) {
+vec3 sampleShadowColor(vec3 viewPos, vec3 sampleCoords) {
     if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
-    float shadowVisibility0 = visibility(shadowtex0, sampleCoords);
-    float shadowVisibility1 = visibility(shadowtex1, sampleCoords);
+    float shadowVisibility0 = visibility(shadowtex0, viewPos, sampleCoords);
+    float shadowVisibility1 = visibility(shadowtex1, viewPos, sampleCoords);
     
     vec4 shadowColor0     = texture(shadowcolor0, sampleCoords.xy);
     vec3 transmittedColor = shadowColor0.rgb * (1.0 - shadowColor0.a);
@@ -35,14 +35,14 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
 
 #if SOFT_SHADOWS == 0
 
-    vec3 PCF(vec3 sampleCoords, mat2 rotation) {
+    vec3 PCF(vec3 viewPos, vec3 sampleCoords, mat2 rotation) {
 	    vec3 shadowResult = vec3(0.0); int SAMPLES;
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
             for(int j = 0; j < SHADOW_SAMPLES; j++, SAMPLES++) {
 
                 vec3 currSampleCoords = vec3(sampleCoords.xy + (rotation * vec2(i, j)), sampleCoords.z);
-                shadowResult         += sampleShadowColor(currSampleCoords);
+                shadowResult         += sampleShadowColor(viewPos, currSampleCoords);
             }
         }
         return shadowResult / float(SAMPLES);
@@ -56,7 +56,7 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
             vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi) * pixelSize;
             float z     = texture(shadowtex0, sampleCoords.xy + offset).r;
 
-            if(sampleCoords.z - 1e-3 > z) {
+            if(sampleCoords.z - SHADOW_BIAS > z) {
                 avgBlockerDepth += z;
                 BLOCKERS++;
             }
@@ -64,7 +64,7 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
         return BLOCKERS > 0 ? avgBlockerDepth / BLOCKERS : -1.0;
     }
 
-    vec3 PCSS(vec3 sampleCoords, mat2 rotation, float phi) {
+    vec3 PCSS(vec3 viewPos, vec3 sampleCoords, mat2 rotation, float phi) {
         float avgBlockerDepth = findBlockerDepth(sampleCoords, rotation, phi);
         if(avgBlockerDepth < 0.0) return vec3(1.0);
 
@@ -75,7 +75,7 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
             vec2 offset           = rotation * (penumbraSize * diskSampling(i, PCSS_SAMPLES, phi));
             vec3 currSampleCoords = vec3(sampleCoords.xy + offset, sampleCoords.z);
 
-            shadowResult += sampleShadowColor(currSampleCoords);
+            shadowResult += sampleShadowColor(viewPos, currSampleCoords);
         }
         return shadowResult / float(PCSS_SAMPLES);
     }
@@ -90,8 +90,8 @@ vec3 shadowMap(vec3 viewPos) {
     mat2 rotation  = mat2(cosTheta, -sinTheta, sinTheta, cosTheta) / shadowMapResolution;
 
     #if SOFT_SHADOWS == 0
-        return PCF(sampleCoords, rotation);
+        return PCF(viewPos, sampleCoords, rotation);
     #else
-        return PCSS(sampleCoords, rotation, theta);
+        return PCSS(viewPos, sampleCoords, rotation, theta);
     #endif
 }

@@ -18,12 +18,16 @@ vec3 transMAD3(mat4 mat, vec3 v) { return mat3(mat) * v + mat[3].xyz; }
 vec4 transMAD4(mat4 mat, vec4 v) { return mat * v + mat[3].xyzw;      }
 
 bool hasMoved() {
-    return gbufferModelView != gbufferPreviousModelView
-		|| cameraPosition   != previousCameraPosition;
+    return gbufferProjection != gbufferPreviousProjection
+		|| cameraPosition    != previousCameraPosition;
 }
 
-vec2 distort(vec2 coords) {
-	return coords / (length(coords) * SHADOW_BIAS + (1.0 - SHADOW_BIAS));
+float getDistortionFactor(vec2 coords) {
+	return cubeLength(coords) * SHADOW_DISTORTION + (1.0 - SHADOW_DISTORTION);
+}
+
+vec3 distortShadowSpace(vec3 shadowPos) {
+	return shadowPos / vec3(vec2(getDistortionFactor(shadowPos.xy)), 2.0);
 }
 
 vec3 getViewPos0(vec2 coords) {

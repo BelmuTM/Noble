@@ -17,12 +17,7 @@
     gltracy:         https://www.shadertoy.com/view/lslXDr
 */
 
-vec3 densities(float height) {
-    float rayleigh = exp(-height / hR);
-    float mie      = exp(-height / hM);
-    float ozone    = exp(-max0((35e3 - height) - atmosRad) / 5e3) * exp(-max0((height - 35e3) - atmosRad) / 15e3);
-    return vec3(rayleigh, mie, ozone);
-}
+#include "/include/atmospherics/density.glsl"
 
 vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     float rayLength = raySphere(rayOrigin, lightDir, atmosRad).y / float(TRANSMITTANCE_STEPS);

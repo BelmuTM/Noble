@@ -22,6 +22,14 @@ void main() {
     #if BLOOM == 1
         bloomBuffer.rgb = writeBloom();
     #endif
+
+    #if VL == 1
+        #if VL_FILTER == 1
+            color.rgb += boxBlur(texCoords, colortex7, 2).rgb;
+        #else
+            color.rgb += texture(colortex7, texCoords).rgb;
+        #endif
+    #endif
      
     #if RAIN_FOG == 1
         if(rainStrength > 0.0) {

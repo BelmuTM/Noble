@@ -7,6 +7,8 @@
 /***********************************************/
 
 #if STAGE == STAGE_VERTEX
+
+    #include "/include/utility/math.glsl"
     #include "/include/utility/transforms.glsl"
 
     attribute vec4 at_tangent;
@@ -30,8 +32,8 @@
         vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
 	    TBN 		   = mat3(tangent, bitangent, normal);
 
-        gl_Position    = ftransform();
-        gl_Position.xy = distort(gl_Position.xy);
+        gl_Position     = ftransform();
+        gl_Position.xyz = distortShadowSpace(gl_Position.xyz);
     }
     
 #elif STAGE == STAGE_FRAGMENT
@@ -41,16 +43,13 @@
     layout (location = 0) out vec4 shadowColor0;
     layout (location = 1) out vec4 shadowColor1;
 
-    #include "/include/utility/noise.glsl"
-    #include "/include/utility/math.glsl"
-    #include "/include/utility/transforms.glsl"
-    #include "/include/fragment/water.glsl"
-
     in float blockId;
     in vec2 texCoords;
     in vec3 viewPos;
     in vec4 vertexColor;
     in mat3 TBN;
+
+    #include "/include/fragment/water.glsl"
 
     // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
     float waterCaustics(vec3 oldPos, vec3 normal) {
@@ -74,7 +73,8 @@
         //    caustics    = waterCaustics(viewPos, normal);
         //}
 
-        shadowColor0 = albedoTex * vertexColor;
+        albedoTex   *= vertexColor;
+        shadowColor0 = albedoTex;
         //shadowColor1 = vec4(caustics * 0.5 + 0.5);
     }
 #endif

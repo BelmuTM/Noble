@@ -6,18 +6,16 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:0357 */
+/* DRAWBUFFERS:035 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 shadowmap;
 layout (location = 2) out vec4 historyBuffer;
-layout (location = 3) out vec4 volumetricLighting;
 
 #include "/include/utility/blur.glsl"
 #include "/include/fragment/brdf.glsl"
-#include "/include/fragment/shadows.glsl"
 #include "/include/atmospherics/celestial.glsl"
-#include "/include/atmospherics/fog.glsl"
+#include "/include/atmospherics/atmosphere.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/pathtracer.glsl"
 
@@ -47,8 +45,6 @@ void main() {
 
     shadowmap     = texture(colortex3, texCoords);
     vec3 Lighting = vec3(0.0);
-
-    volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos), 1.0);
 
     //////////////////////////////////////////////////////////
     /*------------------------ SKY -------------------------*/
