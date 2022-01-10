@@ -25,9 +25,9 @@ void main() {
 
     #if VL == 1
         #if VL_FILTER == 1
-            color.rgb += boxBlur(texCoords, colortex7, 2).rgb;
+            //color.rgb += boxBlur(texCoords, colortex7, 2).rgb;
         #else
-            color.rgb += texture(colortex7, texCoords).rgb;
+            //color.rgb += texture(colortex7, texCoords).rgb;
         #endif
     #endif
      

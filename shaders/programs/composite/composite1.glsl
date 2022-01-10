@@ -91,7 +91,7 @@ void main() {
             shadowmap.rgb = vec3(0.0);
         #endif
         
-        color.rgb = cookTorrance(viewPos, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a);
+        color.rgb = applyLighting(viewPos, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a);
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/

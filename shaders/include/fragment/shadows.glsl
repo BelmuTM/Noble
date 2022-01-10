@@ -6,16 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 viewToShadowClip(vec3 viewPos) {
-	vec4 shadowPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
+vec3 viewToShadowClip(vec4 viewPos) {
+	vec4 shadowPos = gbufferModelViewInverse * viewPos;
 	     shadowPos = shadowModelView  * shadowPos;
          shadowPos = shadowProjection * shadowPos;
-	return distortShadowSpace(shadowPos.xyz);
-}
-
-vec3 viewToShadowView(vec3 viewPos) {
-	vec4 shadowPos = gbufferModelViewInverse * vec4(viewPos, 1.0);
-	     shadowPos = shadowModelView  * shadowPos;
 	return distortShadowSpace(shadowPos.xyz);
 }
 
@@ -82,7 +76,7 @@ vec3 sampleShadowColor(vec3 viewPos, vec3 sampleCoords) {
 #endif
 
 vec3 shadowMap(vec3 viewPos) {
-    vec3 sampleCoords = viewToShadowClip(viewPos) * 0.5 + 0.5;
+    vec3 sampleCoords = viewToShadowClip(vec4(viewPos, 1.0)) * 0.5 + 0.5;
     if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
     
     float theta    = (TAA == 1 ? randF() : uniformNoise(1, blueNoise).x);

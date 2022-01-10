@@ -16,14 +16,14 @@ vec3 groundFog(vec3 viewPos, vec3 background, vec3 fogColor, float fogCoef, floa
 // Thanks Jessie, LVutner and SixthSurge for the help!
 
 vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
-    float rayLength = (25.0 / TRANSMITTANCE_STEPS) / abs(VL_STEPS);
+    float rayLength = (25.0 / float(TRANSMITTANCE_STEPS)) / abs(lightDir.y);
     vec3 increment  = lightDir * rayLength;
     vec3 rayPos     = rayOrigin + increment * 0.5;
 
     vec3 transmittance = vec3(0.0);
     for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
-        vec2 density   = densities(rayPos.y).xy;
-        transmittance *= exp(-kExtinction * vec3(density, 0.0) * rayLength);
+        vec3 density   = vec3(densities(rayPos.y).xy, 0.0);
+        transmittance *= exp(-kExtinction * density * rayLength);
         rayPos        += increment;
     }
     return transmittance;
@@ -47,17 +47,16 @@ vec3 volumetricFog(vec3 viewPos) {
     vec3 illuminance = worldTime <= 12750 ? sunIlluminance : moonIlluminance;
 
     for(int i = 0; i < VL_STEPS; i++, rayPos += increment) {
-        vec4 samplePos   = shadowProjection * shadowModelView * rayPos;
-        vec3 sampleColor = sampleShadowColor(viewPos, distortShadowSpace(samplePos.xyz) * 0.5 + 0.5);
+        vec3 sampleColor = sampleShadowColor(viewPos, distortShadowSpace(viewToShadowClip(rayPos)) * 0.5 + 0.5);
 
-        vec3 airmass      = (densities(rayPos.y) * 19900.0) * rayLength;
+        vec3 airmass      = densities(rayPos.y) * 1e6 * rayLength;
         vec3 opticalDepth = kExtinction * airmass;
 
         vec3 stepTransmittance = exp(-opticalDepth);
         vec3 visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
         vec3 stepScattering    = kScattering * (airmass.xy * phase.xy) * visibleScattering;
 
-        scattering    += stepScattering * vlTransmittance(rayPos.xyz, rayDir.xyz) * sampleColor * illuminance;
+        scattering    += sampleColor * 500.0;
         transmittance *= stepTransmittance;
     }
     return max0(scattering);

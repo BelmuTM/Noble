@@ -235,6 +235,9 @@ option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of h
 option.WAVE_LENGTH = Wave Length
 option.WAVE_LENGTH.comment = Adjusts the length of water waves. Length between 2 waves.
 
+option.WAVE_SPEED = Wave Speed
+option.WAVE_SPEED.comment = Adjusts the speed of water waves.
+
 option.WATER_ABSORPTION_R = Water Absorption §cRed
 option.WATER_ABSORPTION_R.comment = Adjusts how water absorbs light. Higher value means that §cred§r will be absorbed more.
 

@@ -33,6 +33,8 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     return transmittance;
 }
 
+// Calculating sun and moon scattering is heavier, but gives a smoother transition from day to night.
+
 vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     vec2 atmosDist  = raySphere(rayOrigin, rayDir, atmosRad);
     vec2 planetDist = raySphere(rayOrigin, rayDir, earthRad - 5e3);

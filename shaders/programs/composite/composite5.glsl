@@ -79,7 +79,7 @@ void main() {
                 shadowmap.rgb = vec3(0.0);
             #endif
 
-            vec3 transLighting = cookTorrance(viewPos0, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a);
+            vec3 transLighting = applyLightingTranslucents(viewPos0, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a);
             color.rgb          = mix(color.rgb, transLighting, mat.alpha);
         }
 
@@ -111,7 +111,7 @@ void main() {
 
     #if VL == 1
         #ifdef WORLD_OVERWORLD
-            volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos0), 1.0);
+            //volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos0), 1.0);
         #endif
     #endif
 

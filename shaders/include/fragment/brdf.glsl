@@ -195,7 +195,8 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
-vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shadowLightIlluminance, vec3 skyIlluminance, float ambientOcclusion) {
+
+vec3 applyLighting(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shadowLightIlluminance, vec3 skyIlluminance, float ambientOcclusion) {
     V = -normalize(V);
 
     float SSS     = disneySubsurface(N, V, L, mat);
@@ -209,6 +210,24 @@ vec3 cookTorrance(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shado
     vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * mat.lightmap.x * BLOCKLIGHT_MULTIPLIER;
 
     vec3 direct   = (diffuse + specular) * (shadowLightIlluminance * shadows);
+    vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * mat.ao * ambientOcclusion;
+
+    return direct + indirect;
+}
+
+vec3 applyLightingTranslucents(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shadowLightIlluminance, vec3 skyIlluminance, float ambientOcclusion) {
+    V = -normalize(V);
+
+    float SSS     = disneySubsurface(N, V, L, mat);
+    vec3 diffuse  = mat.isMetal   ? vec3(0.0) : mix(hammonDiffuse(N, V, L, mat, false), SSS * mat.albedo, mat.subsurface);
+
+    mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);
+    mat.lightmap.y = pow2(clamp01(mat.lightmap.y));
+
+    vec3 skyLight   = skyIlluminance * mat.lightmap.y;
+    vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * mat.lightmap.x * BLOCKLIGHT_MULTIPLIER;
+
+    vec3 direct   = diffuse * (shadowLightIlluminance * shadows);
     vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * mat.ao * ambientOcclusion;
 
     return direct + indirect;
