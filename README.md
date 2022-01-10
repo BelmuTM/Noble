@@ -40,8 +40,8 @@ Please consider contacting me if needed.
 **Thanks for supporting this project!**
 
 ![Showcase 01](https://i.imgur.com/lblFpwb.png)
-![Showcase 02](https://cdn.discordapp.com/attachments/648326283926700042/930158437373988934/2022-01-10_18.45.19.png)
-![Showcase 03](https://cdn.discordapp.com/attachments/837754906014122084/929113993220608040/2022-01-07_21.45.10.png)
+![Showcase 02](https://i.imgur.com/9I02Via.jpg)
+![Showcase 03](https://i.imgur.com/QZEGWfS.jpg)
 ![Showcase 04](https://i.imgur.com/EJrWx4G.jpg)
 ![Showcase 05](https://i.imgur.com/yPHi9G8.jpg)
 ![Showcase 06](https://i.imgur.com/fyZtIUL.jpg)
