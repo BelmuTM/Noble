@@ -56,9 +56,18 @@
                     if(roulette < randF()) { break; }
                     throughput /= roulette;
                 }
+
+                vec3 viewPos0 = getViewPos0(hitPos.xy);
+                vec3 viewPos1 = getViewPos1(hitPos.xy);
                 
                 /* Material & Direct Lighting */
-                mat = getMaterial(hitPos.xy);
+
+                if(viewPos0.z != viewPos1.z) {
+                    mat        = getMaterialTranslucents(hitPos.xy);
+                    mat.albedo = mix(getMaterial(hitPos.xy).albedo, mat.albedo, mat.alpha);
+                } else {
+                    mat = getMaterial(hitPos.xy);
+                }
                 TBN = constructViewTBN(mat.normal);
 
                 radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;

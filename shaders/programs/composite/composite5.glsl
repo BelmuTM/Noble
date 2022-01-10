@@ -59,28 +59,30 @@ void main() {
                 }
             #endif
 
-            #ifdef WORLD_OVERWORLD
-                skyIlluminance = texture(colortex7, texCoords).rgb;
+            // Outer fog
+            if(isWater) {
+                depthDist = distance(
+	                transMAD3(gbufferModelViewInverse, getViewPos0(coords)),
+		            transMAD3(gbufferModelViewInverse, getViewPos1(coords))
+	            );
 
-                vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
-                vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
-                totalIllum        = sunTransmit + moonTransmit;
+                waterFog(color.rgb, depthDist, skyIlluminance, mat.lightmap);
+            }
 
-                // Outer fog
-                if(isWater) {
-                    depthDist = distance(
-	                    transMAD3(gbufferModelViewInverse, getViewPos0(coords)),
-		                transMAD3(gbufferModelViewInverse, getViewPos1(coords))
-	                );
+            #if GI == 0
+                #ifdef WORLD_OVERWORLD
+                    skyIlluminance = texture(colortex7, texCoords).rgb;
 
-                    waterFog(color.rgb, depthDist, skyIlluminance, mat.lightmap);
-                }
-            #else
-                shadowmap.rgb = vec3(0.0);
+                    vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
+                    vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
+                    totalIllum        = sunTransmit + moonTransmit;
+                #else
+                    shadowmap.rgb = vec3(0.0);
+                #endif
+
+                vec3 transLighting = applyLightingTranslucents(viewPos0, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a);
+                color.rgb          = mix(color.rgb, transLighting, mat.alpha);
             #endif
-
-            vec3 transLighting = applyLightingTranslucents(viewPos0, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a);
-            color.rgb          = mix(color.rgb, transLighting, mat.alpha);
         }
 
         //////////////////////////////////////////////////////////
