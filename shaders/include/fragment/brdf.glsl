@@ -222,7 +222,7 @@ vec3 applyLightingTranslucents(vec3 V, vec3 N, vec3 L, material mat, vec3 shadow
     vec3 diffuse  = mat.isMetal   ? vec3(0.0) : mix(hammonDiffuse(N, V, L, mat, false), SSS * mat.albedo, mat.subsurface);
 
     mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);
-    mat.lightmap.y = pow2(clamp01(mat.lightmap.y));
+    mat.lightmap.y = pow2(quintic(0.0, 0.95, mat.lightmap.y));
 
     vec3 skyLight   = skyIlluminance * mat.lightmap.y;
     vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * mat.lightmap.x * BLOCKLIGHT_MULTIPLIER;

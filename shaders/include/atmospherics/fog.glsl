@@ -47,7 +47,7 @@ vec3 volumetricFog(vec3 viewPos) {
     vec3 illuminance = worldTime <= 12750 ? sunIlluminance : moonIlluminance;
 
     for(int i = 0; i < VL_STEPS; i++, rayPos += increment) {
-        vec3 sampleColor = sampleShadowColor(viewPos, distortShadowSpace(viewToShadowClip(rayPos)) * 0.5 + 0.5);
+        vec3 sampleColor = sampleShadowColor(viewPos, viewToShadowClip(gbufferModelView * rayPos) * 0.5 + 0.5);
 
         vec3 airmass      = densities(rayPos.y) * 1e6 * rayLength;
         vec3 opticalDepth = kExtinction * airmass;
@@ -56,22 +56,22 @@ vec3 volumetricFog(vec3 viewPos) {
         vec3 visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
         vec3 stepScattering    = kScattering * (airmass.xy * phase.xy) * visibleScattering;
 
-        scattering    += sampleColor * 500.0;
+        scattering    += stepScattering * vlTransmittance(rayPos.xyz, shadowDir) * sampleColor * illuminance;
         transmittance *= stepTransmittance;
     }
     return max0(scattering);
 }
 
-void waterFog(inout vec3 color, float dist, vec3 skyIlluminance, vec2 lightmap) {
-    vec3 absorptionCoeff = vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) / 255.0;
-    vec3 scatteringCoeff = vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) / 255.0;
+// Sources: ShaderLabs, Spectrum - Zombye
+void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance) {
+    vec3 absorptionCoeff = RGBtoLinear(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) / 255.0);
+    vec3 scatteringCoeff = RGBtoLinear(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) / 255.0);
 
-    vec3 scattering    = vec3(0.0);
     vec3 transmittance = exp(-absorptionCoeff * WATER_DENSITY * dist);
 
-    scattering  = (skyIlluminance * isotropicPhase) * transmittance * scatteringCoeff;
-    scattering *= (1.0 - transmittance) / absorptionCoeff;
-    scattering *= lightmap.y;
+    vec3 scattering  = skyIlluminance * isotropicPhase;
+         scattering += illuminanceShadowLight * cornetteShanksPhase(VdotL, 0.5);
+         scattering  = scattering * (scatteringCoeff - scatteringCoeff * transmittance);
 
     color = color * transmittance + scattering;
 }

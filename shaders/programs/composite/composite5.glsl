@@ -26,6 +26,7 @@ void main() {
 
     if(!isSky(texCoords)) {
         vec3 viewPos1 = getViewPos1(texCoords);
+        vec3 viewDir0 = normalize(mat3(gbufferModelViewInverse) * viewPos0);
 
         material mat      = getMaterial(texCoords);
         material transMat = getMaterialTranslucents(texCoords);
@@ -66,7 +67,7 @@ void main() {
 		            transMAD3(gbufferModelViewInverse, getViewPos1(coords))
 	            );
 
-                waterFog(color.rgb, depthDist, skyIlluminance, mat.lightmap);
+                waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
             }
 
             #if GI == 0
@@ -107,7 +108,7 @@ void main() {
         // Inner fog
         if(inWater) {
             depthDist = length(transMAD3(gbufferModelViewInverse, viewPos0));
-            waterFog(color.rgb, depthDist, skyIlluminance, mat.lightmap);
+            waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
         }
     }
 

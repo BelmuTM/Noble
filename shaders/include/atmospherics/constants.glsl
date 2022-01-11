@@ -44,3 +44,5 @@ const vec3 sunLuminance   = sunIlluminance / (TAU * (1.0 - cos(sunAngularRad)));
 
 const vec3 moonLuminance   = moonAlbedo * sunIlluminance;
 const vec3 moonIlluminance = moonLuminance * (TAU * (1.0 - cos(moonAngularRad))); // The rough amount of light the moon emits that reaches the earth
+
+vec3 illuminanceShadowLight = worldTime <= 12750 ? sunIlluminance : moonIlluminance;
