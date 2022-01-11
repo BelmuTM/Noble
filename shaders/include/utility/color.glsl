@@ -150,10 +150,10 @@ void reinhardJodie(inout vec3 color) {
 }
 
 void lottes(inout vec3 color) {
-    const vec3 a      = vec3(1.3);
-    const vec3 d      = vec3(0.877);
+    const vec3 a = vec3(1.6);
+    const vec3 d = vec3(0.977);
     const vec3 hdrMax = vec3(8.0);
-    const vec3 midIn  = vec3(0.18);
+    const vec3 midIn = vec3(0.18);
     const vec3 midOut = vec3(0.267);
 
     const vec3 b =
@@ -187,11 +187,11 @@ vec3 uchimura(vec3 x, float P, float a, float m, float l, float c, float b) {
 }
 
 void uchimura(inout vec3 color) {
-    const float P = 1.3;  // max display brightness
+    const float P = 1.0;  // max display brightness
     const float a = 1.0;  // contrast
-    const float m = 0.18; // linear section start
+    const float m = 0.22; // linear section start
     const float l = 0.4;  // linear section length
-    const float c = 1.1; // black
+    const float c = 1.33; // black
     const float b = 0.0;  // pedestal
 
     color = uchimura(color, P, a, m, l, c, b);

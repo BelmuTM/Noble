@@ -85,7 +85,7 @@
                 float specularProb  = fresnelLum / totalLum;
  
                 if(specularProb > randF()) {
-                    rayDir      = reflect(rayDir, microfacet);
+                    rayDir      = reflect(rayDir, mat.blockId == 1 ? mat.normal : microfacet);
                     throughput *= specularBRDF(microfacet, -rayDir, rayDir, fresnel, mat.rough) / specularProb;
                 } else {
                     throughput *= (1.0 - fresnelDielectric(dot(-rayDir, microfacet), F0toIOR(mat.F0))) / (1.0 - specularProb);
