@@ -256,6 +256,12 @@ option.WATER_SCATTERING_G.comment = Adjusts how water scatters light. Higher val
 option.WATER_SCATTERING_B = Water Scattering §9Blue
 option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher value means that §9blue§r will be scattered more.
 
+option.RAIN_PUDDLES_SIZE = Rain Puddles Size
+option.RAIN_PUDDLES_SIZE.comment = Adjusts §bRain Puddles§f' size.
+
+option.RAIN_PUDDLES_STRENGTH = Rain Puddles Strength
+option.RAIN_PUDDLES_STRENGTH.comment = Adjusts §bRain Puddles§f' strength (reflectiveness).
+
 ##################### CAMERA #####################
 
 option.TAA = TAA

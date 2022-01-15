@@ -16,7 +16,7 @@ vec3 groundFog(vec3 viewPos, vec3 background, vec3 fogColor, float fogCoef, floa
 // Thanks Jessie, LVutner and SixthSurge for the help!
 
 vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
-    float rayLength = 1.34; // I DONT KNOW
+    float rayLength = 1.0 / TRANSMITTANCE_STEPS;
     vec3 increment  = lightDir * rayLength;
     vec3 rayPos     = rayOrigin + increment * 0.5;
 

@@ -36,7 +36,7 @@ void main() {
             vec3 viewPos = getViewPos0(texCoords);
             vec3 sky     = texture(colortex6, projectSphere(vec3(0.0, 1.0, 0.0)) * ATMOSPHERE_RESOLUTION).rgb;
 
-            color.rgb   += groundFog(viewPos, color.rgb, sky * 0.02, rainStrength, 1.0);
+            color.rgb   += groundFog(viewPos, color.rgb, sky * 0.008, rainStrength, 1.0);
         }
     #endif
 }

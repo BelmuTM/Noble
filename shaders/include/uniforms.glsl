@@ -16,7 +16,6 @@ uniform vec3 skyColor;
 uniform vec2 viewResolution;
 uniform vec2 pixelSize;
 
-uniform float rainStrength;
 uniform int framemod;
 uniform int frameCounter;
 uniform float frameTime;
@@ -29,6 +28,8 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform int worldTime;
 uniform int isEyeInWater;
+uniform float rainStrength;
+uniform float wetness;
 
 uniform sampler2D normals;
 uniform sampler2D specular;

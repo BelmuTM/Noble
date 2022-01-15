@@ -55,14 +55,14 @@ void main() {
 	normal    = TBN * normal;
 
 	if(F0 * 255.0 <= 229.5) {
-		float puddle  = FBM(viewToWorld(viewPos).xz * 0.99, 6);
+		float puddle  = voronoise(viewToWorld(viewPos).xz * (1.0 - RAIN_PUDDLES_SIZE), 1, 1);
 		  	  puddle *= pow2(quintic(0.0, 0.9, lmCoords.y));
 		  	  puddle *= (1.0 - porosity);
 			  puddle *= rainStrength;
-			  puddle *= dot(normalize(normal), vec3(0.0, 1.0, 0.0));
+			  puddle *= clamp01(dot(normalize(normal), vec3(0.0, 1.0, 0.0)));
 	
-		F0        = mix(F0,       0.15, puddle);
-		roughness = mix(roughness, 0.0, puddle);
+		F0        = clamp01(mix(F0, RAIN_PUDDLES_STRENGTH, puddle));
+		roughness = clamp01(mix(roughness, 0.0, puddle));
 	}
 
 	vec2 encNormal = encodeUnitVector(normal);
