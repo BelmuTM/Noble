@@ -52,13 +52,16 @@ float noise(vec2 p) {
 }
 
 float FBM(vec2 p, int octaves) {
-    float value = 0.0;
-    float amplitude = 0.5;
+    float value       = 0.0;
+    float frequency   = 0.35;
+    float amplitude   = 0.5;
+    float lacunarity  = 0.9;
+    float persistance = 0.5;
 
     for(int i = 0; i < octaves; i++) {
-        value += amplitude * noise(p);
-        p *= 2.0;
-        amplitude *= 0.5;
+        value     += noise(p * frequency) * amplitude;
+        frequency *= lacunarity;
+        amplitude *= persistance;
     }
     return value;
 }

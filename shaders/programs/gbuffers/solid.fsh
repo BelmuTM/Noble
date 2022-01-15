@@ -21,6 +21,7 @@ in mat3 TBN;
 #define STAGE STAGE_FRAGMENT
 
 #include "/include/uniforms.glsl"
+#include "/include/utility/noise.glsl"
 #include "/include/utility/math.glsl"
 #include "/include/utility/transforms.glsl"
 
@@ -46,12 +47,25 @@ void main() {
 	float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
 	float emission   = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
 	float subsurface = (specularTex.z * 255.0) < 65.0 ? 0.0 : specularTex.z;
+	float porosity   = (specularTex.z * 255.0) > 64.0 ? 0.0 : specularTex.z;
 
 	vec3 normal;
 	normal.xy = normalTex.xy * 2.0 - 1.0;
 	normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
+	normal    = TBN * normal;
 
-	vec2 encNormal = encodeUnitVector(TBN * normal);
+	if(F0 * 255.0 <= 229.5) {
+		float puddle  = FBM(viewToWorld(viewPos).xz * 0.99, 6);
+		  	  puddle *= pow2(quintic(0.0, 0.9, lmCoords.y));
+		  	  puddle *= (1.0 - porosity);
+			  puddle *= rainStrength;
+			  puddle *= dot(normalize(normal), vec3(0.0, 1.0, 0.0));
+	
+		F0        = mix(F0,       0.15, puddle);
+		roughness = mix(roughness, 0.0, puddle);
+	}
+
+	vec2 encNormal = encodeUnitVector(normal);
 	
 	dataBuffer.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) / 255.0, clamp01(lmCoords.xy)));
 	dataBuffer.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));

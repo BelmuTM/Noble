@@ -16,47 +16,54 @@ vec3 groundFog(vec3 viewPos, vec3 background, vec3 fogColor, float fogCoef, floa
 // Thanks Jessie, LVutner and SixthSurge for the help!
 
 vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
-    float rayLength = (25.0 / float(TRANSMITTANCE_STEPS)) / abs(lightDir.y);
+    float rayLength = 1.34; // I DONT KNOW
     vec3 increment  = lightDir * rayLength;
     vec3 rayPos     = rayOrigin + increment * 0.5;
 
-    vec3 transmittance = vec3(0.0);
-    for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
+    vec3 transmittance = vec3(1.0);
+    for(int j = 0; j < TRANSMITTANCE_STEPS; j++, rayPos += increment) {
         vec3 density   = vec3(densities(rayPos.y).xy, 0.0);
         transmittance *= exp(-kExtinction * density * rayLength);
-        rayPos        += increment;
     }
     return transmittance;
 }
 
 vec3 volumetricFog(vec3 viewPos) {
-    vec4 startPos   = gbufferModelViewInverse * vec4(0.0, 0.0, 0.0, 1.0);
-    vec4 endPos     = gbufferModelViewInverse * vec4(viewPos, 1.0);
+    vec3 startPos   = gbufferModelViewInverse[3].xyz;
+    vec3 endPos     = mat3(gbufferModelViewInverse) * viewPos;
     float rayLength = distance(startPos, endPos) / float(VL_STEPS);
 
     float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
-    vec4 rayDir  = (normalize(endPos - startPos) * rayLength) * jitter;
+    vec3 rayDir  = (normalize(endPos - startPos) * rayLength) * jitter;
 
-    vec4 increment = rayDir * rayLength;
-    vec4 rayPos    = startPos + increment;
+    vec3 increment = rayDir * rayLength;
+    vec3 rayPos    = startPos + increment;
 
-    float VdotL = dot(normalize(endPos + startPos).xyz, worldTime <= 12750 ? playerSunDir : playerMoonDir);
-    vec2 phase  = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, 0.5));
+    vec3 lightDir; vec3 illuminance; 
+    if(worldTime <= 12750) {
+        lightDir    = playerSunDir;
+        illuminance = sunIlluminance;
+    } else {
+        lightDir    = playerMoonDir;
+        illuminance = moonIlluminance;
+    }
+
+    float VdotL = dot(normalize(endPos + startPos), lightDir);
+    vec2 phase  = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisoFactor));
 
     vec3 scattering  = vec3(0.0), transmittance = vec3(1.0);
-    vec3 illuminance = worldTime <= 12750 ? sunIlluminance : moonIlluminance;
 
     for(int i = 0; i < VL_STEPS; i++, rayPos += increment) {
-        vec3 sampleColor = sampleShadowColor(viewPos, viewToShadowClip(gbufferModelView * rayPos) * 0.5 + 0.5);
+        vec3 sampleColor = sampleShadowColor(viewPos, viewToShadowClip(gbufferModelView * vec4(rayPos, 1.0)) * 0.5 + 0.5);
 
-        vec3 airmass      = densities(rayPos.y) * 1e6 * rayLength;
+        vec3 airmass      = densities(rayPos.y) * rayLength;
         vec3 opticalDepth = kExtinction * airmass;
 
         vec3 stepTransmittance = exp(-opticalDepth);
         vec3 visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
         vec3 stepScattering    = kScattering * (airmass.xy * phase.xy) * visibleScattering;
 
-        scattering    += stepScattering * vlTransmittance(rayPos.xyz, shadowDir) * sampleColor * illuminance;
+        scattering    += stepScattering * vlTransmittance(rayPos.xyz, lightDir) * sampleColor * illuminance;
         transmittance *= stepTransmittance;
     }
     return max0(scattering);

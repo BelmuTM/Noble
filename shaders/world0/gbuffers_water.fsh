@@ -9,5 +9,4 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#define TRANSLUCENT
 #include "/programs/gbuffers/translucent.fsh"
