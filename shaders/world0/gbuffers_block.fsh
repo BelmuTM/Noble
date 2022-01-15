@@ -9,4 +9,5 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#define TERRAIN
 #include "/programs/gbuffers/solid.fsh"

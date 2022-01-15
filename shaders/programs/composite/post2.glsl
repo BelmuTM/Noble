@@ -75,7 +75,7 @@ layout (location = 0) out vec4 color;
         vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
         float purkinje    = dot(rodResponse, XYZToLinear(scotopicLuma));
 
-        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 40.0 * exposure)));
+        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0 * exposure)));
     }
 #endif
 
@@ -99,17 +99,17 @@ layout (location = 0) out vec4 color;
         #if TONEMAP == 0
             whitePreservingReinhard(color, 2.0); // Reinhard
         #elif TONEMAP == 1
-            uncharted2(color);                    // Uncharted 2
+            uncharted2(color);                   // Uncharted 2
         #elif TONEMAP == 2
-            lottes(color);                        // Lottes
+            lottes(color);                       // Lottes
         #elif TONEMAP == 3
-            uchimura(color);                      // Uchimura
+            uchimura(color);                     // Uchimura
         #elif TONEMAP == 4
-            burgess(color);                       // Burgess
+            burgess(color);                      // Burgess
         #elif TONEMAP == 5
-            ACESFitted(color);                    // ACES Fitted
+            ACESFitted(color);                   // ACES Fitted
         #elif TONEMAP == 6
-            ACESApprox(color);                    // ACES Approximation
+            ACESApprox(color);                   // ACES Approximation
         #endif
     }
 #endif

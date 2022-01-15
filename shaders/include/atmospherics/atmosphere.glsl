@@ -39,7 +39,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     vec2 atmosDist  = raySphere(rayOrigin, rayDir, atmosRad);
     vec2 planetDist = raySphere(rayOrigin, rayDir, earthRad - 5e3);
 
-    // Step size method from Jessie#7257
+    // Intersection method from Jessie#7257
     bool intersect = planetDist.y >= 0.0;
     float pos0 = (intersect && planetDist.x < 0.0) ? planetDist.y : max0(atmosDist.x);
     float pos1 = (intersect && planetDist.x > 0.0) ? planetDist.x : atmosDist.y;
@@ -49,13 +49,14 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     vec3 rayPos     = rayOrigin + increment * 0.5;
 
     float sunVdotL = dot(rayDir, playerSunDir); float moonVdotL = dot(rayDir, playerMoonDir);
-    vec4 phase     = vec4(rayleighPhase(sunVdotL), cornetteShanksPhase(sunVdotL, anisoFactor), 
+    vec4 phase     = vec4(rayleighPhase(sunVdotL),  cornetteShanksPhase(sunVdotL, anisoFactor), 
                           rayleighPhase(moonVdotL), cornetteShanksPhase(moonVdotL, anisoFactor)
                     );
 
     vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), multipleScattering = vec3(0.0), transmittance = vec3(1.0);
     
-    for(int i = 0; i < SCATTER_STEPS; i++) {
+    for(int i = 0; i < SCATTER_STEPS; i++, rayPos += increment) {
+        
         vec3 airmass          = densities(length(rayPos) - earthRad) * rayLength;
         vec3 stepOpticalDepth = kExtinction * airmass;
 
@@ -69,7 +70,6 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
         multipleScattering += visibleScattering  * (kScattering * airmass.xy);
 
         transmittance *= stepTransmittance;
-        rayPos        += increment;
     }
     skyIlluminance      = PI * mix(skyIlluminance, vec3(skyIlluminance.b) * sqrt(2.0), INV_PI);
     multipleScattering *= skyIlluminance * isotropicPhase;

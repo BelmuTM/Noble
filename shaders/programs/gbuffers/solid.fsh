@@ -54,16 +54,20 @@ void main() {
 	normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
 	normal    = TBN * normal;
 
-	if(F0 * 255.0 <= 229.5) {
-		float puddle  = voronoise(viewToWorld(viewPos).xz * (1.0 - RAIN_PUDDLES_SIZE), 1, 1);
-		  	  puddle *= pow2(quintic(0.0, 0.9, lmCoords.y));
-		  	  puddle *= (1.0 - porosity);
-			  puddle *= rainStrength;
-			  puddle *= clamp01(dot(normalize(normal), vec3(0.0, 1.0, 0.0)));
+	#ifdef TERRAIN
+		#if RAIN_PUDDLES == 1
+			if(F0 * 255.0 <= 229.5) {
+				float puddle  = voronoise(viewToWorld(viewPos).xz * (1.0 - RAIN_PUDDLES_SIZE), 0, 1);
+		  	  	  	  puddle *= pow2(quintic(EPS, 1.0, lmCoords.y));
+		  	  	  	  puddle *= (1.0 - porosity);
+			  	  	  puddle *= rainStrength;
+			  	  	  puddle *= quintic(0.2, 0.9, normal.y);
 	
-		F0        = clamp01(mix(F0, RAIN_PUDDLES_STRENGTH, puddle));
-		roughness = clamp01(mix(roughness, 0.0, puddle));
-	}
+				F0        = clamp01(mix(F0, RAIN_PUDDLES_STRENGTH, puddle));
+				roughness = clamp01(mix(roughness, 0.0, puddle));
+			}
+		#endif
+	#endif
 
 	vec2 encNormal = encodeUnitVector(normal);
 	

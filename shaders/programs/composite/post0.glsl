@@ -25,7 +25,7 @@ void main() {
 
     #if VL == 1
         #if VL_FILTER == 1
-            color.rgb += boxBlur(texCoords, colortex7, 2).rgb;
+            color.rgb += boxBlur(texCoords, colortex7, 4).rgb;
         #else
             color.rgb += texture(colortex7, texCoords).rgb;
         #endif
@@ -36,7 +36,7 @@ void main() {
             vec3 viewPos = getViewPos0(texCoords);
             vec3 sky     = texture(colortex6, projectSphere(vec3(0.0, 1.0, 0.0)) * ATMOSPHERE_RESOLUTION).rgb;
 
-            color.rgb   += groundFog(viewPos, color.rgb, sky * 0.008, rainStrength, 1.0);
+            color.rgb   += groundFog(viewPos, color.rgb, sky * 0.02, rainStrength, 1.0);
         }
     #endif
 }

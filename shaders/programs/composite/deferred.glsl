@@ -28,7 +28,7 @@
                     skyIlluminance += texture(colortex6, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
                 }
             }
-            skyIlluminance *= 1.0 / pow2(samples);
+            skyIlluminance *= (1.0 / pow2(samples));
         #endif
     }
 

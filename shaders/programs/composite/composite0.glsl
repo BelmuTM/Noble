@@ -71,6 +71,8 @@ void main() {
     shadowmap     = texture(colortex3, texCoords);
     vec3 Lighting = vec3(0.0);
 
+    mat.albedo += RGBtoLinear(texture(colortex4, texCoords).rgb);
+
     // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
     #if WATER_CAUSTICS == 1
         material transMat = getMaterialTranslucents(texCoords);

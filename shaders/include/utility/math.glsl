@@ -193,8 +193,8 @@ vec2 unpackUnorm2x8(float pack) {
 // Provided by swr#1793
 
 vec4 cubic(float v) {
-    vec4 n = vec4(1.0, 2.0, 3.0, 4.0) - v;
-    vec4 s = pow3(n);
+    vec4 n  = vec4(1.0, 2.0, 3.0, 4.0) - v;
+    vec4 s  = pow3(n);
     float x = s.x;
     float y = s.y - 4.0 * s.x;
     float z = s.z - 4.0 * s.y + 6.0 * s.x;
