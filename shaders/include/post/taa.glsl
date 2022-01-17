@@ -64,12 +64,7 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevTexCoords).rgb);
          prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    float blendWeight = 1.0;
-    #if TAA_RENDER_MODE == 0
-	    blendWeight = pow2(getLumaWeight(currColor, prevColor));
-    #else
-        blendWeight = TAA_STRENGTH * float(!hasMoved());
-    #endif
+    float blendWeight = pow2(getLumaWeight(currColor, prevColor));
 
     blendWeight *= float(clamp01(prevTexCoords) == prevTexCoords);
     return YCoCgToLinear(mix(currColor, prevColor, clamp01(blendWeight))); 
