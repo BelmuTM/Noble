@@ -145,10 +145,15 @@ option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make 
 value.BINARY_REFINEMENT.0 = §cOFF
 value.BINARY_REFINEMENT.1 = §aON
 
-option.SSR_REPROJECTION = SSR reprojection
+option.SSR_REPROJECTION = SSR Reprojection
 option.SSR_REPROJECTION.comment = Reflects the last frame to make the light bounce infinitely. §aIt doesn't affect performance.
 value.SSR_REPROJECTION.0 = §cOFF
 value.SSR_REPROJECTION.1 = §aON
+
+option.SKY_CONTRIBUTION = Sky Contribution
+option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r (can be problematic in screen space). Lets the sky contribute in indirect lighting.
+value.SKY_CONTRIBUTION.0 = §cOFF
+value.SKY_CONTRIBUTION.1 = §aON
 
 ##################### ATMOSPHERICS #####################
 
@@ -164,16 +169,16 @@ suffix.CELESTIAL_SIZE_MULTIPLIER = x
 option.ATMOSPHERE_RESOLUTION = Atmosphere Resolution
 option.ATMOSPHERE_RESOLUTION.comment = Adjusts the §bAtmosphere§f's resolution. §cHigher value gives better results, but reduces §cperformance.
 
-option.SCATTER_STEPS = Scattering Samples
-option.SCATTER_STEPS.comment = Influences how accurate light scatters. This influences §bAtmospheric §bScattering§r and §bVolumetric §bLighting. §cWould preferably be higher than transmittance samples.
-value.SCATTER_STEPS.8  = §38
-value.SCATTER_STEPS.12 = §212
-value.SCATTER_STEPS.16 = §a16
-value.SCATTER_STEPS.20 = §e20
-value.SCATTER_STEPS.24 = §624
-value.SCATTER_STEPS.28 = §c28
-value.SCATTER_STEPS.32 = §432
-value.SCATTER_STEPS.36 = §536
+option.SCATTERING_STEPS = Scattering Samples
+option.SCATTERING_STEPS.comment = Influences how accurate light scatters. This influences §bAtmospheric §bScattering§r and §bVolumetric §bLighting. §cWould preferably be higher than transmittance samples.
+value.SCATTERING_STEPS.8  = §38
+value.SCATTERING_STEPS.12 = §212
+value.SCATTERING_STEPS.16 = §a16
+value.SCATTERING_STEPS.20 = §e20
+value.SCATTERING_STEPS.24 = §624
+value.SCATTERING_STEPS.28 = §c28
+value.SCATTERING_STEPS.32 = §432
+value.SCATTERING_STEPS.36 = §536
 
 option.TRANSMITTANCE_STEPS = Transmittance Samples
 option.TRANSMITTANCE_STEPS.comment = Influences how accurate light transmits in §bAtmospheric §bScattering. §cWould preferably be lower than scattering samples.

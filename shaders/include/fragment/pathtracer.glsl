@@ -27,16 +27,10 @@
         return (diffuse + specular) * (shadowLightIlluminance * shadows);
     }
 
-    vec3 pathTrace(in vec3 screenPos) {
-        vec3 radiance = vec3(0.0);
-        vec3 viewPos  = screenToView(screenPos);
-
-        vec3 shadowLightIlluminance = vec3(1.0);
-        #ifdef WORLD_OVERWORLD
-            shadowLightIlluminance = worldTime <= 12750 ? 
-              atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance
-            : atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
-        #endif
+    vec3 pathTrace(in vec3 screenPos, vec3 shadowLightIlluminance) {
+        vec3 radiance  = vec3(0.0);
+        vec3 viewPos   = screenToView(screenPos);
+        vec3 skyRayDir = unprojectSphere(texCoords);
 
         for(int i = 0; i < GI_SAMPLES; i++) {
             vec3 throughput = vec3(1.0);
@@ -85,7 +79,7 @@
                 float specularProb  = fresnelLum / totalLum;
  
                 if(specularProb > randF()) {
-                    rayDir      = reflect(rayDir, mat.blockId == 1 ? mat.normal : microfacet);
+                    rayDir      = reflect(rayDir, microfacet);
                     throughput *= specularBRDF(microfacet, -rayDir, rayDir, fresnel, mat.rough) / specularProb;
                 } else {
                     throughput *= (1.0 - fresnelDielectric(dot(-rayDir, microfacet), F0toIOR(mat.F0))) / (1.0 - specularProb);
@@ -94,7 +88,18 @@
                 }
                 if(dot(mat.normal, rayDir) < 0.0) { break; }
 
-                if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos)) { break; }
+                vec3 skyHitPos;
+
+                if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos)) {
+                    #if SKY_CONTRIBUTION == 1
+                        raytrace(screenToView(hitPos), skyRayDir, int(GI_STEPS * 0.3), randF(), skyHitPos);
+
+                        if(isSky(skyHitPos.xy)) {
+                            radiance += throughput * texture(colortex7, skyHitPos.xy).rgb;
+                        }
+                    #endif
+                    break;
+                }
             }
         }
         return max0(radiance) / float(GI_SAMPLES);

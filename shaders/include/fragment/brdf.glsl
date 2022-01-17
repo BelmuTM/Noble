@@ -139,7 +139,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 F  = specularFresnel(HdotL, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
-    return clamp01((D * F * G) / (4.0 * NdotL * NdotV)) * NdotL;
+    return ((D * F * G) / (4.0 * NdotL * NdotV)) * NdotL;
 }
 
 // HAMMON DIFFUSE
@@ -153,8 +153,8 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
     float NdotV = maxEps(dot(N, V));
     float NdotL = maxEps(dot(N, L));
 
-    float facing     = 0.5 + 0.5 * VdotL;
-    float roughSurf  = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
+    float facing    = 0.5 + 0.5 * VdotL;
+    float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
 
     // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
     float smoothSurf;
@@ -180,9 +180,9 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
 // Disney SSS from: https://www.shadertoy.com/view/XdyyDd
 float disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 H      = normalize(V + L);
-    float NdotV = maxEps(dot(N, V));
-    float NdotL = maxEps(dot(N, L));
-    float LdotH = maxEps(dot(L, H));
+    float NdotV = clamp01(dot(N, V));
+    float NdotL = clamp01(dot(N, L));
+    float LdotH = clamp01(dot(L, H));
 
     float FL    = cornetteShanksPhase(NdotL, 0.5), FV = cornetteShanksPhase(NdotV, 0.5);
     float Fss90 = LdotH * LdotH * mat.rough;

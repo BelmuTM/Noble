@@ -20,15 +20,15 @@
         skyIlluminance = vec3(0.0);
 
         #ifdef WORLD_OVERWORLD
-            const int samples = 8;
+            const ivec2 samples = ivec2(16, 8);
 
-            for(int x = 0; x < samples; x++) {
-                for(int y = 0; y < samples; y++) {
-                    vec3 dir        = generateUnitVector(vec2(x, y));
+            for(int x = 0; x < samples.x; x++) {
+                for(int y = 0; y < samples.y; y++) {
+                    vec3 dir        = generateUnitVector(vec2(x, y) / samples);
                     skyIlluminance += texture(colortex6, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
                 }
             }
-            skyIlluminance *= (1.0 / pow2(samples));
+            skyIlluminance *= (1.0 / (samples.x * samples.y));
         #endif
     }
 

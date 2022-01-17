@@ -71,6 +71,7 @@ void main() {
     shadowmap     = texture(colortex3, texCoords);
     vec3 Lighting = vec3(0.0);
 
+    // Rain
     mat.albedo += RGBtoLinear(texture(colortex4, texCoords).rgb);
 
     // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
@@ -85,6 +86,18 @@ void main() {
 	    mat.albedo = vec3(1.0);
         return;
     #endif
+
+    vec3 skyIlluminance = vec3(0.0), totalIllum = vec3(1.0);
+            
+    #ifdef WORLD_OVERWORLD
+        skyIlluminance = texture(colortex7, texCoords).rgb;
+
+        vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
+        vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
+        totalIllum        = sunTransmit + moonTransmit;
+    #else
+        shadowmap.rgb = vec3(0.0);
+    #endif
     
     #if GI == 0
         //////////////////////////////////////////////////////////
@@ -98,18 +111,6 @@ void main() {
                 #endif
             }
         #endif
-
-        vec3 skyIlluminance = vec3(0.0), totalIllum = vec3(1.0);
-            
-        #ifdef WORLD_OVERWORLD
-            skyIlluminance = texture(colortex7, texCoords).rgb;
-
-            vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
-            vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
-            totalIllum        = sunTransmit + moonTransmit;
-        #else
-            shadowmap.rgb = vec3(0.0);
-        #endif
         
         color.rgb = applyLighting(viewPos, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a);
     #else
@@ -121,7 +122,7 @@ void main() {
         float historyFrames = texture(colortex5, texCoords).a;
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
-            color.rgb = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r));
+            color.rgb = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r), totalIllum);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
                 temporalAccumulation(colortex5, color.rgb, viewPos, mat.normal, historyFrames);

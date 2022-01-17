@@ -44,7 +44,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     float pos0 = (intersect && planetDist.x < 0.0) ? planetDist.y : max0(atmosDist.x);
     float pos1 = (intersect && planetDist.x > 0.0) ? planetDist.x : atmosDist.y;
 
-    float rayLength = length(pos1 - pos0) / float(SCATTER_STEPS);
+    float rayLength = length(pos1 - pos0) / float(SCATTERING_STEPS);
     vec3 increment  = rayDir * rayLength;
     vec3 rayPos     = rayOrigin + increment * 0.5;
 
@@ -55,7 +55,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
 
     vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), multipleScattering = vec3(0.0), transmittance = vec3(1.0);
     
-    for(int i = 0; i < SCATTER_STEPS; i++, rayPos += increment) {
+    for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
         
         vec3 airmass          = densities(length(rayPos) - earthRad) * rayLength;
         vec3 stepOpticalDepth = kExtinction * airmass;
