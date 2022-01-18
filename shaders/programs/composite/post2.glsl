@@ -168,7 +168,7 @@ void main() {
 
     #if BLOOM == 1
         float bloomStrength = min(BLOOM_STRENGTH + rainStrength, 1.0);
-        color.rgb          += color.rgb + readBloom() * exp2(exposure - 3.0 + bloomStrength) * 0.6;
+        color.rgb          += color.rgb + readBloom() * exp2(exposure - 3.0 + bloomStrength);
     #endif
 
     #if FILM_GRAIN == 1

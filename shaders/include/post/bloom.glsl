@@ -12,7 +12,10 @@
 	Voyager - SixSeven
 */
 
+/*
+const bool colortex0MipmapEnabled = true;
 const bool colortex4MipmapEnabled = true;
+*/
 
 #if BLOOM == 1
 	const vec2 bloomOffsets[] = vec2[](
@@ -41,7 +44,7 @@ const bool colortex4MipmapEnabled = true;
         for(int i = -steps; i <= steps; i++) {
             for(int j = -steps; j <= steps; j++) {
                 float weight = gaussianDistrib1D(i, sigma) * gaussianDistrib1D(j, sigma);
-                color  		+= textureLod(colortex4, coords + vec2(i, j) * texScale, LOD).rgb * weight;
+                color  		+= textureLod(colortex0, coords + vec2(i, j) * texScale, LOD).rgb * weight;
             }
         }
 		return color;

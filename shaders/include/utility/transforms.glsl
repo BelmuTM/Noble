@@ -42,12 +42,6 @@ vec3 getViewPos1(vec2 coords) {
     return tmp.xyz / tmp.w;
 }
 
-vec3 screenToWorld(float depth, vec2 coords, mat4 projection, mat4 modelView) {
-    vec3 clipPos = vec3(coords, texture(depthtex0, coords).r) * 2.0 - 1.0;
-    vec4 viewPos = gbufferProjectionInverse * vec4(clipPos, 1.0);
-    return transMAD3(gbufferModelViewInverse, viewPos.xyz / viewPos.w) + cameraPosition;
-}
-
 vec3 screenToView(vec3 screenPos) {
 	screenPos = screenPos * 2.0 - 1.0;
 	return projMAD3(gbufferProjectionInverse, screenPos) / (gbufferProjectionInverse[2].w * screenPos.z + gbufferProjectionInverse[3].w);

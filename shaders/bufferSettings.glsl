@@ -20,7 +20,7 @@ const int colortex2Format = RGBA32UI;
 SHADOWMAP
 const int shadowcolor0Format = RGBA16;
 const int shadowcolor1Format = RGBA16;
-const int colortex3Format = RGBA16F;
+const int colortex3Format = R11F_G11F_B10F;
 
 MULTIPLE THINGS
 const int colortex4Format = RGBA16F;

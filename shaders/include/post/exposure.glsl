@@ -11,7 +11,6 @@ const bool colortex0MipmapEnabled = true;
 */
 
 #if EXPOSURE == 1
-
      float computeAverageLuminance(sampler2D prevTex) {
           float currLuma = luminance(textureLod(colortex0, vec2(0.5), log2(max(viewResolution.x, viewResolution.y))).rgb);
 
@@ -34,7 +33,7 @@ float EV100ToExposure(float EV100) {
 
 float computeExposure(float avgLuminance) {
      float minExposure = PI / luminance(sunIlluminance);
-     float maxExposure = 0.01 * PI / luminance(moonIlluminance);
+     float maxExposure = 0.01 / luminance(moonIlluminance);
 
      float EV100;
      #if EXPOSURE == 0

@@ -6,11 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:047 */
+/* DRAWBUFFERS:07 */
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out vec4 bloomBuffer;
-layout (location = 2) out vec4 volumetricLighting;
+layout (location = 1) out vec4 volumetricLighting;
 
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/fragment/brdf.glsl"
@@ -60,15 +59,17 @@ void main() {
                 }
             #endif
 
-            // Outer fog
-            if(isWater) {
-                depthDist = distance(
-	                transMAD3(gbufferModelViewInverse, getViewPos0(coords)),
-		            transMAD3(gbufferModelViewInverse, getViewPos1(coords))
-	            );
+            #ifdef WORLD_OVERWORLD
+                // Outer fog
+                if(isWater) {
+                    depthDist = distance(
+	                    transMAD3(gbufferModelViewInverse, getViewPos0(coords)),
+		                transMAD3(gbufferModelViewInverse, getViewPos1(coords))
+	                );
 
-                waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
-            }
+                    waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
+                }
+            #endif
 
             #if GI == 0
                 #ifdef WORLD_OVERWORLD
@@ -92,12 +93,10 @@ void main() {
 
         #if GI == 0
             #if REFLECTIONS == 1
-                float resolution = REFLECTIONS_TYPE == 1 ? ROUGH_REFLECT_RES : 1.0;
-                float NdotV      = maxEps(dot(mat.normal, -normalize(viewPos0)));
-                vec3 reflections = texture(colortex4, texCoords * resolution).rgb;
+                vec3 reflections = texture(colortex4, texCoords * REFLECTIONS_RES).rgb;
 
                 if(mat.rough > 0.05) {
-                    vec3 DFG  = envBRDFApprox(getSpecularColor(mat.F0, mat.albedo), mat.rough, NdotV);
+                    vec3 DFG  = envBRDFApprox(getSpecularColor(mat.F0, mat.albedo), mat.rough, dot(mat.normal, -normalize(viewPos0)));
                     color.rgb = mix(color.rgb, reflections, DFG);
                 } else {
                     color.rgb += reflections;
@@ -105,11 +104,13 @@ void main() {
             #endif
         #endif
 
-        // Inner fog
-        if(inWater) {
-            depthDist = length(transMAD3(gbufferModelViewInverse, viewPos0));
-            waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
-        }
+        #ifdef WORLD_OVERWORLD
+            // Inner fog
+            if(inWater) {
+                depthDist = length(transMAD3(gbufferModelViewInverse, viewPos0));
+                waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
+            }
+        #endif
     }
 
     #if VL == 1
@@ -117,12 +118,4 @@ void main() {
             volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos0), 1.0);
         #endif
     #endif
-
-    #if BLOOM == 1
-        bloomBuffer = luminance(clamp16(color.rgb)) / bits16 > BLOOM_LUMA_THRESH ? color : vec4(0.0);
-    #else
-        bloomBuffer = vec4(0.0);
-    #endif
-
-    color = max0(sqrt(color));
 }

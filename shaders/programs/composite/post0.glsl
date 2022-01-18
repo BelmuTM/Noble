@@ -13,11 +13,12 @@ layout (location = 1) out vec4 bloomBuffer;
 
 #include "/include/utility/blur.glsl"
 #include "/include/post/bloom.glsl"
+#include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/shadows.glsl"
 #include "/include/atmospherics/fog.glsl"
 
 void main() {
-    color = pow2(texture(colortex0, texCoords));
+    color = texture(colortex0, texCoords);
 
     #if BLOOM == 1
         bloomBuffer.rgb = writeBloom();

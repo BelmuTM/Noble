@@ -109,8 +109,8 @@ option.REFLECTIONS_TYPE.comment = §bSimple reflections §fdo not consider a mat
 value.REFLECTIONS_TYPE.0 = §eSimple Reflections
 value.REFLECTIONS_TYPE.1 = §eRough Reflections
 
-option.ROUGH_REFLECT_RES = Rough Reflections Resolution
-option.ROUGH_REFLECT_RES.comment = Adjusts §bRough Reflections§f' resolution. §cHigher value gives better results, but reduces §cperformance.
+option.REFLECTIONS_RES = Reflections Resolution
+option.REFLECTIONS_RES.comment = Adjusts §bReflections§f' resolution. §cHigher value gives better results, but reduces §cperformance.
 
 option.GI = Global Illumination (GI)
 option.GI.comment = §bScreen Space Global Illumination. §fIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it. §cCan only sample what's being displayed §con your screen.

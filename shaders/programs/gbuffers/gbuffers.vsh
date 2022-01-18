@@ -59,6 +59,14 @@ void main() {
 		}
 	#endif
 
+	#ifdef WEATHER
+		vec3 rainWorldPos = mat3(gbufferModelViewInverse) * viewPos;
+		rainWorldPos.xz  += RAIN_DIRECTION * rainWorldPos.y * RAIN_ANGLE_INTENSITY;
+
+		vec4 rainViewToClip = gl_ProjectionMatrix * vec4(mat3(gbufferModelView) * rainWorldPos, 1.0);
+		gl_Position         = rainViewToClip;
+	#endif
+
 	#if TAA == 1
 		bool canJitter = ACCUMULATION_VELOCITY_WEIGHT == 0 ? true : hasMoved();
 		if(canJitter) { gl_Position.xy += taaJitter(gl_Position); }

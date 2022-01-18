@@ -66,6 +66,11 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
 
     float blendWeight = pow2(getLumaWeight(currColor, prevColor));
 
+    #if ACCUMULATION_VELOCITY_WEIGHT == 1
+        float historyFrames = hasMoved() ? 1.0 : texture(colortex5, texCoords).a;
+        blendWeight         = 1.0 - (1.0 / max(historyFrames, 1.0));
+    #endif
+
     blendWeight *= float(clamp01(prevTexCoords) == prevTexCoords);
-    return YCoCgToLinear(mix(currColor, prevColor, clamp01(blendWeight))); 
+    return YCoCgToLinear(mix(currColor, prevColor, blendWeight)); 
 }
