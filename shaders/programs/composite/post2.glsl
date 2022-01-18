@@ -20,32 +20,37 @@ layout (location = 0) out vec4 color;
         return fragDepth < 0.56 ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - FOCAL)))) * 0.5;
     }
 
-    void depthOfField(inout vec3 background, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
-        vec3 color = vec3(0.0);
+    void depthOfField(inout vec3 color, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
+        vec3 dof   = vec3(0.0);
         vec2 noise = uniformAnimatedNoise(vec2(randF(), randF()));
+
+        vec2 caOffset;
+
+        #if CHROMATIC_ABERRATION == 1
+            float distFromCenter = pow2(distance(coords, vec2(0.5)));
+                  caOffset       = vec2(ABERRATION_STRENGTH * distFromCenter) * coc / pow2(quality);
+        #endif
 
         for(int i = 0; i < quality; i++) {
             for(int j = 0; j < quality; j++) {
                 vec2 offset = ((vec2(i, j) + noise) - quality * 0.5) / quality;
             
                 if(length(offset) < 0.5) {
-                    vec2 sampleCoords = coords + (offset * radius * pixelSize);
+                    vec2 sampleCoords = coords + (offset * radius * coc * pixelSize);
 
                     #if CHROMATIC_ABERRATION == 1
-                        vec2 aberrationOffset = coc * ABERRATION_STRENGTH * pixelSize;
-
-                        color += vec3(
-                            texture(tex, sampleCoords + aberrationOffset).r,
+                        dof += vec3(
+                            texture(tex, sampleCoords + caOffset).r,
                             texture(tex, sampleCoords).g,
-                            texture(tex, sampleCoords - aberrationOffset).b
+                            texture(tex, sampleCoords - caOffset).b
                         );
                     #else
-                        color += texture(tex, sampleCoords).rgb;
+                        dof += texture(tex, sampleCoords).rgb;
                     #endif
                 }
             }
         }
-        background = mix(background, color * (1.0 / pow2(quality)), quintic(0.0, 1.0, coc));
+        color = dof * (1.0 / pow2(quality));
     }
 #endif
 
@@ -159,7 +164,7 @@ void main() {
     float coc = 1.0;
     #if DOF == 1
         coc = getCoC(linearizeDepth(texture(depthtex0, texCoords).r), linearizeDepth(centerDepthSmooth));
-        depthOfField(color.rgb, texCoords, colortex0, 6, DOF_RADIUS, coc);
+        depthOfField(color.rgb, texCoords, colortex0, 8, DOF_RADIUS, coc);
     #endif
 
     #if CHROMATIC_ABERRATION == 1
@@ -191,12 +196,6 @@ void main() {
 
     #if TONEMAP >= 0
         tonemap(color.rgb);
-    #endif
-
-    // Vignette
-    #if VIGNETTE == 1
-        vec2 coords = texCoords * (1.0 - texCoords.yx);
-        color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
     color.rgb = clamp01(color.rgb);

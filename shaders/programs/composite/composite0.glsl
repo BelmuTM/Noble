@@ -122,7 +122,7 @@ void main() {
         float historyFrames = texture(colortex5, texCoords).a;
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
-            color.rgb = pathTrace(vec3(scaledUv + (taaOffsets[framemod] * (texture(depthtex0, scaledUv).r * pixelSize)), texture(depthtex0, scaledUv).r), totalIllum);
+            color.rgb = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r), totalIllum);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
                 temporalAccumulation(colortex5, color.rgb, viewPos, mat.normal, historyFrames);

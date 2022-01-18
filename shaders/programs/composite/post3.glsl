@@ -40,4 +40,10 @@ void main() {
     #if SHARPEN == 1
         sharpeningFilter(color.rgb);
     #endif
+
+    // Vignette
+    #if VIGNETTE == 1
+        vec2 coords = texCoords * (1.0 - texCoords.yx);
+        color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
+    #endif
 }
