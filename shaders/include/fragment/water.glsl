@@ -67,21 +67,21 @@
         float waves = 0.0;
 
         float noise;
-        noise          = FBM(coords * 0.02 / sqrt(waveLength) - (speed * waveDir), 1);
+        noise          = voronoise(coords * 0.02 / sqrt(waveLength) - (speed * waveDir), 1, 1);
         waves         += -gerstnerWaves(coords + vec2(noise, -noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
         waveSteepness *= 1.0;
         waveAmplitude *= 0.6;
         waveLength    *= 1.8;
         waveDir        = -sincos(windRad + 0.9);
 
-        noise          = FBM(coords * 0.03 / sqrt(waveLength) - (speed * waveDir), 2);
+        noise          = FBM(coords * 0.03 / sqrt(waveLength) - (speed * waveDir), 1);
         waves         += -gerstnerWaves(coords + vec2(-noise, noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
         waveSteepness *= 1.0;
         waveAmplitude *= 0.6;
         waveLength    *= 0.7;
         waveDir        = sincos(windRad - 1.8);
 
-        noise          = FBM(coords * 0.01 / sqrt(waveLength) - (speed * waveDir), 1);
+        noise          = FBM(coords * 0.01 / sqrt(waveLength) - (speed * waveDir), 2);
         waves         += -gerstnerWaves(coords + vec2(-noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
         waveSteepness *= 1.0;
         waveAmplitude *= 2.6;
@@ -95,14 +95,14 @@
         waveLength    *= 0.4;
         waveDir        = sincos(windRad - 3.6);
 
-        noise          = FBM(coords * 0.03 / sqrt(waveLength) - (speed * waveDir), 1);
+        noise          = FBM(coords * 0.03 / sqrt(waveLength) - (speed * waveDir), 4);
         waves         += -gerstnerWaves(coords + vec2(-noise, noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
         waveSteepness *= 1.5;
         waveAmplitude *= 0.4;
         waveLength    *= 0.6;
         waveDir        = sincos(windRad - 0.4);
 
-        noise          = FBM(coords * 2.3 / sqrt(waveLength) - (speed * waveDir), 2);
+        noise          = FBM(coords * 2.3 / sqrt(waveLength) - (speed * waveDir), 5);
         waves         += -gerstnerWaves(coords + vec2(noise, -noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
 	    return waves;
     }

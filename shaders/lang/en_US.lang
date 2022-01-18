@@ -33,6 +33,16 @@ suffix.BLOCKLIGHT_TEMPERATURE = K
 option.sunPathRotation = Sun Path Rotation
 option.sunPathRotation.comment = Adjusts sun's rotation.
 
+option.SUBSURFACE_SCATTERING = Subsurface Scattering
+option.SUBSURFACE_SCATTERING.comment = Simulates how light goes through certain materials (leaves, skin,...). §cRequires a PBR resource pack!
+value.SUBSURFACE_SCATTERING.0 = §cOFF
+value.SUBSURFACE_SCATTERING.1 = §aON
+
+option.MATERIAL_AO = Material AO
+option.MATERIAL_AO.comment = §bMaterial Ambient Occlusion§r. Adds pseudo-shadows from the textures themselves. §cRequires a PBR resource pack!
+value.MATERIAL_AO.0 = §cOFF
+value.MATERIAL_AO.1 = §aON
+
 option.SHADOWS = Shadows
 option.SHADOWS.comment = Adds shadows.
 value.SHADOWS.0 = §cOFF

@@ -20,9 +20,15 @@
     }
 
     vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, material mat, vec3 shadows, vec3 shadowLightIlluminance) {
-        float SSS     = disneySubsurface(N, V, L, mat);
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
-        vec3 diffuse  = mat.isMetal   ? vec3(0.0) : mix(hammonDiffuse(N, V, L, mat, false), SSS * mat.albedo, isSky(hitPos) ? 0.0 : mat.subsurface);
+
+        vec3 diffuse = vec3(0.0);
+        #if SUBSURFACE_SCATTERING == 1
+            float SSS = disneySubsurface(N, V, L, mat);
+            diffuse   = mat.isMetal ? vec3(0.0) : mix(hammonDiffuse(N, V, L, mat, false), SSS * mat.albedo, mat.subsurface * float(!isSky(hitPos)));
+        #else
+            diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat, false);
+        #endif
 
         return (diffuse + specular) * (shadowLightIlluminance * shadows);
     }

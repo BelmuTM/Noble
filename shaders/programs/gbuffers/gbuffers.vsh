@@ -55,7 +55,7 @@ void main() {
 			waterNormals  = getWaveNormals(worldPos);
 
     		vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView(worldPos), 1.0);
-			gl_Position    += viewToClip;
+			gl_Position     = viewToClip;
 		}
 	#endif
 
