@@ -67,6 +67,13 @@ void main() {
 		gl_Position         = rainViewToClip;
 	#endif
 
+	#ifdef ENTITY
+		// Thanks Kneemund for the nametag fix
+		if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
+			gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
+		}
+	#endif
+
 	#if TAA == 1
 		bool canJitter = ACCUMULATION_VELOCITY_WEIGHT == 0 ? true : hasMoved();
 		if(canJitter) { gl_Position.xy += taaJitter(gl_Position); }

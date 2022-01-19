@@ -9,4 +9,5 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#define ENTITY
 #include "/programs/gbuffers/gbuffers.vsh"

@@ -218,8 +218,14 @@ vec3 applyLighting(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shad
     vec3 skyLight   = skyIlluminance * mat.lightmap.y;
     vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * mat.lightmap.x * BLOCKLIGHT_MULTIPLIER;
 
+    float ao = 1.0;
+    #if MATERIAL_AO == 1
+        // Thanks Kneemund for the nametag fix
+        if(all(greaterThan(mat.normal, vec3(0.0)))) ao = mat.ao;
+    #endif
+
     vec3 direct   = (diffuse + specular) * (shadowLightIlluminance * shadows);
-    vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * (MATERIAL_AO ? mat.ao : 1.0) * ambientOcclusion;
+    vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * ao * ambientOcclusion;
 
     return direct + indirect;
 }
