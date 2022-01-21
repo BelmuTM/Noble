@@ -6,8 +6,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#define STAGE_VERTEX   0
-#define STAGE_FRAGMENT 1
+#define STAGE_VERTEX   69420
+#define STAGE_FRAGMENT 42069
 
 #define ABOUT 0 // [0 1]
 

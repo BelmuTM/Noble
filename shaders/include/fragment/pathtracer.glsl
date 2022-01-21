@@ -77,7 +77,7 @@
                 #endif
 
                 vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, pow2(mat.rough));
-                vec3 fresnel    = fresnelDielectric(dot(-rayDir, microfacet), F0toIOR(getSpecularColor(mat.F0, mat.albedo)));
+                vec3 fresnel    = fresnelDielectric(dot(-rayDir, microfacet), F0toIOR(getMetalF0(mat.F0, mat.albedo)));
 
                 /* Specular Bounce Probability */
                 float fresnelLum    = luminance(fresnel);

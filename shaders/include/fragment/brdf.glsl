@@ -136,7 +136,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     float NdotH = maxEps(dot(N, H));
 
     float D = distributionGGX(NdotH, pow2(mat.rough));
-    vec3 F  = specularFresnel(HdotL, getSpecularColor(mat.F0, mat.albedo), mat.isMetal);
+    vec3 F  = specularFresnel(HdotL, getMetalF0(mat.F0, mat.albedo), mat.isMetal);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
     return ((D * F * G) / (4.0 * NdotL * NdotV)) * NdotL;
@@ -196,20 +196,20 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 applyLighting(vec3 V, vec3 N, vec3 L, material mat, vec3 shadows, vec3 shadowLightIlluminance, vec3 skyIlluminance, float ambientOcclusion, bool specularLighting) {
+vec3 applyLighting(vec3 V, material mat, vec3 shadows, vec3 shadowLightIlluminance, vec3 skyIlluminance, float ambientOcclusion, bool specularLighting) {
     V = -normalize(V);
 
     vec3 specular = vec3(0.0);
     #if SPECULAR == 1
-        if(specularLighting) specular = cookTorranceSpecular(N, V, L, mat);
+        if(specularLighting) specular = cookTorranceSpecular(mat.normal, V, shadowDir, mat);
     #endif
 
     vec3 diffuse = vec3(0.0);
     #if SUBSURFACE_SCATTERING == 1
-        float SSS = disneySubsurface(N, V, L, mat);
-        diffuse   = mat.isMetal ? vec3(0.0) : mix(hammonDiffuse(N, V, L, mat, false), SSS * mat.albedo, mat.subsurface * float(!isSky(texCoords)));
+        float SSS = disneySubsurface(mat.normal, V, shadowDir, mat);
+        diffuse   = mat.isMetal ? vec3(0.0) : mix(hammonDiffuse(mat.normal, V, shadowDir, mat, false), SSS * mat.albedo, mat.subsurface * float(!isSky(texCoords)));
     #else
-        diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat, false);
+        diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(mat.normal, V, shadowDir, mat, false);
     #endif
 
     mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);

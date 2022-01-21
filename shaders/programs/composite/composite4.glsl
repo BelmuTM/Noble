@@ -82,7 +82,7 @@ void main() {
                     shadowmap.rgb = vec3(0.0);
                 #endif
 
-                vec3 transLighting = applyLighting(viewPos0, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a, false);
+                vec3 transLighting = applyLighting(viewPos0, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a, false);
                 color.rgb          = mix(color.rgb, transLighting, mat.alpha);
             #endif
         }
@@ -96,7 +96,7 @@ void main() {
                 vec3 reflections = texture(colortex4, texCoords * REFLECTIONS_RES).rgb;
 
                 if(mat.rough > 0.05) {
-                    vec3 DFG  = envBRDFApprox(getSpecularColor(mat.F0, mat.albedo), mat.rough, dot(mat.normal, -normalize(viewPos0)));
+                    vec3 DFG  = envBRDFApprox(getMetalF0(mat.F0, mat.albedo), mat.rough, dot(mat.normal, -normalize(viewPos0)));
                     color.rgb = mix(color.rgb, reflections, DFG);
                 } else {
                     color.rgb += reflections;

@@ -32,8 +32,7 @@ layout (location = 2) out vec4 historyBuffer;
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
             totalWeight *= pow2(getLumaWeight(color, prevColor));
         #else
-            historyFrames = hasMoved() ? 1.0 : texture(prevTex, texCoords).a + 1.0;
-            totalWeight  *= 1.0 - (1.0 / max(historyFrames, 1.0));
+            totalWeight *= 1.0 - (1.0 / max(historyFrames, 1.0));
         #endif
 
         color = clamp16(mix(color, prevColor, totalWeight));
@@ -98,6 +97,12 @@ void main() {
     #else
         shadowmap.rgb = vec3(0.0);
     #endif
+
+    float historyFrames = 0.0;
+
+    #if ACCUMULATION_VELOCITY_WEIGHT == 1
+        historyFrames = hasMoved() ? 1.0 : texture(colortex5, texCoords).a + 1.0;
+    #endif
     
     #if GI == 0
         //////////////////////////////////////////////////////////
@@ -112,23 +117,22 @@ void main() {
             }
         #endif
         
-        color.rgb = applyLighting(viewPos, mat.normal, shadowDir, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a, true);
+        color.rgb = applyLighting(viewPos, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a, true);
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/
         //////////////////////////////////////////////////////////
 
-        vec2 scaledUv       = texCoords * (1.0 / GI_RESOLUTION);
-        float historyFrames = texture(colortex5, texCoords).a;
-
+        vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
+        
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
             color.rgb = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r), totalIllum);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
                 temporalAccumulation(colortex5, color.rgb, viewPos, mat.normal, historyFrames);
             #endif
-            
-            historyBuffer = vec4(color.rgb, historyFrames);
         }
     #endif
+
+    historyBuffer = vec4(color.rgb, historyFrames);
 }
