@@ -6,16 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec2 diag2(mat4 mat) { return vec2(mat[0].x, mat[1].y); 					}
-vec3 diag3(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z); 			}
-vec4 diag4(mat4 mat) { return vec4(mat[0].x, mat[1].y, mat[2].z, mat[3].w); }
+vec2 diag2(mat4 mat) { return vec2(mat[0].x, mat[1].y); 		  }
+vec3 diag3(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z); }
 
-vec2 projMAD2(mat4 mat, vec2 v) { return diag2(mat) * v + mat[3].xy;   }
-vec3 projMAD3(mat4 mat, vec3 v) { return diag3(mat) * v + mat[3].xyz;  }
-vec4 projMAD4(mat4 mat, vec4 v) { return diag4(mat) * v + mat[3].xyzw; }
-
-vec3 transMAD3(mat4 mat, vec3 v) { return mat3(mat) * v + mat[3].xyz; }
-vec4 transMAD4(mat4 mat, vec4 v) { return mat * v + mat[3].xyzw;      }
+vec2 projMAD2(mat4 mat, vec2 v)  { return diag2(mat) * v + mat[3].xy;  }
+vec3 projMAD3(mat4 mat, vec3 v)  { return diag3(mat) * v + mat[3].xyz; }
+vec3 transMAD3(mat4 mat, vec3 v) { return mat3(mat)  * v + mat[3].xyz; }
 
 bool hasMoved() {
     return gbufferModelView != gbufferPreviousModelView

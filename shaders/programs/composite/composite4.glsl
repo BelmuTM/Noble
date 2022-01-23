@@ -9,7 +9,7 @@
 /* DRAWBUFFERS:07 */
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out vec4 volumetricLighting;
+layout (location = 1) out vec4 volumetricLight;
 
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/fragment/brdf.glsl"
@@ -62,22 +62,23 @@ void main() {
             #ifdef WORLD_OVERWORLD
                 // Outer fog
                 if(isWater) {
-                    depthDist = distance(
-	                    transMAD3(gbufferModelViewInverse, getViewPos0(coords)),
-		                transMAD3(gbufferModelViewInverse, getViewPos1(coords))
-	                );
+                    vec3 worldPos0 = transMAD3(gbufferModelViewInverse, getViewPos0(coords));
+                    vec3 worldPos1 = transMAD3(gbufferModelViewInverse, getViewPos1(coords));
+                    vec3 waterDir  = normalize(inWater ? worldPos0 : worldPos1);
 
-                    waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
+                    #if WATER_FOG == 0
+                        depthDist = distance(worldPos0, worldPos1);
+                        waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
+                    #else
+                        volumetricWaterFog(color.rgb, worldPos0, worldPos1, waterDir);
+                    #endif
                 }
             #endif
 
             #if GI == 0
                 #ifdef WORLD_OVERWORLD
                     skyIlluminance = texture(colortex7, texCoords).rgb;
-
-                    vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
-                    vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
-                    totalIllum        = sunTransmit + moonTransmit;
+                    totalIllum     = shadowLightTransmittance();
                 #else
                     shadowmap.rgb = vec3(0.0);
                 #endif
@@ -107,15 +108,23 @@ void main() {
         #ifdef WORLD_OVERWORLD
             // Inner fog
             if(inWater) {
-                depthDist = length(transMAD3(gbufferModelViewInverse, viewPos0));
-                waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
+                vec3 worldPos0 = transMAD3(gbufferModelViewInverse, viewPos0);
+
+                #if WATER_FOG == 0
+                    waterFog(color.rgb, length(worldPos0), dot(viewDir0, playerSunDir), skyIlluminance);
+                #else
+                    vec3 worldPos1 = transMAD3(gbufferModelViewInverse, viewPos1);
+                    vec3 waterDir  = normalize(inWater ? worldPos0 : worldPos1);
+                    
+                    volumetricWaterFog(color.rgb, vec3(0.0), worldPos0, waterDir);
+                #endif
             }
         #endif
     }
 
     #if VL == 1
         #ifdef WORLD_OVERWORLD
-            volumetricLighting = VL == 0 ? vec4(0.0) : vec4(volumetricFog(viewPos0), 1.0);
+            volumetricLight = vec4(volumetricLighting(viewPos0), 1.0);
         #endif
     #endif
 }

@@ -90,10 +90,7 @@ void main() {
             
     #ifdef WORLD_OVERWORLD
         skyIlluminance = texture(colortex7, texCoords).rgb;
-
-        vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
-        vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
-        totalIllum        = sunTransmit + moonTransmit;
+        totalIllum     = shadowLightTransmittance();
     #else
         shadowmap.rgb = vec3(0.0);
     #endif

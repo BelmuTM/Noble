@@ -24,13 +24,11 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     vec3 increment  = lightDir * rayLength;
     vec3 rayPos     = rayOrigin + increment * 0.5;
 
-    vec3 transmittance = vec3(1.0);
-    for(int j = 0; j < TRANSMITTANCE_STEPS; j++) {
-        vec3 density   = densities(length(rayPos) - earthRad);
-        transmittance *= exp(-kExtinction * density * rayLength);
-        rayPos        += increment;
+    vec3 accumAirmass = vec3(0.0);
+    for(int j = 0; j < TRANSMITTANCE_STEPS; j++, rayPos += increment) {
+        accumAirmass += densities(length(rayPos) - earthRad) * rayLength;
     }
-    return transmittance;
+    return exp(-kExtinction * accumAirmass);
 }
 
 // Calculating sun and moon scattering is heavier, but gives a smoother transition from day to night.
@@ -75,4 +73,11 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     multipleScattering *= skyIlluminance * isotropicPhase;
     
     return (multipleScattering * PI) + (sunScattering * sunIlluminance) + (moonScattering * moonIlluminance);
+}
+
+vec3 shadowLightTransmittance() {
+    vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
+    vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
+
+    return sunTransmit + moonTransmit;
 }
