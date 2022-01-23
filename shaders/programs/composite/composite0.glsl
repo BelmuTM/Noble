@@ -77,7 +77,7 @@ void main() {
     #if WATER_CAUSTICS == 1
         material transMat = getMaterialTranslucents(texCoords);
 
-        bool canCast = isEyeInWater > 0.5 ? true : transMat.blockId == 1;
+        bool canCast = isEyeInWater > 0.5 ? viewPos.z == getViewPos1(texCoords).z : transMat.blockId == 1;
         if(canCast) { shadowmap.rgb *= waterCaustics(texCoords); }
     #endif
 
