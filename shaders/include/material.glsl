@@ -55,7 +55,7 @@ material getMaterial(vec2 coords) {
 
     mat.albedo = vec3((tex1.z >> 24u) & 255u, (tex1.z >> 16u) & 255u, (tex1.z >> 8u) & 255u) / 255.0;
     mat.alpha  = tex1.w;
-    mat.normal = normalize(mat3(gbufferModelView) * decodeUnitVector(vec2((tex1.z & 255u), tex1.w) / 255.0));
+    mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2((tex1.z & 255u), tex1.w) / 255.0);
 
     mat.blockId  = int(unpacked0.y * 255.0 + 0.5);
     mat.lightmap = unpacked0.zw;
@@ -81,7 +81,7 @@ material getMaterialTranslucents(vec2 coords) {
 
     mat.albedo = vec3((tex2.z >> 24u) & 255u, (tex2.z >> 16u) & 255u, (tex2.z >> 8u) & 255u) / 255.0;
     mat.alpha  = unpacked1.y;
-    mat.normal = normalize(mat3(gbufferModelView) * decodeUnitVector(vec2((tex2.z & 255u), tex2.w) / 255.0));
+    mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2((tex2.z & 255u), tex2.w) / 255.0);
 
     mat.blockId  = int(unpacked0.y * 255.0 + 0.5);
     mat.lightmap = unpacked0.zw;

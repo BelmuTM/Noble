@@ -80,7 +80,7 @@ layout (location = 0) out vec4 color;
         vec3 scotopicLuma = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
         float purkinje    = dot(rodResponse, XYZToLinear(scotopicLuma));
 
-        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0 * exposure)));
+        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0)));
     }
 #endif
 
@@ -172,8 +172,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        float bloomStrength = min(BLOOM_STRENGTH + rainStrength, 1.0);
-        color.rgb          += readBloom() * exp2(exposure - 3.0 + bloomStrength);
+        color.rgb = mix(color.rgb, readBloom(), max0(exp2(exposure - 3.0 + BLOOM_STRENGTH)));
     #endif
 
     #if FILM_GRAIN == 1

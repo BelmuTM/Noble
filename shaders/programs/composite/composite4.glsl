@@ -68,7 +68,7 @@ void main() {
 
                     #if WATER_FOG == 0
                         depthDist = distance(worldPos0, worldPos1);
-                        waterFog(color.rgb, depthDist, dot(viewDir0, playerSunDir), skyIlluminance);
+                        waterFog(color.rgb, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance);
                     #else
                         volumetricWaterFog(color.rgb, worldPos0, worldPos1, waterDir);
                     #endif
@@ -111,7 +111,7 @@ void main() {
                 vec3 worldPos0 = transMAD3(gbufferModelViewInverse, viewPos0);
 
                 #if WATER_FOG == 0
-                    waterFog(color.rgb, length(worldPos0), dot(viewDir0, playerSunDir), skyIlluminance);
+                    waterFog(color.rgb, length(worldPos0), dot(viewDir0, sceneSunDir), skyIlluminance);
                 #else
                     vec3 worldPos1 = transMAD3(gbufferModelViewInverse, viewPos1);
                     vec3 waterDir  = normalize(inWater ? worldPos0 : worldPos1);

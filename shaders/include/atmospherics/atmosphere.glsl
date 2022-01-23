@@ -46,7 +46,7 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
     vec3 increment  = rayDir * rayLength;
     vec3 rayPos     = rayOrigin + increment * 0.5;
 
-    float sunVdotL = dot(rayDir, playerSunDir); float moonVdotL = dot(rayDir, playerMoonDir);
+    float sunVdotL = dot(rayDir, sceneSunDir); float moonVdotL = dot(rayDir, sceneMoonDir);
     vec4 phase     = vec4(rayleighPhase(sunVdotL),  cornetteShanksPhase(sunVdotL, anisoFactor), 
                           rayleighPhase(moonVdotL), cornetteShanksPhase(moonVdotL, anisoFactor)
                     );
@@ -63,8 +63,8 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
         vec3 sunStepScattering  = kScattering   * (airmass.xy * phase.xy) * visibleScattering;
         vec3 moonStepScattering = kScattering   * (airmass.xy * phase.zw) * visibleScattering;
 
-        sunScattering      += sunStepScattering  * atmosphereTransmittance(rayPos, playerSunDir);
-        moonScattering     += moonStepScattering * atmosphereTransmittance(rayPos, playerMoonDir);
+        sunScattering      += sunStepScattering  * atmosphereTransmittance(rayPos, sceneSunDir);
+        moonScattering     += moonStepScattering * atmosphereTransmittance(rayPos, sceneMoonDir);
         multipleScattering += visibleScattering  * (kScattering * airmass.xy);
 
         transmittance *= stepTransmittance;
@@ -76,8 +76,8 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
 }
 
 vec3 shadowLightTransmittance() {
-    vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, playerSunDir)  * sunIlluminance;
-    vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, playerMoonDir) * moonIlluminance;
+    vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, sceneSunDir)  * sunIlluminance;
+    vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, sceneMoonDir) * moonIlluminance;
 
     return sunTransmit + moonTransmit;
 }

@@ -14,6 +14,7 @@ in float blockId;
 in vec2 texCoords;
 in vec2 lmCoords;
 in vec3 viewPos;
+in vec3 geoNormal;
 in vec4 vertexColor;
 in mat3 TBN;
 
@@ -57,7 +58,7 @@ void main() {
 	#ifdef TERRAIN
 		#if RAIN_PUDDLES == 1
 			if(F0 * 255.0 <= 229.5) {
-				float puddle  = voronoise(viewToWorld(viewPos).xz * (1.0 - RAIN_PUDDLES_SIZE), 0, 1);
+				float puddle  = voronoise((viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE), 0, 1);
 		  	  	  	  puddle *= pow2(quintic(EPS, 1.0, lmCoords.y));
 		  	  	  	  puddle *= (1.0 - porosity);
 			  	  	  puddle *= rainStrength;
@@ -65,11 +66,12 @@ void main() {
 	
 				F0        = clamp01(mix(F0, RAIN_PUDDLES_STRENGTH, puddle));
 				roughness = clamp01(mix(roughness, 0.0, puddle));
+				normal    = mix(normal, geoNormal, puddle);
 			}
 		#endif
 	#endif
 
-	vec2 encNormal = encodeUnitVector(normal);
+	vec2 encNormal = encodeUnitVector(normalize(normal));
 	
 	dataBuffer.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) / 255.0, clamp01(lmCoords.xy)));
 	dataBuffer.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));

@@ -74,5 +74,7 @@ const float airIOR    = 1.00029;
 const float bits16 = 65536.0;
 
 vec3 shadowDir     = normalize(shadowLightPosition);
-vec3 playerSunDir  = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-vec3 playerMoonDir = normalize(mat3(gbufferModelViewInverse) * moonPosition);
+vec3 sceneSunDir  = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+vec3 sceneMoonDir = normalize(mat3(gbufferModelViewInverse) * moonPosition);
+
+vec3 directionShadowLight = worldTime <= 12750 ? sceneSunDir : sceneMoonDir;

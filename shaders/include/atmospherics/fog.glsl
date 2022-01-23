@@ -8,9 +8,20 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-vec3 groundFog(vec3 viewPos, vec3 background, vec3 fogColor, float fogCoef, float d) {
-    float dist    = length(transMAD3(gbufferModelViewInverse, viewPos));
-    return mix(vec3(0.0), fogColor, dist * d * fogCoef);
+void vlGroundFog(inout vec3 color, vec3 viewPos) {
+    vec3 scenePos = transMAD3(gbufferModelViewInverse, viewPos);
+
+    float airmass     = length(scenePos) * RAIN_FOG_DENSITY * rainStrength;
+    vec3 opticalDepth = (kExtinction[0] + kExtinction[1] + kExtinction[2]) * airmass;
+
+    vec3 transmittance       = exp(-opticalDepth);
+    vec3 transmittedFraction = clamp01((transmittance - 1.0) / -opticalDepth);
+
+    float VdotL     = dot(normalize(scenePos), directionShadowLight);
+    vec2 phase      = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisoFactor));
+    vec3 scattering = kScattering * (airmass * phase) * illuminanceShadowLight;
+
+    color = color * transmittance + (scattering * transmittedFraction);
 }
 
 // Thanks Jessie, LVutner and SixthSurge for the help!
@@ -35,9 +46,8 @@ vec3 volumetricLighting(vec3 viewPos) {
 
     vec3 increment = (endPos - startPos) / float(VL_STEPS);
     vec3 rayPos    = startPos + increment * jitter;
-    vec3 lightDir  = worldTime <= 12750 ? playerSunDir : playerMoonDir;
 
-    float VdotL = dot(normalize(endPos), lightDir);
+    float VdotL = dot(normalize(endPos), directionShadowLight);
     vec2 phase  = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisoFactor));
 
     vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
@@ -53,7 +63,7 @@ vec3 volumetricLighting(vec3 viewPos) {
         vec3 visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
         vec3 stepScattering    = kScattering * vec2(airmass.xy * phase.xy) * visibleScattering;
 
-        scattering    += stepScattering * vlTransmittance(rayPos, lightDir) * sampleColor;
+        scattering    += stepScattering * vlTransmittance(rayPos, directionShadowLight) * sampleColor;
         transmittance *= stepTransmittance;
     }
     
@@ -82,7 +92,6 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
 
     vec3 increment = (endPos - startPos) / float(WATER_FOG_STEPS);
     vec3 rayPos    = startPos + increment * jitter;
-    vec3 lightDir  = worldTime <= 12750 ? playerSunDir : playerMoonDir;
 
     vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
     float rayLength = distance(startPos, endPos) / float(WATER_FOG_STEPS);
@@ -98,7 +107,7 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
         transmittance *= stepTransmittance;
     }
 
-    float VdotL = dot(waterDir, lightDir);
+    float VdotL = dot(waterDir, directionShadowLight);
     scattering *= shadowLightTransmittance() * cornetteShanksPhase(VdotL, 0.5);
     scattering *= scatteringCoeff * opticalDepth;
 

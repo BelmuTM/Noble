@@ -32,12 +32,9 @@ void main() {
         #endif
     #else
         #if RAIN_FOG == 1
-            if(rainStrength > 0.0) {
+            if(rainStrength > 0.0 && isEyeInWater < 0.5) {
                 vec3 viewPos = getViewPos0(texCoords);
-                material mat = getMaterial(texCoords);
-                vec3 sky     = texture(colortex6, projectSphere(vec3(0.0, 1.0, 0.0)) * ATMOSPHERE_RESOLUTION).rgb;
-
-                color.rgb   += groundFog(viewPos, color.rgb, sky * 0.02, rainStrength, 1.0) * (isSky(texCoords) ? 1.0 : pow2(quintic(EPS, 1.0, mat.lightmap.y)));
+                vlGroundFog(color.rgb, viewPos);
             }
         #endif
     #endif

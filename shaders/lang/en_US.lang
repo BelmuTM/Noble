@@ -173,20 +173,8 @@ option.RAIN_FOG.comment = A fog that appears when it rains.
 value.RAIN_FOG.0 = §cOFF
 value.RAIN_FOG.1 = §aON
 
-option.WATER_FOG = Water Fog
-option.WATER_FOG.comment = Simulates the absorption and scattering of light in water. §aApproximation§r water fog is a semi-accurate way of computing it. §aVolumetric§r water fog uses ray marching to compute it accurately.
-value.WATER_FOG.0 = §e§lApproximation
-value.WATER_FOG.1 = §e§lVolumetric
-
-option.WATER_FOG_STEPS = Volumetric Water Fog Steps
-option.WATER_FOG_STEPS.comment = Influences §bWater Fog§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
-value.WATER_FOG_STEPS.4 = §24
-value.WATER_FOG_STEPS.8 = §a8
-value.WATER_FOG_STEPS.16 = §e16
-value.WATER_FOG_STEPS.32 = §632
-
-option.WATER_DENSITY = Water Density
-option.WATER_DENSITY.comment = Adjusts the density of water. It is used in water fog.
+option.RAIN_FOG_DENSITY = Rain Fog Density
+option.RAIN_FOG_DENSITY.comment = Adjusts the density of §bRain Fog§r.
 
 option.CELESTIAL_SIZE_MULTIPLIER = Celestial Size Multiplier
 option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the Sun/Moon.
@@ -286,6 +274,21 @@ option.WAVE_LENGTH.comment = Adjusts the length of water waves. Length between 2
 
 option.WAVE_SPEED = Wave Speed
 option.WAVE_SPEED.comment = Adjusts the speed of water waves.
+
+option.WATER_FOG = Water Fog
+option.WATER_FOG.comment = Simulates the absorption and scattering of light in water. §aApproximation§r water fog is a semi-accurate way of computing it. §aVolumetric§r water fog uses ray marching to compute it accurately.
+value.WATER_FOG.0 = §e§lApproximation
+value.WATER_FOG.1 = §e§lVolumetric
+
+option.WATER_FOG_STEPS = Volumetric Water Fog Steps
+option.WATER_FOG_STEPS.comment = Influences §bWater Fog§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
+value.WATER_FOG_STEPS.4 = §24
+value.WATER_FOG_STEPS.8 = §a8
+value.WATER_FOG_STEPS.16 = §e16
+value.WATER_FOG_STEPS.32 = §632
+
+option.WATER_DENSITY = Water Density
+option.WATER_DENSITY.comment = Adjusts the density of water. It is used in water fog.
 
 option.WATER_ABSORPTION_R = Water Absorption §cRed
 option.WATER_ABSORPTION_R.comment = Adjusts how water absorbs light. Higher value means that §cred§r will be absorbed more.
