@@ -45,7 +45,7 @@ layout (location = 0) out vec4 color;
 
 
 #if CHROMATIC_ABERRATION == 1
-    void chromaticAberration(inout vec3 color, float coc) {
+    void chromaticAberration(inout vec3 color) {
         #if DOF == 0
             vec2 offset = (1.0 - pow2(texCoords - vec2(0.5))) * ABERRATION_STRENGTH * pixelSize;
 
@@ -121,11 +121,11 @@ void main() {
     float exposure = computeExposure(texture(colortex8, texCoords).a);
 
     #if CHROMATIC_ABERRATION == 1
-        chromaticAberration(color.rgb, color.a);
+        chromaticAberration(color);
     #endif
 
     #if BLOOM == 1
-        color.rgb = mix(color.rgb, readBloom(), max0(exp2(exposure - 3.0 + BLOOM_STRENGTH)));
+        color.rgb = mix(color.rgb, readBloom(), max0(exp2(exposure - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH))));
     #endif
 
     #if FILM_GRAIN == 1

@@ -214,7 +214,7 @@ void uncharted2(inout vec3 color) {
 // Originally made by Richard Burgess-Dawson
 // Modified by https://github.com/TechDevOnGitHub
 void burgess(inout vec3 color) {
-    vec3 maxColor = color * min(vec3(1.0), 1.0 - exp(-1.0 / 0.0004 * color)) * 0.8;
+    vec3 maxColor = color * min(vec3(1.0), 1.0 - exp(-1.0 / 0.04 * color)) * 0.8;
     color         = (maxColor * (6.2 * maxColor + 0.5)) / (maxColor * (6.2 * maxColor + 1.7) + 0.04);
 }
 

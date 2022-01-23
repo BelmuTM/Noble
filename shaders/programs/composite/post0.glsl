@@ -59,11 +59,10 @@ layout (location = 1) out vec4 bloomBuffer;
 
 void main() {
     color = texture(colortex0, texCoords);
-
-    color.a = 0.0;
+    
     #if DOF == 1
-        color.a = getCoC(linearizeDepth(texture(depthtex0, texCoords).r), linearizeDepth(centerDepthSmooth));
-        depthOfField(color.rgb, texCoords, colortex0, 8, DOF_RADIUS, color.a);
+        float coc = getCoC(linearizeDepth(texture(depthtex0, texCoords).r), linearizeDepth(centerDepthSmooth));
+        depthOfField(color.rgb, texCoords, colortex0, 8, DOF_RADIUS, coc);
     #endif
 
     #if BLOOM == 1

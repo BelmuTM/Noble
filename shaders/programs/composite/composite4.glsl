@@ -22,6 +22,7 @@ layout (location = 1) out vec4 volumetricLight;
 void main() {
     color         = texture(colortex0, texCoords);
     vec3 viewPos0 = getViewPos0(texCoords);
+    bool inWater  = isEyeInWater > 0.5;
 
     if(!isSky(texCoords)) {
         vec3 viewPos1 = getViewPos1(texCoords);
@@ -29,6 +30,7 @@ void main() {
 
         material mat      = getMaterial(texCoords);
         material transMat = getMaterialTranslucents(texCoords);
+        vec2 coords       = texCoords;
 
         #if GI == 1
             #if GI_FILTER == 1                
@@ -36,16 +38,11 @@ void main() {
             #endif
         #endif
 
-        bool isWater    = transMat.blockId == 1;
-        bool inWater    = isEyeInWater > 0.5;
-        float depthDist = 0.0;
-
         vec3 skyIlluminance = vec3(0.0), totalIllum = vec3(1.0);
         vec4 shadowmap      = texture(colortex3, texCoords);
 
         if(viewPos0.z != viewPos1.z) {
-            vec2 coords = texCoords;
-            mat         = transMat;
+            mat = transMat;
 
             //////////////////////////////////////////////////////////
             /*-------------------- REFRACTIONS ---------------------*/
@@ -59,21 +56,9 @@ void main() {
                 }
             #endif
 
-            #ifdef WORLD_OVERWORLD
-                // Outer fog
-                if(isWater) {
-                    vec3 worldPos0 = transMAD3(gbufferModelViewInverse, getViewPos0(coords));
-                    vec3 worldPos1 = transMAD3(gbufferModelViewInverse, getViewPos1(coords));
-                    vec3 waterDir  = normalize(inWater ? worldPos0 : worldPos1);
-
-                    #if WATER_FOG == 0
-                        depthDist = distance(worldPos0, worldPos1);
-                        waterFog(color.rgb, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance);
-                    #else
-                        volumetricWaterFog(color.rgb, worldPos0, worldPos1, waterDir);
-                    #endif
-                }
-            #endif
+            //////////////////////////////////////////////////////////
+            /*------------------ ALPHA BLENDING --------------------*/
+            //////////////////////////////////////////////////////////
 
             #if GI == 0
                 #ifdef WORLD_OVERWORLD
@@ -87,6 +72,26 @@ void main() {
                 color.rgb          = mix(color.rgb, transLighting, mat.alpha);
             #endif
         }
+
+        //////////////////////////////////////////////////////////
+        /*-------------------- WATER FOG -----------------------*/
+        //////////////////////////////////////////////////////////
+
+        #ifdef WORLD_OVERWORLD
+            vec3 worldPos0 = transMAD3(gbufferModelViewInverse, getViewPos0(coords));
+            vec3 worldPos1 = transMAD3(gbufferModelViewInverse, getViewPos1(coords));
+
+            vec3 startPos = inWater ? vec3(0.0) : worldPos0;
+            vec3 endPos   = inWater ? worldPos0 : worldPos1;
+
+            #if WATER_FOG == 0
+                float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
+                waterFog(color.rgb, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance);
+            #else
+                vec3 worldDir  = normalize(inWater ? worldPos0 : worldPos1);
+                volumetricWaterFog(color.rgb, startPos, endPos, worldDir);
+            #endif
+        #endif
 
         //////////////////////////////////////////////////////////
         /*-------------------- REFLECTIONS ---------------------*/
@@ -104,23 +109,11 @@ void main() {
                 }
             #endif
         #endif
-
-        #ifdef WORLD_OVERWORLD
-            // Inner fog
-            if(inWater) {
-                vec3 worldPos0 = transMAD3(gbufferModelViewInverse, viewPos0);
-
-                #if WATER_FOG == 0
-                    waterFog(color.rgb, length(worldPos0), dot(viewDir0, sceneSunDir), skyIlluminance);
-                #else
-                    vec3 worldPos1 = transMAD3(gbufferModelViewInverse, viewPos1);
-                    vec3 waterDir  = normalize(inWater ? worldPos0 : worldPos1);
-                    
-                    volumetricWaterFog(color.rgb, vec3(0.0), worldPos0, waterDir);
-                #endif
-            }
-        #endif
     }
+
+    //////////////////////////////////////////////////////////
+    /*------------------ VL / RAIN FOG ---------------------*/
+    //////////////////////////////////////////////////////////
 
     #if VL == 1
         #ifdef WORLD_OVERWORLD
@@ -128,7 +121,7 @@ void main() {
         #endif
     #else
         #if RAIN_FOG == 1
-            if(rainStrength > 0.0 && isEyeInWater < 0.5) {
+            if(rainStrength > 0.0 && !inWater) {
                 vlGroundFog(color.rgb, viewPos0);
             }
         #endif
