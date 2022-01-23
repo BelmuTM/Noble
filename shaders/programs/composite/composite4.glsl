@@ -78,19 +78,23 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #ifdef WORLD_OVERWORLD
-            vec3 worldPos0 = transMAD3(gbufferModelViewInverse, getViewPos0(coords));
-            vec3 worldPos1 = transMAD3(gbufferModelViewInverse, getViewPos1(coords));
+            bool canFog = inWater ? true : mat.blockId == 1;
+        
+            if(canFog) {
+                vec3 worldPos0 = transMAD3(gbufferModelViewInverse, getViewPos0(coords));
+                vec3 worldPos1 = transMAD3(gbufferModelViewInverse, getViewPos1(coords));
 
-            vec3 startPos = inWater ? vec3(0.0) : worldPos0;
-            vec3 endPos   = inWater ? worldPos0 : worldPos1;
+                vec3 startPos = inWater ? vec3(0.0) : worldPos0;
+                vec3 endPos   = inWater ? worldPos0 : worldPos1;
 
-            #if WATER_FOG == 0
-                float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
-                waterFog(color.rgb, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance);
-            #else
-                vec3 worldDir  = normalize(inWater ? worldPos0 : worldPos1);
-                volumetricWaterFog(color.rgb, startPos, endPos, worldDir);
-            #endif
+                #if WATER_FOG == 0
+                    float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
+                    waterFog(color.rgb, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance);
+                #else
+                    vec3 worldDir  = normalize(inWater ? worldPos0 : worldPos1);
+                    volumetricWaterFog(color.rgb, startPos, endPos, worldDir);
+                #endif
+            }
         #endif
 
         //////////////////////////////////////////////////////////
