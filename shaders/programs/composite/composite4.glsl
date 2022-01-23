@@ -126,5 +126,11 @@ void main() {
         #ifdef WORLD_OVERWORLD
             volumetricLight = vec4(volumetricLighting(viewPos0), 1.0);
         #endif
+    #else
+        #if RAIN_FOG == 1
+            if(rainStrength > 0.0 && isEyeInWater < 0.5) {
+                vlGroundFog(color.rgb, viewPos0);
+            }
+        #endif
     #endif
 }

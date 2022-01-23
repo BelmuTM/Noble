@@ -17,8 +17,54 @@ layout (location = 1) out vec4 bloomBuffer;
 #include "/include/fragment/shadows.glsl"
 #include "/include/atmospherics/fog.glsl"
 
+#if DOF == 1
+    // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
+    float getCoC(float fragDepth, float cursorDepth) {
+        return fragDepth < 0.56 ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - FOCAL)))) * 0.5;
+    }
+
+    void depthOfField(inout vec3 color, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
+        vec3 dof   = vec3(0.0);
+        vec2 noise = uniformAnimatedNoise(vec2(randF(), randF()));
+
+        vec2 caOffset;
+
+        #if CHROMATIC_ABERRATION == 1
+            float distFromCenter = pow2(distance(coords, vec2(0.5)));
+                  caOffset       = vec2(ABERRATION_STRENGTH * distFromCenter) * coc / pow2(quality);
+        #endif
+
+        for(int i = 0; i < quality; i++) {
+            for(int j = 0; j < quality; j++) {
+                vec2 offset = ((vec2(i, j) + noise) - quality * 0.5) / quality;
+            
+                if(length(offset) < 0.5) {
+                    vec2 sampleCoords = coords + (offset * radius * coc * pixelSize);
+
+                    #if CHROMATIC_ABERRATION == 1
+                        dof += vec3(
+                            texture(tex, sampleCoords + caOffset).r,
+                            texture(tex, sampleCoords).g,
+                            texture(tex, sampleCoords - caOffset).b
+                        );
+                    #else
+                        dof += texture(tex, sampleCoords).rgb;
+                    #endif
+                }
+            }
+        }
+        color = dof * (1.0 / pow2(quality));
+    }
+#endif
+
 void main() {
     color = texture(colortex0, texCoords);
+
+    color.a = 0.0;
+    #if DOF == 1
+        color.a = getCoC(linearizeDepth(texture(depthtex0, texCoords).r), linearizeDepth(centerDepthSmooth));
+        depthOfField(color.rgb, texCoords, colortex0, 8, DOF_RADIUS, color.a);
+    #endif
 
     #if BLOOM == 1
         bloomBuffer.rgb = writeBloom();
@@ -29,13 +75,6 @@ void main() {
             color.rgb += gaussianBlur(texCoords, colortex7, 1.5, 2.0, 4).rgb;
         #else
             color.rgb += texture(colortex7, texCoords).rgb;
-        #endif
-    #else
-        #if RAIN_FOG == 1
-            if(rainStrength > 0.0 && isEyeInWater < 0.5) {
-                vec3 viewPos = getViewPos0(texCoords);
-                vlGroundFog(color.rgb, viewPos);
-            }
         #endif
     #endif
 }
