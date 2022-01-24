@@ -54,9 +54,8 @@
         return waveAmplitude * pow(sin(x) * 0.5 + 0.5, waveSteepness);
     }
 
-    const float windRad = 0.785398;
-
     float computeWaves(vec2 coords) {
+        const float windRad = 0.785398;
 	    float speed = ANIMATED_WATER == 1 ? frameTimeCounter * WAVE_SPEED : 0.0;
 
         float waveSteepness = WAVE_STEEPNESS;
@@ -67,7 +66,7 @@
         float waves = 0.0;
 
         float noise;
-        noise          = voronoise(coords * 0.02 / sqrt(waveLength) - (speed * waveDir), 1, 1);
+        noise          = voronoise(coords * 0.2 / sqrt(waveLength) - (speed * waveDir), 0, 1);
         waves         += -gerstnerWaves(coords + vec2(noise, -noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
         waveSteepness *= 1.0;
         waveAmplitude *= 0.6;

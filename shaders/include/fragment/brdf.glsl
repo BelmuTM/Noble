@@ -189,7 +189,7 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
     float Fss   = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
     float ss    = 1.25 * (Fss * (1.0 / (NdotL + NdotV) - 0.5) + 0.5);
 
-    return clamp01(ss);
+    return quintic(0.0, 1.0, ss);
 }
 
 // Thanks LVutner and Jessie for the help!

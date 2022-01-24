@@ -126,7 +126,7 @@ void main() {
     #else
         #if RAIN_FOG == 1
             if(rainStrength > 0.0 && !inWater) {
-                vlGroundFog(color.rgb, viewPos0, getMaterial(texCoords).lightmap.y);
+                volumetricGroundFog(color.rgb, viewPos0, getMaterial(texCoords).lightmap.y);
             }
         #endif
     #endif

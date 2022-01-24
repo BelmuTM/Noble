@@ -8,7 +8,7 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-void vlGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
+void volumetricGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
     vec3 scenePos = transMAD3(gbufferModelViewInverse, viewPos);
 
     float airmass     = length(scenePos) * RAIN_FOG_DENSITY * rainStrength;
