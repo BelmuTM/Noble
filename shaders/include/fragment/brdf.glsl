@@ -196,7 +196,7 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 applyLighting(vec3 V, material mat, vec3 shadows, vec3 shadowLightIlluminance, vec3 skyIlluminance, float ambientOcclusion, bool specularLighting) {
+vec3 applyLighting(vec3 V, material mat, vec4 shadowmap, vec3 shadowLightIlluminance, vec3 skyIlluminance, bool specularLighting) {
     V = -normalize(V);
 
     vec3 specular = vec3(0.0);
@@ -224,8 +224,8 @@ vec3 applyLighting(vec3 V, material mat, vec3 shadows, vec3 shadowLightIlluminan
         if(all(greaterThan(mat.normal, vec3(0.0)))) ao = mat.ao;
     #endif
 
-    vec3 direct   = (diffuse + specular) * (shadowLightIlluminance * shadows);
-    vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * ao * ambientOcclusion;
+    vec3 direct   = (diffuse + specular) * (shadowLightIlluminance * shadowmap.rgb);
+    vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * ao * shadowmap.a;
 
     return direct + indirect;
 }

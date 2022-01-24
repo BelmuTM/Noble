@@ -94,8 +94,6 @@ layout (location = 0) out vec4 color;
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
-        color = clamp(color, vec3(0.03), vec3(255.0 / 256.0));
-
         color.b *= lutSize - 1.0;
         int b0 = int(color.b);
         int b1 = b0 + 1;
@@ -121,7 +119,7 @@ void main() {
     float exposure = computeExposure(texture(colortex8, texCoords).a);
 
     #if CHROMATIC_ABERRATION == 1
-        chromaticAberration(color);
+        chromaticAberration(color.rgb);
     #endif
 
     #if BLOOM == 1

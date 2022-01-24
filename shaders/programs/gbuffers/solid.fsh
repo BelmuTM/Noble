@@ -60,7 +60,7 @@ void main() {
 			if(F0 * 255.0 <= 229.5) {
 				float puddle  = voronoise((viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE), 0, 1);
 		  	  	  	  puddle *= pow2(quintic(EPS, 1.0, lmCoords.y));
-		  	  	  	  puddle *= (1.0 - porosity);
+	  				  puddle *= (1.0 - porosity);
 			  	  	  puddle *= rainStrength;
 			  	  	  puddle *= quintic(0.2, 0.9, normal.y);
 	

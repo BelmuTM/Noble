@@ -111,7 +111,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 
 #define REFLECTIONS      1 // [0 1]
 #define REFLECTIONS_TYPE 1 // [0 1]
-#define REFRACTIONS      0 // [0 1]
+#define REFRACTIONS      1 // [0 1]
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.2

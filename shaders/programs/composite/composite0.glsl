@@ -23,7 +23,7 @@ layout (location = 2) out vec4 historyBuffer;
 #if GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
-    void temporalAccumulation(sampler2D prevTex, inout vec3 color, vec3 viewPos, vec3 normal, inout float historyFrames) {
+    void temporalAccumulation(sampler2D prevTex, inout vec3 color, vec3 viewPos0, vec3 normal, inout float historyFrames) {
         vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
         vec3 prevColor     = texture(prevTex, prevTexCoords).rgb;
 
@@ -40,7 +40,7 @@ layout (location = 2) out vec4 historyBuffer;
 #endif
 
 void main() {
-    vec3 viewPos = getViewPos0(texCoords);
+    vec3 viewPos0 = getViewPos0(texCoords);
 
     //////////////////////////////////////////////////////////
     /*------------------------ SKY -------------------------*/
@@ -50,12 +50,12 @@ void main() {
         vec3 sky = vec3(0.0);
 
         #ifdef WORLD_OVERWORLD
-            vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos));
+            vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos0));
             vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(gl_FragCoord.xy)));
 
             vec3 tmp = texture(colortex6, coords * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
-            sky      = tmp + (starfield(viewPos) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
-            sky     += celestialBody(normalize(viewPos), shadowDir);
+            sky      = tmp + (starfield(viewPos0) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
+            sky     += celestialBody(normalize(viewPos0), shadowDir);
         #endif
 
         color = vec4(sky, 1.0);
@@ -77,7 +77,7 @@ void main() {
     #if WATER_CAUSTICS == 1
         material transMat = getMaterialTranslucents(texCoords);
 
-        bool canCast = isEyeInWater > 0.5 ? viewPos.z == getViewPos1(texCoords).z : transMat.blockId == 1;
+        bool canCast = isEyeInWater > 0.5 ? viewPos0.z == getViewPos1(texCoords).z : transMat.blockId == 1;
         if(canCast) { shadowmap.rgb *= waterCaustics(texCoords); }
     #endif
 
@@ -114,7 +114,7 @@ void main() {
             }
         #endif
         
-        color.rgb = applyLighting(viewPos, mat, shadowmap.rgb, totalIllum, skyIlluminance, shadowmap.a, true);
+        color.rgb = applyLighting(viewPos0, mat, shadowmap, totalIllum, skyIlluminance, true);
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/
@@ -126,7 +126,7 @@ void main() {
             color.rgb = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r), totalIllum);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(colortex5, color.rgb, viewPos, mat.normal, historyFrames);
+                temporalAccumulation(colortex5, color.rgb, viewPos0, mat.normal, historyFrames);
             #endif
         }
     #endif
