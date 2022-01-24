@@ -8,10 +8,11 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-void vlGroundFog(inout vec3 color, vec3 viewPos) {
+void vlGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
     vec3 scenePos = transMAD3(gbufferModelViewInverse, viewPos);
 
     float airmass     = length(scenePos) * RAIN_FOG_DENSITY * rainStrength;
+          airmass    *= pow2(quintic(EPS, 1.0, skyLight));
     vec3 opticalDepth = (kExtinction[0] + kExtinction[1] + kExtinction[2]) * airmass;
 
     vec3 transmittance       = exp(-opticalDepth);

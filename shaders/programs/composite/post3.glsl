@@ -46,4 +46,6 @@ void main() {
         vec2 coords = texCoords * (1.0 - texCoords.yx);
         color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
+
+    color.rgb += bayer64(gl_FragCoord.xy) / 64.0;
 }

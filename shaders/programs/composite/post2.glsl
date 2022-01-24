@@ -156,6 +156,4 @@ void main() {
     #if LUT > 0
         applyLUT(colortex9, color.rgb);
     #endif
-
-    color.rgb += bayer64(gl_FragCoord.xy) / 64.0;
 }
