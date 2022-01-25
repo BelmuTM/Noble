@@ -1,4 +1,4 @@
-#version 300 compatibility
+#version 400 compatibility
 
 /***********************************************/
 /*       Copyright (C) Noble RT - 2021         */
