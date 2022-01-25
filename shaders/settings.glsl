@@ -103,7 +103,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 
 #define GI_TEMPORAL_ACCUMULATION     1 // [0 1]
 #define ACCUMULATION_VELOCITY_WEIGHT 0 // [0 1]
-#define SKY_CONTRIBUTION             1 // [0 1]
+#define SKY_CONTRIBUTION             0 // [0 1]
 
 //////////////////////////////////////////////////////////
 /*------------- REFLECTIONS | REFRACTIONS --------------*/

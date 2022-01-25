@@ -24,7 +24,9 @@
 
             for(int x = 0; x < samples.x; x++) {
                 for(int y = 0; y < samples.y; y++) {
-                    vec3 dir        = generateUnitVector(vec2(x, y) / samples);
+                    vec3 dir = generateUnitVector(vec2(x, y) / samples);
+                         dir = dot(dir, vec3(0.0, 1.0, 0.0)) < 0.0 ? -dir : dir; // Thanks SixthSurge for the help with hemisphere sampling
+
                     skyIlluminance += texture(colortex6, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
                 }
             }

@@ -19,7 +19,7 @@
         return fresnel * G2SmithGGX(NdotV, NdotL, roughness) / G1SmithGGX(NdotV, roughness);
     }
 
-    vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, material mat, vec3 shadows, vec3 shadowLightIlluminance) {
+    vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap, vec3 shadowLightIlluminance) {
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
 
         vec3 diffuse = vec3(0.0);
@@ -30,7 +30,7 @@
             diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat, false);
         #endif
 
-        return (diffuse + specular) * (shadowLightIlluminance * shadows);
+        return (diffuse + specular) * (shadowLightIlluminance * shadowmap);
     }
 
     vec3 pathTrace(in vec3 screenPos, vec3 shadowLightIlluminance) {

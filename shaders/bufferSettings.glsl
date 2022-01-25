@@ -34,7 +34,7 @@ const int colortex6Format = R11F_G11F_B10F;
 const bool colortex6Clear = false;
 
 VOLUMETRIC LIGHTING / SKY ILLUMINANCE
-const int colortex7Format = RGB32F;
+const int colortex7Format = R11F_G11F_B10F;
 
 TAA / EXPOSURE HISTORY BUFFER
 const int colortex8Format = RGBA16F;
