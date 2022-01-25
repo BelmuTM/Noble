@@ -20,15 +20,15 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int steps, float jitter, inout vec3 hit
     vec3 screenPos = viewToScreen(viewPos);
     vec3 screenDir = normalize(viewToScreen(viewPos + rayDir) - screenPos) * (RAY_STEP_LENGTH / steps);
 
-    hitPos = screenPos + screenDir * jitter;
-    for(int i = 0; i < steps; i++, hitPos += screenDir) {
+    vec3 rayPos = screenPos + screenDir * jitter;
+    for(int i = 0; i < steps; i++, rayPos += screenDir) {
 
-        if(clamp01(hitPos.xy) != hitPos.xy) { return false; }
-        float depth = texture(depthtex1, hitPos.xy).r;
+        if(clamp01(rayPos.xy) != rayPos.xy) { return false; }
+        float depth = texture(depthtex1, rayPos.xy).r;
 
-        if(abs(RAY_DEPTH_TOLERANCE - (hitPos.z - depth)) < RAY_DEPTH_TOLERANCE && screenPos.z < depth) {
+        if(abs(RAY_DEPTH_TOLERANCE - (rayPos.z - depth)) < RAY_DEPTH_TOLERANCE && screenPos.z < depth) {
             #if BINARY_REFINEMENT == 1
-                hitPos = binarySearch(hitPos, screenDir);
+                hitPos = binarySearch(rayPos, screenDir);
             #endif
             return true;
         }

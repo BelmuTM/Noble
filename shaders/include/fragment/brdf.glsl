@@ -139,7 +139,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
     vec3 F  = specularFresnel(HdotL, getMetalF0(mat.F0, mat.albedo), mat.isMetal);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
-    return ((D * F * G) / (4.0 * NdotL * NdotV)) * NdotL;
+    return clamp01((D * F * G) / (4.0 * NdotL * NdotV)) * NdotL;
 }
 
 // HAMMON DIFFUSE
