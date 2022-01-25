@@ -83,11 +83,11 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 /*-------------------- RAY TRACING ---------------------*/
 //////////////////////////////////////////////////////////
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT      4 // [4 5 6 7 8 9 10]
+#define BINARY_COUNT      6 // [4 5 6 7 8 9 10]
 #define BINARY_DECREASE 0.5
 
 #define RAY_STEP_LENGTH      1.5 // [1.0 1.5]
-#define RAY_DEPTH_TOLERANCE 0.05
+#define RAY_DEPTH_TOLERANCE 1e-3
 
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/

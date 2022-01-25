@@ -104,9 +104,10 @@ void main() {
         #if GI == 0
             #if REFLECTIONS == 1
                 vec3 reflections = texture(colortex4, texCoords * REFLECTIONS_RES).rgb;
+                float NdotV      = maxEps(dot(mat.normal, -normalize(viewPos0)));
 
                 if(mat.rough > 0.05) {
-                    vec3 DFG  = envBRDFApprox(getMetalF0(mat.F0, mat.albedo), mat.rough, dot(mat.normal, -normalize(viewPos0)));
+                    vec3 DFG  = envBRDFApprox(getMetalF0(mat.F0, mat.albedo), mat.rough, NdotV);
                     color.rgb = mix(color.rgb, reflections, DFG);
                 } else {
                     color.rgb += reflections;

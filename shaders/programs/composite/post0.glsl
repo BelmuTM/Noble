@@ -13,9 +13,6 @@ layout (location = 1) out vec4 bloomBuffer;
 
 #include "/include/utility/blur.glsl"
 #include "/include/post/bloom.glsl"
-#include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/shadows.glsl"
-#include "/include/atmospherics/fog.glsl"
 
 #if DOF == 1
     // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
