@@ -52,7 +52,7 @@ void main() {
 	#ifdef TRANSLUCENT
 		if(int(blockId + 0.5) == 1) {
 			vec3 worldPos = viewToWorld(viewPos);
-			worldPos.y   += computeWaves(worldPos.xz);
+			worldPos.y   += calculateWaterWaves(worldPos.xz);
 			waterNormals  = getWaveNormals(worldPos);
 
     		vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView(worldPos), 1.0);

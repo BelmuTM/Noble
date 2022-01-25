@@ -54,7 +54,7 @@
         return waveAmplitude * pow(sin(x) * 0.5 + 0.5, waveSteepness);
     }
 
-    float computeWaves(vec2 coords) {
+    float calculateWaterWaves(vec2 coords) {
         const float windRad = 0.785398;
 	    float speed = ANIMATED_WATER == 1 ? frameTimeCounter * WAVE_SPEED : 0.0;
 
@@ -66,53 +66,25 @@
         float waves = 0.0;
 
         float noise;
-        noise          = voronoise(coords * 0.2 / sqrt(waveLength) - (speed * waveDir), 0, 1);
-        waves         += -gerstnerWaves(coords + vec2(noise, -noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
-        waveSteepness *= 1.0;
-        waveAmplitude *= 0.6;
-        waveLength    *= 1.8;
-        waveDir        = -sincos(windRad + 0.9);
 
-        noise          = FBM(coords * 0.03 / sqrt(waveLength) - (speed * waveDir), 1);
-        waves         += -gerstnerWaves(coords + vec2(-noise, noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
-        waveSteepness *= 1.0;
-        waveAmplitude *= 0.6;
-        waveLength    *= 0.7;
-        waveDir        = sincos(windRad - 1.8);
-
-        noise          = FBM(coords * 0.01 / sqrt(waveLength) - (speed * waveDir), 2);
-        waves         += -gerstnerWaves(coords + vec2(-noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
-        waveSteepness *= 1.0;
-        waveAmplitude *= 2.6;
-        waveLength    *= 0.8;
-        waveDir        = sincos(windRad + 2.7);
-
-        noise          = FBM(coords * 0.01 / sqrt(waveLength) - (speed * waveDir), 3);
-        waves         += -gerstnerWaves(coords + vec2(noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
-        waveSteepness *= 1.3;
-        waveAmplitude *= 0.3;
-        waveLength    *= 0.4;
-        waveDir        = sincos(windRad - 3.6);
-
-        noise          = FBM(coords * 0.03 / sqrt(waveLength) - (speed * waveDir), 4);
-        waves         += -gerstnerWaves(coords + vec2(-noise, noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
-        waveSteepness *= 1.5;
-        waveAmplitude *= 0.4;
-        waveLength    *= 0.6;
-        waveDir        = sincos(windRad - 0.4);
-
-        noise          = FBM(coords * 2.3 / sqrt(waveLength) - (speed * waveDir), 5);
-        waves         += -gerstnerWaves(coords + vec2(noise, -noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
-	    return waves;
+        for(int i = 0; i < WAVES_AMOUNT; i++) {
+            noise          = FBM(coords * 0.3 * inversesqrt(waveLength) - (speed * waveDir), 2);
+            waves         += -gerstnerWaves(coords + vec2(noise, -noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
+            waveSteepness *= 1.4;
+            waveAmplitude *= 0.4;
+            waveLength    *= 0.7;
+            waveDir        = -sincos((windRad - 0.1) * (float(i) * GOLDEN_ANGLE));
+        }
+        return waves;
     }
 
     vec3 getWaveNormals(vec3 worldPos) {
         vec2 coords = worldPos.xz - worldPos.y;
 
         const float delta = 1e-1;
-        float normal0 = computeWaves(coords);
-	    float normal1 = computeWaves(coords + vec2(delta, 0.0));
-	    float normal2 = computeWaves(coords + vec2(0.0, delta));
+        float normal0 = calculateWaterWaves(coords);
+	    float normal1 = calculateWaterWaves(coords + vec2(delta, 0.0));
+	    float normal2 = calculateWaterWaves(coords + vec2(0.0, delta));
 
         return normalize(vec3(
             (normal0 - normal1) / delta,

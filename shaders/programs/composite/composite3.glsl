@@ -30,11 +30,13 @@ void main() {
                 material transMat = getMaterialTranslucents(scaledUv);
 
                 if(viewPos0.z != viewPos1.z) mat = transMat;
+
+                vec3 metalF0 = getMetalF0(mat.F0, mat.albedo);
                     
                 #if REFLECTIONS_TYPE == 1
-                    color.rgb = roughReflections(scaledUv, viewPos0, mat, getMetalF0(mat.F0, mat.albedo));
+                    color.rgb = roughReflections(scaledUv, viewPos0, mat, metalF0);
                 #else
-                    color.rgb = simpleReflections(scaledUv, viewPos0, mat, getMetalF0(mat.F0, mat.albedo));
+                    color.rgb = simpleReflections(scaledUv, viewPos0, mat, metalF0);
                 #endif
             }
         #endif

@@ -129,14 +129,14 @@ vec3 specularFresnel(float cosTheta, vec3 F0, bool isMetal) {
 }
 
 vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
-    vec3 H = normalize(V + L);
+    vec3 H      = normalize(V + L);
     float NdotV = maxEps(dot(N, V));
     float NdotL = maxEps(dot(N, L));
     float HdotL = maxEps(dot(H, L));
     float NdotH = maxEps(dot(N, H));
 
     float D = distributionGGX(NdotH, pow2(mat.rough));
-    vec3 F  = specularFresnel(HdotL, getMetalF0(mat.F0, mat.albedo), mat.isMetal);
+    vec3  F = specularFresnel(HdotL, getMetalF0(mat.F0, mat.albedo), mat.isMetal);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
     return clamp01((D * F * G) / (4.0 * NdotL * NdotV)) * NdotL;
@@ -147,11 +147,11 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
 vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
     float alpha = pow2(mat.rough);
 
-    vec3 H = normalize(V + L);
+    vec3 H      = normalize(V + L);
     float VdotL = maxEps(dot(V, L));
     float NdotH = maxEps(dot(N, H));
     float NdotV = maxEps(dot(N, V));
-    float NdotL = maxEps(dot(N, L));
+    float NdotL = dot(N, L);
 
     float facing    = 0.5 + 0.5 * VdotL;
     float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
@@ -160,8 +160,9 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
     float smoothSurf;
     if(!pt) {
         float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * (1.0 / 9.0);
-        float fresnelNL = 1.0 - schlickGaussian(NdotL, mat.F0);
-        float fresnelNV = 1.0 - schlickGaussian(NdotV, mat.F0);
+        float ior       = F0toIOR(mat.F0);
+        float fresnelNL = 1.0 - fresnelDielectric(NdotL, ior);
+        float fresnelNV = 1.0 - fresnelDielectric(NdotV, ior);
 
         smoothSurf = (fresnelNL * fresnelNV) / energyConservationFactor;
     } else {
@@ -171,9 +172,9 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
     float multi  = 0.1159 * alpha;
 
     if(!pt) {
-        return max0((mat.albedo * single + mat.albedo * multi) * NdotL);
+        return max0((mat.albedo * (single + mat.albedo * multi)) * NdotL);
     } else {
-        return max0(mat.albedo * single + mat.albedo * multi);
+        return max0(mat.albedo * (single + mat.albedo * multi));
     }
 }
 
@@ -196,12 +197,12 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 applyLighting(vec3 V, material mat, vec4 shadowmap, vec3 shadowLightIlluminance, vec3 skyIlluminance, bool specularLighting) {
+vec3 applyLighting(vec3 V, material mat, vec4 shadowmap, vec3 shadowLightIlluminance, vec3 skyIlluminance) {
     V = -normalize(V);
 
     vec3 specular = vec3(0.0);
     #if SPECULAR == 1
-        if(specularLighting) specular = cookTorranceSpecular(mat.normal, V, shadowDir, mat);
+        specular = cookTorranceSpecular(mat.normal, V, shadowDir, mat);
     #endif
 
     vec3 diffuse = vec3(0.0);

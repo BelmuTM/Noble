@@ -68,7 +68,7 @@ void main() {
                     shadowmap.rgb = vec3(0.0);
                 #endif
 
-                vec3 transLighting = applyLighting(viewPos0, mat, shadowmap, totalIllum, skyIlluminance, false);
+                vec3 transLighting = applyLighting(viewPos0, mat, shadowmap, totalIllum, skyIlluminance);
                 color.rgb          = mix(color.rgb * mix(vec3(1.0), mat.albedo, mat.alpha), transLighting, mat.alpha);
             #endif
         }

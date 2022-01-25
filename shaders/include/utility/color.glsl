@@ -214,7 +214,7 @@ void uncharted2(inout vec3 color) {
 // Originally made by Richard Burgess-Dawson
 // Modified by https://github.com/TechDevOnGitHub
 void burgess(inout vec3 color) {
-    vec3 maxColor = color * min(vec3(1.0), 1.0 - exp(-1.0 / 0.04 * color)) * 0.8;
+    vec3 maxColor = color * min(vec3(1.0), 1.0 - exp(-1.0 / 0.04 * color)) * 1.1;
     color         = (maxColor * (6.2 * maxColor + 0.5)) / (maxColor * (6.2 * maxColor + 1.7) + 0.04);
 }
 
@@ -225,13 +225,13 @@ const mat3 ACESInputMat = mat3(
 );
 
 const mat3 ACESOutputMat = mat3(
-    1.60475, -0.53108, -0.07367,
+     1.60475, -0.53108, -0.07367,
     -0.10208,  1.10813, -0.00605,
     -0.00327, -0.07276,  1.07602
 );
 
 vec3 RRTAndODTFit(vec3 v) {
-    vec3 a = v * (v + 0.0245786);
+    vec3 a = v * (v + 0.0245786) - 0.000090537;
     vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081;
     return a / b;
 }

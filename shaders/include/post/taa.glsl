@@ -58,21 +58,26 @@ float getLumaWeight(vec3 currColor, vec3 prevColor) {
 // Thanks LVutner for the help with TAA (buffer management, luminance weight)
 // https://github.com/LVutner
 vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
-    vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex1, texCoords).r)).xy;
+    vec3 prevPos = reprojection(vec3(texCoords, texture(depthtex1, texCoords).r));
 
     vec3 currColor = linearToYCoCg(texture(currTex, texCoords).rgb);
-    vec3 prevColor = linearToYCoCg(texture(prevTex, prevTexCoords).rgb);
+    vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
          prevColor = neighbourhoodClipping(currTex, prevColor);
 
     float blendWeight = 0.0;
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
-        blendWeight = pow2(getLumaWeight(currColor, prevColor));
+        float lumaWeight  = pow2(getLumaWeight(currColor, prevColor));
+
+        float depthDelta  = abs(prevPos.z - texture(colortex0, prevPos.xy).a);
+        float depthWeight = pow4(exp(-depthDelta));
+
+        blendWeight = lumaWeight * depthWeight;
     #else
         float historyFrames = texture(colortex5, texCoords).a;
         blendWeight         = 1.0 - (1.0 / max(historyFrames, 1.0));
     #endif
 
-    blendWeight *= float(clamp01(prevTexCoords) == prevTexCoords);
+    blendWeight *= float(clamp01(prevPos.xy) == prevPos.xy);
     return YCoCgToLinear(mix(currColor, prevColor, blendWeight)); 
 }

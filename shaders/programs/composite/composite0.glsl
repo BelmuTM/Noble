@@ -23,14 +23,19 @@ layout (location = 2) out vec4 historyBuffer;
 #if GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
-    void temporalAccumulation(sampler2D prevTex, inout vec3 color, vec3 viewPos0, vec3 normal, inout float historyFrames) {
-        vec2 prevTexCoords = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r)).xy;
-        vec3 prevColor     = texture(prevTex, prevTexCoords).rgb;
+    void temporalAccumulation(inout vec3 color, sampler2D prevTex, inout float historyFrames) {
+        vec3 prevPos   = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r));
+        vec3 prevColor = texture(prevTex, prevPos.xy).rgb;
 
-        float totalWeight = float(clamp01(prevTexCoords) == prevTexCoords);
+        float totalWeight = float(clamp01(prevPos.xy) == prevPos.xy);
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            totalWeight *= pow2(getLumaWeight(color, prevColor));
+            float lumaWeight  = pow2(getLumaWeight(color, prevColor));
+
+            float depthDelta  = abs(prevPos.z - texture(colortex0, prevPos.xy).a);
+            float depthWeight = pow5(exp(-depthDelta));
+
+            totalWeight *= (lumaWeight * depthWeight);
         #else
             totalWeight *= 1.0 - (1.0 / max(historyFrames, 1.0));
         #endif
@@ -114,7 +119,7 @@ void main() {
             }
         #endif
         
-        color.rgb = applyLighting(viewPos0, mat, shadowmap, totalIllum, skyIlluminance, true);
+        color.rgb = applyLighting(viewPos0, mat, shadowmap, totalIllum, skyIlluminance);
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/
@@ -126,10 +131,11 @@ void main() {
             color.rgb = pathTrace(vec3(scaledUv, texture(depthtex0, scaledUv).r), totalIllum);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(colortex5, color.rgb, viewPos0, mat.normal, historyFrames);
+                temporalAccumulation(color.rgb, colortex5, historyFrames);
             #endif
         }
     #endif
 
     historyBuffer = vec4(color.rgb, historyFrames);
+    color.a       = texture(depthtex1, texCoords).r;
 }

@@ -42,7 +42,7 @@
 			if(!raytrace(samplePos, sampleDir, RTAO_STEPS, randF(), hitPos)) { break; }
 
 			float dist = distance(viewToWorld(samplePos), viewToWorld(screenToView(hitPos)));
-			occlusion += 2.0 / (dist + 1.0);
+			occlusion += RTAO_STRENGTH / (dist + 1.0);
 		}
 		return clamp01(1.0 - (occlusion / RTAO_SAMPLES));
 	}

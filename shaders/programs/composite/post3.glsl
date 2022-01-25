@@ -47,5 +47,5 @@ void main() {
         color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    color.rgb += bayer64(gl_FragCoord.xy) / 64.0;
+    color.rgb += bayer64(gl_FragCoord.xy) / 255.0;
 }
