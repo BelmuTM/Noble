@@ -79,7 +79,7 @@ layout (location = 0) out vec4 color;
 #endif
 
 #if LUT > 0
-    const int lutCount     = 15;
+    const int lutCount     = 19;
     const int lutTile      = 8;
     const int lutSize      = lutTile * lutTile;
     const int lutRes       = lutSize * lutTile;
