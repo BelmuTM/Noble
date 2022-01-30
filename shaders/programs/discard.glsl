@@ -6,12 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#if STAGE == STAGE_VERTEX
+#if defined STAGE_VERTEX
     void main() {
         gl_Position = vec4(-1.0);
         return;
     }
-#elif STAGE == STAGE_FRAGMENT
+#elif defined STAGE_FRAGMENT
     void main() {
 	    discard;
     }

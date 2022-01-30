@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#if STAGE != STAGE_VERTEX
+#if defined STAGE_FRAGMENT
     vec3 waterCaustics(vec2 coords) {
         vec2 worldPos       = viewToWorld(getViewPos1(coords)).xz * 0.5 + 0.5;
         float causticsSpeed = ANIMATED_WATER == 0 ? 0.0 : frameTimeCounter * WATER_CAUSTICS_SPEED;

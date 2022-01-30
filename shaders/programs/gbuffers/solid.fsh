@@ -19,7 +19,7 @@ in vec4 vertexColor;
 in mat3 TBN;
 
 #include "/settings.glsl"
-#define STAGE STAGE_FRAGMENT
+#define STAGE_FRAGMENT
 
 #include "/include/uniforms.glsl"
 #include "/include/utility/noise.glsl"

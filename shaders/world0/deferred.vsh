@@ -12,7 +12,7 @@
 out vec2 texCoords;
 
 #include "/settings.glsl"
-#define STAGE STAGE_VERTEX
+#define STAGE_VERTEX
 #define WORLD_OVERWORLD
 
 #include "/include/uniforms.glsl"

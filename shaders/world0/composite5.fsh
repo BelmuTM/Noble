@@ -12,7 +12,7 @@
 in vec2 texCoords;
 
 #include "/settings.glsl"
-#define STAGE STAGE_FRAGMENT
+#define STAGE_FRAGMENT
 
 #include "/include/common.glsl"
 #include "/programs/composite/post0.glsl"

@@ -9,6 +9,6 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#define STAGE STAGE_VERTEX
+#define STAGE_VERTEX
 
 #include "/programs/discard.glsl"

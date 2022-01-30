@@ -9,6 +9,6 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#define STAGE STAGE_FRAGMENT
+#define STAGE_FRAGMENT
 
 #include "/programs/discard.glsl"

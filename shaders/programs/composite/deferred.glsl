@@ -8,7 +8,7 @@
 
 #include "/bufferSettings.glsl"
 
-#if STAGE == STAGE_VERTEX
+#if defined STAGE_VERTEX
 
     out vec3 skyIlluminance;
     #include "/include/utility/math.glsl"
@@ -34,7 +34,7 @@
         #endif
     }
 
-#elif STAGE == STAGE_FRAGMENT
+#elif defined STAGE_FRAGMENT
 
     /* DRAWBUFFERS:367 */
 

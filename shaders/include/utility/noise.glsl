@@ -26,7 +26,7 @@ void pcg(inout uint seed) {
     seed = (word >> 22u) ^ word;
 }
 
-#if STAGE == STAGE_FRAGMENT
+#if defined STAGE_FRAGMENT
     uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
     float randF() { pcg(rngState); return float(rngState) / float(0xffffffffu); }
 #endif

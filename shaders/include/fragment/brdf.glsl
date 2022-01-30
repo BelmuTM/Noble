@@ -68,14 +68,12 @@ float fresnelDielectric(float NdotV, float surfaceIOR) {
     float sinThetaT = (n1 / n2) * max0(1.0 - pow2(NdotV));
     float cosThetaT = 1.0 - pow2(sinThetaT);
 
-    if(sinThetaT >= 1.0) {
-        return 1.0;
-    } else {
-        float sPolar = (n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT);
-        float pPolar = (n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV);
+    if(sinThetaT >= 1.0) { return 1.0; }
 
-        return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
-    }
+    float sPolar = (n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT);
+    float pPolar = (n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV);
+
+    return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
 }
 
 vec3 fresnelDielectric(float NdotV, vec3 surfaceIOR) {
@@ -87,6 +85,10 @@ vec3 fresnelDielectric(float NdotV, vec3 surfaceIOR) {
     vec3 pPolar = (n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV);
 
     return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
+}
+
+vec3 fresnelConductor(float cosTheta, vec3 N, vec3 K) {
+    // TODO
 }
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/

@@ -120,11 +120,11 @@ vec3 unprojectSphere(in vec2 coord) {
 
 vec3 generateUnitVector(vec2 xy) {
     xy.x *= TAU; xy.y = xy.y * 2.0 - 1.0;
-    return vec3(vec2(sin(xy.x), cos(xy.x)) * sqrt(1.0 - xy.y * xy.y), xy.y);
+    return vec3(vec2(cos(xy.x), sin(xy.x)) * sqrt(1.0 - xy.y * xy.y), xy.y);
 }
 
-vec3 generateCosineVector(vec3 normal, vec2 xy) {
-    return normalize(normal + generateUnitVector(xy));
+vec3 generateCosineVector(vec3 vector, vec2 xy) {
+    return normalize(vector + generateUnitVector(xy));
 }
 
 vec2 vogelDisk(int i, int n, float phi) {

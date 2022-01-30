@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#if STAGE == STAGE_VERTEX
+#if defined STAGE_VERTEX
 
     #include "/include/utility/math.glsl"
     #include "/include/utility/transforms.glsl"
@@ -36,7 +36,7 @@
         gl_Position.xyz = distortShadowSpace(gl_Position.xyz);
     }
     
-#elif STAGE == STAGE_FRAGMENT
+#elif defined STAGE_FRAGMENT
 
     /* DRAWBUFFERS:01 */
 

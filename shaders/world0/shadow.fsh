@@ -10,7 +10,7 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#define STAGE STAGE_FRAGMENT
+#define STAGE_FRAGMENT
 
 #include "/include/common.glsl"
 #include "/programs/gbuffers/shadow.glsl"
