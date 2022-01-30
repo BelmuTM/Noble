@@ -6,6 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#include "/settings.glsl"
 #include "/include/uniforms.glsl"
 
 vec3 blueNoise = texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;

@@ -9,7 +9,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/settings.glsl"
 #define STAGE_FRAGMENT
 
 #include "/include/common.glsl"

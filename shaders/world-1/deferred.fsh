@@ -11,7 +11,6 @@
 
 in vec2 texCoords;
 
-#include "/settings.glsl"
 #define STAGE_FRAGMENT
 #define WORLD_NETHER
 

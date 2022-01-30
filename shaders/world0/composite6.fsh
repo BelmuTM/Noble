@@ -11,7 +11,6 @@
 
 in vec2 texCoords;
 
-#include "/settings.glsl"
 #define STAGE_FRAGMENT
 
 #include "/include/common.glsl"

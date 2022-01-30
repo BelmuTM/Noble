@@ -11,9 +11,9 @@
 
 out vec2 texCoords;
 
-#include "/settings.glsl"
 #define STAGE_VERTEX
 #define WORLD_NETHER
 
+#include "/settings.glsl"
 #include "/include/uniforms.glsl"
 #include "/programs/composite/deferred.glsl"

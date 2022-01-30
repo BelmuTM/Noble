@@ -18,9 +18,9 @@ in vec3 geoNormal;
 in vec4 vertexColor;
 in mat3 TBN;
 
-#include "/settings.glsl"
 #define STAGE_FRAGMENT
 
+#include "/settings.glsl"
 #include "/include/uniforms.glsl"
 #include "/include/utility/noise.glsl"
 #include "/include/utility/math.glsl"

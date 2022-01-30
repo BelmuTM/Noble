@@ -9,8 +9,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/settings.glsl"
 #define STAGE_VERTEX
 
+#include "/settings.glsl"
 #include "/include/uniforms.glsl"
 #include "/programs/gbuffers/shadow.glsl"

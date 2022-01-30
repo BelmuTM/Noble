@@ -87,10 +87,6 @@ vec3 fresnelDielectric(float NdotV, vec3 surfaceIOR) {
     return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
 }
 
-vec3 fresnelConductor(float cosTheta, vec3 N, vec3 K) {
-    // TODO
-}
-
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
 // Modified by Belmu
 vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {

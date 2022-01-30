@@ -21,9 +21,9 @@ out mat3 TBN;
 	out vec3 waterNormals;
 #endif
 
-#include "/settings.glsl"
 #define STAGE_VERTEX
 
+#include "/settings.glsl"
 #include "/include/uniforms.glsl"
 #include "/include/utility/noise.glsl"
 #include "/include/utility/math.glsl"
