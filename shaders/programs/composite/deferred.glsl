@@ -39,8 +39,8 @@
     /* DRAWBUFFERS:367 */
 
     layout (location = 0) out vec4 shadowmap;
-    layout (location = 1) out vec4 sky;
-    layout (location = 2) out vec4 skyIllum;
+    layout (location = 1) out vec3 sky;
+    layout (location = 2) out vec3 skyIllum;
 
     #include "/include/atmospherics/atmosphere.glsl"
     #include "/include/fragment/raytracer.glsl"
@@ -52,7 +52,7 @@
     void main() {
         vec3 viewPos = getViewPos0(texCoords);
         material mat = getMaterial(texCoords);
-        skyIllum     = vec4(skyIlluminance, 1.0);
+        skyIllum     = skyIlluminance;
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
@@ -63,8 +63,7 @@
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {
                 vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));
-                sky.rgb     = atmosphericScattering(atmosRayPos, normalize(rayDir), skyIlluminance);
-                sky.a       = 1.0;
+                sky         = atmosphericScattering(atmosRayPos, normalize(rayDir), skyIlluminance);
             }
         #endif
 

@@ -215,7 +215,7 @@ vec3 applyLighting(vec3 V, material mat, vec4 shadowmap, vec3 shadowLightIllumin
     mat.lightmap.y = pow2(quintic(EPS, 1.0, mat.lightmap.y));
 
     vec3 skyLight   = skyIlluminance * mat.lightmap.y;
-    vec3 blockLight = blackbody(BLOCKLIGHT_TEMPERATURE) * mat.lightmap.x * BLOCKLIGHT_MULTIPLIER;
+    vec3 blockLight = colorTemperatureToRGB(BLOCKLIGHT_TEMPERATURE) * mat.lightmap.x * BLOCKLIGHT_MULTIPLIER;
 
     float ao = 1.0;
     #if MATERIAL_AO == 1

@@ -63,13 +63,18 @@ vec3 atmosphericScattering(vec3 rayOrigin, vec3 rayDir, vec3 skyIlluminance) {
         vec3 sunStepScattering  = kScattering   * (airmass.xy * phase.xy) * visibleScattering;
         vec3 moonStepScattering = kScattering   * (airmass.xy * phase.zw) * visibleScattering;
 
-        sunScattering      += sunStepScattering  * atmosphereTransmittance(rayPos, sceneSunDir);
-        moonScattering     += moonStepScattering * atmosphereTransmittance(rayPos, sceneMoonDir);
-        multipleScattering += visibleScattering  * (kScattering * airmass.xy);
+        sunScattering  += sunStepScattering  * atmosphereTransmittance(rayPos, sceneSunDir);
+        moonScattering += moonStepScattering * atmosphereTransmittance(rayPos, sceneMoonDir);
+
+        vec3 stepScattering    = kScattering * airmass.xy;
+        vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
+
+        vec3 multScatterFactor = 0.84 * stepScatterAlbedo;
+        vec3 multScatterEnergy = multScatterFactor / (1.0 - multScatterFactor);
+        multipleScattering    += multScatterEnergy * visibleScattering * stepScattering;
 
         transmittance *= stepTransmittance;
     }
-    skyIlluminance      = PI * mix(skyIlluminance, vec3(skyIlluminance.b) * sqrt(2.0), INV_PI);
     multipleScattering *= skyIlluminance * isotropicPhase;
     
     return (sunScattering * sunIlluminance) + (moonScattering * moonIlluminance) + multipleScattering;
