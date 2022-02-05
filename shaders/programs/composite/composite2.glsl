@@ -10,16 +10,40 @@
 
 layout (location = 0) out vec4 color;
 
+#include "/include/atmospherics/celestial.glsl"
+#include "/include/fragment/brdf.glsl"
+#include "/include/fragment/raytracer.glsl"
+#include "/include/fragment/reflections.glsl"
 #include "/include/fragment/filter.glsl"
 
 void main() {
-    #if GI == 1
-        if(!isSky(texCoords)) {
-            #if GI_FILTER == 1
-                vec3 viewPos = getViewPos0(texCoords);
-                material mat = getMaterial(texCoords);
+    #if GI == 0
+        #if REFLECTIONS == 1
+            vec2 scaledUv  = texCoords * (1.0 / REFLECTIONS_RES);
+            vec3 shadowmap = texture(colortex3, texCoords).rgb;
+        
+            if(clamp(texCoords, vec2(0.0), vec2(REFLECTIONS_RES + 1e-3)) == texCoords) {
+                vec3 viewPos = getViewPos0(scaledUv);
 
-                color.rgb = SVGF(texCoords, colortex4, viewPos, mat.normal, 1.5, 4);
+                Material mat = getMaterial(scaledUv);
+                vec3 metalF0 = getMetalF0(mat.F0, mat.albedo);
+                    
+                #if REFLECTIONS_TYPE == 1
+                    color.rgb = roughReflections(scaledUv, viewPos, mat, metalF0);
+                #else
+                    color.rgb = simpleReflections(scaledUv, viewPos, mat, metalF0);
+                #endif
+            }
+        #endif
+    #else
+        if(!isSky(texCoords)) {
+
+            vec2 scaledUv = texCoords * GI_RESOLUTION; 
+            #if GI_FILTER == 1
+                vec3 scaledViewPos = getViewPos0(scaledUv);
+                Material scaledMat = getMaterial(scaledUv);
+
+                color.rgb = SVGF(scaledUv, colortex0, scaledViewPos, scaledMat.normal, 1.5, 4);
             #endif
         }
     #endif

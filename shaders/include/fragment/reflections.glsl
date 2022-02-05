@@ -21,7 +21,7 @@ vec3 getHitColor(vec3 hitPos) {
     #endif
 }
 
-vec3 getSkyFallback(vec2 coords, vec3 reflected, material mat) {
+vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
     return (texture(colortex6, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected)) * ATMOSPHERE_RESOLUTION).rgb + celestialBody(reflected, shadowDir)) * getSkyLightmap(mat);
 }
 
@@ -30,7 +30,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, material mat) {
 //////////////////////////////////////////////////////////
 
 #if REFLECTIONS_TYPE == 0
-    vec3 simpleReflections(vec2 coords, vec3 viewPos, material mat, vec3 F0) {
+    vec3 simpleReflections(vec2 coords, vec3 viewPos, Material mat, vec3 F0) {
         viewPos     += mat.normal * 1e-2;
         vec3 viewDir = normalize(viewPos);
 
@@ -55,7 +55,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, material mat) {
 /*------------------ ROUGH REFLECTIONS -----------------*/
 //////////////////////////////////////////////////////////
 
-    vec3 roughReflections(vec2 coords, vec3 viewPos, material mat, vec3 F0) {
+    vec3 roughReflections(vec2 coords, vec3 viewPos, Material mat, vec3 F0) {
 	    vec3 color        = vec3(0.0);
 	    float totalWeight = 0.0;
 
@@ -98,7 +98,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, material mat) {
 //////////////////////////////////////////////////////////
 
 #if REFRACTIONS == 1
-    vec3 simpleRefractions(vec3 viewPos, material mat, inout vec3 hitPos) {
+    vec3 simpleRefractions(vec3 viewPos, Material mat, inout vec3 hitPos) {
         viewPos += mat.normal * 1e-2;
 
         float  ior   = F0toIOR(mat.F0);

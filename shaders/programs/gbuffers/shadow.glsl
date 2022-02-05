@@ -14,7 +14,7 @@
     attribute vec4 at_tangent;
     attribute vec3 mc_Entity;
 
-    out float blockId;
+    out int blockId;
     out vec2 texCoords;
     out vec3 viewPos;
     out vec4 vertexColor;
@@ -23,7 +23,7 @@
     void main() {
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         vertexColor = gl_Color;
-        blockId     = mc_Entity.x - 1000.0;
+        blockId     = int((mc_Entity.x - 1000.0) + 0.25);
 
         vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
     	viewPos     = transMAD3(gl_ModelViewMatrix, gl_Vertex.xyz);
@@ -43,7 +43,7 @@
     layout (location = 0) out vec4 shadowColor0;
     layout (location = 1) out vec4 shadowColor1;
 
-    in float blockId;
+    in flat int blockId;
     in vec2 texCoords;
     in vec3 viewPos;
     in vec4 vertexColor;

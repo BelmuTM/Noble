@@ -51,7 +51,7 @@
 
     void main() {
         vec3 viewPos = getViewPos0(texCoords);
-        material mat = getMaterial(texCoords);
+        Material mat = getMaterial(texCoords);
         skyIllum     = skyIlluminance;
 
         #ifdef WORLD_OVERWORLD

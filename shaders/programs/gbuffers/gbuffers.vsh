@@ -9,7 +9,7 @@
 attribute vec4 at_tangent;
 attribute vec3 mc_Entity;
 
-out float blockId;
+out int blockId;
 out vec2 texCoords;
 out vec2 lmCoords;
 out vec3 viewPos;
@@ -46,7 +46,7 @@ void main() {
     vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
 	TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
 
-	blockId 	= mc_Entity.x - 1000.0;
+	blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
 	#ifdef TRANSLUCENT

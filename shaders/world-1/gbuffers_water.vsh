@@ -9,5 +9,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#define TRANSLUCENT
-#include "/programs/gbuffers/gbuffers.vsh"
+#define STAGE_VERTEX
+
+#include "/include/common.glsl"
+#include "/programs/gbuffers/translucent.vsh"

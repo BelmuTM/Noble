@@ -11,10 +11,11 @@ MAIN BUFFER
 const int colortex0Format = RGBA16F;
 const bool colortex0Clear = false;
 
-DATA BUFFER (SOLID)
-const int colortex1Format = RGBA32UI;
+TRANSLUCENTS BUFFER
+const int colortex1Format = RGBA16F;
+const vec4 colortex1ClearColor = vec4(0,0,0,0);
 
-DATA BUFFER (TRANSLUCENTS)
+DATA BUFFER
 const int colortex2Format = RGBA32UI;
 
 SHADOWMAP

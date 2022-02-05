@@ -126,7 +126,7 @@ vec3 specularFresnel(float cosTheta, vec3 F0, bool isMetal) {
     return isMetal ? schlickGaussian(cosTheta, F0) : fresnelDielectric(cosTheta, F0toIOR(F0));
 }
 
-vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
+vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     vec3 H      = normalize(V + L);
     float NdotV = maxEps(dot(N, V));
     float NdotL = maxEps(dot(N, L));
@@ -142,14 +142,14 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, material mat) {
 
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
-vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
+vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     float alpha = pow2(mat.rough);
 
     vec3 H      = normalize(V + L);
     float VdotL = maxEps(dot(V, L));
     float NdotH = maxEps(dot(N, H));
     float NdotV = maxEps(dot(N, V));
-    float NdotL = dot(N, L);
+    float NdotL = maxEps(dot(N, L));
 
     float facing    = 0.5 + 0.5 * VdotL;
     float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
@@ -177,7 +177,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, material mat, bool pt) {
 }
 
 // Disney SSS from: https://www.shadertoy.com/view/XdyyDd
-float disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
+float disneySubsurface(vec3 N, vec3 V, vec3 L, Material mat) {
     vec3 H      = normalize(V + L);
     float NdotV = clamp01(dot(N, V));
     float NdotL = clamp01(dot(N, L));
@@ -195,7 +195,7 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, material mat) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 applyLighting(vec3 V, material mat, vec4 shadowmap, vec3 shadowLightIlluminance, vec3 skyIlluminance) {
+vec3 applyLighting(vec3 V, Material mat, vec4 shadowmap, vec3 shadowLightTransmit, vec3 skyIlluminance) {
     V = -normalize(V);
 
     vec3 specular = vec3(0.0);
@@ -223,7 +223,7 @@ vec3 applyLighting(vec3 V, material mat, vec4 shadowmap, vec3 shadowLightIllumin
         if(all(greaterThan(mat.normal, vec3(0.0)))) ao = mat.ao;
     #endif
 
-    vec3 direct   = (diffuse + specular) * (shadowLightIlluminance * shadowmap.rgb);
+    vec3 direct   = (diffuse + specular) * (shadowLightTransmit * shadowmap.rgb);
     vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * ao * shadowmap.a;
 
     return direct + indirect;

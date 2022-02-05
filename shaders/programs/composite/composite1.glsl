@@ -6,27 +6,20 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:04 */
+/* DRAWBUFFERS:4 */
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out vec4 filtered;
 
 #include "/include/fragment/filter.glsl"
 
 void main() {
-    color = texture(colortex0, texCoords);
-
     #if GI == 1
         if(!isSky(texCoords)) {
-            vec2 scaledUv = texCoords * GI_RESOLUTION; 
-
             #if GI_FILTER == 1
-                vec3 scaledViewPos = getViewPos0(scaledUv);
-                material scaledMat = getMaterial(scaledUv);
+                vec3 viewPos = getViewPos0(texCoords);
+                Material mat = getMaterial(texCoords);
 
-                filtered.rgb = SVGF(scaledUv, colortex0, scaledViewPos, scaledMat.normal, 1.5, 3);
-            #else
-                color = texture(colortex0, scaledUv);
+                color.rgb = SVGF(texCoords, colortex4, viewPos, mat.normal, 1.5, 4);
             #endif
         }
     #endif

@@ -9,4 +9,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#define STAGE_FRAGMENT
+
+#include "/include/common.glsl"
 #include "/programs/gbuffers/translucent.fsh"

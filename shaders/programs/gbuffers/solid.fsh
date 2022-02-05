@@ -6,11 +6,11 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:1 */
+/* DRAWBUFFERS:2 */
 
 layout (location = 0) out uvec4 dataBuffer;
 
-in float blockId;
+in flat int blockId;
 in vec2 texCoords;
 in vec2 lmCoords;
 in vec3 viewPos;

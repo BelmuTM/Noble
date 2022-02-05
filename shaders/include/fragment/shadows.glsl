@@ -45,7 +45,7 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
         int BLOCKERS = 0;
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi) * pixelSize;
+            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * pixelSize;
             float z     = texture(shadowtex0, sampleCoords.xy + offset).r;
 
             if(sampleCoords.z - SHADOW_BIAS > z) {
@@ -57,7 +57,7 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
     }
 
     vec3 PCSS(vec3 sampleCoords, mat2 rotation, float phi) {
-        float avgBlockerDepth = findBlockerDepth(sampleCoords, rotation, phi);
+        float avgBlockerDepth = findBlockerDepth(sampleCoords, rotation, phi * TAU);
         if(avgBlockerDepth < 0.0) return vec3(1.0);
 
         float penumbraSize = (max0(sampleCoords.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;
@@ -74,7 +74,7 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
 #endif
 
 vec3 shadowMap(vec3 viewPos) {
-    vec3 sampleCoords = worldToShadowClip(transMAD3(gbufferModelViewInverse, viewPos)) * 0.5 + 0.5;
+    vec3 sampleCoords = 0.5 * worldToShadowClip(transMAD3(gbufferModelViewInverse, viewPos)) + 0.5;
     if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
     
     float theta    = (TAA == 1 ? randF() : uniformNoise(1, blueNoise).x);

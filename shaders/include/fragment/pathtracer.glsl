@@ -14,12 +14,12 @@
 #if GI == 1
     vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, in float roughness) {
         float NdotV = maxEps(dot(N, V));
-        float NdotL = maxEps(dot(N, L));
+        float NdotL = dot(N, L);
 
         return fresnel * G2SmithGGX(NdotV, NdotL, roughness) / G1SmithGGX(NdotV, roughness);
     }
 
-    vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, material mat, vec3 shadowmap, vec3 shadowLightIlluminance) {
+    vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, Material mat, vec3 shadowmap, vec3 shadowLightIlluminance) {
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
 
         vec3 diffuse = vec3(0.0);
@@ -44,7 +44,7 @@
             vec3 hitPos = screenPos; 
             vec3 rayDir = normalize(viewPos);
 
-            material mat;
+            Material mat;
             mat3 TBN;
 
             for(int j = 0; j <= GI_BOUNCES; j++) {
@@ -53,21 +53,12 @@
                 /* Russian Roulette */
                 if(j > ROULETTE_MIN_BOUNCES) {
                     float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
-                    if(roulette < randF()) { break; }
+                    if(roulette < randF()) { throughput = vec3(0.0); break; }
                     throughput /= roulette;
                 }
-
-                vec3 viewPos0 = getViewPos0(hitPos.xy);
-                vec3 viewPos1 = getViewPos1(hitPos.xy);
                 
                 /* Material & Direct Lighting */
-
-                if(viewPos0.z != viewPos1.z) {
-                    mat        = getMaterialTranslucents(hitPos.xy);
-                    mat.albedo = mix(getMaterial(hitPos.xy).albedo, mat.albedo, mat.alpha);
-                } else {
-                    mat = getMaterial(hitPos.xy);
-                }
+                mat = getMaterial(hitPos.xy);
                 TBN = constructViewTBN(mat.normal);
 
                 radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
