@@ -14,7 +14,7 @@
     attribute vec4 at_tangent;
     attribute vec3 mc_Entity;
 
-    out int blockId;
+    flat out int blockId;
     out vec2 texCoords;
     out vec3 viewPos;
     out vec4 vertexColor;
