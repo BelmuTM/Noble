@@ -24,14 +24,12 @@ void main() {
         
             if(clamp(texCoords, vec2(0.0), vec2(REFLECTIONS_RES + 1e-3)) == texCoords) {
                 vec3 viewPos = getViewPos0(scaledUv);
-
                 Material mat = getMaterial(scaledUv);
-                vec3 metalF0 = getMetalF0(mat.F0, mat.albedo);
                     
                 #if REFLECTIONS_TYPE == 1
-                    color.rgb = roughReflections(scaledUv, viewPos, mat, metalF0);
+                    color.rgb = roughReflections(scaledUv, viewPos, mat);
                 #else
-                    color.rgb = simpleReflections(scaledUv, viewPos, mat, metalF0);
+                    color.rgb = simpleReflections(scaledUv, viewPos, mat);
                 #endif
             }
         #endif

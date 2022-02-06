@@ -89,7 +89,7 @@ void main() {
                 float NdotV      = maxEps(dot(mat.normal, -normalize(viewPos0)));
 
                 if(mat.rough > 0.05) {
-                    vec3 DFG  = envBRDFApprox(getMetalF0(mat.F0, mat.albedo), mat.rough, NdotV);
+                    float DFG = envBRDFApprox(NdotV, mat);
                     color.rgb = mix(color.rgb, reflections, DFG);
                 } else {
                     color.rgb += reflections;

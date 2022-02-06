@@ -30,14 +30,14 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
 //////////////////////////////////////////////////////////
 
 #if REFLECTIONS_TYPE == 0
-    vec3 simpleReflections(vec2 coords, vec3 viewPos, Material mat, vec3 F0) {
+    vec3 simpleReflections(vec2 coords, vec3 viewPos, Material mat) {
         viewPos     += mat.normal * 1e-2;
         vec3 viewDir = normalize(viewPos);
 
         vec3 reflected = reflect(viewDir, mat.normal), hitPos;
         float hit      = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, randF(), hitPos));
   
-        vec3 fresnel  = specularFresnel(maxEps(dot(mat.normal, -viewDir)), F0, mat.isMetal);
+        vec3 fresnel  = BRDFFresnel(maxEps(dot(mat.normal, -viewDir)), mat);
         vec3 hitColor = getHitColor(hitPos);
 
         vec3 color;
@@ -55,7 +55,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
 /*------------------ ROUGH REFLECTIONS -----------------*/
 //////////////////////////////////////////////////////////
 
-    vec3 roughReflections(vec2 coords, vec3 viewPos, Material mat, vec3 F0) {
+    vec3 roughReflections(vec2 coords, vec3 viewPos, Material mat) {
 	    vec3 color        = vec3(0.0);
 	    float totalWeight = 0.0;
 
@@ -71,7 +71,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
 		    vec3 reflected  = reflect(viewDir, TBN * microfacet);	
 
             float NdotL  = clamp01(dot(mat.normal, reflected));
-            vec3 fresnel = specularFresnel(NdotL, F0, mat.isMetal);
+            vec3 fresnel = BRDFFresnel(NdotL, mat);
 
             if(NdotL > 0.0) {
                 float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(), hitPos));

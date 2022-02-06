@@ -9,7 +9,7 @@
 attribute vec4 at_tangent;
 attribute vec3 mc_Entity;
 
-out int blockId;
+out flat int blockId;
 out vec2 texCoords;
 out vec2 lmCoords;
 out vec3 viewPos;
@@ -22,10 +22,6 @@ out mat3 TBN;
 #include "/include/fragment/water.glsl"
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
-
-vec2 taaJitter(vec4 pos) {
-    return taaOffsets[framemod] * (pos.w * pixelSize);
-}
 
 void main() {
 	texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;

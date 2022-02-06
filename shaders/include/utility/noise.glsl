@@ -19,6 +19,10 @@ vec2 taaOffsets[8] = vec2[8](
 	vec2( 0.875, 0.875)
 );
 
+vec2 taaJitter(vec4 pos) {
+    return taaOffsets[framemod] * (pos.w * pixelSize);
+}
+
 // Noise distribution: https://www.pcg-random.org/
 void pcg(inout uint seed) {
     uint state = seed * 747796405u + 2891336453u;

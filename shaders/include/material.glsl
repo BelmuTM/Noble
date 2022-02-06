@@ -6,23 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-// Hardcoded values provided by Bálint#1673
-const vec3 HARDCODED_F0[] = vec3[](
-    vec3(0.53123, 0.51236, 0.49583), // Iron
-    vec3(0.94423, 0.77610, 0.37340), // Gold
-    vec3(0.91230, 0.91385, 0.91968), // Aluminium
-    vec3(0.55560, 0.55454, 0.55478), // Chrome
-    vec3(0.92595, 0.72090, 0.50415), // Copper
-    vec3(0.63248, 0.62594, 0.64148), // Lead
-    vec3(0.67885, 0.64240, 0.58841), // Platinum
-    vec3(0.96200, 0.94947, 0.92212)  // Silver
-);
-
-vec3 getMetalF0(float F0, vec3 albedo) {
-    int metalID = int(F0 * 255.0 - 229.5);
-    return metalID >= 0 && metalID < 8 ? HARDCODED_F0[metalID] : mix(vec3(F0), albedo, float(F0 * 255.0 > 229.5));
-}
-
 struct Material {
     float F0;
     float rough;
@@ -63,6 +46,30 @@ Material getMaterial(vec2 coords) {
     mat.albedo = RGBtoLinear(mat.albedo);
 
     return mat;
+}
+
+const mat2x3 hardcodedMetals[] = mat2x3[](
+	mat2x3(vec3(2.9114, 2.9497, 2.5845),    // Iron
+           vec3(3.0893, 2.9318, 2.7670)),
+    mat2x3(vec3(0.18299, 0.42108, 1.3734),  // Gold
+           vec3(3.4242, 2.3459, 1.7704)),
+    mat2x3(vec3(1.3456, 0.96521, 0.61722),  // Aluminum
+           vec3(7.4746, 6.3995, 5.3031)),
+    mat2x3(vec3(3.1071, 3.1812, 2.3230),    // Chrome
+           vec3(3.3314, 3.3291, 3.1350)),
+    mat2x3(vec3(0.27105, 0.67693, 1.3164),  // Copper
+           vec3(3.6092, 2.6248, 2.2921)),
+    mat2x3(vec3(1.9100, 1.8300, 1.4400),    // Lead
+           vec3(3.5100, 3.4000, 3.1800)),
+    mat2x3(vec3(2.3757, 2.0847, 1.8453),    // Platinum
+           vec3(4.2655, 3.7153, 3.1365)),
+    mat2x3(vec3(0.15943, 0.14512, 0.13547), // Silver
+           vec3(3.9291, 3.1900, 2.3808))
+);
+
+mat2x3 getHardcodedMetal(Material mat) {
+    int metalID = int(mat.F0 * 255.0 - 229.5);
+    return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(vec3(F0toIOR(mat.albedo)), vec3(0.0));
 }
 
 float getSkyLightmap(Material mat) {

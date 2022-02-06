@@ -30,10 +30,10 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
     vec3 PCF(vec3 sampleCoords, mat2 rotation) {
 	    vec3 shadowResult = vec3(0.0); int SAMPLES;
 
-        for(int i = 0; i < SHADOW_SAMPLES; i++) {
-            for(int j = 0; j < SHADOW_SAMPLES; j++, SAMPLES++) {
+        for(int x = -SHADOW_SAMPLES; x <= SHADOW_SAMPLES; x++) {
+            for(int y = -SHADOW_SAMPLES; y <= SHADOW_SAMPLES; y++, SAMPLES++) {
 
-                vec3 currSampleCoords = vec3(sampleCoords.xy + (rotation * vec2(i, j)), sampleCoords.z);
+                vec3 currSampleCoords = vec3(sampleCoords.xy + (rotation * vec2(x, y)), sampleCoords.z);
                 shadowResult         += sampleShadowColor(currSampleCoords);
             }
         }

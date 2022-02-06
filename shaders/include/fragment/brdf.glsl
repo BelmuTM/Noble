@@ -38,7 +38,7 @@ float G2SmithGGX(float NdotV, float NdotL, in float roughness) {
 }
 
 float geometrySmith(float NdotV, float NdotL, float roughness) {
-    float r = roughness + 1.0;
+    float r   = roughness + 1.0;
     roughness = (r * r) / 8.0;
 
     float ggxV = geometrySchlickGGX(NdotV, roughness);
@@ -87,6 +87,26 @@ vec3 fresnelDielectric(float NdotV, vec3 surfaceIOR) {
     return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
 }
 
+vec3 fresnelDieletricConductor(vec3 eta, vec3 etaK, float cosTheta) {  
+   float cosTheta2 = cosTheta * cosTheta;
+   float sinTheta2 = 1.0 - cosTheta2;
+   vec3 eta2  = eta * eta;
+   vec3 etaK2 = etaK * etaK;
+
+   vec3 t0   = eta2 - etaK2 - sinTheta2;
+   vec3 a2b2 = sqrt(t0 * t0 + 4.0 * eta2 * etaK2);
+   vec3 t1   = a2b2 + cosTheta2;
+   vec3 a    = sqrt(0.5 * (a2b2 + t0));
+   vec3 t2   = 2.0 * a * cosTheta;
+   vec3 Rs   = (t1 - t2) / (t1 + t2);
+
+   vec3 t3 = cosTheta2 * a2b2 + sinTheta2 * sinTheta2;
+   vec3 t4 = t2 * sinTheta2;   
+   vec3 Rp = Rs * (t3 - t4) / (t3 + t4);
+
+   return clamp01((Rp + Rs) * 0.5);
+}
+
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
 // Modified by Belmu
 vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
@@ -113,17 +133,18 @@ vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
 }
 
 // https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true
-vec3 envBRDFApprox(vec3 F0, float NdotV, float roughness) {
+float envBRDFApprox(float cosTheta, Material mat) {
     const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
     const vec4 c1 = vec4( 1.0,  0.0425,  1.04,  -0.04);
-    vec4 r        = roughness * c0 + c1;
-    float a004    = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
+    vec4 r        = mat.rough * c0 + c1;
+    float a004    = min(r.x * r.x, exp2(-9.28 * cosTheta)) * r.x + r.y;
     vec2 AB       = vec2(-1.04, 1.04) * a004 + r.zw;
-    return F0 * AB.x + AB.y;
+    return mat.F0 * AB.x + AB.y;
 }
 
-vec3 specularFresnel(float cosTheta, vec3 F0, bool isMetal) {
-    return isMetal ? schlickGaussian(cosTheta, F0) : fresnelDielectric(cosTheta, F0toIOR(F0));
+vec3 BRDFFresnel(float cosTheta, Material mat) {
+    mat2x3 hcm = getHardcodedMetal(mat);
+    return mat.isMetal ? fresnelDieletricConductor(hcm[0], hcm[1], cosTheta) : vec3(fresnelDielectric(cosTheta, F0toIOR(mat.F0)));
 }
 
 vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
@@ -134,7 +155,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     float NdotH = maxEps(dot(N, H));
 
     float D = distributionGGX(NdotH, pow2(mat.rough));
-    vec3  F = specularFresnel(HdotL, getMetalF0(mat.F0, mat.albedo), mat.isMetal);
+    vec3  F = BRDFFresnel(HdotL, mat);
     float G = geometrySmith(NdotV, NdotL, mat.rough);
         
     return clamp01((D * F * G) / (4.0 * NdotL * NdotV)) * NdotL;
@@ -211,11 +232,11 @@ vec3 applyLighting(vec3 V, Material mat, vec4 shadowmap, vec3 shadowLightTransmi
         diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(mat.normal, V, shadowDir, mat, false);
     #endif
 
-    mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(clamp01(mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);
-    mat.lightmap.y = pow2(quintic(EPS, 1.0, mat.lightmap.y));
+    mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(quintic(0.0, 1.0, mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);
+    mat.lightmap.y = pow2(quintic(0.0, 1.0, mat.lightmap.y));
 
-    vec3 skyLight   = skyIlluminance * mat.lightmap.y;
-    vec3 blockLight = colorTemperatureToRGB(BLOCKLIGHT_TEMPERATURE) * mat.lightmap.x * BLOCKLIGHT_MULTIPLIER;
+    vec3 skyLight   = (skyIlluminance * INV_PI) * mat.lightmap.y;
+    vec3 blockLight = colorTemperatureToRGB(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_MULTIPLIER * mat.lightmap.x;
 
     float ao = 1.0;
     #if MATERIAL_AO == 1

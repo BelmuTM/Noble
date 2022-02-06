@@ -39,7 +39,7 @@ layout (location = 0) out vec4 color;
         vec3 scotopicLum = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
         float purkinje   = dot(rodResponse, XYZToLinear(scotopicLum));
 
-        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 60.0 * exposure)));
+        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 40.0 * exposure)));
     }
 #endif
 
