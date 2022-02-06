@@ -14,7 +14,7 @@
     attribute vec4 at_tangent;
     attribute vec3 mc_Entity;
 
-    out flat int blockId;
+    out int blockId;
     out vec2 texCoords;
     out vec3 viewPos;
     out vec4 vertexColor;
@@ -43,7 +43,7 @@
     layout (location = 0) out vec4 shadowColor0;
     layout (location = 1) out vec4 shadowColor1;
 
-    in flat int blockId;
+    flat in int blockId;
     in vec2 texCoords;
     in vec3 viewPos;
     in vec4 vertexColor;

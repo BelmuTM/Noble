@@ -10,7 +10,7 @@
 
 layout (location = 0) out uvec4 dataBuffer;
 
-in flat int blockId;
+flat in int blockId;
 in vec2 texCoords;
 in vec2 lmCoords;
 in vec3 viewPos;

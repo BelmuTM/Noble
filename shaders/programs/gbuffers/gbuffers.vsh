@@ -9,7 +9,7 @@
 attribute vec4 at_tangent;
 attribute vec3 mc_Entity;
 
-out flat int blockId;
+out int blockId;
 out vec2 texCoords;
 out vec2 lmCoords;
 out vec3 viewPos;

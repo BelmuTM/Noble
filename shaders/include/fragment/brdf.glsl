@@ -53,16 +53,6 @@ float geometryCookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
     return min(1.0, min(g1, g2));
 }
 
-float schlickGaussian(float cosTheta, float F0) {
-    float sphericalGaussian = exp2(((-5.55473 * cosTheta) - 6.98316) * cosTheta);
-    return sphericalGaussian * (1.0 - F0) + F0;
-}
-
-vec3 schlickGaussian(float cosTheta, vec3 F0) {
-    float sphericalGaussian = exp2(((-5.55473 * cosTheta) - 6.98316) * cosTheta);
-    return sphericalGaussian * (1.0 - F0) + F0;
-}
-
 float fresnelDielectric(float NdotV, float surfaceIOR) {
     float n1 = airIOR, n2 = surfaceIOR;
     float sinThetaT = (n1 / n2) * max0(1.0 - pow2(NdotV));
