@@ -101,9 +101,11 @@ layout (location = 0) out vec4 color;
         vec2 off0 = vec2(mod(b0, lutTile), b0 / lutTile) * invLutTile;
         vec2 off1 = vec2(mod(b1, lutTile), b1 / lutTile) * invLutTile;
 
+        vec2 jitter = (bayer32(gl_FragCoord.xy) * pixelSize) * 0.2;
+
         color = mix(
-            texture(lookupTable, (off0 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
-            texture(lookupTable, (off1 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
+            texture(lookupTable, (off0 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1] + jitter).rgb,
+            texture(lookupTable, (off1 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1] + jitter).rgb,
             fract(color.b)
         );
     }
