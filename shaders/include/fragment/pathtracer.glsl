@@ -92,7 +92,7 @@
                         raytrace(screenToView(hitPos), skyRayDir, int(GI_STEPS * 0.3), randF(), skyHitPos);
 
                         if(isSky(skyHitPos.xy)) {
-                            radiance += throughput * texture(colortex7, skyHitPos.xy).rgb;
+                            radiance += throughput * texture(colortex7, skyHitPos.xy).rgb * INV_PI;
                         }
                     #endif
                     break;

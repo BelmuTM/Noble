@@ -30,6 +30,7 @@ uniform int worldTime;
 uniform int isEyeInWater;
 uniform float rainStrength;
 uniform float wetness;
+uniform float eyeAltitude;
 uniform int renderStage;
 
 uniform sampler2D normals;

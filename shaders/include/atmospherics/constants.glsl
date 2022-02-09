@@ -15,6 +15,10 @@ const float atmosRad = 6481e3;
 const float hR = 8.0e3;
 const float hM = 1.2e3;
 
+/* CLOUDS CONSTANTS */
+const float innerCloudRad = earthRad + CLOUDS_ALTITUDE;
+const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
+
 // Coefficients provided by Jessie#7257 and LVutner#5199
 const vec3 kRlh = vec3(5.8, 13.3, 33.31)    * 1e-6;
 const vec3 kMie = vec3(21.0)                * 1e-6;

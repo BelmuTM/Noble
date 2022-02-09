@@ -28,13 +28,13 @@ void volumetricGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
 // Thanks Jessie, LVutner and SixthSurge for the help!
 
 vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
-    float rayLength = 1.0 / TRANSMITTANCE_STEPS;
-    vec3 increment  = lightDir * rayLength;
+    float stepLength = 1.0 / TRANSMITTANCE_STEPS;
+    vec3 increment  = lightDir * stepLength;
     vec3 rayPos     = rayOrigin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
     for(int j = 0; j < TRANSMITTANCE_STEPS; j++, rayPos += increment) {
-        accumAirmass += vlDensities(rayPos.y) * rayLength;
+        accumAirmass += vlDensities(rayPos.y) * stepLength;
     }
     return exp(-kExtinction * accumAirmass);
 }
@@ -52,12 +52,12 @@ vec3 volumetricLighting(vec3 viewPos) {
     vec2 phase  = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisoFactor));
 
     vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
-    float rayLength = length(increment);
+    float stepLength = length(increment);
 
     for(int i = 0; i < VL_STEPS; i++, rayPos += increment) {
         vec3 sampleColor = sampleShadowColor(worldToShadowClip(rayPos) * 0.5 + 0.5);
 
-        vec3 airmass      = vlDensities(rayPos.y) * rayLength;
+        vec3 airmass      = vlDensities(rayPos.y) * stepLength;
         vec3 opticalDepth = kExtinction * airmass;
 
         vec3 stepTransmittance = exp(-opticalDepth);

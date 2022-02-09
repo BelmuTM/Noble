@@ -96,13 +96,30 @@ float cubeLength(vec2 v) {
 /*------------------------ MISC ------------------------*/
 //////////////////////////////////////////////////////////
 
-vec2 raySphere(vec3 origin, vec3 dir, float radius) {
-	float b = dot(origin, dir);
-	float c = dot(origin, origin) - radius * radius;
+vec2 intersectSphere(vec3 rayOrigin, vec3 rayDir, float radius) {
+	float b = dot(rayOrigin, rayDir);
+	float c = dot(rayOrigin, rayOrigin) - radius * radius;
 	float d = b * b - c;
 	if(d < 0.0) return vec2(-1.0, -1.0);
 	d = sqrt(d);
 	return vec2(-b - d, -b + d);
+}
+
+// Intersection method from Jessie#7257
+vec2 intersectSphericalShell(vec3 rayOrigin, vec3 rayDir, float innerSphereRad, float outerSphereRad) {
+    vec2 innerSphereDists = intersectSphere(rayOrigin, rayDir, innerSphereRad);
+    vec2 outerSphereDists = intersectSphere(rayOrigin, rayDir, outerSphereRad);
+
+    bool innerSphereIntersected = innerSphereDists.y >= 0.0;
+    bool outerSphereIntersected = outerSphereDists.y >= 0.0;
+
+    if (!outerSphereIntersected) return vec2(-1.0);
+
+    vec2 dists;
+    dists.x = innerSphereIntersected && innerSphereDists.x < 0.0 ? innerSphereDists.y : max0(outerSphereDists.x);
+    dists.y = innerSphereIntersected && innerSphereDists.x > 0.0 ? innerSphereDists.x : outerSphereDists.y;
+
+    return dists;
 }
 
 vec2 projectSphere(in vec3 direction) {

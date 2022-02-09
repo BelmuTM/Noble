@@ -152,6 +152,10 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define STARS_MIN_TEMP  2500.0
 #define STARS_MAX_TEMP 50000.0
 
+#define CLOUDS_STEPS 16
+#define CLOUDS_ALTITUDE 6e3
+#define CLOUDS_THICKNESS 100.0
+
 //////////////////////////////////////////////////////////
 /*------------------------ WORLD -----------------------*/
 //////////////////////////////////////////////////////////

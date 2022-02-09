@@ -10,7 +10,7 @@ float timeMidnight = ((clamp(float(worldTime), 12500.0, 12750.0) - 12500.0) / 25
                      ((clamp(float(worldTime), 23000.0, 24000.0) - 23000.0) / 1000.0);
 
 vec3 physicalMoon(in vec3 sceneDir) {
-    vec2 sphere     = raySphere(-sceneMoonDir, sceneDir, moonAngularRad);
+    vec2 sphere     = intersectSphere(-sceneMoonDir, sceneDir, moonAngularRad);
     vec3 moonNormal = normalize(sceneDir * sphere.x - sceneMoonDir);
     float diffuse   = moonAlbedo * dot(moonNormal, sceneSunDir) * INV_PI;
 
