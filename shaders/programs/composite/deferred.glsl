@@ -43,6 +43,7 @@
     layout (location = 2) out vec3 skyIllum;
 
     #include "/include/atmospherics/atmosphere.glsl"
+    #include "/include/atmospherics/clouds.glsl"
     #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/ao.glsl"
     #include "/include/fragment/shadows.glsl"

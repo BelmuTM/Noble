@@ -6,10 +6,11 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:07 */
+/* DRAWBUFFERS:047 */
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out vec4 volumetricLight;
+layout (location = 1) out vec3 bloomBuffer;
+layout (location = 2) out vec4 volumetricLight;
 
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/fragment/brdf.glsl"
@@ -21,15 +22,17 @@ layout (location = 1) out vec4 volumetricLight;
 
 void main() {
     color         = texture(colortex0, texCoords);
-    vec3 viewPos0 = getViewPos0(texCoords);
+    
     bool inWater  = isEyeInWater > 0.5;
+    bool sky      = isSky(texCoords);
 
-    if(!isSky(texCoords)) {
-        vec3 viewDir0 = normalize(mat3(gbufferModelViewInverse) * viewPos0);
+    vec3 viewPos0 = getViewPos0(texCoords);
+    vec3 viewDir0 = normalize(mat3(gbufferModelViewInverse) * viewPos0);
 
-        Material mat = getMaterial(texCoords);
-        vec2 coords  = texCoords;
+    Material mat = getMaterial(texCoords);
+    vec2 coords  = texCoords;
 
+    if(!sky) {
         #if GI == 1
             #if GI_FILTER == 1                
                 color.rgb = SVGF(texCoords, colortex0, viewPos0, mat.normal, 1.5, 3);
@@ -54,6 +57,7 @@ void main() {
 
         vec4 translucents = texture(colortex1, texCoords);
         color.rgb         = mix(color.rgb, translucents.rgb, translucents.a);
+    }
 
         //////////////////////////////////////////////////////////
         /*-------------------- WATER FOG -----------------------*/
@@ -69,16 +73,19 @@ void main() {
                 vec3 startPos = inWater ? vec3(0.0) : worldPos0;
                 vec3 endPos   = inWater ? worldPos0 : worldPos1;
 
+                vec3 skyIlluminance = texture(colortex7, texCoords).rgb;
+
                 #if WATER_FOG == 0
                     float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
-                    waterFog(color.rgb, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance);
+                    waterFog(color.rgb, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance, mat.lightmap.y);
                 #else
                     vec3 worldDir  = normalize(inWater ? worldPos0 : worldPos1);
-                    volumetricWaterFog(color.rgb, startPos, endPos, worldDir);
+                    volumetricWaterFog(color.rgb, startPos, endPos, worldDir, skyIlluminance, mat.lightmap.y);
                 #endif
             }
         #endif
 
+    if(!sky) {
         //////////////////////////////////////////////////////////
         /*-------------------- REFLECTIONS ---------------------*/
         //////////////////////////////////////////////////////////
@@ -112,5 +119,9 @@ void main() {
                 volumetricGroundFog(color.rgb, viewPos0, getMaterial(texCoords).lightmap.y);
             }
         #endif
+    #endif
+
+    #if BLOOM == 1
+        bloomBuffer = log2(luminance(color.rgb)) > 13.0 ? color.rgb : vec3(0.0);
     #endif
 }

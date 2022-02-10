@@ -11,7 +11,7 @@
 void volumetricGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
     vec3 scenePos = transMAD3(gbufferModelViewInverse, viewPos);
 
-    float airmass     = isSky(texCoords) ? far : length(scenePos) * pow2(quintic(EPS, 1.0, skyLight));
+    float airmass     = isSky(texCoords) ? far : length(scenePos) * pow2(quintic(0.0, 1.0, skyLight));
           airmass    *= RAIN_FOG_DENSITY * rainStrength;
     vec3 opticalDepth = (kExtinction[0] + kExtinction[1] + kExtinction[2]) * airmass;
 
@@ -75,42 +75,50 @@ vec3 volumetricLighting(vec3 viewPos) {
 }
 
 vec3 absorptionCoeff = RGBtoLinear(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) / 255.0);
-vec3 scatteringCoeff = RGBtoLinear(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) / 255.0);
+vec3 scatteringCoeff = RGBtoLinear(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) / 255.0) * WATER_DENSITY;
 
 // Sources: ShaderLabs, Spectrum - Zombye
-void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance) {
+void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance, float skyLight) {
     vec3 transmittance = exp(-absorptionCoeff * WATER_DENSITY * dist);
 
-    vec3 scattering  = skyIlluminance * isotropicPhase;
+    vec3 scattering  = skyIlluminance * isotropicPhase * pow2(quintic(0.0, 1.0, skyLight));
          scattering += illuminanceShadowLight * cornetteShanksPhase(VdotL, 0.5);
          scattering  = scattering * (scatteringCoeff - scatteringCoeff * transmittance);
 
     color = color * transmittance + scattering;
 }
 
-void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 waterDir) {
+void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 waterDir, vec3 skyIlluminance, float skyLight) {
     float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
 
     vec3 increment = (endPos - startPos) / float(WATER_FOG_STEPS);
     vec3 rayPos    = startPos + increment * jitter;
 
-    vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
-    float rayLength = distance(startPos, endPos) / float(WATER_FOG_STEPS);
+    vec3 shadowStartPos  = worldToShadowClip(startPos);
+    vec3 shadowIncrement = (worldToShadowClip(endPos) - shadowStartPos) / float(WATER_FOG_STEPS);
+    vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
+
+    float rayLength = (isSky(texCoords) ? far : distance(startPos, endPos)) / float(WATER_FOG_STEPS);
+    float VdotL     = dot(waterDir, directionShadowLight);
 
     vec3 opticalDepth            = absorptionCoeff * WATER_DENSITY * rayLength;
     vec3 stepTransmittance       = exp(-opticalDepth);
     vec3 stepTransmittedFraction = clamp01((stepTransmittance - 1.0) / -opticalDepth);
 
-    for(int i = 0; i < WATER_FOG_STEPS; i++, rayPos += increment) {
-        vec3 sampleColor = sampleShadowColor(worldToShadowClip(rayPos) * 0.5 + 0.5);
+    vec3 directScatter = vec3(0.0), indirectScatter = vec3(0.0), transmittance = vec3(1.0);
 
-        scattering    += (stepTransmittance * stepTransmittedFraction) * sampleColor;
-        transmittance *= stepTransmittance;
+    for(int i = 0; i < WATER_FOG_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
+        vec3 sampledTransmittance = stepTransmittance * stepTransmittedFraction;
+
+        directScatter   += sampledTransmittance * sampleShadowColor(shadowPos);
+        indirectScatter += sampledTransmittance;
+        transmittance   *= stepTransmittance;
     }
 
-    float VdotL = dot(waterDir, directionShadowLight);
-    scattering *= shadowLightTransmittance() * cornetteShanksPhase(VdotL, 0.5);
+    vec3 scattering = vec3(0.0);
+    scattering += directScatter   * shadowLightTransmittance() * cornetteShanksPhase(VdotL, 0.5);
+    scattering += indirectScatter * skyIlluminance * isotropicPhase * pow2(quintic(0.0, 1.0, skyLight));
     scattering *= scatteringCoeff * opticalDepth;
 
-    color = color * transmittance + max0(scattering);
+    color = color * transmittance + scattering;
 }

@@ -9,7 +9,7 @@
 /* DRAWBUFFERS:04 */
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out vec4 bloomBuffer;
+layout (location = 1) out vec3 bloomBuffer;
 
 #include "/include/utility/blur.glsl"
 #include "/include/post/bloom.glsl"
@@ -63,7 +63,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        bloomBuffer.rgb = writeBloom();
+        bloomBuffer = writeBloom();
     #endif
 
     #if VL == 1

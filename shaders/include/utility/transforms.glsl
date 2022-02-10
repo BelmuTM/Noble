@@ -26,18 +26,6 @@ vec3 distortShadowSpace(vec3 shadowPos) {
 	return shadowPos / vec3(vec2(getDistortionFactor(shadowPos.xy)), 2.0);
 }
 
-vec3 getViewPos0(vec2 coords) {
-    vec3 clipPos = vec3(coords, texture(depthtex0, coords).r) * 2.0 - 1.0;
-    vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
-    return tmp.xyz / tmp.w;
-}
-
-vec3 getViewPos1(vec2 coords) {
-    vec3 clipPos = vec3(coords, texture(depthtex1, coords).r) * 2.0 - 1.0;
-    vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
-    return tmp.xyz / tmp.w;
-}
-
 vec3 screenToView(vec3 screenPos) {
 	screenPos = screenPos * 2.0 - 1.0;
 	return projMAD3(gbufferProjectionInverse, screenPos) / (gbufferProjectionInverse[2].w * screenPos.z + gbufferProjectionInverse[3].w);
@@ -63,6 +51,16 @@ mat3 constructViewTBN(vec3 viewNormal) {
 vec3 tangentToView(vec3 viewNormal, vec3 H) {
     vec3 tangent = normalize(cross(gbufferModelViewInverse[1].xyz, viewNormal));
     return vec3((tangent * H.x) + (cross(tangent, viewNormal) * H.y) + (viewNormal * H.z));
+}
+
+vec3 getViewPos0(vec2 coords) {
+    vec3 screenPos = vec3(coords, texture(depthtex0, coords).r);
+    return screenToView(screenPos);
+}
+
+vec3 getViewPos1(vec2 coords) {
+    vec3 screenPos = vec3(coords, texture(depthtex1, coords).r);
+    return screenToView(screenPos);
 }
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth

@@ -11,6 +11,7 @@
     #include "/include/utility/math.glsl"
     #include "/include/utility/transforms.glsl"
 
+    #define attribute in
     attribute vec4 at_tangent;
     attribute vec3 mc_Entity;
 

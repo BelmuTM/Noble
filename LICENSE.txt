@@ -44,7 +44,7 @@ giving you legal permission to copy, distribute and/or modify it.
   For the developers' and authors' protection, the GPL clearly explains
 that there is no warranty for this free software.  For both users' and
 authors' sake, the GPL requires that modified versions be marked as
-changed, so that their problems will not be attributed erroneously to
+changed, so that their problems will not be ind erroneously to
 authors of previous versions.
 
   Some devices are designed to deny users access to install or run

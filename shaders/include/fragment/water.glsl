@@ -68,7 +68,7 @@
         float noise;
 
         for(int i = 0; i < WAVES_AMOUNT; i++) {
-            noise          = FBM(coords * 0.3 * inversesqrt(waveLength) - (speed * waveDir), 2);
+            noise          = FBM(coords * 0.3 * inversesqrt(waveLength) - (speed * waveDir), 3);
             waves         += -gerstnerWaves(coords + vec2(noise, -noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir);
             waveSteepness *= 1.4;
             waveAmplitude *= 0.4;
