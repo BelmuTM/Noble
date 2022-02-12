@@ -94,7 +94,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define GI_FILTER 0
 
 #define GI_SAMPLES            1 // [1 2 3 4 5 6 7 8]
-#define GI_BOUNCES            4 // [1 2 3 4 5 6 7 8]
+#define GI_BOUNCES            4 // [1 2 3 4 5 6 7 8 9 10 11 12]
 #define GI_STEPS             40 // [40 128 256]
 #define GI_RESOLUTION      1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define ROULETTE_MIN_BOUNCES 3
@@ -148,12 +148,12 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define VL_RAIN_DENSITY (VL_DENSITY * 2.5)
 
 #define STARS_AMOUNT      0.10 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define STARS_BRIGHTNESS  0.50 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define STARS_BRIGHTNESS  0.60 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define STARS_MIN_TEMP  2500.0
 #define STARS_MAX_TEMP 50000.0
 
-#define CLOUDS_STEPS 16
-#define CLOUDS_ALTITUDE 6e3
+#define CLOUDS_STEPS        16
+#define CLOUDS_ALTITUDE    6e3
 #define CLOUDS_THICKNESS 100.0
 
 //////////////////////////////////////////////////////////
@@ -215,7 +215,10 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define BLOOM             1 // [0 1]
 #define BLOOM_STRENGTH 0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define BLOOM_TWEAK_VAL 1.9
+#define BLOOM_TWEAK_VAL 0.0
+
+#define BLOOM_STEPS   5
+#define BLOOM_SIGMA 2.0
 
 #define VIGNETTE             0 // [0 1]
 #define VIGNETTE_STRENGTH 0.25 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50]

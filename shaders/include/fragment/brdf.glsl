@@ -206,20 +206,20 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, Material mat) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 applyLighting(vec3 V, Material mat, vec4 shadowmap, vec3 shadowLightTransmit, vec3 skyIlluminance) {
+vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 shadowLightTransmit, vec3 skyIlluminance) {
     V = -normalize(V);
 
     vec3 specular = vec3(0.0);
     #if SPECULAR == 1
-        specular = cookTorranceSpecular(mat.normal, V, shadowDir, mat);
+        specular = cookTorranceSpecular(mat.normal, V, L, mat);
     #endif
 
     vec3 diffuse = vec3(0.0);
     #if SUBSURFACE_SCATTERING == 1
-        float SSS = disneySubsurface(mat.normal, V, shadowDir, mat);
-        diffuse   = mat.isMetal ? vec3(0.0) : mix(hammonDiffuse(mat.normal, V, shadowDir, mat, false), SSS * mat.albedo, mat.subsurface * float(!isSky(texCoords)));
+        float SSS = disneySubsurface(mat.normal, V, L, mat);
+        diffuse   = mat.isMetal ? vec3(0.0) : mix(hammonDiffuse(mat.normal, V, L, mat, false), SSS * mat.albedo, mat.subsurface * float(!isSky(texCoords)));
     #else
-        diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(mat.normal, V, shadowDir, mat, false);
+        diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(mat.normal, V, L, mat, false);
     #endif
 
     mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(quintic(0.0, 1.0, mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);

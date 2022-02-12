@@ -12,11 +12,12 @@
 	Voyager - SixSeven
 */
 
-/*
-const bool colortex4MipmapEnabled = true;
-*/
-
 #if BLOOM == 1
+	/*
+		const bool colortex0MipmapEnabled = true;
+		const bool colortex4MipmapEnabled = true;
+	*/
+
 	const vec2 bloomOffsets[] = vec2[](
 		vec2(0.0      , 0.0   ),
 		vec2(0.0      , 0.26  ),
@@ -28,25 +29,21 @@ const bool colortex4MipmapEnabled = true;
 	);
 
 	vec3 bloomTile(int LOD) {
-		float scale = exp2(LOD); 
-		vec2 offset = bloomOffsets[LOD - 2];
-
-		vec2 coords   = (texCoords - offset) * scale;
+		float scale   = exp2(LOD); 
+		vec2 coords   = (texCoords - bloomOffsets[LOD - 2]) * scale;
 		vec2 texScale = pixelSize * scale;
-		vec3 color    = vec3(0.0);
 
 		if(any(greaterThanEqual(abs(coords - 0.5), texScale + 0.5))) return vec3(0.0);
 
-		const int steps   = 5;
-		const float sigma = 2.0;
+		vec3 bloom = vec3(0.0);
 
-        for(int i = -steps; i <= steps; i++) {
-            for(int j = -steps; j <= steps; j++) {
-                float weight = gaussianDistrib1D(i, sigma) * gaussianDistrib1D(j, sigma);
-                color  		+= textureLod(colortex4, coords + vec2(i, j) * texScale, LOD).rgb * weight;
+        for(int i = -BLOOM_STEPS; i <= BLOOM_STEPS; i++) {
+            for(int j = -BLOOM_STEPS; j <= BLOOM_STEPS; j++) {
+                float weight = gaussianDistrib1D(i, BLOOM_SIGMA) * gaussianDistrib1D(j, BLOOM_SIGMA);
+                bloom  		+= textureLod(colortex0, coords + vec2(i, j) * texScale, LOD).rgb * weight;
             }
         }
-		return color;
+		return bloom;
 	}
 
 	vec3 getBloomTile(int LOD) {
@@ -72,6 +69,6 @@ const bool colortex4MipmapEnabled = true;
 	     	 bloom += getBloomTile(6);
 	     	 bloom += getBloomTile(7);
 	     	 bloom += getBloomTile(8);
-    	return bloom;
+    	return bloom / 7;
 	}
 #endif

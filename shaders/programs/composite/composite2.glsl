@@ -14,7 +14,6 @@ layout (location = 0) out vec4 color;
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
-#include "/include/fragment/filter.glsl"
 
 void main() {
     #if GI == 0
@@ -33,16 +32,5 @@ void main() {
                 #endif
             }
         #endif
-    #else
-        if(!isSky(texCoords)) {
-
-            vec2 scaledUv = texCoords * GI_RESOLUTION; 
-            #if GI_FILTER == 1
-                vec3 scaledViewPos = getViewPos0(scaledUv);
-                Material scaledMat = getMaterial(scaledUv);
-
-                color.rgb = SVGF(scaledUv, colortex0, scaledViewPos, scaledMat.normal, 1.5, 4);
-            #endif
-        }
     #endif
 }

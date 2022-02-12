@@ -16,15 +16,13 @@ layout (location = 2) out vec4 volumetricLight;
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
-#include "/include/fragment/filter.glsl"
 #include "/include/fragment/shadows.glsl"
 #include "/include/atmospherics/fog.glsl"
 
 void main() {
-    color         = texture(colortex0, texCoords);
-    
-    bool inWater  = isEyeInWater > 0.5;
-    bool sky      = isSky(texCoords);
+    color        = texture(colortex0, texCoords);
+    bool inWater = isEyeInWater > 0.5;
+    bool sky     = isSky(texCoords);
 
     vec3 viewPos0 = getViewPos0(texCoords);
     vec3 viewDir0 = normalize(mat3(gbufferModelViewInverse) * viewPos0);
@@ -33,12 +31,6 @@ void main() {
     vec2 coords  = texCoords;
 
     if(!sky) {
-        #if GI == 1
-            #if GI_FILTER == 1                
-                color.rgb = SVGF(texCoords, colortex0, viewPos0, mat.normal, 1.5, 3);
-            #endif
-        #endif
-
         //////////////////////////////////////////////////////////
         /*-------------------- REFRACTIONS ---------------------*/
         //////////////////////////////////////////////////////////
@@ -93,14 +85,10 @@ void main() {
         #if GI == 0
             #if REFLECTIONS == 1
                 vec3 reflections = texture(colortex4, texCoords * REFLECTIONS_RES).rgb;
-                float NdotV      = maxEps(dot(mat.normal, -normalize(viewPos0)));
+                float NdotV      = clamp01(dot(mat.normal, -normalize(viewPos0)));
 
-                if(mat.rough > 0.05) {
-                    float DFG = envBRDFApprox(NdotV, mat);
-                    color.rgb = mix(color.rgb, reflections, DFG);
-                } else {
-                    color.rgb += reflections;
-                }
+                float DFG = envBRDFApprox(NdotV, mat);
+                color.rgb = mix(color.rgb, reflections, DFG);
             #endif
         #endif
     }
@@ -122,6 +110,6 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        bloomBuffer = log2(luminance(color.rgb)) > 13.0 ? color.rgb : vec3(0.0);
+        bloomBuffer = log2(luminance(color.rgb)) > 11.0 ? color.rgb : vec3(0.0);
     #endif
 }

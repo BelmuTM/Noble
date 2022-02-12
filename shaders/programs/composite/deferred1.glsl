@@ -20,7 +20,7 @@ layout (location = 2) out vec4 historyBuffer;
 #include "/include/fragment/pathtracer.glsl"
 #include "/include/fragment/water.glsl"
 
-#if GI_TEMPORAL_ACCUMULATION == 1
+#if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
     void temporalAccumulation(inout vec3 color, sampler2D prevTex, inout float historyFrames) {
@@ -32,8 +32,8 @@ layout (location = 2) out vec4 historyBuffer;
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
             float lumaWeight  = pow2(getLumaWeight(color, prevColor));
 
-            float depthDelta  = abs(prevPos.z - texture(colortex0, prevPos.xy).a);
-            float depthWeight = pow5(exp(-depthDelta));
+            float depthWeight = abs(prevPos.z - texture(colortex0, prevPos.xy).a);
+                  depthWeight = max0(pow5(exp2(-depthWeight)));
 
             totalWeight *= (lumaWeight * depthWeight);
         #else
@@ -51,19 +51,18 @@ void main() {
     /*------------------------ SKY -------------------------*/
     //////////////////////////////////////////////////////////
 
-    if(texture(depthtex0, texCoords).r == 1.0) {
-        vec3 sky = vec3(0.0);
-
+    if(isSky(texCoords)) {
         #ifdef WORLD_OVERWORLD
             vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos0));
-            vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(gl_FragCoord.xy)));
+            vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)));
 
-            vec3 tmp = texture(colortex6, coords * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
-            sky      = tmp + (starfield(viewPos0) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
-            sky     += celestialBody(normalize(viewPos0), shadowDir);
+            vec3 sky   = texture(colortex6, coords * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
+            color.rgb  = sky + (starfield(viewPos0) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
+            color.rgb += celestialBody(normalize(viewPos0));
+        #else 
+            color = vec4(0.0);
         #endif
 
-        color = vec4(sky, 1.0);
         return;
     }
 
@@ -118,7 +117,7 @@ void main() {
             }
         #endif
         
-        color.rgb = applyLighting(viewPos0, mat, shadowmap, totalIllum, skyIlluminance);
+        color.rgb = applyLighting(viewPos0, shadowDir, mat, shadowmap, totalIllum, skyIlluminance);
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/

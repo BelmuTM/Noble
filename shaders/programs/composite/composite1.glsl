@@ -6,21 +6,11 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:4 */
+/* DRAWBUFFERS:0 */
 
 layout (location = 0) out vec4 color;
 
-#include "/include/fragment/filter.glsl"
-
 void main() {
-    #if GI == 1
-        if(!isSky(texCoords)) {
-            #if GI_FILTER == 1
-                vec3 viewPos = getViewPos0(texCoords);
-                Material mat = getMaterial(texCoords);
-
-                color.rgb = SVGF(texCoords, colortex4, viewPos, mat.normal, 1.5, 4);
-            #endif
-        }
-    #endif
+    // TO-DO FILTERING GI
+    color = texture(colortex0, texCoords);
 }

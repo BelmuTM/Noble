@@ -151,7 +151,7 @@ void main() {
     #endif
 
     color.rgb = clamp01(color.rgb);
-    color     = TONEMAP == 4 ? color : linearToRGB(color);
+    color     = linearToRGB(color);
 
     #if LUT > 0
         applyLUT(colortex9, color.rgb);

@@ -66,6 +66,8 @@
                 vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));
                 sky         = atmosphericScattering(normalize(rayDir), skyIlluminance);
             }
+
+            //sky += cloudsScattering(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
         #endif
 
         float ambientOcclusion = 1.0;

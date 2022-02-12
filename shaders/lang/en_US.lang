@@ -130,13 +130,6 @@ value.GI.1 = §aON
 
 option.GI_BOUNCES = GI Bounces
 option.GI_BOUNCES.comment = Makes §bGI§r bounce §aX§r times to gather light. §cHigher value gives better results, but reduces §cperformance.
-value.GI_BOUNCES.2 = §32
-value.GI_BOUNCES.3 = §23
-value.GI_BOUNCES.4 = §a4
-value.GI_BOUNCES.5 = §e5
-value.GI_BOUNCES.6 = §66
-value.GI_BOUNCES.7 = §c7
-value.GI_BOUNCES.8 = §48
 
 option.GI_TEMPORAL_ACCUMULATION = Temporal Accumulation
 option.GI_TEMPORAL_ACCUMULATION.comment = Accumulates §bGI §rover multiple frames to reduce noise and give a cleaner result.

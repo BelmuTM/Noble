@@ -63,7 +63,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        bloomBuffer = writeBloom();
+        bloomBuffer = clamp16(writeBloom());
     #endif
 
     #if VL == 1

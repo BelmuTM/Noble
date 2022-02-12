@@ -18,7 +18,7 @@ void volumetricGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
     vec3 transmittance       = exp(-opticalDepth);
     vec3 transmittedFraction = clamp01((transmittance - 1.0) / -opticalDepth);
 
-    float VdotL     = dot(normalize(scenePos), directionShadowLight);
+    float VdotL     = dot(normalize(scenePos), dirShadowLight);
     vec2 phase      = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisoFactor));
     vec3 scattering = kScattering * (airmass * phase) * illuminanceShadowLight;
 
@@ -48,7 +48,7 @@ vec3 volumetricLighting(vec3 viewPos) {
     vec3 increment = (endPos - startPos) / float(VL_STEPS);
     vec3 rayPos    = startPos + increment * jitter;
 
-    float VdotL = dot(normalize(endPos), directionShadowLight);
+    float VdotL = dot(normalize(endPos), dirShadowLight);
     vec2 phase  = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisoFactor));
 
     vec3 scattering = vec3(0.0), transmittance = vec3(1.0);
@@ -64,7 +64,7 @@ vec3 volumetricLighting(vec3 viewPos) {
         vec3 visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
         vec3 stepScattering    = kScattering * vec2(airmass.xy * phase.xy) * visibleScattering;
 
-        scattering    += stepScattering * vlTransmittance(rayPos, directionShadowLight) * sampleColor;
+        scattering    += stepScattering * vlTransmittance(rayPos, dirShadowLight) * sampleColor;
         transmittance *= stepTransmittance;
     }
     
@@ -99,7 +99,7 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
     vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
 
     float rayLength = (isSky(texCoords) ? far : distance(startPos, endPos)) / float(WATER_FOG_STEPS);
-    float VdotL     = dot(waterDir, directionShadowLight);
+    float VdotL     = dot(waterDir, dirShadowLight);
 
     vec3 opticalDepth            = absorptionCoeff * WATER_DENSITY * rayLength;
     vec3 stepTransmittance       = exp(-opticalDepth);
