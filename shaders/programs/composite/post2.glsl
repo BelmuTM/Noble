@@ -125,7 +125,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        color.rgb = mix(color.rgb, readBloom(), max0(exp2(exposure - 3.0 + BLOOM_STRENGTH)));
+        color.rgb = mix(color.rgb, readBloom(), max0(exp2(exposure - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH))));
     #endif
 
     #if FILM_GRAIN == 1
