@@ -110,6 +110,6 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        bloomBuffer = log2(luminance(color.rgb)) > 11.0 ? color.rgb : vec3(0.0);
+        bloomBuffer = log2(luminance(color.rgb)) > 15.0 ? color.rgb : vec3(0.0);
     #endif
 }

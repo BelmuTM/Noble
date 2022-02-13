@@ -19,7 +19,6 @@ void main() {
     #if GI == 0
         #if REFLECTIONS == 1
             vec2 scaledUv  = texCoords * (1.0 / REFLECTIONS_RES);
-            vec3 shadowmap = texture(colortex3, texCoords).rgb;
         
             if(clamp(texCoords, vec2(0.0), vec2(REFLECTIONS_RES + 1e-3)) == texCoords) {
                 vec3 viewPos = getViewPos0(scaledUv);

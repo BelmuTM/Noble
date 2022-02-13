@@ -51,7 +51,7 @@ vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
 
 float getLumaWeight(vec3 currColor, vec3 prevColor) {
     float currLuma   = luminance(currColor), prevLuma = luminance(prevColor);
-    float lumaWeight = exp(-(abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN))));
+    float lumaWeight = exp(-abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN)));
 	return mix(TAA_FEEDBACK_MIN, TAA_FEEDBACK_MAX, pow2(lumaWeight));
 }
 
@@ -64,20 +64,19 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
          prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    float blendWeight = 0.0;
+    float blendWeight = float(clamp01(prevPos.xy) == prevPos.xy);
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
-        float lumaWeight  = pow2(getLumaWeight(currColor, prevColor));
+        float lumaWeight = getLumaWeight(currColor, prevColor);
 
         float depthWeight = abs(prevPos.z - texture(colortex0, prevPos.xy).a);
               depthWeight = pow4(exp(-depthWeight));
 
-        blendWeight = lumaWeight * depthWeight;
+        blendWeight *= depthWeight * lumaWeight;
     #else
         float historyFrames = texture(colortex5, texCoords).a;
-        blendWeight         = 1.0 - (1.0 / max(historyFrames, 1.0));
+        blendWeight        *= 1.0 - (1.0 / max(historyFrames, 1.0));
     #endif
 
-    blendWeight *= float(clamp01(prevPos.xy) == prevPos.xy);
     return YCoCgToLinear(mix(currColor, prevColor, blendWeight)); 
 }

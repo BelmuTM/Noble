@@ -31,7 +31,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
 
 #if REFLECTIONS_TYPE == 0
     vec3 simpleReflections(vec2 coords, vec3 viewPos, Material mat) {
-        viewPos     += mat.normal * 1e-2;
+        viewPos     += mat.normal * 1e-3;
         vec3 viewDir = normalize(viewPos);
 
         vec3 reflected = reflect(viewDir, mat.normal), hitPos;
@@ -57,9 +57,9 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
 
     vec3 roughReflections(vec2 coords, vec3 viewPos, Material mat) {
 	    vec3 color        = vec3(0.0);
-	    float totalWeight = 0.0;
+	    float totalWeight = EPS;
 
-        viewPos     += mat.normal * 1e-2;
+        viewPos     += mat.normal * 1e-3;
         mat3 TBN     = constructViewTBN(mat.normal);
         vec3 viewDir = normalize(viewPos);
         vec3 hitPos;
@@ -89,7 +89,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
                 totalWeight += NdotL;
             }
 	    }
-	    return color / maxEps(totalWeight);
+	    return color / totalWeight;
     }
 #endif
 

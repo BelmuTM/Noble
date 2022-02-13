@@ -40,4 +40,7 @@ const int colortex7Format = R11F_G11F_B10F;
 TAA / EXPOSURE HISTORY BUFFER
 const int colortex8Format = RGBA16F;
 const bool colortex8Clear = false;
+
+const int colortex10Format = RGBA16F;
+const bool colortex10Clear = false;
 */

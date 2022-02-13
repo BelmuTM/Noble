@@ -94,6 +94,8 @@ layout (location = 0) out vec4 color;
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
+        color = clamp(color, vec3(0.0), vec3(255.0 / 256.0));
+
         color.b *= lutSize - 1.0;
         int b0 = int(color.b);
         int b1 = b0 + 1;
@@ -101,11 +103,9 @@ layout (location = 0) out vec4 color;
         vec2 off0 = vec2(mod(b0, lutTile), b0 / lutTile) * invLutTile;
         vec2 off1 = vec2(mod(b1, lutTile), b1 / lutTile) * invLutTile;
 
-        vec2 jitter = (bayer32(gl_FragCoord.xy) * pixelSize) * 0.2;
-
         color = mix(
-            texture(lookupTable, (off0 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1] + jitter).rgb,
-            texture(lookupTable, (off1 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1] + jitter).rgb,
+            texture(lookupTable, (off0 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
+            texture(lookupTable, (off1 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
             fract(color.b)
         );
     }
@@ -125,7 +125,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        color.rgb = mix(color.rgb, readBloom(), max0(exp2(exposure - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH))));
+        color.rgb += readBloom() * max0(exp2(computeExposure(luminance(color.rgb)) - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH)));
     #endif
 
     #if FILM_GRAIN == 1

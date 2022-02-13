@@ -6,11 +6,11 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:035 */
+/* RENDERTARGETS:0,5,10 */
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out vec4 shadowmap;
-layout (location = 2) out vec4 historyBuffer;
+layout (location = 1) out vec4 historyBuffer;
+layout (location = 2) out vec4 previousBuffer;
 
 #include "/include/utility/blur.glsl"
 #include "/include/fragment/brdf.glsl"
@@ -23,19 +23,20 @@ layout (location = 2) out vec4 historyBuffer;
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
-    void temporalAccumulation(inout vec3 color, sampler2D prevTex, inout float historyFrames) {
+    void temporalAccumulation(inout vec3 color, Material mat, sampler2D prevTex, inout float historyFrames) {
         vec3 prevPos   = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r));
         vec3 prevColor = texture(prevTex, prevPos.xy).rgb;
 
         float totalWeight = float(clamp01(prevPos.xy) == prevPos.xy);
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            float lumaWeight  = pow2(getLumaWeight(color, prevColor));
+            float lumaWeight   = getLumaWeight(color, prevColor);
+            float normalWeight = pow(clamp01(dot(mat.normal, texture(colortex10, texCoords).rgb)), 8.0);
 
             float depthWeight = abs(prevPos.z - texture(colortex0, prevPos.xy).a);
-                  depthWeight = max0(pow5(exp2(-depthWeight)));
+                  depthWeight = pow5(exp2(-depthWeight));
 
-            totalWeight *= (lumaWeight * depthWeight);
+            totalWeight *= lumaWeight * normalWeight * depthWeight;
         #else
             totalWeight *= 1.0 - (1.0 / max(historyFrames, 1.0));
         #endif
@@ -57,7 +58,7 @@ void main() {
             vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)));
 
             vec3 sky   = texture(colortex6, coords * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
-            color.rgb  = sky + (starfield(viewPos0) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 200.0) * starsColor);
+            color.rgb  = sky + (starfield(viewPos0) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 120.0) * starsColor);
             color.rgb += celestialBody(normalize(viewPos0));
         #else 
             color = vec4(0.0);
@@ -70,9 +71,9 @@ void main() {
     /*--------------------- MATERIAL -----------------------*/
     //////////////////////////////////////////////////////////
 
-    Material mat  = getMaterial(texCoords);
-    shadowmap     = texture(colortex3, texCoords);
-    vec3 Lighting = vec3(0.0);
+    Material mat   = getMaterial(texCoords);
+    vec4 shadowmap = texture(colortex3, texCoords);
+    vec3 Lighting  = vec3(0.0);
 
     // Overlay
     vec4 overlay = texture(colortex4, texCoords);
@@ -129,11 +130,12 @@ void main() {
             color.rgb = pathTrace(vec3(scaledUv, texture(depthtex1, scaledUv).r), totalIllum);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(color.rgb, colortex5, historyFrames);
+                temporalAccumulation(color.rgb, mat, colortex5, historyFrames);
             #endif
         }
     #endif
 
-    historyBuffer = vec4(color.rgb, historyFrames);
-    color.a       = texture(depthtex1, texCoords).r;
+    historyBuffer  = vec4(color.rgb, historyFrames);
+    color.a        = texture(depthtex1, texCoords).r;
+    previousBuffer.rgb = mat.normal; 
 }
