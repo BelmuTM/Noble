@@ -76,6 +76,7 @@ vec3 volumetricLighting(vec3 viewPos) {
 
 vec3 absorptionCoeff = RGBtoLinear(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) / 100.0);
 vec3 scatteringCoeff = RGBtoLinear(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) / 100.0) * WATER_DENSITY;
+vec3 extinctionCoeff = absorptionCoeff + scatteringCoeff;
 
 // Sources: ShaderLabs, Spectrum - Zombye
 void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance, float skyLight) {
@@ -88,6 +89,7 @@ void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance, fl
     color = color * transmittance + scattering;
 }
 
+// Thanks Jessie#7257 for the help!
 void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 waterDir, vec3 skyIlluminance, float skyLight) {
     float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
 
@@ -101,7 +103,7 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
     float rayLength = (isSky(texCoords) ? far : distance(startPos, endPos)) / float(WATER_FOG_STEPS);
     float VdotL     = dot(waterDir, dirShadowLight);
 
-    vec3 opticalDepth            = absorptionCoeff * WATER_DENSITY * rayLength;
+    vec3 opticalDepth            = extinctionCoeff * WATER_DENSITY * rayLength;
     vec3 stepTransmittance       = exp(-opticalDepth);
     vec3 stepTransmittedFraction = clamp01((stepTransmittance - 1.0) / -opticalDepth);
 
@@ -110,15 +112,15 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
     for(int i = 0; i < WATER_FOG_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
         vec3 sampledTransmittance = stepTransmittance * stepTransmittedFraction;
 
-        directScatter   += sampledTransmittance * sampleShadowColor(shadowPos);
-        indirectScatter += sampledTransmittance;
+        directScatter   += transmittance * sampleShadowColor(shadowPos);
+        indirectScatter += transmittance;
         transmittance   *= stepTransmittance;
     }
 
     vec3 scattering = vec3(0.0);
     scattering += directScatter   * shadowLightTransmittance() * cornetteShanksPhase(VdotL, 0.5);
     scattering += indirectScatter * skyIlluminance * isotropicPhase * pow2(quintic(0.0, 1.0, skyLight));
-    scattering *= scatteringCoeff * opticalDepth;
+    scattering *= scatteringCoeff * (1.0 - stepTransmittance) / extinctionCoeff;
 
     color = color * transmittance + scattering;
 }
