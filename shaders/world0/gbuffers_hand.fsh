@@ -9,4 +9,5 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#include "/include/common.glsl"
 #include "/programs/gbuffers/solid.fsh"

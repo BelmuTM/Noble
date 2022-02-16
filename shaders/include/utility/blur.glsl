@@ -22,10 +22,10 @@ vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
 vec4 gaussianBlur(vec2 coords, sampler2D tex, float radius, float sigma, int steps) {
     vec4 color = vec4(0.0);
 
-    for(int i = -steps; i <= steps; i++) {
-        for(int j = -steps; j <= steps; j++) {
-            float weight = gaussianDistrib1D(i, sigma) * gaussianDistrib1D(j, sigma);
-            color       += texture(tex, coords + vec2(i, j) * radius * pixelSize) * weight;
+    for(int x = -steps; x <= steps; x++) {
+        for(int y = -steps; y <= steps; y++) {
+            float weight = gaussianDistrib2D(vec2(x, y), sigma);
+            color       += texture(tex, coords + vec2(x, y) * radius * pixelSize) * weight;
         }
     }
     return color;

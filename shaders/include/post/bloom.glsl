@@ -37,10 +37,10 @@
 
 		vec3 bloom = vec3(0.0);
 
-        for(int i = -BLOOM_STEPS; i <= BLOOM_STEPS; i++) {
-            for(int j = -BLOOM_STEPS; j <= BLOOM_STEPS; j++) {
-                float weight = gaussianDistrib1D(i, BLOOM_SIGMA) * gaussianDistrib1D(j, BLOOM_SIGMA);
-                bloom  		+= textureLod(colortex0, coords + vec2(i, j) * texScale, LOD).rgb * weight;
+        for(int x = -BLOOM_STEPS; x <= BLOOM_STEPS; x++) {
+            for(int y = -BLOOM_STEPS; y <= BLOOM_STEPS; y++) {
+                float weight = gaussianDistrib2D(vec2(x, y), BLOOM_SIGMA);
+                bloom  		+= textureLod(colortex4, coords + vec2(x, y) * texScale, LOD).rgb * weight;
             }
         }
 		return bloom;

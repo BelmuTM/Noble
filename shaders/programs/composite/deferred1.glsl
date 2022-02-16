@@ -30,13 +30,12 @@ layout (location = 2) out vec4 previousBuffer;
         float totalWeight = float(clamp01(prevPos.xy) == prevPos.xy);
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            float lumaWeight   = getLumaWeight(color, prevColor);
             float normalWeight = pow(clamp01(dot(mat.normal, texture(colortex10, texCoords).rgb)), 8.0);
 
             float depthWeight = abs(prevPos.z - texture(colortex0, prevPos.xy).a);
                   depthWeight = pow5(exp2(-depthWeight));
 
-            totalWeight *= lumaWeight * normalWeight * depthWeight;
+            totalWeight *= normalWeight * depthWeight;
         #else
             totalWeight *= 1.0 - (1.0 / max(historyFrames, 1.0));
         #endif

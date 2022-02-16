@@ -74,8 +74,8 @@ vec3 volumetricLighting(vec3 viewPos) {
     return max0(scattering);
 }
 
-vec3 absorptionCoeff = RGBtoLinear(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) / 255.0);
-vec3 scatteringCoeff = RGBtoLinear(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) / 255.0) * WATER_DENSITY;
+vec3 absorptionCoeff = RGBtoLinear(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) / maxVal8);
+vec3 scatteringCoeff = RGBtoLinear(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) / maxVal8) * WATER_DENSITY;
 
 // Sources: ShaderLabs, Spectrum - Zombye
 void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance, float skyLight) {

@@ -17,7 +17,6 @@ vec3 cloudsScattering(vec3 rayDir) {
     vec3 scattering = vec3(0.0); float transmittance = 1.0;
     
     for(int i = 0; i < CLOUDS_STEPS; i++, rayPos += increment) {
-        scattering += vec3(5.0);
 
     }
     return scattering;

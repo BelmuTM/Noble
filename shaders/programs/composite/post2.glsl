@@ -94,7 +94,7 @@ layout (location = 0) out vec4 color;
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
-        color = clamp(color, vec3(0.0), vec3(255.0 / 256.0));
+        color = clamp(color, vec3(0.0), vec3(maxVal8 / 256.0));
 
         color.b *= lutSize - 1.0;
         int b0 = int(color.b);

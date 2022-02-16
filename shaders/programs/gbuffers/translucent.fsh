@@ -35,9 +35,9 @@ void main() {
     mat.F0         = specularTex.y;
     mat.rough      = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
     mat.ao         = normalTex.z;
-	mat.emission   = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
-    mat.subsurface = (specularTex.z * 255.0) < 65.0 ? 0.0 : specularTex.z;
-    mat.isMetal    = mat.F0 * 255.0 > 229.5;
+	mat.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
+    mat.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
+    mat.isMetal    = mat.F0 * maxVal8 > 229.5;
 
     mat.albedo = albedoTex.rgb;
     mat.alpha  = albedoTex.a;
@@ -73,8 +73,8 @@ void main() {
 	
 	vec2 encNormal = encodeUnitVector(normal);
 	
-	dataBuffer.x = packUnorm4x8(vec4(mat.rough, (blockId + 0.25) / 255.0, clamp01(mat.lightmap)));
+	dataBuffer.x = packUnorm4x8(vec4(mat.rough, (blockId + 0.25) / maxVal8, clamp01(mat.lightmap)));
 	dataBuffer.y = packUnorm4x8(vec4(mat.ao, mat.emission, mat.F0, mat.subsurface));
-	dataBuffer.z = (uint(mat.albedo.r * 255.0) << 24u) | (uint(mat.albedo.g * 255.0) << 16u) | (uint(mat.albedo.b * 255.0) << 8u) | uint(encNormal.x * 255.0);
-	dataBuffer.w = uint(encNormal.y * 255.0);
+	dataBuffer.z = (uint(mat.albedo.r * maxVal8) << 16u) | (uint(mat.albedo.g * maxVal8) << 8u) | uint(mat.albedo.b * maxVal8);
+	dataBuffer.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
 }

@@ -34,13 +34,14 @@ Material getMaterial(vec2 coords) {
     mat.emission   = unpacked1.y;
     mat.F0         = unpacked1.z;
     mat.subsurface = unpacked1.w;
-    mat.isMetal    = mat.F0 * 255.0 > 229.5;
+    mat.isMetal    = mat.F0 * maxVal8 > 229.5;
 
-    mat.albedo = vec3((tex2.z >> 24u) & 255u, (tex2.z >> 16u) & 255u, (tex2.z >> 8u) & 255u) / 255.0;
+    mat.albedo = vec3((tex2.z >> 16u) & 255u, (tex2.z >> 8u) & 255u, tex2.z & 255u) / maxVal8;
     mat.alpha  = tex2.w;
-    mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2((tex2.z & 255u), tex2.w) / 255.0);
 
-    mat.blockId  = int(unpacked0.y * 255.0 + 0.5);
+    mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2((tex2.w >> 16u) & 65535u, tex2.w & 65535u) / maxVal16);
+
+    mat.blockId  = int(unpacked0.y * maxVal8 + 0.5);
     mat.lightmap = unpacked0.zw;
 
     mat.albedo = RGBtoLinear(mat.albedo);
@@ -49,7 +50,7 @@ Material getMaterial(vec2 coords) {
 }
 
 const mat2x3 hardcodedMetals[] = mat2x3[](
-	mat2x3(vec3(2.9114, 2.9497, 2.5845),    // Iron
+	mat2x3(vec3(2.9114, 2.9497, 2.5845), // Iron
            vec3(3.0893, 2.9318, 2.7670)),
     mat2x3(vec3(0.18299, 0.42108, 1.3734),  // Gold
            vec3(3.4242, 2.3459, 1.7704)),
@@ -68,7 +69,7 @@ const mat2x3 hardcodedMetals[] = mat2x3[](
 );
 
 mat2x3 getHardcodedMetal(Material mat) {
-    int metalID = int(mat.F0 * 255.0 - 229.5);
+    int metalID = int(mat.F0 * maxVal8 - 229.5);
     return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(vec3(F0toIOR(mat.albedo)), vec3(0.0));
 }
 

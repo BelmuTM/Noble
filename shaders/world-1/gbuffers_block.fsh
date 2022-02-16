@@ -10,4 +10,6 @@
 /***********************************************/
 
 #define TERRAIN
+
+#include "/include/common.glsl"
 #include "/programs/gbuffers/solid.fsh"

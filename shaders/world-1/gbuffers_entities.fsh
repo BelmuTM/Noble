@@ -10,4 +10,6 @@
 /***********************************************/
 
 #define ENTITY
+
+#include "/include/common.glsl"
 #include "/programs/gbuffers/solid.fsh"

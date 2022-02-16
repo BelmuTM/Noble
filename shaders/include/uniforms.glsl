@@ -73,7 +73,9 @@ const int noiseRes    = 128;
 const int causticsRes = (256 - 1);
 const float airIOR    = 1.00029;
 
-const float bits16 = 65536.0;
+// Maximum values for X amount of bits (2^x - 1)
+const float maxVal8  = 255.0;
+const float maxVal16 = 65535.0;
 
 vec3 shadowDir     = normalize(shadowLightPosition);
 vec3 sceneSunDir  = normalize(mat3(gbufferModelViewInverse) * sunPosition);

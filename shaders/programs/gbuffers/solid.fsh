@@ -20,12 +20,6 @@ in mat3 TBN;
 
 #define STAGE_FRAGMENT
 
-#include "/settings.glsl"
-#include "/include/uniforms.glsl"
-#include "/include/utility/noise.glsl"
-#include "/include/utility/math.glsl"
-#include "/include/utility/transforms.glsl"
-
 #ifdef ENTITY
 	uniform vec4 entityColor;
 #endif
@@ -46,9 +40,9 @@ void main() {
 	float F0 		 = specularTex.y;
 	float ao 		 = normalTex.z;
 	float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
-	float emission   = specularTex.w * 255.0 < 254.5 ? specularTex.w : 0.0;
-	float subsurface = (specularTex.z * 255.0) < 65.0 ? 0.0 : specularTex.z;
-	float porosity   = (specularTex.z * 255.0) > 64.0 ? 0.0 : specularTex.z;
+	float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
+	float subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
+	float porosity   = (specularTex.z * maxVal8) > 64.0 ? 0.0 : specularTex.z;
 
 	vec3 normal;
 	normal.xy = normalTex.xy * 2.0 - 1.0;
@@ -57,7 +51,7 @@ void main() {
 
 	#ifdef TERRAIN
 		#if RAIN_PUDDLES == 1
-			if(F0 * 255.0 <= 229.5) {
+			if(F0 * maxVal8 <= 229.5) {
 				float puddle  = voronoise((viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE), 0, 1);
 		  	  	  	  puddle *= pow2(quintic(EPS, 1.0, lmCoords.y));
 	  				  puddle *= (1.0 - porosity);
@@ -73,8 +67,8 @@ void main() {
 
 	vec2 encNormal = encodeUnitVector(normalize(normal));
 	
-	dataBuffer.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) / 255.0, clamp01(lmCoords.xy)));
+	dataBuffer.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) / maxVal8, clamp01(lmCoords)));
 	dataBuffer.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));
-	dataBuffer.z = (uint(albedoTex.r * 255.0) << 24u) | (uint(albedoTex.g * 255.0) << 16u) | (uint(albedoTex.b * 255.0) << 8u) | uint(encNormal.x * 255.0);
-	dataBuffer.w = uint(encNormal.y * 255.0);
+	dataBuffer.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
+	dataBuffer.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
 }

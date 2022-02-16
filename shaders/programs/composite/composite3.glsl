@@ -87,8 +87,12 @@ void main() {
                 vec3 reflections = texture(colortex4, texCoords * REFLECTIONS_RES).rgb;
                 float NdotV      = clamp01(dot(mat.normal, -normalize(viewPos0)));
 
-                float DFG = envBRDFApprox(NdotV, mat);
-                color.rgb = mix(color.rgb, reflections, DFG);
+                if(mat.rough > 0.05) {
+                    float DFG = envBRDFApprox(NdotV, mat);
+                    color.rgb = mix(color.rgb, reflections, DFG);
+                } else {
+                    color.rgb += reflections;
+                }
             #endif
         #endif
     }
@@ -110,6 +114,6 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        bloomBuffer = log2(luminance(color.rgb)) > 15.0 ? color.rgb : vec3(0.0);
+        bloomBuffer = color.rgb;
     #endif
 }

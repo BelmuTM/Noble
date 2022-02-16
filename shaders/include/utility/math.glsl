@@ -21,10 +21,10 @@ vec2  clamp01(vec2 x)  { return clamp(x, vec2(0.0), vec2(1.0)); }
 vec3  clamp01(vec3 x)  { return clamp(x, vec3(0.0), vec3(1.0)); }
 vec4  clamp01(vec4 x)  { return clamp(x, vec4(0.0), vec4(1.0)); }
 
-float clamp16(float x) { return clamp(x, 0.0, bits16);             }
-vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(bits16)); }
-vec3  clamp16(vec3 x)  { return clamp(x, vec3(0.0), vec3(bits16)); }
-vec4  clamp16(vec4 x)  { return clamp(x, vec4(0.0), vec4(bits16)); }
+float clamp16(float x) { return clamp(x, 0.0, maxVal16);             }
+vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(maxVal16)); }
+vec3  clamp16(vec3 x)  { return clamp(x, vec3(0.0), vec3(maxVal16)); }
+vec4  clamp16(vec4 x)  { return clamp(x, vec4(0.0), vec4(maxVal16)); }
 
 float pow2(float x) { return x*x;           }
 float pow3(float x) { return x*x*x;         }
@@ -186,21 +186,21 @@ vec3 decodeUnitVector(vec2 enc) {
 }
 
 float packUnorm2x4(vec2 xy) {
-	return dot(floor(15.0 * xy + 0.5), vec2(1.0 / 255.0, 16.0 / 255.0));
+	return dot(floor(15.0 * xy + 0.5), vec2(1.0 / maxVal8, 16.0 / maxVal8));
 }
 
 vec2 unpackUnorm2x4(float pack) {
-	vec2 xy; xy.x = modf(pack * 255.0 / 16.0, xy.y);
+	vec2 xy; xy.x = modf(pack * maxVal8 / 16.0, xy.y);
 	return xy * vec2(16.0 / 15.0, 1.0 / 15.0);
 }
 
 float packUnorm2x8(vec2 xy) {
-	return dot(floor(255.0 * xy + 0.5), vec2(1.0 / bits16, 256.0 / bits16));
+	return dot(floor(maxVal8 * xy + 0.5), vec2(1.0 / maxVal16, 256.0 / maxVal16));
 }
 
 vec2 unpackUnorm2x8(float pack) {
-	vec2 xy; xy.x = modf(pack * bits16 / 256.0, xy.y);
-	return xy * vec2(256.0 / 255.0, 1.0 / 255.0);
+	vec2 xy; xy.x = modf(pack * maxVal16 / 256.0, xy.y);
+	return xy * vec2(256.0 / maxVal8, 1.0 / maxVal8);
 }
 
 //////////////////////////////////////////////////////////

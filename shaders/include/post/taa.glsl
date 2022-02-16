@@ -69,8 +69,8 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
         float lumaWeight = getLumaWeight(currColor, prevColor);
 
-        float depthWeight = abs(prevPos.z - texture(colortex0, prevPos.xy).a);
-              depthWeight = pow4(exp(-depthWeight));
+        float depthWeight = abs(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex0, prevPos.xy).a));
+              depthWeight = pow(exp(-depthWeight), EPS);
 
         blendWeight *= depthWeight * lumaWeight;
     #else
