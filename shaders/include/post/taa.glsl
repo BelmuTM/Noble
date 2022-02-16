@@ -67,12 +67,15 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
     float blendWeight = float(clamp01(prevPos.xy) == prevPos.xy);
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
+        vec4 weightTex   = texture(colortex10, texCoords);
         float lumaWeight = getLumaWeight(currColor, prevColor);
 
-        float depthWeight = abs(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex0, prevPos.xy).a));
-              depthWeight = pow(exp(-depthWeight), EPS);
+        float normalWeight = pow(clamp01(dot(getMaterial(texCoords).normal, weightTex.rgb)), 12.0);
 
-        blendWeight *= depthWeight * lumaWeight;
+        float depthWeight = pow(exp(-abs(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex10, prevPos.xy).a))), 1e-2);
+              depthWeight = isSky(prevPos.xy) ? 1.0 : depthWeight;
+        
+        blendWeight *= normalWeight * depthWeight;
     #else
         float historyFrames = texture(colortex5, texCoords).a;
         blendWeight        *= 1.0 - (1.0 / max(historyFrames, 1.0));

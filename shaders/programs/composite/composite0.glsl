@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:0 */
+/* RENDERTARGETS: 0 */
 
 layout (location = 0) out vec4 color;
 

@@ -6,10 +6,11 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:04 */
+/* RENDERTARGETS: 0,4,10 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec3 bloomBuffer;
+layout (location = 2) out vec4 previousBuffer;
 
 #include "/include/utility/blur.glsl"
 #include "/include/post/bloom.glsl"
@@ -55,10 +56,11 @@ layout (location = 1) out vec3 bloomBuffer;
 #endif
 
 void main() {
-    color = texture(colortex0, texCoords);
+    color       = texture(colortex0, texCoords);
+    float depth = texture(depthtex1, texCoords).r;
     
     #if DOF == 1
-        float coc = getCoC(linearizeDepth(texture(depthtex0, texCoords).r), linearizeDepth(centerDepthSmooth));
+        float coc = getCoC(linearizeDepth(depth), linearizeDepth(centerDepthSmooth));
         depthOfField(color.rgb, texCoords, colortex0, 8, DOF_RADIUS, coc);
     #endif
 
@@ -73,4 +75,6 @@ void main() {
             color.rgb += texture(colortex7, texCoords).rgb;
         #endif
     #endif
+
+    previousBuffer = vec4(getMaterial(texCoords).normal, depth);
 }

@@ -47,8 +47,10 @@ void main() {
         /*------------------ ALPHA BLENDING --------------------*/
         //////////////////////////////////////////////////////////
 
-        vec4 translucents = texture(colortex1, texCoords);
-        color.rgb         = mix(color.rgb, translucents.rgb, translucents.a);
+        #if GI == 0
+            vec4 translucents = texture(colortex1, texCoords);
+            color.rgb         = mix(color.rgb, translucents.rgb, translucents.a);
+        #endif
     }
 
         //////////////////////////////////////////////////////////
@@ -85,7 +87,7 @@ void main() {
         #if GI == 0
             #if REFLECTIONS == 1
                 vec3 reflections = texture(colortex4, texCoords * REFLECTIONS_RES).rgb;
-                float NdotV      = clamp01(dot(mat.normal, -normalize(viewPos0)));
+                float NdotV      = maxEps(dot(mat.normal, -normalize(viewPos0)));
 
                 if(mat.rough > 0.05) {
                     float DFG = envBRDFApprox(NdotV, mat);

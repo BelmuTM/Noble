@@ -37,8 +37,6 @@ Material getMaterial(vec2 coords) {
     mat.isMetal    = mat.F0 * maxVal8 > 229.5;
 
     mat.albedo = vec3((tex2.z >> 16u) & 255u, (tex2.z >> 8u) & 255u, tex2.z & 255u) / maxVal8;
-    mat.alpha  = tex2.w;
-
     mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2((tex2.w >> 16u) & 65535u, tex2.w & 65535u) / maxVal16);
 
     mat.blockId  = int(unpacked0.y * maxVal8 + 0.5);

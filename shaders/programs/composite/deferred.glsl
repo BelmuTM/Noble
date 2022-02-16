@@ -36,7 +36,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* DRAWBUFFERS:367 */
+    /* RENDERTARGETS: 3,6,7 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec3 sky;

@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:08 */
+/* RENDERTARGETS: 0,8 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 historyBuffer;

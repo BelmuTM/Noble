@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:12 */
+/* RENDERTARGETS: 1,2 */
 
 layout (location = 0) out vec4 sceneColor;
 layout (location = 1) out uvec4 dataBuffer;
@@ -75,6 +75,6 @@ void main() {
 	
 	dataBuffer.x = packUnorm4x8(vec4(mat.rough, (blockId + 0.25) / maxVal8, clamp01(mat.lightmap)));
 	dataBuffer.y = packUnorm4x8(vec4(mat.ao, mat.emission, mat.F0, mat.subsurface));
-	dataBuffer.z = (uint(mat.albedo.r * maxVal8) << 16u) | (uint(mat.albedo.g * maxVal8) << 8u) | uint(mat.albedo.b * maxVal8);
+	dataBuffer.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
 	dataBuffer.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
 }

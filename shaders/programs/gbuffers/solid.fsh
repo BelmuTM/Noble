@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:2 */
+/* RENDERTARGETS: 2 */
 
 layout (location = 0) out uvec4 dataBuffer;
 

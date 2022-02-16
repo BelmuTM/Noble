@@ -39,7 +39,7 @@
     
 #elif defined STAGE_FRAGMENT
 
-    /* DRAWBUFFERS:01 */
+    /* RENDERTARGETS: 0,1 */
 
     layout (location = 0) out vec4 shadowColor0;
     layout (location = 1) out vec4 shadowColor1;

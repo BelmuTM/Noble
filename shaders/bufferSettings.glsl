@@ -9,7 +9,6 @@
 /*
 MAIN BUFFER
 const int colortex0Format = RGBA16F;
-const bool colortex0Clear = false;
 
 TRANSLUCENTS BUFFER
 const int colortex1Format = RGBA16F;
