@@ -8,7 +8,7 @@
 
 /* DRAWBUFFERS:047 */
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
 layout (location = 1) out vec3 bloomBuffer;
 layout (location = 2) out vec4 volumetricLight;
 
@@ -20,7 +20,7 @@ layout (location = 2) out vec4 volumetricLight;
 #include "/include/atmospherics/fog.glsl"
 
 void main() {
-    color        = texture(colortex0, texCoords);
+         color   = texture(colortex0, texCoords).rgb;
     bool inWater = isEyeInWater > 0.5;
     bool sky     = isSky(texCoords);
 
@@ -38,8 +38,8 @@ void main() {
         #if REFRACTIONS == 1
             vec3 hitPos;
             if(mat.blockId > 0 && mat.blockId <= 4) {
-                color.rgb = simpleRefractions(viewPos0, mat, hitPos);
-                coords    = hitPos.xy;
+                color  = simpleRefractions(viewPos0, mat, hitPos);
+                coords = hitPos.xy;
             }
         #endif
 
@@ -49,7 +49,7 @@ void main() {
 
         #if GI == 0
             vec4 translucents = texture(colortex1, texCoords);
-            color.rgb         = mix(color.rgb, translucents.rgb, translucents.a);
+                 color        = mix(color, translucents.rgb, translucents.a);
         #endif
     }
 
@@ -71,10 +71,10 @@ void main() {
 
                 #if WATER_FOG == 0
                     float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
-                    waterFog(color.rgb, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance, mat.lightmap.y);
+                    waterFog(color, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance, mat.lightmap.y);
                 #else
                     vec3 worldDir  = normalize(inWater ? worldPos0 : worldPos1);
-                    volumetricWaterFog(color.rgb, startPos, endPos, worldDir, skyIlluminance, mat.lightmap.y);
+                    volumetricWaterFog(color, startPos, endPos, worldDir, skyIlluminance, mat.lightmap.y);
                 #endif
             }
         #endif
@@ -91,9 +91,9 @@ void main() {
 
                 if(mat.rough > 0.05) {
                     float DFG = envBRDFApprox(NdotV, mat);
-                    color.rgb = mix(color.rgb, reflections, DFG);
+                    color = mix(color, reflections, DFG);
                 } else {
-                    color.rgb += reflections;
+                    color += reflections;
                 }
             #endif
         #endif
@@ -110,12 +110,12 @@ void main() {
     #else
         #if RAIN_FOG == 1
             if(rainStrength > 0.0 && !inWater) {
-                volumetricGroundFog(color.rgb, viewPos0, getMaterial(texCoords).lightmap.y);
+                volumetricGroundFog(color, viewPos0, getMaterial(texCoords).lightmap.y);
             }
         #endif
     #endif
 
     #if BLOOM == 1
-        bloomBuffer = color.rgb;
+        bloomBuffer = color;
     #endif
 }

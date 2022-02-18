@@ -14,7 +14,6 @@
 
 #if BLOOM == 1
 	/*
-		const bool colortex0MipmapEnabled = true;
 		const bool colortex4MipmapEnabled = true;
 	*/
 

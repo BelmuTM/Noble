@@ -119,8 +119,23 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
 
     vec3 scattering = vec3(0.0);
     scattering += directScatter   * shadowLightTransmittance() * cornetteShanksPhase(VdotL, 0.5);
-    scattering += indirectScatter * skyIlluminance * isotropicPhase * pow2(quintic(0.0, 1.0, skyLight));
     scattering *= scatteringCoeff * (1.0 - stepTransmittance) / extinctionCoeff;
 
-    color = color * transmittance + scattering;
+    // Multiple scattering approximation provided by Jessie#7257
+    vec3 scatteringAlbedo     = clamp01(scatteringCoeff / extinctionCoeff);
+    vec3 multScatteringFactor = scatteringAlbedo * 0.84;
+
+    float phaseMulti = 0.0;
+    int samples      = 16;
+
+    for(int i = 0; i < samples; i++) {
+        phaseMulti += cornetteShanksPhase(VdotL, 0.6 * pow(0.5, samples));
+    }
+    phaseMulti /= samples;
+
+    vec3 scatteringMultiple  = scattering * phaseMulti;
+         scatteringMultiple += indirectScatter * pow2(quintic(0.0, 1.0, skyLight)) * phaseMulti;
+         scatteringMultiple *= multScatteringFactor / (1.0 - multScatteringFactor);
+
+    color = color * transmittance + (scattering + scatteringMultiple);
 }

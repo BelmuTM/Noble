@@ -42,10 +42,10 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
         float sunVdotL = dot(rayDir, sceneSunDir); float moonVdotL = dot(rayDir, sceneMoonDir);
         vec4 phase     = vec4(rayleighPhase(sunVdotL),  cornetteShanksPhase(sunVdotL, anisoFactor), 
-                          rayleighPhase(moonVdotL), cornetteShanksPhase(moonVdotL, anisoFactor)
-                    );
+                              rayleighPhase(moonVdotL), cornetteShanksPhase(moonVdotL, anisoFactor)
+                        );
 
-        vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), multipleScattering = vec3(0.0), transmittance = vec3(1.0);
+        vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), scatteringMultiple = vec3(0.0), transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
         
@@ -63,15 +63,15 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec3 stepScattering    = kScattering * airmass.xy;
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
 
-            vec3 multScatterFactor = 0.84 * stepScatterAlbedo;
-            vec3 multScatterEnergy = multScatterFactor / (1.0 - multScatterFactor);
-            multipleScattering    += multScatterEnergy * visibleScattering * stepScattering;
+            vec3 multScatteringFactor = stepScatterAlbedo * 0.84;
+            vec3 multScatteringEnergy = multScatteringFactor / (1.0 - multScatteringFactor);
+                 scatteringMultiple  += multScatteringEnergy * visibleScattering * stepScattering;
 
             transmittance *= stepTransmittance;
         }
-        multipleScattering *= (skyIlluminance * INV_PI) * isotropicPhase;
+        scatteringMultiple *= (skyIlluminance * INV_PI) * isotropicPhase;
     
-        return (sunScattering * sunIlluminance) + (moonScattering * moonIlluminance) + multipleScattering;
+        return (sunScattering * sunIlluminance) + (moonScattering * moonIlluminance) + scatteringMultiple;
     }
 #endif
 

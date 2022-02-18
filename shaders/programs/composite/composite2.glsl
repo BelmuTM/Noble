@@ -8,7 +8,7 @@
 
 /* RENDERTARGETS: 4 */
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
 
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/fragment/brdf.glsl"
@@ -25,9 +25,9 @@ void main() {
                 Material mat = getMaterial(scaledUv);
                     
                 #if REFLECTIONS_TYPE == 1
-                    color.rgb = roughReflections(scaledUv, viewPos, mat);
+                    color = roughReflections(scaledUv, viewPos, mat);
                 #else
-                    color.rgb = simpleReflections(scaledUv, viewPos, mat);
+                    color = simpleReflections(scaledUv, viewPos, mat);
                 #endif
             }
         #endif
