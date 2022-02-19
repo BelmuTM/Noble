@@ -26,25 +26,33 @@ vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(maxVal16)); }
 vec3  clamp16(vec3 x)  { return clamp(x, vec3(0.0), vec3(maxVal16)); }
 vec4  clamp16(vec4 x)  { return clamp(x, vec4(0.0), vec4(maxVal16)); }
 
-float pow2(float x) { return x*x;           }
-float pow3(float x) { return x*x*x;         }
-float pow4(float x) { return pow2(pow2(x)); }
-float pow5(float x) { return pow4(x)*x;     }
+float pow2(float x) { return x*x;       }
+float pow3(float x) { return pow2(x)*x; }
+float pow4(float x) { return pow3(x)*x; }
+float pow5(float x) { return pow4(x)*x; }
 
-vec2 pow2(vec2 x) { return x*x;           }
-vec2 pow3(vec2 x) { return x*x*x;         }
-vec2 pow4(vec2 x) { return pow2(pow2(x)); }
-vec2 pow5(vec2 x) { return pow4(x)*x;     }
+vec2 pow2(vec2 x) { return x*x;       }
+vec2 pow3(vec2 x) { return pow2(x)*x; }
+vec2 pow4(vec2 x) { return pow3(x)*x; }
+vec2 pow5(vec2 x) { return pow4(x)*x; }
 
-vec3 pow2(vec3 x) { return x*x;           }
-vec3 pow3(vec3 x) { return x*x*x;         }
-vec3 pow4(vec3 x) { return pow2(pow2(x)); }
-vec3 pow5(vec3 x) { return pow4(x)*x;     }
+vec3 pow2(vec3 x) { return x*x;       }
+vec3 pow3(vec3 x) { return pow2(x)*x; }
+vec3 pow4(vec3 x) { return pow3(x)*x; }
+vec3 pow5(vec3 x) { return pow4(x)*x; }
 
-vec4 pow2(vec4 x) { return x*x;           }
-vec4 pow3(vec4 x) { return x*x*x;         }
-vec4 pow4(vec4 x) { return pow2(pow2(x)); }
-vec4 pow5(vec4 x) { return pow4(x)*x;     }
+vec4 pow2(vec4 x) { return x*x;       }
+vec4 pow3(vec4 x) { return pow2(x)*x; }
+vec4 pow4(vec4 x) { return pow3(x)*x; }
+vec4 pow5(vec4 x) { return pow4(x)*x; }
+
+float minOf2(vec2 x) { return min(x.x, x.y);                     }
+float minOf3(vec3 x) { return min(x.x, min(x.y, x.z));           }
+float minOf4(vec4 x) { return min(min(x.x, x.y), min(x.z, x.w)); }
+
+float maxOf2(vec2 x) { return max(x.x, x.y);                     }
+float maxOf3(vec3 x) { return max(x.x, max(x.y, x.z));           }
+float maxOf4(vec4 x) { return max(max(x.x, x.y), max(x.z, x.w)); }
 
 // Improved smoothstep function suggested by Ken Perlin
 // https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/improved-perlin-noise

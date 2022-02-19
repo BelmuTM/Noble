@@ -8,7 +8,7 @@
 
 /* RENDERTARGETS: 0,4,10 */
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
 layout (location = 1) out vec3 bloomBuffer;
 layout (location = 2) out vec4 previousBuffer;
 
@@ -56,12 +56,12 @@ layout (location = 2) out vec4 previousBuffer;
 #endif
 
 void main() {
-    color       = texture(colortex0, texCoords);
+    color       = texture(colortex0, texCoords).rgb;
     float depth = texture(depthtex1, texCoords).r;
     
     #if DOF == 1
         float coc = getCoC(linearizeDepth(depth), linearizeDepth(centerDepthSmooth));
-        depthOfField(color.rgb, texCoords, colortex0, 8, DOF_RADIUS, coc);
+        depthOfField(color, texCoords, colortex0, 8, DOF_RADIUS, coc);
     #endif
 
     #if BLOOM == 1
@@ -70,9 +70,9 @@ void main() {
 
     #if VL == 1
         #if VL_FILTER == 1
-            color.rgb += gaussianBlur(texCoords, colortex7, 1.5, 2.0, 4).rgb;
+            color += gaussianBlur(texCoords, colortex7, 1.5, 2.0, 4).rgb;
         #else
-            color.rgb += texture(colortex7, texCoords).rgb;
+            color += texture(colortex7, texCoords).rgb;
         #endif
     #endif
 

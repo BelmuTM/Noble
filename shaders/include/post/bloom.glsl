@@ -68,6 +68,6 @@
 	     	 bloom += getBloomTile(6);
 	     	 bloom += getBloomTile(7);
 	     	 bloom += getBloomTile(8);
-    	return bloom / 7;
+    	return bloom / 7.0;
 	}
 #endif

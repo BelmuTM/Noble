@@ -80,12 +80,11 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 //////////////////////////////////////////////////////////
 /*-------------------- RAY TRACING ---------------------*/
 //////////////////////////////////////////////////////////
+#define RAY_DEPTH_TOLERANCE 5e-4
+
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT      6 // [4 5 6 7 8 9 10]
 #define BINARY_DECREASE 0.5
-
-#define RAY_STEP_LENGTH      1.5 // [1.0 1.5]
-#define RAY_DEPTH_TOLERANCE 5e-3
 
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/
@@ -216,7 +215,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define BLOOM             1 // [0 1]
 #define BLOOM_STRENGTH 0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define BLOOM_TWEAK_VAL 0.0
+#define BLOOM_TWEAK_VAL 1.0
 
 #define BLOOM_STEPS   5
 #define BLOOM_SIGMA 2.0

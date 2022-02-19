@@ -8,7 +8,7 @@
 
 /* RENDERTARGETS: 0,8 */
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
 layout (location = 1) out vec4 historyBuffer;
 
 #include "/include/utility/blur.glsl"
@@ -16,10 +16,10 @@ layout (location = 1) out vec4 historyBuffer;
 #include "/include/post/exposure.glsl"
 
 void main() {
-    color = texture(colortex0, texCoords);
+    color = texture(colortex0, texCoords).rgb;
 
     #if TAA == 1 && GI == 0
-        color.rgb = clamp16(temporalAntiAliasing(colortex0, colortex8));
+        color = clamp16(temporalAntiAliasing(colortex0, colortex8));
     #endif
 
     float avgLuminance = 0.0;
@@ -27,5 +27,5 @@ void main() {
         avgLuminance = computeAverageLuminance(colortex8);
     #endif
 
-    historyBuffer = vec4(color.rgb, avgLuminance);
+    historyBuffer = vec4(color, avgLuminance);
 }

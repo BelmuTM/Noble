@@ -68,8 +68,8 @@ vec3 XYZToLinear(vec3 xyz)    { return RGBtoLinear(xyz * XYZtoRGBMatrix);    }
 const mat3 RGBToYCoCgMatrix = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
 const mat3 YCoCgToRGBMatrix = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
 
-vec3 linearToYCoCg(vec3 linear) { return linearToRGB(linear).rgb * RGBToYCoCgMatrix; }
-vec3 YCoCgToLinear(vec3 YCoCg)  { return RGBtoLinear(YCoCg * YCoCgToRGBMatrix).rgb;  }
+vec3 linearToYCoCg(vec3 linear) { return RGBToYCoCgMatrix * linearToRGB(linear).rgb; }
+vec3 YCoCgToLinear(vec3 YCoCg)  { return RGBtoLinear(YCoCgToRGBMatrix * YCoCg).rgb;  }
 
 // Temperature to RGB function from https://www.shadertoy.com/view/4sc3D7
 vec3 colorTemperatureToRGB(const in float temperature){
@@ -250,8 +250,8 @@ void ACESApprox(inout vec3 color) {
 }
 
 void vibrance(inout vec3 color, float intensity) {
-    float mn       = min(min(color.r, color.g), color.b);
-    float mx       = max(max(color.r, color.g), color.b);
+    float mn       = minOf3(color);
+    float mx       = maxOf3(color);
     float sat      = (1.0 - clamp01(mx - mn)) * clamp01(1.0 - mx) * luminance(color) * 5.0;
     vec3 lightness = vec3((mn + mx) * 0.5);
 

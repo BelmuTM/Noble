@@ -8,7 +8,7 @@
 
 /* RENDERTARGETS: 0 */
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
 
 #if SHARPEN == 1
     /*
@@ -35,10 +35,10 @@ layout (location = 0) out vec4 color;
 #endif
 
 void main() {
-    color = texture(colortex0, texCoords);
+    color = texture(colortex0, texCoords).rgb;
 
     #if SHARPEN == 1
-        sharpeningFilter(color.rgb);
+        sharpeningFilter(color);
     #endif
 
     // Vignette
@@ -47,5 +47,5 @@ void main() {
         color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    color.rgb += bayer64(gl_FragCoord.xy) / maxVal8;
+    color += bayer64(gl_FragCoord.xy) / maxVal8;
 }

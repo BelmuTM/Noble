@@ -79,24 +79,25 @@
                     rayDir      = reflect(rayDir, microfacet);
                     throughput *= specularBRDF(microfacet, -rayDir, rayDir, fresnel, mat.rough) / specularProb;
                 } else {
-                    throughput *= (1.0 - fresnelDielectric(dot(-rayDir, microfacet), F0toIOR(mat.F0))) / (1.0 - specularProb);
+                    throughput *= (1.0 - fresnelDieletricConductor(vec3(F0toIOR(mat.F0)), vec3(0.0), dot(-rayDir, microfacet))) / (1.0 - specularProb);
                     rayDir      = generateCosineVector(mat.normal, noise);
                     throughput *= mat.albedo;
                 }
                 if(dot(mat.normal, rayDir) < 0.0) { break; }
 
-                vec3 skyHitPos;
+                bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
 
-                if(!raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos)) {
-                    #if SKY_CONTRIBUTION == 1
+                #if SKY_CONTRIBUTION == 1
+                    if(!hit) {
+                        vec3 skyHitPos;
                         raytrace(screenToView(hitPos), skyRayDir, int(GI_STEPS * 0.3), randF(), skyHitPos);
 
                         if(isSky(skyHitPos.xy)) {
                             radiance += throughput * texture(colortex7, skyHitPos.xy).rgb * INV_PI;
                         }
-                    #endif
-                    break;
-                }
+                        break;
+                    }
+                #endif
             }
         }
         return max0(radiance) / float(GI_SAMPLES);

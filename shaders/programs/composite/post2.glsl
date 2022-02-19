@@ -8,7 +8,7 @@
 
 /* RENDERTARGETS: 0 */
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
 
 #include "/include/post/bloom.glsl"
 #include "/include/post/exposure.glsl"
@@ -117,43 +117,43 @@ void main() {
         if(isEyeInWater == 1) underwaterDistortion(tempCoords);
     #endif
     
-    color          = texture(colortex0, tempCoords);
+    color          = texture(colortex0, tempCoords).rgb;
     float exposure = computeExposure(texture(colortex8, texCoords).a);
 
     #if CHROMATIC_ABERRATION == 1
-        chromaticAberration(color.rgb);
+        chromaticAberration(color);
     #endif
 
     #if BLOOM == 1
-        color.rgb += readBloom() * max0(exp2(computeExposure(luminance(color.rgb)) - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH)));
+        float bloomStrength = max0(exp2(computeExposure(luminance(color)) - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH)));
+        color = mix(color, readBloom(), bloomStrength);
     #endif
 
     #if FILM_GRAIN == 1
-        color.rgb += randF() * color.rgb * FILM_GRAIN_STRENGTH;
+        color += randF() * color * FILM_GRAIN_STRENGTH;
     #endif
 
     #if PURKINJE == 1
-        purkinje(color.rgb, exposure);
+        purkinje(color, exposure);
     #endif
     
     // Tonemapping & Color Correction
+    color *= exposure;
 
-    color.rgb *= exposure;
-
-    whiteBalance(color.rgb);
-    vibrance(color.rgb,   1.0 + VIBRANCE);
-    saturation(color.rgb, 1.0 + SATURATION);
-    contrast(color.rgb,   1.0 + CONTRAST);
-    liftGammaGain(color.rgb, LIFT * 0.1, 1.0 + GAMMA, 1.0 + GAIN);
+    whiteBalance(color);
+    vibrance(color,   1.0 + VIBRANCE);
+    saturation(color, 1.0 + SATURATION);
+    contrast(color,   1.0 + CONTRAST);
+    liftGammaGain(color, LIFT * 0.1, 1.0 + GAMMA, 1.0 + GAIN);
 
     #if TONEMAP >= 0
-        tonemap(color.rgb);
+        tonemap(color);
     #endif
 
-    color.rgb = clamp01(color.rgb);
-    color     = linearToRGB(color);
+    color = clamp01(color);
+    color = linearToRGB(color);
 
     #if LUT > 0
-        applyLUT(colortex9, color.rgb);
+        applyLUT(colortex9, color);
     #endif
 }
