@@ -65,6 +65,11 @@ vec3 getViewPos1(vec2 coords) {
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth
 float linearizeDepth(float depth) {
+    depth = depth * 2.0 - 1.0;
+    return 2.0 * far * near / (far + near - depth * (far - near));
+}
+
+float linearizeDepthFast(float depth) {
 	return (near * far) / (depth * (near - far) + far);
 }
 

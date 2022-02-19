@@ -18,6 +18,7 @@ layout (location = 2) out vec4 volumetricLight;
 #include "/include/fragment/reflections.glsl"
 #include "/include/fragment/shadows.glsl"
 #include "/include/atmospherics/fog.glsl"
+#include "/include/fragment/water.glsl"
 
 void main() {
          color   = texture(colortex0, texCoords).rgb;
@@ -31,6 +32,12 @@ void main() {
     vec2 coords  = texCoords;
 
     if(!sky) {
+        // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
+        #if WATER_CAUSTICS == 1
+            bool canCast = isEyeInWater > 0.5 ? viewPos0.z == getViewPos1(texCoords).z : mat.blockId == 1;
+            //if(canCast) color += waterCaustics(texCoords) * 500.0 * max0(dot(mat3(gbufferModelViewInverse) * mat.normal, vec3(0.0, 1.0, 0.0)));
+        #endif
+
         //////////////////////////////////////////////////////////
         /*-------------------- REFRACTIONS ---------------------*/
         //////////////////////////////////////////////////////////

@@ -25,5 +25,5 @@ bool isSky(vec2 coords) {
 }
 
 bool isHand(float depth) {
-    return linearizeDepth(depth) < 0.56;
+    return linearizeDepthFast(depth) < 0.56;
 }

@@ -72,7 +72,7 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
 
         float normalWeight = pow(clamp01(dot(getMaterial(texCoords).normal, weightTex.rgb)), 20.0);
 
-        float depthWeight = pow(exp(-abs(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex10, prevPos.xy).a))), 1e-2);
+        float depthWeight = pow(exp(-abs(linearizeDepthFast(prevPos.z) - linearizeDepthFast(texture(colortex10, prevPos.xy).a))), 1e-2);
               depthWeight = isSky(prevPos.xy) ? 1.0 : depthWeight;
         
         blendWeight *= normalWeight * depthWeight;

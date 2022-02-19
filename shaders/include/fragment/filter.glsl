@@ -6,4 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-// TO-DO
+void aTrousFilter() {
+
+}

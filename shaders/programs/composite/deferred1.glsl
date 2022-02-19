@@ -17,7 +17,6 @@ layout (location = 1) out vec4 historyBuffer;
 #include "/include/atmospherics/atmosphere.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/pathtracer.glsl"
-#include "/include/fragment/water.glsl"
 
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
@@ -69,24 +68,19 @@ void main() {
     /*--------------------- MATERIAL -----------------------*/
     //////////////////////////////////////////////////////////
 
-    Material mat   = getMaterial(texCoords);
-    vec4 shadowmap = texture(colortex3, texCoords);
-    vec3 Lighting  = vec3(0.0);
-
-    // Overlay
-    vec4 overlay = texture(colortex4, texCoords);
-    mat.albedo   = mix(mat.albedo, RGBtoLinear(overlay.rgb), overlay.a);
-
-    // Props to SixthSurge#3922 for suggesting to use depthtex2 as the caustics texture
-    #if WATER_CAUSTICS == 1
-        bool canCast = isEyeInWater > 0.5 ? viewPos0.z == getViewPos1(texCoords).z : mat.blockId == 1;
-        if(canCast) { shadowmap.rgb *= waterCaustics(texCoords); }
-    #endif
+    Material mat        = getMaterial(texCoords);
+    vec4 shadowmap      = texture(colortex3, texCoords);
+    vec3 Lighting       = vec3(0.0);
+    float historyFrames = 0.0;
 
     #if WHITE_WORLD == 1
 	    mat.albedo = vec3(1.0);
         return;
     #endif
+
+    // Overlay
+    vec4 overlay = texture(colortex4, texCoords);
+    mat.albedo   = mix(mat.albedo, RGBtoLinear(overlay.rgb), overlay.a);
 
     vec3 skyIlluminance = vec3(0.0), totalIllum = vec3(1.0);
             
@@ -96,8 +90,6 @@ void main() {
     #else
         shadowmap.rgb = vec3(0.0);
     #endif
-
-    float historyFrames = 0.0;
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 1
         historyFrames = hasMoved() ? 1.0 : texture(colortex5, texCoords).a + 1.0;
@@ -122,16 +114,16 @@ void main() {
         /*------------------- PATH TRACING ---------------------*/
         //////////////////////////////////////////////////////////
 
-        vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
-        
+        vec2 scaledUv  = texCoords * (1.0 / GI_RESOLUTION);
+
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
             color = pathTrace(vec3(scaledUv, texture(depthtex1, scaledUv).r), totalIllum);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(color.rgb, mat, colortex5, historyFrames);
+                temporalAccumulation(color, mat, colortex5, historyFrames);
             #endif
         }
     #endif
 
-    historyBuffer = vec4(color.rgb, historyFrames);
+    historyBuffer = vec4(color, historyFrames);
 }

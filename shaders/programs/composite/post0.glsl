@@ -60,7 +60,7 @@ void main() {
     float depth = texture(depthtex1, texCoords).r;
     
     #if DOF == 1
-        float coc = getCoC(linearizeDepth(depth), linearizeDepth(centerDepthSmooth));
+        float coc = getCoC(linearizeDepthFast(depth), linearizeDepthFast(centerDepthSmooth));
         depthOfField(color, texCoords, colortex0, 8, DOF_RADIUS, coc);
     #endif
 

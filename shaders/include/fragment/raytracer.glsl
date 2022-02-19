@@ -18,18 +18,22 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, inout vec3
     rayDir  = viewToScreen(viewPos + rayDir) - rayPos; 
     rayDir *= minOf3((sign(rayDir) - rayPos) / rayDir) * (1.0 / stepCount); // Taken from the DDA algorithm
 
+    bool intersect = false;
+
     rayPos += rayDir * jitter;
-    for(int i = 0; i <= stepCount; i++, rayPos += rayDir) {
+    for(int i = 0; i <= stepCount && !intersect; i++, rayPos += rayDir) {
 
-        if(clamp01(rayPos.xy) != rayPos.xy) { return false; }
-        float depth = texture(depthtex1, rayPos.xy).r;
+        if(clamp01(rayPos.xy) != rayPos.xy) return false;
 
-        if(rayPos.z > depth && abs(RAY_DEPTH_TOLERANCE - (rayPos.z - depth)) < RAY_DEPTH_TOLERANCE) {
-            #if BINARY_REFINEMENT == 1
-                binarySearch(rayPos, rayDir);
-            #endif
-            return true;
-        }
+        float depth    = linearizeDepthFast(texture(depthtex1, rayPos.xy).r);
+        float rayDepth = linearizeDepthFast(rayPos.z);
+
+        intersect = rayDepth > depth && abs(RAY_DEPTH_TOLERANCE - (rayDepth - depth)) < RAY_DEPTH_TOLERANCE;
     }
-    return false;
+
+    #if BINARY_REFINEMENT == 1
+        binarySearch(rayPos, rayDir);
+    #endif
+
+    return intersect;
 }
