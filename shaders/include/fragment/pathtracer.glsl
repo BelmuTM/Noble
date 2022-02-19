@@ -87,17 +87,17 @@
 
                 bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
 
-                #if SKY_CONTRIBUTION == 1
-                    if(!hit) {
+                if(!hit) {
+                    #if SKY_CONTRIBUTION == 1
                         vec3 skyHitPos;
                         raytrace(screenToView(hitPos), skyRayDir, int(GI_STEPS * 0.3), randF(), skyHitPos);
 
                         if(isSky(skyHitPos.xy)) {
                             radiance += throughput * texture(colortex7, skyHitPos.xy).rgb * INV_PI;
                         }
-                        break;
-                    }
-                #endif
+                    #endif
+                    break;
+                 }
             }
         }
         return max0(radiance) / float(GI_SAMPLES);
