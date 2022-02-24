@@ -19,7 +19,7 @@
         return fresnel * G2SmithGGX(NdotV, NdotL, roughness) / G1SmithGGX(NdotV, roughness);
     }
 
-    vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, Material mat, vec3 shadowmap, vec3 shadowLightIlluminance) {
+    vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, Material mat, vec3 shadowmap) {
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
 
         vec3 diffuse = vec3(0.0);
@@ -30,11 +30,14 @@
             diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat, false);
         #endif
 
-        return (diffuse + specular) * (shadowLightIlluminance * shadowmap);
+        #ifdef WORLD_OVERWORLD
+            return (diffuse + specular) * (shadowLightTransmittance() * shadowmap);
+        #else
+            return (diffuse + specular) * shadowmap;
+        #endif
     }
 
-    vec3 pathTrace(in vec3 screenPos, vec3 shadowLightIlluminance) {
-        vec3 radiance  = vec3(0.0);
+    void pathTrace(inout vec3 radiance, in vec3 screenPos) {
         vec3 viewPos   = screenToView(screenPos);
         vec3 skyRayDir = unprojectSphere(texCoords);
 
@@ -64,7 +67,7 @@
                 radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
 
                 #ifdef WORLD_OVERWORLD
-                    radiance += throughput * directBRDF(hitPos.xy, mat.normal, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb, shadowLightIlluminance);
+                    radiance += throughput * directBRDF(hitPos.xy, mat.normal, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb);
                 #endif
 
                 vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, pow2(mat.rough));
@@ -100,6 +103,6 @@
                  }
             }
         }
-        return max0(radiance) / float(GI_SAMPLES);
+        radiance = max0(radiance) / float(GI_SAMPLES);
     }
 #endif

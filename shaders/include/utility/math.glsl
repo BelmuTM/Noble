@@ -26,25 +26,35 @@ vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(maxVal16)); }
 vec3  clamp16(vec3 x)  { return clamp(x, vec3(0.0), vec3(maxVal16)); }
 vec4  clamp16(vec4 x)  { return clamp(x, vec4(0.0), vec4(maxVal16)); }
 
-float pow2(float x) { return x*x;       }
+float pow2(float x) { return x*x; }
+vec2  pow2(vec2 x)  { return x*x; }
+vec3  pow2(vec3 x)  { return x*x; }
+vec4  pow2(vec4 x)  { return x*x; }
+
 float pow3(float x) { return pow2(x)*x; }
+vec2  pow3(vec2 x)  { return pow2(x)*x; }
+vec3  pow3(vec3 x)  { return pow2(x)*x; }
+vec4  pow3(vec4 x)  { return pow2(x)*x; }
+
 float pow4(float x) { return pow3(x)*x; }
+vec2  pow4(vec2 x)  { return pow3(x)*x; }
+vec3  pow4(vec3 x)  { return pow3(x)*x; }
+vec4  pow4(vec4 x)  { return pow3(x)*x; }
+
 float pow5(float x) { return pow4(x)*x; }
+vec2  pow5(vec2 x)  { return pow4(x)*x; }
+vec3  pow5(vec3 x)  { return pow4(x)*x; }
+vec4  pow5(vec4 x)  { return pow4(x)*x; }
 
-vec2 pow2(vec2 x) { return x*x;       }
-vec2 pow3(vec2 x) { return pow2(x)*x; }
-vec2 pow4(vec2 x) { return pow3(x)*x; }
-vec2 pow5(vec2 x) { return pow4(x)*x; }
+float pow10(float x) { return pow5(x)*pow5(x); }
+vec2  pow10(vec2 x)  { return pow5(x)*pow5(x); }
+vec3  pow10(vec3 x)  { return pow5(x)*pow5(x); }
+vec4  pow10(vec4 x)  { return pow5(x)*pow5(x); }
 
-vec3 pow2(vec3 x) { return x*x;       }
-vec3 pow3(vec3 x) { return pow2(x)*x; }
-vec3 pow4(vec3 x) { return pow3(x)*x; }
-vec3 pow5(vec3 x) { return pow4(x)*x; }
-
-vec4 pow2(vec4 x) { return x*x;       }
-vec4 pow3(vec4 x) { return pow2(x)*x; }
-vec4 pow4(vec4 x) { return pow3(x)*x; }
-vec4 pow5(vec4 x) { return pow4(x)*x; }
+float log10(float x) { return log(x) / log(10.0);       }
+vec2  log10(vec2 x)  { return log(x) / log(vec2(10.0)); }
+vec3  log10(vec3 x)  { return log(x) / log(vec3(10.0)); }
+vec4  log10(vec4 x)  { return log(x) / log(vec4(10.0)); }
 
 float minOf2(vec2 x) { return min(x.x, x.y);                     }
 float minOf3(vec3 x) { return min(x.x, min(x.y, x.z));           }

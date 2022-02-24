@@ -13,6 +13,8 @@ layout (location = 0) out vec3 color;
 #include "/include/post/bloom.glsl"
 #include "/include/post/exposure.glsl"
 
+#include "/include/post/aces/aces.glsl"
+
 #if UNDERWATER_DISTORTION == 1
     void underwaterDistortion(inout vec2 coords) {
         const float scale = 25.0;
@@ -61,19 +63,17 @@ layout (location = 0) out vec3 color;
 #if TONEMAP >= 0
     void tonemap(inout vec3 color) {
         #if TONEMAP == 0
-            whitePreservingReinhard(color, 2.0); // Reinhard
+            ACES(color);                         // ACES
         #elif TONEMAP == 1
-            uncharted2(color);                   // Uncharted 2
-        #elif TONEMAP == 2
-            lottes(color);                       // Lottes
-        #elif TONEMAP == 3
-            uchimura(color);                     // Uchimura
-        #elif TONEMAP == 4
             burgess(color);                      // Burgess
+        #elif TONEMAP == 2
+            whitePreservingReinhard(color, 2.0); // Reinhard
+        #elif TONEMAP == 3
+            lottes(color);                       // Lottes
+        #elif TONEMAP == 4
+            uchimura(color);                     // Uchimura
         #elif TONEMAP == 5
-            ACESFitted(color);                   // ACES Fitted
-        #elif TONEMAP == 6
-            ACESApprox(color);                   // ACES Approximation
+            uncharted2(color);                   // Uncharted 2
         #endif
     }
 #endif
@@ -150,8 +150,10 @@ void main() {
         tonemap(color);
     #endif
 
-    color = clamp01(color);
-    color = linearToRGB(color);
+    #if TONEMAP == -1 || TONEMAP > 0
+        color = clamp01(color);
+        color = linearToRGB(color);
+    #endif
 
     #if LUT > 0
         applyLUT(colortex9, color);

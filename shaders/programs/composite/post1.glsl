@@ -12,6 +12,7 @@ layout (location = 0) out vec3 color;
 layout (location = 1) out vec4 historyBuffer;
 
 #include "/include/utility/blur.glsl"
+
 #include "/include/post/taa.glsl"
 #include "/include/post/exposure.glsl"
 

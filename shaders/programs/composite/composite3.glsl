@@ -13,11 +13,14 @@ layout (location = 1) out vec3 bloomBuffer;
 layout (location = 2) out vec4 volumetricLight;
 
 #include "/include/atmospherics/celestial.glsl"
+
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
 #include "/include/fragment/shadows.glsl"
+
 #include "/include/atmospherics/fog.glsl"
+
 #include "/include/fragment/water.glsl"
 
 void main() {
@@ -68,8 +71,8 @@ void main() {
             bool canFog = inWater ? true : mat.blockId == 1;
         
             if(canFog) {
-                vec3 worldPos0 = transMAD3(gbufferModelViewInverse, getViewPos0(coords));
-                vec3 worldPos1 = transMAD3(gbufferModelViewInverse, getViewPos1(coords));
+                vec3 worldPos0 = transMAD(gbufferModelViewInverse, getViewPos0(coords));
+                vec3 worldPos1 = transMAD(gbufferModelViewInverse, getViewPos1(coords));
 
                 vec3 startPos = inWater ? vec3(0.0) : worldPos0;
                 vec3 endPos   = inWater ? worldPos0 : worldPos1;

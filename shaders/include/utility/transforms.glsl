@@ -6,12 +6,13 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec2 diag2(mat4 mat) { return vec2(mat[0].x, mat[1].y); 		  }
-vec3 diag3(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z); }
+vec2 diag2(mat4 mat) { return vec2(mat[0].x, mat[1].y); 		   }
+vec3 diag3(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z);  }
+vec4 diag4(mat4 mat) { return vec4(mat[0].x, mat[1].y, mat[2].zw); }
 
-vec2 projMAD2(mat4 mat, vec2 v)  { return diag2(mat) * v + mat[3].xy;  }
-vec3 projMAD3(mat4 mat, vec3 v)  { return diag3(mat) * v + mat[3].xyz; }
-vec3 transMAD3(mat4 mat, vec3 v) { return mat3(mat)  * v + mat[3].xyz; }
+vec2 projMAD(mat4 mat, vec2 v)  { return diag2(mat) * v + mat[3].xy;  }
+vec3 projMAD(mat4 mat, vec3 v)  { return diag3(mat) * v + mat[3].xyz; }
+vec3 transMAD(mat4 mat, vec3 v) { return mat3(mat)  * v + mat[3].xyz; }
 
 bool hasMoved() {
     return gbufferModelView != gbufferPreviousModelView
@@ -28,11 +29,11 @@ vec3 distortShadowSpace(vec3 shadowPos) {
 
 vec3 screenToView(vec3 screenPos) {
 	screenPos = screenPos * 2.0 - 1.0;
-	return projMAD3(gbufferProjectionInverse, screenPos) / (gbufferProjectionInverse[2].w * screenPos.z + gbufferProjectionInverse[3].w);
+	return projMAD(gbufferProjectionInverse, screenPos) / (gbufferProjectionInverse[2].w * screenPos.z + gbufferProjectionInverse[3].w);
 }
 
 vec3 viewToScreen(vec3 viewPos) {
-	return (projMAD3(gbufferProjection, viewPos) / -viewPos.z) * 0.5 + 0.5;
+	return (projMAD(gbufferProjection, viewPos) / -viewPos.z) * 0.5 + 0.5;
 }
 
 vec3 worldToView(vec3 worldPos) {
@@ -40,7 +41,7 @@ vec3 worldToView(vec3 worldPos) {
 }
 
 vec3 viewToWorld(vec3 viewPos) {
-	return transMAD3(gbufferModelViewInverse, viewPos) + cameraPosition;
+	return transMAD(gbufferModelViewInverse, viewPos) + cameraPosition;
 }
 
 mat3 constructViewTBN(vec3 viewNormal) {

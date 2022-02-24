@@ -13,7 +13,6 @@ layout (location = 0) out vec3 color;
 #if SHARPEN == 1
     /*
         SOURCES / CREDITS:
-
         spolsh:   https://www.shadertoy.com/view/XlSBRW
         SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
     */

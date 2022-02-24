@@ -9,7 +9,7 @@
 #include "/include/atmospherics/atmosphere.glsl"
 
 void volumetricGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
-    vec3 scenePos = transMAD3(gbufferModelViewInverse, viewPos);
+    vec3 scenePos = transMAD(gbufferModelViewInverse, viewPos);
 
     float airmass     = isSky(texCoords) ? far : length(scenePos) * pow2(quintic(0.0, 1.0, skyLight));
           airmass    *= RAIN_FOG_DENSITY * rainStrength;
@@ -41,7 +41,7 @@ vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
 vec3 volumetricLighting(vec3 viewPos) {
     vec3 startPos = gbufferModelViewInverse[3].xyz;
-    vec3 endPos   = transMAD3(gbufferModelViewInverse, viewPos);
+    vec3 endPos   = transMAD(gbufferModelViewInverse, viewPos);
 
     float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
 
@@ -68,8 +68,8 @@ vec3 volumetricLighting(vec3 viewPos) {
         transmittance *= stepTransmittance;
     }
     
-    vec3 totalIllum = shadowLightTransmittance();
-    scattering     *= mix(totalIllum, vec3(luminance(totalIllum)), rainStrength);
+    vec3 directIllum = shadowLightTransmittance();
+    scattering     *= mix(directIllum, vec3(luminance(directIllum)), rainStrength);
 
     return max0(scattering);
 }

@@ -21,6 +21,7 @@ out vec4 vertexColor;
 out mat3 TBN;
 
 #include "/include/fragment/water.glsl"
+
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
 
@@ -30,7 +31,7 @@ void main() {
 	vertexColor = gl_Color;
 
     vec3 normal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
-    viewPos     = transMAD3(gl_ModelViewMatrix, gl_Vertex.xyz);
+    viewPos     = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
 	TBN 		 = mat3(tangent, cross(tangent, normal), normal);

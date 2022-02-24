@@ -7,7 +7,7 @@
 /***********************************************/
 
 vec3 worldToShadowClip(vec3 worldPos) {
-	vec3 shadowPos = projMAD3(shadowProjection, transMAD3(shadowModelView, worldPos));
+	vec3 shadowPos = projMAD(shadowProjection, transMAD(shadowModelView, worldPos));
 	return distortShadowSpace(shadowPos.xyz);
 }
 
@@ -74,7 +74,7 @@ vec3 sampleShadowColor(vec3 sampleCoords) {
 #endif
 
 vec3 shadowMap(vec3 viewPos) {
-    vec3 sampleCoords = 0.5 * worldToShadowClip(transMAD3(gbufferModelViewInverse, viewPos)) + 0.5;
+    vec3 sampleCoords = 0.5 * worldToShadowClip(transMAD(gbufferModelViewInverse, viewPos)) + 0.5;
     if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
     
     float theta    = (TAA == 1 ? randF() : uniformNoise(1, blueNoise).x);

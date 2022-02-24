@@ -27,7 +27,7 @@
         blockId     = int((mc_Entity.x - 1000.0) + 0.25);
 
         vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
-    	viewPos     = transMAD3(gl_ModelViewMatrix, gl_Vertex.xyz);
+    	viewPos     = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
 
         vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
         vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));

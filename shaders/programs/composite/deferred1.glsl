@@ -12,9 +12,12 @@ layout (location = 0) out vec3 color;
 layout (location = 1) out vec4 historyBuffer;
 
 #include "/include/utility/blur.glsl"
+
 #include "/include/fragment/brdf.glsl"
+
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
+
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/pathtracer.glsl"
 
@@ -79,16 +82,12 @@ void main() {
     #endif
 
     // Overlay
-    vec4 overlay = texture(colortex4, texCoords);
+    vec4 overlay = texelFetch(colortex4, ivec2(gl_FragCoord.xy), 0);
     mat.albedo   = mix(mat.albedo, RGBtoLinear(overlay.rgb), overlay.a);
 
-    vec3 skyIlluminance = vec3(0.0), totalIllum = vec3(1.0);
-            
+    vec3 skyIlluminance = vec3(0.0);
     #ifdef WORLD_OVERWORLD
         skyIlluminance = texture(colortex7, texCoords).rgb;
-        totalIllum     = shadowLightTransmittance();
-    #else
-        shadowmap.rgb = vec3(0.0);
     #endif
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 1
@@ -108,7 +107,7 @@ void main() {
             }
         #endif
         
-        color = applyLighting(viewPos0, shadowDir, mat, shadowmap, totalIllum, skyIlluminance);
+        color = applyLighting(viewPos0, shadowDir, mat, shadowmap, shadowLightTransmittance(), skyIlluminance);
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/
@@ -117,7 +116,7 @@ void main() {
         vec2 scaledUv  = texCoords * (1.0 / GI_RESOLUTION);
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords && !isSky(scaledUv)) {
-            color = pathTrace(vec3(scaledUv, texture(depthtex1, scaledUv).r), totalIllum);
+            pathTrace(color, vec3(scaledUv, texture(depthtex1, scaledUv).r));
 
             #if GI_TEMPORAL_ACCUMULATION == 1
                 temporalAccumulation(color, mat, colortex5, historyFrames);

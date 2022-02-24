@@ -7,9 +7,9 @@
 /***********************************************/
 
 /*
-	SOURCES:
-	BSL 	- Capt Tatsu
-	Voyager - SixSeven
+	SOURCES / CREDITS:
+	Capt Tatsu: https://www.curseforge.com/minecraft/customization/bsl-shaders
+	SixSeven:   https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
 */
 
 #if BLOOM == 1

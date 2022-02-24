@@ -26,10 +26,12 @@ out mat3 TBN;
 
 #include "/settings.glsl"
 #include "/include/uniforms.glsl"
+
 #include "/include/utility/noise.glsl"
 #include "/include/utility/math.glsl"
 #include "/include/utility/transforms.glsl"
 #include "/include/utility/color.glsl"
+
 #include "/include/fragment/water.glsl"
 
 void main() {
@@ -38,7 +40,7 @@ void main() {
 	vertexColor = gl_Color;
 
     geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
-    viewPos   = transMAD3(gl_ModelViewMatrix, gl_Vertex.xyz);
+    viewPos   = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
 	TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
