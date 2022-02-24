@@ -62,9 +62,7 @@
 #include "/include/post/aces/odt.glsl"
 
 void ACES(inout vec3 color) {
-    color *= inverse(AP0_2_sRGB);
+    color *= AP1_2_AP0_MAT;
     rrt(color);
     odt(color);
-
-    color *= 1.1;
 }

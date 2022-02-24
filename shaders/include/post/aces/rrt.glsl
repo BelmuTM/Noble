@@ -90,8 +90,8 @@ void rrt(inout vec3 color) {
 
   color.r += hueWeight * saturation * (RRT_RED_PIVOT - color.r) * (1.0 - RRT_RED_SCALE);
 
-  color = clamp16(clamp01(color) * AP0_2_AP1_MAT);                // ACES to RGB rendering space
-  color = color * calcSatAdjustMatrix(RRT_SAT_FACTOR, AP1_RGB2Y); // Global desaturation
+  color  = clamp16(clamp16(color) * AP0_2_AP1_MAT);        // ACES to RGB rendering space
+  color *= calcSatAdjustMatrix(RRT_SAT_FACTOR, AP1_RGB2Y); // Global desaturation
 
   // --- Apply the tonescale independently in rendering-space RGB --- //
   color.r = segmentedSplineC5Fwd(color.r);
@@ -99,5 +99,5 @@ void rrt(inout vec3 color) {
   color.b = segmentedSplineC5Fwd(color.b);
   
   // --- RGB rendering space to OCES --- //
-  color = color * AP1_2_AP0_MAT;
+  color *= AP1_2_AP0_MAT;
 }

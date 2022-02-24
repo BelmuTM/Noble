@@ -71,11 +71,11 @@ float cubicBasisShaper(float x, float w) {
   );
   
   float knots[5] = float[5]( 
-    -w * 0.5,
-    -w * 0.25,
+    w * -0.5,
+    w * -0.25,
     0.0,
-     w * 0.25,
-     w * 0.5
+    w *  0.25,
+    w *  0.5
   );
   
   float y = 0.0;
@@ -127,9 +127,9 @@ struct SegmentedSplineParamsC9 {
 const SegmentedSplineParamsC5 RRT_PARAMS = {
   { -4.0000000000,-4.0000000000,-3.1573765773,-0.4852499958, 1.8477324706, 1.8477324706 }, // coeffsLow[6]
   { -0.7185482425, 2.0810307172, 3.6681241237, 4.0000000000, 4.0000000000, 4.0000000000 }, // coeffsHigh[6]
-  vec2(0.18 * pow(2.0,-15.0),    1e-4),                                                    // minPoint
-  vec2(0.18,                      4.8),                                                    // midPoint  
-  vec2(0.18 * pow(2.0, 18.0), 10000.0),                                                    // maxPoint
+  vec2(0.18 * exp2(-15.0),   1e-4),                                                        // minPoint
+  vec2(0.18,                  4.8),                                                        // midPoint  
+  vec2(0.18 * exp2(18.0), 10000.0),                                                        // maxPoint
   0.0,                                                                                     // slopeLow
   0.0                                                                                      // slopeHigh
 };
@@ -186,6 +186,10 @@ float segmentedSplineC9Fwd(float x) {
   SegmentedSplineParamsC9 C = ODT_48nits;
   const int N_KNOTS_LOW  = 8;
   const int N_KNOTS_HIGH = 8;
+
+  C.minPoint.x = segmentedSplineC5Fwd(C.minPoint.x);
+  C.midPoint.x = segmentedSplineC5Fwd(C.midPoint.x);
+  C.maxPoint.x = segmentedSplineC5Fwd(C.maxPoint.x);
 
   float logX = log10(max(x, ACES_EPS));
   float logY;

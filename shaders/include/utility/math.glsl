@@ -46,10 +46,10 @@ vec2  pow5(vec2 x)  { return pow4(x)*x; }
 vec3  pow5(vec3 x)  { return pow4(x)*x; }
 vec4  pow5(vec4 x)  { return pow4(x)*x; }
 
-float pow10(float x) { return pow5(x)*pow5(x); }
-vec2  pow10(vec2 x)  { return pow5(x)*pow5(x); }
-vec3  pow10(vec3 x)  { return pow5(x)*pow5(x); }
-vec4  pow10(vec4 x)  { return pow5(x)*pow5(x); }
+float pow10(float x) { return pow(10, x); }
+vec2  pow10(vec2 x)  { return pow(vec2(10.0), x); }
+vec3  pow10(vec3 x)  { return pow(vec3(10.0), x); }
+vec4  pow10(vec4 x)  { return pow(vec4(10.0), x); }
 
 float log10(float x) { return log(x) / log(10.0);       }
 vec2  log10(vec2 x)  { return log(x) / log(vec2(10.0)); }

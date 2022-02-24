@@ -61,20 +61,28 @@ float YTolinearCV(float y, float maxY, float minY) {
 
 vec3 darkSurroundToDimSurround(vec3 linearCV) {
     vec3 xyY = XYZToxyY(linearCV * AP1_2_XYZ_MAT);
-    xyY.b    = pow(clamp01(xyY.b), DIM_SURROUND_GAMMA);
+    xyY.b    = pow(clamp16(xyY.b), DIM_SURROUND_GAMMA);
     return xyYToXYZ(xyY) * XYZ_2_AP1_MAT;
 }
 
-// Gamma curves function
+// Gamma curves functions
+float moncurve_r(float y, float gamma, float offset) {
+    float yb = pow(offset * gamma / (( gamma - 1.0) * (1.0 + offset)), gamma);
+    float rs = pow((gamma - 1.0) / offset, gamma - 1.0) * pow((1.0 + offset) / gamma, gamma);
+
+    if(y >= yb) { return (1.0 + offset) * pow(y, 1.0 / gamma) - offset; }
+    else { return y * rs; }
+}
+
 float bt1886_r(float L, float gamma, float Lw, float Lb) {
-  float a = pow(pow(Lw, 1.0 / gamma) - pow( Lb, 1.0 / gamma), gamma);
-  float b = pow(Lb, 1.0 / gamma) / (pow(Lw, 1.0 / gamma) - pow( Lb, 1.0 / gamma));
-  float V = pow(max(L / a, 0.0), 1.0 / gamma) - b;
-  return V;
+    float a = pow(pow(Lw, 1.0 / gamma) - pow( Lb, 1.0 / gamma), gamma);
+    float b = pow(Lb, 1.0 / gamma) / (pow(Lw, 1.0 / gamma) - pow( Lb, 1.0 / gamma));
+    float V = pow(max(L / a, 0.0), 1.0 / gamma) - b;
+    return V;
 }
 
 void odt(inout vec3 color) {
-    color = color * AP0_2_AP1_MAT; // OCES to RGB rendering space
+    color *= AP0_2_AP1_MAT; // OCES to RGB rendering space
 
     // Apply the tonescale independently in rendering-space RGB
     color.r = segmentedSplineC9Fwd(color.r);
@@ -86,11 +94,11 @@ void odt(inout vec3 color) {
     color.g = YTolinearCV(color.g, ODT_CINEMA_WHITE, ODT_CINEMA_BLACK);
     color.b = YTolinearCV(color.b, ODT_CINEMA_WHITE, ODT_CINEMA_BLACK);
 
-    color = darkSurroundToDimSurround(color);                       // Apply gamma adjustment to compensate for dim surround
-    color = color * calcSatAdjustMatrix(ODT_SAT_FACTOR, AP1_RGB2Y); // Apply desaturation to compensate for luminance difference
+    color  = darkSurroundToDimSurround(color);               // Apply gamma adjustment to compensate for dim surround
+    color *= calcSatAdjustMatrix(ODT_SAT_FACTOR, AP1_RGB2Y); // Apply desaturation to compensate for luminance difference
 
-    color = color * AP1_2_XYZ_MAT; // Rendering space RGB to XYZ
-    color = color * D60_2_D65_CAT; // Apply CAT from ACES white point to assumed observer adapted white point
+    color *= AP1_2_XYZ_MAT; // Rendering space RGB to XYZ
+    color *= D60_2_D65_CAT; // Apply CAT from ACES white point to assumed observer adapted white point
 
     // CIE XYZ to display primaries and handling out-of-gamut values
     color = clamp01(color * XYZ_2_REC709_PRI_MAT);
