@@ -56,48 +56,48 @@
 /*************************************************************************/
 
 float glowFwd(float ycIn, float glowGainIn, float glowMid) {
-  float glowGainOut;
-  if(ycIn <= 2.0 / 3.0 * glowMid) {
-    glowGainOut = glowGainIn;
-  } else if(ycIn >= 2.0 * glowMid) {
-    glowGainOut = 0.0;
-  } else {
-    glowGainOut = glowGainIn * (glowMid / ycIn - 0.5);
-  }
-  return glowGainOut;
+	float glowGainOut;
+	if(ycIn <= 2.0 / 3.0 * glowMid) {
+		glowGainOut = glowGainIn;
+	} else if(ycIn >= 2.0 * glowMid) {
+		glowGainOut = 0.0;
+	} else {
+		glowGainOut = glowGainIn * (glowMid / ycIn - 0.5);
+	}
+	return glowGainOut;
 }
 
-float centerHue(float hue, float centerH) {
-  float hueCentered = hue - centerH;
-  if(hueCentered < -180.0)     { hueCentered += 360.0; }
-  else if(hueCentered > 180.0) { hueCentered -= 360.0; }
-  return hueCentered;
+float centerHue(float hue, float centerHue) {
+	float hueCentered = hue - centerHue;
+	if(hueCentered < -180.0)     { hueCentered += 360.0; }
+	else if(hueCentered > 180.0) { hueCentered -= 360.0; }
+	return hueCentered;
 }
 
 void rrt(inout vec3 color) {
-  // --- Glow module --- //
-  float saturation = rgbToSaturation(color);
-  float ycIn       = rgbToYc(color);
-  float s          = sigmoidShaper((saturation - 0.4) / 0.2);
-  float addedGlow  = 1.0 + glowFwd(ycIn, RRT_GLOW_GAIN * s, RRT_GLOW_MID);
+	// --- Glow module --- //
+	float saturation = rgbToSaturation(color);
+	float ycIn       = rgbToYc(color);
+	float s          = sigmoidShaper((saturation - 0.4) / 0.2);
+	float addedGlow  = 1.0 + glowFwd(ycIn, RRT_GLOW_GAIN * s, RRT_GLOW_MID);
 
-  color *= addedGlow;
+	color *= addedGlow;
 
-  // --- Red modifier --- //
-  float hue         = rgbToHue(color);
-  float centeredHue = centerHue(hue, RRT_RED_HUE);
-  float hueWeight   = cubicBasisShaper(centeredHue, RRT_RED_WIDTH);
+	// --- Red modifier --- //
+	float hue         = rgbToHue(color);
+	float centeredHue = centerHue(hue, RRT_RED_HUE);
+	float hueWeight   = cubicBasisShaper(centeredHue, RRT_RED_WIDTH);
 
-  color.r += hueWeight * saturation * (RRT_RED_PIVOT - color.r) * (1.0 - RRT_RED_SCALE);
+	color.r += hueWeight * saturation * (RRT_RED_PIVOT - color.r) * (1.0 - RRT_RED_SCALE);
 
-  color  = clamp16(clamp16(color) * AP0_2_AP1_MAT);        // ACES to RGB rendering space
-  color *= calcSatAdjustMatrix(RRT_SAT_FACTOR, AP1_RGB2Y); // Global desaturation
+	color  = clamp16(clamp16(color) * AP0_2_AP1_MAT);        // ACES to RGB rendering space
+	color *= calcSatAdjustMatrix(RRT_SAT_FACTOR, AP1_RGB2Y); // Global desaturation
 
-  // --- Apply the tonescale independently in rendering-space RGB --- //
-  color.r = segmentedSplineC5Fwd(color.r);
-  color.g = segmentedSplineC5Fwd(color.g);
-  color.b = segmentedSplineC5Fwd(color.b);
-  
-  // --- RGB rendering space to OCES --- //
-  color *= AP1_2_AP0_MAT;
+	// --- Apply the tonescale independently in rendering-space RGB --- //
+	color.r = segmentedSplineC5Fwd(color.r);
+	color.g = segmentedSplineC5Fwd(color.g);
+	color.b = segmentedSplineC5Fwd(color.b);
+	
+	// --- RGB rendering space to OCES --- //
+	color *= AP1_2_AP0_MAT;
 }

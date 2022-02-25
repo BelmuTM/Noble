@@ -79,5 +79,5 @@ vec3 shadowLightTransmittance() {
     vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, sceneSunDir)  * sunIlluminance;
     vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, sceneMoonDir) * moonIlluminance;
 
-    return sunTransmit + moonTransmit;
+    return linearToAP1(sunTransmit + moonTransmit);
 }

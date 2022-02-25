@@ -54,7 +54,6 @@
     void main() {
         vec3 viewPos = getViewPos0(texCoords);
         Material mat = getMaterial(texCoords);
-        skyIllum     = skyIlluminance;
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
@@ -66,7 +65,12 @@
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {
                 vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));
                 sky         = atmosphericScattering(normalize(rayDir), skyIlluminance);
+
+                #if TONEMAP == 0
+                    sky = linearToAP1(sky);
+                #endif
             }
+            skyIllum = skyIlluminance;
 
             //sky += cloudsScattering(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
         #endif

@@ -17,31 +17,28 @@
 /*----------------- COLOR CONVERSIONS ------------------*/
 //////////////////////////////////////////////////////////
 
-// REC. 709 -> https://en.wikipedia.org/wiki/Luma_(video)
-float luminance(vec3 color) {
-    return dot(color, REC_709);
-}
+
+#if TONEMAP == 0
+    // AP1 color space -> https://en.wikipedia.org/wiki/Academy_Color_Encoding_System
+    float luminance(vec3 color) {
+        return dot(color, AP1);
+    }
+#else
+    // REC. 709 -> https://en.wikipedia.org/wiki/Luma_(video)
+    float luminance(vec3 color) {
+        return dot(color, REC_709);
+    }
+#endif
 
 // https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x
-vec4 linearToRGB(vec4 linear) {;
-    vec4 higher = (pow(abs(linear), vec4(1.0 / 2.4)) * 1.055) - 0.055;
-    vec4 lower  = linear * 12.92;
-    return mix(higher, lower, step(linear, vec4(0.0031308)));
-}
 
-vec4 RGBtoLinear(vec4 sRGB) {
-    vec4 higher = pow((sRGB + 0.055) / 1.055, vec4(2.4));
-    vec4 lower  = sRGB / 12.92;
-    return mix(higher, lower, step(sRGB, vec4(0.04045)));
-}
-
-vec3 linearToRGB(vec3 linear) {;
+vec3 linearTosRGB(vec3 linear) {
     vec3 higher = (pow(abs(linear), vec3(1.0 / 2.4)) * 1.055) - 0.055;
     vec3 lower  = linear * 12.92;
     return mix(higher, lower, step(linear, vec3(0.0031308)));
 }
 
-vec3 RGBtoLinear(vec3 sRGB) {
+vec3 sRGBToLinear(vec3 sRGB) {
     vec3 higher = pow((sRGB + 0.055) / 1.055, vec3(2.4));
     vec3 lower  = sRGB / 12.92;
     return mix(higher, lower, step(sRGB, vec3(0.04045)));
@@ -73,15 +70,15 @@ const mat3 CONE_RESP_BRADFORD = mat3(
 	vec3( 0.0389,-0.0685, 1.0296)
 );
 
-vec3 linearToXYZ(vec3 linear) { return linearToRGB(linear) * RGB_2_XYZ_MAT; }
-vec3 XYZToLinear(vec3 xyz)    { return RGBtoLinear(xyz * XYZ_2_RGB_MAT);    }
+vec3 linearToXYZ(vec3 linear) { return linearTosRGB(linear) * RGB_2_XYZ_MAT; }
+vec3 XYZToLinear(vec3 xyz)    { return sRGBToLinear(xyz * XYZ_2_RGB_MAT);    }
 
 // https://www.shadertoy.com/view/ltjBWG
 const mat3 RGB_2_YCoCg = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
 const mat3 YCoCg_2_RGB = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
 
-vec3 linearToYCoCg(vec3 linear) { return RGB_2_YCoCg * linearToRGB(linear).rgb; }
-vec3 YCoCgToLinear(vec3 YCoCg)  { return RGBtoLinear(YCoCg_2_RGB * YCoCg).rgb;  }
+vec3 linearToYCoCg(vec3 linear) { return RGB_2_YCoCg * linearTosRGB(linear).rgb; }
+vec3 YCoCgToLinear(vec3 YCoCg)  { return sRGBToLinear(YCoCg_2_RGB * YCoCg).rgb;  }
 
 //////////////////////////////////////////////////////////
 /*---------------------- TONEMAPS ----------------------*/

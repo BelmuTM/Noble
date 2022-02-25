@@ -82,8 +82,8 @@ void main() {
     #endif
 
     // Overlay
-    vec4 overlay = texelFetch(colortex4, ivec2(gl_FragCoord.xy), 0);
-    mat.albedo   = mix(mat.albedo, RGBtoLinear(overlay.rgb), overlay.a);
+    //vec4 overlay = texelFetch(colortex4, ivec2(gl_FragCoord.xy), 0);
+    //mat.albedo   = mix(mat.albedo, sRGBToLinear(overlay.rgb), overlay.a);
 
     vec3 skyIlluminance = vec3(0.0);
     #ifdef WORLD_OVERWORLD

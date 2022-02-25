@@ -66,6 +66,10 @@ void main() {
             	shadowmap = shadowMap(viewPos);
         	#endif
 
+			#if TONEMAP == 0
+       			mat.albedo = sRGBToAP1Albedo(mat.albedo);
+    		#endif
+
 			sceneColor.rgb = applyLighting(mat3(gbufferModelViewInverse) * viewPos, dirShadowLight, mat, vec4(shadowmap, 1.0), shadowLightTransmit, skyIlluminance);
 			sceneColor.a   = mat.alpha;
 		#endif

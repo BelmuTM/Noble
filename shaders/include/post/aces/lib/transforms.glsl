@@ -66,10 +66,28 @@ const mat3 D60_2_D65_CAT = mat3(
 	 0.00307257,-0.00509595, 1.08168000
 );
 
+const mat3 D65_2_D60_CAT = mat3(
+	 1.01303000, 0.00610531,-0.01497100,
+	 0.00769823, 0.99816500,-0.00503203,
+	-0.00284131, 0.00468516, 0.92450700
+);
+
+const mat3 sRGB_2_XYZ_MAT = mat3(
+	0.4124564, 0.3575761, 0.1804375,
+	0.2126729, 0.7151522, 0.0721750,
+	0.0193339, 0.1191920, 0.9503041
+);
+
 const mat3 XYZ_2_sRGB_MAT = mat3(
 	 3.2409699419,-1.5373831776,-0.4986107603,
 	-0.9692436363, 1.8759675015, 0.0415550574,
 	 0.0556300797,-0.2039769589, 1.0569715142
+);
+
+const mat3 XYZ_2_AP0_MAT = mat3(
+	 1.0498110175, 0.0000000000,-0.0000974845,
+	-0.4959030231, 1.3733130458, 0.0982400361,
+	 0.0000000000, 0.0000000000, 0.9912520182
 );
 
 const mat3 XYZ_2_AP1_MAT = mat3(
@@ -110,8 +128,23 @@ const mat3 XYZ_2_REC709_PRI_MAT = mat3(
 
 const vec3 AP1_RGB2Y = vec3(0.2722287168, 0.6740817658, 0.0536895174); // Desaturation Coefficients
 
-const mat3 AP0_2_sRGB = (AP0_2_XYZ_MAT * D60_2_D65_CAT) * XYZ_2_sRGB_MAT;
-const mat3 AP1_2_sRGB = (AP1_2_XYZ_MAT * D60_2_D65_CAT) * XYZ_2_sRGB_MAT;
+const mat3 sRGB_2_AP0 = (sRGB_2_XYZ_MAT * D65_2_D60_CAT) * XYZ_2_AP0_MAT;
+const mat3 sRGB_2_AP1 = (sRGB_2_XYZ_MAT * D65_2_D60_CAT) * XYZ_2_AP1_MAT;
+
+const mat3 sRGB_2_AP1_ALBEDO = (sRGB_2_XYZ_MAT) * XYZ_2_AP1_MAT;
+
+vec3 linearToAP1(vec3 color) {
+    return color * sRGB_2_AP1;
+}
+vec3 AP1ToLinear(vec3 color) {
+    return color * inverse(sRGB_2_AP1);
+}
+vec3 linearToAP1Albedo(vec3 color) {
+    return color * sRGB_2_AP1_ALBEDO;
+}
+vec3 sRGBToAP1Albedo(vec3 color) {
+    return sRGBToLinear(color) * sRGB_2_AP1_ALBEDO;
+}
 
 vec3 XYZToxyY(vec3 XYZ) {  
     float divisor = max(XYZ[0] + XYZ[1] + XYZ[2], ACES_EPS);
@@ -119,10 +152,10 @@ vec3 XYZToxyY(vec3 XYZ) {
 }
 
 vec3 xyYToXYZ(vec3 xyY) {
-    vec3 XYZ   = vec3(0.0);
-         XYZ.r = xyY.r * xyY.b / max(xyY.g, ACES_EPS);
-         XYZ.g = xyY.b;  
-         XYZ.b = (1.0 - xyY.r - xyY.g) * xyY.b / max(xyY.g, ACES_EPS);
+    vec3 XYZ;
+    XYZ.r = xyY.r * xyY.b / max(xyY.g, ACES_EPS);
+    XYZ.g = xyY.b;  
+    XYZ.b = (1.0 - xyY.r - xyY.g) * xyY.b / max(xyY.g, ACES_EPS);
 
     return XYZ;
 }

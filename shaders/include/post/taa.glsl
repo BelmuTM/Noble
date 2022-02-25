@@ -70,7 +70,7 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
         vec4 weightTex   = texture(colortex10, texCoords);
         float lumaWeight = getLumaWeight(currColor, prevColor);
 
-        float normalWeight = pow(clamp01(dot(getMaterial(texCoords).normal, weightTex.rgb)), 20.0);
+        float normalWeight = pow(clamp01(dot(getMaterial(texCoords).normal, weightTex.rgb)), 8.0);
 
         float depthWeight = pow(exp(-abs(linearizeDepthFast(prevPos.z) - linearizeDepthFast(texture(colortex10, prevPos.xy).a))), 1e-2);
               depthWeight = isSky(prevPos.xy) ? 1.0 : depthWeight;

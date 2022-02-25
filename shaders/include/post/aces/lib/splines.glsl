@@ -56,170 +56,170 @@
 /*************************************************************************/
 
 float sigmoidShaper(float x) {
-  float t = max0(1.0 - abs(0.5 * x));
-  float y = 1.0 + sign(x) * (1.0 - t * t);
-  return 0.5 * y;
+    float t = max0(1.0 - abs(0.5 * x));
+    float y = 1.0 + sign(x) * (1.0 - t * t);
+    return 0.5 * y;
 }
 
 float cubicBasisShaper(float x, float w) {
 
-  const vec4 M[4] = vec4[4](
-    vec4(-1.0 / 6.0, 3.0 / 6.0,-3.0 / 6.0, 1.0 / 6.0),
-    vec4( 3.0 / 6.0,-6.0 / 6.0, 3.0 / 6.0, 0.0 / 6.0), 
-    vec4(-3.0 / 6.0, 0.0 / 6.0, 3.0 / 6.0, 0.0 / 6.0), 
-    vec4( 1.0 / 6.0, 4.0 / 6.0, 1.0 / 6.0, 0.0 / 6.0)
-  );
+    const vec4 M[4] = vec4[4](
+        vec4(-1.0 / 6.0, 3.0 / 6.0,-3.0 / 6.0, 1.0 / 6.0),
+        vec4( 3.0 / 6.0,-6.0 / 6.0, 3.0 / 6.0, 0.0 / 6.0), 
+        vec4(-3.0 / 6.0, 0.0 / 6.0, 3.0 / 6.0, 0.0 / 6.0), 
+        vec4( 1.0 / 6.0, 4.0 / 6.0, 1.0 / 6.0, 0.0 / 6.0)
+    );
   
-  float knots[5] = float[5]( 
-    w * -0.5,
-    w * -0.25,
-    0.0,
-    w *  0.25,
-    w *  0.5
-  );
+    float knots[5] = float[5]( 
+        w * -0.5,
+        w * -0.25,
+        0.0,
+        w *  0.25,
+        w *  0.5
+    );
   
-  float y = 0.0;
+    float y = 0.0;
 
-  if((x > knots[0]) && (x < knots[4])) {  
-    float knotCoord = (x - knots[0]) * 4.0 / w;  
-    int j   = int(knotCoord);
-    float t = knotCoord - j;
+    if((x > knots[0]) && (x < knots[4])) {  
+        float knotCoord = (x - knots[0]) * 4.0 / w;  
+        int j   = int(knotCoord);
+        float t = knotCoord - j;
       
-    vec4 monomials = vec4(pow3(t), pow2(t), t, 1.0);
+        vec4 monomials = vec4(pow3(t), pow2(t), t, 1.0);
 
-    switch(j) {
-      case 3:  y = monomials[0] * M[0][0] + monomials[1] * M[1][0] + monomials[2] * M[2][0] + monomials[3] * M[3][0]; break;
-      case 2:  y = monomials[0] * M[0][1] + monomials[1] * M[1][1] + monomials[2] * M[2][1] + monomials[3] * M[3][1]; break;
-      case 1:  y = monomials[0] * M[0][2] + monomials[1] * M[1][2] + monomials[2] * M[2][2] + monomials[3] * M[3][2]; break;
-      case 0:  y = monomials[0] * M[0][3] + monomials[1] * M[1][3] + monomials[2] * M[2][3] + monomials[3] * M[3][3]; break;
-      default: y = 0.0; break;
+        switch(j) {
+            case 3:  y = monomials[0] * M[0][0] + monomials[1] * M[1][0] + monomials[2] * M[2][0] + monomials[3] * M[3][0]; break;
+            case 2:  y = monomials[0] * M[0][1] + monomials[1] * M[1][1] + monomials[2] * M[2][1] + monomials[3] * M[3][1]; break;
+            case 1:  y = monomials[0] * M[0][2] + monomials[1] * M[1][2] + monomials[2] * M[2][2] + monomials[3] * M[3][2]; break;
+            case 0:  y = monomials[0] * M[0][3] + monomials[1] * M[1][3] + monomials[2] * M[2][3] + monomials[3] * M[3][3]; break;
+            default: y = 0.0; break;
+        }
     }
-  }
-  return y * 1.5;
+    return y * 1.5;
 }
 
 const mat3 M = mat3(
-   0.5,-1.0, 0.5,
-  -1.0, 1.0, 0.5,
-   0.5, 0.0, 0.0
+     0.5,-1.0, 0.5,
+    -1.0, 1.0, 0.5,
+     0.5, 0.0, 0.0
 );
 
 struct SegmentedSplineParamsC5 {
-  float coeffsLow[6];
-  float coeffsHigh[6];
-  vec2 minPoint;
-  vec2 midPoint;
-  vec2 maxPoint;
-  float slopeLow;
-  float slopeHigh;
+    float coeffsLow[6];
+    float coeffsHigh[6];
+    vec2 minPoint;
+    vec2 midPoint;
+    vec2 maxPoint;
+    float slopeLow;
+    float slopeHigh;
 };
 
 struct SegmentedSplineParamsC9 {
-  float coeffsLow[10];
-  float coeffsHigh[10];
-  vec2 minPoint;
-  vec2 midPoint;
-  vec2 maxPoint;
-  float slopeLow;
-  float slopeHigh;
+    float coeffsLow[10];
+    float coeffsHigh[10];
+    vec2 minPoint;
+    vec2 midPoint;
+    vec2 maxPoint;
+    float slopeLow;
+    float slopeHigh;
 };
 
 const SegmentedSplineParamsC5 RRT_PARAMS = {
-  { -4.0000000000,-4.0000000000,-3.1573765773,-0.4852499958, 1.8477324706, 1.8477324706 }, // coeffsLow[6]
-  { -0.7185482425, 2.0810307172, 3.6681241237, 4.0000000000, 4.0000000000, 4.0000000000 }, // coeffsHigh[6]
-  vec2(0.18 * exp2(-15.0),   1e-4),                                                        // minPoint
-  vec2(0.18,                  4.8),                                                        // midPoint  
-  vec2(0.18 * exp2(18.0), 10000.0),                                                        // maxPoint
-  0.0,                                                                                     // slopeLow
-  0.0                                                                                      // slopeHigh
+    { -4.0000000000,-4.0000000000,-3.1573765773,-0.4852499958, 1.8477324706, 1.8477324706 }, // coeffsLow[6]
+    { -0.7185482425, 2.0810307172, 3.6681241237, 4.0000000000, 4.0000000000, 4.0000000000 }, // coeffsHigh[6]
+    vec2(0.18 * exp2(-15.0),   1e-4),                                                        // minPoint
+    vec2(0.18,                  4.8),                                                        // midPoint  
+    vec2(0.18 * exp2(18.0), 10000.0),                                                        // maxPoint
+    0.0,                                                                                     // slopeLow
+    0.0                                                                                      // slopeHigh
 };
 
 const SegmentedSplineParamsC9 ODT_48nits = {
-  { -1.6989700043,-1.6989700043,-1.4779000000,-1.2291000000,-0.8648000000,-0.4480000000, 0.0051800000, 0.4511080334, 0.9113744414, 0.9113744414 }, // coeffsLow[10]
-  {  0.5154386965, 0.8470437783, 1.1358000000, 1.3802000000, 1.5197000000, 1.5985000000, 1.6467000000, 1.6746091357, 1.6878733390, 1.6878733390 }, // coeffsHigh[10]
-  vec2(0.18 * pow(2.0,-6.5), 0.02),                                                                                                                // minPoint
-  vec2(0.18,                  4.8),                                                                                                                // midPoint  
-  vec2(0.18 * pow(2.0, 6.5), 48.0),                                                                                                                // maxPoint
-  0.0,                                                                                                                                             // slopeLow
-  0.04                                                                                                                                             // slopeHigh
+    { -1.6989700043,-1.6989700043,-1.4779000000,-1.2291000000,-0.8648000000,-0.4480000000, 0.0051800000, 0.4511080334, 0.9113744414, 0.9113744414 }, // coeffsLow[10]
+    {  0.5154386965, 0.8470437783, 1.1358000000, 1.3802000000, 1.5197000000, 1.5985000000, 1.6467000000, 1.6746091357, 1.6878733390, 1.6878733390 }, // coeffsHigh[10]
+    vec2(0.18 * exp2(-6.5), 0.02),                                                                                                                   // minPoint
+    vec2(0.18,               4.8),                                                                                                                   // midPoint  
+    vec2(0.18 * exp2(6.5),  48.0),                                                                                                                   // maxPoint
+    0.0,                                                                                                                                             // slopeLow
+    0.04                                                                                                                                             // slopeHigh
 };
 
 float segmentedSplineC5Fwd(float x) {
-  SegmentedSplineParamsC5 C = RRT_PARAMS;
-  const int N_KNOTS_LOW  = 4;
-  const int N_KNOTS_HIGH = 4;
+    SegmentedSplineParamsC5 C = RRT_PARAMS;
+    const int N_KNOTS_LOW  = 4;
+    const int N_KNOTS_HIGH = 4;
 
-  float logX = log10(max(x, ACES_EPS)); 
-  float logY;
+    float logX = log10(max(x, ACES_EPS)); 
+    float logY;
 
-  if(logX <= log10(C.minPoint.x)) { 
+    if(logX <= log10(C.minPoint.x)) { 
 
-    logY = logX * C.slopeLow + (log10(C.minPoint.y) - C.slopeLow * log10(C.minPoint.x));
+        logY = logX * C.slopeLow + (log10(C.minPoint.y) - C.slopeLow * log10(C.minPoint.x));
 
-  } else if((logX > log10(C.minPoint.x)) && (logX < log10(C.midPoint.x))) {
+    } else if((logX > log10(C.minPoint.x)) && (logX < log10(C.midPoint.x))) {
 
-    float knot_coord = (N_KNOTS_LOW - 1) * (logX - log10(C.minPoint.x)) / (log10(C.midPoint.x) - log10(C.minPoint.x));
-    int j   = int(knot_coord);
-    float t = knot_coord - j;
+        float knot_coord = (N_KNOTS_LOW - 1) * (logX - log10(C.minPoint.x)) / (log10(C.midPoint.x) - log10(C.minPoint.x));
+        int j   = int(knot_coord);
+        float t = knot_coord - j;
 
-    vec3 coeffs    = vec3(C.coeffsLow[j], C.coeffsLow[j + 1], C.coeffsLow[j + 2]);
-    vec3 monomials = vec3(t * t, t, 1.0);
-    logY           = dot(monomials, M * coeffs);
+        vec3 coeffs    = vec3(C.coeffsLow[j], C.coeffsLow[j + 1], C.coeffsLow[j + 2]);
+        vec3 monomials = vec3(pow2(t), t, 1.0);
+        logY           = dot(monomials, M * coeffs);
 
-  } else if((logX >= log10(C.midPoint.x)) && (logX < log10(C.maxPoint.x))) {
+    } else if((logX >= log10(C.midPoint.x)) && (logX < log10(C.maxPoint.x))) {
 
-    float knot_coord = (N_KNOTS_HIGH - 1) * (logX - log10(C.midPoint.x)) / (log10(C.maxPoint.x) - log10(C.midPoint.x));
-    int j   = int(knot_coord);
-    float t = knot_coord - j;
+        float knot_coord = (N_KNOTS_HIGH - 1) * (logX - log10(C.midPoint.x)) / (log10(C.maxPoint.x) - log10(C.midPoint.x));
+        int j   = int(knot_coord);
+        float t = knot_coord - j;
 
-    vec3 coeffs    = vec3(C.coeffsHigh[j], C.coeffsHigh[j + 1], C.coeffsHigh[j + 2]); 
-    vec3 monomials = vec3(t * t, t, 1.0);
-    logY           = dot(monomials, M * coeffs);
+        vec3 coeffs    = vec3(C.coeffsHigh[j], C.coeffsHigh[j + 1], C.coeffsHigh[j + 2]); 
+        vec3 monomials = vec3(pow2(t), t, 1.0);
+        logY           = dot(monomials, M * coeffs);
 
-  } else {
-    logY = logX * C.slopeHigh + (log10(C.maxPoint.y) - C.slopeHigh * log10(C.maxPoint.x));
-  }
-  return pow10(logY);
+    } else {
+        logY = logX * C.slopeHigh + (log10(C.maxPoint.y) - C.slopeHigh * log10(C.maxPoint.x));
+    }
+    return pow10(logY);
 }
 
 float segmentedSplineC9Fwd(float x) {
-  SegmentedSplineParamsC9 C = ODT_48nits;
-  const int N_KNOTS_LOW  = 8;
-  const int N_KNOTS_HIGH = 8;
+    SegmentedSplineParamsC9 C = ODT_48nits;
+    const int N_KNOTS_LOW  = 8;
+    const int N_KNOTS_HIGH = 8;
 
-  C.minPoint.x = segmentedSplineC5Fwd(C.minPoint.x);
-  C.midPoint.x = segmentedSplineC5Fwd(C.midPoint.x);
-  C.maxPoint.x = segmentedSplineC5Fwd(C.maxPoint.x);
+    C.minPoint.x = segmentedSplineC5Fwd(C.minPoint.x);
+    C.midPoint.x = segmentedSplineC5Fwd(C.midPoint.x);
+    C.maxPoint.x = segmentedSplineC5Fwd(C.maxPoint.x);
 
-  float logX = log10(max(x, ACES_EPS));
-  float logY;
+    float logX = log10(max(x, ACES_EPS));
+    float logY;
 
-  if(logX <= log10(C.minPoint.x)) { 
+    if(logX <= log10(C.minPoint.x)) { 
 
-    logY = logX * C.slopeLow + (log10(C.minPoint.y) - C.slopeLow * log10(C.minPoint.x));
+        logY = logX * C.slopeLow + (log10(C.minPoint.y) - C.slopeLow * log10(C.minPoint.x));
 
-  } else if((logX > log10(C.minPoint.x)) && (logX < log10(C.midPoint.x))) {
+    } else if((logX > log10(C.minPoint.x)) && (logX < log10(C.midPoint.x))) {
 
-    float knot_coord = (N_KNOTS_LOW - 1) * (logX - log10(C.minPoint.x)) / (log10(C.midPoint.x) - log10(C.minPoint.x));
-    int j   = int(knot_coord);
-    float t = knot_coord - j;
+        float knot_coord = (N_KNOTS_LOW - 1) * (logX - log10(C.minPoint.x)) / (log10(C.midPoint.x) - log10(C.minPoint.x));
+        int j   = int(knot_coord);
+        float t = knot_coord - j;
 
-    vec3 coeffs    = vec3(C.coeffsLow[j], C.coeffsLow[j + 1], C.coeffsLow[j + 2]);
-    vec3 monomials = vec3(t * t, t, 1.0);
-    logY           = dot(monomials, M * coeffs);
+        vec3 coeffs    = vec3(C.coeffsLow[j], C.coeffsLow[j + 1], C.coeffsLow[j + 2]);
+        vec3 monomials = vec3(pow2(t), t, 1.0);
+        logY           = dot(monomials, M * coeffs);
 
-  } else if((logX >= log10(C.midPoint.x)) && (logX < log10(C.maxPoint.x))) {
+    } else if((logX >= log10(C.midPoint.x)) && (logX < log10(C.maxPoint.x))) {
 
-    float knot_coord = (N_KNOTS_HIGH - 1) * (logX - log10(C.midPoint.x)) / (log10(C.maxPoint.x) - log10(C.midPoint.x));
-    int j   = int(knot_coord);
-    float t = knot_coord - j;
+        float knot_coord = (N_KNOTS_HIGH - 1) * (logX - log10(C.midPoint.x)) / (log10(C.maxPoint.x) - log10(C.midPoint.x));
+        int j   = int(knot_coord);
+        float t = knot_coord - j;
 
-    vec3 coeffs    = vec3(C.coeffsHigh[j], C.coeffsHigh[j + 1], C.coeffsHigh[j + 2]); 
-    vec3 monomials = vec3(t * t, t, 1.0);
-    logY           = dot(monomials, M * coeffs);
+        vec3 coeffs    = vec3(C.coeffsHigh[j], C.coeffsHigh[j + 1], C.coeffsHigh[j + 2]); 
+        vec3 monomials = vec3(pow2(t), t, 1.0);
+        logY           = dot(monomials, M * coeffs);
 
-  } else { 
-    logY = logX * C.slopeHigh + (log10(C.maxPoint.y) - C.slopeHigh * log10(C.maxPoint.x));
-  }
-  return pow10(logY);
+    } else { 
+        logY = logX * C.slopeHigh + (log10(C.maxPoint.y) - C.slopeHigh * log10(C.maxPoint.x));
+    }
+    return pow10(logY);
 }

@@ -13,8 +13,6 @@ layout (location = 0) out vec3 color;
 #include "/include/post/bloom.glsl"
 #include "/include/post/exposure.glsl"
 
-#include "/include/post/aces/aces.glsl"
-
 #if UNDERWATER_DISTORTION == 1
     void underwaterDistortion(inout vec2 coords) {
         const float scale = 25.0;
@@ -60,10 +58,19 @@ layout (location = 0) out vec3 color;
     }
 #endif
 
+#if TONEMAP == 0
+    #include "/include/post/aces/lib/splines.glsl"
+
+    #include "/include/post/aces/rrt.glsl"
+    #include "/include/post/aces/odt.glsl"
+#endif
+
 #if TONEMAP >= 0
     void tonemap(inout vec3 color) {
         #if TONEMAP == 0
-            ACES(color);                         // ACES
+            color *= AP1_2_AP0_MAT;
+            rrt(color);
+            odt(color);                          // ACES
         #elif TONEMAP == 1
             burgess(color);                      // Burgess
         #elif TONEMAP == 2
@@ -150,10 +157,8 @@ void main() {
         tonemap(color);
     #endif
 
-    #if TONEMAP == -1 || TONEMAP > 0
-        color = linearToRGB(color);
-        color = clamp01(color);
-    #endif
+    color = clamp01(color);
+    color = linearTosRGB(color);
 
     #if LUT > 0
         applyLUT(colortex9, color);

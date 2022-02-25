@@ -42,7 +42,11 @@ Material getMaterial(vec2 coords) {
     mat.blockId  = int(unpacked0.y * maxVal8 + 0.5);
     mat.lightmap = unpacked0.zw;
 
-    mat.albedo = RGBtoLinear(mat.albedo);
+    #if TONEMAP == 0
+        mat.albedo = sRGBToAP1Albedo(mat.albedo);
+    #else
+        mat.albedo = sRGBToLinear(mat.albedo);
+    #endif
 
     return mat;
 }

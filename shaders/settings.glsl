@@ -13,6 +13,7 @@
 //////////////////////////////////////////////////////////
 
 #define REC_709 vec3(0.2126, 0.7152, 0.0722)
+#define AP1     vec3(0.272228716, 0.674081765, 0.053689517)
 #define EPS 1e-4
 
 #define QUARTER_PI 0.78539816
@@ -74,8 +75,8 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 // Soft Shadows
 #define PCSS_SAMPLES            16 // [16 24]
 #define BLOCKER_SEARCH_SAMPLES   8 // [8 12]
-#define BLOCKER_SEARCH_RADIUS 12.0
-#define LIGHT_SIZE           140.0
+#define BLOCKER_SEARCH_RADIUS 10.0
+#define LIGHT_SIZE           400.0
 
 //////////////////////////////////////////////////////////
 /*-------------------- RAY TRACING ---------------------*/
