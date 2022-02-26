@@ -20,8 +20,14 @@ vec3 getShadowColor(vec3 samplePos, float bias) {
     float shadow0  = visibility(shadowtex0, samplePos, bias);
     float shadow1  = visibility(shadowtex1, samplePos, bias);
     vec4 shadowCol = texture(shadowcolor0, samplePos.xy);
-    shadowCol.rgb *= (1.0 - shadowCol.a);
 
+    #if TONEMAP == 0
+        shadowCol.rgb = sRGBToAP1Albedo(shadowCol.rgb);
+    #else
+        shadowCol.rgb = sRGBToLinear(shadowCol.rgb);
+    #endif
+
+    shadowCol.rgb *= (1.0 - shadowCol.a);
     return mix(shadowCol.rgb * shadow1, vec3(1.0), shadow0);
 }
 

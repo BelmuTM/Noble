@@ -234,10 +234,13 @@ vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLigh
         if(all(greaterThan(mat.normal, vec3(0.0)))) ao = mat.ao;
     #endif
 
-    vec3 direct  = (diffuse + specular) * directLight;
+    vec3 direct  = diffuse * directLight * (1.0 - BRDFFresnel(clamp01(dot(mat.normal, L)), mat));
+         direct += specular * directLight;
          direct *= shadowmap.rgb;
 
-    vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * ao * shadowmap.a;
+    vec3 indirect  = mat.albedo * (blockLight + skyLight);
+         indirect += mat.albedo * (ao * shadowmap.a);
+         indirect += mat.albedo * mat.emission;
 
-    return direct + indirect;
+    return direct + (indirect * float(!mat.isMetal));
 }
