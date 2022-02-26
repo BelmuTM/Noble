@@ -75,9 +75,17 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     }
 #endif
 
-vec3 shadowLightTransmittance() {
-    vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, sceneSunDir)  * sunIlluminance;
-    vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, sceneMoonDir) * moonIlluminance;
+vec3 directLightTransmittance() {
+    #ifdef WORLD_OVERWORLD
+        vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, sceneSunDir)  * sunIlluminance;
+        vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, sceneMoonDir) * moonIlluminance;
 
-    return linearToAP1(sunTransmit + moonTransmit);
+        #if TONEMAP == 0
+            return linearToAP1(sunTransmit + moonTransmit);
+        #else
+            return sunTransmit + moonTransmit;
+        #endif
+    #else
+        return vec3(0.0);
+    #endif
 }

@@ -17,7 +17,7 @@ in vec2 lmCoords;
 in vec3 viewPos;
 in vec3 waterNormals;
 in vec3 skyIlluminance;
-in vec3 shadowLightTransmit;
+in vec3 directLightTransmit;
 in vec4 vertexColor;
 in mat3 TBN;
 
@@ -61,16 +61,13 @@ void main() {
 		mat.normal = normal;
 
 		#if GI == 0
-			vec3 shadowmap = vec3(1.0);
-			#if SHADOWS == 1
-            	shadowmap = shadowMap(viewPos);
-        	#endif
+			vec3 shadowmap = shadowMap(viewPos, mat);
 
 			#if TONEMAP == 0
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);
     		#endif
 
-			sceneColor.rgb = applyLighting(mat3(gbufferModelViewInverse) * viewPos, dirShadowLight, mat, vec4(shadowmap, 1.0), shadowLightTransmit, skyIlluminance);
+			sceneColor.rgb = applyLighting(mat3(gbufferModelViewInverse) * viewPos, dirShadowLight, mat, vec4(shadowmap, 1.0), directLightTransmit, skyIlluminance);
 			sceneColor.a   = mat.alpha;
 		#endif
 	}

@@ -134,7 +134,7 @@ float envBRDFApprox(float cosTheta, Material mat) {
 
 vec3 BRDFFresnel(float cosTheta, Material mat) {
     mat2x3 hcm = getHardcodedMetal(mat);
-    return mat.isMetal ? fresnelDieletricConductor(hcm[0], hcm[1], cosTheta) : vec3(fresnelDielectric(cosTheta, F0toIOR(mat.F0)));
+    return mat.isMetal ? fresnelDieletricConductor(hcm[0], hcm[1], cosTheta) : vec3(fresnelDielectric(cosTheta, F0ToIOR(mat.F0)));
 }
 
 vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
@@ -169,7 +169,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     float smoothSurf;
     if(!pt) {
         float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * (1.0 / 9.0);
-        float ior       = F0toIOR(mat.F0);
+        float ior       = F0ToIOR(mat.F0);
         float fresnelNL = 1.0 - fresnelDielectric(NdotL, ior);
         float fresnelNV = 1.0 - fresnelDielectric(NdotV, ior);
 
@@ -206,7 +206,7 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, Material mat) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 shadowLightTransmit, vec3 skyIlluminance) {
+vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
     V = -normalize(V);
 
     vec3 specular = vec3(0.0);
@@ -234,7 +234,9 @@ vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 shadowLigh
         if(all(greaterThan(mat.normal, vec3(0.0)))) ao = mat.ao;
     #endif
 
-    vec3 direct   = (diffuse + specular) * (shadowLightTransmit * shadowmap.rgb);
+    vec3 direct  = (diffuse + specular) * directLight;
+         direct *= shadowmap.rgb;
+
     vec3 indirect = mat.isMetal ? vec3(0.0) : mat.albedo * (mat.emission + blockLight + skyLight) * ao * shadowmap.a;
 
     return direct + indirect;

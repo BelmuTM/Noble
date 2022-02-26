@@ -136,12 +136,7 @@ const mat3 sRGB_2_AP1_ALBEDO = (sRGB_2_XYZ_MAT) * XYZ_2_AP1_MAT;
 vec3 linearToAP1(vec3 color) {
     return color * sRGB_2_AP1;
 }
-vec3 AP1ToLinear(vec3 color) {
-    return color * inverse(sRGB_2_AP1);
-}
-vec3 linearToAP1Albedo(vec3 color) {
-    return color * sRGB_2_AP1_ALBEDO;
-}
+
 vec3 sRGBToAP1Albedo(vec3 color) {
     return sRGBToLinear(color) * sRGB_2_AP1_ALBEDO;
 }

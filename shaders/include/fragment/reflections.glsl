@@ -101,12 +101,12 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
     vec3 simpleRefractions(vec3 viewPos, Material mat, inout vec3 hitPos) {
         viewPos += mat.normal * 1e-2;
 
-        float  ior   = F0toIOR(mat.F0);
+        float  ior   = F0ToIOR(mat.F0);
         vec3 viewDir = normalize(viewPos);
 
         vec3 refracted = refract(viewDir, mat.normal, airIOR / ior);
         bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
-        bool hand      = isHand(texture(depthtex0, hitPos.xy).r);
+        bool hand      = linearizeDepth(texture(depthtex0, hitPos.xy).r) < 0.56;
         if(!hit || hand) hitPos.xy = texCoords;
 
         float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), ior);

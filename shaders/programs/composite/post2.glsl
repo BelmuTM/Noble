@@ -157,8 +157,8 @@ void main() {
         tonemap(color);
     #endif
 
-    color = clamp01(color);
     color = linearTosRGB(color);
+    color = clamp01(color);
 
     #if LUT > 0
         applyLUT(colortex9, color);

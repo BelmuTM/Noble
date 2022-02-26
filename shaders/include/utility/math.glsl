@@ -162,15 +162,20 @@ vec3 generateCosineVector(vec3 vector, vec2 xy) {
     return normalize(vector + generateUnitVector(xy));
 }
 
-vec2 vogelDisk(int i, int n, float phi) {
-    float r = sqrt((float(i) + phi) / float(n));
-    float theta = float(i) * GOLDEN_ANGLE;
+vec2 vogelDisk(float i, float n, float phi) {
+    float r     = sqrt(i + phi) / n;
+    float theta = i * GOLDEN_ANGLE;
     return sincos(r * theta);
 }
 
-vec2 diskSampling(int i, int n, float phi){
-    float theta = (float(i) + phi) / float(n); 
+vec2 diskSampling(float i, float n, float phi){
+    float theta = (i + phi) / n; 
     return sincos(theta * TAU * n * GOLDEN_ANGLE) * theta;
+}
+
+vec2 fermatsSpiralGoldenN(float index, float total) {
+	float theta = index * GOLDEN_ANGLE;
+	return vec2(sin(theta), cos(theta)) * sqrt(index / total);
 }
 
 // https://homepages.inf.ed.ac.uk/rbf/HIPR2/gsmooth.htm

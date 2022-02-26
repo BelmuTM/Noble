@@ -31,7 +31,7 @@
         #endif
 
         #ifdef WORLD_OVERWORLD
-            return (diffuse + specular) * (shadowLightTransmittance() * shadowmap);
+            return (diffuse + specular) * (directLightTransmittance() * shadowmap);
         #else
             return (diffuse + specular) * shadowmap;
         #endif
@@ -82,7 +82,7 @@
                     rayDir      = reflect(rayDir, microfacet);
                     throughput *= specularBRDF(microfacet, -rayDir, rayDir, fresnel, mat.rough) / specularProb;
                 } else {
-                    throughput *= (1.0 - fresnelDieletricConductor(vec3(F0toIOR(mat.F0)), vec3(0.0), dot(-rayDir, microfacet))) / (1.0 - specularProb);
+                    throughput *= (1.0 - fresnelDieletricConductor(vec3(F0ToIOR(mat.F0)), vec3(0.0), dot(-rayDir, microfacet))) / (1.0 - specularProb);
                     rayDir      = generateCosineVector(mat.normal, noise);
                     throughput *= mat.albedo;
                 }

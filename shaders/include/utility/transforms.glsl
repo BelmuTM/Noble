@@ -6,6 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+//////////////////////////////////////////////////////////
+/*--------------- MATRICES OPERATIONS ------------------*/
+//////////////////////////////////////////////////////////
+
 vec2 diag2(mat4 mat) { return vec2(mat[0].x, mat[1].y); 		   }
 vec3 diag3(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z);  }
 vec4 diag4(mat4 mat) { return vec4(mat[0].x, mat[1].y, mat[2].zw); }
@@ -14,18 +18,37 @@ vec2 projMAD(mat4 mat, vec2 v)  { return diag2(mat) * v + mat[3].xy;  }
 vec3 projMAD(mat4 mat, vec3 v)  { return diag3(mat) * v + mat[3].xyz; }
 vec3 transMAD(mat4 mat, vec3 v) { return mat3(mat)  * v + mat[3].xyz; }
 
+//////////////////////////////////////////////////////////
+/*------------------ ACCUMULATION ----------------------*/
+//////////////////////////////////////////////////////////
+
 bool hasMoved() {
     return gbufferModelView != gbufferPreviousModelView
 		|| cameraPosition   != previousCameraPosition;
 }
 
+//////////////////////////////////////////////////////////
+/*--------------------- SHADOWS ------------------------*/
+//////////////////////////////////////////////////////////
+
 float getDistortionFactor(vec2 coords) {
 	return cubeLength(coords) * SHADOW_DISTORTION + (1.0 - SHADOW_DISTORTION);
 }
 
-vec3 distortShadowSpace(vec3 shadowPos) {
-	return shadowPos / vec3(vec2(getDistortionFactor(shadowPos.xy)), 2.0);
+vec2 distortShadowSpace(vec2 position) {
+	return position / vec2(getDistortionFactor(position.xy));
 }
+
+vec3 distortShadowSpace(vec3 position) {
+	position.xy = distortShadowSpace(position.xy);
+	position.z *= 0.25;
+
+	return position;
+}
+
+//////////////////////////////////////////////////////////
+/*--------------- SPACE CONVERSIONS --------------------*/
+//////////////////////////////////////////////////////////
 
 vec3 screenToView(vec3 screenPos) {
 	screenPos = screenPos * 2.0 - 1.0;
@@ -74,17 +97,21 @@ float linearizeDepthFast(float depth) {
 	return (near * far) / (depth * (near - far) + far);
 }
 
-float F0toIOR(float F0) {
+//////////////////////////////////////////////////////////
+/*---------------- MATERIAL CONVERSIONS ----------------*/
+//////////////////////////////////////////////////////////
+
+float F0ToIOR(float F0) {
 	F0 = sqrt(F0) * 0.99999;
 	return (1.0 + F0) / (1.0 - F0);
 }
 
-vec3 F0toIOR(vec3 F0) {
+vec3 F0ToIOR(vec3 F0) {
 	F0 = sqrt(F0) * 0.99999;
 	return (1.0 + F0) / (1.0 - F0);
 }
 
-float IORtoF0(float ior) {
+float IORToF0(float ior) {
 	float a = (ior - airIOR) / (ior + airIOR);
 	return a * a;
 }

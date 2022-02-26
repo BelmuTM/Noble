@@ -57,7 +57,13 @@ void main() {
             vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos0));
             vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)));
 
-            vec3 sky = texture(colortex6, coords * ATMOSPHERE_RESOLUTION + (bayer2(gl_FragCoord.xy) * pixelSize)).rgb;
+            #if TAA == 1
+                float jitter = randF();
+            #else
+                float jitter = bayer8(gl_FragCoord.xy);
+            #endif
+
+            vec3 sky = texture(colortex6, (coords * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
             color    = sky + (starfield(viewPos0) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 120.0) * starsColor);
             color   += celestialBody(normalize(viewPos0));
         #else 
@@ -107,7 +113,7 @@ void main() {
             }
         #endif
         
-        color = applyLighting(viewPos0, shadowDir, mat, shadowmap, shadowLightTransmittance(), skyIlluminance);
+        color = applyLighting(viewPos0, shadowDir, mat, shadowmap, directLightTransmittance(), skyIlluminance);
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/

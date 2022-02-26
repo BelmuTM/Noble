@@ -57,9 +57,7 @@
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
-            #if SHADOWS == 1
-                shadowmap.rgb = shadowMap(viewPos);
-            #endif
+            shadowmap.rgb = shadowMap(viewPos, mat);
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {

@@ -44,22 +44,43 @@ option.MATERIAL_AO.comment = §bMaterial Ambient Occlusion§r. Adds pseudo-shado
 value.MATERIAL_AO.0 = §cOFF
 value.MATERIAL_AO.1 = §aON
 
+option.SPECULAR = Specular
+option.SPECULAR.comment = Adds a certain shininess to blocks.
+value.SPECULAR.0 = §cOFF
+value.SPECULAR.1 = §aON
+
 option.SHADOWS = Shadows
 option.SHADOWS.comment = Adds shadows.
 value.SHADOWS.0 = §cOFF
 value.SHADOWS.1 = §aON
 
+option.SHADOW_TYPE = Shadow Type
+option.SHADOW_TYPE.comment = §aNormal§r shadows are shadows with blurred edges. §aSoft§r shadows get blurrier the farther they are from the blocker. §aHard§r shadows have very sharp edges.
+value.SHADOW_TYPE.0 = §eNormal
+value.SHADOW_TYPE.1 = §eSoft
+value.SHADOW_TYPE.2 = §eHard
+
 option.shadowDistance = Shadow Distance
 option.shadowDistance.comment = Adjusts §bShadows§r maximum render distance.
 
 option.SHADOW_SAMPLES = Shadow Samples
-option.SHADOW_SAMPLES.comment = Adjusts §bShadows§r quality. §cHigher resolution gives better shadows, but reduces §cperformance. §6§lONLY APPLIES WHEN SOFT SHADOWS ARE OFF.
-value.SHADOW_SAMPLES.1 = §21
-value.SHADOW_SAMPLES.2 = §a2
-value.SHADOW_SAMPLES.3 = §e3
-value.SHADOW_SAMPLES.4 = §64
-value.SHADOW_SAMPLES.5 = §c5
-value.SHADOW_SAMPLES.6 = §46
+option.SHADOW_SAMPLES.comment = Adjusts §bShadows§r quality. §cHigher resolution gives better shadows, but reduces §cperformance. §cDoesn't apply to hard shadows.
+value.SHADOW_SAMPLES.1 = §b1
+value.SHADOW_SAMPLES.2 = §b2
+value.SHADOW_SAMPLES.3 = §33
+value.SHADOW_SAMPLES.4 = §34
+value.SHADOW_SAMPLES.5 = §25
+value.SHADOW_SAMPLES.6 = §26
+value.SHADOW_SAMPLES.7 = §a7
+value.SHADOW_SAMPLES.8 = §a8
+value.SHADOW_SAMPLES.9 = §e9
+value.SHADOW_SAMPLES.10 = §e10
+value.SHADOW_SAMPLES.11 = §611
+value.SHADOW_SAMPLES.12 = §612
+value.SHADOW_SAMPLES.13 = §c13
+value.SHADOW_SAMPLES.14 = §c14
+value.SHADOW_SAMPLES.15 = §415
+value.SHADOW_SAMPLES.16 = §416
 
 option.shadowMapResolution = Shadow Quality
 option.shadowMapResolution.comment = Adjusts §bShadows§r resolution. §cHigher resolution gives sharper shadows, but reduces §cperformance.
@@ -69,16 +90,6 @@ value.shadowMapResolution.2048 = §eMedium §7| §e2048
 value.shadowMapResolution.3072 = §6High §7| §63072
 value.shadowMapResolution.4096 = §cVery High §7| §c4096
 value.shadowMapResolution.6144 = §4Extreme §7| §46144
-
-option.SPECULAR = Specular
-option.SPECULAR.comment = Adds a certain shininess to blocks.
-value.SPECULAR.0 = §cOFF
-value.SPECULAR.1 = §aON
-
-option.SOFT_SHADOWS = Soft Shadows
-option.SOFT_SHADOWS.comment = Features §bPCSS §7§o(Percentage-Closer Soft Shadows). The farther the shadow is from an object, the blurrier it gets.
-value.SOFT_SHADOWS.0 = §cOFF
-value.SOFT_SHADOWS.1 = §aON
 
 option.AO = Ambient Occlusion (AO)
 option.AO.comment = §bAmbient Occlusion. §rFeatures pseudo-shadows that enhance a scene's depth perception.

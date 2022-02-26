@@ -75,7 +75,7 @@
         //}
 
         albedoTex   *= vertexColor;
-        shadowColor0 = albedoTex;
+        shadowColor0 = albedoTex * vertexColor;
         //shadowColor1 = vec4(caustics * 0.5 + 0.5);
     }
 #endif

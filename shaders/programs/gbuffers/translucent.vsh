@@ -16,7 +16,7 @@ out vec2 lmCoords;
 out vec3 viewPos;
 out vec3 waterNormals;
 out vec3 skyIlluminance;
-out vec3 shadowLightTransmit;
+out vec3 directLightTransmit;
 out vec4 vertexColor;
 out mat3 TBN;
 
@@ -60,7 +60,7 @@ void main() {
             }
         }
         skyIlluminance     *= (1.0 / (samples.x * samples.y));
-		shadowLightTransmit = shadowLightTransmittance();
+		directLightTransmit = directLightTransmittance();
     #endif
 
 	#if TAA == 1

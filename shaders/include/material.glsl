@@ -72,7 +72,7 @@ const mat2x3 hardcodedMetals[] = mat2x3[](
 
 mat2x3 getHardcodedMetal(Material mat) {
     int metalID = int(mat.F0 * maxVal8 - 229.5);
-    return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(vec3(F0toIOR(mat.albedo)), vec3(0.0));
+    return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(vec3(F0ToIOR(mat.albedo)), vec3(0.0));
 }
 
 float getSkyLightmap(Material mat) {

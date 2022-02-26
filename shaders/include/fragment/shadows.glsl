@@ -6,84 +6,81 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 worldToShadowClip(vec3 worldPos) {
-	vec3 shadowPos = projMAD(shadowProjection, transMAD(shadowModelView, worldPos));
-	return distortShadowSpace(shadowPos.xyz);
+vec3 worldToShadow(vec3 worldPos) {
+	return projMAD(shadowProjection, transMAD(shadowModelView, worldPos));
 }
 
-float visibility(sampler2D tex, vec3 sampleCoords) {
-    return step(sampleCoords.z - SHADOW_BIAS, texture(tex, sampleCoords.xy).r);
+float visibility(sampler2D tex, vec3 samplePos, float bias) {
+    return step(samplePos.z - bias, texture(tex, samplePos.xy).r);
 }
 
-vec3 sampleShadowColor(vec3 sampleCoords) {
-    if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
-    float shadowVisibility0 = visibility(shadowtex0, sampleCoords);
-    float shadowVisibility1 = visibility(shadowtex1, sampleCoords);
-    
-    vec4 shadowColor0     = texture(shadowcolor0, sampleCoords.xy);
-    vec3 transmittedColor = shadowColor0.rgb * (1.0 - shadowColor0.a);
-    return mix(transmittedColor * shadowVisibility1, vec3(1.0), shadowVisibility0);
+vec3 getShadowColor(vec3 samplePos, float bias) {
+    if(clamp01(samplePos) != samplePos) return vec3(1.0);
+
+    float shadow0  = visibility(shadowtex0, samplePos, bias);
+    float shadow1  = visibility(shadowtex1, samplePos, bias);
+    vec4 shadowCol = texture(shadowcolor0, samplePos.xy);
+    shadowCol.rgb *= (1.0 - shadowCol.a);
+
+    return mix(shadowCol.rgb * shadow1, vec3(1.0), shadow0);
 }
 
-#if SOFT_SHADOWS == 0
-
-    vec3 PCF(vec3 sampleCoords, mat2 rotation) {
-	    vec3 shadowResult = vec3(0.0); int SAMPLES;
-
-        for(int x = -SHADOW_SAMPLES; x <= SHADOW_SAMPLES; x++) {
-            for(int y = -SHADOW_SAMPLES; y <= SHADOW_SAMPLES; y++, SAMPLES++) {
-
-                vec3 currSampleCoords = vec3(sampleCoords.xy + (rotation * vec2(x, y)), sampleCoords.z);
-                shadowResult         += sampleShadowColor(currSampleCoords);
-            }
-        }
-        return shadowResult / float(SAMPLES);
-    }
-#else
-    float findBlockerDepth(vec3 sampleCoords, mat2 rotation, float phi) {
-        float avgBlockerDepth = 0.0;
-        int BLOCKERS = 0;
+#if SHADOW_TYPE == 1
+    float findBlockerDepth(vec3 shadowPos, float bias, float phi) {
+        float avgBlockerDepth = 0.0; int BLOCKERS;
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * pixelSize;
-            float z     = texture(shadowtex0, sampleCoords.xy + offset).r;
+            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) / shadowMapResolution;
+            float z     = texture(shadowtex0, shadowPos.xy + offset).r;
 
-            if(sampleCoords.z - SHADOW_BIAS > z) {
+            if(shadowPos.z - bias > z) {
                 avgBlockerDepth += z;
                 BLOCKERS++;
             }
         }
         return BLOCKERS > 0 ? avgBlockerDepth / BLOCKERS : -1.0;
     }
-
-    vec3 PCSS(vec3 sampleCoords, mat2 rotation, float phi) {
-        float avgBlockerDepth = findBlockerDepth(sampleCoords, rotation, phi * TAU);
-        if(avgBlockerDepth < 0.0) return vec3(1.0);
-
-        float penumbraSize = (max0(sampleCoords.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;
-
-        vec3 shadowResult = vec3(0.0);
-        for(int i = 0; i < PCSS_SAMPLES; i++) {
-            vec2 offset           = rotation * (penumbraSize * diskSampling(i, PCSS_SAMPLES, phi));
-            vec3 currSampleCoords = vec3(sampleCoords.xy + offset, sampleCoords.z);
-
-            shadowResult += sampleShadowColor(currSampleCoords);
-        }
-        return shadowResult / float(PCSS_SAMPLES);
-    }
 #endif
 
-vec3 shadowMap(vec3 viewPos) {
-    vec3 sampleCoords = 0.5 * worldToShadowClip(transMAD(gbufferModelViewInverse, viewPos)) + 0.5;
-    if(clamp01(sampleCoords) != sampleCoords) return vec3(1.0);
-    
-    float theta    = (TAA == 1 ? randF() : uniformNoise(1, blueNoise).x);
-    float cosTheta = cos(theta), sinTheta = sin(theta);
-    mat2 rotation  = mat2(cosTheta, -sinTheta, sinTheta, cosTheta) / shadowMapResolution;
+vec3 PCF(vec3 shadowPos, float bias, float penumbraSize) {
+	vec3 shadowResult = vec3(0.0); int SAMPLES;
 
-    #if SOFT_SHADOWS == 0
-        return PCF(sampleCoords, rotation);
+    for(int i = 0; i < SHADOW_SAMPLES; i++, SAMPLES++) {
+        #if SHADOW_TYPE == 2
+            vec2 offset = vec2(0.0);
+        #else
+            vec2 offset = (diskSampling(i, SHADOW_SAMPLES, randF()) * penumbraSize) / shadowMapResolution;
+        #endif
+
+        vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
+        shadowResult  += getShadowColor(samplePos, bias);
+    }
+    return shadowResult / float(SAMPLES);
+}
+
+vec3 shadowMap(vec3 viewPos, Material mat) {
+    #if SHADOWS == 1 
+        vec3 shadowPos = worldToShadow(transMAD(gbufferModelViewInverse, viewPos));
+        float NdotL    = clamp01(dot(transMAD(gbufferModelViewInverse, mat.normal), dirShadowLight));
+
+        if(NdotL < 1e-4) return vec3(1.0);
+
+        // Bias method from SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
+        float bias = (2048.0 / (shadowMapResolution * MC_SHADOW_QUALITY)) + tan(acos(NdotL));
+              bias = bias * getDistortionFactor(shadowPos.xy) * 5e-4;
+
+        float penumbraSize = 1.0;
+
+        #if SHADOW_TYPE == 1
+            vec3 shadowPosDistort = distortShadowSpace(shadowPos) * 0.5 + 0.5;
+            float avgBlockerDepth = findBlockerDepth(shadowPosDistort, bias, randF());
+            if(avgBlockerDepth < 0.0) return vec3(1.0);
+
+            penumbraSize = (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;
+        #endif
+
+        return PCF(shadowPos, bias, penumbraSize);
     #else
-        return PCSS(sampleCoords, rotation, theta);
+        return vec3(1.0);
     #endif
 }
