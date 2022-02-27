@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -45,34 +45,37 @@ void main() {
     mat.blockId  = blockId;
     mat.lightmap = lmCoords;
 
-	vec3 normal;
+	#if WHITE_WORLD == 1
+	    mat.albedo = vec3(1.0);
+    #endif
+
 	// WOTAH
 	if(blockId == 1) { 
 		mat.albedo = vec3(1.0);
 		mat.alpha  = 0.0;
 		mat.F0 	   = 0.02;
 		mat.rough  = 0.0;
-		normal     = TBN * waterNormals;
+		mat.normal = TBN * waterNormals;
 		
 	} else {
-		normal.xy  = normalTex.xy * 2.0 - 1.0;
-		normal.z   = sqrt(1.0 - dot(normal.xy, normal.xy));
-		normal     = TBN * normal;
-		mat.normal = normal;
+		mat.normal.xy = normalTex.xy * 2.0 - 1.0;
+		mat.normal.z  = sqrt(1.0 - dot(mat.normal.xy, mat.normal.xy));
+		mat.normal    = TBN * mat.normal;
 
 		#if GI == 0
-			vec3 shadowmap = shadowMap(viewPos, mat);
+			vec3 scenePos  = transMAD(gbufferModelViewInverse, viewPos);
+			vec3 shadowmap = shadowMap(scenePos, mat.normal);
 
 			#if TONEMAP == 0
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);
     		#endif
 
-			sceneColor.rgb = applyLighting(mat3(gbufferModelViewInverse) * viewPos, dirShadowLight, mat, vec4(shadowmap, 1.0), directLightTransmit, skyIlluminance);
+			sceneColor.rgb = applyLighting(scenePos, dirShadowLight, mat, vec4(shadowmap, 1.0), directLightTransmit, skyIlluminance);
 			sceneColor.a   = mat.alpha;
 		#endif
 	}
 	
-	vec2 encNormal = encodeUnitVector(normal);
+	vec2 encNormal = encodeUnitVector(mat.normal);
 	
 	dataBuffer.x = packUnorm4x8(vec4(mat.rough, (blockId + 0.25) / maxVal8, clamp01(mat.lightmap)));
 	dataBuffer.y = packUnorm4x8(vec4(mat.ao, mat.emission, mat.F0, mat.subsurface));

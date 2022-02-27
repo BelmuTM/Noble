@@ -2,7 +2,7 @@
 #include "/include/extensions.glsl"
 
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -14,7 +14,6 @@ out vec2 texCoords;
 #define STAGE_VERTEX
 #define WORLD_OVERWORLD
 
-#include "/settings.glsl"
-#include "/include/uniforms.glsl"
+#include "/include/common.glsl"
 #include "/programs/composite/deferred.glsl"
 

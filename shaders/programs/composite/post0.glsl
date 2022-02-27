@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -23,8 +23,7 @@ layout (location = 2) out vec4 previousBuffer;
 
     void depthOfField(inout vec3 color, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
         vec3 dof   = vec3(0.0);
-        vec2 noise = uniformAnimatedNoise(vec2(randF(), randF()));
-
+        vec2 noise = vec2(randF(), randF());
         vec2 caOffset;
 
         #if CHROMATIC_ABERRATION == 1

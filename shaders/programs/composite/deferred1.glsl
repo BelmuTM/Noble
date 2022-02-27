@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -82,11 +82,6 @@ void main() {
     vec3 Lighting       = vec3(0.0);
     float historyFrames = 0.0;
 
-    #if WHITE_WORLD == 1
-	    mat.albedo = vec3(1.0);
-        return;
-    #endif
-
     // Overlay
     //vec4 overlay = texelFetch(colortex4, ivec2(gl_FragCoord.xy), 0);
     //mat.albedo   = mix(mat.albedo, sRGBToLinear(overlay.rgb), overlay.a);
@@ -107,7 +102,7 @@ void main() {
 
         #if AO == 1
             if(!mat.isMetal) {
-                #if SSAO_FILTER == 1 && AO_TYPE == 0
+                #if SSAO_FILTER == 1
                     shadowmap.a = gaussianBlur(texCoords, colortex3, 1.4, 2.0, 4).a;
                 #endif
             }
@@ -129,6 +124,5 @@ void main() {
             #endif
         }
     #endif
-
     historyBuffer = vec4(color, historyFrames);
 }

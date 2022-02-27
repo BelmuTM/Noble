@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -7,50 +7,22 @@
 /***********************************************/
 
 // http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
-
-float distributionBeckmann(float NdotH, in float alpha) {
-    alpha *= alpha;
-    float NdotH2 = pow2(NdotH);
-    return (1.0 / (PI * alpha * pow2(NdotH2))) * exp((NdotH2 - 1.0) / (alpha * NdotH2));
+float distributionGGX(float NdotH, float roughness) {
+    float alpha2 = pow4(roughness);
+    float denom  = (NdotH * alpha2 - NdotH) * NdotH + 1.0;
+    return alpha2 / pow2(denom) * INV_PI;
 }
 
-float distributionGGX(float NdotH, in float alpha) {
-    alpha *= alpha;
-    float denom = (NdotH * alpha - NdotH) * NdotH + 1.0;
-    return alpha / pow2(denom) * INV_PI;
+float G1SmithGGX(float NdotV, float roughness) {
+    float alpha2 = pow4(roughness);
+    return (2.0 * NdotV) / maxEps(NdotV + sqrt(alpha2 + (NdotV - NdotV * alpha2) * NdotV));
 }
 
-float geometrySchlickGGX(float cosTheta, float roughness) {
-    float denom = cosTheta * (1.0 - roughness) + roughness;
-    return cosTheta / denom;
-}
-
-float G1SmithGGX(float NdotV, in float roughness) {
-    roughness = pow4(roughness);
-    return clamp01(2.0 * NdotV / (NdotV + sqrt(roughness + (NdotV - NdotV * roughness) * NdotV)));
-}
-
-float G2SmithGGX(float NdotV, float NdotL, in float roughness) {
-	roughness = pow4(roughness);
-	float g1  = NdotL * sqrt(roughness + (NdotV - NdotV * roughness) * NdotV);
-	float g2  = NdotV * sqrt(roughness + (NdotL - NdotL * roughness) * NdotL);
-	return clamp01((2.0 * NdotV * NdotL) / (g1 + g2));
-}
-
-float geometrySmith(float NdotV, float NdotL, float roughness) {
-    float r   = roughness + 1.0;
-    roughness = (r * r) / 8.0;
-
-    float ggxV = geometrySchlickGGX(NdotV, roughness);
-    float ggxL = geometrySchlickGGX(NdotL, roughness);
-    return ggxV * ggxL;
-}
-
-float geometryCookTorrance(float NdotH, float NdotV, float VdotH, float NdotL) {
-    float NdotH2 = 2.0 * NdotH;
-    float g1 = (NdotH2 * NdotV) / VdotH;
-    float g2 = (NdotH2 * NdotL) / VdotH;
-    return min(1.0, min(g1, g2));
+float G2SmithGGX(float NdotV, float NdotL, float roughness) {
+	float alpha2 = pow4(roughness);
+	float denomA = NdotL * sqrt(alpha2 + (NdotV - NdotV * alpha2) * NdotV);
+	float denomB = NdotV * sqrt(alpha2 + (NdotL - NdotL * alpha2) * NdotL);
+	return clamp01((2.0 * NdotV * NdotL) / (denomA + denomB));
 }
 
 float fresnelDielectric(float NdotV, float surfaceIOR) {
@@ -99,26 +71,28 @@ vec3 fresnelDieletricConductor(vec3 eta, vec3 etaK, float cosTheta) {
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
 // Modified by Belmu
-vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
-	// Section 3.2: transforming the view direction to the hemisphere configuration
+vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float roughness) {
+    float alpha = pow2(roughness);
+    
+	// Transforming the view direction to the hemisphere configuration
 	viewDir = normalize(vec3(alpha * viewDir.xy, viewDir.z));
 
-	// Section 4.1: orthonormal basis (with special case if cross product is zero)
+	// Orthonormal basis (with special case if cross product is zero)
 	float lensq = dot(viewDir.yx, viewDir.yx);
 	vec3 T1     = vec3(lensq > 0.0 ? vec2(-viewDir.y, viewDir.x) * inversesqrt(lensq) : vec2(1.0, 0.0), 0.0);
 	vec3 T2     = cross(T1, viewDir);
 
-	// Section 4.2: parameterization of the projected area
+	// Parameterization of the projected area
 	float r   = sqrt(seed.x);
     float phi = TAU * seed.y;
 	float t1  = r * cos(phi);
     float tmp = clamp01(1.0 - pow2(t1));
 	float t2  = mix(sqrt(tmp), r * sin(phi), 0.5 + 0.5 * viewDir.z);
 
-	// Section 4.3: reprojection onto hemisphere
+	// Reprojection onto hemisphere
 	vec3 Nh = t1 * T1 + t2 * T2 + sqrt(clamp01(tmp - pow2(t2))) * viewDir;
 
-	// Section 3.4: transforming the normal back to the ellipsoid configuration
+	// Transforming the normal back to the ellipsoid configuration
 	return normalize(vec3(alpha * Nh.xy, Nh.z));	
 }
 
@@ -144,11 +118,11 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     float HdotL = maxEps(dot(H, L));
     float NdotH = maxEps(dot(N, H));
 
-    float D = distributionGGX(NdotH, pow2(mat.rough));
-    vec3  F = BRDFFresnel(HdotL, mat);
-    float G = geometrySmith(NdotV, NdotL, mat.rough);
+    float D  = distributionGGX(NdotH, mat.rough);
+    vec3  F  = BRDFFresnel(HdotL, mat);
+    float G2 = G2SmithGGX(NdotV, NdotL, mat.rough);
         
-    return clamp01((D * F * G) / (4.0 * NdotL * NdotV)) * NdotL;
+    return ((D * F * G2) / (4.0 * NdotL * NdotV)) * NdotL;
 }
 
 // HAMMON DIFFUSE
@@ -160,7 +134,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     float VdotL = maxEps(dot(V, L));
     float NdotH = maxEps(dot(N, H));
     float NdotV = maxEps(dot(N, V));
-    float NdotL = maxEps(dot(N, L));
+    float NdotL = clamp01(dot(N, L));
 
     float facing    = 0.5 + 0.5 * VdotL;
     float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
@@ -234,12 +208,11 @@ vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLigh
         if(all(greaterThan(mat.normal, vec3(0.0)))) ao = mat.ao;
     #endif
 
-    vec3 direct  = diffuse * directLight * (1.0 - BRDFFresnel(clamp01(dot(mat.normal, L)), mat));
-         direct += specular * directLight;
+    vec3 direct  = (diffuse + specular)  * directLight;
          direct *= shadowmap.rgb;
 
     vec3 indirect  = mat.albedo * (blockLight + skyLight);
-         indirect += mat.albedo * (ao * shadowmap.a);
+         indirect *= (ao * shadowmap.a);
          indirect += mat.albedo * mat.emission;
 
     return direct + (indirect * float(!mat.isMetal));

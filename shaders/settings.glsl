@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -60,7 +60,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 
 #define RTAO_SAMPLES    3 // [3 7]
 #define RTAO_STEPS     32
-#define RTAO_STRENGTH 1.3
+#define RTAO_STRENGTH 2.5
 
 //////////////////////////////////////////////////////////
 /*---------------------- SHADOWS -----------------------*/
@@ -74,7 +74,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 // Soft Shadows
 #define BLOCKER_SEARCH_SAMPLES   8 // [8 12]
 #define BLOCKER_SEARCH_RADIUS 10.0
-#define LIGHT_SIZE           200.0
+#define LIGHT_SIZE           300.0
 
 //////////////////////////////////////////////////////////
 /*-------------------- RAY TRACING ---------------------*/

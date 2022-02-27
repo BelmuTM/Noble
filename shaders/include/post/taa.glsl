@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -60,9 +60,10 @@ float getLumaWeight(vec3 currColor, vec3 prevColor) {
 vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
     vec3 prevPos = reprojection(vec3(texCoords, texture(depthtex1, texCoords).r));
 
-    vec3 currColor = linearToYCoCg(texture(currTex, texCoords).rgb);
+    vec3 currColor = texture(currTex, texCoords).rgb;
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
          prevColor = neighbourhoodClipping(currTex, prevColor);
+         prevColor = YCoCgToLinear(prevColor);
 
     float blendWeight = float(clamp01(prevPos.xy) == prevPos.xy);
 
@@ -79,5 +80,5 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
         blendWeight        *= 1.0 - (1.0 / max(historyFrames, 1.0));
     #endif
 
-    return YCoCgToLinear(mix(currColor, prevColor, blendWeight)); 
+    return mix(currColor, prevColor, blendWeight); 
 }

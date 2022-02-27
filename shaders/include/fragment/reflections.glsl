@@ -65,9 +65,9 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
         vec3 hitPos;
 	
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
-            vec2 noise = TAA == 1 ? uniformAnimatedNoise(vec2(randF(), randF())) : uniformNoise(i, blueNoise);
+            vec2 noise = TAA == 1 ? vec2(randF(), randF()) : uniformNoise(i, blueNoise);
         
-            vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, mix(noise, vec2(0.0), 0.4), pow2(mat.rough));
+            vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, mix(noise, vec2(0.0), 0.4), mat.rough);
 		    vec3 reflected  = reflect(viewDir, TBN * microfacet);	
 
             float NdotL  = clamp01(dot(mat.normal, reflected));

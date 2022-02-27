@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -36,7 +36,7 @@ vec3 getShadowColor(vec3 samplePos, float bias) {
         float avgBlockerDepth = 0.0; int BLOCKERS;
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) / shadowMapResolution;
+            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * PI) / shadowMapResolution;
             float z     = texture(shadowtex0, shadowPos.xy + offset).r;
 
             if(shadowPos.z - bias > z) {
@@ -64,11 +64,10 @@ vec3 PCF(vec3 shadowPos, float bias, float penumbraSize) {
     return shadowResult / float(SAMPLES);
 }
 
-vec3 shadowMap(vec3 viewPos, Material mat) {
+vec3 shadowMap(vec3 worldPos, vec3 normal) {
     #if SHADOWS == 1 
-        vec3 shadowPos = worldToShadow(transMAD(gbufferModelViewInverse, viewPos));
-        float NdotL    = clamp01(dot(transMAD(gbufferModelViewInverse, mat.normal), dirShadowLight));
-
+        vec3 shadowPos = worldToShadow(worldPos);
+        float NdotL    = clamp01(dot(normal, dirShadowLight));
         if(NdotL < 1e-4) return vec3(1.0);
 
         // Bias method from SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0

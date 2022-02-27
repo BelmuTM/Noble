@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -12,8 +12,8 @@ const float anisoFactor = 0.76;
 const float earthRad = 6371e3;
 const float atmosRad = 6481e3;
 
-const float hR = 8.0e3;
-const float hM = 1.2e3;
+const float hR = 8.40e3;
+const float hM = 1.25e3;
 
 /* CLOUDS CONSTANTS */
 const float innerCloudRad = earthRad + CLOUDS_ALTITUDE;

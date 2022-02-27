@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -148,14 +148,13 @@ vec2 projectSphere(in vec3 direction) {
 }
 
 vec3 unprojectSphere(in vec2 coord) {
-    float longitude = coord.x * TAU;
-    float latitude  = coord.y * PI;
-    return vec3(vec2(sin(longitude), cos(longitude)) * sin(latitude), cos(latitude)).xzy;
+    float latitude = coord.y * PI;
+    return vec3(sincos(coord.x * TAU) * sin(latitude), cos(latitude)).xzy;
 }
 
 vec3 generateUnitVector(vec2 xy) {
-    xy.x *= TAU; xy.y = xy.y * 2.0 - 1.0;
-    return vec3(vec2(cos(xy.x), sin(xy.x)) * sqrt(1.0 - xy.y * xy.y), xy.y);
+    xy.x *= TAU; xy.y = 2.0 * xy.y - 1.0;
+    return vec3(sincos(xy.x) * sqrt(1.0 - xy.y * xy.y), xy.y);
 }
 
 vec3 generateCosineVector(vec3 vector, vec2 xy) {
@@ -171,11 +170,6 @@ vec2 vogelDisk(float i, float n, float phi) {
 vec2 diskSampling(float i, float n, float phi){
     float theta = (i + phi) / n; 
     return sincos(theta * TAU * n * GOLDEN_ANGLE) * theta;
-}
-
-vec2 fermatsSpiralGoldenN(float index, float total) {
-	float theta = index * GOLDEN_ANGLE;
-	return vec2(sin(theta), cos(theta)) * sqrt(index / total);
 }
 
 // https://homepages.inf.ed.ac.uk/rbf/HIPR2/gsmooth.htm

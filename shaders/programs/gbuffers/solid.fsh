@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -36,6 +36,10 @@ void main() {
 	#ifdef ENTITY
 		albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 	#endif
+
+	#if WHITE_WORLD == 1
+	    albedoTex.rgb = vec3(1.0);
+    #endif
 
 	float F0 		 = specularTex.y;
 	float ao 		 = normalTex.z;

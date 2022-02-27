@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -48,20 +48,7 @@ void main() {
 		gl_Position     = viewToClip;
 	}
 
-    #ifdef WORLD_OVERWORLD
-        const ivec2 samples = ivec2(16, 8);
-
-        for(int x = 0; x < samples.x; x++) {
-            for(int y = 0; y < samples.y; y++) {
-                vec3 dir = generateUnitVector(vec2(x, y) / samples);
-                     dir = dot(dir, vec3(0.0, 1.0, 0.0)) < 0.0 ? -dir : dir; // Thanks SixthSurge for the help with hemisphere sampling
-
-                skyIlluminance += texture(colortex6, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
-            }
-        }
-        skyIlluminance     *= (1.0 / (samples.x * samples.y));
-		directLightTransmit = directLightTransmittance();
-    #endif
+    skyIlluminance = sampleSkyIlluminance();
 
 	#if TAA == 1
 		bool canJitter = ACCUMULATION_VELOCITY_WEIGHT == 0 ? true : hasMoved();

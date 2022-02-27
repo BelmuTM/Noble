@@ -1,5 +1,5 @@
 /***********************************************/
-/*       Copyright (C) Noble RT - 2021         */
+/*        Copyright (C) NobleRT - 2022         */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -51,7 +51,7 @@
             mat3 TBN;
 
             for(int j = 0; j <= GI_BOUNCES; j++) {
-                vec2 noise = uniformAnimatedNoise(vec2(randF(), randF()));
+                vec2 noise = vec2(randF(), randF());
 
                 /* Russian Roulette */
                 if(j > ROULETTE_MIN_BOUNCES) {
@@ -70,7 +70,7 @@
                     radiance += throughput * directBRDF(hitPos.xy, mat.normal, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb);
                 #endif
 
-                vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, pow2(mat.rough));
+                vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, mat.rough);
                 vec3 fresnel    = BRDFFresnel(dot(-rayDir, microfacet), mat);
 
                 /* Specular Bounce Probability */
