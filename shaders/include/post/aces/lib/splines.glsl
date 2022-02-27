@@ -125,8 +125,8 @@ struct SegmentedSplineParamsC9 {
 };
 
 const SegmentedSplineParamsC5 RRT_PARAMS = SegmentedSplineParamsC5(
-    vec2[6](-4.0000000000,-4.0000000000,-3.1573765773,-0.4852499958, 1.8477324706, 1.8477324706), // coeffsLow[6]
-    vec2[6](-0.7185482425, 2.0810307172, 3.6681241237, 4.0000000000, 4.0000000000, 4.0000000000), // coeffsHigh[6]
+    float[6](-4.0000000000,-4.0000000000,-3.1573765773,-0.4852499958, 1.8477324706, 1.8477324706), // coeffsLow[6]
+    float[6](-0.7185482425, 2.0810307172, 3.6681241237, 4.0000000000, 4.0000000000, 4.0000000000), // coeffsHigh[6]
     vec2(0.18 * exp2(-15.0),   1e-4),                                                        // minPoint
     vec2(0.18,                  4.8),                                                        // midPoint  
     vec2(0.18 * exp2(18.0), 10000.0),                                                        // maxPoint
@@ -135,8 +135,8 @@ const SegmentedSplineParamsC5 RRT_PARAMS = SegmentedSplineParamsC5(
 );
 
 const SegmentedSplineParamsC9 ODT_48nits = SegmentedSplineParamsC9(
-    vec2[10](-1.6989700043,-1.6989700043,-1.4779000000,-1.2291000000,-0.8648000000,-0.4480000000, 0.0051800000, 0.4511080334, 0.9113744414, 0.9113744414), // coeffsLow[10]
-    vec2[10]( 0.5154386965, 0.8470437783, 1.1358000000, 1.3802000000, 1.5197000000, 1.5985000000, 1.6467000000, 1.6746091357, 1.6878733390, 1.6878733390), // coeffsHigh[10]
+    float[10](-1.6989700043,-1.6989700043,-1.4779000000,-1.2291000000,-0.8648000000,-0.4480000000, 0.0051800000, 0.4511080334, 0.9113744414, 0.9113744414), // coeffsLow[10]
+    float[10]( 0.5154386965, 0.8470437783, 1.1358000000, 1.3802000000, 1.5197000000, 1.5985000000, 1.6467000000, 1.6746091357, 1.6878733390, 1.6878733390), // coeffsHigh[10]
     vec2(0.18 * exp2(-6.5), 0.02),                                                                                                                   // minPoint
     vec2(0.18,               4.8),                                                                                                                   // midPoint  
     vec2(0.18 * exp2(6.5),  48.0),                                                                                                                   // maxPoint
@@ -183,7 +183,7 @@ float segmentedSplineC5Fwd(float x) {
 }
 
 float segmentedSplineC9Fwd(float x) {
-    const SegmentedSplineParamsC9 C = ODT_48nits;
+    SegmentedSplineParamsC9 C = ODT_48nits;
     const int N_KNOTS_LOW  = 8;
     const int N_KNOTS_HIGH = 8;
 
