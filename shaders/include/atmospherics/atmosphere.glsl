@@ -48,7 +48,6 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), scatteringMultiple = vec3(0.0), transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
-        
             vec3 airmass          = densities(length(rayPos) - earthRad) * stepLength;
             vec3 stepOpticalDepth = kExtinction * airmass;
 
@@ -70,8 +69,10 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             transmittance *= stepTransmittance;
         }
         scatteringMultiple *= (skyIlluminance * INV_PI) * isotropicPhase;
+        sunScattering     *= sunIlluminance;
+        moonScattering    *= moonIlluminance;
     
-        return (sunScattering * sunIlluminance) + (moonScattering * moonIlluminance) + scatteringMultiple;
+        return sunScattering + moonScattering + scatteringMultiple;
     }
 #endif
 

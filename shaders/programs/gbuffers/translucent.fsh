@@ -63,7 +63,7 @@ void main() {
 		mat.normal    = TBN * mat.normal;
 
 		#if GI == 0
-			vec3 scenePos  = transMAD(gbufferModelViewInverse, viewPos);
+			vec3 scenePos  = viewToScene(viewPos);
 			vec3 shadowmap = shadowMap(scenePos, mat.normal);
 
 			#if TONEMAP == 0

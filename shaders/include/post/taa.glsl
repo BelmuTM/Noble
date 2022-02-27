@@ -74,7 +74,7 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
         float normalWeight = pow(clamp01(dot(getMaterial(texCoords).normal, weightTex.rgb)), 8.0);
         float depthWeight  = pow(exp(-abs(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex10, prevPos.xy).a))), 1e-3);
         
-        blendWeight *= (normalWeight * depthWeight * TAA_STRENGTH);
+        blendWeight *= (normalWeight * depthWeight);
     #else
         float historyFrames = texture(colortex5, texCoords).a;
         blendWeight        *= 1.0 - (1.0 / max(historyFrames, 1.0));

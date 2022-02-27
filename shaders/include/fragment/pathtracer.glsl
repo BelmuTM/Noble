@@ -30,11 +30,10 @@
             diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat, false);
         #endif
 
-        #ifdef WORLD_OVERWORLD
-            return (diffuse + specular) * (directLightTransmittance() * shadowmap);
-        #else
-            return (diffuse + specular) * shadowmap;
-        #endif
+        vec3 direct  = (diffuse + specular) * directLightTransmittance();
+             direct *= (shadowmap * clamp01(dot(N, L)));
+        
+        return direct;
     }
 
     void pathTrace(inout vec3 radiance, in vec3 screenPos) {

@@ -67,6 +67,10 @@ vec3 viewToWorld(vec3 viewPos) {
 	return transMAD(gbufferModelViewInverse, viewPos) + cameraPosition;
 }
 
+vec3 viewToScene(vec3 viewPos) {
+	return transMAD(gbufferModelViewInverse, viewPos);
+}
+
 mat3 constructViewTBN(vec3 viewNormal) {
 	vec3 tangent = normalize(cross(gbufferModelViewInverse[1].xyz, viewNormal));
 	return mat3(tangent, cross(tangent, viewNormal), viewNormal);

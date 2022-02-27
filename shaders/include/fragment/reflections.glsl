@@ -21,8 +21,9 @@ vec3 getHitColor(vec3 hitPos) {
     #endif
 }
 
-vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
-    return (texture(colortex6, projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected)) * ATMOSPHERE_RESOLUTION).rgb + celestialBody(reflected)) * getSkyLightmap(mat);
+vec3 getSkyFallback(vec3 reflected, Material mat) {
+    vec3 sky = texture(colortex6, projectSphere(normalize(viewToScene(reflected))) * ATMOSPHERE_RESOLUTION).rgb;
+    return (sky + celestialBody(reflected)) * pow2(quintic(0.0, 1.0, mat.lightmap.y));
 }
 
 //////////////////////////////////////////////////////////
@@ -30,7 +31,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
 //////////////////////////////////////////////////////////
 
 #if REFLECTIONS_TYPE == 0
-    vec3 simpleReflections(vec2 coords, vec3 viewPos, Material mat) {
+    vec3 simpleReflections(vec3 viewPos, Material mat) {
         viewPos     += mat.normal * 1e-3;
         vec3 viewDir = normalize(viewPos);
 
@@ -42,7 +43,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
 
         vec3 color;
         #if SKY_FALLBACK == 1
-            color = mix(getSkyFallback(coords, reflected, mat), hitColor, Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit);
+            color = mix(getSkyFallback(reflected, mat), hitColor, Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit);
         #else
             color = hitColor * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
         #endif
@@ -55,7 +56,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
 /*------------------ ROUGH REFLECTIONS -----------------*/
 //////////////////////////////////////////////////////////
 
-    vec3 roughReflections(vec2 coords, vec3 viewPos, Material mat) {
+    vec3 roughReflections(vec3 viewPos, Material mat) {
 	    vec3 color        = vec3(0.0);
 	    float totalWeight = EPS;
 
@@ -82,7 +83,7 @@ vec3 getSkyFallback(vec2 coords, vec3 reflected, Material mat) {
                 #if SKY_FALLBACK == 0
                     hitColor = mix(vec3(0.0), getHitColor(hitPos), factor);
                 #else
-                    hitColor = mix(getSkyFallback(coords, reflected, mat), getHitColor(hitPos), factor);
+                    hitColor = mix(getSkyFallback(reflected, mat), getHitColor(hitPos), factor);
                 #endif
 
 		        color       += NdotL * hitColor * fresnel;

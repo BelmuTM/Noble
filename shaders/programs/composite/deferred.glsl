@@ -43,7 +43,7 @@
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
-            shadowmap.rgb = shadowMap(transMAD(gbufferModelViewInverse, viewPos), transMAD(gbufferModelViewInverse, mat.normal));
+            shadowmap.rgb = shadowMap(viewToScene(viewPos), viewToScene(mat.normal));
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {

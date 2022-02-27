@@ -34,7 +34,7 @@ const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
 mat2x3 kScattering = mat2x3(kRlh, kMie);
 mat3x3 kExtinction = mat3x3(kRlh, kMie * 1.11, kOzo);
 
-const vec3 atmosRayPos = vec3(0.0, earthRad, 0.0);
+vec3 atmosRayPos = vec3(0.0, earthRad + eyeAltitude, 0.0);
 
 const float isotropicPhase = 0.079577471;
 

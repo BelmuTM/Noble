@@ -13,18 +13,25 @@ float distributionGGX(float NdotH, float roughness) {
     return alpha2 / pow2(denom) * INV_PI;
 }
 
-float G1SmithGGX(float NdotV, float roughness) {
-    float alpha2 = pow4(roughness);
-    return (2.0 * NdotV) / maxEps(NdotV + sqrt(alpha2 + (NdotV - NdotV * alpha2) * NdotV));
+// Thanks LVutner#5199 for providing lambda smith equation
+float lambdaSmith(float cosTheta, float alpha) {
+    float cosTheta2 = pow2(cosTheta);
+    return (-1.0 + sqrt(1.0 + alpha * (1.0 - cosTheta2) / cosTheta2)) * 0.5;
 }
 
-float G2SmithGGX(float NdotV, float NdotL, float roughness) {
-	float alpha2 = pow4(roughness);
-	float denomA = NdotL * sqrt(alpha2 + (NdotV - NdotV * alpha2) * NdotV);
-	float denomB = NdotV * sqrt(alpha2 + (NdotL - NdotL * alpha2) * NdotL);
-	return clamp01((2.0 * NdotV * NdotL) / (denomA + denomB));
+float G1SmithGGX(float cosTheta, float roughness) {
+    float alpha = pow2(roughness);
+    return 1.0 / (1.0 + lambdaSmith(cosTheta, alpha));
 }
 
+float G2SmithGGX(float NL, float NV, float roughness) {
+    float alpha   = pow2(roughness);
+    float lambdaV = lambdaSmith(NV, alpha);
+    float lambdaL = lambdaSmith(NL, alpha);
+    return 1.0 / (1.0 + lambdaV + lambdaL);
+}
+
+// https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 float fresnelDielectric(float NdotV, float surfaceIOR) {
     float n1 = airIOR, n2 = surfaceIOR;
     float sinThetaT = (n1 / n2) * max0(1.0 - pow2(NdotV));
@@ -39,7 +46,7 @@ float fresnelDielectric(float NdotV, float surfaceIOR) {
 }
 
 vec3 fresnelDielectric(float NdotV, vec3 surfaceIOR) {
-    vec3 n1        = vec3(airIOR), n2 = surfaceIOR;
+    vec3 n1 = vec3(airIOR), n2 = surfaceIOR;
     vec3 sinThetaT = (n1 / n2) * max0(1.0 - pow2(NdotV));
     vec3 cosThetaT = 1.0 - pow2(sinThetaT);
 
@@ -114,15 +121,15 @@ vec3 BRDFFresnel(float cosTheta, Material mat) {
 vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     vec3 H      = normalize(V + L);
     float NdotV = maxEps(dot(N, V));
-    float NdotL = maxEps(dot(N, L));
-    float HdotL = maxEps(dot(H, L));
-    float NdotH = maxEps(dot(N, H));
+    float NdotL = clamp01(dot(N, L));
+    float HdotL = dot(H, L);
+    float NdotH = dot(N, H);
 
     float D  = distributionGGX(NdotH, mat.rough);
     vec3  F  = BRDFFresnel(HdotL, mat);
     float G2 = G2SmithGGX(NdotV, NdotL, mat.rough);
         
-    return ((D * F * G2) / (4.0 * NdotL * NdotV)) * NdotL;
+    return max0((D * F * G2) / maxEps(4.0 * NdotL * NdotV));
 }
 
 // HAMMON DIFFUSE
@@ -154,11 +161,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
     float multi  = 0.1159 * alpha;
 
-    if(!pt) {
-        return max0((mat.albedo * (single + mat.albedo * multi)) * NdotL);
-    } else {
-        return max0(mat.albedo * (single + mat.albedo * multi));
-    }
+    return max0(mat.albedo * (single + mat.albedo * multi));
 }
 
 // Disney SSS from: https://www.shadertoy.com/view/XdyyDd
@@ -200,7 +203,7 @@ vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLigh
     mat.lightmap.y = pow2(quintic(0.0, 1.0, mat.lightmap.y));
 
     vec3 skyLight   = (skyIlluminance * INV_PI) * mat.lightmap.y;
-    vec3 blockLight = colorTemperatureToRGB(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_MULTIPLIER * mat.lightmap.x;
+    vec3 blockLight = temperatureToRGB(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_MULTIPLIER * mat.lightmap.x;
 
     float ao = 1.0;
     #if MATERIAL_AO == 1
@@ -208,12 +211,11 @@ vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLigh
         if(all(greaterThan(mat.normal, vec3(0.0)))) ao = mat.ao;
     #endif
 
+    float NdotL  = clamp01(dot(mat.normal, L));
     vec3 direct  = (diffuse + specular)  * directLight;
-         direct *= shadowmap.rgb;
+         direct *= (shadowmap.rgb * NdotL);
 
-    vec3 indirect  = mat.albedo * (blockLight + skyLight);
-         indirect *= (ao * shadowmap.a);
-         indirect += mat.albedo * mat.emission;
+    vec3 indirect = mat.albedo * (blockLight + skyLight) * (ao * shadowmap.a);
 
     return direct + (indirect * float(!mat.isMetal));
 }

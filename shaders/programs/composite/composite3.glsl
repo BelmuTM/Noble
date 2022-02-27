@@ -58,7 +58,7 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if GI == 0
-            vec4 translucents = texture(colortex1, texCoords);
+            vec4 translucents = texture(colortex1, coords);
                  color        = mix(color, translucents.rgb, translucents.a);
         #endif
     }

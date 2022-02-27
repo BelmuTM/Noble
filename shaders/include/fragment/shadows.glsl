@@ -1,5 +1,5 @@
 /***********************************************/
-/*        Copyright (C) NobleRT - 2022         */
+/*       Copyright (C) NobleRT - 2022          */
 /*   Belmu | GNU General Public License V3.0   */
 /*                                             */
 /* By downloading this content you have agreed */
@@ -68,7 +68,6 @@ vec3 shadowMap(vec3 worldPos, vec3 normal) {
     #if SHADOWS == 1 
         vec3 shadowPos = worldToShadow(worldPos);
         float NdotL    = clamp01(dot(normal, dirShadowLight));
-        if(NdotL < 1e-4) return vec3(1.0);
 
         // Bias method from SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
         float bias = (2048.0 / (shadowMapResolution * MC_SHADOW_QUALITY)) + tan(acos(NdotL));

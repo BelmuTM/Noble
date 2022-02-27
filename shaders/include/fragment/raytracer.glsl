@@ -29,7 +29,7 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, inout vec3
         float depth    = linearizeDepth(texture(depthtex1, rayPos.xy).r);
         float rayDepth = linearizeDepth(rayPos.z);
 
-        intersect = rayDepth > depth && abs(RAY_DEPTH_TOLERANCE - (rayDepth - depth)) < RAY_DEPTH_TOLERANCE && depth >= 0.56;
+        intersect = rayDepth > depth && depth >= 0.56;
     }
 
     #if BINARY_REFINEMENT == 1
