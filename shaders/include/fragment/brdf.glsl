@@ -129,7 +129,7 @@ vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     vec3  F  = BRDFFresnel(HdotL, mat);
     float G2 = G2SmithGGX(NdotV, NdotL, mat.rough);
         
-    return max0((D * F * G2) / maxEps(4.0 * NdotL * NdotV));
+    return NdotL * (D * F * G2) / maxEps(4.0 * NdotL * NdotV);
 }
 
 // HAMMON DIFFUSE
@@ -161,7 +161,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
     float multi  = 0.1159 * alpha;
 
-    return max0(mat.albedo * (single + mat.albedo * multi));
+    return single + mat.albedo * multi;
 }
 
 // Disney SSS from: https://www.shadertoy.com/view/XdyyDd
@@ -212,8 +212,9 @@ vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLigh
     #endif
 
     float NdotL  = clamp01(dot(mat.normal, L));
-    vec3 direct  = (diffuse + specular)  * directLight;
-         direct *= (shadowmap.rgb * NdotL);
+    vec3 direct  = mat.albedo * (diffuse * NdotL) * directLight;
+         direct += specular * directLight;
+         direct *= shadowmap.rgb;
 
     vec3 indirect = mat.albedo * (blockLight + skyLight) * (ao * shadowmap.a);
 

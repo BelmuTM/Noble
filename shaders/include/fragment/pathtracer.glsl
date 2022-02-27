@@ -14,13 +14,14 @@
 #if GI == 1
     vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, in float roughness) {
         float NdotV = maxEps(dot(N, V));
-        float NdotL = dot(N, L);
+        float NdotL = clamp01(dot(N, L));
 
         return fresnel * G2SmithGGX(NdotV, NdotL, roughness) / G1SmithGGX(NdotV, roughness);
     }
 
     vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, Material mat, vec3 shadowmap) {
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : cookTorranceSpecular(N, V, L, mat);
+        vec3 directLight = directLightTransmittance();
 
         vec3 diffuse = vec3(0.0);
         #if SUBSURFACE_SCATTERING == 1
@@ -30,9 +31,11 @@
             diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(N, V, L, mat, false);
         #endif
 
-        vec3 direct  = (diffuse + specular) * directLightTransmittance();
-             direct *= (shadowmap * clamp01(dot(N, L)));
-        
+        float NdotL  = clamp01(dot(mat.normal, L));
+        vec3 direct  = mat.albedo * (diffuse * NdotL) * directLight;
+             direct += specular * directLight;
+             direct *= shadowmap;
+
         return direct;
     }
 
