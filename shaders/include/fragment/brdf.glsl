@@ -208,7 +208,7 @@ vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLigh
     float ao = 1.0;
     #if MATERIAL_AO == 1
         // Thanks Kneemund for the nametag fix
-        if(all(greaterThan(mat.normal, vec3(0.0)))) ao = mat.ao;
+        if(all(greaterThan(-mat.normal, vec3(0.0)))) ao = mat.ao;
     #endif
 
     float NdotL  = clamp01(dot(mat.normal, L));
