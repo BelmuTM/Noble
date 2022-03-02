@@ -55,10 +55,10 @@ value.SHADOWS.0 = §cOFF
 value.SHADOWS.1 = §aON
 
 option.SHADOW_TYPE = Shadow Type
-option.SHADOW_TYPE.comment = §aNormal§r shadows are shadows with blurred edges. §aSoft§r shadows get blurrier the farther they are from the blocker. §aHard§r shadows have very sharp edges.
+option.SHADOW_TYPE.comment = §aNormal§r shadows are shadows with blurred edges. §aSoft§r shadows get blurrier the farther they are from the blocker. §aSharp§r shadows have very sharp edges.
 value.SHADOW_TYPE.0 = §eNormal
 value.SHADOW_TYPE.1 = §eSoft
-value.SHADOW_TYPE.2 = §eHard
+value.SHADOW_TYPE.2 = §eSharp
 
 option.shadowDistance = Shadow Distance
 option.shadowDistance.comment = Adjusts §bShadows§r maximum render distance.
@@ -83,13 +83,12 @@ value.SHADOW_SAMPLES.15 = §415
 value.SHADOW_SAMPLES.16 = §416
 
 option.shadowMapResolution = Shadow Quality
-option.shadowMapResolution.comment = Adjusts §bShadows§r resolution. §cHigher resolution gives sharper shadows, but reduces §cperformance.
+option.shadowMapResolution.comment = Adjusts §bShadow§r resolution. §cHigher resolution gives sharper shadows, but reduces §cperformance.
 value.shadowMapResolution.512 = §aVery Low §7| §a512
-value.shadowMapResolution.1024 = §2Low §7| §21024
-value.shadowMapResolution.2048 = §eMedium §7| §e2048
-value.shadowMapResolution.3072 = §6High §7| §63072
-value.shadowMapResolution.4096 = §cVery High §7| §c4096
-value.shadowMapResolution.6144 = §4Extreme §7| §46144
+value.shadowMapResolution.1024 = §eLow §7| §e1024
+value.shadowMapResolution.2048 = §6Medium §7| §62048
+value.shadowMapResolution.3072 = §cHigh §7| §c3072
+value.shadowMapResolution.4096 = §4Very High §7| §44096
 
 option.AO = Ambient Occlusion (AO)
 option.AO.comment = §bAmbient Occlusion. §rFeatures pseudo-shadows that enhance a scene's depth perception.

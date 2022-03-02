@@ -42,7 +42,7 @@ void main() {
     #endif
 
 	float F0 		 = specularTex.y;
-	float ao 		 = normalTex.z;
+	float ao 		 = all(greaterThan(geoNormal, vec3(0.0))) ? normalTex.z : 1.0; // Thanks Kneemund for the nametag fix
 	float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
 	float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
 	float subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;

@@ -6,13 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float timeMidnight = ((clamp(float(worldTime), 12500.0, 12750.0) - 12500.0) / 250.0) - 
-                     ((clamp(float(worldTime), 23000.0, 24000.0) - 23000.0) / 1000.0);
-
 // Originally written by Capt Tatsu#7124
 // Modified by Belmu#4066
 float computeStarfield(vec3 viewPos) {
-	vec3 scenePos    = viewToScene(viewPos);
+	vec3 scenePos    = mat3(gbufferModelViewInverse) * viewPos;
 	vec3 planeCoords = scenePos / (scenePos.y + length(scenePos.xz));
 	vec2 coords 	 = planeCoords.xz * 0.9 + cameraPosition.xz * 1e-5 + frameTime * 0.00125;
 	coords 			 = floor(coords * 1024.0) / 1024.0;
@@ -59,7 +56,7 @@ vec3 computeSky(vec3 viewPos, bool starfield) {
     	#endif
 
 		vec3 stars = vec3(0.0);
-    	if(starfield) { stars = computeStarfield(viewPos) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 120.0) * starsColor; }
+    	if(starfield) { stars = computeStarfield(viewPos) * STARS_BRIGHTNESS * starsColor; }
 
 		vec3 sky   = texture(colortex6, (coords * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
 		vec3 sun   = physicalSun(sceneDir);

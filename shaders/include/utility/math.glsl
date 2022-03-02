@@ -198,7 +198,7 @@ vec2 encodeUnitVector(vec3 v) {
 vec3 decodeUnitVector(vec2 enc) {
 	enc    = 2.0 * enc - 1.0;
 	vec3 v = vec3(enc.xy, 1.0 - abs(enc.x) - abs(enc.y));
-	if(v.z < 0) v.xy = (1.0 - abs(v.yx)) * signNonZero(v.xy);
+	if(v.z < 0.0) v.xy = (1.0 - abs(v.yx)) * signNonZero(v.xy);
 	return normalize(v);
 }
 

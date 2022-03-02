@@ -15,6 +15,7 @@ flat in int blockId;
 in vec2 texCoords;
 in vec2 lmCoords;
 in vec3 viewPos;
+in vec3 geoNormal;
 in vec3 waterNormals;
 in vec3 skyIlluminance;
 in vec3 directLightTransmit;
@@ -34,7 +35,7 @@ void main() {
 	Material mat;
     mat.F0         = specularTex.y;
     mat.rough      = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
-    mat.ao         = normalTex.z;
+    mat.ao         = all(greaterThan(geoNormal, vec3(0.0))) ? normalTex.z : 1.0; // Thanks Kneemund for the nametag fix
 	mat.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     mat.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
     mat.isMetal    = mat.F0 * maxVal8 > 229.5;

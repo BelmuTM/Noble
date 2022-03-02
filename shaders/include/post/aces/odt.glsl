@@ -67,7 +67,6 @@ vec3 darkSurroundToDimSurround(vec3 linearCV) {
 
 // Gamma curves functions
 
-/*
 float moncurve_r(float y, float gamma, float offset) {
     float yb = pow(offset * gamma / (( gamma - 1.0) * (1.0 + offset)), gamma);
     float rs = pow((gamma - 1.0) / offset, gamma - 1.0) * pow((1.0 + offset) / gamma, gamma);
@@ -82,7 +81,6 @@ float bt1886_r(float L, float gamma, float Lw, float Lb) {
     float V = pow(max(L / a, 0.0), 1.0 / gamma) - b;
     return V;
 }
-*/
 
 void odt(inout vec3 color) {
     color *= AP0_2_AP1_MAT; // OCES to RGB rendering space
@@ -105,4 +103,10 @@ void odt(inout vec3 color) {
 
     // CIE XYZ to display primaries and handling out-of-gamut values
     color = clamp01(color * XYZ_2_sRGB_MAT);
+
+    #ifdef ACES_ODT_GAMMA_CURVES
+        color.r = moncurve_r(color.r, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
+        color.g = moncurve_r(color.g, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
+        color.b = moncurve_r(color.b, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
+    #endif
 }

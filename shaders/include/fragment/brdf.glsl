@@ -103,16 +103,6 @@ vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float roughness) {
 	return normalize(vec3(alpha * Nh.xy, Nh.z));	
 }
 
-// https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile?sessionInvalidated=true
-float envBRDFApprox(float cosTheta, Material mat) {
-    const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
-    const vec4 c1 = vec4( 1.0,  0.0425,  1.04,  -0.04);
-    vec4 r        = mat.rough * c0 + c1;
-    float a004    = min(r.x * r.x, exp2(-9.28 * cosTheta)) * r.x + r.y;
-    vec2 AB       = vec2(-1.04, 1.04) * a004 + r.zw;
-    return mat.F0 * AB.x + AB.y;
-}
-
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
 vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
@@ -177,17 +167,24 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     vec3  F  = BRDFFresnel(HdotL, mat);
     float G2 = G2SmithGGX(NdotV, NdotL, mat.rough);
         
-    return max0(NdotL * (D * F * G2) / maxEps(4.0 * NdotL * NdotV));
+    return clamp01(NdotL * (D * F * G2) / maxEps(4.0 * NdotL * NdotV));
 }
 
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
-    V = -normalize(V);
+float blocklight_falloff(float lightmap){
+     float dist = 1.0 - lightmap;
+           dist = pow(dist * 4.0 + 2.0, -2.0);
 
+     return lightmap * dist;
+}
+
+vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
     if(mat.isMetal) return vec3(0.0);
+
+    V = -normalize(V);
     vec3 diffuse = hammonDiffuse(mat.normal, V, L, mat, false);
 
     #if SUBSURFACE_SCATTERING == 1
@@ -196,19 +193,13 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     #endif
 
     mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(quintic(0.0, 1.0, mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);
-    mat.lightmap.y = pow2(quintic(0.0, 1.0, mat.lightmap.y));
+    mat.lightmap.y = pow2(1.0 - pow(1.0 - clamp01(mat.lightmap.y), 0.5));
 
     vec3 skyLight   = (skyIlluminance * INV_PI) * mat.lightmap.y;
     vec3 blockLight = temperatureToRGB(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_MULTIPLIER * mat.lightmap.x;
 
-    float ao = 1.0;
-    #if MATERIAL_AO == 1
-        // Thanks Kneemund for the nametag fix
-        if(all(greaterThan(-mat.normal, vec3(0.0)))) ao = mat.ao;
-    #endif
-
     vec3 direct   = (directLight * clamp01(dot(mat.normal, L))) * (diffuse * shadowmap.rgb);
-    vec3 indirect = (blockLight + skyLight) * (ao * shadowmap.a);
+    vec3 indirect = blockLight + (skyLight * (mat.ao * shadowmap.a));
 
     return mat.albedo * (direct + indirect);
 }

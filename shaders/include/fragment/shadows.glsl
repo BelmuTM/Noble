@@ -49,9 +49,9 @@ vec3 getShadowColor(vec3 samplePos, float bias) {
 #endif
 
 vec3 PCF(vec3 shadowPos, float bias, float penumbraSize) {
-	vec3 shadowResult = vec3(0.0); int SAMPLES;
+	vec3 shadowResult = vec3(0.0);
 
-    for(int i = 0; i < SHADOW_SAMPLES; i++, SAMPLES++) {
+    for(int i = 0; i < SHADOW_SAMPLES; i++) {
         #if SHADOW_TYPE == 2
             vec2 offset = vec2(0.0);
         #else
@@ -61,7 +61,7 @@ vec3 PCF(vec3 shadowPos, float bias, float penumbraSize) {
         vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
         shadowResult  += getShadowColor(samplePos, bias);
     }
-    return shadowResult / float(SAMPLES);
+    return shadowResult / float(SHADOW_SAMPLES);
 }
 
 vec3 shadowMap(vec3 worldPos, vec3 normal) {

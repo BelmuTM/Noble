@@ -132,8 +132,8 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        float bloomStrength = max0(exp2(exposure - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH)));
-        color = mix(color, readBloom(), bloomStrength);
+        float bloomStrength = max0(exp2(exposure - 3.0 + BLOOM_STRENGTH));
+        color               = mix(color, readBloom(), bloomStrength);
     #endif
 
     #if FILM_GRAIN == 1

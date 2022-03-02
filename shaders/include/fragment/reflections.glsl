@@ -38,23 +38,28 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 
 #if REFLECTIONS_TYPE == 0
     vec3 simpleReflections(vec3 viewPos, Material mat) {
-        viewPos     += mat.normal * 1e-3;
+        viewPos     += mat.normal * 1e-2;
         vec3 viewDir = normalize(viewPos);
 
-        vec3 reflected = reflect(viewDir, mat.normal), hitPos;
+        vec3 reflected = reflect(viewDir, mat.normal); vec3 hitPos;
         float hit      = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, randF(), hitPos));
-  
-        vec3 fresnel  = BRDFFresnel(maxEps(dot(mat.normal, -viewDir)), mat);
-        vec3 hitColor = getHitColor(hitPos);
+        float factor   = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
+        vec3 hitColor  = getHitColor(hitPos);
 
-        vec3 color;
-        #if SKY_FALLBACK == 1
-            color = mix(getSkyFallback(reflected, mat), hitColor, Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit);
+        #if SKY_FALLBACK == 0
+            vec3 color = mix(vec3(0.0), hitColor, factor);
         #else
-            color = hitColor * Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
+            vec3 color = mix(getSkyFallback(reflected, mat), hitColor, factor);
         #endif
 
-        return color * fresnel;
+        float NdotL = maxEps(dot(mat.normal, reflected));
+        float NdotV = maxEps(dot(mat.normal, viewDir));
+
+        vec3  F  = BRDFFresnel(NdotL, mat);
+        float G1 = G1SmithGGX(NdotV, mat.rough);
+        float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
+
+        return color * ((F * G2) / G1);
     }
 #else
 
@@ -63,40 +68,39 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 //////////////////////////////////////////////////////////
 
     vec3 roughReflections(vec3 viewPos, Material mat) {
-	    vec3 color        = vec3(0.0);
-	    float totalWeight = EPS;
+	    vec3 color = vec3(0.0); vec3 hitPos;
 
         viewPos     += mat.normal * 1e-2;
         mat3 TBN     = constructViewTBN(mat.normal);
         vec3 viewDir = normalize(viewPos);
-        vec3 hitPos;
+        float NdotV  = maxEps(dot(mat.normal, viewDir));
 	
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
             vec2 noise = TAA == 1 ? vec2(randF(), randF()) : uniformNoise(i, blueNoise);
         
-            vec3 microfacet = sampleGGXVNDF(-viewDir * TBN, mix(noise, vec2(0.0), 0.4), mat.rough);
-		    vec3 reflected  = reflect(viewDir, TBN * microfacet);	
-
-            float NdotL  = clamp01(dot(mat.normal, reflected));
-            vec3 fresnel = BRDFFresnel(NdotL, mat);
+            vec3 microfacet = TBN * sampleGGXVNDF(-viewDir * TBN, noise, mat.rough);
+		    vec3 reflected  = reflect(viewDir, microfacet);	
+            float NdotL     = dot(mat.normal, reflected);
 
             if(NdotL > 0.0) {
-                float hit = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(), hitPos));
-                vec3 hitColor;
-
-                float factor = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
+                float hit     = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(), hitPos));
+                float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
+                vec3 hitColor = getHitColor(hitPos);
 
                 #if SKY_FALLBACK == 0
-                    hitColor = mix(vec3(0.0), getHitColor(hitPos), factor);
+                    hitColor = mix(vec3(0.0), hitColor, factor);
                 #else
-                    hitColor = mix(getSkyFallback(reflected, mat), getHitColor(hitPos), factor);
+                    hitColor = mix(getSkyFallback(reflected, mat), hitColor, factor);
                 #endif
 
-		        color       += NdotL * hitColor * fresnel;
-                totalWeight += NdotL;
+                vec3  F  = BRDFFresnel(dot(microfacet, reflected), mat);
+                float G1 = G1SmithGGX(NdotV, mat.rough);
+                float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
+
+		        color += (hitColor * ((F * G2) / G1));
             }
 	    }
-	    return color / totalWeight;
+	    return color / float(ROUGH_SAMPLES);
     }
 #endif
 

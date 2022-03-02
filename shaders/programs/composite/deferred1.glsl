@@ -83,15 +83,14 @@ void main() {
         //////////////////////////////////////////////////////////
         /*--------------------- LIGHTING -----------------------*/
         //////////////////////////////////////////////////////////
-
         #if AO == 1
             if(!mat.isMetal) {
                 #if SSAO_FILTER == 1
-                    shadowmap.a = gaussianBlur(texCoords, colortex3, 1.4, 2.0, 4).a;
+                    shadowmap.a = gaussianBlur(texCoords, colortex3, 1.2, 2.0, 4).a;
                 #endif
             }
         #endif
-        
+
         color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, directLightTransmittance(), skyIlluminance);
     #else
         //////////////////////////////////////////////////////////
