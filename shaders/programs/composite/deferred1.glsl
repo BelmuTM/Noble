@@ -92,7 +92,7 @@ void main() {
             }
         #endif
         
-        color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, directLightTransmittance(), skyIlluminance);
+        if(!mat.isMetal) { color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, directLightTransmittance(), skyIlluminance); }
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/
