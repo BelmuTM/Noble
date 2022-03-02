@@ -10,9 +10,10 @@
 
 layout (location = 0) out vec3 color;
 
+#include "/include/fragment/brdf.glsl"
+
 #include "/include/atmospherics/celestial.glsl"
 
-#include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
 

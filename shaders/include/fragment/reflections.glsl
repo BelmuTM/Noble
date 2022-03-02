@@ -22,8 +22,14 @@ vec3 getHitColor(vec3 hitPos) {
 }
 
 vec3 getSkyFallback(vec3 reflected, Material mat) {
-    vec3 sky = texture(colortex6, projectSphere(normalize(viewToScene(reflected))) * ATMOSPHERE_RESOLUTION).rgb;
-    return (sky + celestialBody(reflected)) * pow2(quintic(0.0, 1.0, mat.lightmap.y));
+    #if TAA == 1
+        float jitter = randF();
+    #else
+        float jitter = bayer8(gl_FragCoord.xy);
+    #endif
+
+    vec3 sky = texture(colortex6, (projectSphere(viewToScene(reflected)) * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
+    return sky * pow2(quintic(0.0, 1.0, mat.lightmap.y));
 }
 
 //////////////////////////////////////////////////////////
@@ -60,7 +66,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 	    vec3 color        = vec3(0.0);
 	    float totalWeight = EPS;
 
-        viewPos     += mat.normal * 1e-3;
+        viewPos     += mat.normal * 1e-2;
         mat3 TBN     = constructViewTBN(mat.normal);
         vec3 viewDir = normalize(viewPos);
         vec3 hitPos;

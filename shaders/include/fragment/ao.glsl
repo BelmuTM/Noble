@@ -26,8 +26,8 @@
 	}
 #else
 
-	float solidAngleOcclusion(float nl, float cosAngle){
-    	return (-1.00062+cosAngle)*(((-0.323768+nl)*0.737338*cosAngle+0.500923)*(-0.997182-nl));
+	float solidAngleOcclusion(float NdotL, float cosTheta){
+    	return (-1.00062 + cosTheta) * (((-0.323768 + NdotL) * 0.737338 * cosTheta + 0.500923) * (-0.997182 - NdotL));
 	}
 
 	float computeRTAO(vec3 viewPos, vec3 normal) {
@@ -41,7 +41,7 @@
 			if(dot(normal, sampleDir) < 0.0) { sampleDir = -sampleDir; }
 			if(!raytrace(samplePos, sampleDir, RTAO_STEPS, randF(), hitPos)) { break; }
 
-			float dist = distance(viewToWorld(samplePos), viewToWorld(screenToView(hitPos)));
+			float dist = distance(viewToWorld(samplePos), viewToWorld(getViewPos0(hitPos.xy)));
 			occlusion += RTAO_STRENGTH / (dist + 1.0);
 		}
 		return clamp01(1.0 - (occlusion / RTAO_SAMPLES));

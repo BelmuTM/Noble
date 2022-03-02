@@ -113,25 +113,6 @@ float envBRDFApprox(float cosTheta, Material mat) {
     return mat.F0 * AB.x + AB.y;
 }
 
-vec3 BRDFFresnel(float cosTheta, Material mat) {
-    mat2x3 hcm = getHardcodedMetal(mat);
-    return mat.isMetal ? fresnelDieletricConductor(hcm[0], hcm[1], cosTheta) : vec3(fresnelDielectric(cosTheta, F0ToIOR(mat.F0)));
-}
-
-vec3 cookTorranceSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
-    vec3 H      = normalize(V + L);
-    float NdotV = maxEps(dot(N, V));
-    float NdotL = clamp01(dot(N, L));
-    float HdotL = dot(H, L);
-    float NdotH = dot(N, H);
-
-    float D  = distributionGGX(NdotH, mat.rough);
-    vec3  F  = BRDFFresnel(HdotL, mat);
-    float G2 = G2SmithGGX(NdotV, NdotL, mat.rough);
-        
-    return NdotL * (D * F * G2) / maxEps(4.0 * NdotL * NdotV);
-}
-
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
 vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
@@ -161,7 +142,8 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
     float multi  = 0.1159 * alpha;
 
-    return single + mat.albedo * multi;
+    if(pt) { return clamp01(single + mat.albedo * multi);           }
+    else   { return clamp01(NdotL * (single + mat.albedo * multi)); }
 }
 
 // Disney SSS from: https://www.shadertoy.com/view/XdyyDd
@@ -179,24 +161,37 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, Material mat) {
     return quintic(0.0, 1.0, ss);
 }
 
+vec3 BRDFFresnel(float cosTheta, Material mat) {
+    mat2x3 hcm = getHardcodedMetal(mat);
+    return mat.isMetal ? fresnelDieletricConductor(hcm[0], hcm[1], cosTheta) : vec3(fresnelDielectric(cosTheta, F0ToIOR(mat.F0)));
+}
+
+vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
+    vec3 H      = normalize(V + L);
+    float NdotV = maxEps(dot(N, V));
+    float NdotL = clamp01(dot(N, L));
+    float HdotL = dot(H, L);
+    float NdotH = dot(N, H);
+
+    float D  = distributionGGX(NdotH, mat.rough);
+    vec3  F  = BRDFFresnel(HdotL, mat);
+    float G2 = G2SmithGGX(NdotV, NdotL, mat.rough);
+        
+    return max0(NdotL * (D * F * G2) / maxEps(4.0 * NdotL * NdotV));
+}
+
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
+vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
     V = -normalize(V);
 
-    vec3 specular = vec3(0.0);
-    #if SPECULAR == 1
-        specular = cookTorranceSpecular(mat.normal, V, L, mat);
-    #endif
+    vec3 diffuse = hammonDiffuse(mat.normal, V, L, mat, false);
 
-    vec3 diffuse = vec3(0.0);
     #if SUBSURFACE_SCATTERING == 1
         float SSS = disneySubsurface(mat.normal, V, L, mat);
-        diffuse   = mat.isMetal ? vec3(0.0) : mix(hammonDiffuse(mat.normal, V, L, mat, false), SSS * mat.albedo, mat.subsurface * float(!isSky(texCoords)));
-    #else
-        diffuse = mat.isMetal ? vec3(0.0) : hammonDiffuse(mat.normal, V, L, mat, false);
+        diffuse   = mix(diffuse, SSS * mat.albedo, mat.subsurface);
     #endif
 
     mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(quintic(0.0, 1.0, mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);
@@ -211,12 +206,8 @@ vec3 applyLighting(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLigh
         if(all(greaterThan(-mat.normal, vec3(0.0)))) ao = mat.ao;
     #endif
 
-    float NdotL  = clamp01(dot(mat.normal, L));
-    vec3 direct  = mat.albedo * (diffuse * NdotL) * directLight;
-         direct += specular * directLight;
-         direct *= shadowmap.rgb;
+    vec3 direct   = (directLight * clamp01(dot(mat.normal, L))) * (diffuse * shadowmap.rgb);
+    vec3 indirect = (blockLight + skyLight) * (ao * shadowmap.a);
 
-    vec3 indirect = mat.albedo * (blockLight + skyLight) * (ao * shadowmap.a);
-
-    return direct + (indirect * float(!mat.isMetal));
+    return mat.albedo * (direct + indirect);
 }

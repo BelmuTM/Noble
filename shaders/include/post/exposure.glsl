@@ -17,7 +17,7 @@ const bool colortex0MipmapEnabled = true;
           float previousLuma = texture(prevTex, vec2(0.5)).a;
           previousLuma       = previousLuma > 0.0 ? previousLuma : currLuma;
 
-          float exposureTime      = currLuma > previousLuma ? 0.3 : 1.8; // <----- Concept from SixSeven#0150
+          float exposureTime      = currLuma > previousLuma ? 0.2 : 1.4;
           float exposureFrameTime = exp(-exposureTime * frameTime);
           return mix(currLuma, previousLuma, EXPOSURE == 0 ? 0.0 : exposureFrameTime);
      }

@@ -12,9 +12,10 @@ layout (location = 0) out vec3 color;
 layout (location = 1) out vec3 bloomBuffer;
 layout (location = 2) out vec4 volumetricLight;
 
+#include "/include/fragment/brdf.glsl"
+
 #include "/include/atmospherics/celestial.glsl"
 
-#include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
 #include "/include/fragment/shadows.glsl"
@@ -28,8 +29,8 @@ void main() {
     bool inWater = isEyeInWater > 0.5;
     bool sky     = isSky(texCoords);
 
-    vec3 viewPos0 = getViewPos0(texCoords);
-    vec3 viewDir0 = normalize(mat3(gbufferModelViewInverse) * viewPos0);
+    vec3 viewPos0  = getViewPos0(texCoords);
+    vec3 sceneDir0 = normalize(mat3(gbufferModelViewInverse) * viewPos0);
 
     Material mat = getMaterial(texCoords);
     vec2 coords  = texCoords;
@@ -81,7 +82,7 @@ void main() {
 
                 #if WATER_FOG == 0
                     float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
-                    waterFog(color, depthDist, dot(viewDir0, sceneSunDir), skyIlluminance, mat.lightmap.y);
+                    waterFog(color, depthDist, dot(sceneDir0, sceneSunDir), skyIlluminance, mat.lightmap.y);
                 #else
                     vec3 worldDir  = normalize(inWater ? worldPos0 : worldPos1);
                     volumetricWaterFog(color, startPos, endPos, worldDir, skyIlluminance, mat.lightmap.y);
@@ -95,9 +96,16 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if GI == 0
+            vec3 viewDir0 = -normalize(viewPos0);
+
+            #if SPECULAR == 1
+                vec3 shadowmap = texture(colortex3, coords).rgb;
+                color         += computeSpecular(mat.normal, viewDir0, shadowDir, mat) * directLightTransmittance() * shadowmap;
+            #endif
+
             #if REFLECTIONS == 1
                 vec3 reflections = texture(colortex4, texCoords * REFLECTIONS_RES).rgb;
-                float NdotV      = maxEps(dot(mat.normal, -normalize(viewPos0)));
+                float NdotV      = maxEps(dot(mat.normal, viewDir0));
 
                 if(mat.rough > 0.05) {
                     float DFG = envBRDFApprox(NdotV, mat);

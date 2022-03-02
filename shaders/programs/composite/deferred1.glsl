@@ -53,23 +53,7 @@ void main() {
     //////////////////////////////////////////////////////////
 
     if(isSky(texCoords)) {
-        #ifdef WORLD_OVERWORLD
-            vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * viewPos0));
-            vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)));
-
-            #if TAA == 1
-                float jitter = randF();
-            #else
-                float jitter = bayer8(gl_FragCoord.xy);
-            #endif
-
-            vec3 sky = texture(colortex6, (coords * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
-            color    = sky + (starfield(viewPos0) * exp(-timeMidnight) * (STARS_BRIGHTNESS * 120.0) * starsColor);
-            color   += celestialBody(normalize(viewPos0));
-        #else 
-            color = vec3(0.0);
-        #endif
-
+        color = computeSky(viewPos0, true);
         return;
     }
 
@@ -108,13 +92,13 @@ void main() {
             }
         #endif
         
-        color = applyLighting(viewPos0, shadowDir, mat, shadowmap, directLightTransmittance(), skyIlluminance);
+        color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, directLightTransmittance(), skyIlluminance);
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/
         //////////////////////////////////////////////////////////
 
-        vec2 scaledUv  = texCoords * (1.0 / GI_RESOLUTION);
+        vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords) {
             pathTrace(color, vec3(scaledUv, texture(depthtex1, scaledUv).r));

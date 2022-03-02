@@ -70,7 +70,7 @@ void main() {
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);
     		#endif
 
-			sceneColor.rgb = applyLighting(scenePos, dirShadowLight, mat, vec4(shadowmap, 1.0), directLightTransmit, skyIlluminance);
+			sceneColor.rgb = computeDiffuse(scenePos, dirShadowLight, mat, vec4(shadowmap, 1.0), directLightTransmit, skyIlluminance);
 			sceneColor.a   = mat.alpha;
 		#endif
 	}

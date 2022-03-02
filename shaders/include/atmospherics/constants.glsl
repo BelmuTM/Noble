@@ -39,9 +39,10 @@ vec3 atmosRayPos = vec3(0.0, earthRad + eyeAltitude, 0.0);
 const float isotropicPhase = 0.079577471;
 
 /* CELESTIAL CONSTANTS */
-const float moonRad    = 1.7374e3;
-const float moonDist   = 3.8440e5;
-const float moonAlbedo = 0.12;
+const float moonRad       = 1.7374e3;
+const float moonDist      = 3.8440e5;
+const float moonAlbedo    = 0.12;
+const float moonRoughness = 0.40;
 
 const float sunRad  = 6.9634e8;
 const float sunDist = 1.496e11;

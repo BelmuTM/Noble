@@ -82,13 +82,11 @@ vec3 tangentToView(vec3 viewNormal, vec3 H) {
 }
 
 vec3 getViewPos0(vec2 coords) {
-    vec3 screenPos = vec3(coords, texture(depthtex0, coords).r);
-    return screenToView(screenPos);
+    return screenToView(vec3(coords, texture(depthtex0, coords).r));
 }
 
 vec3 getViewPos1(vec2 coords) {
-    vec3 screenPos = vec3(coords, texture(depthtex1, coords).r);
-    return screenToView(screenPos);
+    return screenToView(vec3(coords, texture(depthtex1, coords).r));
 }
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth

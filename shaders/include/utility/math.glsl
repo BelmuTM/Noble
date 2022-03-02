@@ -131,7 +131,7 @@ vec2 intersectSphericalShell(vec3 rayOrigin, vec3 rayDir, float innerSphereRad, 
     bool innerSphereIntersected = innerSphereDists.y >= 0.0;
     bool outerSphereIntersected = outerSphereDists.y >= 0.0;
 
-    if (!outerSphereIntersected) return vec2(-1.0);
+    if(!outerSphereIntersected) return vec2(-1.0);
 
     vec2 dists;
     dists.x = innerSphereIntersected && innerSphereDists.x < 0.0 ? innerSphereDists.y : max0(outerSphereDists.x);
@@ -140,14 +140,14 @@ vec2 intersectSphericalShell(vec3 rayOrigin, vec3 rayDir, float innerSphereRad, 
     return dists;
 }
 
-vec2 projectSphere(in vec3 direction) {
+vec2 projectSphere(vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
     float latitude  = acos(direction.y);
 
     return vec2(longitude * (1.0 / TAU) + 0.5, latitude * INV_PI);
 }
 
-vec3 unprojectSphere(in vec2 coord) {
+vec3 unprojectSphere(vec2 coord) {
     float latitude = coord.y * PI;
     return vec3(sincos(coord.x * TAU) * sin(latitude), cos(latitude)).xzy;
 }

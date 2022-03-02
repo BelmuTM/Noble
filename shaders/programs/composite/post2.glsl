@@ -132,7 +132,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        float bloomStrength = max0(exp2(computeExposure(luminance(color)) - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH)));
+        float bloomStrength = max0(exp2(exposure - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH)));
         color = mix(color, readBloom(), bloomStrength);
     #endif
 

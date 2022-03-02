@@ -22,7 +22,6 @@ out mat3 TBN;
 
 #include "/include/fragment/water.glsl"
 
-#include "/include/atmospherics/celestial.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
 
 void main() {
