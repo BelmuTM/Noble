@@ -187,6 +187,7 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
     V = -normalize(V);
 
+    if(mat.isMetal) return vec3(0.0);
     vec3 diffuse = hammonDiffuse(mat.normal, V, L, mat, false);
 
     #if SUBSURFACE_SCATTERING == 1
