@@ -9,11 +9,11 @@
 /* ATMOSPHERE CONSTANTS */
 const float anisoFactor = 0.76;
 
-const float earthRad = 6371e3; // meters
-const float atmosRad = 6481e3; // meters
+const float earthRad      = 6371e3;           // meters
+const float atmosLowerRad = earthRad - 4e3;   // meters
+const float atmosUpperRad = earthRad + 110e3; // meters
 
-const float hR = 8.40e3; // meters
-const float hM = 1.25e3; // meters
+const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // meters
 
 /* CLOUDS CONSTANTS */
 const float innerCloudRad = earthRad + CLOUDS_ALTITUDE;

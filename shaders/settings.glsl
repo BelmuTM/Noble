@@ -71,6 +71,8 @@ const float shadowDistanceRenderMul = 1.0;
 #define SHADOW_SAMPLES      8 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
 #define SHADOW_DISTORTION 0.9
 
+#define NORMAL_SHADOW_BLUR_RADIUS 0.25
+
 // Soft Shadows
 #define BLOCKER_SEARCH_SAMPLES   8 // [8 12]
 #define BLOCKER_SEARCH_RADIUS 10.0

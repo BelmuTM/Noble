@@ -75,7 +75,10 @@ vec3 shadowMap(vec3 worldPos, vec3 normal) {
 
         float penumbraSize = 1.0;
 
-        #if SHADOW_TYPE == 1
+        #if SHADOW_TYPE == 0
+            penumbraSize = NORMAL_SHADOW_BLUR_RADIUS;
+
+        #elif SHADOW_TYPE == 1
             vec3 shadowPosDistort = distortShadowSpace(shadowPos) * 0.5 + 0.5;
             float avgBlockerDepth = findBlockerDepth(shadowPosDistort, bias, randF());
             if(avgBlockerDepth < 0.0) return vec3(1.0);

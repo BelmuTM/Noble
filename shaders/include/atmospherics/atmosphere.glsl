@@ -20,7 +20,7 @@
 #include "/include/atmospherics/density.glsl"
 
 vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
-    float stepLength = intersectSphere(rayOrigin, lightDir, atmosRad).y / float(TRANSMITTANCE_STEPS);
+    float stepLength = intersectSphere(rayOrigin, lightDir, atmosUpperRad).y / float(TRANSMITTANCE_STEPS);
     vec3 increment   = lightDir * stepLength;
     vec3 rayPos      = rayOrigin + increment * 0.5;
 
@@ -33,7 +33,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
 #if defined STAGE_FRAGMENT
     vec3 atmosphericScattering(vec3 rayDir, vec3 skyIlluminance) {
-        vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, earthRad - 700.0, atmosRad);
+        vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, atmosLowerRad, atmosUpperRad);
         if(dists.y < 0.0) return vec3(0.0);
 
         float stepLength = (dists.y - dists.x) / float(SCATTERING_STEPS);
