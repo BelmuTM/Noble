@@ -36,7 +36,7 @@ vec3 getShadowColor(vec3 samplePos, float bias) {
         float avgBlockerDepth = 0.0; int BLOCKERS;
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * PI) / shadowMapResolution;
+            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) / shadowMapResolution;
             float z     = texture(shadowtex0, shadowPos.xy + offset).r;
 
             if(shadowPos.z - bias > z) {
@@ -55,7 +55,7 @@ vec3 PCF(vec3 shadowPos, float bias, float penumbraSize) {
         #if SHADOW_TYPE == 2
             vec2 offset = vec2(0.0);
         #else
-            vec2 offset = (diskSampling(i, SHADOW_SAMPLES, randF()) * penumbraSize) / shadowMapResolution;
+            vec2 offset = (diskSampling(i, SHADOW_SAMPLES, randF() * TAU) * penumbraSize) / shadowMapResolution;
         #endif
 
         vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;

@@ -56,7 +56,7 @@ void main() {
 		mat.alpha  = 0.0;
 		mat.F0 	   = 0.02;
 		mat.rough  = 0.0;
-		mat.normal = TBN * waterNormals;
+		mat.normal = waterNormals;
 		
 	} else {
 		mat.normal.xy = normalTex.xy * 2.0 - 1.0;

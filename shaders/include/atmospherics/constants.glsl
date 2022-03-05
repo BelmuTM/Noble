@@ -9,11 +9,11 @@
 /* ATMOSPHERE CONSTANTS */
 const float anisoFactor = 0.76;
 
-const float earthRad = 6371e3;
-const float atmosRad = 6481e3;
+const float earthRad = 6371e3; // meters
+const float atmosRad = 6481e3; // meters
 
-const float hR = 8.40e3;
-const float hM = 1.25e3;
+const float hR = 8.40e3; // meters
+const float hM = 1.25e3; // meters
 
 /* CLOUDS CONSTANTS */
 const float innerCloudRad = earthRad + CLOUDS_ALTITUDE;
@@ -51,10 +51,8 @@ const float sunTemp = 5778.0;
 const float sunAngularRad  = CELESTIAL_SIZE_MULTIPLIER * sunRad  / sunDist;
 const float moonAngularRad = CELESTIAL_SIZE_MULTIPLIER * moonRad / moonDist;
 
-vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 125e3; // Brightness of light reaching the earth (J/m²)
+vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (J/m²)
 vec3 sunLuminance   = sunIlluminance / (TAU * (1.0 - cos(sunAngularRad)));
 
 vec3 moonLuminance   = moonAlbedo * sunIlluminance;
 vec3 moonIlluminance = moonLuminance * (TAU * (1.0 - cos(moonAngularRad))); // The rough amount of light the moon emits that reaches the earth
-
-vec3 illuminanceShadowLight = worldTime <= 12750 ? sunIlluminance : moonIlluminance;

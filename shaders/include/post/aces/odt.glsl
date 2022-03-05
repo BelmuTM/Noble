@@ -61,7 +61,7 @@ float YTolinearCV(float y, float maxY, float minY) {
 
 vec3 darkSurroundToDimSurround(vec3 linearCV) {
     vec3 xyY = XYZToxyY(linearCV * AP1_2_XYZ_MAT);
-    xyY.b    = pow(clamp16(xyY.b), DIM_SURROUND_GAMMA);
+    xyY.b    = pow(clamp01(xyY.b), DIM_SURROUND_GAMMA);
     return xyYToXYZ(xyY) * XYZ_2_AP1_MAT;
 }
 
@@ -76,8 +76,8 @@ float moncurve_r(float y, float gamma, float offset) {
 }
 
 float bt1886_r(float L, float gamma, float Lw, float Lb) {
-    float a = pow(pow(Lw, 1.0 / gamma) - pow( Lb, 1.0 / gamma), gamma);
-    float b = pow(Lb, 1.0 / gamma) / (pow(Lw, 1.0 / gamma) - pow( Lb, 1.0 / gamma));
+    float a = pow(pow(Lw, 1.0 / gamma) - pow(Lb, 1.0 / gamma), gamma);
+    float b = pow(Lb, 1.0 / gamma) / (pow(Lw, 1.0 / gamma) - pow(Lb, 1.0 / gamma));
     float V = pow(max(L / a, 0.0), 1.0 / gamma) - b;
     return V;
 }
@@ -105,8 +105,8 @@ void odt(inout vec3 color) {
     color = clamp01(color * XYZ_2_sRGB_MAT);
 
     #ifdef ACES_ODT_GAMMA_CURVES
-        color.r = moncurve_r(color.r, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
-        color.g = moncurve_r(color.g, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
-        color.b = moncurve_r(color.b, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
+        color.r = bt1886_r(color.r, ODT_DISPGAMMA, 1.0, 0.0);
+        color.g = bt1886_r(color.g, ODT_DISPGAMMA, 1.0, 0.0);
+        color.b = bt1886_r(color.b, ODT_DISPGAMMA, 1.0, 0.0);
     #endif
 }

@@ -21,7 +21,7 @@
 
     vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, Material mat, vec3 shadowmap) {
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : computeSpecular(N, V, L, mat);
-        vec3 directLight = directLightTransmittance();
+        vec3 directLight = sampleDirectIlluminance();
 
         vec3 diffuse = vec3(0.0);
         #if SUBSURFACE_SCATTERING == 1

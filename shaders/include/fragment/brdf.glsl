@@ -174,13 +174,6 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-float blocklight_falloff(float lightmap){
-     float dist = 1.0 - lightmap;
-           dist = pow(dist * 4.0 + 2.0, -2.0);
-
-     return lightmap * dist;
-}
-
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
     if(mat.isMetal) return vec3(0.0);
 
@@ -198,8 +191,8 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     vec3 skyLight   = (skyIlluminance * INV_PI) * mat.lightmap.y;
     vec3 blockLight = temperatureToRGB(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_MULTIPLIER * mat.lightmap.x;
 
-    vec3 direct   = (directLight * clamp01(dot(mat.normal, L))) * (diffuse * shadowmap.rgb);
-    vec3 indirect = blockLight + (skyLight * (mat.ao * shadowmap.a));
+    diffuse  = directLight * (diffuse * shadowmap.rgb);
+    diffuse += blockLight  + (skyLight * (mat.ao * shadowmap.a));
 
-    return mat.albedo * (direct + indirect);
+    return mat.albedo * diffuse;
 }

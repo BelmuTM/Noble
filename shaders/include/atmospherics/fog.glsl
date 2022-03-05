@@ -20,7 +20,7 @@ void volumetricGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
 
     float VdotL     = dot(normalize(scenePos), dirShadowLight);
     vec2 phase      = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisoFactor));
-    vec3 scattering = kScattering * (airmass * phase) * illuminanceShadowLight;
+    vec3 scattering = kScattering * (airmass * phase) * (worldTime <= 12750 ? sunIlluminance : moonIlluminance);
 
     color = color * transmittance + (scattering * transmittedFraction);
 }
@@ -72,7 +72,7 @@ vec3 volumetricLighting(vec3 viewPos) {
         transmittance *= stepTransmittance;
     }
     
-    vec3 directIllum = directLightTransmittance();
+    vec3 directIllum = sampleDirectIlluminance();
     scattering     *= mix(directIllum, vec3(luminance(directIllum)), rainStrength);
 
     return max0(scattering);
@@ -87,7 +87,7 @@ void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance, fl
     vec3 transmittance = exp(-absorptionCoeff * WATER_DENSITY * dist);
 
     vec3 scattering  = skyIlluminance * isotropicPhase * pow2(quintic(0.0, 1.0, skyLight));
-         scattering += illuminanceShadowLight * cornetteShanksPhase(VdotL, 0.5);
+         scattering += (worldTime <= 12750 ? sunIlluminance : moonIlluminance) * cornetteShanksPhase(VdotL, 0.5);
          scattering  = scattering * (scatteringCoeff - scatteringCoeff * transmittance);
 
     color = color * transmittance + scattering;
@@ -123,7 +123,7 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
     }
 
     vec3 scattering = vec3(0.0);
-    scattering += directScatter   * directLightTransmittance() * cornetteShanksPhase(VdotL, 0.5);
+    scattering += directScatter   * sampleDirectIlluminance() * cornetteShanksPhase(VdotL, 0.5);
     scattering *= scatteringCoeff * (1.0 - stepTransmittance) / extinctionCoeff;
 
     // Multiple scattering approximation provided by Jessie#7257

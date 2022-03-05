@@ -66,10 +66,6 @@ void main() {
     vec3 Lighting       = vec3(0.0);
     float historyFrames = 0.0;
 
-    // Overlay
-    //vec4 overlay = texelFetch(colortex4, ivec2(gl_FragCoord.xy), 0);
-    //mat.albedo   = mix(mat.albedo, sRGBToLinear(overlay.rgb), overlay.a);
-
     vec3 skyIlluminance = vec3(0.0);
     #ifdef WORLD_OVERWORLD
         skyIlluminance = texture(colortex7, texCoords).rgb;
@@ -91,7 +87,7 @@ void main() {
             }
         #endif
 
-        color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, directLightTransmittance(), skyIlluminance);
+        color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance);
     #else
         //////////////////////////////////////////////////////////
         /*------------------- PATH TRACING ---------------------*/
