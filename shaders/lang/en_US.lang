@@ -228,12 +228,6 @@ value.VL_STEPS.32 = §632
 option.VL_DENSITY = VL Density
 option.VL_DENSITY.comment = Adjusts the density of §bVolumetric Lighting§r. It is used in water fog.
 
-option.STARS_AMOUNT = Stars Amount
-option.STARS_AMOUNT.comment = Adjusts the amount of stars in the night sky.
-
-option.STARS_BRIGHTNESS = Stars Brightness
-option.STARS_BRIGHTNESS.comment = Adjusts the brightness of stars in the night sky.
-
 ##################### WORLD #####################
 
 option.WHITE_WORLD = White World
