@@ -44,18 +44,16 @@ vec3 sRGBToLinear(vec3 sRGB) {
     return mix(higher, lower, step(sRGB, vec3(0.04045)));
 }
 
-// Adobe RGB (1998) color space matrix from:
-// http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-const mat3 RGB_2_XYZ_MAT = (mat3(
-    0.5767309, 0.1855540, 0.1881852,
-    0.2973769, 0.6273491, 0.0752741,
-    0.0270343, 0.0706872, 0.9911085
+const mat3 SRGB_2_XYZ_MAT = (mat3(
+    0.4124, 0.3576, 0.1805,
+    0.2126, 0.7152, 0.0722,
+    0.0193, 0.1192, 0.9505
 ));
 
-const mat3 XYZ_2_RGB_MAT = (mat3(
-     2.0413690,-0.5649464,-0.3446944,
-    -0.9692660, 1.8760108, 0.0415560,
-     0.0134474,-0.1183897, 1.0154096
+const mat3 XYZ_2_SRGB_MAT = (mat3(
+     3.2406,-1.5372,-0.4986,
+    -0.9689, 1.8758, 0.0415,
+     0.0557,-0.2040, 1.0570
 ));
 
 const mat3 CONE_RESP_CAT02 = mat3(
@@ -69,9 +67,6 @@ const mat3 CONE_RESP_BRADFORD = mat3(
 	vec3(-0.7502, 1.7135, 0.0367),
 	vec3( 0.0389,-0.0685, 1.0296)
 );
-
-vec3 linearToXYZ(vec3 linear) { return linearTosRGB(linear) * RGB_2_XYZ_MAT; }
-vec3 XYZToLinear(vec3 xyz)    { return sRGBToLinear(xyz * XYZ_2_RGB_MAT);    }
 
 // https://www.shadertoy.com/view/ltjBWG
 const mat3 RGB_2_YCoCg = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
@@ -229,9 +224,9 @@ mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
 }
 
 void whiteBalance(inout vec3 color) {
-    vec3 source              = blackbody(WHITE_BALANCE) * RGB_2_XYZ_MAT;
-    vec3 destination         = blackbody(6500.0) * RGB_2_XYZ_MAT;
-    mat3 chromaticAdaptation = RGB_2_XYZ_MAT * chromaticAdaptationMatrix(source, destination) * XYZ_2_RGB_MAT;
+    vec3 source              = blackbody(WHITE_BALANCE) * SRGB_2_XYZ_MAT;
+    vec3 destination         = blackbody(6500.0) * SRGB_2_XYZ_MAT;
+    mat3 chromaticAdaptation = SRGB_2_XYZ_MAT * chromaticAdaptationMatrix(source, destination) * XYZ_2_SRGB_MAT;
     color                   *= chromaticAdaptation;
 }
 

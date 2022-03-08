@@ -22,17 +22,17 @@ const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
 // Coefficients provided by Jessie#7257 and LVutner#5199
 
 #if TONEMAP == 0
-    vec3 kRlh = linearToAP1(vec3(5.8, 13.3, 33.31)    * 1e-6);
-    vec3 kMie = linearToAP1(vec3(21.0)                * 1e-6);
-    vec3 kOzo = linearToAP1(vec3(3.426, 8.298, 0.356) * 1e-7);
+    vec3 rayleighCoeff = linearToAP1(vec3(5.8, 13.3, 33.31)    * 1e-6);
+    vec3 mieCoeff      = linearToAP1(vec3(21.0)                * 1e-6);
+    vec3 ozoneCoeff    = linearToAP1(vec3(8.30428e-07, 1.31491e-06, 5.44068e-08));
 #else
-    vec3 kRlh = vec3(5.8, 13.3, 33.31)    * 1e-6;
-    vec3 kMie = vec3(21.0)                * 1e-6;
-    vec3 kOzo = vec3(3.426, 8.298, 0.356) * 1e-7;
+    vec3 rayleighCoeff = vec3(5.8, 13.3, 33.31)    * 1e-6;
+    vec3 mieCoeff      = vec3(21.0)                * 1e-6;
+    vec3 ozoneCoeff    = vec3(8.30428e-07, 1.31491e-06, 5.44068e-08);
 #endif
 
-mat2x3 kScattering = mat2x3(kRlh, kMie);
-mat3x3 kExtinction = mat3x3(kRlh, kMie * 1.11, kOzo);
+mat2x3 kScattering = mat2x3(rayleighCoeff, mieCoeff);
+mat3x3 kExtinction = mat3x3(rayleighCoeff, mieCoeff * 1.11, ozoneCoeff);
 
 vec3 atmosRayPos = vec3(0.0, earthRad + eyeAltitude, 0.0);
 

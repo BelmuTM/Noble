@@ -41,9 +41,10 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         vec3 rayPos      = atmosRayPos + increment * 0.5;
 
         float sunVdotL = dot(rayDir, sceneSunDir); float moonVdotL = dot(rayDir, sceneMoonDir);
-        vec4 phase     = vec4(rayleighPhase(sunVdotL),  cornetteShanksPhase(sunVdotL, anisoFactor), 
-                              rayleighPhase(moonVdotL), cornetteShanksPhase(moonVdotL, anisoFactor)
-                        );
+        vec4 phase     = vec4(
+            rayleighPhase(sunVdotL),  cornetteShanksPhase(sunVdotL, anisoFactor), 
+            rayleighPhase(moonVdotL), cornetteShanksPhase(moonVdotL, anisoFactor)
+        );
 
         vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), scatteringMultiple = vec3(0.0), transmittance = vec3(1.0);
     
@@ -82,8 +83,7 @@ vec3 sampleDirectIlluminance() {
     #ifdef WORLD_OVERWORLD
         vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, sceneSunDir)  * sunIlluminance;
         vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, sceneMoonDir) * moonIlluminance;
-
-        directIlluminance = (sunTransmit + moonTransmit) * quintic(0.0, 0.01, abs(dirShadowLight.y));
+        directIlluminance = sunTransmit + moonTransmit;
 
         #if TONEMAP == 0
             directIlluminance = linearToAP1(directIlluminance);

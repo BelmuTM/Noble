@@ -72,7 +72,7 @@
                 #endif
 
                 vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, mat.rough);
-                vec3 fresnel    = BRDFFresnel(dot(-rayDir, microfacet), mat);
+                vec3 fresnel    = fresnelComplex(dot(-rayDir, microfacet), mat);
 
                 /* Specular Bounce Probability */
                 float fresnelLum    = luminance(fresnel);

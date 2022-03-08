@@ -41,9 +41,8 @@ void main() {
 
 	if(int(blockId + 0.5) == 1) {
 		vec3 worldPos = viewToWorld(viewPos);
+		waterNormals  = getWaveNormals(worldPos);
 		//worldPos.y   += calculateWaterWaves(worldPos.xz);
-		//waterNormals  = getWaveNormals(worldPos);
-		waterNormals = geoNormal;
 
     	vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView(worldPos), 1.0);
 		gl_Position     = viewToClip;

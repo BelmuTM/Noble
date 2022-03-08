@@ -41,8 +41,8 @@
 
     /* RENDERTARGETS: 0,1 */
 
-    layout (location = 0) out vec4 shadowColor0;
-    layout (location = 1) out vec4 shadowColor1;
+    layout (location = 0) out vec4 color0;
+    layout (location = 1) out vec4 color1;
 
     flat in int blockId;
     in vec2 texCoords;
@@ -66,16 +66,7 @@
     void main() {
         vec4 albedoTex = texture(colortex0, texCoords);
         if(albedoTex.a < 0.102) discard;
-
-        //float caustics = 0.0;
-
-        //if(int(blockId + 0.5) == 1) {
-        //    vec3 normal = TBN * getWaveNormals(viewToWorld(viewPos));
-        //    caustics    = waterCaustics(viewPos, normal);
-        //}
-
-        albedoTex   *= vertexColor;
-        shadowColor0 = albedoTex * vertexColor;
-        //shadowColor1 = vec4(caustics * 0.5 + 0.5);
+        
+        color0 = albedoTex;
     }
 #endif

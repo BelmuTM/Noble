@@ -67,7 +67,7 @@ vec3 PCF(vec3 shadowPos, float bias, float penumbraSize) {
 vec3 shadowMap(vec3 worldPos, vec3 normal) {
     #if SHADOWS == 1 
         vec3 shadowPos = worldToShadow(worldPos);
-        float NdotL    = clamp01(dot(normal, dirShadowLight));
+        float NdotL    = clamp01(dot(normal, sceneShadowDir));
 
         // Bias method from SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
         float bias = (2048.0 / (shadowMapResolution * MC_SHADOW_QUALITY)) + tan(acos(NdotL));

@@ -32,14 +32,14 @@ layout (location = 0) out vec3 color;
 // Rod response coefficients & blending method provided by Jessie#7257
 // SOURCE: http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
 #if PURKINJE == 1
-    void purkinje(inout vec3 color, float exposure) {
+    void purkinje(inout vec3 color) {
         vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
-        vec3 xyzColor    = linearToXYZ(color);
+        vec3 xyzColor    = color * SRGB_2_XYZ_MAT;
 
         vec3 scotopicLum = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
-        float purkinje   = dot(rodResponse, XYZToLinear(scotopicLum));
+        float purkinje   = dot(rodResponse, scotopicLum * XYZ_2_SRGB_MAT);
 
-        color = max0(mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 30.0 * exposure)));
+        color = mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0));
     }
 #endif
 
@@ -132,7 +132,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        float bloomStrength = max0(exp2(exposure - 3.0 + BLOOM_STRENGTH));
+        float bloomStrength = max0(exp2(exposure - 3.0 + (-BLOOM_TWEAK_VAL + BLOOM_STRENGTH)));
         color               = mix(color, readBloom(), bloomStrength);
     #endif
 
@@ -141,7 +141,7 @@ void main() {
     #endif
 
     #if PURKINJE == 1
-        purkinje(color, exposure);
+        purkinje(color);
     #endif
     
     // Tonemapping & Color Correction

@@ -133,7 +133,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     float multi  = 0.1159 * alpha;
 
     if(pt) { return clamp01(single + mat.albedo * multi);           }
-    else   { return clamp01(NdotL * (single + mat.albedo * multi)); }
+    else   { return clamp01(NdotL * (mat.albedo * multi + single)); }
 }
 
 // Disney SSS from: https://www.shadertoy.com/view/XdyyDd
@@ -151,7 +151,7 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, Material mat) {
     return quintic(0.0, 1.0, ss);
 }
 
-vec3 BRDFFresnel(float cosTheta, Material mat) {
+vec3 fresnelComplex(float cosTheta, Material mat) {
     mat2x3 hcm = getHardcodedMetal(mat);
     return mat.isMetal ? fresnelDieletricConductor(hcm[0], hcm[1], cosTheta) : vec3(fresnelDielectric(cosTheta, F0ToIOR(mat.F0)));
 }
@@ -164,7 +164,7 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     float NdotH = dot(N, H);
 
     float D  = distributionGGX(NdotH, mat.rough);
-    vec3  F  = BRDFFresnel(HdotL, mat);
+    vec3  F  = fresnelComplex(HdotL, mat);
     float G2 = G2SmithGGX(NdotV, NdotL, mat.rough);
         
     return clamp01(NdotL * (D * F * G2) / maxEps(4.0 * NdotL * NdotV));
@@ -178,21 +178,19 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     if(mat.isMetal) return vec3(0.0);
 
     V = -normalize(V);
-    vec3 diffuse = hammonDiffuse(mat.normal, V, L, mat, false);
+    vec3 diffuse = hammonDiffuse(mat.normal, V, L, mat, false) * shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
-        float SSS = disneySubsurface(mat.normal, V, L, mat);
-        diffuse   = mix(diffuse, SSS * mat.albedo, mat.subsurface);
+        diffuse = mix(diffuse, disneySubsurface(mat.normal, V, L, mat) * mat.albedo, mat.subsurface);
     #endif
 
     mat.lightmap.x = BLOCKLIGHTMAP_MULTIPLIER * pow(quintic(0.0, 1.0, mat.lightmap.x), BLOCKLIGHTMAP_EXPONENT);
     mat.lightmap.y = pow2(1.0 - pow(1.0 - clamp01(mat.lightmap.y), 0.5));
 
-    vec3 skyLight   = (skyIlluminance * INV_PI) * mat.lightmap.y;
+    vec3 skyLight   = skyIlluminance * INV_PI * mat.lightmap.y;
     vec3 blockLight = temperatureToRGB(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_MULTIPLIER * mat.lightmap.x;
 
-    diffuse  = (directLight * clamp01(dot(mat.normal, L))) * (diffuse * shadowmap.rgb);
+    diffuse  = directLight * diffuse;
     diffuse += blockLight  + (skyLight * (mat.ao * shadowmap.a));
-
     return mat.albedo * diffuse;
 }

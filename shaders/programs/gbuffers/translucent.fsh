@@ -56,7 +56,7 @@ void main() {
 		mat.alpha  = 0.0;
 		mat.F0 	   = 0.02;
 		mat.rough  = 0.0;
-		mat.normal = waterNormals;
+		mat.normal = TBN * waterNormals;
 		
 	} else {
 		mat.normal.xy = normalTex.xy * 2.0 - 1.0;
@@ -71,7 +71,7 @@ void main() {
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);
     		#endif
 
-			sceneColor.rgb = computeDiffuse(scenePos, dirShadowLight, mat, vec4(shadowmap, 1.0), directLightTransmit, skyIlluminance);
+			sceneColor.rgb = computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, 1.0), directLightTransmit, skyIlluminance);
 			sceneColor.a   = mat.alpha;
 		#endif
 	}

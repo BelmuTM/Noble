@@ -55,7 +55,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         float NdotL = maxEps(dot(mat.normal, reflected));
         float NdotV = maxEps(dot(mat.normal, viewDir));
 
-        vec3  F  = BRDFFresnel(NdotL, mat);
+        vec3  F  = fresnelComplex(NdotL, mat);
         float G1 = G1SmithGGX(NdotV, mat.rough);
         float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
 
@@ -93,7 +93,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
                     hitColor = mix(getSkyFallback(reflected, mat), hitColor, factor);
                 #endif
 
-                vec3  F  = BRDFFresnel(dot(microfacet, reflected), mat);
+                vec3  F  = fresnelComplex(dot(microfacet, reflected), mat);
                 float G1 = G1SmithGGX(NdotV, mat.rough);
                 float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
 
