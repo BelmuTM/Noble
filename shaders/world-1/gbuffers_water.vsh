@@ -10,6 +10,4 @@
 /***********************************************/
 
 #define STAGE_VERTEX
-
-#include "/include/common.glsl"
 #include "/programs/gbuffers/translucent.vsh"

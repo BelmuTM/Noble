@@ -16,24 +16,21 @@
         float NdotV = maxEps(dot(N, V));
         float NdotL = clamp01(dot(N, L));
 
-        return fresnel * G2SmithGGX(NdotV, NdotL, roughness) / G1SmithGGX(NdotV, roughness);
+        return (fresnel * G2SmithGGX(NdotV, NdotL, roughness)) / G1SmithGGX(NdotV, roughness);
     }
 
     vec3 directBRDF(vec2 hitPos, vec3 N, vec3 V, vec3 L, Material mat, vec3 shadowmap) {
-        vec3 specular = SPECULAR == 0 ? vec3(0.0) : computeSpecular(N, V, L, mat);
+        vec3 diffuse     = hammonDiffuse(N, V, L, mat, false);
+        vec3 specular    = SPECULAR == 0 ? vec3(0.0) : computeSpecular(N, V, L, mat);
         vec3 directLight = sampleDirectIlluminance();
 
-        vec3 diffuse = vec3(0.0);
         #if SUBSURFACE_SCATTERING == 1
-            float SSS = disneySubsurface(N, V, L, mat);
-            diffuse   = mix(hammonDiffuse(N, V, L, mat, false), SSS * mat.albedo, mat.subsurface);
-        #else
-            diffuse = hammonDiffuse(N, V, L, mat, false);
+            diffuse = mix(diffuse, disneySubsurface(N, V, L, mat) * mat.albedo, mat.subsurface);
         #endif
 
         vec3 direct  = mat.albedo * diffuse * directLight;
              direct += specular * directLight;
-             direct *= shadowmap;
+             direct *= shadowmap * clamp01(dot(N, L));
 
         return direct;
     }
@@ -47,9 +44,7 @@
 
             vec3 hitPos = screenPos; 
             vec3 rayDir = normalize(viewPos);
-
-            Material mat;
-            mat3 TBN;
+            Material mat; mat3 TBN;
 
             for(int j = 0; j <= GI_BOUNCES; j++) {
                 vec2 noise = vec2(randF(), randF());
@@ -65,7 +60,7 @@
                 mat = getMaterial(hitPos.xy);
                 TBN = constructViewTBN(mat.normal);
 
-                radiance += throughput * mat.albedo * BLOCKLIGHT_MULTIPLIER * mat.emission;
+                radiance += throughput * mat.albedo * BLOCKLIGHT_INTENSITY * mat.emission;
 
                 #ifdef WORLD_OVERWORLD
                     radiance += throughput * directBRDF(hitPos.xy, mat.normal, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb);
@@ -87,8 +82,8 @@
                     rayDir      = generateCosineVector(mat.normal, noise);
                     throughput *= mat.albedo;
                 }
+                
                 if(dot(mat.normal, rayDir) < 0.0) { break; }
-
                 bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
 
                 if(!hit) {

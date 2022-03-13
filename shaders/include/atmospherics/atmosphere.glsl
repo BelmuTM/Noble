@@ -26,7 +26,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
     vec3 accumAirmass = vec3(0.0);
     for(int j = 0; j < TRANSMITTANCE_STEPS; j++, rayPos += increment) {
-        accumAirmass += densities(length(rayPos) - earthRad) * stepLength;
+        accumAirmass += getDensities(length(rayPos)) * stepLength;
     }
     return exp(-kExtinction * accumAirmass);
 }
@@ -40,16 +40,16 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         vec3 increment   = rayDir * stepLength;
         vec3 rayPos      = atmosRayPos + increment * 0.5;
 
-        float sunVdotL = dot(rayDir, sceneSunDir); float moonVdotL = dot(rayDir, sceneMoonDir);
+        vec2 VdotL = vec2(dot(rayDir, sceneSunDir), dot(rayDir, sceneMoonDir));
         vec4 phase     = vec4(
-            rayleighPhase(sunVdotL),  cornetteShanksPhase(sunVdotL, anisoFactor), 
-            rayleighPhase(moonVdotL), cornetteShanksPhase(moonVdotL, anisoFactor)
+            rayleighPhase(VdotL.x), cornetteShanksPhase(VdotL.x, anisotropyFactor), 
+            rayleighPhase(VdotL.y), cornetteShanksPhase(VdotL.y, anisotropyFactor)
         );
 
-        vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), scatteringMultiple = vec3(0.0), transmittance = vec3(1.0);
+        vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), multipleScattering = vec3(0.0), transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
-            vec3 airmass          = densities(length(rayPos) - earthRad) * stepLength;
+            vec3 airmass          = getDensities(length(rayPos)) * stepLength;
             vec3 stepOpticalDepth = kExtinction * airmass;
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
@@ -65,15 +65,15 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
             vec3 multScatteringFactor = stepScatterAlbedo * 0.84;
             vec3 multScatteringEnergy = multScatteringFactor / (1.0 - multScatteringFactor);
-                 scatteringMultiple  += multScatteringEnergy * visibleScattering * stepScattering;
+                 multipleScattering  += multScatteringEnergy * visibleScattering * stepScattering;
 
             transmittance *= stepTransmittance;
         }
-        scatteringMultiple *= (skyIlluminance * INV_PI) * isotropicPhase;
+        multipleScattering *= (skyIlluminance * INV_PI) * isotropicPhase;
         sunScattering      *= sunIlluminance;
         moonScattering     *= moonIlluminance;
     
-        return sunScattering + moonScattering + scatteringMultiple;
+        return sunScattering + moonScattering + multipleScattering;
     }
 #endif
 

@@ -18,10 +18,11 @@ in vec3 viewPos;
 in vec3 geoNormal;
 in vec3 waterNormals;
 in vec3 skyIlluminance;
-in vec3 directLightTransmit;
+in vec3 directIlluminance;
 in vec4 vertexColor;
 in mat3 TBN;
 
+#include "/include/common.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/shadows.glsl"
 
@@ -71,7 +72,7 @@ void main() {
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);
     		#endif
 
-			sceneColor.rgb = computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, 1.0), directLightTransmit, skyIlluminance);
+			sceneColor.rgb = mat.isMetal ? vec3(0.0) : computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, 1.0), directIlluminance, skyIlluminance);
 			sceneColor.a   = mat.alpha;
 		#endif
 	}

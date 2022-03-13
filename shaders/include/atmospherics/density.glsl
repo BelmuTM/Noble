@@ -6,13 +6,21 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 densities(float height) {
-    vec2 rayleighMie = exp(-height / scaleHeights);
-    float ozone      = exp(-max0((35e3 - height) - atmosUpperRad) / 5e3) * exp(-max0((height - 35e3) - atmosUpperRad) / 15e3);
-    return vec3(rayleighMie, ozone);
+vec3 getDensities(float centerDist) {
+	float altitudeKm = (centerDist - earthRad) * 1e-3;
+	vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * 1e-3));
+
+    // Ozone approximation from Jessie#7257
+    float o1 = 25.0 *     exp(( 0.0 - altitudeKm) /   8.0);
+    float o2 = 30.0 * pow(exp((18.0 - altitudeKm) /  80.0), altitudeKm - 18.0);
+    float o3 = 75.0 * pow(exp((25.3 - altitudeKm) /  35.0), altitudeKm - 25.3);
+    float o4 = 50.0 * pow(exp((30.0 - altitudeKm) / 150.0), altitudeKm - 30.0);
+    float ozone = (o1 + o2 + o3 + o4) / 134.628;
+
+	return vec3(rayleighMie, ozone);
 }
 
-vec3 vlDensities(in float height) {
+vec3 getVlDensities(in float height) {
     height -= VL_ALTITUDE;
 
     vec2 rayleighMie    = exp(-height / scaleHeights);

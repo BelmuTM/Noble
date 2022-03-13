@@ -9,4 +9,5 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/programs/gbuffers/gbuffers.vsh"
+#define STAGE_VERTEX
+#include "/programs/gbuffers/weather.glsl"

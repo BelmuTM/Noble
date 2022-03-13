@@ -18,10 +18,6 @@ out vec3 geoNormal;
 out vec4 vertexColor;
 out mat3 TBN;
 
-#ifdef TRANSLUCENT
-	out vec3 waterNormals;
-#endif
-
 #define STAGE_VERTEX
 
 #include "/settings.glsl"
@@ -48,17 +44,6 @@ void main() {
 	blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-	#ifdef TRANSLUCENT
-		if(int(blockId + 0.5) == 1) {
-			vec3 worldPos = viewToWorld(viewPos);
-			worldPos.y   += calculateWaterWaves(worldPos.xz);
-			waterNormals  = getWaveNormals(worldPos);
-
-    		vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView(worldPos), 1.0);
-			gl_Position     = viewToClip;
-		}
-	#endif
-
 	#ifdef WEATHER
 		vec3 rainWorldPos = mat3(gbufferModelViewInverse) * viewPos;
 		rainWorldPos.xz  += RAIN_DIRECTION * rainWorldPos.y * RAIN_ANGLE_INTENSITY;
@@ -67,7 +52,7 @@ void main() {
 		gl_Position         = rainViewToClip;
 	#endif
 
-	#ifdef ENTITY
+	#ifdef PROGRAM_ENTITY
 		// Thanks Kneemund for the nametag fix
 		if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
 			gl_Position = vec4(10.0, 10.0, 10.0, 1.0);

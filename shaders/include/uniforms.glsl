@@ -26,11 +26,11 @@ uniform float far;
 uniform float aspectRatio;
 uniform float viewWidth;
 uniform float viewHeight;
-uniform int worldTime;
 uniform int isEyeInWater;
 uniform float rainStrength;
 uniform float wetness;
 uniform float eyeAltitude;
+uniform float sunAngle;
 uniform int renderStage;
 
 uniform sampler2D normals;

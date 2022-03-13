@@ -9,7 +9,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#define ENTITY
+#define PROGRAM_ENTITY
+#define STAGE_FRAGMENT
 
-#include "/include/common.glsl"
-#include "/programs/gbuffers/solid.fsh"
+#include "/programs/gbuffers/solid.glsl"

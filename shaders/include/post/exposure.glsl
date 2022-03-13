@@ -12,14 +12,14 @@ const bool colortex0MipmapEnabled = true;
 
 #if EXPOSURE == 1
      float computeAverageLuminance(sampler2D prevTex) {
-          float currLuma = luminance(textureLod(colortex0, vec2(0.5), log2(max(viewResolution.x, viewResolution.y))).rgb);
+          float currLuma = luminance(textureLod(colortex0, vec2(0.5), log2(maxOf2(viewResolution))).rgb);
 
-          float previousLuma = texture(prevTex, vec2(0.5)).a;
-          previousLuma       = previousLuma > 0.0 ? previousLuma : currLuma;
+          float previousLuma = texture(prevTex, vec2(0.0)).a;
+                previousLuma = previousLuma > 0.0 ? previousLuma : currLuma;
 
-          float exposureTime      = currLuma > previousLuma ? 0.2 : 1.4;
+          float exposureTime      = currLuma > previousLuma ? EXPOSURE_SPEED_TO_BRIGHT : EXPOSURE_SPEED_TO_DARK;
           float exposureFrameTime = exp(-exposureTime * frameTime);
-          return mix(currLuma, previousLuma, EXPOSURE == 0 ? 0.0 : exposureFrameTime);
+          return mix(currLuma, previousLuma, exposureFrameTime);
      }
 
      float computeEV100fromLuma(float avgLuminance) {
@@ -28,12 +28,12 @@ const bool colortex0MipmapEnabled = true;
 #endif
 
 float EV100ToExposure(float EV100) {
-     return 1.0 / (exp2(EV100) * 1.2);
+     return 1.0 / (1.2 * exp2(EV100));
 }
 
 float computeExposure(float avgLuminance) {
-     float minExposure = 1.0 / luminance(sunIlluminance);
-     float maxExposure = 0.3 / luminance(moonIlluminance);
+     float minExposure = TAU / luminance(sunIlluminance);
+     float maxExposure = 0.6 / luminance(moonIlluminance);
 
      float EV100;
      #if EXPOSURE == 0

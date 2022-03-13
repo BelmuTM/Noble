@@ -17,12 +17,12 @@ out vec3 viewPos;
 out vec3 geoNormal;
 out vec3 waterNormals;
 out vec3 skyIlluminance;
-out vec3 directLightTransmit;
+out vec3 directIlluminance;
 out vec4 vertexColor;
 out mat3 TBN;
 
+#include "/include/common.glsl"
 #include "/include/fragment/water.glsl"
-
 #include "/include/atmospherics/atmosphere.glsl"
 
 void main() {
@@ -42,13 +42,13 @@ void main() {
 	if(int(blockId + 0.5) == 1) {
 		vec3 worldPos = viewToWorld(viewPos);
 		waterNormals  = getWaveNormals(worldPos);
-		//worldPos.y   += calculateWaterWaves(worldPos.xz);
 
     	vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView(worldPos), 1.0);
 		gl_Position     = viewToClip;
 	}
 
-    skyIlluminance = sampleSkyIlluminance();
+	directIlluminance = sampleDirectIlluminance(); 
+    skyIlluminance    = sampleSkyIlluminance();
 
 	#if TAA == 1
 		bool canJitter = ACCUMULATION_VELOCITY_WEIGHT == 0 ? true : hasMoved();

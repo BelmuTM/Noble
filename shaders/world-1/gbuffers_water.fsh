@@ -10,6 +10,4 @@
 /***********************************************/
 
 #define STAGE_FRAGMENT
-
-#include "/include/common.glsl"
 #include "/programs/gbuffers/translucent.fsh"

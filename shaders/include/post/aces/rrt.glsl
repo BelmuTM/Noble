@@ -56,22 +56,15 @@
 /*************************************************************************/
 
 float glowFwd(float ycIn, float glowGainIn, float glowMid) {
-	float glowGainOut;
-	if(ycIn <= 2.0 / 3.0 * glowMid) {
-		glowGainOut = glowGainIn;
-	} else if(ycIn >= 2.0 * glowMid) {
-		glowGainOut = 0.0;
-	} else {
-		glowGainOut = glowGainIn * (glowMid / ycIn - 0.5);
-	}
-	return glowGainOut;
+	if(ycIn <= 2.0 / 3.0 * glowMid) { return glowGainIn;                          }
+	else if(ycIn >= 2.0 * glowMid)  { return 0.0;                                 } 
+	else                            { return glowGainIn * (glowMid / ycIn - 0.5); }
 }
 
 float centerHue(float hue, float centerHue) {
 	float hueCentered = hue - centerHue;
-	if(hueCentered < -180.0)     { hueCentered += 360.0; }
-	else if(hueCentered > 180.0) { hueCentered -= 360.0; }
-	return hueCentered;
+	if(hueCentered < -180.0)     { return hueCentered + 360.0; }
+	else if(hueCentered > 180.0) { return hueCentered - 360.0; }
 }
 
 void rrt(inout vec3 color) {

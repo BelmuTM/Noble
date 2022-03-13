@@ -9,4 +9,5 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/programs/gbuffers/weather.fsh"
+#define STAGE_FRAGMENT
+#include "/programs/gbuffers/weather.glsl"

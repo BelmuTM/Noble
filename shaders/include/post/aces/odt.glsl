@@ -72,7 +72,7 @@ float moncurve_r(float y, float gamma, float offset) {
     float rs = pow((gamma - 1.0) / offset, gamma - 1.0) * pow((1.0 + offset) / gamma, gamma);
 
     if(y >= yb) { return (1.0 + offset) * pow(y, 1.0 / gamma) - offset; }
-    else { return y * rs; }
+    else        { return y * rs; }
 }
 
 float bt1886_r(float L, float gamma, float Lw, float Lb) {

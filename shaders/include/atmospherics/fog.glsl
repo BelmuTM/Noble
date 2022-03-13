@@ -19,8 +19,8 @@ void volumetricGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
     vec3 transmittedFraction = clamp01((transmittance - 1.0) / -opticalDepth);
 
     float VdotL     = dot(normalize(scenePos), sceneShadowDir);
-    vec2 phase      = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisoFactor));
-    vec3 scattering = kScattering * (airmass * phase) * (worldTime <= 12750 ? sunIlluminance : moonIlluminance);
+    vec2 phase      = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisotropyFactor));
+    vec3 scattering = kScattering * (airmass * phase) * (sunAngle <= 0.5 ? sunIlluminance : moonIlluminance);
 
     color = color * transmittance + (scattering * transmittedFraction);
 }
@@ -34,7 +34,7 @@ vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
     vec3 accumAirmass = vec3(0.0);
     for(int j = 0; j < TRANSMITTANCE_STEPS; j++, rayPos += increment) {
-        accumAirmass += vlDensities(rayPos.y) * stepLength;
+        accumAirmass += getVlDensities(rayPos.y) * stepLength;
     }
     return exp(-kExtinction * accumAirmass);
 }
@@ -53,13 +53,13 @@ vec3 volumetricLighting(vec3 viewPos) {
     vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
 
     float VdotL = dot(normalize(endPos), sceneShadowDir);
-    vec2 phase  = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisoFactor));
+    vec2 phase  = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisotropyFactor));
 
     vec3 scattering  = vec3(0.0), transmittance = vec3(1.0);
     float stepLength = length(increment);
 
     for(int i = 0; i < VL_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
-        vec3 airmass      = vlDensities(rayPos.y) * stepLength;
+        vec3 airmass      = getVlDensities(rayPos.y) * stepLength;
         vec3 opticalDepth = kExtinction * airmass;
 
         vec3 stepTransmittance = exp(-opticalDepth);
@@ -89,7 +89,7 @@ void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance, fl
     vec3 transmittance = exp(-absorptionCoeff * WATER_DENSITY * dist);
 
     vec3 scattering  = skyIlluminance * isotropicPhase * pow2(quintic(0.0, 1.0, skyLight));
-         scattering += (worldTime <= 12750 ? sunIlluminance : moonIlluminance) * cornetteShanksPhase(VdotL, 0.5);
+         scattering += (sunAngle <= 0.5 ? sunIlluminance : moonIlluminance) * cornetteShanksPhase(VdotL, 0.5);
          scattering *= scatteringCoeff * (1.0 - transmittance) / extinctionCoeff;
 
     color = color * transmittance + scattering;

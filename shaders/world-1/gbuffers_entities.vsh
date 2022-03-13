@@ -9,5 +9,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#define ENTITY
-#include "/programs/gbuffers/gbuffers.vsh"
+#define PROGRAM_ENTITY
+#define STAGE_VERTEX
+
+#include "/programs/gbuffers/solid.glsl"

@@ -54,7 +54,7 @@
 
     // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
     float waterCaustics(vec3 oldPos, vec3 normal) {
-	    vec3 lightDir = mat3(shadowModelView) * mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+	    vec3 lightDir = mat3(shadowModelView) * sceneShadowDir;
 	    vec3 newPos   = oldPos + refract(lightDir, normal, 1.0 / 1.333) * 1.5;
 
 	    float oldArea = length(dFdy(oldPos)) * length(dFdy(oldPos));
@@ -68,5 +68,6 @@
         if(albedoTex.a < 0.102) discard;
         
         color0 = albedoTex;
+        color1.r = blockId == 1 ? waterCaustics(transMAD(shadowModelViewInverse, viewPos), TBN * getWaveNormals(viewToWorld(viewPos))) : 0.0;
     }
 #endif
