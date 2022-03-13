@@ -36,13 +36,12 @@ float getDistortionFactor(vec2 coords) {
 }
 
 vec2 distortShadowSpace(vec2 position) {
-	return position / vec2(getDistortionFactor(position.xy));
+	return position * vec2(1.0 / getDistortionFactor(position.xy));
 }
 
 vec3 distortShadowSpace(vec3 position) {
 	position.xy = distortShadowSpace(position.xy);
-	position.z *= 0.25;
-
+	position.z *= SHADOW_DEPTH_SCALE;
 	return position;
 }
 

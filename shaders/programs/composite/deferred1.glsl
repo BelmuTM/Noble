@@ -76,8 +76,8 @@ void main() {
         frames = hasMoved() ? 1.0 : texture(colortex5, texCoords).a + 1.0;
     #endif
 
-    vec2 causticsCoords = distortShadowSpace(worldToShadow(viewToWorld(viewPos0))).xy;
-    //shadowmap.rgb += texture(shadowcolor1, causticsCoords * 0.5 + 0.5).r;
+    //vec2 causticsCoords = distortShadowSpace(worldToShadow(viewToWorld(viewPos0))).xy;
+    //shadowmap.rgb += texture(shadowcolor1, causticsCoords * 0.5 + 0.5).a;
 
     #if GI == 0
         //////////////////////////////////////////////////////////

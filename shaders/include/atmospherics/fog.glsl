@@ -113,20 +113,20 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
     vec3 stepTransmittance       = exp(-opticalDepth);
     vec3 stepTransmittedFraction = clamp01((stepTransmittance - 1.0) / -opticalDepth);
 
-    vec3 directScatter = vec3(0.0), indirectScatter = vec3(0.0), transmittance = vec3(1.0);
+    vec3 directScattering = vec3(0.0), indirectScattering = vec3(0.0), transmittance = vec3(1.0);
 
     for(int i = 0; i < WATER_FOG_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
-        vec3 sampleColor          = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5, 0.0);
-        vec3 sampledTransmittance = stepTransmittance * stepTransmittedFraction;
+        vec3 sampleColor  = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5, 0.0);
+        //vec3 visibleScattering = stepTransmittance * stepTransmittedFraction;
 
-        directScatter   += transmittance * sampleColor;
-        indirectScatter += transmittance;
+        directScattering   += transmittance * sampleColor;
+        indirectScattering += transmittance;
         transmittance   *= stepTransmittance;
     }
 
     vec3 scattering = vec3(0.0);
-    scattering += directScatter   * sampleDirectIlluminance() * cornetteShanksPhase(VdotL, 0.5);
-    scattering *= scatteringCoeff * (1.0 - stepTransmittance) / extinctionCoeff;
+    scattering += directScattering * sampleDirectIlluminance() * cornetteShanksPhase(VdotL, 0.5);
+    scattering *= scatteringCoeff  * (1.0 - stepTransmittance) / extinctionCoeff;
 
     // Multiple scattering approximation provided by Jessie#7257
     vec3 scatteringAlbedo     = clamp01(scatteringCoeff / extinctionCoeff);
@@ -138,9 +138,9 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
     }
     phaseMulti /= phaseMultiSamples;
 
-    vec3 scatteringMultiple  = scattering * phaseMulti;
-         scatteringMultiple += indirectScatter * pow2(quintic(0.0, 1.0, skyLight)) * phaseMulti;
-         scatteringMultiple *= multScatteringFactor / (1.0 - multScatteringFactor);
+    vec3 multipleScattering  = scattering * phaseMulti;
+         multipleScattering += indirectScattering * pow2(quintic(0.0, 1.0, skyLight)) * phaseMulti;
+         multipleScattering *= multScatteringFactor / (1.0 - multScatteringFactor);
 
-    color = color * transmittance + (scattering + scatteringMultiple);
+    color = color * transmittance + (scattering + multipleScattering);
 }

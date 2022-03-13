@@ -49,13 +49,11 @@ vec3 getShadowColor(vec3 samplePos, float bias) {
 #endif
 
 vec3 PCF(vec3 shadowPos, float bias, float penumbraSize) {
-	vec3 shadowResult = vec3(0.0);
+	vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
 
     for(int i = 0; i < SHADOW_SAMPLES; i++) {
-        #if SHADOW_TYPE == 2
-            vec2 offset = vec2(0.0);
-        #else
-            vec2 offset = (diskSampling(i, SHADOW_SAMPLES, randF() * TAU) * penumbraSize) / shadowMapResolution;
+        #if SHADOW_TYPE != 2
+            offset = (diskSampling(i, SHADOW_SAMPLES, randF() * TAU) * penumbraSize) / shadowMapResolution;
         #endif
 
         vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
@@ -67,11 +65,12 @@ vec3 PCF(vec3 shadowPos, float bias, float penumbraSize) {
 vec3 shadowMap(vec3 worldPos, vec3 normal) {
     #if SHADOWS == 1 
         vec3 shadowPos = worldToShadow(worldPos);
-        float NdotL    = clamp01(dot(normal, sceneShadowDir));
+        float NdotL    = dot(normal, sceneShadowDir);
+        if(NdotL < 0.0) return vec3(0.0);
 
         // Bias method from SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
-        float bias = (2048.0 / (shadowMapResolution * MC_SHADOW_QUALITY)) + tan(acos(NdotL));
-              bias = bias * getDistortionFactor(shadowPos.xy) * 5e-4;
+        float bias  = (2048.0 / (shadowMapResolution * MC_SHADOW_QUALITY)) + tan(acos(NdotL));
+              bias *= getDistortionFactor(shadowPos.xy) * 5e-4;
 
         float penumbraSize = 1.0;
 

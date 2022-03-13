@@ -179,7 +179,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     vec3 diffuse = hammonDiffuse(mat.normal, V, L, mat, false);
 
     #if SUBSURFACE_SCATTERING == 1
-        //diffuse = mix(diffuse, disneySubsurface(mat.normal, V, L, mat) * mat.albedo, mat.subsurface);
+        diffuse = mix(diffuse, disneySubsurface(mat.normal, V, L, mat) * mat.albedo, mat.subsurface);
     #endif
 
     mat.lightmap.x = pow2(quintic(0.0, 1.0, mat.lightmap.x));

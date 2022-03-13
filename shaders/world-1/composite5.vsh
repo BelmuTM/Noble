@@ -9,5 +9,4 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#define STAGE_VERTEX
-#include "/programs/composite/post1.glsl"
+#include "/programs/composite/composite_vsh.glsl"

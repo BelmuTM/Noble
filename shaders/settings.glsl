@@ -66,8 +66,9 @@ const float shadowDistanceRenderMul = 1.0;
 #define SHADOWS     1 // [0 1]
 #define SHADOW_TYPE 1 // [0 1 2]
 
-#define SHADOW_SAMPLES      8 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
-#define SHADOW_DISTORTION 0.9
+#define SHADOW_SAMPLES        8 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
+#define SHADOW_DISTORTION  0.88
+#define SHADOW_DEPTH_SCALE 0.25
 
 #define NORMAL_SHADOW_BLUR_RADIUS 0.25
 
@@ -214,7 +215,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define BLOOM             1 // [0 1]
 #define BLOOM_STRENGTH 0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define BLOOM_TWEAK_VAL 0.5
+#define BLOOM_TWEAK    -1.0
 
 #define BLOOM_STEPS   5
 #define BLOOM_SIGMA 2.0
@@ -241,7 +242,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
-#define EXPOSURE_SPEED_TO_BRIGHT 0.8
+#define EXPOSURE_SPEED_TO_BRIGHT 1.2
 #define EXPOSURE_SPEED_TO_DARK   3.2
 
 #define FOCAL          20 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30]
