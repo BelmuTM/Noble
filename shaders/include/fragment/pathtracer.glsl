@@ -28,10 +28,8 @@
             diffuse = mix(diffuse, disneySubsurface(N, V, L, mat) * mat.albedo, mat.subsurface);
         #endif
 
-        vec3 direct  = mat.albedo * diffuse * directLight;
-             direct += specular * directLight;
-             direct *= shadowmap * clamp01(dot(N, L));
-
+        vec3 direct  = (mat.albedo * diffuse) + specular;
+             direct *= (shadowmap * directLight);
         return direct;
     }
 

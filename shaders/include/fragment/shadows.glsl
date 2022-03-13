@@ -69,9 +69,10 @@ vec3 shadowMap(vec3 worldPos, vec3 normal) {
         if(NdotL < 0.0) return vec3(0.0);
 
         // Bias method from SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
-        float bias  = (2048.0 / (shadowMapResolution * MC_SHADOW_QUALITY)) + tan(acos(NdotL));
-              bias *= getDistortionFactor(shadowPos.xy) * 5e-4;
+        // float bias  = (2048.0 / (shadowMapResolution * MC_SHADOW_QUALITY)) + tan(acos(NdotL));
+        //      bias *= getDistortionFactor(shadowPos.xy) * 5e-4;
 
+        float bias = 5e-4;
         float penumbraSize = 1.0;
 
         #if SHADOW_TYPE == 0

@@ -47,7 +47,7 @@ void main() {
 
         #if REFRACTIONS == 1
             vec3 hitPos;
-            if(mat.blockId > 0 && mat.blockId <= 4) {
+            if(viewPos0.z != getViewPos1(texCoords).z) {
                 color  = simpleRefractions(viewPos0, mat, hitPos);
                 coords = hitPos.xy;
             }
@@ -58,7 +58,7 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if GI == 0
-            vec4 translucents = texture(colortex1, coords);
+            vec4 translucents = texture(colortex1, texCoords);
                  color        = mix(color, translucents.rgb, translucents.a);
         #endif
     }
