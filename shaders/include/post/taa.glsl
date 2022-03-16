@@ -57,8 +57,8 @@ float getLumaWeight(vec3 currColor, vec3 prevColor) {
 
 // Thanks LVutner for the help with TAA (buffer management, luminance weight)
 // https://github.com/LVutner
-vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
-    vec3 prevPos = reprojection(vec3(texCoords, texture(depthtex1, texCoords).r));
+vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex) {
+    vec3 prevPos = reprojection(vec3(texCoords, currMat.depth1));
 
     vec3 currColor = texture(currTex, texCoords).rgb;
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
@@ -68,11 +68,9 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
     float blendWeight = float(clamp01(prevPos.xy) == prevPos.xy);
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
-        vec4 weightTex   = texture(colortex10, texCoords);
-        float lumaWeight = getLumaWeight(currColor, prevColor);
-
-        float normalWeight = pow(clamp01(dot(getMaterial(texCoords).normal, weightTex.rgb)), 12.0);
-        float depthWeight  = pow(exp(-abs(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex10, prevPos.xy).a))), 1e-3);
+        float lumaWeight   = getLumaWeight(currColor, prevColor);
+        float normalWeight = pow(clamp01(dot(currMat.normal, texture(colortex10, texCoords).rgb)), 12.0);
+        //float depthWeight  = pow(exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex10, texCoords).a))), 1e-2);
         
         blendWeight *= (normalWeight * lumaWeight);
     #else

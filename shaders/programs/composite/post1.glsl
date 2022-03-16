@@ -19,7 +19,7 @@ void main() {
     color = texture(colortex0, texCoords).rgb;
 
     #if TAA == 1 && GI == 0
-        color = clamp16(temporalAntiAliasing(colortex0, colortex8));
+        color = clamp16(temporalAntiAliasing(getMaterial(texCoords), colortex0, colortex8));
     #endif
 
     float avgLuminance = 0.0;

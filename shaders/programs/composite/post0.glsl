@@ -55,11 +55,11 @@ layout (location = 2) out vec4 previousBuffer;
 #endif
 
 void main() {
-    color       = texture(colortex0, texCoords).rgb;
-    float depth = texture(depthtex1, texCoords).r;
+    color        = texture(colortex0, texCoords).rgb;
+    Material mat = getMaterial(texCoords);
     
     #if DOF == 1
-        float coc = getCoC(linearizeDepthFast(depth), linearizeDepthFast(centerDepthSmooth));
+        float coc = getCoC(linearizeDepthFast(mat.depth1), linearizeDepthFast(centerDepthSmooth));
         depthOfField(color, texCoords, colortex0, 8, DOF_RADIUS, coc);
     #endif
 
@@ -75,5 +75,5 @@ void main() {
         #endif
     #endif
 
-    previousBuffer = vec4(getMaterial(texCoords).normal, depth);
+    previousBuffer = vec4(mat.normal, mat.depth1);
 }

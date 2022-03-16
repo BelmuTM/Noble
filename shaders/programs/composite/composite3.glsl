@@ -23,9 +23,19 @@ layout (location = 2) out vec4 volumetricLight;
 #include "/include/atmospherics/fog.glsl"
 
 #include "/include/fragment/water.glsl"
+#include "/include/fragment/atrous.glsl"
 
 void main() {
-    color        = texture(colortex0, texCoords).rgb;
+    #if GI == 0
+        color = texture(colortex0, texCoords).rgb;
+    #else
+        #if GI_FILTER == 0
+            color = texture(colortex0, texCoords).rgb;
+        #else
+            aTrousFilter(color, colortex0, texCoords, 3);
+        #endif
+    #endif
+
     bool inWater = isEyeInWater > 0.5;
     bool sky     = isSky(texCoords);
 

@@ -10,9 +10,18 @@
 
 layout (location = 0) out vec3 color;
 
+#include "/include/fragment/atrous.glsl"
+
 void main() {
-    // TO-DO FILTERING GI
-    color = texture(colortex0, texCoords).rgb;
+    #if GI == 0
+        color = texture(colortex0, texCoords * GI_RESOLUTION).rgb;
+    #else
+        #if GI_FILTER == 0
+            color = texture(colortex0, texCoords * GI_RESOLUTION).rgb;
+        #else
+            aTrousFilter(color, colortex0, texCoords * GI_RESOLUTION, 0);
+        #endif
+    #endif
 
     // Overlay
     vec4 overlay = texelFetch(colortex4, ivec2(gl_FragCoord.xy), 0);

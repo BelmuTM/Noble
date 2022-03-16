@@ -20,10 +20,14 @@ struct Material {
 
     int blockId;
     vec2 lightmap;
+
+    float depth0;
+    float depth1;
 };
 
 Material getMaterial(vec2 coords) {
-    uvec4 dataTex   = texture(colortex2, coords);
+    coords         *= viewResolution;
+    uvec4 dataTex   = texelFetch(colortex2, ivec2(coords), 0);
     mat2x4 unpacked = mat2x4(unpackUnorm4x8(dataTex.x), unpackUnorm4x8(dataTex.y));
 
     Material mat;
@@ -39,6 +43,9 @@ Material getMaterial(vec2 coords) {
 
     mat.blockId  = int(unpacked[0].y * maxVal8 + 0.5);
     mat.lightmap = unpacked[0].zw;
+
+    mat.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
+    mat.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;
 
     #if TONEMAP == 0
         mat.albedo = sRGBToAP1Albedo(mat.albedo);

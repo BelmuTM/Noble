@@ -26,7 +26,7 @@ layout (location = 1) out vec4 historyBuffer;
     #include "/include/post/taa.glsl"
 
     void temporalAccumulation(inout vec3 color, Material mat, sampler2D prevTex, inout float frames) {
-        vec3 prevPos   = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r));
+        vec3 prevPos   = reprojection(vec3(texCoords, mat.depth0));
         vec3 prevColor = texture(prevTex, prevPos.xy).rgb;
 
         float totalWeight = float(clamp01(prevPos.xy) == prevPos.xy);
@@ -47,14 +47,20 @@ layout (location = 1) out vec4 historyBuffer;
 #endif
 
 void main() {
-    color         = vec3(0.0);
-    vec3 viewPos0 = getViewPos0(texCoords);
+    vec2 tempCoords = texCoords;
+    color           = vec3(0.0);
+    
+    #if GI == 1
+        tempCoords = texCoords * (1.0 / GI_RESOLUTION);
+    #endif
+
+    vec3 viewPos0 = getViewPos0(tempCoords);
 
     //////////////////////////////////////////////////////////
     /*------------------------ SKY -------------------------*/
     //////////////////////////////////////////////////////////
 
-    if(isSky(texCoords)) {
+    if(isSky(tempCoords)) {
         color = computeSky(viewPos0, true);
         return;
     }
@@ -63,17 +69,17 @@ void main() {
     /*--------------------- MATERIAL -----------------------*/
     //////////////////////////////////////////////////////////
 
-    Material mat   = getMaterial(texCoords);
-    vec4 shadowmap = texture(colortex3, texCoords);
+    Material mat   = getMaterial(tempCoords);
+    vec4 shadowmap = texture(colortex3, tempCoords);
     float frames   = 0.0;
 
     vec3 skyIlluminance = vec3(0.0);
     #ifdef WORLD_OVERWORLD
-        skyIlluminance = texture(colortex7, texCoords).rgb;
+        skyIlluminance = texture(colortex7, tempCoords).rgb;
     #endif
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 1
-        frames = hasMoved() ? 1.0 : texture(colortex5, texCoords).a + 1.0;
+        frames = hasMoved() ? 1.0 : texture(colortex5, tempCoords).a + 1.0;
     #endif
 
     //vec2 causticsCoords = distortShadowSpace(worldToShadow(viewToWorld(viewPos0))).xy;
@@ -87,7 +93,7 @@ void main() {
         if(!mat.isMetal) {
             #if AO == 1
                 #if SSAO_FILTER == 1
-                    shadowmap.a = gaussianBlur(texCoords, colortex3, 1.2, 2.0, 4).a;
+                    shadowmap.a = gaussianBlur(tempCoords, colortex3, 1.2, 2.0, 4).a;
                 #endif
             #endif
 
@@ -98,10 +104,8 @@ void main() {
         /*------------------- PATH TRACING ---------------------*/
         //////////////////////////////////////////////////////////
 
-        vec2 scaledUv = texCoords * (1.0 / GI_RESOLUTION);
-
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords) {
-            pathTrace(color, vec3(scaledUv, texture(depthtex1, scaledUv).r));
+            pathTrace(color, vec3(tempCoords, texture(depthtex1, tempCoords).r));
 
             #if GI_TEMPORAL_ACCUMULATION == 1
                 temporalAccumulation(color, mat, colortex5, frames);

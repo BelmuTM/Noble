@@ -91,6 +91,7 @@ const float shadowDistanceRenderMul = 1.0;
 //////////////////////////////////////////////////////////
 #define GI        0 // [0 1]
 #define GI_FILTER 0
+#define ATROUS_STEP_SIZE 2.0
 
 #define GI_SAMPLES            1 // [1 2 3 4 5 6 7 8]
 #define GI_BOUNCES            4 // [1 2 3 4 5 6 7 8 9 10 11 12]
@@ -259,8 +260,7 @@ const float S = 100.0; // Sensor sensitivity
 
 // ACES Settings
 #define ACES_EPS 0.000061035
-
-#define DIM_SURROUND_GAMMA 0.9811
+#define ACES_ODT_GAMMA_CURVES
 
 // Glow module constants
 #define RRT_GLOW_GAIN 0.05
@@ -275,10 +275,9 @@ const float S = 100.0; // Sensor sensitivity
 #define RRT_SAT_FACTOR 0.96
 #define ODT_SAT_FACTOR 0.93
 
-#define ACES_ODT_GAMMA_CURVES
-
-#define ODT_DISPGAMMA      2.4
-#define ODT_GAMMA_OFFSET 0.055
+#define DIM_SURROUND_GAMMA 0.9811
+#define ODT_DISPGAMMA         2.4
+#define ODT_GAMMA_OFFSET    0.055
 
 #define ODT_CINEMA_WHITE 48.0
 #define ODT_CINEMA_BLACK (ODT_CINEMA_WHITE / 2400.0)
