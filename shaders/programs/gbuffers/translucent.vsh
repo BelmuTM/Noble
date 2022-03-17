@@ -22,7 +22,6 @@ out vec4 vertexColor;
 out mat3 TBN;
 
 #include "/include/common.glsl"
-#include "/include/fragment/water.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
 
 void main() {
@@ -39,6 +38,7 @@ void main() {
 	blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
+	/*
 	if(int(blockId + 0.5) == 1) {
 		vec3 worldPos = viewToWorld(viewPos);
 		waterNormals  = getWaveNormals(worldPos);
@@ -46,6 +46,7 @@ void main() {
     	vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView(worldPos), 1.0);
 		gl_Position     = viewToClip;
 	}
+	*/
 
 	directIlluminance = sampleDirectIlluminance(); 
     skyIlluminance    = sampleSkyIlluminance();

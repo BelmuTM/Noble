@@ -6,6 +6,25 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+// https://alain.xyz/blog/ray-tracing-denoising
+float computeVariance(sampler2D tex) {
+    const int radius = 2; //5x5 kernel
+    vec2 sigmaVariancePair = vec2(0.0); int SAMPLES;
+
+    for(int y = -radius; y <= radius; y++) {
+        for(int x = -radius; x <= radius; x++, SAMPLES++) {
+
+            ivec2 samplePos  = ivec2(gl_FragCoord.xy) + ivec2(x, y);
+            vec3 sampleColor = texelFetch(tex, samplePos, 0).rgb;
+
+            float lum          = luminance(sampleColor);
+            sigmaVariancePair += vec2(lum, pow2(lum));
+        }
+    }
+    sigmaVariancePair /= SAMPLES;
+    return max0(sigmaVariancePair.y - sigmaVariancePair.x * sigmaVariancePair.x);
+}
+
 const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
 const float steps[5]  = float[5](
     ATROUS_STEP_SIZE,
@@ -28,7 +47,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, int passIndex) {
 
             float weight  = aTrous[abs(x)] * aTrous[abs(y)];
                   weight *= pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(sampleMat.depth0))), 1e-3);
-                  weight *= pow(clamp01(dot(mat.normal, sampleMat.normal)), 12.0);
+                  weight *= pow(clamp01(dot(mat.normal, sampleMat.normal)), 20.0);
            
             color       += texelFetch(tex, ivec2(sampleCoords * viewResolution), 0).rgb * weight;
             totalWeight += weight;

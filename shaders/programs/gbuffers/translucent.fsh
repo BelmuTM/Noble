@@ -25,6 +25,7 @@ in mat3 TBN;
 #include "/include/common.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/shadows.glsl"
+#include "/include/fragment/water.glsl"
 
 void main() {
 	vec4 albedoTex   = texture(colortex0, texCoords);
@@ -57,7 +58,7 @@ void main() {
 		mat.alpha  = 0.0;
 		mat.F0 	   = 0.02;
 		mat.rough  = 0.0;
-		mat.normal = TBN * waterNormals;
+		mat.normal = TBN * getWaveNormals(viewToWorld(viewPos));
 		
 	} else {
 		mat.normal.xy = normalTex.xy * 2.0 - 1.0;

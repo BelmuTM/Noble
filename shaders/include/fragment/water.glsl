@@ -48,32 +48,27 @@
 
 float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmplitude, float waveLength, vec2 waveDir) {
 	float k = TAU / waveLength;
-    float w = sqrt(9.81 * k);
+    float x = (sqrt(9.81 * k)) * time - k * dot(waveDir, coords);
 
-    float x = w * time - k * dot(waveDir, coords);
     return waveAmplitude * pow(sin(x) * 0.5 + 0.5, waveSteepness);
 }
 
 float calculateWaterWaves(vec2 coords) {
-    const float windRad = 0.785398;
-	float speed = ANIMATED_WATER == 1 ? frameTimeCounter * WAVE_SPEED : 0.0;
+	float speed         = ANIMATED_WATER == 1 ? frameTimeCounter * WAVE_SPEED : 0.0;
+    float waveSteepness = WAVE_STEEPNESS, waveAmplitude = WAVE_AMPLITUDE, waveLength = WAVE_LENGTH;
+	vec2 waveDir        = -sincos(0.078);
 
-    float waveSteepness = WAVE_STEEPNESS;
-	float waveAmplitude = WAVE_AMPLITUDE;
-	float waveLength    = WAVE_LENGTH;
+    const float waveAngle = 2.4;
+	const mat2 rotation   = mat2(cos(waveAngle), -sin(waveAngle), sin(waveAngle), cos(waveAngle));
 
-	vec2 waveDir = -sincos(windRad);
     float waves = 0.0;
-
-    float noise;
-
-    for(int i = 0; i < WAVES_AMOUNT; i++) {
-        noise          = FBM(coords * 0.3 * inversesqrt(waveLength) - (speed * waveDir), 3);
+    for(int i = 0; i < WAVE_OCTAVES; i++) {
+        float noise    = FBM(coords * inversesqrt(waveLength) - (speed * waveDir), 3);
         waves         += -gerstnerWaves(coords + vec2(noise, -noise) * sqrt(waveLength), speed, waveSteepness, waveAmplitude, waveLength, waveDir) - noise * waveAmplitude;
         waveSteepness *= 1.4;
-        waveAmplitude *= 0.4;
-        waveLength    *= 0.7;
-        waveDir        = -sincos((windRad - 0.1) * (float(i) * GOLDEN_ANGLE));
+        waveAmplitude *= 0.7;
+        waveLength    *= 0.9;
+        waveDir       *= rotation;
     }
     return waves;
 }
