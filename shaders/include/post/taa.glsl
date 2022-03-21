@@ -6,19 +6,19 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 reprojection(vec3 pos) {
-    pos = pos * 2.0 - 1.0;
+vec3 reprojection(vec3 screenPos) {
+    screenPos = screenPos * 2.0 - 1.0;
 
-    vec4 currPos = gbufferProjectionInverse * vec4(pos, 1.0);
-    currPos     /= currPos.w;
-    currPos      = gbufferModelViewInverse * currPos;
+    vec4 position = gbufferProjectionInverse * vec4(screenPos, 1.0);
+         position = gbufferModelViewInverse * (position / position.w);
 
-    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(pos.z > 0.56);
+    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(screenPos.z > 0.56);
     
-    vec4 prevPos = currPos + vec4(cameraOffset, 0.0);
-         prevPos = gbufferPreviousModelView  * prevPos;
-         prevPos = gbufferPreviousProjection * prevPos;
-    return (prevPos.xyz / prevPos.w) * 0.5 + 0.5;
+    position += vec4(cameraOffset, 0.0);
+    position  = gbufferPreviousModelView  * position;
+    position  = gbufferPreviousProjection * position;
+
+    return (position.xyz / position.w) * 0.5 + 0.5;
 }
 
 /*
@@ -42,7 +42,7 @@ vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
 
     for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
         for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {
-            vec3 color = linearToYCoCg(texture(currTex, texCoords + vec2(x, y) * pixelSize).rgb);
+            vec3 color = linearToYCoCg(texelFetch(currTex, ivec2(gl_FragCoord.xy) + ivec2(x, y), 0).rgb);
             minColor = min(minColor, color); maxColor = max(maxColor, color); 
         }
     }
@@ -60,23 +60,18 @@ float getLumaWeight(vec3 currColor, vec3 prevColor) {
 vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex) {
     vec3 prevPos = reprojection(vec3(texCoords, currMat.depth1));
 
-    vec3 currColor = texture(currTex, texCoords).rgb;
+    vec3 currColor = texelFetch(currTex, ivec2(gl_FragCoord.xy), 0).rgb;
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
          prevColor = neighbourhoodClipping(currTex, prevColor);
          prevColor = YCoCgToLinear(prevColor);
 
-    float blendWeight = float(clamp01(prevPos.xy) == prevPos.xy);
+    float blendWeight  = float(clamp01(prevPos.xy) == prevPos.xy);
 
-    #if ACCUMULATION_VELOCITY_WEIGHT == 0
-        float lumaWeight   = getLumaWeight(currColor, prevColor);
-        float normalWeight = pow(clamp01(dot(currMat.normal, texture(colortex10, texCoords).rgb)), 12.0);
-        //float depthWeight  = pow(exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex10, texCoords).a))), 1e-2);
+    //float lumaWeight   = getLumaWeight(currColor, prevColor);
+    float normalWeight = pow(clamp01(dot(currMat.normal, texture(colortex10, prevPos.xy).rgb * 2.0 - 1.0)), 0.2);
+    float depthWeight  = pow(exp(-abs(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex10, prevPos.xy).a))), 0.8);
         
-        blendWeight *= (normalWeight * lumaWeight);
-    #else
-        float historyFrames = texture(colortex5, texCoords).a;
-        blendWeight        *= 1.0 - (1.0 / max(historyFrames, 1.0));
-    #endif
+    blendWeight *= (depthWeight * normalWeight);
 
     return mix(currColor, prevColor, blendWeight); 
 }

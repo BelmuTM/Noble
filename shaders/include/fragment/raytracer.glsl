@@ -26,10 +26,10 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, inout vec3
 
         if(clamp01(rayPos.xy) != rayPos.xy) return false;
 
-        float depth    = linearizeDepth(texture(depthtex1, rayPos.xy).r);
-        float rayDepth = linearizeDepth(rayPos.z);
+        float depth         = (texelFetch(depthtex1, ivec2(rayPos.xy * viewResolution), 0).r);
+        float depthLenience = max(abs(rayDir.z) * 3.0, 0.02 / pow2(viewPos.z)); // Provided by DrDesten#6282
 
-        intersect = rayDepth > depth && depth >= 0.56;
+        intersect = abs(depthLenience - (rayPos.z - depth)) < depthLenience && depth >= 0.56;
     }
 
     #if BINARY_REFINEMENT == 1

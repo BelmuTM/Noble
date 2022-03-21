@@ -6,25 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-// https://alain.xyz/blog/ray-tracing-denoising
-float computeVariance(sampler2D tex) {
-    const int radius = 2; //5x5 kernel
-    vec2 sigmaVariancePair = vec2(0.0); int SAMPLES;
-
-    for(int y = -radius; y <= radius; y++) {
-        for(int x = -radius; x <= radius; x++, SAMPLES++) {
-
-            ivec2 samplePos  = ivec2(gl_FragCoord.xy) + ivec2(x, y);
-            vec3 sampleColor = texelFetch(tex, samplePos, 0).rgb;
-
-            float lum          = luminance(sampleColor);
-            sigmaVariancePair += vec2(lum, pow2(lum));
-        }
-    }
-    sigmaVariancePair /= SAMPLES;
-    return max0(sigmaVariancePair.y - sigmaVariancePair.x * sigmaVariancePair.x);
-}
-
 const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
 const float steps[5]  = float[5](
     ATROUS_STEP_SIZE,
@@ -36,20 +17,27 @@ const float steps[5]  = float[5](
 
 // Thanks swr#1793 and L4mbads#6227 for helping me understand SVGF!
 void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, int passIndex) {
-    Material mat      = getMaterial(coords);
+    Material mat = getMaterial(coords);
+    if(mat.depth0 == 1.0) return;
+
     float totalWeight = EPS;
     vec2 stepSize     = steps[passIndex] * pixelSize;
+    float centerLuma  = luminance(color);
+    float variance    = texture(colortex0, coords).a;
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
             vec2 sampleCoords  = coords + (vec2(x, y) * stepSize);
             Material sampleMat = getMaterial(sampleCoords);
+            vec3 sampleColor   = texelFetch(tex, ivec2(sampleCoords * viewResolution), 0).rgb;
 
             float weight  = aTrous[abs(x)] * aTrous[abs(y)];
-                  weight *= pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(sampleMat.depth0))), 1e-3);
-                  weight *= pow(clamp01(dot(mat.normal, sampleMat.normal)), 20.0);
+                  weight *= exp(-pow2(1.0 - dot(mat.normal, sampleMat.normal)) * NORMAL_WEIGHT_STRENGTH);
+                  weight *= exp(-pow2(linearizeDepth(mat.depth0) - linearizeDepth(sampleMat.depth0)) * DEPTH_WEIGHT_STRENGTH);
+                  weight *= exp(-pow2(luminance(sampleColor) - centerLuma) / (20.0 * variance + EPS));
+                  weight  = clamp01(weight);
            
-            color       += texelFetch(tex, ivec2(sampleCoords * viewResolution), 0).rgb * weight;
+            color       += sampleColor * weight;
             totalWeight += weight;
         }
     }

@@ -34,7 +34,7 @@ void pcg(inout uint seed) {
     vec3 blueNoise = texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
 
     uint rngState = 185730U * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
-    float randF() { pcg(rngState); return float(rngState) / float(0xffffffffu); }
+    float randF(inout uint seed) { pcg(seed); return float(seed) / float(0xffffffffu); }
 #endif
 
 // Hammersley

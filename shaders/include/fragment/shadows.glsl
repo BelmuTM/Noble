@@ -7,7 +7,7 @@
 /***********************************************/
 
 vec3 worldToShadow(vec3 worldPos) {
-	return projMAD(shadowProjection, transMAD(shadowModelView, worldPos));
+	return projOrthoMAD(shadowProjection, transMAD(shadowModelView, worldPos));
 }
 
 float visibility(sampler2D tex, vec3 samplePos, float bias) {
@@ -53,7 +53,7 @@ vec3 PCF(vec3 shadowPos, float bias, float penumbraSize) {
 
     for(int i = 0; i < SHADOW_SAMPLES; i++) {
         #if SHADOW_TYPE != 2
-            offset = (diskSampling(i, SHADOW_SAMPLES, randF() * TAU) * penumbraSize) / shadowMapResolution;
+            offset = (diskSampling(i, SHADOW_SAMPLES, randF(rngState) * TAU) * penumbraSize) / shadowMapResolution;
         #endif
 
         vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
@@ -80,7 +80,7 @@ vec3 shadowMap(vec3 worldPos, vec3 normal) {
 
         #elif SHADOW_TYPE == 1
             vec3 shadowPosDistort = distortShadowSpace(shadowPos) * 0.5 + 0.5;
-            float avgBlockerDepth = findBlockerDepth(shadowPosDistort, bias, randF());
+            float avgBlockerDepth = findBlockerDepth(shadowPosDistort, bias, randF(rngState));
             if(avgBlockerDepth < 0.0) return vec3(1.0);
 
             penumbraSize = (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;

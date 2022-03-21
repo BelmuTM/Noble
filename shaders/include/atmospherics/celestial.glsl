@@ -50,7 +50,7 @@ vec3 computeSky(vec3 viewPos, bool starfield) {
     	vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)));
 
     	#if TAA == 1
-        	float jitter = randF();
+        	float jitter = randF(rngState);
     	#else
         	float jitter = bayer8(gl_FragCoord.xy);
     	#endif

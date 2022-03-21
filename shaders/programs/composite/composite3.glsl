@@ -13,39 +13,45 @@ layout (location = 1) out vec3 bloomBuffer;
 layout (location = 2) out vec4 volumetricLight;
 
 #include "/include/fragment/brdf.glsl"
-
-#include "/include/atmospherics/celestial.glsl"
-
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/reflections.glsl"
 #include "/include/fragment/shadows.glsl"
 
+#include "/include/atmospherics/celestial.glsl"
 #include "/include/atmospherics/fog.glsl"
+
+#include "/include/fragment/pathtracer.glsl"
 
 #include "/include/fragment/water.glsl"
 #include "/include/fragment/atrous.glsl"
 
 void main() {
-    #if GI == 0
-        color = texture(colortex0, texCoords).rgb;
-    #else
-        #if GI_FILTER == 0
-            color = texture(colortex0, texCoords).rgb;
-        #else
-            aTrousFilter(color, colortex0, texCoords, 3);
-        #endif
-    #endif
-
-    bool inWater = isEyeInWater > 0.5;
-    bool sky     = isSky(texCoords);
-
-    vec3 viewPos0  = getViewPos0(texCoords);
-    vec3 sceneDir0 = normalize(mat3(gbufferModelViewInverse) * viewPos0);
+    color = texture(colortex0, texCoords).rgb;
 
     Material mat = getMaterial(texCoords);
     vec2 coords  = texCoords;
 
+    vec3 viewPos0  = getViewPos0(texCoords);
+    vec3 sceneDir0 = normalize(mat3(gbufferModelViewInverse) * viewPos0);
+
+    bool inWater = isEyeInWater > 0.5;
+    bool sky     = isSky(texCoords);
+
     if(!sky) {
+        #if GI == 1
+            #if GI_FILTER == 1
+                aTrousFilter(color, colortex0, texCoords, 3);
+            #endif
+
+            uint seed  = uint(frameCounter) + 1234;
+            vec2 noise = vec2(randF(rngState), randF(rngState));
+
+            vec3 rayDir = generateCosineVector(mat.normal, noise);
+            vec3 direct = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
+
+            //color = direct + indirectBRDF(noise, mat, rayDir) * color;
+        #endif
+
         #if WATER_CAUSTICS == 1
             //bool canCast = isEyeInWater > 0.5 ? viewPos0.z == getViewPos1(texCoords).z : mat.blockId == 1;
             //if(canCast) color += waterCaustics(texCoords) * 500.0 * max0(dot(mat3(gbufferModelViewInverse) * mat.normal, vec3(0.0, 1.0, 0.0)));

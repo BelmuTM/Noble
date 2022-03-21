@@ -24,6 +24,7 @@ screen.WATER            = Water
 screen.CAMERA           = Camera
 screen.CAMERA_SETTINGS  = Camera Settings
 screen.COLOR_CORRECTION = Color Correction
+screen.FILTER           = Filtering
 
 ##################### LIGHTING & SHADOWS #####################
 
@@ -138,21 +139,45 @@ option.GI.comment = §bScreen Space Global Illumination. §rIt simulates light b
 value.GI.0 = §cOFF
 value.GI.1 = §aON
 
-option.GI_BOUNCES = GI Bounces
-option.GI_BOUNCES.comment = Makes §bGI§r bounce §aX§r times to gather light. §cHigher value gives better results, but reduces §cperformance.
+//////////////////////// FILTERING ////////////////////////
 
-option.GI_TEMPORAL_ACCUMULATION = Temporal Accumulation
-option.GI_TEMPORAL_ACCUMULATION.comment = Accumulates §bGI §rover multiple frames to reduce noise and give a cleaner result.
-value.GI_TEMPORAL_ACCUMULATION.0 = §cOFF
-value.GI_TEMPORAL_ACCUMULATION.1 = §aON
-
-option.GI_FILTER = Spatial Filtering
-option.GI_FILTER.comment = Blurs §bGI §rto reduce the noise.
+option.GI_FILTER = Filter
+option.GI_FILTER.comment = Denoises §bGlobal Illumination§r.
 value.GI_FILTER.0 = §cOFF
 value.GI_FILTER.1 = §aON
 
+option.GI_TEMPORAL_ACCUMULATION = Temporal Accumulation
+option.GI_TEMPORAL_ACCUMULATION.comment = Accumulates §bGlobal Illumination§r over multiple frames to reduce noise and give a cleaner result.
+value.GI_TEMPORAL_ACCUMULATION.0 = §cOFF
+value.GI_TEMPORAL_ACCUMULATION.1 = §aON
+
+option.ATROUS_STEP_SIZE = Blur Size
+option.ATROUS_STEP_SIZE.comment = Adjusts the size of the blur used to filter §bGlobal Illumination§r.
+
+option.NORMAL_WEIGHT_STRENGTH = Normal Weight Strength
+option.NORMAL_WEIGHT_STRENGTH.comment = Adjusts the strength of the normal weight used to blur §bGlobal Illumination§r.
+
+option.DEPTH_WEIGHT_STRENGTH = Depth Weight Strength
+option.DEPTH_WEIGHT_STRENGTH.comment = Adjusts the strength of the depth weight used to blur §bGlobal Illumination§r.
+
+option.LUMA_WEIGHT_STRENGTH = Luminance Weight Strength
+option.LUMA_WEIGHT_STRENGTH.comment = Adjusts the strength of the luminance weight used to blur §bGlobal Illumination§r.
+
+///////////////////////////////////////////////////////////
+
+option.SKY_CONTRIBUTION = Sky Contribution
+option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r (can be problematic in screen space). Lets the sky contribute in indirect lighting.
+value.SKY_CONTRIBUTION.0 = §cOFF
+value.SKY_CONTRIBUTION.1 = §aON
+
 option.GI_RESOLUTION = GI Resolution
 option.GI_RESOLUTION.comment = Downscales §bGI §rto increase performance. §cHigher value gives better results, but reduces §cperformance.
+
+option.GI_SAMPLES = GI Samples
+option.GI_SAMPLES.comment = Adjusts the amount of samples taken to calculate §bGlobal Illumination§r.
+
+option.GI_BOUNCES = GI Bounces
+option.GI_BOUNCES.comment = Makes §bGlobal Illumination§r bounce §aX§r times to gather light. §cHigher value gives better results, but reduces §cperformance.
 
 option.BINARY_REFINEMENT = Binary Refinement
 option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make it more accurate. §cHigher value gives better results, but reduces §cperformance.
@@ -163,11 +188,6 @@ option.SSR_REPROJECTION = SSR Reprojection
 option.SSR_REPROJECTION.comment = Reflects the last frame to make the light bounce infinitely. §aIt doesn't affect performance.
 value.SSR_REPROJECTION.0 = §cOFF
 value.SSR_REPROJECTION.1 = §aON
-
-option.SKY_CONTRIBUTION = Sky Contribution
-option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r (can be problematic in screen space). Lets the sky contribute in indirect lighting.
-value.SKY_CONTRIBUTION.0 = §cOFF
-value.SKY_CONTRIBUTION.1 = §aON
 
 ##################### ATMOSPHERICS #####################
 
