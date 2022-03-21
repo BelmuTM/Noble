@@ -56,3 +56,5 @@ vec3 sunLuminance   = sunIlluminance / (TAU * (1.0 - cos(sunAngularRad)));
 
 vec3 moonLuminance   = moonAlbedo * sunIlluminance;
 vec3 moonIlluminance = moonLuminance * (TAU * (1.0 - cos(moonAngularRad))); // The rough amount of light the moon emits that reaches the earth
+
+float shadowLightAngularRad = sunAngle < 0.5 ? sunAngularRad : moonAngularRad;

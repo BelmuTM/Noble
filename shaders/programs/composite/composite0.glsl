@@ -21,5 +21,5 @@ void main() {
 
     // Overlay
     vec4 overlay = texelFetch(colortex4, ivec2(gl_FragCoord.xy), 0);
-    color.rgb    = mix(color.rgb, sRGBToLinear(overlay.rgb) * (sunAngle <= 0.5 ? sunIlluminance : moonIlluminance), overlay.a);
+    color.rgb    = mix(color.rgb, sRGBToLinear(overlay.rgb) * (sunAngle < 0.5 ? sunIlluminance : moonIlluminance), overlay.a);
 }

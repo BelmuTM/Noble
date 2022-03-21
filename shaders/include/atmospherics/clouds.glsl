@@ -6,13 +6,17 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+float cloudsDensity(vec2 pos) {
+    return FBM(pos, 6);
+}
+
 vec3 cloudsScattering(vec3 rayDir) {
     vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, innerCloudRad, outerCloudRad);
     if(dists.y < 0.0) return vec3(0.0);
 
     float stepLength = (dists.y - dists.x) / float(CLOUDS_STEPS);
     vec3 increment   = rayDir * stepLength;
-    vec3 rayPos      = atmosRayPos + rayDir * (dists.x + bayer2(gl_FragCoord.xy) * stepLength);
+    vec3 rayPos      = atmosRayPos + rayDir * 0.5;
 
     vec3 scattering = vec3(0.0); float transmittance = 1.0;
     

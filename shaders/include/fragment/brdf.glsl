@@ -24,10 +24,10 @@ float G1SmithGGX(float cosTheta, float roughness) {
     return 1.0 / (1.0 + lambdaSmith(cosTheta, alpha));
 }
 
-float G2SmithGGX(float NL, float NV, float roughness) {
+float G2SmithGGX(float NdotL, float NdotV, float roughness) {
     float alpha   = pow2(roughness);
-    float lambdaV = lambdaSmith(NV, alpha);
-    float lambdaL = lambdaSmith(NL, alpha);
+    float lambdaV = lambdaSmith(NdotV, alpha);
+    float lambdaL = lambdaSmith(NdotL, alpha);
     return 1.0 / (1.0 + lambdaV + lambdaL);
 }
 
@@ -77,7 +77,6 @@ vec3 fresnelDieletricConductor(vec3 eta, vec3 etaK, float cosTheta) {
 }
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
-// Modified by Belmu
 vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float roughness) {
     float alpha = pow2(roughness);
     
@@ -109,8 +108,8 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     float alpha = pow2(mat.rough);
 
     vec3 H      = normalize(V + L);
-    float NdotV = maxEps(dot(N, V));
     float NdotL = dot(N, L);
+    float NdotV = maxEps(dot(N, V));
     float VdotL = dot(V, L);
     float NdotH = dot(N, H);
 
@@ -139,8 +138,8 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
 // Disney SSS from: https://www.shadertoy.com/view/XdyyDd
 float disneySubsurface(vec3 N, vec3 V, vec3 L, Material mat) {
     vec3 H      = normalize(V + L);
-    float NdotV = clamp01(dot(N, V));
     float NdotL = clamp01(dot(N, L));
+    float NdotV = clamp01(dot(N, V));
     float LdotH = clamp01(dot(L, H));
 
     float FL    = cornetteShanksPhase(NdotL, 0.5), FV = cornetteShanksPhase(NdotV, 0.5);
@@ -165,9 +164,9 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 
     float D  = distributionGGX(NdotH, mat.rough);
     vec3  F  = fresnelComplex(HdotL, mat);
-    float G2 = G2SmithGGX(NdotV, NdotL, mat.rough);
+    float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
         
-    return clamp01(D * F * G2 / (4.0 * NdotL * NdotV)) * clamp01(NdotL);
+    return clamp01(NdotL) * (D * G2) * F / (4.0 * NdotL * NdotV);
 }
 
 // Thanks LVutner and Jessie for the help!

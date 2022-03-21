@@ -89,7 +89,7 @@ void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance, fl
     vec3 transmittance = exp(-absorptionCoeff * WATER_DENSITY * dist);
 
     vec3 scattering  = skyIlluminance * isotropicPhase * pow2(quintic(0.0, 1.0, skyLight));
-         scattering += (sunAngle <= 0.5 ? sunIlluminance : moonIlluminance) * cornetteShanksPhase(VdotL, 0.5);
+         scattering += (sunAngle < 0.5 ? sunIlluminance : moonIlluminance) * cornetteShanksPhase(VdotL, 0.5);
          scattering *= scatteringCoeff * (1.0 - transmittance) / extinctionCoeff;
 
     color = color * transmittance + scattering;

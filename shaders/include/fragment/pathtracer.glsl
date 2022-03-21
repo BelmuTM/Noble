@@ -14,9 +14,9 @@
 #if GI == 1
     vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, in float roughness) {
         float NdotV = maxEps(dot(N, V));
-        float NdotL = clamp01(dot(N, L));
+        float NdotL = dot(N, L);
 
-        return (fresnel * G2SmithGGX(NdotV, NdotL, roughness)) / G1SmithGGX(NdotV, roughness);
+        return (fresnel * G2SmithGGX(NdotL, NdotV, roughness)) / G1SmithGGX(NdotV, roughness);
     }
 
     vec3 directBRDF(vec2 hitPos, vec3 V, vec3 L, Material mat, vec3 shadowmap) {
@@ -34,14 +34,13 @@
     }
 
     vec3 indirectBRDF(vec2 noise, Material mat, inout vec3 rayDir) {
-        mat3 TBN = constructViewTBN(mat.normal);
-
+        mat3 TBN        = constructViewTBN(mat.normal);
         vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, mat.rough);
         vec3 fresnel    = fresnelComplex(dot(-rayDir, microfacet), mat);
 
-        float fresnelLum    = luminance(fresnel);
-        float totalLum      = luminance(mat.albedo) * (1.0 - fresnelLum) + fresnelLum;
-        float specularProb  = fresnelLum / totalLum;
+        float fresnelLum   = luminance(fresnel);
+        float totalLum     = luminance(mat.albedo) * (1.0 - fresnelLum) + fresnelLum;
+        float specularProb = fresnelLum / totalLum;
  
         vec3 BRDF = vec3(0.0);
         if(specularProb > randF(rngState)) {
@@ -49,30 +48,33 @@
             BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.rough) / specularProb;
             rayDir      = newDir;
         } else {
-            BRDF   = (1.0 - fresnelDieletricConductor(vec3(F0ToIOR(mat.F0)), vec3(0.0), dot(-rayDir, microfacet))) / (1.0 - specularProb) * mat.albedo;
+            BRDF   = (1.0 - fresnel) / (1.0 - specularProb) * mat.albedo;
             rayDir = generateCosineVector(mat.normal, noise);
         }
         return BRDF;
     }
 
-    void pathTrace(inout vec3 radiance, in vec3 screenPos, inout vec3 outColorDirect) {
+    void pathTrace(inout vec3 radiance, in vec3 screenPos, inout vec3 outColorDirect, inout vec3 outColorIndirect) {
         vec3 viewPos   = screenToView(screenPos);
         vec3 skyRayDir = unprojectSphere(texCoords);
 
-        for(int i = 0; i < GI_SAMPLES; i++) {
+        int SAMPLES;
+        for(int i = 0; i < GI_SAMPLES; i++, SAMPLES++) {
             vec3 throughput = vec3(1.0);
 
             vec3 hitPos = screenPos; 
             vec3 rayDir = normalize(viewPos);
             Material mat;
 
+            uint seed = uint(frameCounter) + 1234u * uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
+
             for(int j = 0; j <= GI_BOUNCES; j++) {
-                vec2 noise = vec2(randF(rngState), randF(rngState));
+                vec2 noise = vec2(randF(seed), randF(seed));
 
                 /* Russian Roulette */
                 if(j > ROULETTE_MIN_BOUNCES) {
                     float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
-                    if(roulette < randF(rngState)) { throughput = vec3(0.0); break; }
+                    if(roulette < randF(seed)) { throughput = vec3(0.0); break; }
                     throughput /= roulette;
                 }
                 
@@ -83,15 +85,18 @@
                     directLighting = directBRDF(hitPos.xy, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb);
                 #endif
 
-                directLighting += mat.albedo * BLOCKLIGHT_INTENSITY * mat.emission;
+                directLighting     += mat.albedo * BLOCKLIGHT_INTENSITY * mat.emission;
+                vec3 indirectBounce = indirectBRDF(noise, mat, rayDir);
 
-                if(j == 0) { outColorDirect = directLighting; }
-
+                if(j == 0) { 
+                    outColorDirect   = directLighting;
+                    outColorIndirect = indirectBounce;
+                }
                 radiance   += throughput * directLighting; 
-                throughput *= indirectBRDF(noise, mat, rayDir);
+                throughput *= indirectBounce;
                 
                 if(dot(mat.normal, rayDir) < 0.0) { break; }
-                bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(rngState), hitPos);
+                bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(seed), hitPos);
 
                 if(!hit) {
                     #if SKY_CONTRIBUTION == 1
@@ -106,6 +111,6 @@
                 }
             }
         }
-        radiance = max0(radiance) / float(GI_SAMPLES);
+        radiance = max0(radiance) / float(SAMPLES);
     }
 #endif

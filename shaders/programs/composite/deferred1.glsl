@@ -6,11 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 0,5,11 */
+/* RENDERTARGETS: 0,5,11,12 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 historyBuffer;
 layout (location = 2) out vec3 direct;
+layout (location = 3) out vec3 indirect;
 
 #include "/include/utility/blur.glsl"
 
@@ -98,7 +99,7 @@ void main() {
         }
     #else
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords) {
-            pathTrace(color.rgb, vec3(tempCoords, mat.depth1), direct);
+            pathTrace(color.rgb, vec3(tempCoords, mat.depth1), direct, indirect);
             //color.rgb -= direct;
 
             #if GI_TEMPORAL_ACCUMULATION == 1

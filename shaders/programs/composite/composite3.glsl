@@ -43,13 +43,10 @@ void main() {
                 aTrousFilter(color, colortex0, texCoords, 3);
             #endif
 
-            uint seed  = uint(frameCounter) + 1234;
-            vec2 noise = vec2(randF(rngState), randF(rngState));
+            vec3 direct         = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
+            vec3 indirectBounce = texture(colortex12, texCoords * GI_RESOLUTION).rgb;
 
-            vec3 rayDir = generateCosineVector(mat.normal, noise);
-            vec3 direct = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
-
-            //color = direct + indirectBRDF(noise, mat, rayDir) * color;
+            //color = direct + indirectBounce * color;
         #endif
 
         #if WATER_CAUSTICS == 1
