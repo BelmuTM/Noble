@@ -27,9 +27,10 @@ layout (location = 3) out vec3 indirect;
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
-    void temporalAccumulation(Material mat, inout vec4 color, inout float frames) {
-        vec3 prevPos   = reprojection(vec3(texCoords, mat.depth0));
-        vec3 prevColor = texture(colortex5, prevPos.xy).rgb;
+    void temporalAccumulation(Material mat, inout vec4 color, inout vec3 indirectBounce, inout float frames) {
+        vec3 prevPos           = reprojection(vec3(texCoords, mat.depth0));
+        vec3 prevColor         = texture(colortex5, prevPos.xy).rgb;
+        vec3 prevColorIndirect = texture(colortex12, prevPos.xy).rgb;
 
         if(mat.depth0 == 0.0) return;
 
@@ -49,6 +50,7 @@ layout (location = 3) out vec3 indirect;
 
         float currLuma = luminance(color.rgb);
         color.rgb      = mix(color.rgb, prevColor, blendWeight);
+        indirectBounce = mix(indirectBounce, prevColorIndirect, blendWeight);
         float avgLum   = mix(currLuma, luminance(prevColor), blendWeight);
         color.a        = mix(pow2(currLuma - avgLum), color.a, blendWeight);
     }
@@ -103,7 +105,7 @@ void main() {
             //color.rgb -= direct;
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(mat, color, frames);
+                temporalAccumulation(mat, color, indirect, frames);
             #endif
         }
     #endif

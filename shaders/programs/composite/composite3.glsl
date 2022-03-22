@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* DRAWBUFFERS:047 */
+/* RENDERTARGETS: 0,4,7 */
 
 layout (location = 0) out vec3 color;
 layout (location = 1) out vec3 bloomBuffer;
@@ -43,10 +43,12 @@ void main() {
                 aTrousFilter(color, colortex0, texCoords, 3);
             #endif
 
+            /*
             vec3 direct         = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
             vec3 indirectBounce = texture(colortex12, texCoords * GI_RESOLUTION).rgb;
 
-            //color = direct + indirectBounce * color;
+            color = direct + (indirectBounce * color);
+            */
         #endif
 
         #if WATER_CAUSTICS == 1

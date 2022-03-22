@@ -16,7 +16,6 @@ in vec2 texCoords;
 in vec2 lmCoords;
 in vec3 viewPos;
 in vec3 geoNormal;
-in vec3 waterNormals;
 in vec3 skyIlluminance;
 in vec3 directIlluminance;
 in vec4 vertexColor;

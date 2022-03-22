@@ -46,12 +46,39 @@
     }
 #endif
 
-float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmplitude, float waveLength, vec2 waveDir) {
-	float k = TAU / waveLength;
-    float x = (sqrt(9.81 * k)) * time - k * dot(waveDir, coords);
+/*
+    CREDITS:
+    Water waves algorithm from: https://www.shadertoy.com/view/Ms2SD1
+*/
 
-    return waveAmplitude * pow(sin(x) * 0.5 + 0.5, waveSteepness);
+float seaOctave(vec2 pos, float steep) {
+    pos     += (-1.0 + 2.0 * noise(pos));        
+    vec2 wv  = 1.0 - abs(sin(pos));
+    vec2 swv = abs(cos(pos));    
+         wv  = mix(wv, swv, wv);
+    return pow(1.0 - pow(wv.x * wv.y, 0.65), steep);
 }
+
+float waterWaves(vec2 pos) {
+    float freq   = 0.16;
+    float amp    = WAVE_AMPLITUDE;
+    float steep  = WAVE_STEEPNESS;
+    pos.x *= 0.75;
+    
+    float d, height = 0.0;    
+    for(int i = 0; i < WATER_OCTAVES; i++) {        
+    	d  = seaOctave((pos + (frameTimeCounter * WAVE_SPEED)) * freq, steep);
+    	d += seaOctave((pos - (frameTimeCounter * WAVE_SPEED)) * freq, steep);
+
+        height += d * amp;        
+    	pos   *= mat2(1.6, 1.2, -1.2, 1.6); freq *= 1.9; amp *= 0.22;
+        steep = mix(steep, 1.0, 0.2);
+    }
+    return height;
+}
+
+/*
+OLD WAVES
 
 float calculateWaterWaves(vec2 coords) {
 	float speed         = ANIMATED_WATER == 1 ? frameTimeCounter * WAVE_SPEED : 0.0;
@@ -73,13 +100,21 @@ float calculateWaterWaves(vec2 coords) {
     return waves;
 }
 
+float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmplitude, float waveLength, vec2 waveDir) {
+	float k = TAU / waveLength;
+    float x = (sqrt(9.81 * k)) * time - k * dot(waveDir, coords);
+
+    return waveAmplitude * pow(sin(x) * 0.5 + 0.5, waveSteepness);
+}
+*/
+
 vec3 getWaveNormals(vec3 worldPos) {
     vec2 coords = worldPos.xz - worldPos.y;
 
     const float delta = 1e-1;
-    float normal0 = calculateWaterWaves(coords);
-	float normal1 = calculateWaterWaves(coords + vec2(delta, 0.0));
-	float normal2 = calculateWaterWaves(coords + vec2(0.0, delta));
+    float normal0 = waterWaves(coords);
+	float normal1 = waterWaves(coords + vec2(delta, 0.0));
+	float normal2 = waterWaves(coords + vec2(0.0, delta));
 
     return normalize(vec3(
         (normal0 - normal1) / delta,

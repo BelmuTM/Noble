@@ -122,9 +122,9 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 
         float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), ior);
         vec3 hitColor = vec3(
-            texture(colortex0, hitPos.xy + vec2(2e-3 * rand(gl_FragCoord.xy))).r,
+            texture(colortex0, hitPos.xy + vec2(5e-4 * rand(gl_FragCoord.xy))).r,
             texture(colortex0, hitPos.xy).g,
-            texture(colortex0, hitPos.xy - vec2(2e-3 * rand(gl_FragCoord.yx))).b
+            texture(colortex0, hitPos.xy - vec2(5e-4 * rand(gl_FragCoord.yx))).b
         );
 
         return hitColor * (1.0 - fresnel);

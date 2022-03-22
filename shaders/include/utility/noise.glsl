@@ -57,14 +57,24 @@ float rand(vec2 p) {
     return fract(sin(mod(dt, PI)) * 43758.5453);
 }
 
+float hash12(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+vec3 hash32(vec2 p) {
+	vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
+    p3     += dot(p3, p3.yxz + 33.33);
+    return fract((p3.xxy + p3.yzz) * p3.zyx);
+}
+
 float noise(vec2 p) {
 	vec2 ip = floor(p);
-	vec2 u = fract(p);
+	vec2 u  = fract(p);
 	u = u * u * (3.0 - 2.0 * u);
 
 	float res = mix(
-		mix(rand(ip), rand(ip + vec2(1.0, 0.0)), u.x),
-		mix(rand(ip + vec2(0.0, 1.0)), rand(ip + vec2(1.0, 1.0)), u.x), u.y);
+		mix(hash12(ip), hash12(ip + vec2(1.0, 0.0)), u.x),
+		mix(hash12(ip + vec2(0.0, 1.0)), hash12(ip + vec2(1.0, 1.0)), u.x), u.y);
 	return res * res;
 }
 
@@ -96,14 +106,8 @@ float goldNoise(vec2 xy, int seed){
     return fract(tan(distance(xy * GOLDEN_RATIO, xy) * float(seed)) * xy.x);
 }
 
-vec3 hash32(vec2 p) {
-	vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
-    p3     += dot(p3, p3.yxz + 33.33);
-    return fract((p3.xxy + p3.yzz) * p3.zyx);
-}
-
-//	<https://www.shadertoy.com/view/Xd23Dh>
-//	by inigo quilez <http://iquilezles.org/www/articles/voronoise/voronoise.htm>
+//	https://www.shadertoy.com/view/Xd23Dh
+//	From Inigo Quilez: http://iquilezles.org/www/articles/voronoise/voronoise.htm
 float voronoise(in vec2 x, int u, int v) {
     vec2 p = floor(x);
     vec2 f = fract(x);

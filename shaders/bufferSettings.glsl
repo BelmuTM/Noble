@@ -9,6 +9,7 @@
 /*
 MAIN BUFFER
 const int colortex0Format      = RGBA32F;
+const bool colortex0Clear      = false;
 
 TRANSLUCENTS BUFFER
 const int colortex1Format      = RGBA16F;
@@ -47,4 +48,5 @@ const bool colortex10Clear     = false;
 
 const int colortex11Format     = RGBA32F;
 const int colortex12Format     = RGBA32F;
+const bool colortex12Clear     = false;
 */

@@ -286,8 +286,8 @@ option.WATER_CAUSTICS_SIZE.comment = Adjusts §bWater Caustics§r' size.
 option.WAVE_STEEPNESS = Wave Steepness
 option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of height to width.
 
-option.WAVE_LENGTH = Wave Length
-option.WAVE_LENGTH.comment = Adjusts the length of water waves. Length between 2 waves.
+option.WAVE_AMPLITUDE = Wave Amplitude
+option.WAVE_AMPLITUDE.comment = Adjusts the amplitude of water waves.
 
 option.WAVE_SPEED = Wave Speed
 option.WAVE_SPEED.comment = Adjusts the speed of water waves.

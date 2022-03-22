@@ -91,23 +91,24 @@
                 if(j == 0) { 
                     outColorDirect   = directLighting;
                     outColorIndirect = indirectBounce;
-                }
-                radiance   += throughput * directLighting; 
-                throughput *= indirectBounce;
+                } else {
+                    radiance   += throughput * directLighting; 
+                    throughput *= indirectBounce;
                 
-                if(dot(mat.normal, rayDir) < 0.0) { break; }
-                bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(seed), hitPos);
+                    if(dot(mat.normal, rayDir) < 0.0) { break; }
+                    bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(seed), hitPos);
 
-                if(!hit) {
-                    #if SKY_CONTRIBUTION == 1
-                        vec3 skyHitPos;
-                        raytrace(screenToView(hitPos), skyRayDir, int(GI_STEPS * 0.3), randF(rngState), skyHitPos);
+                    if(!hit) {
+                        #if SKY_CONTRIBUTION == 1
+                            vec3 skyHitPos;
+                            raytrace(screenToView(hitPos), skyRayDir, int(GI_STEPS * 0.3), randF(rngState), skyHitPos);
 
-                        if(isSky(skyHitPos.xy)) {
-                            radiance += throughput * texture(colortex7, skyHitPos.xy).rgb * INV_PI;
-                        }
-                    #endif
-                    break;
+                            if(isSky(skyHitPos.xy)) {
+                                radiance += throughput * texture(colortex7, skyHitPos.xy).rgb * INV_PI;
+                            }
+                        #endif
+                        break;
+                    }
                 }
             }
         }
