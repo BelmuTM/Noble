@@ -8,45 +8,47 @@
 
 /*
 MAIN BUFFER
-const int colortex0Format      = RGBA32F;
-const bool colortex0Clear      = false;
+const int colortex0Format         = RGBA32F;
+const bool colortex0Clear         = false;
+const bool colortex0MipmapEnabled = true;
 
 TRANSLUCENTS BUFFER
-const int colortex1Format      = RGBA16F;
-const vec4 colortex1ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const int colortex1Format         = RGBA16F;
+const vec4 colortex1ClearColor    = vec4(0.0, 0.0, 0.0, 0.0);
 
 DATA BUFFER
-const int colortex2Format      = RGBA32UI;
+const int colortex2Format         = RGBA32UI;
 
 SHADOWMAP
-const int shadowcolor0Format   = RGBA16;
-const vec4 shadowcolor0Clear   = vec4(0.0, 0.0, 0.0, 0.0);
-const int shadowcolor1Format   = RGBA16;
-const vec4 shadowcolor1Clear   = vec4(0.0, 0.0, 0.0, 0.0);
-const int colortex3Format      = RGBA16F;
+const int shadowcolor0Format      = RGBA16;
+const vec4 shadowcolor0Clear      = vec4(0.0, 0.0, 0.0, 0.0);
+const int shadowcolor1Format      = RGBA16;
+const vec4 shadowcolor1Clear      = vec4(0.0, 0.0, 0.0, 0.0);
+const int colortex3Format         = RGBA16F;
 
 MULTIPLE THINGS
-const int colortex4Format      = RGBA16F;
+const int colortex4Format         = RGBA16F;
+const bool colortex4MipmapEnabled = true;
 
 PATH TRACING ACCUMULATION BUFFER
-const int colortex5Format      = RGBA32F;
-const bool colortex5Clear      = false;
+const int colortex5Format         = RGBA32F;
+const bool colortex5Clear         = false;
 
 SKY
-const int colortex6Format      = R11F_G11F_B10F;
-const bool colortex6Clear      = false;
+const int colortex6Format         = R11F_G11F_B10F;
+const bool colortex6Clear         = false;
 
 VOLUMETRIC LIGHTING / SKY ILLUMINANCE
-const int colortex7Format      = R11F_G11F_B10F;
+const int colortex7Format         = R11F_G11F_B10F;
 
 HISTORY BUFFERS
-const int colortex8Format      = RGBA16F;
-const bool colortex8Clear      = false;
+const int colortex8Format         = RGBA16F;
+const bool colortex8Clear         = false;
 
-const int colortex10Format     = RGBA32F;
-const bool colortex10Clear     = false;
+const int colortex10Format        = RGBA32F;
+const bool colortex10Clear        = false;
 
-const int colortex11Format     = RGBA32F;
-const int colortex12Format     = RGBA32F;
-const bool colortex12Clear     = false;
+const int colortex11Format        = RGBA32F;
+const int colortex12Format        = RGBA32F;
+const bool colortex12Clear        = false;
 */

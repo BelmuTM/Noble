@@ -13,9 +13,6 @@
 */
 
 #if BLOOM == 1
-	/*
-		const bool colortex4MipmapEnabled = true;
-	*/
 	const vec2 bloomOffsets[] = vec2[](
 		vec2(0.0      , 0.0   ),
 		vec2(0.0      , 0.26  ),

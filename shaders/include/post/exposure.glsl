@@ -6,10 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/*
-const bool colortex0MipmapEnabled = true;
-*/
-
 #if EXPOSURE == 1
      float computeAverageLuminance(sampler2D prevTex) {
           float currLuma = luminance(textureLod(colortex0, vec2(0.5), log2(maxOf2(viewResolution))).rgb);
@@ -42,5 +38,5 @@ float computeExposure(float avgLuminance) {
           EV100 = computeEV100fromLuma(avgLuminance);
      #endif
 
-     return max0(clamp(EV100ToExposure(EV100), minExposure, maxExposure));
+     return clamp(EV100ToExposure(EV100), minExposure, maxExposure);
 }

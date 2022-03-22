@@ -6,6 +6,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#include "/bufferSettings.glsl"
+
 #include "/settings.glsl"
 #include "/include/uniforms.glsl"
 

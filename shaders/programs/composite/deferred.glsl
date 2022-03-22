@@ -6,8 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/bufferSettings.glsl"
-
 #if defined STAGE_VERTEX
 
     out vec3 skyIlluminance;
