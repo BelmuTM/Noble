@@ -19,7 +19,14 @@ void main() {
         aTrousFilter(color.rgb, colortex0, texCoords, 1);
     #endif
 
-    // Overlay
     vec4 overlay = texelFetch(colortex4, ivec2(gl_FragCoord.xy), 0);
-    color.rgb    = mix(color.rgb, sRGBToLinear(overlay.rgb) * (sunAngle < 0.5 ? sunIlluminance : moonIlluminance), overlay.a);
+
+    // Overlay
+    #if TONEMAP == 0
+        overlay.rgb = sRGBToAP1Albedo(overlay.rgb);
+    #else
+        overlay.rgb = sRGBToLinear(overlay.rgb);
+    #endif
+
+    color.rgb = mix(color.rgb, overlay.rgb, overlay.a);
 }

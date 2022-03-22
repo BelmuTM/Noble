@@ -56,7 +56,7 @@ Material getMaterial(vec2 coords) {
 }
 
 const mat2x3 hardcodedMetals[] = mat2x3[](
-	mat2x3(vec3(2.9114, 2.9497, 2.5845),    // Iron
+    mat2x3(vec3(2.9114, 2.9497, 2.5845),    // Iron
            vec3(3.0893, 2.9318, 2.7670)),
     mat2x3(vec3(0.18299, 0.42108, 1.3734),  // Gold
            vec3(3.4242, 2.3459, 1.7704)),

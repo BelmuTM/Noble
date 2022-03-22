@@ -11,7 +11,7 @@
 void volumetricGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
     vec3 scenePos = viewToScene(viewPos);
 
-    float airmass     = isSky(texCoords) ? far : length(scenePos) * pow2(quintic(0.0, 1.0, skyLight));
+    float airmass     = isSky(texCoords) ? far : length(scenePos) * pow2(1.0 - pow3(1.0 - clamp01(skyLight)));
           airmass    *= RAIN_FOG_DENSITY * rainStrength;
     vec3 opticalDepth = (kExtinction[0] + kExtinction[1] + kExtinction[2]) * airmass;
 
