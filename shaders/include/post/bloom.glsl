@@ -35,25 +35,24 @@
         for(int x = -BLOOM_STEPS; x <= BLOOM_STEPS; x++) {
             for(int y = -BLOOM_STEPS; y <= BLOOM_STEPS; y++) {
                 float weight = gaussianDistrib2D(vec2(x, y), BLOOM_SIGMA);
-                bloom  		+= textureLod(colortex4, coords + vec2(x, y) * texScale, LOD).rgb * weight;
+                bloom  		+= textureLod(colortex5, coords + vec2(x, y) * texScale, LOD).rgb * weight;
             }
         }
 		return bloom;
 	}
 
 	vec3 getBloomTile(int LOD) {
-		return textureBicubic(colortex4, texCoords / exp2(LOD) + bloomOffsets[LOD - 2]).rgb;
+		return textureBicubic(colortex2, texCoords / exp2(LOD) + bloomOffsets[LOD - 2]).rgb;
 	}
 
-	vec3 writeBloom() {
-		vec3 bloom  = bloomTile(2);
-	     	 bloom += bloomTile(3);
-	     	 bloom += bloomTile(4);
-	     	 bloom += bloomTile(5);
-	     	 bloom += bloomTile(6);
-	     	 bloom += bloomTile(7);
-	      	 bloom += bloomTile(8);
-		return bloom;
+	void writeBloom(inout vec3 bloom) {
+		bloom  = bloomTile(2);
+		bloom += bloomTile(3);
+		bloom += bloomTile(4);
+		bloom += bloomTile(5);
+		bloom += bloomTile(6);
+		bloom += bloomTile(7);
+		bloom += bloomTile(8);
 	}
 
 	vec3 readBloom() {

@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 0,5,11,12 */
+/* RENDERTARGETS: 5,4,10,11 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec4 historyBuffer;
@@ -29,17 +29,17 @@ layout (location = 3) out vec3 indirect;
 
     void temporalAccumulation(Material mat, inout vec4 color, inout vec3 indirectBounce, inout float frames) {
         vec3 prevPos           = reprojection(vec3(texCoords, mat.depth0));
-        vec3 prevColor         = texture(colortex5, prevPos.xy).rgb;
-        vec3 prevColorIndirect = texture(colortex12, prevPos.xy).rgb;
+        vec4 prevColor         = texture(colortex4, prevPos.xy);
+        vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
 
         if(mat.depth0 == 0.0) return;
 
-        float blendWeight  = float(clamp01(prevPos.xy) == prevPos.xy);
-        frames             = texture(colortex5, prevPos.xy).a + 1.0;
+        float blendWeight = float(clamp01(prevPos.xy) == prevPos.xy);
+        frames            = prevColor.a + 1.0;
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            float normalWeight = exp(-pow2(1.0 - dot(mat.normal, texture(colortex10, prevPos.xy).rgb * 2.0 - 1.0)) * NORMAL_WEIGHT_STRENGTH);
-            float depthWeight  = exp(-pow2(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex10, prevPos.xy).a)) * DEPTH_WEIGHT_STRENGTH);
+            float normalWeight = exp(-pow2(1.0 - dot(mat.normal, texture(colortex9, prevPos.xy).rgb * 2.0 - 1.0)) * NORMAL_WEIGHT_STRENGTH);
+            float depthWeight  = exp(-pow2(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex9, prevPos.xy).a)) * DEPTH_WEIGHT_STRENGTH);
             blendWeight       *= (normalWeight * depthWeight);
         #else
             frames = hasMoved() ? 0.0 : frames;
@@ -49,9 +49,9 @@ layout (location = 3) out vec3 indirect;
         blendWeight  = maxEps(blendWeight);
 
         float currLuma = luminance(color.rgb);
-        color.rgb      = mix(color.rgb, prevColor, blendWeight);
+        color.rgb      = mix(color.rgb, prevColor.rgb, blendWeight);
         indirectBounce = mix(indirectBounce, prevColorIndirect, blendWeight);
-        float avgLum   = mix(currLuma, luminance(prevColor), blendWeight);
+        float avgLum   = mix(currLuma, luminance(prevColor.rgb), blendWeight);
         color.a        = mix(pow2(currLuma - avgLum), color.a, blendWeight);
     }
 #endif
@@ -76,15 +76,10 @@ void main() {
 
     vec3 skyIlluminance = vec3(0.0);
     #ifdef WORLD_OVERWORLD
-        skyIlluminance = texture(colortex7, tempCoords).rgb;
+        skyIlluminance = texture(colortex6, tempCoords).rgb;
     #endif
 
-    float frames = 0.0;
-    color.a      = texture(colortex0, tempCoords).a;
-
-    #if ACCUMULATION_VELOCITY_WEIGHT == 1
-        frames *= float(!hasMoved());
-    #endif
+    color.a = texture(colortex5, tempCoords).a;
 
     //vec2 causticsCoords = distortShadowSpace(worldToShadow(viewToWorld(viewPos0))).xy;
     //shadowmap.rgb += texture(shadowcolor1, causticsCoords * 0.5 + 0.5).a;
@@ -105,10 +100,10 @@ void main() {
             //color.rgb -= direct;
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(mat, color, indirect, frames);
+                temporalAccumulation(mat, color, indirect, historyBuffer.a);
             #endif
         }
     #endif
 
-    historyBuffer = vec4(color.rgb, frames);
+    historyBuffer.rgb = color.rgb;
 }

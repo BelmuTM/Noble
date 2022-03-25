@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 5 */
 
 layout (location = 0) out vec3 color;
 
@@ -50,9 +50,9 @@ layout (location = 0) out vec3 color;
             vec2 offset = (1.0 - pow2(texCoords - vec2(0.5))) * ABERRATION_STRENGTH * pixelSize;
 
             color = vec3(
-                texture(colortex0, texCoords + offset).r,
-                texture(colortex0, texCoords).g,
-                texture(colortex0, texCoords - offset).b
+                texture(colortex5, texCoords + offset).r,
+                texture(colortex5, texCoords).g,
+                texture(colortex5, texCoords - offset).b
             );
         #endif
     }
@@ -124,7 +124,7 @@ void main() {
         if(isEyeInWater == 1) underwaterDistortion(tempCoords);
     #endif
     
-    color          = texture(colortex0, tempCoords).rgb;
+    color          = texture(colortex5, tempCoords).rgb;
     float exposure = computeExposure(texture(colortex8, texCoords).a);
 
     #if CHROMATIC_ABERRATION == 1
@@ -132,7 +132,7 @@ void main() {
     #endif
 
     #if BLOOM == 1
-        float bloomStrgth = max0(exp2(exposure - 3.0 + BLOOM_STRENGTH));
+        float bloomStrgth = max0(exp2(exposure - 3.0 + (BLOOM_STRENGTH + BLOOM_TWEAK)));
         color             = mix(color, readBloom(), bloomStrgth);
     #endif
 
@@ -163,6 +163,6 @@ void main() {
     color = clamp01(color);
 
     #if LUT > 0
-        applyLUT(colortex9, color);
+        applyLUT(colortex7, color);
     #endif
 }

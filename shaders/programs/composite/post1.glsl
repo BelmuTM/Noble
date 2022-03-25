@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 0,8 */
+/* RENDERTARGETS: 5,8 */
 
 layout (location = 0) out vec3 color;
 layout (location = 1) out vec4 historyBuffer;
@@ -16,10 +16,10 @@ layout (location = 1) out vec4 historyBuffer;
 #include "/include/post/exposure.glsl"
 
 void main() {
-    color = texture(colortex0, texCoords).rgb;
+    color = texture(colortex5, texCoords).rgb;
 
     #if TAA == 1 && ACCUMULATION_VELOCITY_WEIGHT == 0
-        color = clamp16(temporalAntiAliasing(getMaterial(texCoords), colortex0, colortex8));
+        color = clamp16(temporalAntiAliasing(getMaterial(texCoords), colortex5, colortex8));
     #endif
 
     float avgLuminance = 0.0;

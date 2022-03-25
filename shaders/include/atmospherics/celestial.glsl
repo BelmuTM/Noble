@@ -58,7 +58,7 @@ vec3 computeSky(vec3 viewPos, bool starfield) {
 		vec3 stars = vec3(0.0);
     	if(starfield) { stars = computeStarfield(viewPos) * STARS_BRIGHTNESS * starsColor; }
 
-		vec3 sky   = texture(colortex6, (coords * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
+		vec3 sky   = texture(colortex0, (coords * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
 		vec3 sun   = physicalSun(sceneDir);
 		vec3 moon  = physicalMoon(sceneDir);
 

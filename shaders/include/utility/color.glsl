@@ -31,7 +31,6 @@
 #endif
 
 // https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x
-
 vec3 linearTosRGB(vec3 linear) {
     vec3 higher = (pow(abs(linear), vec3(1.0 / 2.4)) * 1.055) - 0.055;
     vec3 lower  = linear * 12.92;

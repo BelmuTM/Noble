@@ -102,7 +102,7 @@ vec3 sampleSkyIlluminance() {
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
                 vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
-                skyIlluminance += texture(colortex6, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
+                skyIlluminance += texture(colortex0, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
             }
         }
         skyIlluminance *= (TAU / (samples.x * samples.y));

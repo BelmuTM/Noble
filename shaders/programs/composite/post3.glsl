@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 5 */
 
 layout (location = 0) out vec3 color;
 
@@ -22,7 +22,7 @@ layout (location = 0) out vec3 color;
 
         for(int x = -1; x <= 1; x++) {
             for(int y = -1; y <= 1; y++) {
-                avgLuma += luminance(texture(colortex0, texCoords + vec2(x, y) * pixelSize).rgb);
+                avgLuma += luminance(texture(colortex5, texCoords + vec2(x, y) * pixelSize).rgb);
                 weight++;
             }
         }
@@ -34,7 +34,7 @@ layout (location = 0) out vec3 color;
 #endif
 
 void main() {
-    color = texture(colortex0, texCoords).rgb;
+    color = texture(colortex5, texCoords).rgb;
 
     #if SHARPEN == 1
         sharpeningFilter(color);

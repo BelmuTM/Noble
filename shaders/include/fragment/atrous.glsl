@@ -23,7 +23,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, int passIndex) {
     float totalWeight = EPS;
     vec2 stepSize     = steps[passIndex] * pixelSize;
     float centerLuma  = luminance(color);
-    float variance    = texture(colortex0, coords).a;
+    float variance    = texture(colortex5, coords).a;
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {

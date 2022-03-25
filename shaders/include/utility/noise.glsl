@@ -106,8 +106,8 @@ float goldNoise(vec2 xy, int seed){
     return fract(tan(distance(xy * GOLDEN_RATIO, xy) * float(seed)) * xy.x);
 }
 
-//	https://www.shadertoy.com/view/Xd23Dh
-//	From Inigo Quilez: http://iquilezles.org/www/articles/voronoise/voronoise.htm
+// https://www.shadertoy.com/view/Xd23Dh
+// From Inigo Quilez: http://iquilezles.org/www/articles/voronoise/voronoise.htm
 float voronoise(in vec2 x, int u, int v) {
     vec2 p = floor(x);
     vec2 f = fract(x);

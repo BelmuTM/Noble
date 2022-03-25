@@ -6,11 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 0,4,7 */
+/* RENDERTARGETS: 5,6 */
 
 layout (location = 0) out vec3 color;
-layout (location = 1) out vec3 bloomBuffer;
-layout (location = 2) out vec4 volumetricLight;
+layout (location = 1) out vec4 volumetricLight;
 
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
@@ -26,7 +25,7 @@ layout (location = 2) out vec4 volumetricLight;
 #include "/include/fragment/atrous.glsl"
 
 void main() {
-    color = texture(colortex0, texCoords).rgb;
+    color = texture(colortex5, texCoords).rgb;
 
     Material mat = getMaterial(texCoords);
     vec2 coords  = texCoords;
@@ -40,12 +39,12 @@ void main() {
     if(!sky) {
         #if GI == 1
             #if GI_FILTER == 1
-                aTrousFilter(color, colortex0, texCoords, 3);
+                aTrousFilter(color, colortex5, texCoords, 3);
             #endif
 
             /*
-            vec3 direct         = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
-            vec3 indirectBounce = texture(colortex12, texCoords * GI_RESOLUTION).rgb;
+            vec3 direct         = texture(colortex10, texCoords * GI_RESOLUTION).rgb;
+            vec3 indirectBounce = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
 
             color = direct + (indirectBounce * color);
             */
@@ -67,15 +66,6 @@ void main() {
                 coords = hitPos.xy;
             }
         #endif
-
-        //////////////////////////////////////////////////////////
-        /*------------------ ALPHA BLENDING --------------------*/
-        //////////////////////////////////////////////////////////
-
-        #if GI == 0
-            vec4 translucents = texture(colortex1, texCoords);
-                 color        = mix(color, translucents.rgb, translucents.a);
-        #endif
     }
         //////////////////////////////////////////////////////////
         /*-------------------- WATER FOG -----------------------*/
@@ -91,7 +81,7 @@ void main() {
                 vec3 startPos = inWater ? vec3(0.0) : worldPos0;
                 vec3 endPos   = inWater ? worldPos0 : worldPos1;
 
-                vec3 skyIlluminance = texture(colortex7, texCoords).rgb;
+                vec3 skyIlluminance = texture(colortex6, texCoords).rgb;
 
                 #if WATER_FOG == 0
                     float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
@@ -117,7 +107,7 @@ void main() {
             #endif
 
             #if REFLECTIONS == 1
-                color += texture(colortex4, texCoords * REFLECTIONS_RES).rgb;
+                color += texture(colortex2, texCoords * REFLECTIONS_RES).rgb;
             #endif
         #endif
     }
@@ -134,9 +124,5 @@ void main() {
         #if RAIN_FOG == 1
             if(rainStrength > 0.0 && !inWater) { volumetricGroundFog(color, viewPos0, getMaterial(texCoords).lightmap.y); }
         #endif
-    #endif
-
-    #if BLOOM == 1
-        bloomBuffer = color;
     #endif
 }

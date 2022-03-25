@@ -68,8 +68,8 @@ vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex
     float blendWeight  = float(clamp01(prevPos.xy) == prevPos.xy);
 
     float lumaWeight   = getLumaWeight(currColor, prevColor);
-    float normalWeight = pow(clamp01(dot(currMat.normal, texture(colortex10, prevPos.xy).rgb * 2.0 - 1.0)), 0.1);
-    float depthWeight  = pow(exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex10, prevPos.xy).a))), 0.5);
+    float normalWeight = pow(clamp01(dot(currMat.normal, texture(colortex9, prevPos.xy).rgb * 2.0 - 1.0)), 0.1);
+    float depthWeight  = pow(exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a))), 0.3);
         
     blendWeight *= (depthWeight * normalWeight * lumaWeight);
 

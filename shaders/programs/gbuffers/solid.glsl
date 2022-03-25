@@ -10,7 +10,7 @@
 	#include "/programs/gbuffers/gbuffers.vsh"
 
 #elif defined STAGE_FRAGMENT
-	/* RENDERTARGETS: 2 */
+	/* RENDERTARGETS: 1 */
 
 	layout (location = 0) out uvec4 dataBuffer;
 
@@ -51,8 +51,8 @@
 		float ao 		 = all(greaterThan(geoNormal, vec3(0.0))) ? normalTex.z : 1.0; // Thanks Kneemund for the nametag fix
 		float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
 		float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
-		float subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
-		float porosity   = (specularTex.z * maxVal8) > 64.0 ? 0.0 : specularTex.z;
+		float subsurface = clamp01(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
+		float porosity   = clamp01(specularTex.z * (maxVal8 / 64.0));
 
 		vec3 normal;
 		#if !defined PROGRAM_BLOCK

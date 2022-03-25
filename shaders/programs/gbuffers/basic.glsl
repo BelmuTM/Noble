@@ -10,7 +10,7 @@
 	#include "/programs/gbuffers/gbuffers.vsh"
 
 #elif defined STAGE_FRAGMENT
-	/* RENDERTARGETS: 4 */
+	/* RENDERTARGETS: 2 */
 
 	layout (location = 0) out vec4 color;
 

@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 0,4,10 */
+/* RENDERTARGETS: 5,2,9 */
 
 layout (location = 0) out vec3 color;
 layout (location = 1) out vec3 bloomBuffer;
@@ -55,23 +55,23 @@ layout (location = 2) out vec4 previousBuffer;
 #endif
 
 void main() {
-    color        = texture(colortex0, texCoords).rgb;
+    color        = texture(colortex5, texCoords).rgb;
     Material mat = getMaterial(texCoords);
     
     #if DOF == 1
         float coc = getCoC(linearizeDepthFast(mat.depth1), linearizeDepthFast(centerDepthSmooth));
-        depthOfField(color, texCoords, colortex0, 8, DOF_RADIUS, coc);
+        depthOfField(color, texCoords, colortex5, 8, DOF_RADIUS, coc);
     #endif
 
     #if BLOOM == 1
-        bloomBuffer = clamp16(writeBloom());
+        writeBloom(bloomBuffer);
     #endif
 
     #if VL == 1
         #if VL_FILTER == 1
-            color += gaussianBlur(texCoords, colortex7, 1.5, 2.0, 4).rgb;
+            color += gaussianBlur(texCoords, colortex6, 1.5, 2.0, 4).rgb;
         #else
-            color += texture(colortex7, texCoords).rgb;
+            color += texture(colortex6, texCoords).rgb;
         #endif
     #endif
 

@@ -17,7 +17,7 @@ vec3 getHitColor(vec3 hitPos) {
         hitPos = reprojection(hitPos);
         return texture(colortex8, hitPos.xy).rgb;
     #else
-        return texture(colortex0, hitPos.xy).rgb;
+        return texture(colortex5, hitPos.xy).rgb;
     #endif
 }
 
@@ -28,7 +28,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         float jitter = bayer8(gl_FragCoord.xy);
     #endif
 
-    vec3 sky = texture(colortex6, (projectSphere(viewToScene(reflected)) * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
+    vec3 sky = texture(colortex0, (projectSphere(viewToScene(reflected)) * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
     return sky * pow2(quintic(0.0, 1.0, mat.lightmap.y));
 }
 
@@ -122,9 +122,9 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 
         float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), ior);
         vec3 hitColor = vec3(
-            texture(colortex0, hitPos.xy + vec2(5e-4 * rand(gl_FragCoord.xy))).r,
-            texture(colortex0, hitPos.xy).g,
-            texture(colortex0, hitPos.xy - vec2(5e-4 * rand(gl_FragCoord.yx))).b
+            texture(colortex5, hitPos.xy + vec2(5e-4 * rand(gl_FragCoord.xy))).r,
+            texture(colortex5, hitPos.xy).g,
+            texture(colortex5, hitPos.xy - vec2(5e-4 * rand(gl_FragCoord.yx))).b
         );
 
         return hitColor * (1.0 - fresnel);

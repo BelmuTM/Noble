@@ -8,7 +8,7 @@
 
 #if EXPOSURE == 1
      float computeAverageLuminance(sampler2D prevTex) {
-          float currLuma = luminance(textureLod(colortex0, vec2(0.5), log2(maxOf2(viewResolution))).rgb);
+          float currLuma = luminance(textureLod(colortex5, vec2(0.5), log2(maxOf2(viewResolution))).rgb);
 
           float previousLuma = texelFetch(prevTex, ivec2(0), 0).a;
                 previousLuma = previousLuma > 0.0 ? previousLuma : currLuma;

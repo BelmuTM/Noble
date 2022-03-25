@@ -27,7 +27,7 @@ struct Material {
 
 Material getMaterial(vec2 coords) {
     coords         *= viewResolution;
-    uvec4 dataTex   = texelFetch(colortex2, ivec2(coords), 0);
+    uvec4 dataTex   = texelFetch(colortex1, ivec2(coords), 0);
     mat2x4 unpacked = mat2x4(unpackUnorm4x8(dataTex.x), unpackUnorm4x8(dataTex.y));
 
     Material mat;

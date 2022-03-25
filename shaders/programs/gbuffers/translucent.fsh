@@ -6,10 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 1,2 */
+/* RENDERTARGETS: 1,5 */
 
-layout (location = 0) out vec4 sceneColor;
-layout (location = 1) out uvec4 dataBuffer;
+layout (location = 0) out uvec4 dataBuffer;
+layout (location = 1) out vec4 sceneColor;
 
 flat in int blockId;
 in vec2 texCoords;
