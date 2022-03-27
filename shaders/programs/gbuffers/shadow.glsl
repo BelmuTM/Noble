@@ -56,7 +56,7 @@
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
         // Thanks jakemichie97#7237 for the help!
         float waterCaustics(vec3 oldPos, vec3 normal) {
-	        vec3 newPos = oldPos + refract(sceneShadowDir, normal, 0.75) * 3.3;
+	        vec3 newPos = oldPos + refract(sceneShadowDir, normal, 0.75) * 2.5;
 
             float oldArea = inversesqrt(lengthSqr(dFdx(oldPos)) * lengthSqr(dFdy(oldPos)));
             float newArea =        sqrt(lengthSqr(dFdx(newPos)) * lengthSqr(dFdy(newPos)));

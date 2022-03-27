@@ -10,9 +10,9 @@ option.ABOUT.comment = §r§lTwitter: §r§7@Belmu_. §r§lDiscord: §r§7Belmu#
 value.ABOUT.0 = §rby Belmu
 value.ABOUT.1 = §b§lBoop!
 
-profile.RENDER  = §bRender
-profile.NORMAL  = Normal
-profile.comment = §lNormal§r profile refers to Noble with default settings. §b§lRender§r profile transforms Noble into a renderer by boosting certain settings. §c§lDISCLAIMER: MIGHT HEAVILY AFFECT THE §c§lPERFORMANCE.
+profile.RENDER   = §bRender
+profile.GAMEPLAY = §eGameplay
+profile.comment  = §e§lGameplay§r profile refers to Noble with default settings. §b§lRender§r profile transforms Noble into a renderer by boosting certain settings. §c§lDISCLAIMER: MIGHT HEAVILY AFFECT THE §c§lPERFORMANCE.
 
 ##################### SCREENS #####################
 
