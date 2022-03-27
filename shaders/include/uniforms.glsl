@@ -13,7 +13,7 @@ uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 
-uniform vec2 viewResolution;
+uniform vec2 viewSize;
 uniform vec2 pixelSize;
 
 uniform int framemod;
@@ -23,7 +23,6 @@ uniform float frameTimeCounter;
 uniform float centerDepthSmooth;
 uniform float near;
 uniform float far;
-uniform float aspectRatio;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform int isEyeInWater;
@@ -31,7 +30,6 @@ uniform float rainStrength;
 uniform float wetness;
 uniform float eyeAltitude;
 uniform float sunAngle;
-uniform int renderStage;
 
 uniform sampler2D normals;
 uniform sampler2D specular;
@@ -70,15 +68,14 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
-const int noiseRes    = 128;
-const int causticsRes = (256 - 1);
-const float airIOR    = 1.00029;
+const int noiseRes = 128;
+const float airIOR = 1.00029;
 
 // Maximum values for X amount of bits (2^x - 1)
 const float maxVal8  = 255.0;
 const float maxVal16 = 65535.0;
 
-vec3 shadowDir      = normalize(shadowLightPosition);
-vec3 sceneShadowDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-vec3 sceneSunDir    = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-vec3 sceneMoonDir   = normalize(mat3(gbufferModelViewInverse) * moonPosition);
+vec3 shadowDir      = shadowLightPosition * 0.01;
+vec3 sceneShadowDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition + gbufferModelViewInverse[3].xyz);
+vec3 sceneSunDir    = normalize(mat3(gbufferModelViewInverse) * sunPosition         + gbufferModelViewInverse[3].xyz);
+vec3 sceneMoonDir   = normalize(mat3(gbufferModelViewInverse) * moonPosition        + gbufferModelViewInverse[3].xyz);

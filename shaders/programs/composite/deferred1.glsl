@@ -81,9 +81,6 @@ void main() {
 
     color.a = texture(colortex5, tempCoords).a;
 
-    //vec2 causticsCoords = distortShadowSpace(worldToShadow(viewToWorld(viewPos0))).xy;
-    //shadowmap.rgb += texture(shadowcolor1, causticsCoords * 0.5 + 0.5).a;
-
     #if GI == 0
         if(!mat.isMetal) {
             #if AO == 1

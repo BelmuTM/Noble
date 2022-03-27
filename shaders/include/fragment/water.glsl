@@ -6,6 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/*
 #if defined STAGE_FRAGMENT
     vec3 waterCaustics(vec2 coords) {
         vec2 worldPos       = viewToWorld(getViewPos1(coords)).xz * 0.5 + 0.5;
@@ -45,6 +46,7 @@
         return 0.0;
     }
 #endif
+*/
 
 /*
     CREDITS:

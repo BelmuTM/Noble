@@ -26,7 +26,7 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec3 r
 
         if(clamp01(rayPos.xy) != rayPos.xy) return false;
 
-        float depth         = (texelFetch(depthtex1, ivec2(rayPos.xy * viewResolution), 0).r);
+        float depth         = (texelFetch(depthtex1, ivec2(rayPos.xy * viewSize), 0).r);
         float depthLenience = max(abs(rayDir.z) * 3.0, 0.02 / pow2(viewPos.z)); // Provided by DrDesten#6282
 
         intersect = abs(depthLenience - (rayPos.z - depth)) < depthLenience && depth >= 0.56;

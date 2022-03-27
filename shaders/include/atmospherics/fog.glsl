@@ -8,21 +8,27 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-void volumetricGroundFog(inout vec3 color, vec3 viewPos, float skyLight) {
+void groundFog(inout vec3 color, vec3 viewPos, float skyLight, bool sky) {
     vec3 scenePos = viewToScene(viewPos);
 
-    float airmass     = isSky(texCoords) ? far : length(scenePos) * pow2(1.0 - pow3(1.0 - clamp01(skyLight)));
+    float airmass     = sky ? far : length(scenePos);
           airmass    *= RAIN_FOG_DENSITY * rainStrength;
     vec3 opticalDepth = (kExtinction[0] + kExtinction[1] + kExtinction[2]) * airmass;
 
     vec3 transmittance       = exp(-opticalDepth);
     vec3 transmittedFraction = clamp01((transmittance - 1.0) / -opticalDepth);
 
-    float VdotL     = dot(normalize(scenePos), sceneShadowDir);
-    vec2 phase      = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisotropyFactor));
-    vec3 scattering = kScattering * (airmass * phase) * (sunAngle <= 0.5 ? sunIlluminance : moonIlluminance);
+    float VdotL    = dot(normalize(scenePos), sceneShadowDir);
+    vec2  phase    = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisotropyFactor));
+          skyLight = sky ? 1.0 : pow2(1.0 - pow3(1.0 - clamp01(skyLight)));
 
-    color = color * transmittance + (scattering * transmittedFraction);
+    vec3 skyIlluminance = texture(colortex6, texCoords).rgb;
+
+	vec3 scattering  = kScattering * (airmass * phase)                * (sampleDirectIlluminance() * skyLight);
+	     scattering += kScattering * (airmass * vec2(isotropicPhase)) * (skyIlluminance * skyLight);
+	     scattering *= transmittedFraction;
+
+    color = color * transmittance + scattering;
 }
 
 // Thanks Jessie, LVutner and SixthSurge for the help!

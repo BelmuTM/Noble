@@ -263,25 +263,13 @@ option.RAIN_PUDDLES_STRENGTH.comment = Adjusts §bRain Puddles§r' strength (ref
 
 ##################### WATER #####################
 
-# option.WATER_FOAM = Water Foam
-# option.WATER_FOAM.comment = Foam that appears when water encounters an edge.
-# value.WATER_FOAM.0 = §cOFF
-# value.WATER_FOAM.1 = §aON
-
 option.WATER_CAUSTICS = Water Caustics
-option.WATER_CAUSTICS.comment = Caustics provoked by the refraction of light on water waves. They appear underwater.
+option.WATER_CAUSTICS.comment = Caustics provoked by the refraction of light on water. They cast underwater.
 value.WATER_CAUSTICS.0 = §cOFF
 value.WATER_CAUSTICS.1 = §aON
 
 option.WATER_CAUSTICS_STRENGTH = Caustics Strength
 option.WATER_CAUSTICS_STRENGTH.comment = Adjusts §bWater Caustics§r' intensity.
-suffix.WATER_CAUSTICS_STRENGTH = %
-
-option.WATER_CAUSTICS_SPEED = Caustics Speed
-option.WATER_CAUSTICS_SPEED.comment = Adjusts §bWater Caustics§r' speed.
-
-option.WATER_CAUSTICS_SIZE = Caustics Size
-option.WATER_CAUSTICS_SIZE.comment = Adjusts §bWater Caustics§r' size.
 
 option.WAVE_STEEPNESS = Wave Steepness
 option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of height to width.

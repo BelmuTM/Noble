@@ -122,7 +122,7 @@ void main() {
         #endif
     #else
         #if RAIN_FOG == 1
-            if(rainStrength > 0.0 && !inWater) { volumetricGroundFog(color, viewPos0, getMaterial(texCoords).lightmap.y); }
+            if(rainStrength > 0.0 && !inWater) { groundFog(color, viewPos0, getMaterial(texCoords).lightmap.y, sky); }
         #endif
     #endif
 }

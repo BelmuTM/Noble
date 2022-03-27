@@ -29,7 +29,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, int passIndex) {
         for(int y = -1; y <= 1; y++) {
             vec2 sampleCoords  = coords + (vec2(x, y) * stepSize);
             Material sampleMat = getMaterial(sampleCoords);
-            vec3 sampleColor   = texelFetch(tex, ivec2(sampleCoords * viewResolution), 0).rgb;
+            vec3 sampleColor   = texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb;
 
             float weight  = aTrous[abs(x)] * aTrous[abs(y)];
                   weight *= exp(-pow2(1.0 - dot(mat.normal, sampleMat.normal)) * NORMAL_WEIGHT_STRENGTH);

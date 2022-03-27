@@ -70,7 +70,7 @@
 		  	  	  	  	  puddle *= pow2(quintic(EPS, 1.0, lmCoords.y));
 	  				  	  puddle *= (1.0 - porosity);
 			  	  	  	  puddle *= rainStrength;
-			  	  	  	  puddle *= quintic(0.2, 0.9, normal.y);
+			  	  	  	  puddle *= quintic(0.89, 0.99, normal.y);
 	
 					F0        = clamp01(mix(F0, RAIN_PUDDLES_STRENGTH, puddle));
 					roughness = clamp01(mix(roughness, 0.0, puddle));

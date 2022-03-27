@@ -18,10 +18,8 @@ MULTIPLE THINGS
 const int colortex2Format         = RGBA16F;
 
 SHADOWMAP
-const int shadowcolor0Format      = RGBA16;
+const int shadowcolor0Format      = RGBA16F;
 const vec4 shadowcolor0Clear      = vec4(0.0, 0.0, 0.0, 0.0);
-const int shadowcolor1Format      = RGBA16;
-const vec4 shadowcolor1Clear      = vec4(0.0, 0.0, 0.0, 0.0);
 const int colortex3Format         = RGBA16F;
 
 PATH TRACING ACCUMULATION BUFFER

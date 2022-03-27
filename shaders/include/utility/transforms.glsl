@@ -41,7 +41,7 @@ vec2 distortShadowSpace(vec2 position) {
 
 vec3 distortShadowSpace(vec3 position) {
 	position.xy = distortShadowSpace(position.xy);
-	position.z *= SHADOW_DEPTH_SCALE;
+	position.z *= SHADOW_DEPTH_STRETCH;
 	return position;
 }
 
@@ -58,16 +58,16 @@ vec3 viewToScreen(vec3 viewPos) {
 	return (projOrthoMAD(gbufferProjection, viewPos) / -viewPos.z) * 0.5 + 0.5;
 }
 
+vec3 viewToScene(vec3 viewPos) {
+	return transMAD(gbufferModelViewInverse, viewPos);
+}
+
 vec3 worldToView(vec3 worldPos) {
 	return mat3(gbufferModelView) * (worldPos - cameraPosition);
 }
 
 vec3 viewToWorld(vec3 viewPos) {
-	return transMAD(gbufferModelViewInverse, viewPos) + cameraPosition;
-}
-
-vec3 viewToScene(vec3 viewPos) {
-	return transMAD(gbufferModelViewInverse, viewPos);
+	return viewToScene(viewPos) + cameraPosition;
 }
 
 mat3 constructViewTBN(vec3 viewNormal) {

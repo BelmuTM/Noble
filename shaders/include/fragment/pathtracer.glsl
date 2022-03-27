@@ -66,7 +66,7 @@
             vec3 rayDir = normalize(viewPos);
             Material mat;
 
-            uint seed = uint(frameCounter) + 1234u * uint(gl_FragCoord.x + gl_FragCoord.y * viewResolution.x);
+            uint seed = uint(frameCounter) + 1234u * uint(gl_FragCoord.x + gl_FragCoord.y * viewSize.x);
 
             for(int j = 0; j <= GI_BOUNCES; j++) {
                 vec2 noise = vec2(randF(seed), randF(seed));
