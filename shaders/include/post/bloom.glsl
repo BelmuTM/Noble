@@ -28,9 +28,9 @@
 		vec2 coords   = (texCoords - bloomOffsets[LOD - 2]) * scale;
 		vec2 texScale = pixelSize * scale;
 
-		if(any(greaterThanEqual(abs(coords - 0.5), texScale + 0.5))) return vec3(0.0);
-
 		vec3 bloom = vec3(0.0);
+
+		if(any(greaterThanEqual(abs(coords - 0.5), texScale + 0.5))) return bloom;
 
         for(int x = -BLOOM_STEPS; x <= BLOOM_STEPS; x++) {
             for(int y = -BLOOM_STEPS; y <= BLOOM_STEPS; y++) {

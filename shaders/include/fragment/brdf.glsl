@@ -140,10 +140,10 @@ float disneySubsurface(vec3 N, vec3 V, vec3 L, Material mat) {
     vec3 H      = normalize(V + L);
     float NdotL = clamp01(dot(N, L));
     float NdotV = clamp01(dot(N, V));
-    float LdotH = clamp01(dot(L, H));
+    float HdotL = clamp01(dot(L, H));
 
     float FL    = cornetteShanksPhase(NdotL, 0.5), FV = cornetteShanksPhase(NdotV, 0.5);
-    float Fss90 = LdotH * LdotH * mat.rough;
+    float Fss90 = pow2(HdotL) * mat.rough;
     float Fss   = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
     float ss    = 1.25 * (Fss * (1.0 / (NdotL + NdotV) - 0.5) + 0.5);
 
@@ -175,10 +175,10 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
     V = -normalize(V);
-    vec3 diffuse = hammonDiffuse(mat.normal, V, L, mat, false) * shadowmap.rgb;
+    vec3 diffuse = hammonDiffuse(mat.normal, V, L, mat, false);
 
     #if SUBSURFACE_SCATTERING == 1
-        diffuse += (INV_PI * disneySubsurface(mat.normal, V, L, mat) * mat.albedo * mat.subsurface) * pow2(clamp01(mat.lightmap.y));
+        diffuse += (disneySubsurface(mat.normal, V, L, mat) * mat.albedo * mat.subsurface) * pow2(clamp01(mat.lightmap.y));
     #endif
 
     mat.lightmap.x = pow2(quintic(0.0, 1.0, mat.lightmap.x));
@@ -187,7 +187,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     vec3 skyLight   = skyIlluminance * INV_PI * mat.lightmap.y;
     vec3 blockLight = temperatureToRGB(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY * mat.lightmap.x;
 
-    diffuse  = directLight * diffuse;
+    diffuse  = directLight * diffuse * shadowmap.rgb;
     diffuse += (blockLight  + skyLight) * (mat.ao * shadowmap.a);
     return mat.albedo * diffuse;
 }

@@ -6,8 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float cloudsDensity(vec2 pos) {
-    return FBM(pos, 6);
+float getCloudsDensity(vec2 pos) {
+
+}
+
+float getCloudsOpticalDepth(vec3 rayOrigin, vec3 lightDir, int stepCount) {
+
 }
 
 vec3 cloudsScattering(vec3 rayDir) {
@@ -18,10 +22,30 @@ vec3 cloudsScattering(vec3 rayDir) {
     vec3 increment   = rayDir * stepLength;
     vec3 rayPos      = atmosRayPos + rayDir * 0.5;
 
-    vec3 scattering = vec3(0.0); float transmittance = 1.0;
+    float scattering = 0.0, transmittance = 1.0;
     
     for(int i = 0; i < CLOUDS_STEPS; i++, rayPos += increment) {
 
+        float altitudeFraction  = (length(rayPos) - innerCloudRad) / CLOUDS_THICKNESS;
+        vec3 stepOpticalDepth   = 0.08 * getCloudsDensity(length(rayPos)) * stepLength;
+
+        vec3 stepTransmittance  = exp(-stepOpticalDepth);
+        vec3 scatteringIntegral = clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
+
+        float opticalDepth     = getCloudsOpticalDepth(rayPos, sceneShadowDir, 6);
+        vec3 anisotropyFactors = pow(vec3(0.45, 0.35, 0.95), vec3(1.0 + opticalDepth));
+
+        float stepScattering = 0.0;
+
+        for(int i = 0; i < 6; i++) {
+            float forwardsLobe  = henyeyGreensteinPhase(cosTheta, anisotropyFactors.x);
+	        float backwardsLobe = henyeyGreensteinPhase(cosTheta, anisotropyFactors.y);
+	        float forwardsPeak  = henyeyGreensteinPhase(cosTheta, anisotropyFactors.z);
+
+        }
+
+        scattering    += stepScattering * (scatteringIntegral * transmittance);
+        transmittance *= stepTransmittance;
     }
-    return scattering;
+    return vec3(scattering);
 }

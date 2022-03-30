@@ -55,8 +55,8 @@ layout (location = 3) out vec3 indirect;
         vec3 prevColorDirect   = texture(colortex10, prevPos.xy).rgb;
         vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
 
-        direct   = mix(direct,   prevColorDirect,   blendWeight);
-        indirect = mix(indirect, prevColorIndirect, blendWeight);
+        direct   = max0(mix(direct,   prevColorDirect,   blendWeight));
+        indirect = max0(mix(indirect, prevColorIndirect, blendWeight));
     }
 #endif
 

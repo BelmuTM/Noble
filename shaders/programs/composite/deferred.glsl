@@ -27,7 +27,7 @@
     layout (location = 2) out vec3 skyIllum;
 
     #include "/include/atmospherics/atmosphere.glsl"
-    #include "/include/atmospherics/clouds.glsl"
+    //#include "/include/atmospherics/clouds.glsl"
     
     #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/ao.glsl"
@@ -50,7 +50,7 @@
             }
             skyIllum = skyIlluminance;
 
-            //sky += cloudsScattering(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
+            //sky += cloudsScattering();
         #endif
 
         shadowmap.a = 1.0;

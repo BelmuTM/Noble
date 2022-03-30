@@ -31,8 +31,8 @@ const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
     vec3 ozoneCoeff    = vec3(8.30428e-07, 1.31491e-06, 5.44068e-08);
 #endif
 
-mat2x3 kScattering = mat2x3(rayleighCoeff, mieCoeff);
-mat3x3 kExtinction = mat3x3(rayleighCoeff, mieCoeff * 1.11, ozoneCoeff);
+mat2x3 scatteringCoeff = mat2x3(rayleighCoeff, mieCoeff);
+mat3x3 extinctionCoeff = mat3x3(rayleighCoeff, mieCoeff * 1.11, ozoneCoeff);
 
 vec3 atmosRayPos = vec3(0.0, earthRad + eyeAltitude, 0.0);
 
