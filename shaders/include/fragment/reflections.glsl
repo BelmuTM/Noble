@@ -23,7 +23,7 @@ vec3 getHitColor(vec3 hitPos) {
 
 vec3 getSkyFallback(vec3 reflected, Material mat) {
     #if TAA == 1
-        float jitter = randF(rngState);
+        float jitter = randF();
     #else
         float jitter = bayer8(gl_FragCoord.xy);
     #endif
@@ -42,7 +42,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         vec3 viewDir = normalize(viewPos);
 
         vec3 reflected = reflect(viewDir, mat.normal); vec3 hitPos;
-        float hit      = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, randF(rngState), hitPos));
+        float hit      = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, randF(), hitPos));
         float factor   = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
         vec3 hitColor  = getHitColor(hitPos);
 
@@ -76,13 +76,13 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         float NdotV  = maxEps(dot(mat.normal, viewDir));
 	
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
-            vec2 noise = TAA == 1 ? vec2(randF(rngState), randF(rngState)) : uniformNoise(i, blueNoise);
+            vec2 noise = TAA == 1 ? vec2(randF(), randF()) : uniformNoise(i, blueNoise);
         
             vec3 microfacet = TBN * sampleGGXVNDF(-viewDir * TBN, noise, mat.rough);
 		    vec3 reflected  = reflect(viewDir, microfacet);	
             float NdotL     = clamp01(dot(mat.normal, reflected));
 
-            float hit     = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(rngState), hitPos));
+            float hit     = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(), hitPos));
             float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
             vec3 hitColor = getHitColor(hitPos);
 
@@ -115,7 +115,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         vec3 viewDir = normalize(viewPos);
 
         vec3 refracted = refract(viewDir, mat.normal, airIOR / ior);
-        bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, randF(rngState), hitPos);
+        bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
         bool hand      = linearizeDepth(mat.depth0) < 0.56;
         if(!hit || hand) hitPos.xy = texCoords;
 

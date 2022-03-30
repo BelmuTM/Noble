@@ -39,7 +39,7 @@
 			vec3 sampleDir = generateCosineVector(normal, noise);
 
 			if(dot(normal, sampleDir) < 0.0) { sampleDir = -sampleDir; }
-			if(!raytrace(samplePos, sampleDir, RTAO_STEPS, randF(rngState), hitPos)) { break; }
+			if(!raytrace(samplePos, sampleDir, RTAO_STEPS, randF(), hitPos)) { break; }
 
 			float dist = distance(viewToWorld(samplePos), viewToWorld(getViewPos0(hitPos.xy)));
 			occlusion += RTAO_STRENGTH / (dist + 1.0);

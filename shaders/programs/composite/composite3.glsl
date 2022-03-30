@@ -42,12 +42,10 @@ void main() {
                 aTrousFilter(color, colortex5, texCoords, 3);
             #endif
 
-            /*
             vec3 direct         = texture(colortex10, texCoords * GI_RESOLUTION).rgb;
             vec3 indirectBounce = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
 
             color = direct + (indirectBounce * color);
-            */
         #endif
 
         #if WATER_CAUSTICS == 1

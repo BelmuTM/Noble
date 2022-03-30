@@ -23,7 +23,7 @@ layout (location = 2) out vec4 previousBuffer;
 
     void depthOfField(inout vec3 color, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
         vec3 dof   = vec3(0.0);
-        vec2 noise = vec2(randF(rngState), randF(rngState));
+        vec2 noise = vec2(randF(), randF());
         vec2 caOffset;
 
         #if CHROMATIC_ABERRATION == 1

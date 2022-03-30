@@ -68,11 +68,11 @@ const mat3 CONE_RESP_BRADFORD = mat3(
 );
 
 // https://www.shadertoy.com/view/ltjBWG
-const mat3 RGB_2_YCoCg = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
-const mat3 YCoCg_2_RGB = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
+const mat3 RGB_2_YCoCg_MAT = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
+const mat3 YCoCg_2_RGB_MAT = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
 
-vec3 linearToYCoCg(vec3 linear) { return RGB_2_YCoCg * linearTosRGB(linear).rgb; }
-vec3 YCoCgToLinear(vec3 YCoCg)  { return sRGBToLinear(YCoCg_2_RGB * YCoCg).rgb;  }
+vec3 linearToYCoCg(vec3 linear) { return RGB_2_YCoCg_MAT * linearTosRGB(linear).rgb; }
+vec3 YCoCgToLinear(vec3 YCoCg)  { return sRGBToLinear(YCoCg_2_RGB_MAT * YCoCg).rgb;  }
 
 //////////////////////////////////////////////////////////
 /*---------------------- TONEMAPS ----------------------*/

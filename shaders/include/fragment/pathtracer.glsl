@@ -43,7 +43,7 @@
         float specularProb = fresnelLum / totalLum;
  
         vec3 BRDF = vec3(0.0);
-        if(specularProb > randF(rngState)) {
+        if(specularProb > randF()) {
             vec3 newDir = reflect(rayDir, microfacet);
             BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.rough) / specularProb;
             rayDir      = newDir;
@@ -66,15 +66,13 @@
             vec3 rayDir = normalize(viewPos);
             Material mat;
 
-            uint seed = uint(frameCounter) + 1234u * uint(gl_FragCoord.x + gl_FragCoord.y * viewSize.x);
-
             for(int j = 0; j <= GI_BOUNCES; j++) {
-                vec2 noise = vec2(randF(seed), randF(seed));
+                vec2 noise = vec2(randF(), randF());
 
                 /* Russian Roulette */
                 if(j > ROULETTE_MIN_BOUNCES) {
                     float roulette = clamp01(max(throughput.r, max(throughput.g, throughput.b)));
-                    if(roulette < randF(seed)) { throughput = vec3(0.0); break; }
+                    if(roulette < randF()) { throughput = vec3(0.0); break; }
                     throughput /= roulette;
                 }
                 
@@ -87,6 +85,9 @@
 
                 directLighting     += mat.albedo * BLOCKLIGHT_INTENSITY * mat.emission;
                 vec3 indirectBounce = indirectBRDF(noise, mat, rayDir);
+             
+                if(dot(mat.normal, rayDir) < 0.0) { break; }
+                bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
 
                 if(j == 0) { 
                     outColorDirect   = directLighting;
@@ -94,21 +95,18 @@
                 } else {
                     radiance   += throughput * directLighting; 
                     throughput *= indirectBounce;
-                
-                    if(dot(mat.normal, rayDir) < 0.0) { break; }
-                    bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(seed), hitPos);
+                }
 
-                    if(!hit) {
-                        #if SKY_CONTRIBUTION == 1
-                            vec3 skyHitPos;
-                            raytrace(screenToView(hitPos), skyRayDir, int(GI_STEPS * 0.3), randF(rngState), skyHitPos);
+                if(!hit) {
+                    #if SKY_CONTRIBUTION == 1
+                        vec3 skyHitPos;
+                        raytrace(screenToView(hitPos), skyRayDir, int(GI_STEPS * 0.3), randF(), skyHitPos);
 
-                            if(isSky(skyHitPos.xy)) {
-                                radiance += throughput * texture(colortex0, skyHitPos.xy).rgb * INV_PI;
-                            }
-                        #endif
-                        break;
-                    }
+                        if(isSky(skyHitPos.xy)) {
+                            radiance += throughput * texture(colortex0, skyHitPos.xy).rgb * INV_PI;
+                        }
+                    #endif
+                    break;
                 }
             }
         }

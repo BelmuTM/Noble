@@ -137,7 +137,7 @@ void main() {
     #endif
 
     #if FILM_GRAIN == 1
-        color += randF(rngState) * color * FILM_GRAIN_STRENGTH;
+        color += randF() * color * FILM_GRAIN_STRENGTH;
     #endif
 
     #if PURKINJE == 1

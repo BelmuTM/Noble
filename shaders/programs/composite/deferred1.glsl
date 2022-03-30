@@ -27,10 +27,9 @@ layout (location = 3) out vec3 indirect;
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
-    void temporalAccumulation(Material mat, inout vec4 color, inout vec3 indirectBounce, inout float frames) {
-        vec3 prevPos           = reprojection(vec3(texCoords, mat.depth0));
-        vec4 prevColor         = texture(colortex4, prevPos.xy);
-        vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
+    void temporalAccumulation(Material mat, inout vec4 color, inout vec3 direct, inout vec3 indirect, inout float frames) {
+        vec3 prevPos   = reprojection(vec3(texCoords, mat.depth0));
+        vec4 prevColor = texture(colortex4, prevPos.xy);
 
         if(mat.depth0 == 0.0) return;
 
@@ -50,9 +49,14 @@ layout (location = 3) out vec3 indirect;
 
         float currLuma = luminance(color.rgb);
         color.rgb      = mix(color.rgb, prevColor.rgb, blendWeight);
-        indirectBounce = mix(indirectBounce, prevColorIndirect, blendWeight);
         float avgLum   = mix(currLuma, luminance(prevColor.rgb), blendWeight);
         color.a        = mix(pow2(currLuma - avgLum), color.a, blendWeight);
+
+        vec3 prevColorDirect   = texture(colortex10, prevPos.xy).rgb;
+        vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
+
+        direct   = mix(direct,   prevColorDirect,   blendWeight);
+        indirect = mix(indirect, prevColorIndirect, blendWeight);
     }
 #endif
 
@@ -93,11 +97,10 @@ void main() {
         }
     #else
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords) {
-            pathTrace(color.rgb, vec3(tempCoords, mat.depth1), direct, indirect);
-            //color.rgb -= direct;
+            pathTrace(color.rgb, vec3(tempCoords, mat.depth0), direct, indirect);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(mat, color, indirect, historyBuffer.a);
+                temporalAccumulation(mat, color, direct, indirect, historyBuffer.a);
             #endif
         }
     #endif
