@@ -55,8 +55,8 @@ const float shadowDistanceRenderMul = 1.0;
 
 #define SSAO_FILTER     1 // [0 1]
 #define SSAO_SAMPLES   12 // [4 8 12 16 20]
-#define SSAO_RADIUS   0.6
-#define SSAO_STRENGTH 1.5
+#define SSAO_RADIUS   0.4
+#define SSAO_STRENGTH 2.2
 
 #define RTAO_SAMPLES    3 // [3 7]
 #define RTAO_STEPS     32

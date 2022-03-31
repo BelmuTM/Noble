@@ -36,27 +36,34 @@ layout (location = 3) out vec3 indirect;
         float blendWeight = float(clamp01(prevPos.xy) == prevPos.xy);
         frames            = prevColor.a + 1.0;
 
+        int moo = 1;
+
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
             float normalWeight = exp(-pow2(1.0 - dot(mat.normal, texture(colortex9, prevPos.xy).rgb * 2.0 - 1.0)) * NORMAL_WEIGHT_STRENGTH);
             float depthWeight  = exp(-pow2(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex9, prevPos.xy).a)) * DEPTH_WEIGHT_STRENGTH);
             blendWeight       *= (normalWeight * depthWeight);
         #else
-            frames = hasMoved() ? 0.0 : frames;
+            frames = hideGUI == 0 ? 0.0 : frames;
+            moo    = hideGUI;
         #endif
 
         blendWeight *= 1.0 - (1.0 / max(frames, 1.0));
         blendWeight  = maxEps(blendWeight);
 
-        float currLuma = luminance(color.rgb);
-        color.rgb      = mix(color.rgb, prevColor.rgb, blendWeight);
-        float avgLum   = mix(currLuma, luminance(prevColor.rgb), blendWeight);
-        color.a        = mix(pow2(currLuma - avgLum), color.a, blendWeight);
+        if(moo == 1) {
+            float currLuma = luminance(color.rgb);
+            color.rgb      = mix(color.rgb, prevColor.rgb, blendWeight);
+            float avgLum   = mix(currLuma, luminance(prevColor.rgb), blendWeight);
+            color.a        = mix(pow2(currLuma - avgLum), color.a, blendWeight);
 
-        vec3 prevColorDirect   = texture(colortex10, prevPos.xy).rgb;
-        vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
+            vec3 prevColorDirect   = texture(colortex10, prevPos.xy).rgb;
+            vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
 
-        direct   = max0(mix(direct,   prevColorDirect,   blendWeight));
-        indirect = max0(mix(indirect, prevColorIndirect, blendWeight));
+            direct   = max0(mix(direct,   prevColorDirect,   blendWeight));
+            indirect = max0(mix(indirect, prevColorIndirect, blendWeight));
+        } else {
+            color.rgb = mat.albedo;
+        }
     }
 #endif
 
