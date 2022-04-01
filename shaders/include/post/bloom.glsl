@@ -38,7 +38,7 @@
                 bloom  		+= textureLod(colortex5, coords + vec2(x, y) * texScale, LOD).rgb * weight;
             }
         }
-		return bloom;
+		return max0(bloom);
 	}
 
 	vec3 getBloomTile(int LOD) {

@@ -123,4 +123,6 @@ void main() {
             if(rainStrength > 0.0 && !inWater) { groundFog(color, viewPos0, getMaterial(texCoords).lightmap.y, sky); }
         #endif
     #endif
+
+    color = max0(color);
 }

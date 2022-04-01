@@ -74,7 +74,6 @@ void main() {
             color += texture(colortex6, texCoords).rgb;
         #endif
     #endif
-
-    color          = max0(color);
+    
     previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth0);
 }
