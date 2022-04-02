@@ -9,7 +9,7 @@
 /* RENDERTARGETS: 5,6 */
 
 layout (location = 0) out vec3 color;
-layout (location = 1) out vec4 volumetricLight;
+layout (location = 1) out vec3 fog;
 
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
@@ -116,7 +116,7 @@ void main() {
 
     #if VL == 1
         #ifdef WORLD_OVERWORLD
-            volumetricLight = vec4(volumetricLighting(viewPos0), 1.0);
+            fog = volumetricFog(viewPos0, mat.lightmap.y);
         #endif
     #else
         #if RAIN_FOG == 1

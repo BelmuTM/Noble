@@ -45,7 +45,7 @@ vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
     return exp(-extinctionCoeff * accumAirmass);
 }
 
-vec3 volumetricLighting(vec3 viewPos) {
+vec3 volumetricFog(vec3 viewPos, float skyLight) {
     vec3 startPos = gbufferModelViewInverse[3].xyz;
     vec3 endPos   = viewToScene(viewPos);
 
@@ -84,7 +84,7 @@ vec3 volumetricLighting(vec3 viewPos) {
     vec3 skyIlluminance = texture(colortex6, texCoords).rgb;
 
     vec3 scattering  = directScattering   * sampleDirectIlluminance();
-         scattering += indirectScattering * skyIlluminance;
+         scattering += indirectScattering * skyIlluminance * pow4(quintic(0.0, 1.0, skyLight));
 
     return max0(scattering);
 }
