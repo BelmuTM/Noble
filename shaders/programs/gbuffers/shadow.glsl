@@ -72,7 +72,7 @@
             vec3 worldPos = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz + cameraPosition;
             vec3 caustics = vec3(waterCaustics(worldPos, TBN * getWaveNormals(worldPos)));
         
-            color0 = blockId == 1 ? vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), 0.0) : albedoTex;
+            color0 = blockId == 1 ? vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) : albedoTex;
         #else
             color0 = albedoTex;
         #endif

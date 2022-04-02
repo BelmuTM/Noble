@@ -69,7 +69,7 @@ void main() {
 
     #if VL == 1
         #if VL_FILTER == 1
-            color += gaussianBlur(texCoords, colortex6, 1.5, 2.0, 4).rgb;
+            color += gaussianBlur(texCoords, colortex6, 1.1, 2.0, 4).rgb;
         #else
             color += texture(colortex6, texCoords).rgb;
         #endif

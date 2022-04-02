@@ -18,15 +18,4 @@ void main() {
     #if GI == 1 && GI_FILTER == 1
         aTrousFilter(color.rgb, colortex5, texCoords, 1);
     #endif
-
-    vec4 overlay = texelFetch(colortex2, ivec2(gl_FragCoord.xy), 0);
-
-    // Overlay
-    #if TONEMAP == 0
-        overlay.rgb = sRGBToAP1Albedo(overlay.rgb);
-    #else
-        overlay.rgb = sRGBToLinear(overlay.rgb);
-    #endif
-
-    color.rgb = mix(color.rgb, overlay.rgb, overlay.a);
 }

@@ -68,8 +68,6 @@ layout (location = 3) out vec3 indirect;
 #endif
 
 void main() {
-    color.rgb = vec3(0.0);
-
     vec2 tempCoords = texCoords;
     #if GI == 1
         tempCoords = texCoords * (1.0 / GI_RESOLUTION);

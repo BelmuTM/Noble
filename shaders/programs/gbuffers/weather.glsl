@@ -11,7 +11,7 @@
 	#include "/programs/gbuffers/gbuffers.vsh"
 
 #elif defined STAGE_FRAGMENT
-	/* RENDERTARGETS: 2 */
+	/* RENDERTARGETS: 5 */
 
 	layout (location = 0) out vec4 color;
 
@@ -23,6 +23,6 @@
 		vec4 albedoTex = texture(colortex0, texCoords);
 		if(albedoTex.a < 0.102) discard;
 
-		color = albedoTex * vertexColor;
+		color = vertexColor * albedoTex;
 	}
 #endif

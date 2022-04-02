@@ -27,7 +27,7 @@ vec3 getShadowColor(vec3 samplePos, float bias) {
         shadowCol.rgb = sRGBToLinear(shadowCol.rgb);
     #endif
 
-    shadowCol.rgb *= (1.0 - shadowCol.a);
+    shadowCol.rgb *= (1.0 - max0(shadowCol.a));
     return mix(shadowCol.rgb * shadow1, vec3(1.0), shadow0);
 }
 
@@ -83,7 +83,10 @@ vec3 shadowMap(vec3 worldPos, vec3 normal) {
             float avgBlockerDepth = findBlockerDepth(shadowPosDistort, bias, randF());
             if(avgBlockerDepth < 0.0) return vec3(1.0);
 
-            penumbraSize = (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;
+            if(texture(shadowcolor0, shadowPosDistort.xy).a >= 0.0)
+                penumbraSize = (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;
+            else
+                penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
         #endif
 
         return PCF(shadowPos, bias, penumbraSize);

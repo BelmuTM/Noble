@@ -12,7 +12,7 @@ void groundFog(inout vec3 color, vec3 viewPos, float skyLight, bool sky) {
     vec3 scenePos = viewToScene(viewPos);
 
     float airmass     = sky ? far : length(scenePos);
-          airmass    *= RAIN_FOG_DENSITY * rainStrength;
+          airmass    *= RAIN_FOG_DENSITY * wetness;
     vec3 opticalDepth = (extinctionCoeff[0] + extinctionCoeff[1] + extinctionCoeff[2]) * airmass;
 
     vec3 transmittance       = exp(-opticalDepth);
@@ -61,7 +61,7 @@ vec3 volumetricLighting(vec3 viewPos) {
     float VdotL = dot(normalize(endPos), sceneShadowDir);
     vec2 phase  = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisotropyFactor));
 
-    vec3 scattering  = vec3(0.0), transmittance = vec3(1.0);
+    vec3 directScattering = vec3(0.0), indirectScattering = vec3(0.0), transmittance = vec3(1.0);
     float stepLength = length(increment);
 
     for(int i = 0; i < VL_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
@@ -70,16 +70,21 @@ vec3 volumetricLighting(vec3 viewPos) {
 
         vec3 stepTransmittance = exp(-opticalDepth);
         vec3 visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
-        vec3 stepScattering    = scatteringCoeff * vec2(airmass.xy * phase.xy) * visibleScattering;
+
+        vec3 stepScatteringDirect   = scatteringCoeff * vec2(airmass.xy * phase.xy) * visibleScattering;
+        vec3 stepScatteringIndirect = scatteringCoeff * vec2(airmass.xy * vec2(isotropicPhase)) * visibleScattering;
 
         vec3 sampleColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5, 0.0);
 
-        scattering    += stepScattering * vlTransmittance(rayPos, sceneShadowDir) * sampleColor;
-        transmittance *= stepTransmittance;
+        directScattering   += stepScatteringDirect   * vlTransmittance(rayPos, sceneShadowDir) * sampleColor;
+        indirectScattering += stepScatteringIndirect * vlTransmittance(rayPos, vec3(0.0, 1.0, 0.0));
+        transmittance      *= stepTransmittance;
     }
     
-    vec3 directIllum = sampleDirectIlluminance();
-    scattering     *= mix(directIllum, vec3(luminance(directIllum)), rainStrength);
+    vec3 skyIlluminance = texture(colortex6, texCoords).rgb;
+
+    vec3 scattering  = directScattering   * sampleDirectIlluminance();
+         scattering += indirectScattering * skyIlluminance;
 
     return max0(scattering);
 }
@@ -88,7 +93,7 @@ vec3 waterAbsorptionCoeff = (vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_
 vec3 waterScatteringCoeff = (vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) / 100.0) * WATER_DENSITY;
 vec3 waterExtinctionCoeff = waterAbsorptionCoeff + waterScatteringCoeff;
 
-const int phaseMultiSamples = 16;
+const int phaseMultiSamples = 8;
 
 // Sources: ShaderLabs, Spectrum - Zombye
 void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance, float skyLight) {
@@ -130,10 +135,10 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
         transmittance      *= stepTransmittance;
     }
 
-    vec3 scattering = vec3(0.0);
-    scattering += directScattering * sampleDirectIlluminance() * cornetteShanksPhase(VdotL, 0.5);
-    scattering *= waterScatteringCoeff  * (1.0 - stepTransmittance) / waterExtinctionCoeff;
+    vec3 scattering  = directScattering * sampleDirectIlluminance() * cornetteShanksPhase(VdotL, 0.5);
+         scattering *= waterScatteringCoeff  * (1.0 - stepTransmittance) / waterExtinctionCoeff;
 
+    /*
     // Multiple scattering approximation provided by Jessie#7257
     vec3 scatteringAlbedo     = clamp01(waterScatteringCoeff / waterExtinctionCoeff);
     vec3 multScatteringFactor = scatteringAlbedo * 0.84;
@@ -147,6 +152,7 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
     vec3 multipleScattering  = scattering * phaseMulti;
          multipleScattering += indirectScattering * pow2(quintic(0.0, 1.0, skyLight)) * phaseMulti;
          multipleScattering *= multScatteringFactor / (1.0 - multScatteringFactor);
+    */
 
-    color = color * transmittance + (scattering + multipleScattering);
+    color = color * transmittance + scattering;
 }

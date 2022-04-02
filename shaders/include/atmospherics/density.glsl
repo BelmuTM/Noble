@@ -24,7 +24,7 @@ vec3 getVlDensities(in float height) {
     height -= VL_ALTITUDE;
 
     vec2 rayleighMie    = exp(-height / scaleHeights);
-         rayleighMie.x *= mix(VL_DENSITY, VL_RAIN_DENSITY, rainStrength); // Increasing aerosols for VL to be unrealistically visible
+         rayleighMie.x *= mix(VL_DENSITY, VL_RAIN_DENSITY, wetness); // Increasing aerosols for VL to be unrealistically visible
 
     return vec3(rayleighMie, 0.0);
 }
