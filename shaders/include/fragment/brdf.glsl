@@ -185,7 +185,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     mat.lightmap.y = pow2(1.0 - pow(1.0 - clamp01(mat.lightmap.y), SKYLIGHT_FALLOFF));
 
     vec3 skyLight   = skyIlluminance * INV_PI * mat.lightmap.y;
-    vec3 blockLight = temperatureToRGB(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY * mat.lightmap.x;
+    vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
 
     diffuse  = directLight * diffuse * shadowmap.rgb;
     diffuse += (blockLight  + skyLight) * (mat.ao * shadowmap.a);

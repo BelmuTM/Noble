@@ -83,7 +83,7 @@
                     directLighting = directBRDF(hitPos.xy, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb);
                 #endif
 
-                directLighting     += mat.albedo * BLOCKLIGHT_INTENSITY * mat.emission;
+                directLighting     += getBlockLightIntensity(mat) * mat.emission;
                 vec3 indirectBounce = indirectBRDF(noise, mat, rayDir);
              
                 if(dot(mat.normal, rayDir) < 0.0) { break; }

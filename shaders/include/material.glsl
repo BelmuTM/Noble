@@ -78,3 +78,22 @@ mat2x3 getHardcodedMetal(Material mat) {
     int metalID = int(mat.F0 * maxVal8 - 229.5);
     return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(vec3(F0ToIOR(mat.albedo)), vec3(0.0));
 }
+
+vec3 getBlockLightIntensity(Material mat) {
+    vec3 blockLightIntensity = vec3(0.0);
+
+    switch(mat.blockId) {
+        case 5: blockLightIntensity = blackbody(1573.0) * 300.0; break; // Lava, magma
+        case 6: blockLightIntensity = blackbody(1900.0) * 500.0; break; // Flames, fire
+
+        default:
+        #if GI == 0
+            blockLightIntensity = blackbody(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY;
+        #else
+            blockLightIntensity = mat.albedo * BLOCKLIGHT_INTENSITY;
+        #endif
+        break;
+    }
+
+    return blockLightIntensity;
+}
