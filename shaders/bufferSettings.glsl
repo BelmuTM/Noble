@@ -44,4 +44,8 @@ const int colortex10Format        = RGBA32F;
 const bool colortex10Clear        = false;
 const int colortex11Format        = RGBA32F;
 const bool colortex11Clear        = false;
+
+MOMENTS BUFFER
+const int colortex12Format        = RG32F;
+const bool colortex12Clear        = false;
 */

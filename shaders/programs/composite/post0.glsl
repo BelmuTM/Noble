@@ -75,5 +75,5 @@ void main() {
         #endif
     #endif
     
-    previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth0);
+    previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth1);
 }

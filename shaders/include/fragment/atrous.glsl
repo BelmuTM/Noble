@@ -6,6 +6,41 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* 
+    SOURCES / CREDITS:
+    SixthSurge (help with moments and spatial variance): https://github.com/sixthsurge - SixthSurge#3922
+    Alain Galvan:                                        https://alain.xyz/blog/ray-tracing-denoising
+    Jan Dundr:                                           https://cescg.org/wp-content/uploads/2018/04/Dundr-Progressive-Spatiotemporal-Variance-Guided-Filtering-2.pdf
+*/
+
+float spatialVariance(sampler2D tex, vec2 coords) {
+    vec2 sigmaVariancePair = vec2(0.0); int SAMPLES = 0;
+
+    for(int x = -1; x <= 1; x++) {
+        for(int y = -1; y <= 1; y++, SAMPLES++) {
+
+            float luminance    = luminance(texture(colortex5, coords + vec2(x, y) * pixelSize).rgb);
+            sigmaVariancePair += vec2(luminance, luminance * luminance);
+        }
+    }
+    sigmaVariancePair /= SAMPLES;
+    return max0(sigmaVariancePair.y - sigmaVariancePair.x * sigmaVariancePair.x);
+}
+
+float gaussianVariance(sampler2D tex, vec2 coords) {
+    float variance = 0.0;
+
+    for(int x = -3; x <= 3; x++) {
+        for(int y = -3; y <= 3; y++) {
+
+            float weight = gaussianDistrib2D(vec2(x, y), 2.0);
+            vec2 moments = texture(tex, coords + vec2(x, y) * pixelSize).xy;
+            variance    += (moments.y - moments.x * moments.x) * weight;
+        }
+    }
+    return variance;
+}
+
 const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
 const float steps[5]  = float[5](
     ATROUS_STEP_SIZE,
@@ -15,31 +50,49 @@ const float steps[5]  = float[5](
     ATROUS_STEP_SIZE * 0.0625
 );
 
+float getNormalWeight(vec3 normal, vec3 sampleNormal) {
+    return pow(max0(dot(normal, sampleNormal)), NORMAL_WEIGHT_SIGMA);
+}
+
+float getDepthWeight(float depth, float sampleDepth, vec2 dgrad, vec2 offset) {
+    return exp((-abs(linearizeDepth(depth) - linearizeDepth(sampleDepth))) / (abs(DEPTH_WEIGHT_SIGMA * dot(dgrad, offset)) + 0.1));
+}
+
+float getLuminanceWeight(float luminance, float sampleLuminance, float luminancePhi) {
+    return exp(-(sampleLuminance - luminance) * luminancePhi);
+}
+
 // Thanks swr#1793 and L4mbads#6227 for helping me understand SVGF!
 void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, int passIndex) {
     Material mat = getMaterial(coords);
-    if(mat.depth0 == 1.0) return;
+    if(mat.depth1 == 1.0) return;
 
-    float totalWeight = EPS;
-    vec2 stepSize     = steps[passIndex] * pixelSize;
-    float centerLuma  = luminance(color);
-    float variance    = texture(colortex5, coords).a;
+    float totalWeight  = EPS;
+    vec2 stepSize      = steps[passIndex] * pixelSize;
+
+    int frames         = int(texture(colortex4, coords).a);
+    vec2 dgrad         = vec2(dFdx(mat.depth1), dFdy(mat.depth1));
+
+    float centerLuma   = luminance(color);
+    float variance     = frames <= 3 ? spatialVariance(colortex5, coords) : gaussianVariance(colortex12, coords);
+    float luminancePhi = 1.0 / (LUMA_WEIGHT_SIGMA * sqrt(variance) + EPS);
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
-            vec2 sampleCoords  = coords + (vec2(x, y) * stepSize);
+            vec2 offset        = vec2(x, y) * stepSize;
+            vec2 sampleCoords  = coords + offset;
             Material sampleMat = getMaterial(sampleCoords);
             vec3 sampleColor   = texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb;
 
             float weight  = aTrous[abs(x)] * aTrous[abs(y)];
-                  weight *= exp(-pow2(1.0 - dot(mat.normal, sampleMat.normal)) * NORMAL_WEIGHT_STRENGTH);
-                  weight *= exp(-pow2(linearizeDepth(mat.depth0) - linearizeDepth(sampleMat.depth0)) * DEPTH_WEIGHT_STRENGTH);
-                  weight *= exp(-pow2(luminance(sampleColor) - centerLuma) / (20.0 * variance + EPS));
+                  weight *= getNormalWeight(mat.normal, sampleMat.normal);
+                  weight *= getDepthWeight(mat.depth1, sampleMat.depth1, dgrad, offset);
+                  weight *= getLuminanceWeight(centerLuma, luminance(sampleColor), luminancePhi);
                   weight  = clamp01(weight);
            
             color       += sampleColor * weight;
             totalWeight += weight;
         }
     }
-    color /= totalWeight;
+    color = max0(color / totalWeight);
 }

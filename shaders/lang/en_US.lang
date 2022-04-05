@@ -154,14 +154,14 @@ value.GI_TEMPORAL_ACCUMULATION.1 = §aON
 option.ATROUS_STEP_SIZE = Blur Size
 option.ATROUS_STEP_SIZE.comment = Adjusts the size of the blur used to filter §bGlobal Illumination§r.
 
-option.NORMAL_WEIGHT_STRENGTH = Normal Weight Strength
-option.NORMAL_WEIGHT_STRENGTH.comment = Adjusts the strength of the normal weight used to blur §bGlobal Illumination§r.
+option.NORMAL_WEIGHT_SIGMA = Normal Weight Strength
+option.NORMAL_WEIGHT_SIGMA.comment = Adjusts the strength of the normal weight used to blur §bGlobal Illumination§r.
 
-option.DEPTH_WEIGHT_STRENGTH = Depth Weight Strength
-option.DEPTH_WEIGHT_STRENGTH.comment = Adjusts the strength of the depth weight used to blur §bGlobal Illumination§r.
+option.DEPTH_WEIGHT_SIGMA = Depth Weight Strength
+option.DEPTH_WEIGHT_SIGMA.comment = Adjusts the strength of the depth weight used to blur §bGlobal Illumination§r.
 
-option.LUMA_WEIGHT_STRENGTH = Luminance Weight Strength
-option.LUMA_WEIGHT_STRENGTH.comment = Adjusts the strength of the luminance weight used to blur §bGlobal Illumination§r.
+option.LUMA_WEIGHT_SIGMA = Luminance Weight Strength
+option.LUMA_WEIGHT_SIGMA.comment = Adjusts the strength of the luminance weight used to blur §bGlobal Illumination§r.
 
 ///////////////////////////////////////////////////////////
 

@@ -6,12 +6,13 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 5,4,10,11 */
+/* RENDERTARGETS: 5,4,10,11,12 */
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
 layout (location = 1) out vec4 historyBuffer;
 layout (location = 2) out vec3 direct;
 layout (location = 3) out vec3 indirect;
+layout (location = 4) out vec2 moments;
 
 #include "/include/utility/blur.glsl"
 
@@ -27,34 +28,33 @@ layout (location = 3) out vec3 indirect;
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
-    void temporalAccumulation(Material mat, inout vec4 color, inout vec3 direct, inout vec3 indirect, inout float frames) {
+    void temporalAccumulation(Material mat, inout vec3 color, inout vec3 direct, inout vec3 indirect, inout float frames, inout vec2 moments) {
         vec3 prevPos   = reprojection(vec3(texCoords, mat.depth0));
         vec4 prevColor = texture(colortex4, prevPos.xy);
-
-        if(mat.depth0 == 0.0) return;
-
+        
         float blendWeight = float(clamp01(prevPos.xy) == prevPos.xy);
         frames            = prevColor.a + 1.0;
-
-        int moo = 1;
+        int accumulate    = 1;
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            float normalWeight = exp(-pow2(1.0 - dot(mat.normal, texture(colortex9, prevPos.xy).rgb * 2.0 - 1.0)) * NORMAL_WEIGHT_STRENGTH);
-            float depthWeight  = exp(-pow2(linearizeDepth(prevPos.z) - linearizeDepth(texture(colortex9, prevPos.xy).a)) * DEPTH_WEIGHT_STRENGTH);
-            blendWeight       *= (normalWeight * depthWeight);
+            float depthWeight = pow(exp(-abs(linearizeDepth(mat.depth1) - linearizeDepth(texture(colortex9, prevPos.xy).a))), DEPTH_WEIGHT_SIGMA);
+            blendWeight      *= depthWeight;
         #else
-            frames = hideGUI == 0 ? 0.0 : frames;
-            moo    = hideGUI;
+            frames     = hideGUI == 0 ? 0.0 : frames;
+            accumulate = hideGUI;
         #endif
 
         blendWeight *= 1.0 - (1.0 / max(frames, 1.0));
         blendWeight  = maxEps(blendWeight);
 
-        if(moo == 1) {
-            float currLuma = luminance(color.rgb);
-            color.rgb      = mix(color.rgb, prevColor.rgb, blendWeight);
-            float avgLum   = mix(currLuma, luminance(prevColor.rgb), blendWeight);
-            color.a        = mix(pow2(currLuma - avgLum), color.a, blendWeight);
+        if(accumulate == 1) {
+            color           = mix(color, prevColor.rgb, blendWeight);
+            float luminance = luminance(color);
+
+            // Thanks SixthSurge#3922 for the help with moments
+            vec2 prevMoments = texture(colortex12, prevPos.xy).xy;
+            vec2 currMoments = vec2(luminance, luminance * luminance);
+                 moments     = mix(currMoments, prevMoments, blendWeight);
 
             vec3 prevColorDirect   = texture(colortex10, prevPos.xy).rgb;
             vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
@@ -62,7 +62,7 @@ layout (location = 3) out vec3 indirect;
             direct   = max0(mix(direct,   prevColorDirect,   blendWeight));
             indirect = max0(mix(indirect, prevColorIndirect, blendWeight));
         } else {
-            color.rgb = mat.albedo;
+            color = mat.albedo;
         }
     }
 #endif
@@ -76,7 +76,7 @@ void main() {
     vec3 viewPos0 = getViewPos0(tempCoords);
 
     if(isSky(tempCoords)) {
-        color.rgb = computeSky(viewPos0, true);
+        color = computeSky(viewPos0, true);
         return;
     }
 
@@ -88,8 +88,6 @@ void main() {
         skyIlluminance = texture(colortex6, tempCoords).rgb;
     #endif
 
-    color.a = texture(colortex5, tempCoords).a;
-
     #if GI == 0
         if(!mat.isMetal) {
             #if AO == 1
@@ -98,17 +96,17 @@ void main() {
                 #endif
             #endif
 
-            color.rgb = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance);
+            color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance);
         }
     #else
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords) {
-            pathTrace(color.rgb, vec3(tempCoords, mat.depth0), direct, indirect);
+            pathTrace(color, vec3(tempCoords, mat.depth0), direct, indirect);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(mat, color, direct, indirect, historyBuffer.a);
+                temporalAccumulation(mat, color, direct, indirect, historyBuffer.a, moments);
             #endif
         }
     #endif
 
-    historyBuffer.rgb = color.rgb;
+    historyBuffer.rgb = color;
 }
