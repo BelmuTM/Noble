@@ -12,7 +12,7 @@ layout (location = 0) out vec3 color;
 layout (location = 1) out vec4 historyBuffer;
 layout (location = 2) out vec3 direct;
 layout (location = 3) out vec3 indirect;
-layout (location = 4) out vec2 moments;
+layout (location = 4) out vec3 moments;
 
 #include "/include/utility/blur.glsl"
 
@@ -28,42 +28,41 @@ layout (location = 4) out vec2 moments;
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
-    void temporalAccumulation(Material mat, inout vec3 color, inout vec3 direct, inout vec3 indirect, inout float frames, inout vec2 moments) {
+    void temporalAccumulation(Material mat, inout vec3 color, inout vec3 direct, inout vec3 indirect, inout float frames, inout vec3 moments) {
         vec3 prevPos   = reprojection(vec3(texCoords, mat.depth0));
         vec4 prevColor = texture(colortex4, prevPos.xy);
-        
-        float blendWeight = float(clamp01(prevPos.xy) == prevPos.xy);
-        frames            = prevColor.a + 1.0;
-        int accumulate    = 1;
 
+        float depthWeight = 1.0;
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            float depthWeight = pow(exp(-abs(linearizeDepth(mat.depth1) - linearizeDepth(texture(colortex9, prevPos.xy).a))), DEPTH_WEIGHT_SIGMA);
-            blendWeight      *= depthWeight;
+            depthWeight = pow(exp(-abs(linearizeDepth(mat.depth1) - linearizeDepth(texture(colortex9, prevPos.xy).a))), DEPTH_WEIGHT_SIGMA);
         #else
-            frames     = hideGUI == 0 ? 0.0 : frames;
-            accumulate = hideGUI;
+            if(hideGUI == 0) {
+                color = mat.albedo;
+                return;
+            }
+            
+            frames = hideGUI == 0 ? 0.0 : frames;
         #endif
 
-        blendWeight *= 1.0 - (1.0 / max(frames, 1.0));
-        blendWeight  = maxEps(blendWeight);
+              frames      = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+        float blendWeight = clamp01(1.0 - (1.0 / max(frames, 1.0)));
 
-        if(accumulate == 1) {
-            color           = mix(color, prevColor.rgb, blendWeight);
-            float luminance = luminance(color);
+        color           = mix(color, prevColor.rgb, blendWeight);
+        float luminance = luminance(color);
 
-            // Thanks SixthSurge#3922 for the help with moments
-            vec2 prevMoments = texture(colortex12, prevPos.xy).xy;
-            vec2 currMoments = vec2(luminance, luminance * luminance);
-                 moments     = mix(currMoments, prevMoments, blendWeight);
+        moments.z = 0.0;
 
-            vec3 prevColorDirect   = texture(colortex10, prevPos.xy).rgb;
-            vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
+        // Thanks SixthSurge#3922 for the help with moments
+        vec2 prevMoments = texture(colortex12, prevPos.xy).xy;
+        vec2 currMoments = vec2(luminance, luminance * luminance);
+             moments.xy  = mix(currMoments, prevMoments, blendWeight);
+             moments.z   = moments.y - moments.x * moments.x;
 
-            direct   = max0(mix(direct,   prevColorDirect,   blendWeight));
-            indirect = max0(mix(indirect, prevColorIndirect, blendWeight));
-        } else {
-            color = mat.albedo;
-        }
+        vec3 prevColorDirect   = texture(colortex10, prevPos.xy).rgb;
+        vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
+
+        direct   = max0(mix(direct,   prevColorDirect,   blendWeight));
+        indirect = max0(mix(indirect, prevColorIndirect, blendWeight));
     }
 #endif
 

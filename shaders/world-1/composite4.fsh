@@ -12,6 +12,7 @@
 in vec2 texCoords;
 
 #define STAGE_FRAGMENT
+#define WORLD_NETHER
 
 #include "/include/common.glsl"
-#include "/programs/composite/post0.glsl"
+#include "/programs/composite/composite3.glsl"

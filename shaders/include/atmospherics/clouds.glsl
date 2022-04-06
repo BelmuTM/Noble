@@ -6,12 +6,22 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float getCloudsDensity(vec2 pos) {
-
+float getCloudsDensity(vec2 pos, float cloudAltitude) {
+    return rand(pos);
 }
 
 float getCloudsOpticalDepth(vec3 rayOrigin, vec3 lightDir, int stepCount) {
+    float stepLength = intersectSphericalShell(rayOrigin, lightDir, innerCloudRad, outerCloudRad).y / float(stepCount);
+    vec3 increment   = lightDir * stepLength;
+    vec3 rayPos      = rayOrigin + increment * 0.5;
 
+    float accumAirmass = 0.0;
+    for(int i = 0; i < stepCount; i++, rayPos += increment) {
+        float cloudAltitude = (length(rayPos) - innerCloudRad) / CLOUDS_THICKNESS;
+              accumAirmass += getCloudsDensity(rayPos, cloudAltitude) * stepLength;
+    }
+
+    return accumAirmass;
 }
 
 vec3 cloudsScattering(vec3 rayDir) {
@@ -26,8 +36,8 @@ vec3 cloudsScattering(vec3 rayDir) {
     
     for(int i = 0; i < CLOUDS_STEPS; i++, rayPos += increment) {
 
-        float altitudeFraction  = (length(rayPos) - innerCloudRad) / CLOUDS_THICKNESS;
-        vec3 stepOpticalDepth   = 0.08 * getCloudsDensity(length(rayPos)) * stepLength;
+        float cloudAltitude   = (length(rayPos) - innerCloudRad) / CLOUDS_THICKNESS;
+        vec3 stepOpticalDepth = 0.08 * getCloudsDensity(length(rayPos)) * stepLength;
 
         vec3 stepTransmittance  = exp(-stepOpticalDepth);
         vec3 scatteringIntegral = clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);

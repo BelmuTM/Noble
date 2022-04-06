@@ -25,7 +25,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     vec3 rayPos      = rayOrigin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
-    for(int j = 0; j < TRANSMITTANCE_STEPS; j++, rayPos += increment) {
+    for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
         accumAirmass += getDensities(length(rayPos)) * stepLength;
     }
     return exp(-extinctionCoeff * accumAirmass);
