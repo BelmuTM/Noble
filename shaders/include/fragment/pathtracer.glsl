@@ -78,9 +78,9 @@
                 
                 mat = getMaterial(hitPos.xy);
 
-                vec3 directLighting = directBRDF(hitPos.xy, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb);
-                directLighting     += getBlockLightIntensity(mat) * mat.emission;
-                vec3 indirectBounce = indirectBRDF(noise, mat, rayDir);
+                vec3 directLighting  = directBRDF(hitPos.xy, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb);
+                     directLighting += getBlockLightIntensity(mat) * mat.emission;
+                vec3 indirectBounce  = indirectBRDF(noise, mat, rayDir);
              
                 if(dot(mat.normal, rayDir) < 0.0) { break; }
                 bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);

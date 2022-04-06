@@ -39,15 +39,15 @@ void main() {
     if(!sky) {
         #if GI == 1
             #if GI_FILTER == 1
-                vec3 a;
-                aTrousFilter(color, colortex5, texCoords, a, 4);
+                vec3 moments;
+                aTrousFilter(color, colortex5, texCoords, moments, 4);
             #endif
 
             vec3 direct         = texture(colortex10, texCoords * GI_RESOLUTION).rgb;
             vec3 indirectBounce = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
 
             color = direct + (indirectBounce * color);
-            //color = vec3(gaussianVariance(colortex12, texCoords));
+            //color = vec3(texture(colortex12, texCoords).z);
         #endif
 
         #if WATER_CAUSTICS == 1

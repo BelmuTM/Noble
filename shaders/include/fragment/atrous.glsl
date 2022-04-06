@@ -46,11 +46,11 @@ float gaussianVariance(sampler2D tex, vec2 coords) {
 
 const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
 const float steps[5]  = float[5](
-    ATROUS_STEP_SIZE,
-    ATROUS_STEP_SIZE * 0.5,
-    ATROUS_STEP_SIZE * 0.25,
+    ATROUS_STEP_SIZE * 0.0625,
     ATROUS_STEP_SIZE * 0.125,
-    ATROUS_STEP_SIZE * 0.0625
+    ATROUS_STEP_SIZE * 0.25,
+    ATROUS_STEP_SIZE * 0.5,
+    ATROUS_STEP_SIZE
 );
 
 float getNormalWeight(vec3 normal, vec3 sampleNormal) {
@@ -62,7 +62,7 @@ float getDepthWeight(float depth, float sampleDepth, vec2 dgrad, vec2 offset) {
 }
 
 float getLuminanceWeight(float luminance, float sampleLuminance, float luminancePhi) {
-    return exp(-(sampleLuminance - luminance) * luminancePhi);
+    return max0(exp(-abs(luminance - sampleLuminance) * luminancePhi));
 }
 
 void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 moments, int passIndex) {
@@ -76,7 +76,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 momen
     vec2 dgrad         = vec2(dFdx(mat.depth1), dFdy(mat.depth1));
 
     float centerLuma   = luminance(color);
-    float variance     = gaussianVariance(colortex12, coords);
+    float variance     = (gaussianVariance(colortex12, coords));
     float luminancePhi = 1.0 / (LUMA_WEIGHT_SIGMA * sqrt(variance) + EPS);
 
     moments = texture(colortex12, texCoords).xyz;
@@ -91,10 +91,12 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 momen
             Material sampleMat = getMaterial(sampleCoords);
             vec3 sampleColor   = texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb;
 
+            float normalWeight = getNormalWeight(mat.normal, sampleMat.normal);
+            float depthWeight  = getDepthWeight(mat.depth1, sampleMat.depth1, dgrad, offset);
+            float lumaWeight   = mix(1.0, getLuminanceWeight(centerLuma, luminance(sampleColor), luminancePhi), frames);
+
             float weight  = aTrous[abs(x)] * aTrous[abs(y)];
-                  weight *= getNormalWeight(mat.normal, sampleMat.normal);
-                  weight *= getDepthWeight(mat.depth1, sampleMat.depth1, dgrad, offset);
-                  weight *= mix(1.0, getLuminanceWeight(centerLuma, luminance(sampleColor), luminancePhi), frames);
+                  weight *= (normalWeight * depthWeight * lumaWeight);
                   weight  = clamp01(weight);
            
             color              += sampleColor * weight;
@@ -102,6 +104,6 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 momen
             totalWeightSquared += weight * weight;
         }
     }
-    color      = max0(color / totalWeight);
+    color      = color / totalWeight;
     moments.z *= totalWeightSquared;
 }
