@@ -83,8 +83,8 @@ vec3 getBlockLightIntensity(Material mat) {
     vec3 blockLightIntensity = vec3(0.0);
 
     switch(mat.blockId) {
-        case 5: blockLightIntensity = blackbody(1573.0) * 300.0; break; // Lava, magma
-        case 6: blockLightIntensity = blackbody(1900.0) * 500.0; break; // Flames, fire
+        case 5: blockLightIntensity = blackbody(1573.0) * 500.0; break; // Lava, magma
+        case 6: blockLightIntensity = blackbody(1900.0) * 800.0; break; // Flames, fire
 
         default:
         #if GI == 0

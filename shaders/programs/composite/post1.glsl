@@ -19,13 +19,12 @@ void main() {
     color = texture(colortex5, texCoords).rgb;
 
     #if TAA == 1 && ACCUMULATION_VELOCITY_WEIGHT == 0
-        color = clamp16(temporalAntiAliasing(getMaterial(texCoords), colortex5, colortex8));
+        color = max0(temporalAntiAliasing(getMaterial(texCoords), colortex5, colortex8));
     #endif
 
-    float avgLuminance = 0.0;
+    historyBuffer.rgb = color;
+
     #if EXPOSURE == 1
-        avgLuminance = computeAverageLuminance(colortex8);
+        historyBuffer.a = computeAverageLuminance(colortex8);
     #endif
-
-    historyBuffer = vec4(color, avgLuminance);
 }

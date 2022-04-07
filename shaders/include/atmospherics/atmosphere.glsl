@@ -40,13 +40,14 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         vec3 increment   = rayDir * stepLength;
         vec3 rayPos      = atmosRayPos + increment * 0.5;
 
-        vec2 VdotL = vec2(dot(rayDir, sceneSunDir), dot(rayDir, sceneMoonDir));
-        vec4 phase     = vec4(
-            rayleighPhase(VdotL.x), cornetteShanksPhase(VdotL.x, anisotropyFactor), 
-            rayleighPhase(VdotL.y), cornetteShanksPhase(VdotL.y, anisotropyFactor)
+        vec2 VdotL    = vec2(dot(rayDir, sceneSunDir), dot(rayDir, sceneMoonDir));
+        vec2 phase[2] = vec2[2](
+            vec2(rayleighPhase(VdotL.x), cornetteShanksPhase(VdotL.x, anisotropyFactor)), 
+            vec2(rayleighPhase(VdotL.y), cornetteShanksPhase(VdotL.y, anisotropyFactor))
         );
 
-        vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), multipleScattering = vec3(0.0), transmittance = vec3(1.0);
+        vec3 sunScattering = vec3(0.0), moonScattering = vec3(0.0), multipleScattering = vec3(0.0);
+        vec3 transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
             vec3 airmass          = getDensities(length(rayPos)) * stepLength;
@@ -54,8 +55,8 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
             vec3 visibleScattering  = transmittance   * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
-            vec3 sunStepScattering  = scatteringCoeff * (airmass.xy * phase.xy) * visibleScattering;
-            vec3 moonStepScattering = scatteringCoeff * (airmass.xy * phase.zw) * visibleScattering;
+            vec3 sunStepScattering  = scatteringCoeff * (airmass.xy * phase[0]) * visibleScattering;
+            vec3 moonStepScattering = scatteringCoeff * (airmass.xy * phase[1]) * visibleScattering;
 
             sunScattering  += sunStepScattering  * atmosphereTransmittance(rayPos, sceneSunDir);
             moonScattering += moonStepScattering * atmosphereTransmittance(rayPos, sceneMoonDir);

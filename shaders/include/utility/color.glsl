@@ -224,7 +224,7 @@ mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
 
 void whiteBalance(inout vec3 color) {
     vec3 source              = blackbody(WHITE_BALANCE) * SRGB_2_XYZ_MAT;
-    vec3 destination         = blackbody(6500.0) * SRGB_2_XYZ_MAT;
+    vec3 destination         = blackbody(6500.0) * SRGB_2_XYZ_MAT; // D65 white point
     mat3 chromaticAdaptation = SRGB_2_XYZ_MAT * chromaticAdaptationMatrix(source, destination) * XYZ_2_SRGB_MAT;
     color                   *= chromaticAdaptation;
 }

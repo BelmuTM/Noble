@@ -43,7 +43,8 @@ vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
     for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
         for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {
             vec3 color = linearToYCoCg(texelFetch(currTex, ivec2(gl_FragCoord.xy) + ivec2(x, y), 0).rgb);
-            minColor = min(minColor, color); maxColor = max(maxColor, color); 
+            minColor = min(minColor, color); 
+            maxColor = max(maxColor, color); 
         }
     }
     return clipAABB(prevColor, minColor, maxColor);
@@ -66,12 +67,9 @@ vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex
          prevColor = YCoCgToLinear(prevColor);
 
     float blendWeight  = float(clamp01(prevPos.xy) == prevPos.xy);
-
     float lumaWeight   = getLumaWeight(currColor, prevColor);
-    float depthWeight  = pow(exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a))), TAA_DEPTH_WEIGHT);
-    //float normalWeight = pow(clamp01(dot(currMat.normal, texture(colortex9, prevPos.xy).rgb * 2.0 - 1.0)), TAA_NORMAL_WEIGHT);
-        
-    blendWeight *= (depthWeight * lumaWeight);
+    float depthWeight  = exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a)) * TAA_DEPTH_WEIGHT);
+          blendWeight *= (depthWeight * lumaWeight);
 
     return mix(currColor, prevColor, blendWeight); 
 }

@@ -133,7 +133,7 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        float bloomStrgth = max0(exp2(exposure + BLOOM_STRENGTH - 3.0));
+        float bloomStrgth = max0(exp2(exposure + (BLOOM_STRENGTH + BLOOM_TWEAK) - 3.0));
         color             = mix(color, readBloom(), bloomStrgth);
     #endif
 

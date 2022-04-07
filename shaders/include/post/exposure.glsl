@@ -8,7 +8,7 @@
 
 #if EXPOSURE == 1
      float computeAverageLuminance(sampler2D prevTex) {
-          float currLuma = luminance(textureLod(colortex5, vec2(0.5), log2(maxOf2(viewSize))).rgb);
+          float currLuma = pow2(textureLod(colortex5, vec2(0.5), log2(maxOf2(viewSize))).a);
 
           float previousLuma = texelFetch(prevTex, ivec2(0), 0).a;
                 previousLuma = previousLuma > 0.0 ? previousLuma : currLuma;
@@ -29,7 +29,7 @@ float EV100ToExposure(float EV100) {
 
 float computeExposure(float avgLuminance) {
      float minExposure = TAU / luminance(sunIlluminance);
-     float maxExposure = 0.6 / luminance(moonIlluminance);
+     float maxExposure = 0.3 / luminance(moonIlluminance);
 
      float EV100;
      #if EXPOSURE == 0

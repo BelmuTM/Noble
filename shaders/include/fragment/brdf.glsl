@@ -7,10 +7,9 @@
 /***********************************************/
 
 // http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
-float distributionGGX(float NdotH, float roughness) {
+float distributionGGX(float NdotH2, float roughness) {
     float alpha2 = pow4(roughness);
-    float denom  = (NdotH * alpha2 - NdotH) * NdotH + 1.0;
-    return alpha2 / pow2(denom) * INV_PI;
+    return alpha2 / (PI * pow2(1.0 - NdotH2 + NdotH2 * alpha2));
 }
 
 // Thanks LVutner#5199 for providing lambda smith equation
@@ -108,7 +107,7 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     float alpha = pow2(mat.rough);
 
     vec3 H      = normalize(V + L);
-    float NdotL = dot(N, L);
+    float NdotL = maxEps(dot(N, L));
     float NdotV = maxEps(dot(N, V));
     float VdotL = dot(V, L);
     float NdotH = dot(N, H);
@@ -124,15 +123,15 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
         float fresnelNL = 1.0 - fresnelDielectric(NdotL, ior);
         float fresnelNV = 1.0 - fresnelDielectric(NdotV, ior);
 
-        smoothSurf = (fresnelNL * fresnelNV) / energyConservationFactor;
+        smoothSurf = fresnelNL * fresnelNV * (1.0 / energyConservationFactor);
     } else {
         smoothSurf = 1.05 * (1.0 - pow5(1.0 - NdotL)) * (1.0 - pow5(1.0 - NdotV));
     }
     float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
     float multi  = 0.1159 * alpha;
 
-    if(pt) { return clamp01(single + mat.albedo * multi);           }
-    else   { return clamp01(NdotL * (mat.albedo * multi + single)); }
+    if(pt) { return single + mat.albedo * multi;           }
+    else   { return NdotL * (mat.albedo * multi + single); }
 }
 
 // Disney SSS from: https://www.shadertoy.com/view/XdyyDd
@@ -155,15 +154,53 @@ vec3 fresnelComplex(float cosTheta, Material mat) {
     return mat.isMetal ? fresnelDieletricConductor(hcm[0], hcm[1], cosTheta) : vec3(fresnelDielectric(cosTheta, F0ToIOR(mat.F0)));
 }
 
+// This function helps us consider the light source as a sphere
+// https://www.guerrilla-games.com/read/decima-engine-advances-in-lighting-and-aa
+float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, out float newNdotL, out float newVdotL) {
+    float radiusCos = cos(angularRadius), radiusTan = tan(angularRadius);
+        
+    float RdotL = 2.0 * NdotL * NdotV - VdotL;
+    if(RdotL >= radiusCos) return 1.0;
+
+    float rOverLengthT = radiusCos * radiusTan * inversesqrt(1.0 - RdotL * RdotL);
+    float NdotTr       = rOverLengthT * (NdotV - RdotL * NdotL);
+    float VdotTr       = rOverLengthT * (2.0 * NdotV * NdotV - 1.0 - RdotL * VdotL);
+
+    float triple = sqrt(clamp01(1.0 - NdotL * NdotL - NdotV * NdotV - VdotL * VdotL + 2.0 * NdotL * NdotV * VdotL));
+        
+    float NdotBr   = rOverLengthT * triple, VdotBr = rOverLengthT * (2.0 * triple * NdotV);
+    float NdotLVTr = NdotL * radiusCos + NdotV + NdotTr, VdotLVTr = VdotL * radiusCos + 1.0 + VdotTr;
+    float p        = NdotBr * VdotLVTr, q = NdotLVTr * VdotLVTr, s = VdotBr * NdotLVTr;    
+    float xNum     = q * (-0.5 * p + 0.25 * VdotBr * NdotLVTr);
+    float xDenom   = p * p + s * ((s - 2.0 * p)) + NdotLVTr * ((NdotL * radiusCos + NdotV) * VdotLVTr * VdotLVTr + q * (-0.5 * (VdotLVTr + VdotL * radiusCos) - 0.5));
+    float twoX1    = 2.0 * xNum / (xDenom * xDenom + xNum * xNum);
+    float sinTheta = twoX1 * xDenom;
+    float cosTheta = 1.0 - twoX1 * xNum;
+
+    NdotTr = cosTheta * NdotTr + sinTheta * NdotBr;
+    VdotTr = cosTheta * VdotTr + sinTheta * VdotBr;
+
+    newNdotL = NdotL * radiusCos + NdotTr;
+    newVdotL = VdotL * radiusCos + VdotTr;
+
+    float NdotH = NdotV + newNdotL;
+    float HdotH = 2.0 * newVdotL + 2.0;
+    return clamp01(NdotH * NdotH / HdotH);
+}
+
 vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     vec3 H      = normalize(V + L);
-    float NdotV = maxEps(dot(N, V));
+    float NdotV = dot(N, V);
     float NdotL = dot(N, L);
-    float HdotL = dot(H, L);
-    float NdotH = dot(N, H);
+    float VdotL = dot(V, L);
+    float VdotH = dot(V, H);
 
+    float NdotH = NdotHSquared(shadowLightAngularRad, NdotL, NdotV, VdotL, NdotV, VdotL);
+          VdotH = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
+
+    NdotV = abs(NdotV);
     float D  = distributionGGX(NdotH, mat.rough);
-    vec3  F  = fresnelComplex(HdotL, mat);
+    vec3  F  = fresnelComplex(VdotH, mat);
     float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
         
     return clamp01(clamp01(NdotL) * (D * G2) * F / (4.0 * NdotL * NdotV));
@@ -188,6 +225,6 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
 
     diffuse  = directLight * diffuse * shadowmap.rgb;
-    diffuse += (blockLight  + skyLight) * (mat.ao * shadowmap.a);
+    diffuse += (blockLight + skyLight) * (mat.ao * shadowmap.a);
     return mat.albedo * diffuse;
 }

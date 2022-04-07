@@ -17,16 +17,16 @@
 */
 
 float spatialVariance(sampler2D tex, vec2 coords) {
-    vec2 sigmaVariancePair = vec2(0.0); int SAMPLES = 0;
+    vec2 sigmaVariancePair = vec2(0.0); int samples = 0;
 
     for(int x = -1; x <= 1; x++) {
-        for(int y = -1; y <= 1; y++, SAMPLES++) {
+        for(int y = -1; y <= 1; y++, samples++) {
 
             float luminance    = luminance(texture(colortex5, coords + vec2(x, y) * pixelSize).rgb);
             sigmaVariancePair += vec2(luminance, luminance * luminance);
         }
     }
-    sigmaVariancePair /= SAMPLES;
+    sigmaVariancePair /= samples;
     return max0(sigmaVariancePair.y - sigmaVariancePair.x * sigmaVariancePair.x);
 }
 

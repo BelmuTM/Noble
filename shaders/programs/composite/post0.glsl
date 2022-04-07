@@ -8,7 +8,7 @@
 
 /* RENDERTARGETS: 5,2,9 */
 
-layout (location = 0) out vec3 color;
+layout (location = 0) out vec4 color;
 layout (location = 1) out vec3 bloomBuffer;
 layout (location = 2) out vec4 previousBuffer;
 
@@ -31,9 +31,9 @@ layout (location = 2) out vec4 previousBuffer;
                   caOffset       = vec2(ABERRATION_STRENGTH * distFromCenter) * coc / pow2(quality);
         #endif
 
-        for(int i = 0; i < quality; i++) {
-            for(int j = 0; j < quality; j++) {
-                vec2 offset = ((vec2(i, j) + noise) - quality * 0.5) / quality;
+        for(int x = 0; x < quality; x++) {
+            for(int y = 0; y < quality; y++) {
+                vec2 offset = ((vec2(x, y) + noise) - quality * 0.5) / quality;
             
                 if(length(offset) < 0.5) {
                     vec2 sampleCoords = coords + (offset * radius * coc * pixelSize);
@@ -55,12 +55,12 @@ layout (location = 2) out vec4 previousBuffer;
 #endif
 
 void main() {
-    color        = texture(colortex5, texCoords).rgb;
+    color        = texture(colortex5, texCoords);
     Material mat = getMaterial(texCoords);
     
     #if DOF == 1
         float coc = getCoC(linearizeDepthFast(mat.depth1), linearizeDepthFast(centerDepthSmooth));
-        depthOfField(color, texCoords, colortex5, 8, DOF_RADIUS, coc);
+        depthOfField(color.rgb, texCoords, colortex5, 8, DOF_RADIUS, coc);
     #endif
 
     #if BLOOM == 1
@@ -69,11 +69,12 @@ void main() {
 
     #if VL == 1
         #if VL_FILTER == 1
-            color += gaussianBlur(texCoords, colortex6, 1.1, 2.0, 4).rgb;
+            color.rgb += gaussianBlur(texCoords, colortex6, 1.1, 2.0, 4).rgb;
         #else
-            color += texture(colortex6, texCoords).rgb;
+            color.rgb += texture(colortex6, texCoords).rgb;
         #endif
     #endif
-    
-    previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth1);
+
+    color.a        = sqrt(luminance(color.rgb));
+    previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth0);
 }

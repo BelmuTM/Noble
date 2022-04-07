@@ -58,8 +58,8 @@
         vec3 viewPos   = screenToView(screenPos);
         vec3 skyRayDir = unprojectSphere(texCoords);
 
-        int SAMPLES;
-        for(int i = 0; i < GI_SAMPLES; i++, SAMPLES++) {
+        int samples = 0;
+        for(int i = 0; i < GI_SAMPLES; i++, samples++) {
             vec3 throughput = vec3(1.0);
 
             vec3 hitPos = screenPos; 
@@ -106,6 +106,6 @@
                 }
             }
         }
-        radiance = max0(radiance) / float(SAMPLES);
+        radiance = max0(radiance) / float(samples);
     }
 #endif

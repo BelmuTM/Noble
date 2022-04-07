@@ -34,7 +34,7 @@ layout (location = 4) out vec3 moments;
 
         float depthWeight = 1.0;
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            depthWeight = pow(exp(-abs(linearizeDepth(mat.depth1) - linearizeDepth(texture(colortex9, prevPos.xy).a))), DEPTH_WEIGHT_SIGMA);
+            depthWeight = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a))), DEPTH_WEIGHT_SIGMA);
         #else
             if(hideGUI == 0) {
                 color = mat.albedo;

@@ -8,15 +8,15 @@
 
 vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
     vec4 color  = vec4(0.0);
-    int SAMPLES = 1;
+    int samples = 1;
 
     for(int x = -size; x <= size; x++) {
         for(int y = -size; y <= size; y++) {
             color += texture(tex, coords + vec2(x, y) * pixelSize);
-            SAMPLES++;
+            samples++;
         }
     }
-    return color / float(SAMPLES);
+    return color / float(samples);
 }
 
 vec4 gaussianBlur(vec2 coords, sampler2D tex, float radius, float sigma, int steps) {
