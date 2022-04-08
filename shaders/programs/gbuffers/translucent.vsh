@@ -40,7 +40,7 @@ void main() {
 
 	if(int(blockId + 0.5) == 1) {
 		vec3 worldPos    = viewToWorld(viewPos);
-			 worldPos.y -= waterWaves(worldPos.xz);
+			 worldPos.y -= waterWaves(worldPos.xz, WATER_OCTAVES);
 
     	vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView(worldPos), 1.0);
 		gl_Position     = viewToClip;

@@ -61,7 +61,7 @@ float seaOctave(vec2 pos, float steep) {
     return pow(1.0 - pow(wv.x * wv.y, 0.65), steep);
 }
 
-float waterWaves(vec2 pos) {
+float waterWaves(vec2 pos, int octaves) {
     float freq  = 0.16;
     float amp   = WAVE_AMPLITUDE;
     float steep = WAVE_STEEPNESS;
@@ -69,7 +69,7 @@ float waterWaves(vec2 pos) {
     pos.x *= 0.75;
     
     float d, height = 0.0;    
-    for(int i = 0; i < WATER_OCTAVES; i++) {        
+    for(int i = 0; i < octaves; i++) {        
     	d  = seaOctave((pos + (frameTimeCounter * speed)) * freq, steep);
     	d += seaOctave((pos - (frameTimeCounter * speed)) * freq, steep);
 
@@ -111,13 +111,13 @@ float gerstnerWaves(vec2 coords, float time, float waveSteepness, float waveAmpl
 }
 */
 
-vec3 getWaveNormals(vec3 worldPos) {
+vec3 getWaveNormals(vec3 worldPos, int octaves) {
     vec2 coords = worldPos.xz - worldPos.y;
 
     const float delta = 1e-1;
-    float normal0 = waterWaves(coords);
-	float normal1 = waterWaves(coords + vec2(delta, 0.0));
-	float normal2 = waterWaves(coords + vec2(0.0, delta));
+    float normal0 = waterWaves(coords,                    octaves);
+	float normal1 = waterWaves(coords + vec2(delta, 0.0), octaves);
+	float normal2 = waterWaves(coords + vec2(0.0, delta), octaves);
 
     return normalize(vec3(
         (normal0 - normal1) / delta,

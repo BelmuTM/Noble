@@ -6,56 +6,59 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-float getCloudsDensity(vec2 pos, float cloudAltitude) {
-    return rand(pos);
+float getCloudsDensity(vec3 rayPos) {
+    float cloudAltitude = (length(rayPos) - innerCloudRad) / CLOUDS_THICKNESS;
+    return FBM(rayPos.xy, 4);
 }
 
-float getCloudsOpticalDepth(vec3 rayOrigin, vec3 lightDir, int stepCount) {
-    float stepLength = intersectSphericalShell(rayOrigin, lightDir, innerCloudRad, outerCloudRad).y / float(stepCount);
-    vec3 increment   = lightDir * stepLength;
-    vec3 rayPos      = rayOrigin + increment * 0.5;
+float getCloudsTransmittance(vec3 rayPos, vec3 lightDir, int stepCount) {
+    float stepLength = 25.0, transmittance = 0.0;
 
-    float accumAirmass = 0.0;
-    for(int i = 0; i < stepCount; i++, rayPos += increment) {
-        float cloudAltitude = (length(rayPos) - innerCloudRad) / CLOUDS_THICKNESS;
-              accumAirmass += getCloudsDensity(rayPos, cloudAltitude) * stepLength;
+    for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength) {
+        transmittance += getCloudsDensity(rayPos) * stepLength;
+        stepLength    *= 1.5;
     }
-
-    return accumAirmass;
+    return transmittance;
 }
 
-vec3 cloudsScattering(vec3 rayDir) {
+vec4 cloudsScattering(vec3 rayDir) {
     vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, innerCloudRad, outerCloudRad);
-    if(dists.y < 0.0) return vec3(0.0);
+    if(dists.y < 0.0) return vec4(0.0);
 
     float stepLength = (dists.y - dists.x) / float(CLOUDS_STEPS);
     vec3 increment   = rayDir * stepLength;
     vec3 rayPos      = atmosRayPos + rayDir * 0.5;
 
-    float scattering = 0.0, transmittance = 1.0;
+    float LdotV   = dot(rayDir, sceneShadowDir);
+    const vec3 up = vec3(0.0, 1.0, 0.0);
+
+    vec3 scattering = vec3(0.0); float transmittance = 1.0;
     
     for(int i = 0; i < CLOUDS_STEPS; i++, rayPos += increment) {
+        float opticalDepth = getCloudsDensity(rayPos) * stepLength;
+        if(opticalDepth <= 0.0) continue;
 
-        float cloudAltitude   = (length(rayPos) - innerCloudRad) / CLOUDS_THICKNESS;
-        vec3 stepOpticalDepth = 0.08 * getCloudsDensity(length(rayPos)) * stepLength;
+        float stepTransmittance  = exp(-opticalDepth);
+        float scatteringIntegral = clamp01((stepTransmittance - 1.0) / -opticalDepth);
 
-        vec3 stepTransmittance  = exp(-stepOpticalDepth);
-        vec3 scatteringIntegral = clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
+        float directTransmittance   = getCloudsTransmittance(rayPos, sceneShadowDir, 16);
+        float indirectTransmittance = getCloudsTransmittance(rayPos, up,              8);
 
-        float opticalDepth     = getCloudsOpticalDepth(rayPos, sceneShadowDir, 6);
-        vec3 anisotropyFactors = pow(vec3(0.45, 0.35, 0.95), vec3(1.0 + opticalDepth));
+        //vec3 anisotropyFactors = pow(vec3(0.45, 0.35, 0.95), vec3(1.0 + opticalDepth));
 
-        float stepScattering = 0.0;
+        for(int j = 0; j < 6; j++) {
+            //float forwardsLobe  = henyeyGreensteinPhase(LdotV, anisotropyFactors.x);
+	        //float backwardsLobe = henyeyGreensteinPhase(LdotV, anisotropyFactors.y);
+	        //float forwardsPeak  = henyeyGreensteinPhase(LdotV, anisotropyFactors.z);
 
-        for(int i = 0; i < 6; i++) {
-            float forwardsLobe  = henyeyGreensteinPhase(cosTheta, anisotropyFactors.x);
-	        float backwardsLobe = henyeyGreensteinPhase(cosTheta, anisotropyFactors.y);
-	        float forwardsPeak  = henyeyGreensteinPhase(cosTheta, anisotropyFactors.z);
-
+            // How to calculate scattering here ??
         }
 
-        scattering    += stepScattering * (scatteringIntegral * transmittance);
         transmittance *= stepTransmittance;
     }
-    return vec3(scattering);
+
+    scattering += scattering.x * sampleDirectIlluminance();
+    scattering += scattering.y * texture(colortex6, texCoords).rgb;
+
+    return vec4(scattering, transmittance);
 }

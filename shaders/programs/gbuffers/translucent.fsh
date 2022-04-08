@@ -57,7 +57,7 @@ void main() {
 		mat.alpha  = 0.0;
 		mat.F0 	   = 0.02;
 		mat.rough  = 0.0;
-		mat.normal = TBN * getWaveNormals(viewToWorld(viewPos));
+		mat.normal = TBN * getWaveNormals(viewToWorld(viewPos), WATER_OCTAVES);
 		
 	} else {
 		mat.normal.xy = normalTex.xy * 2.0 - 1.0;
@@ -66,7 +66,7 @@ void main() {
 
 		#if GI == 0
 			vec3 scenePos  = viewToScene(viewPos);
-			vec3 shadowmap = shadowMap(scenePos, mat.normal);
+			vec3 shadowmap = shadowMap(viewPos, mat.normal);
 
 			#if TONEMAP == 0
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);

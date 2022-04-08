@@ -27,7 +27,7 @@
     layout (location = 2) out vec3 skyIllum;
 
     #include "/include/atmospherics/atmosphere.glsl"
-    //#include "/include/atmospherics/clouds.glsl"
+    #include "/include/atmospherics/clouds.glsl"
     
     #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/ao.glsl"
@@ -41,7 +41,7 @@
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
-            shadowmap.rgb = shadowMap(viewToScene(viewPos), viewToScene(mat.normal));
+            shadowmap.rgb = shadowMap(viewPos, viewToScene(mat.normal));
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {
@@ -49,8 +49,6 @@
                 sky         = atmosphericScattering(normalize(rayDir), skyIlluminance);
             }
             skyIllum = skyIlluminance;
-
-            //sky += cloudsScattering();
         #endif
 
         shadowmap.a = 1.0;

@@ -6,18 +6,16 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#include "/include/common.glsl"
+
 #if defined STAGE_VERTEX
-
-    #include "/include/utility/math.glsl"
-    #include "/include/utility/transforms.glsl"
-
     #define attribute in
     attribute vec4 at_tangent;
     attribute vec3 mc_Entity;
 
     flat out int blockId;
     out vec2 texCoords;
-    out vec3 viewShadowPos;
+    out vec3 worldPos;
     out vec4 vertexColor;
     out mat3 TBN;
 
@@ -26,8 +24,13 @@
         vertexColor = gl_Color;
         blockId     = int((mc_Entity.x - 1000.0) + 0.25);
 
-        vec3 normal   = normalize(gl_NormalMatrix * gl_Normal);
-    	viewShadowPos = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
+        vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
+        worldPos    = vec3(0.0);
+
+        #if WATER_CAUSTICS == 1
+    	    vec3 viewShadowPos = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
+            worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz + cameraPosition;
+        #endif
 
         vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
         vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
@@ -46,7 +49,7 @@
 
     flat in int blockId;
     in vec2 texCoords;
-    in vec3 viewShadowPos;
+    in vec3 worldPos;
     in vec4 vertexColor;
     in mat3 TBN;
 
@@ -56,7 +59,7 @@
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
         // Thanks jakemichie97#7237 for the help!
         float waterCaustics(vec3 oldPos, vec3 normal) {
-	        vec3 newPos = oldPos + refract(sceneShadowDir, normal, 0.75) * 2.5;
+	        vec3 newPos = oldPos + refract(sceneShadowDir, normal, 0.75) * 3.5;
 
             float oldArea = inversesqrt(lengthSqr(dFdx(oldPos)) * lengthSqr(dFdy(oldPos)));
             float newArea =        sqrt(lengthSqr(dFdx(newPos)) * lengthSqr(dFdy(newPos)));
@@ -69,10 +72,8 @@
         if(albedoTex.a < 0.102) discard;
 
         #if WATER_CAUSTICS == 1
-            vec3 worldPos = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz + cameraPosition;
-            vec3 caustics = vec3(waterCaustics(worldPos, TBN * getWaveNormals(worldPos)));
-        
-            color0 = blockId == 1 ? vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) : albedoTex;
+            vec3 caustics = vec3(waterCaustics(worldPos, TBN * getWaveNormals(worldPos, 3)));
+            color0        = blockId == 1 ? vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) : albedoTex;
         #else
             color0 = albedoTex;
         #endif
