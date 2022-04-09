@@ -13,7 +13,7 @@ void groundFog(inout vec3 color, vec3 viewPos, float skyLight, bool sky) {
 
     float airmass     = sky ? far : length(scenePos);
           airmass    *= RAIN_FOG_DENSITY * wetness;
-    vec3 opticalDepth = (extinctionCoeff[0] + extinctionCoeff[1] + extinctionCoeff[2]) * airmass;
+    vec3 opticalDepth = (atmosExtinctionCoeff[0] + atmosExtinctionCoeff[1] + atmosExtinctionCoeff[2]) * airmass;
 
     vec3 transmittance       = exp(-opticalDepth);
     vec3 transmittedFraction = clamp01((transmittance - 1.0) / -opticalDepth);
@@ -24,8 +24,8 @@ void groundFog(inout vec3 color, vec3 viewPos, float skyLight, bool sky) {
 
     vec3 skyIlluminance = texture(colortex6, texCoords).rgb;
 
-	vec3 scattering  = scatteringCoeff * (airmass * phase)                * (sampleDirectIlluminance() * skyLight);
-	     scattering += scatteringCoeff * (airmass * vec2(isotropicPhase)) * (skyIlluminance * skyLight);
+	vec3 scattering  = atmosScatteringCoeff * (airmass * phase)                * (sampleDirectIlluminance() * skyLight);
+	     scattering += atmosScatteringCoeff * (airmass * vec2(isotropicPhase)) * (skyIlluminance * skyLight);
 	     scattering *= transmittedFraction;
 
     color = color * transmittance + scattering;
@@ -42,7 +42,7 @@ vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
     for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
         accumAirmass += getVlDensities(rayPos.y) * stepLength;
     }
-    return exp(-extinctionCoeff * accumAirmass);
+    return exp(-atmosExtinctionCoeff * accumAirmass);
 }
 
 vec3 volumetricFog(vec3 viewPos, float skyLight) {
@@ -66,13 +66,13 @@ vec3 volumetricFog(vec3 viewPos, float skyLight) {
 
     for(int i = 0; i < VL_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
         vec3 airmass      = getVlDensities(rayPos.y) * stepLength;
-        vec3 opticalDepth = extinctionCoeff * airmass;
+        vec3 opticalDepth = atmosExtinctionCoeff * airmass;
 
         vec3 stepTransmittance = exp(-opticalDepth);
         vec3 visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
 
-        vec3 stepScatteringDirect   = scatteringCoeff * vec2(airmass.xy * phase.xy) * visibleScattering;
-        vec3 stepScatteringIndirect = scatteringCoeff * vec2(airmass.xy * vec2(isotropicPhase)) * visibleScattering;
+        vec3 stepScatteringDirect   = atmosScatteringCoeff * vec2(airmass.xy * phase.xy) * visibleScattering;
+        vec3 stepScatteringIndirect = atmosScatteringCoeff * vec2(airmass.xy * vec2(isotropicPhase)) * visibleScattering;
 
         vec3 sampleColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5, 0.0);
 

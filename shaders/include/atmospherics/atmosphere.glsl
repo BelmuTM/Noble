@@ -28,7 +28,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
         accumAirmass += getDensities(length(rayPos)) * stepLength;
     }
-    return exp(-extinctionCoeff * accumAirmass);
+    return exp(-atmosExtinctionCoeff * accumAirmass);
 }
 
 #if defined STAGE_FRAGMENT
@@ -51,17 +51,17 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
             vec3 airmass          = getDensities(length(rayPos)) * stepLength;
-            vec3 stepOpticalDepth = extinctionCoeff * airmass;
+            vec3 stepOpticalDepth = atmosExtinctionCoeff * airmass;
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
             vec3 visibleScattering  = transmittance   * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
-            vec3 sunStepScattering  = scatteringCoeff * (airmass.xy * phase[0]) * visibleScattering;
-            vec3 moonStepScattering = scatteringCoeff * (airmass.xy * phase[1]) * visibleScattering;
+            vec3 sunStepScattering  = atmosScatteringCoeff * (airmass.xy * phase[0]) * visibleScattering;
+            vec3 moonStepScattering = atmosScatteringCoeff * (airmass.xy * phase[1]) * visibleScattering;
 
             sunScattering  += sunStepScattering  * atmosphereTransmittance(rayPos, sceneSunDir);
             moonScattering += moonStepScattering * atmosphereTransmittance(rayPos, sceneMoonDir);
 
-            vec3 stepScattering    = scatteringCoeff * airmass.xy;
+            vec3 stepScattering    = atmosScatteringCoeff * airmass.xy;
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
 
             vec3 multScatteringFactor = stepScatterAlbedo * 0.84;

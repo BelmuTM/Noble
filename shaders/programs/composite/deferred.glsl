@@ -49,6 +49,9 @@
                 sky         = atmosphericScattering(normalize(rayDir), skyIlluminance);
             }
             skyIllum = skyIlluminance;
+
+            vec4 clouds = cloudsScattering(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
+                 sky    = sky * clouds.w + clouds.rgb;
         #endif
 
         shadowmap.a = 1.0;

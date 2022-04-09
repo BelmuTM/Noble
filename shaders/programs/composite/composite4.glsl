@@ -50,11 +50,6 @@ void main() {
             //color = vec3(texture(colortex12, texCoords).z);
         #endif
 
-        #if WATER_CAUSTICS == 1
-            //bool canCast = isEyeInWater > 0.5 ? viewPos0.z == getViewPos1(texCoords).z : mat.blockId == 1;
-            //if(canCast) color += waterCaustics(texCoords) * 500.0 * max0(dot(mat3(gbufferModelViewInverse) * mat.normal, vec3(0.0, 1.0, 0.0)));
-        #endif
-
         //////////////////////////////////////////////////////////
         /*-------------------- REFRACTIONS ---------------------*/
         //////////////////////////////////////////////////////////

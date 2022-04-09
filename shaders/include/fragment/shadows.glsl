@@ -94,6 +94,7 @@ vec3 shadowMap(vec3 viewPos, vec3 normal) {
         // Bias method from SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
          float bias  = (2048.0 / (shadowMapResolution * MC_SHADOW_QUALITY)) + tan(acos(NdotL));
                bias *= getDistortionFactor(shadowPos.xy) * 5e-4;
+               bias = 5e-4;
 
         float penumbraSize = 1.0;
 
@@ -111,7 +112,7 @@ vec3 shadowMap(vec3 viewPos, vec3 normal) {
                 penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
         #endif
 
-        return PCF(shadowPos, bias, penumbraSize) * contactShadow(viewPos, shadowDir, 6, randF());
+        return PCF(shadowPos, bias, penumbraSize);
     #else
         return vec3(1.0);
     #endif

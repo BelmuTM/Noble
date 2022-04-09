@@ -144,6 +144,10 @@ vec2 intersectSphericalShell(vec3 rayOrigin, vec3 rayDir, float innerSphereRad, 
     return dists;
 }
 
+float remap(float x, float oldLow, float oldHigh, float newLow, float newHigh) {
+    return newLow + (x - oldLow) * (newHigh - newLow) / (oldHigh - oldLow);
+}
+
 vec2 projectSphere(vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
     float latitude  = acos(direction.y);

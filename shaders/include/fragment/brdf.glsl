@@ -212,19 +212,21 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
     V = -normalize(V);
-    vec3 diffuse = hammonDiffuse(mat.normal, V, L, mat, false);
+    vec3 diffuse  = hammonDiffuse(mat.normal, V, L, mat, false) * shadowmap.rgb;
+         diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
-        diffuse += (disneySubsurface(mat.normal, V, L, mat) * mat.albedo * mat.subsurface) * pow2(clamp01(mat.lightmap.y));
+        diffuse += (mat.albedo * disneySubsurface(mat.normal, V, L, mat) * mat.subsurface);
     #endif
+
+    diffuse *= directLight;
 
     mat.lightmap.x = pow2(quintic(0.0, 1.0, mat.lightmap.x));
     mat.lightmap.y = pow2(1.0 - pow(1.0 - clamp01(mat.lightmap.y), SKYLIGHT_FALLOFF));
 
     vec3 skyLight   = skyIlluminance * INV_PI * mat.lightmap.y;
     vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
+         diffuse   += (blockLight + skyLight) * (mat.ao * shadowmap.a);
 
-    diffuse  = directLight * diffuse * shadowmap.rgb;
-    diffuse += (blockLight + skyLight) * (mat.ao * shadowmap.a);
     return mat.albedo * diffuse;
 }

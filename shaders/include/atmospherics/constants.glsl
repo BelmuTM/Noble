@@ -16,8 +16,18 @@ const float atmosUpperRad = earthRad + 110e3; // meters
 const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // meters
 
 /* CLOUDS CONSTANTS */
-const float innerCloudRad = earthRad + CLOUDS_ALTITUDE;
+const float innerCloudRad = earthRad      + CLOUDS_ALTITUDE;
 const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
+
+const float cloudsExtinctionCoeff = 0.09;
+const float cloudsScatteringCoeff = 1.0;
+
+const float cloudsBackScatter = 0.30;
+const float cloudsPeak        = 0.15;
+
+const float cloudsExtinctionFalloff = 0.5;
+const float cloudsScatteringFalloff = 0.5;
+const float cloudsAnisotropyFalloff = 0.6;
 
 // Coefficients provided by Jessie#7257 and LVutner#5199
 
@@ -31,8 +41,8 @@ const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
     vec3 ozoneCoeff    = vec3(8.30428e-07, 1.31491e-06, 5.44068e-08);
 #endif
 
-mat2x3 scatteringCoeff = mat2x3(rayleighCoeff, mieCoeff);
-mat3x3 extinctionCoeff = mat3x3(rayleighCoeff, mieCoeff * 1.11, ozoneCoeff);
+mat2x3 atmosScatteringCoeff = mat2x3(rayleighCoeff, mieCoeff);
+mat3x3 atmosExtinctionCoeff = mat3x3(rayleighCoeff, mieCoeff * 1.11, ozoneCoeff);
 
 vec3 atmosRayPos = vec3(0.0, earthRad + eyeAltitude, 0.0);
 
