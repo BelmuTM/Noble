@@ -13,6 +13,8 @@
     Fredrik Häggström:        http://www.diva-portal.org/smash/get/diva2:1223894/FULLTEXT01.pdf
     LVutner:                  https://www.shadertoy.com/view/stScDz - LVutner#5199
     Sony Pictures Imageworks: http://magnuswrenninge.com/wp-content/uploads/2010/03/Wrenninge-OzTheGreatAndVolumetric.pdf
+
+    SixthSurge (noise generator for clouds shape): https://github.com/sixthsurge - SixthSurge#3922
 */
 
 float heightAlter(float altitude, float weatherMap) {
@@ -35,25 +37,34 @@ const float windRad = 0.785398;
 float getCloudsDensity(vec3 position) {
     if(clamp(position.y, innerCloudRad, outerCloudRad) != position.y) return 0.0;
 
-    float altitude     = (length(position) - innerCloudRad) * (1.0 / CLOUDS_THICKNESS);
+    float altitude     = (position.y - innerCloudRad) * (1.0 / CLOUDS_THICKNESS);
     vec2 windDirection = WIND_SPEED * sincos(windRad);
     position.xz       += windDirection * frameTimeCounter;
 
-    float weatherMap   = mix(0.3, 0.7, voronoise(position.xz * 2e-4, 1, 1));
+    float coverage       = clamp01(1.0 - voronoise(position.xz * 4e-4, 1, 1));
+    float globalCoverage = mix(CLOUDS_COVERAGE + coverage, 0.03, wetness);
+
+    float weatherMap = texture(shadowcolor1, position.xz * 2.5e-4).r;
+          weatherMap = clamp01(weatherMap * 2.3 - 0.7);
+
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
-    
-    float coverage       = mix(0.3, 0.7, 1.0 - voronoise(position.xz * 6e-5, 1, 1));
-    float globalCoverage = mix(CLOUDS_COVERAGE + coverage, 1.0, wetness);
 
-    float densityNoise  = voronoise(position.xz * 2e-4, 1, 1);
-          densityNoise  = mix(densityNoise, 1.0 - densityNoise, clamp01(altitude * 5.0));
-          densityNoise *= 0.35 * exp(-globalCoverage * 0.75);
+    vec4 shapeTex  = texture(depthtex2,  position.xz * 4e-4);
+    vec3 detailTex = texture(colortex13, position.xz * 3e-3).rgb;
+    vec3 curlTex   = texture(colortex14, position.xz * 4e-4).rgb;
 
-    float shapeNoise = FBM(position * 2e-3, 3);
+    detailTex.gb = mix(detailTex.gb, vec2(1.0), blueNoise.rg);
+    position    += curlTex * CLOUDS_CURL;
+
+    float shapeNoise = remap(shapeTex.r, (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125) - 1.0, 1.0, 0.0, 1.0);
           shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - globalCoverage * weatherMap, 1.0, 0.0, 1.0));
 
-    return clamp01(remap(shapeNoise, densityNoise, 1.0, 0.0, 1.0)) * densityAlter;
+    float detailNoise  = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
+          detailNoise  = mix(detailNoise, 1.0 - detailNoise, clamp01(altitude * 5.0));
+          detailNoise *= 0.35 * exp(-globalCoverage * 0.75);
+
+    return clamp01(remap(shapeNoise, detailNoise, 1.0, 0.0, 1.0)) * densityAlter;
 }
 
 float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount) {
@@ -83,8 +94,9 @@ vec4 cloudsScattering(vec3 rayDir) {
     vec3 increment   = rayDir * stepLength;
     vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * randF());
 
-    float VdotL   = dot(rayDir, sceneShadowDir);
-    const vec3 up = vec3(0.0, 1.0, 0.0);
+    float VdotL       = dot(rayDir, sceneShadowDir);
+    const vec3 up     = vec3(0.0, 1.0, 0.0);
+    float bounceLight = abs(dot(sceneShadowDir, -up)) * pow2(INV_PI);
 
     vec3 scattering = vec3(0.0); float transmittance = 1.0;
     
@@ -99,16 +111,19 @@ vec4 cloudsScattering(vec3 rayDir) {
 
         float directOpticalDepth = getCloudsOpticalDepth(rayPos, sceneShadowDir, 12);
         float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,              6);
+        float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,              3);
         vec3 anisotropyFactors   = pow(vec3(0.40, 0.35, 0.90), vec3(directOpticalDepth + 1.0));
 
-        float powder  = 1.0 - exp2(-stepOpticalDepth * 2.0);
+        float powder = 1.0 - exp2(-stepOpticalDepth * 2.0);
 
         float extinctionCoeff = cloudsExtinctionCoeff;
         float scatteringCoeff = cloudsScatteringCoeff;
         
         for(int j = 0; j <= 8; j++) {
-            scattering.x += scatteringCoeff * exp(-extinctionCoeff * directOpticalDepth) * getCloudsPhase(VdotL, anisotropyFactors) * powder;
-            scattering.y += scatteringCoeff * exp(-extinctionCoeff * skyOpticalDepth)    * isotropicPhase * powder;
+            scattering.x += scatteringCoeff * exp(-extinctionCoeff * directOpticalDepth) * getCloudsPhase(VdotL, anisotropyFactors);
+            scattering.y += scatteringCoeff * exp(-extinctionCoeff * skyOpticalDepth)    * isotropicPhase;
+            scattering.z += scatteringCoeff * exp(-extinctionCoeff * groundOpticalDepth) * bounceLight * isotropicPhase;
+            scattering   *= powder;
 
             extinctionCoeff   *= cloudsExtinctionFalloff;
             scatteringCoeff   *= cloudsScatteringFalloff;
@@ -120,10 +135,9 @@ vec4 cloudsScattering(vec3 rayDir) {
         transmittance *= stepTransmittance;
     }
 
-    vec3 directIlluminance = sampleDirectIlluminance();
-
-    scattering += scattering.x * directIlluminance;
+    scattering += scattering.x * sampleDirectIlluminance();
     scattering += scattering.y * texture(colortex6, texCoords).rgb;
+    scattering += scattering.z;
 
     return vec4(scattering, transmittance);
 }

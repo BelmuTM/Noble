@@ -23,3 +23,8 @@ float cornetteShanksPhase(float cosTheta, float g) {
 float henyeyGreensteinPhase(float cosTheta, float g) {
     return (1.0 - pow2(g)) / pow(1.0 + pow2(g) - 2.0 * g * cosTheta, 1.5);
 }
+
+// Provided by Jessie#7257
+float kleinNishinaPhase(float cosTheta, float e) {
+    return e / (2.0 * PI * (e * (1.0 - cosTheta) + 1.0) * log(2.0 * e + 1.0));
+}

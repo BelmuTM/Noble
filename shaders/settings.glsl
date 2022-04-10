@@ -156,11 +156,12 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define STARS_MAX_TEMP 50000.0
 
 #define CLOUDS_STEPS        16
-#define CLOUDS_ALTITUDE  1.8e3 // Cumulus altitude (200km - 2'000km)
-#define CLOUDS_THICKNESS 1.7e3
+#define CLOUDS_ALTITUDE  0.9e3 // Cumulus altitude (200km - 2'000km)
+#define CLOUDS_THICKNESS 1.2e3
 
 #define WIND_SPEED     60.0
 #define CLOUDS_COVERAGE 0.3
+#define CLOUDS_CURL     0.3
 
 //////////////////////////////////////////////////////////
 /*------------------------ WORLD -----------------------*/

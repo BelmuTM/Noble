@@ -157,7 +157,7 @@ float worley(vec3 uv, float frequency) {
 
 float FBM(vec2 uv, int octaves) {
     float value       = 0.0;
-    float frequency   = 0.35;
+    float frequency   = 2.0;
     float amplitude   = 1.0;
     float lacunarity  = 0.9;
     float persistance = 0.5;

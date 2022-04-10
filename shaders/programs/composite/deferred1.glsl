@@ -40,7 +40,6 @@ layout (location = 4) out vec3 moments;
                 color = mat.albedo;
                 return;
             }
-            
             frames = hideGUI == 0 ? 0.0 : frames;
         #endif
 
@@ -98,7 +97,7 @@ void main() {
             color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance);
         }
     #else
-        if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION + 1e-3)) == texCoords) {
+        if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords) {
             pathTrace(color, vec3(tempCoords, mat.depth0), direct, indirect);
 
             #if GI_TEMPORAL_ACCUMULATION == 1

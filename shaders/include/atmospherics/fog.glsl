@@ -8,6 +8,15 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
+vec3 getVlDensities(in float height) {
+    height -= VL_ALTITUDE;
+
+    vec2 rayleighMie    = exp(-height / scaleHeights);
+         rayleighMie.x *= mix(VL_DENSITY, VL_RAIN_DENSITY, wetness); // Increasing aerosols for VL to be unrealistically visible
+
+    return vec3(rayleighMie, 0.0);
+}
+
 void groundFog(inout vec3 color, vec3 viewPos, float skyLight, bool sky) {
     vec3 scenePos = viewToScene(viewPos);
 
@@ -19,7 +28,7 @@ void groundFog(inout vec3 color, vec3 viewPos, float skyLight, bool sky) {
     vec3 transmittedFraction = clamp01((transmittance - 1.0) / -opticalDepth);
 
     float VdotL    = dot(normalize(scenePos), sceneShadowDir);
-    vec2  phase    = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisotropyFactor));
+    vec2  phase    = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, atmosEnergyParam));
           skyLight = sky ? 1.0 : pow2(1.0 - pow3(1.0 - clamp01(skyLight)));
 
     vec3 skyIlluminance = texture(colortex6, texCoords).rgb;
@@ -59,7 +68,7 @@ vec3 volumetricFog(vec3 viewPos, float skyLight) {
     vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
 
     float VdotL = dot(normalize(endPos), sceneShadowDir);
-    vec2 phase  = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, anisotropyFactor));
+    vec2 phase  = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, atmosEnergyParam));
 
     vec3 directScattering = vec3(0.0), indirectScattering = vec3(0.0), transmittance = vec3(1.0);
     float stepLength = length(increment);

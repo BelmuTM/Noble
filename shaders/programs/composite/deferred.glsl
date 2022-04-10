@@ -44,14 +44,15 @@
             shadowmap.rgb = shadowMap(viewPos, viewToScene(mat.normal));
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
-            if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION + 1e-2)) == texCoords) {
-                vec3 rayDir = unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION));
-                sky         = atmosphericScattering(normalize(rayDir), skyIlluminance);
+            vec3 skyRay = normalize(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
+
+            if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION)) == texCoords) {
+                vec4 clouds = cloudsScattering(skyRay);
+
+                sky = atmosphericScattering(normalize(skyRay), skyIlluminance);
+                sky = sky * clouds.w + clouds.rgb;
             }
             skyIllum = skyIlluminance;
-
-            vec4 clouds = cloudsScattering(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
-                 sky    = sky * clouds.w + clouds.rgb;
         #endif
 
         shadowmap.a = 1.0;
