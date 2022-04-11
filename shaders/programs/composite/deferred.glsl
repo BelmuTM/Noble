@@ -20,11 +20,12 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,0,6 */
+    /* RENDERTARGETS: 3,0,6,2 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec3 sky;
     layout (location = 2) out vec3 skyIllum;
+    layout (location = 3) out vec4 clouds;
 
     #include "/include/atmospherics/atmosphere.glsl"
     #include "/include/atmospherics/clouds.glsl"
@@ -44,18 +45,13 @@
             shadowmap.rgb = shadowMap(viewPos, viewToScene(mat.normal));
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
-            vec3 skyRay = normalize(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
+            vec3 skyRay    = normalize(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
+            vec3 cloudsRay = normalize(unprojectSphere(texCoords * (1.0 / CLOUDS_RESOLUTION)));
 
-            if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION)) == texCoords) {
-                vec4 clouds = cloudsScattering(skyRay);
-
-                sky = atmosphericScattering(normalize(skyRay), skyIlluminance);
-                sky = sky * clouds.w + clouds.rgb;
-            }
+            sky      = atmosphericScattering(skyRay, skyIlluminance);
             skyIllum = skyIlluminance;
+            clouds   = cloudsScattering(cloudsRay);
         #endif
-
-        shadowmap.a = 1.0;
         
         #if AO == 1
             if(!isSky(texCoords)) {
@@ -65,6 +61,8 @@
                     shadowmap.a = computeRTAO(viewPos, mat.normal);
                 #endif
             }
+        #else
+            shadowmap.a = 1.0;
         #endif
     }
 #endif

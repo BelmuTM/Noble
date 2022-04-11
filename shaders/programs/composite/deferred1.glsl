@@ -74,7 +74,7 @@ void main() {
     vec3 viewPos0 = getViewPos0(tempCoords);
 
     if(isSky(tempCoords)) {
-        color = computeSky(viewPos0, true);
+        color = computeSky(viewPos0);
         return;
     }
 

@@ -22,14 +22,12 @@ vec3 getHitColor(vec3 hitPos) {
 }
 
 vec3 getSkyFallback(vec3 reflected, Material mat) {
-    #if TAA == 1
-        float jitter = randF();
-    #else
-        float jitter = bayer8(gl_FragCoord.xy);
-    #endif
+    vec2 coords = projectSphere(viewToScene(reflected));
+    
+    vec3 sky    = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION)).rgb;
+    vec4 clouds = texture(colortex2, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION));
 
-    vec3 sky = texture(colortex0, (projectSphere(viewToScene(reflected)) * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
-    return sky * pow2(quintic(0.0, 1.0, mat.lightmap.y));
+    return (sky * clouds.a + clouds.rgb) * pow2(quintic(0.0, 1.0, mat.lightmap.y));
 }
 
 //////////////////////////////////////////////////////////

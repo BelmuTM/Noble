@@ -19,12 +19,14 @@ const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // meters
 const float innerCloudRad = earthRad      + CLOUDS_ALTITUDE;
 const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
 
-const float cloudsExtinctionCoeff = 0.1;
+const float cloudsExtinctionCoeff = 0.5;
 const float cloudsScatteringCoeff = 1.0;
 
-const float cloudsBackScatter = 0.30;
-const float cloudsPeak        = 0.15;
-const float cloudsEnergyParam = 8.5e2;
+const float cloudsForwLobe    = 0.35;
+const float cloudsBackLobe    = 0.35;
+const float cloudsForwPeak    = 0.95;
+const float cloudsBackScatter = 0.20;
+const float cloudsPeakWeight  = 0.15;
 
 const float cloudsExtinctionFalloff = 0.5;
 const float cloudsScatteringFalloff = 0.5;
@@ -45,7 +47,7 @@ const float cloudsAnisotropyFalloff = 0.6;
 mat2x3 atmosScatteringCoeff = mat2x3(rayleighCoeff, mieCoeff);
 mat3x3 atmosExtinctionCoeff = mat3x3(rayleighCoeff, mieCoeff * 1.11, ozoneCoeff);
 
-vec3 atmosRayPos = vec3(0.0, earthRad + eyeAltitude, 0.0);
+vec3 atmosRayPos = vec3(0.0, earthRad, 0.0) + cameraPosition;
 
 const float isotropicPhase   = 0.07957747;
 const float atmosEnergyParam = 3e3;

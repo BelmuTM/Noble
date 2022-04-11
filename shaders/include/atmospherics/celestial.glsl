@@ -42,27 +42,27 @@ vec3 physicalMoon(vec3 sceneDir) {
     return sphere.y < 0.0 ? vec3(0.0) : moonMat.albedo * diffuse * sunIlluminance;
 }
 
-vec3 computeSky(vec3 viewPos, bool starfield) {
+// Thanks Niemand#1929 for the help with atmosphere upscaling
+vec2 getAtmosphereCoordinates(in vec2 coords, float scale) {
+	vec2 atmosRes = ceil(viewSize * scale);
+	     coords   = (coords * scale) + (randF() * pixelSize);
+
+	return clamp(coords, vec2(0.5 / viewSize), atmosRes / viewSize - 0.5 / viewSize);
+}
+
+vec3 computeSky(vec3 viewPos) {
 	#ifdef WORLD_OVERWORLD
-		vec3 sceneDir = normalize(viewToScene(viewPos));
+		vec3 sceneDir    = normalize(viewToScene(viewPos));
+    	vec2 coords      = projectSphere(sceneDir);
 
-    	vec2 coords     = projectSphere(sceneDir);
-    	vec3 starsColor = blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)));
+		vec3 sky    = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION)).rgb;
+		vec4 clouds = texture(colortex2, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION));
 
-    	#if TAA == 1
-        	float jitter = randF();
-    	#else
-        	float jitter = bayer8(gl_FragCoord.xy);
-    	#endif
+		sky += physicalSun(sceneDir);
+		sky += physicalMoon(sceneDir);
+		sky += (computeStarfield(viewPos) * STARS_BRIGHTNESS * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords))));
 
-		vec3 stars = vec3(0.0);
-    	if(starfield) { stars = computeStarfield(viewPos) * STARS_BRIGHTNESS * starsColor; }
-
-		vec3 sky   = texture(colortex0, (coords * ATMOSPHERE_RESOLUTION) + (jitter * pixelSize)).rgb;
-		vec3 sun   = physicalSun(sceneDir);
-		vec3 moon  = physicalMoon(sceneDir);
-
-		return sky + stars + sun + moon;
+		return sky * clouds.a + clouds.rgb;
 	#else
 		return vec3(0.0);
 	#endif

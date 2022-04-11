@@ -198,7 +198,7 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     float NdotH = NdotHSquared(shadowLightAngularRad, NdotL, NdotV, VdotL, NdotV, VdotL);
           VdotH = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
 
-    NdotV = abs(NdotV);
+    NdotV    = maxEps(NdotV);
     float D  = distributionGGX(NdotH, mat.rough);
     vec3  F  = fresnelComplex(VdotH, mat);
     float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);

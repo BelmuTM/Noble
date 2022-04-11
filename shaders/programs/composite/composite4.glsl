@@ -13,14 +13,12 @@ layout (location = 1) out vec3 fog;
 
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/reflections.glsl"
 #include "/include/fragment/shadows.glsl"
 
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/atmospherics/fog.glsl"
 
-#include "/include/fragment/pathtracer.glsl"
-
+#include "/include/fragment/reflections.glsl"
 #include "/include/fragment/water.glsl"
 #include "/include/fragment/atrous.glsl"
 

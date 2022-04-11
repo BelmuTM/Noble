@@ -8,13 +8,15 @@
 
 /* 
     SOURCES / CREDITS:
-    EA:                       https://media.contentapi.ea.com/content/dam/eacom/frostbite/files/s2016-pbs-frostbite-sky-clouds-new.pdf
-    Rurik Högfeldt:           https://odr.chalmers.se/bitstream/20.500.12380/241770/1/241770.pdf
-    Fredrik Häggström:        http://www.diva-portal.org/smash/get/diva2:1223894/FULLTEXT01.pdf
-    LVutner:                  https://www.shadertoy.com/view/stScDz - LVutner#5199
-    Sony Pictures Imageworks: http://magnuswrenninge.com/wp-content/uploads/2010/03/Wrenninge-OzTheGreatAndVolumetric.pdf
+    EA:                        https://media.contentapi.ea.com/content/dam/eacom/frostbite/files/s2016-pbs-frostbite-sky-clouds-new.pdf
+    Rurik Högfeldt:            https://odr.chalmers.se/bitstream/20.500.12380/241770/1/241770.pdf
+    Fredrik Häggström:         http://www.diva-portal.org/smash/get/diva2:1223894/FULLTEXT01.pdf
+    LVutner:                   https://www.shadertoy.com/view/stScDz - LVutner#5199
+    Sony Pictures Imageworks:  http://magnuswrenninge.com/wp-content/uploads/2010/03/Wrenninge-OzTheGreatAndVolumetric.pdf
+    Guerrilla - SIGGRAPH 2015: https://www.guerrilla-games.com/media/News/Files/The-Real-time-Volumetric-Cloudscapes-of-Horizon-Zero-Dawn.pdf
 
-    SixthSurge (noise generator for clouds shape): https://github.com/sixthsurge - SixthSurge#3922
+    SPECIAL THANKS:
+    SixthSurge (noise generator for clouds shape and help with lighting): https://github.com/sixthsurge - SixthSurge#3922
 */
 
 float heightAlter(float altitude, float weatherMap) {
@@ -27,8 +29,8 @@ float heightAlter(float altitude, float weatherMap) {
 
 float densityAlter(float altitude, float weatherMap) {
     float densityAlter  = altitude * clamp01(remap(altitude, 0.0, 0.2, 0.0, 1.0));
-          densityAlter *= weatherMap * 2.0;
           densityAlter *= clamp01(remap(altitude, 0.9, 1.0, 1.0, 0.0));
+          densityAlter *= weatherMap * 2.0;
     return densityAlter;
 }
 
@@ -40,22 +42,21 @@ float getCloudsDensity(vec3 position) {
     float altitude     = (position.y - innerCloudRad) * (1.0 / CLOUDS_THICKNESS);
     vec2 windDirection = WIND_SPEED * sincos(windRad);
     position.xz       += windDirection * frameTimeCounter;
+    position.xz       *= 3e-4;
 
-    float coverage       = clamp01(1.0 - voronoise(position.xz * 4e-4, 1, 1));
-    float globalCoverage = mix(CLOUDS_COVERAGE + coverage, 0.03, wetness);
+    float globalCoverage = mix(0.8, 1.0, wetness);
 
-    float weatherMap = texture(shadowcolor1, position.xz * 2.5e-4).r;
-          weatherMap = clamp01(weatherMap * 2.3 - 0.7);
+    vec2 weatherNoise = vec2(texture(shadowcolor1, position.xz).g, texture(shadowcolor1, position.xz).r);
+    float weatherMap  = max(weatherNoise.r, clamp01(globalCoverage - 0.5) * weatherNoise.g * 2.0);
 
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
 
-    vec4 shapeTex  = texture(depthtex2,  position.xz * 4e-4);
-    vec3 detailTex = texture(colortex13, position.xz * 3e-3).rgb;
-    vec3 curlTex   = texture(colortex14, position.xz * 4e-4).rgb;
-
-    detailTex.gb = mix(detailTex.gb, vec2(1.0), blueNoise.rg);
+    vec3 curlTex = texture(colortex14, position).rgb * 2.0 - 1.0;
     position    += curlTex * CLOUDS_CURL;
+
+    vec4 shapeTex  = texture(depthtex2,  position);
+    vec3 detailTex = texture(colortex13, position * 0.002).rgb;
 
     float shapeNoise = remap(shapeTex.r, (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125) - 1.0, 1.0, 0.0, 1.0);
           shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - globalCoverage * weatherMap, 1.0, 0.0, 1.0));
@@ -82,7 +83,7 @@ float getCloudsPhase(float cosTheta, vec3 anisotropyFactors) {
     float backwardsLobe = cornetteShanksPhase(cosTheta,-anisotropyFactors.y);
     float forwardsPeak  = cornetteShanksPhase(cosTheta, anisotropyFactors.z);
 
-    return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeak);
+    return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeakWeight);
 }
 
 vec4 cloudsScattering(vec3 rayDir) {
@@ -96,7 +97,7 @@ vec4 cloudsScattering(vec3 rayDir) {
 
     float VdotL       = dot(rayDir, sceneShadowDir);
     const vec3 up     = vec3(0.0, 1.0, 0.0);
-    float bounceLight = abs(dot(sceneShadowDir, -up)) * pow2(INV_PI);
+    float bounceLight = maxEps(dot(sceneShadowDir, -up)) * pow2(INV_PI);
 
     vec3 scattering = vec3(0.0); float transmittance = 1.0;
     
@@ -106,28 +107,26 @@ vec4 cloudsScattering(vec3 rayDir) {
         float density = getCloudsDensity(rayPos);
         if(density <= 0.0) continue;
 
-        float stepOpticalDepth     = cloudsExtinctionCoeff * density * stepLength;
-        float stepTransmittance    = exp(-stepOpticalDepth);
+        float stepOpticalDepth  = cloudsExtinctionCoeff * density * stepLength;
+        float stepTransmittance = exp(-stepOpticalDepth);
 
         float directOpticalDepth = getCloudsOpticalDepth(rayPos, sceneShadowDir, 12);
         float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,              6);
         float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,              3);
-        vec3 anisotropyFactors   = pow(vec3(0.40, 0.35, 0.90), vec3(directOpticalDepth + 1.0));
+        vec3 anisotropyFactors   = pow(vec3(cloudsForwLobe, cloudsBackLobe, cloudsForwPeak), vec3(directOpticalDepth + 1.0));
 
-        float powder = 1.0 - exp2(-stepOpticalDepth * 2.0);
+        // Beer's-Powder effect from "The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn" (see sources above)
+	    float powder    = 1.0 - exp(-2.0 * density);
+	    float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
 
-        float extinctionCoeff = cloudsExtinctionCoeff;
-        float scatteringCoeff = cloudsScatteringCoeff;
+        vec2 extinctScatterCoeffs = vec2(cloudsExtinctionCoeff, cloudsScatteringCoeff);
         
         for(int j = 0; j <= 8; j++) {
-            scattering.x += scatteringCoeff * exp(-extinctionCoeff * directOpticalDepth) * getCloudsPhase(VdotL, anisotropyFactors);
-            scattering.y += scatteringCoeff * exp(-extinctionCoeff * skyOpticalDepth)    * isotropicPhase;
-            scattering.z += scatteringCoeff * exp(-extinctionCoeff * groundOpticalDepth) * bounceLight * isotropicPhase;
-            scattering   *= powder;
+            scattering += extinctScatterCoeffs.y * exp(-extinctScatterCoeffs.x * vec3(directOpticalDepth, skyOpticalDepth, groundOpticalDepth))
+                        * vec3(getCloudsPhase(VdotL, anisotropyFactors) * powderSun, vec2(1.0, bounceLight) * vec2(isotropicPhase * powder));
 
-            extinctionCoeff   *= cloudsExtinctionFalloff;
-            scatteringCoeff   *= cloudsScatteringFalloff;
-            anisotropyFactors *= cloudsAnisotropyFalloff;
+            extinctScatterCoeffs *= vec2(cloudsExtinctionFalloff, cloudsScatteringFalloff);
+            anisotropyFactors    *= cloudsAnisotropyFalloff;
         }
         vec3 scatteringIntegral = (scattering - scattering * stepTransmittance) / maxEps(stepOpticalDepth);
 

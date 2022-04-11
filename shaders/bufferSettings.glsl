@@ -15,7 +15,7 @@ DATA BUFFER
 const int colortex1Format         = RGBA32UI;
 
 MULTIPLE THINGS
-const int colortex2Format         = RGB32F;
+const int colortex2Format         = RGBA32F;
 
 SHADOWMAP
 const int shadowcolor0Format      = RGBA16F;
