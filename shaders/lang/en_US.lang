@@ -19,6 +19,8 @@ profile.comment  = §e§lGameplay§r profile refers to Noble with default settin
 screen.LIGHTING         = Lighting
 screen.RAYTRACING       = Ray Tracing
 screen.ATMOSPHERICS     = Atmospherics
+screen.ATMOSPHERE       = Atmosphere
+screen.CLOUDS           = Clouds
 screen.WORLD            = World
 screen.WATER            = Water
 screen.CAMERA           = Camera
@@ -207,7 +209,7 @@ option.ATMOSPHERE_RESOLUTION = Atmosphere Resolution
 option.ATMOSPHERE_RESOLUTION.comment = Adjusts the §bAtmosphere§r's resolution. §cHigher value gives better results, but reduces §cperformance.
 
 option.SCATTERING_STEPS = Scattering Samples
-option.SCATTERING_STEPS.comment = Influences how accurate light scatters. This influences §bAtmospheric §bScattering§r and §bVolumetric §bLighting. §cWould preferably be higher than transmittance samples.
+option.SCATTERING_STEPS.comment = Influences how accurately light scatters. This influences §bAtmospheric §bScattering§r and §bVolumetric §bLighting. §cWould preferably be higher than transmittance samples.
 value.SCATTERING_STEPS.8  = §38
 value.SCATTERING_STEPS.12 = §212
 value.SCATTERING_STEPS.16 = §a16
@@ -215,10 +217,9 @@ value.SCATTERING_STEPS.20 = §e20
 value.SCATTERING_STEPS.24 = §624
 value.SCATTERING_STEPS.28 = §c28
 value.SCATTERING_STEPS.32 = §432
-value.SCATTERING_STEPS.36 = §536
 
 option.TRANSMITTANCE_STEPS = Transmittance Samples
-option.TRANSMITTANCE_STEPS.comment = Influences how accurate light transmits in §bAtmospheric §bScattering. §cWould preferably be lower than scattering samples.
+option.TRANSMITTANCE_STEPS.comment = Influences how accurately light transmits in §bAtmospheric §bScattering. §cWould preferably be lower than scattering samples.
 value.TRANSMITTANCE_STEPS.8  = §38
 value.TRANSMITTANCE_STEPS.12 = §212
 value.TRANSMITTANCE_STEPS.16 = §a16
@@ -226,7 +227,39 @@ value.TRANSMITTANCE_STEPS.20 = §e20
 value.TRANSMITTANCE_STEPS.24 = §624
 value.TRANSMITTANCE_STEPS.28 = §c28
 value.TRANSMITTANCE_STEPS.32 = §432
-value.TRANSMITTANCE_STEPS.36 = §536
+
+option.CLOUDS = Volumetric Clouds
+option.CLOUDS.comment = Features clouds simulated as 3D volumes.
+value.CLOUDS.0 = §cOFF
+value.CLOUDS.1 = §aON
+
+option.CLOUDS_RESOLUTION = Clouds Resolution
+option.CLOUDS_RESOLUTION.comment = Adjusts the §bClouds§r' resolution. §cHigher value gives better results, but reduces §cperformance.
+
+option.CLOUDS_SCATTERING_STEPS = Clouds Scattering Samples
+option.CLOUDS_SCATTERING_STEPS.comment = Influences how accurately light scatters inside of §bClouds§r. §cHigher value gives better results, but reduces §cperformance.
+value.CLOUDS_SCATTERING_STEPS.8  = §38
+value.CLOUDS_SCATTERING_STEPS.12 = §212
+value.CLOUDS_SCATTERING_STEPS.16 = §a16
+value.CLOUDS_SCATTERING_STEPS.20 = §e20
+value.CLOUDS_SCATTERING_STEPS.24 = §624
+value.CLOUDS_SCATTERING_STEPS.28 = §c28
+value.CLOUDS_SCATTERING_STEPS.32 = §432
+
+option.WIND_SPEED = Wind Speed
+option.WIND_SPEED.comment = Adjusts the speed which §bClouds§r are moving at.
+
+option.CLOUDS_ALTITUDE = Clouds Altitude
+option.CLOUDS_ALTITUDE.comment = Adjusts the altitude of §bClouds§r.
+
+option.CLOUDS_THICKNESS = Clouds Thickness
+option.CLOUDS_THICKNESS.comment = Adjusts the thickness of §bClouds§r.
+
+option.CLOUDS_COVERAGE = Clouds Coverage
+option.CLOUDS_COVERAGE.comment = Adjusts how much §bClouds§r cover the sky.
+
+option.CLOUDS_SWIRL = Clouds Swirliness
+option.CLOUDS_SWIRL.comment = Adjusts the swirliness of §bClouds§r.
 
 option.VL = Volumetric Lighting (VL)
 option.VL.comment = Simulates light scattering in fog.

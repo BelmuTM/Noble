@@ -139,8 +139,18 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define CELESTIAL_SIZE_MULTIPLIER 1 // [1 2 3 4]
 #define ATMOSPHERE_RESOLUTION  0.25 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define SCATTERING_STEPS         16 // [8 12 16 20 24 28 32 36]
-#define TRANSMITTANCE_STEPS       8 // [8 12 16 20 24 28 32 36]
+#define SCATTERING_STEPS         16 // [8 12 16 20 24 28 32]
+#define TRANSMITTANCE_STEPS       8 // [8 12 16 20 24 28 32]
+
+#define CLOUDS                   1 // [0 1]
+#define CLOUDS_RESOLUTION     1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define CLOUDS_SCATTERING_STEPS 16 // [8 12 16 20 24 28 32]
+
+#define CLOUDS_ALTITUDE   900.0 // [100.0 200.0 300.0 400.0 500.0 600.0 700.0 800.0 900.0 1000.0 1100.0 1200.0 1300.0 1400.0 1500.0 1600.0 1700.0 1800.0 1900.0 2000.0]
+#define CLOUDS_THICKNESS 1200.0 // [100.0 200.0 300.0 400.0 500.0 600.0 700.0 800.0 900.0 1000.0 1100.0 1200.0 1300.0 1400.0 1500.0 1600.0 1700.0 1800.0 1900.0 2000.0]
+#define CLOUDS_COVERAGE    0.80 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define CLOUDS_SWIRL       0.15 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define WIND_SPEED         60.0 // [10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0 90.0 100.0]
 
 #define VL         1 // [0 1]
 #define VL_FILTER  1 // [0 1]
@@ -154,15 +164,6 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define STARS_BRIGHTNESS   7.5
 #define STARS_MIN_TEMP  2500.0
 #define STARS_MAX_TEMP 50000.0
-
-#define CLOUDS_RESOLUTION 1.0
-
-#define CLOUDS_STEPS        16
-#define CLOUDS_ALTITUDE  0.9e3 // Cumulus altitude (200km - 2'000km)
-#define CLOUDS_THICKNESS 1.2e3
-
-#define WIND_SPEED  60.0
-#define CLOUDS_CURL 0.15
 
 //////////////////////////////////////////////////////////
 /*------------------------ WORLD -----------------------*/

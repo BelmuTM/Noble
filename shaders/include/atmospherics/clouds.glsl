@@ -41,10 +41,13 @@ float getCloudsDensity(vec3 position) {
 
     float altitude     = (position.y - innerCloudRad) * (1.0 / CLOUDS_THICKNESS);
     vec2 windDirection = WIND_SPEED * sincos(windRad);
-    position.xz       += windDirection * frameTimeCounter;
-    position.xz       *= 3e-4;
 
-    float globalCoverage = mix(0.8, 1.0, wetness);
+    #if ACCUMULATION_VELOCITY_WEIGHT == 0
+        position.xz       += windDirection * frameTimeCounter;
+    #endif
+    position.xz *= 3e-4;
+
+    float globalCoverage = mix(CLOUDS_COVERAGE, 1.0, wetness);
 
     vec2 weatherNoise = vec2(texture(shadowcolor1, position.xz).g, texture(shadowcolor1, position.xz).r);
     float weatherMap  = max(weatherNoise.r, clamp01(globalCoverage - 0.5) * weatherNoise.g * 2.0);
@@ -53,7 +56,7 @@ float getCloudsDensity(vec3 position) {
     float densityAlter = densityAlter(altitude, weatherMap);
 
     vec3 curlTex = texture(colortex14, position).rgb * 2.0 - 1.0;
-    position    += curlTex * CLOUDS_CURL;
+    position    += curlTex * CLOUDS_SWIRL;
 
     vec4 shapeTex  = texture(depthtex2,  position);
     vec3 detailTex = texture(colortex13, position * 0.002).rgb;
@@ -91,7 +94,7 @@ vec4 cloudsScattering(vec3 rayDir) {
     vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, innerCloudRad, outerCloudRad);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 0.0, 1.0);
 
-    float stepLength = (dists.y - dists.x) / float(CLOUDS_STEPS);
+    float stepLength = (dists.y - dists.x) / float(CLOUDS_SCATTERING_STEPS);
     vec3 increment   = rayDir * stepLength;
     vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * randF());
 
@@ -101,7 +104,7 @@ vec4 cloudsScattering(vec3 rayDir) {
 
     vec3 scattering = vec3(0.0); float transmittance = 1.0;
     
-    for(int i = 0; i < CLOUDS_STEPS; i++, rayPos += increment) {
+    for(int i = 0; i < CLOUDS_SCATTERING_STEPS; i++, rayPos += increment) {
         if(transmittance <= 5e-2) break;
 
         float density = getCloudsDensity(rayPos);

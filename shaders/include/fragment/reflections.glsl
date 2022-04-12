@@ -23,9 +23,12 @@ vec3 getHitColor(vec3 hitPos) {
 
 vec3 getSkyFallback(vec3 reflected, Material mat) {
     vec2 coords = projectSphere(viewToScene(reflected));
-    
     vec3 sky    = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION)).rgb;
-    vec4 clouds = texture(colortex2, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION));
+    
+	vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
+	#if CLOUDS == 1
+		clouds = texture(colortex2, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION));
+	#endif
 
     return (sky * clouds.a + clouds.rgb) * pow2(quintic(0.0, 1.0, mat.lightmap.y));
 }
