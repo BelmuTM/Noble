@@ -59,7 +59,7 @@ vec3 computeSky(vec3 viewPos) {
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if CLOUDS == 1
-			clouds = texture(colortex2, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION));
+			clouds = texture(colortex15, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION));
 		#endif
 
 		sky += physicalSun(sceneDir);

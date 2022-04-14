@@ -66,10 +66,10 @@ vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex
          prevColor = neighbourhoodClipping(currTex, prevColor);
          prevColor = YCoCgToLinear(prevColor);
 
-    float blendWeight  = float(clamp01(prevPos.xy) == prevPos.xy);
-    float lumaWeight   = getLumaWeight(currColor, prevColor);
-    float depthWeight  = exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a)) * TAA_DEPTH_WEIGHT);
-          blendWeight *= (depthWeight * lumaWeight);
+    float weight      = float(clamp01(prevPos.xy) == prevPos.xy);
+    float lumaWeight  = getLumaWeight(currColor, prevColor);
+    float depthWeight = exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a)) * TAA_DEPTH_WEIGHT);
+          weight     *= (depthWeight * lumaWeight);
 
-    return mix(currColor, prevColor, blendWeight); 
+    return mix(currColor, prevColor, weight); 
 }

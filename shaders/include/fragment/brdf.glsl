@@ -212,6 +212,7 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
     V = -normalize(V);
+
     vec3 diffuse  = hammonDiffuse(mat.normal, V, L, mat, false) * shadowmap.rgb;
          diffuse *= shadowmap.rgb;
 

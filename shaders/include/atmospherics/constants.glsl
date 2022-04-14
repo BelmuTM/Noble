@@ -18,15 +18,19 @@ const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // meters
 /* CLOUDS CONSTANTS */
 const float innerCloudRad = earthRad      + CLOUDS_ALTITUDE;
 const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
+const float windAngleRad  = 0.785398;
 
-const float cloudsExtinctionCoeff = 0.5;
-const float cloudsScatteringCoeff = 1.0;
+const int cloudsMultiScatterSteps = 6;
 
-const float cloudsForwLobe    = 0.35;
-const float cloudsBackLobe    = 0.35;
-const float cloudsForwPeak    = 0.95;
-const float cloudsBackScatter = 0.20;
-const float cloudsPeakWeight  = 0.15;
+const float cloudsExtinctionCoeff   = 0.2;
+const float cloudsScatteringCoeff   = 1.0;
+const float cloudsTransmitThreshold = 5e-2;
+
+const float cloudsForwardsLobe = 0.35;
+const float cloudsBackardsLobe = 0.35;
+const float cloudsForwardsPeak = 0.95;
+const float cloudsBackScatter  = 0.20;
+const float cloudsPeakWeight   = 0.15;
 
 const float cloudsExtinctionFalloff = 0.5;
 const float cloudsScatteringFalloff = 0.5;

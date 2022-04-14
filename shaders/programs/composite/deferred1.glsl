@@ -34,7 +34,7 @@ layout (location = 4) out vec3 moments;
 
         float depthWeight = 1.0;
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            depthWeight = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a))), DEPTH_WEIGHT_SIGMA);
+            depthWeight = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a))), 2.0);
         #else
             if(hideGUI == 0) {
                 color = mat.albedo;
@@ -43,10 +43,10 @@ layout (location = 4) out vec3 moments;
             frames = hideGUI == 0 ? 0.0 : frames;
         #endif
 
-              frames      = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
-        float blendWeight = clamp01(1.0 - (1.0 / max(frames, 1.0)));
+              frames = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+        float weight = clamp01(1.0 - (1.0 / max(frames, 1.0)));
 
-        color           = mix(color, prevColor.rgb, blendWeight);
+        color           = mix(color, prevColor.rgb, weight);
         float luminance = luminance(color);
 
         moments.z = 0.0;
@@ -54,14 +54,14 @@ layout (location = 4) out vec3 moments;
         // Thanks SixthSurge#3922 for the help with moments
         vec2 prevMoments = texture(colortex12, prevPos.xy).xy;
         vec2 currMoments = vec2(luminance, luminance * luminance);
-             moments.xy  = mix(currMoments, prevMoments, blendWeight);
+             moments.xy  = mix(currMoments, prevMoments, weight);
              moments.z   = moments.y - moments.x * moments.x;
 
         vec3 prevColorDirect   = texture(colortex10, prevPos.xy).rgb;
         vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
 
-        direct   = max0(mix(direct,   prevColorDirect,   blendWeight));
-        indirect = max0(mix(indirect, prevColorIndirect, blendWeight));
+        direct   = max0(mix(direct,   prevColorDirect,   weight));
+        indirect = max0(mix(indirect, prevColorIndirect, weight));
     }
 #endif
 

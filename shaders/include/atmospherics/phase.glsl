@@ -21,7 +21,7 @@ float cornetteShanksPhase(float cosTheta, float g) {
 }
 
 float henyeyGreensteinPhase(float cosTheta, float g) {
-    return (1.0 - pow2(g)) / pow(1.0 + pow2(g) - 2.0 * g * cosTheta, 1.5);
+    return (1.0 - pow2(g)) / pow(1.0 + pow2(g) - 2.0 * g * cosTheta, 1.5) / (2.0 * TAU);
 }
 
 // Provided by Jessie#7257

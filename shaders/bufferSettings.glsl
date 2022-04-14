@@ -15,7 +15,7 @@ DATA BUFFER
 const int colortex1Format         = RGBA32UI;
 
 MULTIPLE THINGS
-const int colortex2Format         = RGBA32F;
+const int colortex2Format         = RGB32F;
 
 SHADOWMAP
 const int shadowcolor0Format      = RGBA16F;
@@ -48,4 +48,8 @@ const bool colortex11Clear        = false;
 MOMENTS BUFFER
 const int colortex12Format        = RGB32F;
 const bool colortex12Clear        = false;
+
+CLOUDS BUFFER
+const int colortex15Format        = RGBA32F;
+const bool colortex15Clear        = false;
 */

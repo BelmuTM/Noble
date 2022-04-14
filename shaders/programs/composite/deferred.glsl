@@ -20,12 +20,13 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,0,6,2 */
+    /* RENDERTARGETS: 3,0,6,15,2 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec3 sky;
     layout (location = 2) out vec3 skyIllum;
     layout (location = 3) out vec4 clouds;
+    layout (location = 4) out vec3 cloudsShadowmap;
 
     #include "/include/atmospherics/atmosphere.glsl"
     #include "/include/atmospherics/clouds.glsl"
@@ -33,6 +34,7 @@
     #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/ao.glsl"
     #include "/include/fragment/shadows.glsl"
+    #include "/include/post/taa.glsl"
 
     in vec3 skyIlluminance;
 
@@ -50,8 +52,25 @@
                  skyIllum = skyIlluminance;
 
             #if CLOUDS == 1
-                vec3 cloudsRay = normalize(unprojectSphere(texCoords * (1.0 / CLOUDS_RESOLUTION)));
-                     clouds    = cloudsScattering(cloudsRay);
+                vec2 cloudsCoords = texCoords * (1.0 / CLOUDS_RESOLUTION);
+
+                if(clamp01(cloudsCoords) == cloudsCoords) {
+                    vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
+                         clouds    = cloudsScattering(cloudsRay);
+
+                    vec3 prevPos    = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r));
+                    vec4 prevClouds = texture(colortex15, prevPos.xy);
+
+                    float weight = float(clamp01(prevPos.xy) == prevPos.xy);
+
+                    vec2  velocity       = abs(texCoords - prevPos.xy) * viewSize;
+                    float velocityWeight = exp(-length(velocity)) * 0.4 + 0.4;
+
+                    weight *= clamp01(velocity) == velocity ? velocityWeight : 0.0;
+                    clouds  = mix(clouds, prevClouds, weight);
+                }
+
+                cloudsShadowmap = vec3(cloudsShadows(texCoords, sceneShadowDir, 8));
             #endif
         #endif
         
