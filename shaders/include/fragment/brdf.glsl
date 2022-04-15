@@ -211,9 +211,12 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 // https://github.com/Jessie-LC
 
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
+    //vec3 shadowPos      = (transMAD(shadowModelView, viewToScene(V)) / cloudsShadowmapDist) * 0.5 + 0.5;
+    //float cloudsShadows = texture(colortex2, shadowPos.xy / cloudsShadowmapRes).r;
+
     V = -normalize(V);
 
-    vec3 diffuse  = hammonDiffuse(mat.normal, V, L, mat, false) * shadowmap.rgb;
+    vec3 diffuse  = hammonDiffuse(mat.normal, V, L, mat, false);
          diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1

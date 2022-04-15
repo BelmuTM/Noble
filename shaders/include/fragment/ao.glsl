@@ -35,7 +35,7 @@
 		float occlusion = 0.0; vec3 hitPos;
 
 		for(int i = 0; i < RTAO_SAMPLES; i++) {
-			vec2 noise 	   = TAA == 1 ? uniformAnimatedNoise(blueNoise.xy) : uniformNoise(i, blueNoise);
+			vec2 noise 	   = TAA == 1 ? uniformAnimatedNoise(blueNoise.rg) : uniformNoise(i, blueNoise);
 			vec3 sampleDir = generateCosineVector(normal, noise);
 
 			if(dot(normal, sampleDir) < 0.0) { sampleDir = -sampleDir; }

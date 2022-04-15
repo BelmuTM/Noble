@@ -62,7 +62,7 @@ float getDepthWeight(float depth, float sampleDepth, vec2 dgrad, vec2 offset) {
 }
 
 float getLuminanceWeight(float luminance, float sampleLuminance, float luminancePhi) {
-    return max0(exp(-abs(luminance - sampleLuminance) * luminancePhi));
+    return exp(-abs(luminance - sampleLuminance) * luminancePhi);
 }
 
 void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 moments, int passIndex) {

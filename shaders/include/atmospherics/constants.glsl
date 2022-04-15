@@ -22,19 +22,22 @@ const float windAngleRad  = 0.785398;
 
 const int cloudsMultiScatterSteps = 6;
 
-const float cloudsExtinctionCoeff   = 0.2;
+const float cloudsExtinctionCoeff   = 0.1;
 const float cloudsScatteringCoeff   = 1.0;
 const float cloudsTransmitThreshold = 5e-2;
 
-const float cloudsForwardsLobe = 0.35;
+const float cloudsForwardsLobe = 0.40;
 const float cloudsBackardsLobe = 0.35;
-const float cloudsForwardsPeak = 0.95;
+const float cloudsForwardsPeak = 0.90;
 const float cloudsBackScatter  = 0.20;
 const float cloudsPeakWeight   = 0.15;
 
 const float cloudsExtinctionFalloff = 0.5;
 const float cloudsScatteringFalloff = 0.5;
 const float cloudsAnisotropyFalloff = 0.6;
+
+const float cloudsShadowmapRes  = 1024.0;
+const float cloudsShadowmapDist = 600.0;
 
 // Coefficients provided by Jessie#7257 and LVutner#5199
 

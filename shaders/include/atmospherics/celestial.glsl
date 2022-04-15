@@ -42,14 +42,6 @@ vec3 physicalMoon(vec3 sceneDir) {
     return sphere.y < 0.0 ? vec3(0.0) : moonMat.albedo * diffuse * sunIlluminance;
 }
 
-// Thanks Niemand#1929 for the help with atmosphere upscaling
-vec2 getAtmosphereCoordinates(in vec2 coords, float scale) {
-	vec2 atmosRes = ceil(viewSize * scale);
-	     coords   = (coords * scale) + (randF() * pixelSize);
-
-	return clamp(coords, vec2(0.5 / viewSize), atmosRes / viewSize - 0.5 / viewSize);
-}
-
 vec3 computeSky(vec3 viewPos) {
 	#ifdef WORLD_OVERWORLD
 		vec3 sceneDir    = normalize(viewToScene(viewPos));

@@ -61,7 +61,7 @@
                     vec3 prevPos    = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r));
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
-                    float weight = float(clamp01(prevPos.xy) == prevPos.xy);
+                    float weight = float(getAtmosphereCoordinates(prevPos.xy, CLOUDS_RESOLUTION) == prevPos.xy);
 
                     vec2  velocity       = abs(texCoords - prevPos.xy) * viewSize;
                     float velocityWeight = exp(-length(velocity)) * 0.4 + 0.4;
@@ -70,7 +70,7 @@
                     clouds  = mix(clouds, prevClouds, weight);
                 }
 
-                cloudsShadowmap = vec3(cloudsShadows(texCoords, sceneShadowDir, 8));
+                //cloudsShadowmap = vec3(cloudsShadows(texCoords, sceneShadowDir, 8));
             #endif
         #endif
         

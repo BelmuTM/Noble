@@ -160,6 +160,16 @@ vec3 unprojectSphere(vec2 coord) {
     return vec3(sincos(coord.x * TAU) * sin(latitude), cos(latitude)).xzy;
 }
 
+#if defined STAGE_FRAGMENT
+    // Thanks Niemand#1929 for the help with atmosphere upscaling
+    vec2 getAtmosphereCoordinates(in vec2 coords, float scale) {
+	    vec2 atmosRes = ceil(viewSize * scale);
+	         coords   = (coords * scale) + (randF() * pixelSize);
+
+	    return clamp(coords, vec2(0.5 / viewSize), atmosRes / viewSize - 0.5 / viewSize);
+    }
+#endif
+
 vec3 generateUnitVector(vec2 xy) {
     xy.x *= TAU; xy.y = 2.0 * xy.y - 1.0;
     return vec3(sincos(xy.x) * sqrt(1.0 - xy.y * xy.y), xy.y);
@@ -271,7 +281,5 @@ vec4 textureBicubic(sampler2D tex, vec2 texCoords) {
     float sx = s.x / (s.x + s.y);
     float sy = s.z / (s.z + s.w);
  
-    return mix(
-       mix(sample3, sample2, sx), mix(sample1, sample0, sx)
-    , sy);
+    return mix(mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
 }

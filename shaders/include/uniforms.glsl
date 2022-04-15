@@ -73,7 +73,7 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
-const int noiseRes = 128;
+const int noiseRes = 256;
 const float airIOR = 1.00029;
 
 // Maximum values for X amount of bits (2^x - 1)
