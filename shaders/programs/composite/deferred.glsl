@@ -58,6 +58,7 @@
                     vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
                          clouds    = cloudsScattering(cloudsRay);
 
+                    /* Accumulation */
                     vec3 prevPos    = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r));
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
@@ -68,6 +69,15 @@
 
                     weight *= clamp01(velocity) == velocity ? velocityWeight : 0.0;
                     clouds  = mix(clouds, prevClouds, weight);
+
+                    /* Aerial Perspective */
+                    const float cloudsMiddle = CLOUDS_ALTITUDE + (CLOUDS_THICKNESS * 0.5);
+                    vec2 dists               = intersectSphere(atmosRayPos, cloudsRay, earthRad + cloudsMiddle);
+
+                    if(dists.y >= 0.0) { 
+                        float distToCloud = cameraPosition.y >= cloudsMiddle ? dists.x : dists.y;
+                        clouds            = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-5e-5 * distToCloud));
+                    }
                 }
 
                 //cloudsShadowmap = vec3(cloudsShadows(texCoords, sceneShadowDir, 8));
