@@ -75,7 +75,7 @@ float getCloudsDensity(vec3 position0) {
 }
 
 float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount) {
-    float stepLength = 25.0, opticalDepth = 0.0;
+    float stepLength = 23.0, opticalDepth = 0.0;
 
     for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength) {
         opticalDepth += getCloudsDensity(rayPos) * stepLength;
@@ -121,7 +121,7 @@ vec4 cloudsScattering(vec3 rayDir) {
         float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,              3);
 
         // Beer's-Powder effect from "The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn" (see sources above)
-	    float powder    = (1.0 - exp(-8.2 * density));
+	    float powder    = (1.0 - exp(-8.0 * density));
 	    float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
 
         vec3 anisotropyFactors = pow(vec3(cloudsForwardsLobe, cloudsBackardsLobe, cloudsForwardsPeak), vec3(directOpticalDepth + 1.0));

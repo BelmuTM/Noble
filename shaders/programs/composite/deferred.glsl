@@ -51,6 +51,7 @@
                  sky      = atmosphericScattering(skyRay, skyIlluminance);
                  skyIllum = skyIlluminance;
 
+            /*    ------- VOLUMETRIC CLOUDS -------    */
             #if CLOUDS == 1
                 vec2 cloudsCoords = texCoords * (1.0 / CLOUDS_RESOLUTION);
 
