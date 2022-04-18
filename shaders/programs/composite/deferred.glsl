@@ -59,7 +59,7 @@
                     vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
                          clouds    = cloudsScattering(cloudsRay);
 
-                    /* Accumulation */
+                    /*
                     vec3 prevPos    = reprojection(vec3(texCoords, texture(depthtex0, texCoords).r));
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
@@ -70,6 +70,7 @@
 
                     weight *= clamp01(velocity) == velocity ? velocityWeight : 0.0;
                     clouds  = mix(clouds, prevClouds, weight);
+                    */
 
                     /* Aerial Perspective */
                     const float cloudsMiddle = CLOUDS_ALTITUDE + (CLOUDS_THICKNESS * 0.5);
