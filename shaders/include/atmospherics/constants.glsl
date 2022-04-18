@@ -20,9 +20,9 @@ const float innerCloudRad = earthRad      + CLOUDS_ALTITUDE;
 const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
 const float windAngleRad  = 0.785398;
 
-const int cloudsMultiScatterSteps = 6;
+const int cloudsMultiScatterSteps = 5;
 
-const float cloudsExtinctionCoeff   = 1.0;
+const float cloudsExtinctionCoeff   = 0.5;
 const float cloudsScatteringCoeff   = 1.0;
 const float cloudsTransmitThreshold = 5e-2;
 

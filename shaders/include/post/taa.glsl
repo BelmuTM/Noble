@@ -53,7 +53,7 @@ vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
 }
 
 float getLumaWeight(vec3 currColor, vec3 prevColor) {
-    float currLuma   = luminance(currColor), prevLuma = luminance(prevColor);
+    float currLuma   = currColor.r, prevLuma = prevColor.r;
     float lumaWeight = exp(-abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN)));
 	return mix(TAA_FEEDBACK_MIN, TAA_FEEDBACK_MAX, pow2(lumaWeight));
 }
@@ -63,15 +63,19 @@ float getLumaWeight(vec3 currColor, vec3 prevColor) {
 vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex) {
     vec3 prevPos = reprojection(vec3(texCoords, currMat.depth0));
 
-    vec3 currColor = texelFetch(currTex, ivec2(gl_FragCoord.xy), 0).rgb;
+    vec3 currColor = linearToYCoCg(texelFetch(currTex, ivec2(gl_FragCoord.xy), 0).rgb);
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
          prevColor = neighbourhoodClipping(currTex, prevColor);
-         prevColor = YCoCgToLinear(prevColor);
 
     float weight      = float(clamp01(prevPos.xy) == prevPos.xy);
-    float lumaWeight  = getLumaWeight(currColor, prevColor);
     float depthWeight = exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a)) * TAA_DEPTH_WEIGHT);
-          weight     *= (depthWeight * lumaWeight);
+    //float lumaWeight  = getLumaWeight(currColor, prevColor);
 
-    return mix(currColor, prevColor, weight); 
+    // Offcenter rejection from Zombye#7365
+    vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);
+    float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
+
+    weight *= TAA_STRENGTH * centerWeight * depthWeight;
+
+    return YCoCgToLinear(mix(currColor, prevColor, weight)); 
 }
