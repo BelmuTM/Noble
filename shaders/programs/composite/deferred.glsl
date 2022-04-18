@@ -80,8 +80,6 @@
                         clouds            = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-5e-5 * distToCloud));
                     }
                 }
-
-                //cloudsShadowmap = vec3(cloudsShadows(texCoords, sceneShadowDir, 8));
             #endif
         #endif
         
