@@ -22,7 +22,7 @@ const float windAngleRad  = 0.785398;
 
 const int cloudsMultiScatterSteps = 5;
 
-const float cloudsExtinctionCoeff   = 0.5;
+const float cloudsExtinctionCoeff   = 0.1;
 const float cloudsScatteringCoeff   = 1.0;
 const float cloudsTransmitThreshold = 5e-2;
 
