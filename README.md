@@ -3,31 +3,22 @@
 [![Twitter](https://img.shields.io/twitter/follow/Belmu_?color=dark&label=Follow&logoColor=dark)](https://twitter.com/Belmu_)
 [![GPLv3 License](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
 
-# Noble RT <img src="https://i.imgur.com/M8UicM6.png" data-canonical-src="https://i.imgur.com/M8UicM6.png" width="40" height="40" />
-Noble RT is a Minecraft shaderpack that enhances one's experience with the help of good-looking graphics and light simulations.
-It offers a handful of customizable options to tweak according to your desires. **Most versions should properly work as long as Optifine is being used.**
+<img src="https://i.imgur.com/dbuzdrx.png" data-canonical-src="https://i.imgur.com/dbuzdrx.png" width="120" height="120" />
 
-## Install
-### Releases
+# NobleRT
+Noble is a Minecraft shaderpack that enhances one's experience with the help of good-looking graphics and light simulations.
+It offers a handful of customizable options to tweak according to your desires. 
+**VERSIONS ABOVE 1.16 ARE HIGHLY RECOMMENDED.**
+
+## Releases
 The project is in constant evolution. Therefore, you can expect some issues to be fixed,
 some features to be added, and some problems to appear. However, it will remain free and
-open source forever, as I don't want to monetize my learning of GLSL. Beta versions are most
+open source forever, as I don't want to monetize my learning of GLSL. Exclusive versions are most
 likely to be exclusive to Patreon supporters or close friends, but they will always end up
 being accessible to public no matter what.
 
-### Tutorial
-   1. Join the Discord server. ([Click me!](https://discord.gg/jjRrhpkH9e))
-   2. Click the *#releases* channel.
-   3. Download the desired release.
-   5. Drag it in your "shaderpacks" folder.
-      * Hold Windows + R.
-      * Type %appdata% in the window.
-      * Drag the shaderpack in */Roaming/.minecraft/shaderpacks/*
-   6. Enjoy!
-
-
 ## License
-Noble RT is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
+NobleRT is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
 
 ## Contact 
    * **Discord:** Belmu#4066
@@ -37,11 +28,10 @@ Noble RT is licensed under the GPL v3.0 License. Please consider reading the ter
 > Thanks to the beta testers who helped me fix and deal with multiple issues.
 
 Please consider contacting me if needed.
-**Thanks for supporting this project!**
+**Thanks for your attention!**
 
-![Showcase 01](https://i.imgur.com/lblFpwb.png)
-![Showcase 02](https://i.imgur.com/9I02Via.jpg)
-![Showcase 03](https://i.imgur.com/QZEGWfS.jpg)
-![Showcase 04](https://i.imgur.com/EJrWx4G.jpg)
-![Showcase 05](https://i.imgur.com/yPHi9G8.jpg)
-![Showcase 06](https://i.imgur.com/fyZtIUL.jpg)
+![Showcase 01](https://i.imgur.com/WrCvyig.png)
+![Showcase 02](https://i.imgur.com/Y3izQE8.png)
+![Showcase 03](https://i.imgur.com/ombPCXS.png)
+![Showcase 04](https://i.imgur.com/yAKdEFO.png)
+![Showcase 05](https://i.imgur.com/y4InXVI.png)
