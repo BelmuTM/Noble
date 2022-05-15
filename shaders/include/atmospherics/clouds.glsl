@@ -99,7 +99,7 @@ vec4 cloudsScattering(vec3 rayDir) {
 
     float stepLength = (dists.y - dists.x) / float(CLOUDS_SCATTERING_STEPS);
     vec3 increment   = rayDir * stepLength;
-    vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * uniformAnimatedNoise(blueNoise.rg).r);
+    vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * uniformNoise(1, blueNoise).x);
 
     float VdotL       = dot(rayDir, sceneShadowDir);
     const vec3 up     = vec3(0.0, 1.0, 0.0);
@@ -116,9 +116,9 @@ vec4 cloudsScattering(vec3 rayDir) {
         float stepOpticalDepth  = cloudsExtinctionCoeff * density * stepLength;
         float stepTransmittance = exp(-stepOpticalDepth);
 
-        float directOpticalDepth = getCloudsOpticalDepth(rayPos, sceneShadowDir, 12);
-        float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,              6);
-        float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,              3);
+        float directOpticalDepth = getCloudsOpticalDepth(rayPos, sceneShadowDir, 8);
+        float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,             6);
+        float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,             3);
 
         // Beer's-Powder effect from "The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn" (see sources above)
 	    float powder    = (1.0 - exp(-8.0 * density));
@@ -143,6 +143,8 @@ vec4 cloudsScattering(vec3 rayDir) {
         scattering    += (stepScattering * scatteringIntegral * transmittance);
         transmittance *= stepTransmittance;
     }
+    transmittance = clamp01((transmittance - cloudsTransmitThreshold) / (1.0 - cloudsTransmitThreshold));
+
     scattering += scattering.x * sampleDirectIlluminance();
     scattering += scattering.y * texture(colortex6, texCoords).rgb;
     scattering += scattering.z;

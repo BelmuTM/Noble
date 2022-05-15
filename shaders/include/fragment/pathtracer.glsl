@@ -71,7 +71,7 @@
 
                 /* Russian Roulette */
                 if(j > ROULETTE_MIN_BOUNCES) {
-                    float roulette = clamp01(maxOf3(throughput));
+                    float roulette = clamp01(maxOf(throughput));
                     if(roulette < randF()) { throughput = vec3(0.0); break; }
                     throughput /= roulette;
                 }

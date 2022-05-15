@@ -17,7 +17,7 @@ void binarySearch(inout vec3 rayPos, vec3 rayDir) {
 bool raytrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec3 rayPos) {
     rayPos  = viewToScreen(viewPos);
     rayDir  = normalize(viewToScreen(viewPos + rayDir) - rayPos);
-    rayDir *= minOf3((sign(rayDir) - rayPos) / rayDir) * (1.0 / stepCount); // Taken from the DDA algorithm
+    rayDir *= minOf((sign(rayDir) - rayPos) / rayDir) * (1.0 / stepCount); // Taken from the DDA algorithm
 
     bool intersect = false;
 

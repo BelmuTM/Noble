@@ -156,7 +156,7 @@ vec3 xyYToXYZ(vec3 xyY) {
 }
 
 float rgbToSaturation(vec3 rgb) {
-    return (max(maxOf3(rgb), ACES_EPS) - max(minOf3(rgb), ACES_EPS)) / max(maxOf3(rgb), 1e-2);
+    return (max(maxOf(rgb), ACES_EPS) - max(minOf(rgb), ACES_EPS)) / max(maxOf(rgb), 1e-2);
 }
 
 float rgbToHue(vec3 rgb) {

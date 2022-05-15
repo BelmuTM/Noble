@@ -9,7 +9,7 @@
 // Kneemund's Border Attenuation
 float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
     pos *= 1.0 - pos;
-    return 1.0 - quintic(edgeFactor, 0.0, minOf2(pos));
+    return 1.0 - quintic(edgeFactor, 0.0, minOf(pos));
 }
 
 vec3 getHitColor(vec3 hitPos) {

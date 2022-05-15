@@ -56,13 +56,13 @@ vec2  log10(vec2 x)  { return log(x) / log(vec2(10.0)); }
 vec3  log10(vec3 x)  { return log(x) / log(vec3(10.0)); }
 vec4  log10(vec4 x)  { return log(x) / log(vec4(10.0)); }
 
-float minOf2(vec2 x) { return min(x.x, x.y);                     }
-float minOf3(vec3 x) { return min(x.x, min(x.y, x.z));           }
-float minOf4(vec4 x) { return min(min(x.x, x.y), min(x.z, x.w)); }
+float minOf(vec2 x) { return min(x.x, x.y);                     }
+float minOf(vec3 x) { return min(x.x, min(x.y, x.z));           }
+float minOf(vec4 x) { return min(min(x.x, x.y), min(x.z, x.w)); }
 
-float maxOf2(vec2 x) { return max(x.x, x.y);                     }
-float maxOf3(vec3 x) { return max(x.x, max(x.y, x.z));           }
-float maxOf4(vec4 x) { return max(max(x.x, x.y), max(x.z, x.w)); }
+float maxOf(vec2 x) { return max(x.x, x.y);                     }
+float maxOf(vec3 x) { return max(x.x, max(x.y, x.z));           }
+float maxOf(vec4 x) { return max(max(x.x, x.y), max(x.z, x.w)); }
 
 // Improved smoothstep function suggested by Ken Perlin
 // https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/improved-perlin-noise

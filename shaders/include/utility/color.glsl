@@ -230,8 +230,8 @@ void whiteBalance(inout vec3 color) {
 }
 
 void vibrance(inout vec3 color, float intensity) {
-    float mn       = minOf3(color);
-    float mx       = maxOf3(color);
+    float mn       = minOf(color);
+    float mx       = maxOf(color);
     float sat      = (1.0 - clamp01(mx - mn)) * clamp01(1.0 - mx) * luminance(color) * 5.0;
     vec3 lightness = vec3((mn + mx) * 0.5);
 

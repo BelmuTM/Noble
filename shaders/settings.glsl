@@ -205,9 +205,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 /*----------------------- CAMERA -----------------------*/
 //////////////////////////////////////////////////////////
 
-#define TAA                      1 // [0 1]
-#define NEIGHBORHOOD_SIZE        1
-#define NEIGHBORHOOD_SIZE_CLOUDS 3
+#define TAA               1 // [0 1]
+#define NEIGHBORHOOD_SIZE 1
 
 #define TAA_STRENGTH     0.975
 #define TAA_LUMA_MIN     0.15
