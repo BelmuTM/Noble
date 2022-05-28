@@ -72,8 +72,8 @@
         if(albedoTex.a < 0.102) discard;
 
         #if WATER_CAUSTICS == 1
-            vec3 caustics = vec3(waterCaustics(worldPos, TBN * getWaveNormals(worldPos, 3)));
-            color0        = blockId == 1 ? vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) : albedoTex;
+            vec3 caustics = vec3(waterCaustics(worldPos, TBN * getWaveNormals(worldPos, 2)));
+            color0        = albedoTex + (vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) * float(blockId == 1));
         #else
             color0 = albedoTex;
         #endif
