@@ -26,8 +26,8 @@ const float cloudsExtinctionCoeff   = 0.1;
 const float cloudsScatteringCoeff   = 1.0;
 const float cloudsTransmitThreshold = 5e-2;
 
-const float cloudsForwardsLobe = 0.40;
-const float cloudsBackardsLobe = 0.35;
+const float cloudsForwardsLobe = 0.45;
+const float cloudsBackardsLobe = 0.45;
 const float cloudsForwardsPeak = 0.90;
 const float cloudsBackScatter  = 0.20;
 const float cloudsPeakWeight   = 0.15;

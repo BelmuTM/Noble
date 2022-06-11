@@ -50,6 +50,6 @@ const int colortex12Format        = RGB32F;
 const bool colortex12Clear        = false;
 
 CLOUDS BUFFER
-const int colortex15Format        = RGBA32F;
+const int colortex15Format        = RGBA16F;
 const bool colortex15Clear        = false;
 */

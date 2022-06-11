@@ -35,8 +35,6 @@ float densityAlter(float altitude, float weatherMap) {
 }
 
 float getCloudsDensity(vec3 position0) {
-    if(clamp(position0.y, innerCloudRad, outerCloudRad) != position0.y) return 0.0;
-
     float altitude     = (position0.y - innerCloudRad) * (1.0 / CLOUDS_THICKNESS);
     vec2 windDirection = WIND_SPEED * sincos(windAngleRad);
 
@@ -78,7 +76,12 @@ float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount) {
     float stepLength = 23.0, opticalDepth = 0.0;
 
     for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength) {
-        opticalDepth += getCloudsDensity(rayPos) * stepLength;
+        if(clamp(rayPos.y, innerCloudRad, outerCloudRad) != rayPos.y) continue;
+
+        float density = getCloudsDensity(rayPos);
+        if(density <= 0.0) continue;
+
+        opticalDepth += density * stepLength;
         stepLength   *= 1.5;
     }
     return opticalDepth;
@@ -99,11 +102,11 @@ vec4 cloudsScattering(vec3 rayDir) {
 
     float stepLength = (dists.y - dists.x) / float(CLOUDS_SCATTERING_STEPS);
     vec3 increment   = rayDir * stepLength;
-    vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * uniformNoise(1, blueNoise).x);
+    vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * randF());
 
     float VdotL       = dot(rayDir, sceneShadowDir);
     const vec3 up     = vec3(0.0, 1.0, 0.0);
-    float bounceLight = maxEps(dot(sceneShadowDir, -up)) * pow2(INV_PI);
+    float bounceLight = maxEps(dot(rayDir, -up)) * pow2(INV_PI);
 
     vec3 scattering = vec3(0.0); float transmittance = 1.0;
     
@@ -121,8 +124,9 @@ vec4 cloudsScattering(vec3 rayDir) {
         float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,             3);
 
         // Beer's-Powder effect from "The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn" (see sources above)
-	    float powder    = (1.0 - exp(-8.0 * density));
+	    float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
 	    float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
+        float powderSky = mix(powder, 1.0, dot(rayDir, up) * 0.5 + 0.5);
 
         vec3 anisotropyFactors = pow(vec3(cloudsForwardsLobe, cloudsBackardsLobe, cloudsForwardsPeak), vec3(directOpticalDepth + 1.0));
         float extinctionCoeff  = cloudsExtinctionCoeff;
@@ -132,7 +136,9 @@ vec4 cloudsScattering(vec3 rayDir) {
         
         for(int j = 0; j <= cloudsMultiScatterSteps; j++) {
             stepScattering += scatteringCoeff * exp(-extinctionCoeff * vec3(directOpticalDepth, skyOpticalDepth, groundOpticalDepth))
-                            * vec3(getCloudsPhase(VdotL, anisotropyFactors) * powderSun, vec2(1.0, bounceLight) * isotropicPhase * powder);
+                            * vec3(getCloudsPhase(VdotL, anisotropyFactors) * powderSun, 
+                                    isotropicPhase * powderSky,
+                                    bounceLight * isotropicPhase * powder);
 
             extinctionCoeff   *= cloudsExtinctionFalloff;
             scatteringCoeff   *= cloudsScatteringFalloff;
