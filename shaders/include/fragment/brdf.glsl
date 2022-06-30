@@ -211,26 +211,24 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 // https://github.com/Jessie-LC
 
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
-    //vec3 shadowPos      = (transMAD(shadowModelView, viewToScene(V)) / cloudsShadowmapDist) * 0.5 + 0.5;
-    //float cloudsShadows = texture(colortex2, shadowPos.xy / cloudsShadowmapRes).r;
-
     V = -normalize(V);
 
     vec3 diffuse  = hammonDiffuse(mat.normal, V, L, mat, false);
          diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
-        diffuse += (mat.albedo * disneySubsurface(mat.normal, V, L, mat) * mat.subsurface);
+        //diffuse += (mat.albedo * disneySubsurface(mat.normal, V, L, mat) * mat.subsurface);
     #endif
 
     diffuse *= directLight;
 
-    mat.lightmap.x = pow2(quintic(0.0, 1.0, mat.lightmap.x));
+    mat.lightmap.x = pow(quintic(0.0, 1.0, mat.lightmap.x), 1.5);
     mat.lightmap.y = pow2(1.0 - pow(1.0 - clamp01(mat.lightmap.y), SKYLIGHT_FALLOFF));
 
     vec3 skyLight   = skyIlluminance * INV_PI * mat.lightmap.y;
     vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
          diffuse   += (blockLight + skyLight) * (mat.ao * shadowmap.a);
+         diffuse   += mat.emission * BLOCKLIGHT_INTENSITY;
 
     return mat.albedo * diffuse;
 }

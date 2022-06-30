@@ -32,12 +32,19 @@ layout (location = 0) out vec3 color;
 // Rod response coefficients & blending method provided by Jessie#7257
 // SOURCE: http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
 #if PURKINJE == 1
+    vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
+
     void purkinje(inout vec3 color) {
-        vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
-        vec3 xyzColor    = color * SRGB_2_XYZ_MAT;
+        #if TONEMAP == 0
+            mat3 toXYZ = sRGB_2_XYZ_MAT, fromXYZ = XYZ_2_sRGB_MAT;
+        #else
+            rodResponse *= sRGB_2_AP1_ALBEDO;
+            mat3 toXYZ   = AP1_2_XYZ_MAT, fromXYZ = XYZ_2_AP1_MAT;
+        #endif
+        vec3 xyzColor = color * toXYZ;
 
         vec3 scotopicLum = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
-        float purkinje   = dot(rodResponse, scotopicLum * XYZ_2_SRGB_MAT);
+        float purkinje   = dot(rodResponse, scotopicLum * fromXYZ);
 
         color = mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0));
     }
@@ -57,6 +64,40 @@ layout (location = 0) out vec3 color;
         #endif
     }
 #endif
+
+float CanonLog2_to_linear (
+	float clog2
+)
+{
+	if(clog2 < 0.092864125)
+		return -( pow( 10, ( 0.092864125 - clog2 ) / 0.24136077 ) - 1 ) / 87.099375;
+	else
+		return ( pow( 10, ( clog2 - 0.092864125 ) / 0.24136077 ) - 1 ) / 87.099375;
+}
+
+const mat3 SGAMUT_TO_ACES_MTX = {
+  { 0.754338638,  0.021198141, -0.009756991 },
+  { 0.133697046,  1.005410934,  0.004508563 },
+  { 0.111968437, -0.026610548,  1.005253201 }
+};
+
+float SLog1_to_lin
+(
+  float SLog,
+  float b,
+  float ab,
+  float w
+)
+{
+  float lin;
+
+  if (SLog >= ab)
+    lin = ( pow(10., ( ( ( SLog - b) / ( w - b) - 0.616596 - 0.03) / 0.432699)) - 0.037584) * 0.9;
+  else if (SLog < ab) 
+    lin = ( ( ( SLog - b) / ( w - b) - 0.030001222851889303) / 5.) * 0.9;
+
+  return lin;
+}
 
 #if TONEMAP == 0
     #include "/include/post/aces/lib/splines.glsl"
@@ -101,19 +142,17 @@ layout (location = 0) out vec3 color;
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
-        color = clamp(color, vec3(1e-38), vec3(maxVal8 / 256.0));
-
         color.b *= lutSize - 1.0;
-        int b0 = int(color.b);
-        int b1 = b0 + 1;
+        int bL   = int(color.b);
+        int bH   = bL + 1;
 
-        vec2 off0 = vec2(mod(b0, lutTile), b0 / lutTile) * invLutTile;
-        vec2 off1 = vec2(mod(b1, lutTile), b1 / lutTile) * invLutTile;
+        vec2 offLo = vec2(mod(bL, lutTile), bL / lutTile) * invLutTile;
+        vec2 offHi = vec2(mod(bH, lutTile), bH / lutTile) * invLutTile;
 
         color = mix(
-            texture(lookupTable, (off0 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
-            texture(lookupTable, (off1 + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
-            fract(color.b)
+            textureBicubic(lookupTable, (offLo + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
+            textureBicubic(lookupTable, (offHi + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
+            color.b - bL
         );
     }
 #endif

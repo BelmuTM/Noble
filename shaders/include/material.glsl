@@ -94,6 +94,5 @@ vec3 getBlockLightIntensity(Material mat) {
         #endif
         break;
     }
-
     return blockLightIntensity;
 }

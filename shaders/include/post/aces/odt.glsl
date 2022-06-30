@@ -105,8 +105,8 @@ void odt(inout vec3 color) {
     color = clamp01(color * XYZ_2_sRGB_MAT);
 
     #ifdef ACES_ODT_GAMMA_CURVES
-        color.r = bt1886_r(color.r, ODT_DISPGAMMA, 1.0, 0.0);
-        color.g = bt1886_r(color.g, ODT_DISPGAMMA, 1.0, 0.0);
-        color.b = bt1886_r(color.b, ODT_DISPGAMMA, 1.0, 0.0);
+        color.r = moncurve_r(color.r, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
+        color.g = moncurve_r(color.g, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
+        color.b = moncurve_r(color.b, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
     #endif
 }

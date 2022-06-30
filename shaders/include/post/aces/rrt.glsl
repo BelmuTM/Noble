@@ -63,8 +63,7 @@ float glowFwd(float ycIn, float glowGainIn, float glowMid) {
 
 float centerHue(float hue, float centerHue) {
 	float hueCentered = hue - centerHue;
-	if(hueCentered < -180.0)     { return hueCentered + 360.0; }
-	else if(hueCentered > 180.0) { return hueCentered - 360.0; }
+	return hueCentered < -180.0 ? hueCentered + 360.0 : hueCentered - 360.0;
 }
 
 void rrt(inout vec3 color) {

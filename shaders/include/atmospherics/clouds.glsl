@@ -47,7 +47,7 @@ float getCloudsDensity(vec3 position0) {
 
     float globalCoverage = mix(CLOUDS_COVERAGE, 1.0, wetness);
 
-    vec2 weatherNoise = vec2(voronoise(position0.xz, 1, 1), texture(shadowcolor1, position0.xz).r);
+    vec2 weatherNoise = vec2(voronoise(position0.xz, 1, 1) * 2.0 - 0.7, texture(shadowcolor1, position0.xz).r);
     float weatherMap  = max(weatherNoise.r, clamp01(globalCoverage - 0.5) * weatherNoise.g * 2.0);
 
     float shapeAlter   = heightAlter(altitude,  weatherMap);

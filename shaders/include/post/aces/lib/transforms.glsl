@@ -128,10 +128,10 @@ const mat3 XYZ_2_REC709_PRI_MAT = mat3(
 
 const vec3 AP1_RGB2Y = vec3(0.2722287168, 0.6740817658, 0.0536895174); // Desaturation Coefficients
 
-const mat3 sRGB_2_AP0 = (sRGB_2_XYZ_MAT * D65_2_D60_CAT) * XYZ_2_AP0_MAT;
-const mat3 sRGB_2_AP1 = (sRGB_2_XYZ_MAT * D65_2_D60_CAT) * XYZ_2_AP1_MAT;
+const mat3 sRGB_2_AP0 = sRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP0_MAT;
+const mat3 sRGB_2_AP1 = sRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP1_MAT;
 
-const mat3 sRGB_2_AP1_ALBEDO = (sRGB_2_XYZ_MAT) * XYZ_2_AP1_MAT;
+const mat3 sRGB_2_AP1_ALBEDO = sRGB_2_XYZ_MAT * XYZ_2_AP1_MAT;
 
 vec3 linearToAP1(vec3 color) {
     return color * sRGB_2_AP1;

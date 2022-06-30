@@ -98,7 +98,7 @@ vec3 sampleDirectIlluminance() {
         directIlluminance = sunTransmit + moonTransmit;
 
         #if TONEMAP == 0
-            directIlluminance = linearToAP1(directIlluminance);
+            directIlluminance *= sRGB_2_AP1_ALBEDO;
         #endif
     #endif
 

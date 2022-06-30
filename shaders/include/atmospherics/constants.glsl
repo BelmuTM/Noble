@@ -20,7 +20,7 @@ const float innerCloudRad = earthRad      + CLOUDS_ALTITUDE;
 const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
 const float windAngleRad  = 0.785398;
 
-const int cloudsMultiScatterSteps = 5;
+const int cloudsMultiScatterSteps = 8;
 
 const float cloudsExtinctionCoeff   = 0.1;
 const float cloudsScatteringCoeff   = 1.0;
@@ -42,12 +42,12 @@ const float cloudsShadowmapDist = 600.0;
 // Coefficients provided by Jessie#7257 and LVutner#5199
 
 #if TONEMAP == 0
-    vec3 rayleighCoeff = linearToAP1(vec3(5.8, 13.3, 33.31)    * 1e-6);
-    vec3 mieCoeff      = linearToAP1(vec3(21.0)                * 1e-6);
-    vec3 ozoneCoeff    = linearToAP1(vec3(8.30428e-07, 1.31491e-06, 5.44068e-08));
+    vec3 rayleighCoeff = (vec3(5.8, 13.3, 33.31) * 1e-6              ) * sRGB_2_AP1_ALBEDO;
+    vec3 mieCoeff      = (vec3(21.0)             * 1e-6              ) * sRGB_2_AP1_ALBEDO;
+    vec3 ozoneCoeff    = (vec3(8.30428e-07, 1.31491e-06, 5.44068e-08)) * sRGB_2_AP1_ALBEDO;
 #else
-    vec3 rayleighCoeff = vec3(5.8, 13.3, 33.31)    * 1e-6;
-    vec3 mieCoeff      = vec3(21.0)                * 1e-6;
+    vec3 rayleighCoeff = vec3(5.8, 13.3, 33.31) * 1e-6;
+    vec3 mieCoeff      = vec3(21.0)             * 1e-6;
     vec3 ozoneCoeff    = vec3(8.30428e-07, 1.31491e-06, 5.44068e-08);
 #endif
 
