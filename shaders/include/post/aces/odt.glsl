@@ -104,9 +104,7 @@ void odt(inout vec3 color) {
     // CIE XYZ to display primaries and handling out-of-gamut values
     color = clamp01(color * XYZ_2_sRGB_MAT);
 
-    #ifdef ACES_ODT_GAMMA_CURVES
-        color.r = moncurve_r(color.r, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
-        color.g = moncurve_r(color.g, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
-        color.b = moncurve_r(color.b, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
-    #endif
+    color.r = moncurve_r(color.r, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
+    color.g = moncurve_r(color.g, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
+    color.b = moncurve_r(color.b, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
 }

@@ -20,13 +20,12 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,0,6,15,2 */
+    /* RENDERTARGETS: 3,0,6,15 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec3 sky;
     layout (location = 2) out vec3 skyIllum;
     layout (location = 3) out vec4 clouds;
-    layout (location = 4) out vec3 cloudsShadowmap;
 
     #include "/include/atmospherics/atmosphere.glsl"
     #include "/include/atmospherics/clouds.glsl"
@@ -44,7 +43,7 @@
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
-            shadowmap.rgb = shadowMap(viewPos, viewToScene(mat.normal));
+            shadowmap.rgb = shadowMap(viewPos, texture(colortex2, texCoords).rgb);
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             vec3 skyRay   = normalize(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
@@ -58,8 +57,10 @@
                 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
                 if(clamp01(cloudsCoords) == cloudsCoords) {
+                    float depth;
+
                     vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
-                         clouds    = cloudsScattering(cloudsRay);
+                         clouds    = cloudsScattering(cloudsRay, depth);
 
                     /* Aerial Perspective */
                     const float cloudsMiddle = CLOUDS_ALTITUDE + (CLOUDS_THICKNESS * 0.5);
@@ -69,6 +70,11 @@
                         float distToCloud = cameraPosition.y >= cloudsMiddle ? dists.x : dists.y;
                         clouds            = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-5e-5 * distToCloud));
                     }
+
+                    vec3 prevPos    = reprojection(viewToScreen(normalize(viewPos) * depth));
+                    vec4 prevClouds = texture(colortex15, prevPos.xy);
+
+                    clouds = mix(clouds, prevClouds, 0.96);
                 }
             #endif
         #endif

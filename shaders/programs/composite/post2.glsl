@@ -13,22 +13,6 @@ layout (location = 0) out vec3 color;
 #include "/include/post/bloom.glsl"
 #include "/include/post/exposure.glsl"
 
-#if UNDERWATER_DISTORTION == 1
-    void underwaterDistortion(inout vec2 coords) {
-        const float scale = 25.0;
-        float speed   = frameTimeCounter * WATER_DISTORTION_SPEED;
-        float offsetX = coords.x * scale + speed;
-        float offsetY = coords.y * scale + speed;
-
-        vec2 distorted = coords + vec2(
-            WATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
-            WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
-        );
-
-        coords = clamp01(distorted) != distorted ? coords : distorted;
-    }
-#endif
-
 // Rod response coefficients & blending method provided by Jessie#7257
 // SOURCE: http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
 #if PURKINJE == 1
@@ -64,40 +48,6 @@ layout (location = 0) out vec3 color;
         #endif
     }
 #endif
-
-float CanonLog2_to_linear (
-	float clog2
-)
-{
-	if(clog2 < 0.092864125)
-		return -( pow( 10, ( 0.092864125 - clog2 ) / 0.24136077 ) - 1 ) / 87.099375;
-	else
-		return ( pow( 10, ( clog2 - 0.092864125 ) / 0.24136077 ) - 1 ) / 87.099375;
-}
-
-const mat3 SGAMUT_TO_ACES_MTX = {
-  { 0.754338638,  0.021198141, -0.009756991 },
-  { 0.133697046,  1.005410934,  0.004508563 },
-  { 0.111968437, -0.026610548,  1.005253201 }
-};
-
-float SLog1_to_lin
-(
-  float SLog,
-  float b,
-  float ab,
-  float w
-)
-{
-  float lin;
-
-  if (SLog >= ab)
-    lin = ( pow(10., ( ( ( SLog - b) / ( w - b) - 0.616596 - 0.03) / 0.432699)) - 0.037584) * 0.9;
-  else if (SLog < ab) 
-    lin = ( ( ( SLog - b) / ( w - b) - 0.030001222851889303) / 5.) * 0.9;
-
-  return lin;
-}
 
 #if TONEMAP == 0
     #include "/include/post/aces/lib/splines.glsl"
@@ -158,12 +108,7 @@ float SLog1_to_lin
 #endif
 
 void main() {
-    vec2 tempCoords = texCoords;
-    #if UNDERWATER_DISTORTION == 1
-        if(isEyeInWater == 1) underwaterDistortion(tempCoords);
-    #endif
-    
-    color          = texture(colortex5, tempCoords).rgb;
+    color          = texture(colortex5, texCoords).rgb;
     float exposure = computeExposure(texture(colortex8, texCoords).a);
 
     #if CHROMATIC_ABERRATION == 1

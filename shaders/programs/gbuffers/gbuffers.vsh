@@ -29,6 +29,7 @@ out mat3 TBN;
 #include "/include/utility/color.glsl"
 
 #include "/include/fragment/water.glsl"
+#include "/include/vertex/animation.glsl"
 
 void main() {
 	texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -41,16 +42,22 @@ void main() {
     vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
 	TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
 
-	blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	blockId 	  = int((mc_Entity.x - 1000.0) + 0.25);
+	vec3 worldPos = mat3(gbufferModelViewInverse) * viewPos;
 
-	#ifdef WEATHER
-		vec3 rainWorldPos = mat3(gbufferModelViewInverse) * viewPos;
-		rainWorldPos.xz  += RAIN_DIRECTION * rainWorldPos.y * RAIN_ANGLE_INTENSITY;
+	#if ACCUMULATION_VELOCITY_WEIGHT == 0
+		worldPos += cameraPosition;
+		
+		animate(worldPos);
 
-		vec4 rainViewToClip = gl_ProjectionMatrix * vec4(mat3(gbufferModelView) * rainWorldPos, 1.0);
-		gl_Position         = rainViewToClip;
+		#ifdef WEATHER
+			worldPos.xz  += RAIN_DIRECTION * worldPos.y * RAIN_ANGLE_INTENSITY;
+		#endif
+
+		worldPos -= cameraPosition;
 	#endif
+	
+	gl_Position = gl_ProjectionMatrix * vec4(mat3(gbufferModelView) * worldPos, 1.0);
 
 	#ifdef PROGRAM_ENTITY
 		// Thanks Kneemund for the nametag fix
@@ -60,7 +67,6 @@ void main() {
 	#endif
 
 	#if TAA == 1
-		bool canJitter = ACCUMULATION_VELOCITY_WEIGHT == 0 ? true : hasMoved();
-		if(canJitter) { gl_Position.xy += taaJitter(gl_Position); }
+		gl_Position.xy += taaJitter(gl_Position);
     #endif
 }

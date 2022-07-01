@@ -6,21 +6,6 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 reprojection(vec3 screenPos) {
-    screenPos = screenPos * 2.0 - 1.0;
-
-    vec4 position = gbufferProjectionInverse * vec4(screenPos, 1.0);
-         position = gbufferModelViewInverse * (position / position.w);
-
-    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(screenPos.z > 0.56);
-    
-    position += vec4(cameraOffset, 0.0);
-    position  = gbufferPreviousModelView  * position;
-    position  = gbufferPreviousProjection * position;
-
-    return (position.xyz / position.w) * 0.5 + 0.5;
-}
-
 /*
     AABB Clipping from "Temporal Reprojection Anti-Aliasing in INSIDE"
     http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463

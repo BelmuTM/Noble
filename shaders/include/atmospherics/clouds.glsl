@@ -95,7 +95,7 @@ float getCloudsPhase(float cosTheta, vec3 anisotropyFactors) {
     return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeakWeight);
 }
 
-vec4 cloudsScattering(vec3 rayDir) {
+vec4 cloudsScattering(vec3 rayDir, out float depth) {
 
     vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, innerCloudRad, outerCloudRad);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 0.0, 1.0);
@@ -109,12 +109,19 @@ vec4 cloudsScattering(vec3 rayDir) {
     float bounceLight = maxEps(dot(rayDir, -up)) * pow2(INV_PI);
 
     vec3 scattering = vec3(0.0); float transmittance = 1.0;
+
+    float weight = 0.0;
+          depth  = 0.0;
     
     for(int i = 0; i < CLOUDS_SCATTERING_STEPS; i++, rayPos += increment) {
         if(transmittance <= cloudsTransmitThreshold) break;
 
         float density = getCloudsDensity(rayPos);
         if(density <= 0.0) continue;
+
+        depth  += minOf(dists) * density; 
+        weight += density;
+        depth  /= weight;
 
         float stepOpticalDepth  = cloudsExtinctionCoeff * density * stepLength;
         float stepTransmittance = exp(-stepOpticalDepth);
@@ -154,6 +161,8 @@ vec4 cloudsScattering(vec3 rayDir) {
     scattering += scattering.x * sampleDirectIlluminance();
     scattering += scattering.y * texture(colortex6, texCoords).rgb;
     scattering += scattering.z;
+
+    depth /= weight;
 
     return vec4(scattering, transmittance);
 }

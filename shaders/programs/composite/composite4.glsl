@@ -109,13 +109,15 @@ void main() {
     /*------------------ VL / RAIN FOG ---------------------*/
     //////////////////////////////////////////////////////////
 
-    #if VL == 1
-        #ifdef WORLD_OVERWORLD
-            fog = volumetricFog(viewPos0, mat.lightmap.y);
-        #endif
-    #else
-        #if RAIN_FOG == 1
-            if(wetness > 0.0 && !inWater) { groundFog(color, viewPos0, getMaterial(texCoords).lightmap.y, sky); }
+    #if GI == 0
+        #if VL == 1
+            #ifdef WORLD_OVERWORLD
+                fog = volumetricFog(viewPos0, mat.lightmap.y);
+            #endif
+        #else
+            #if RAIN_FOG == 1
+                if(wetness > 0.0 && !inWater) { groundFog(color, viewPos0, getMaterial(texCoords).lightmap.y, sky); }
+            #endif
         #endif
     #endif
 }

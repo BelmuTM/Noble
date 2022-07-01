@@ -10,9 +10,10 @@
 	#include "/programs/gbuffers/gbuffers.vsh"
 
 #elif defined STAGE_FRAGMENT
-	/* RENDERTARGETS: 1 */
+	/* RENDERTARGETS: 1,2 */
 
 	layout (location = 0) out uvec4 dataBuffer;
+	layout (location = 1) out vec3  geometricNormal;
 
 	flat in int blockId;
 	in vec2 texCoords;
@@ -89,5 +90,7 @@
 		dataBuffer.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));
 		dataBuffer.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
 		dataBuffer.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
+
+		geometricNormal = geoNormal;
 	}
 #endif

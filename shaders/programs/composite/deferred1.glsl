@@ -6,13 +6,14 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 5,4,10,11,12 */
+/* RENDERTARGETS: 5,4,10,11,12,15 */
 
 layout (location = 0) out vec3 color;
 layout (location = 1) out vec4 historyBuffer;
 layout (location = 2) out vec3 direct;
 layout (location = 3) out vec3 indirect;
 layout (location = 4) out vec3 moments;
+layout (location = 5) out vec4 clouds;
 
 #include "/include/utility/blur.glsl"
 

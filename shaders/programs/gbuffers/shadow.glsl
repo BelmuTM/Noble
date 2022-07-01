@@ -19,24 +19,32 @@
     out vec4 vertexColor;
     out mat3 TBN;
 
+    #include "/include/vertex/animation.glsl"
+
     void main() {
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         vertexColor = gl_Color;
         blockId     = int((mc_Entity.x - 1000.0) + 0.25);
 
-        vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
-        worldPos    = vec3(0.0);
-
-        #if WATER_CAUSTICS == 1
-    	    vec3 viewShadowPos = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
-            worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz + cameraPosition;
-        #endif
+        vec3 normal        = normalize(gl_NormalMatrix * gl_Normal);
+        vec3 viewShadowPos = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
+        worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
 
         vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
         vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
 	    TBN 		   = mat3(tangent, bitangent, normal);
 
-        gl_Position     = ftransform();
+	    #if ACCUMULATION_VELOCITY_WEIGHT == 0
+            worldPos += cameraPosition;
+            animate(worldPos);
+            worldPos -= cameraPosition;
+
+            gl_Position = transMAD(shadowModelView, worldPos).xyzz * diag4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+	    #else
+            gl_Position = ftransform();
+        #endif
+
+        worldPos       += cameraPosition;
         gl_Position.xyz = distortShadowSpace(gl_Position.xyz);
     }
     

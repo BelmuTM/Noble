@@ -83,7 +83,7 @@ vec3 volumetricFog(vec3 viewPos, float skyLight) {
         vec3 stepScatteringDirect   = atmosScatteringCoeff * vec2(airmass.xy * phase.xy) * visibleScattering;
         vec3 stepScatteringIndirect = atmosScatteringCoeff * vec2(airmass.xy * vec2(isotropicPhase)) * visibleScattering;
 
-        vec3 sampleColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5, 0.0);
+        vec3 sampleColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5);
 
         directScattering   += stepScatteringDirect   * vlTransmittance(rayPos, sceneShadowDir) * sampleColor;
         indirectScattering += stepScatteringIndirect * vlTransmittance(rayPos, vec3(0.0, 1.0, 0.0));
@@ -136,7 +136,7 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
     vec3 directScattering = vec3(0.0), indirectScattering = vec3(0.0), transmittance = vec3(1.0);
 
     for(int i = 0; i < WATER_FOG_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
-        vec3 sampleColor  = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5, 0.0);
+        vec3 sampleColor  = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5);
         //vec3 visibleScattering = stepTransmittance * stepTransmittedFraction;
 
         directScattering   += transmittance * sampleColor;

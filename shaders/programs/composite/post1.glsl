@@ -18,7 +18,7 @@ layout (location = 1) out vec4 historyBuffer;
 void main() {
     color = texture(colortex5, texCoords).rgb;
 
-    #if TAA == 1 && ACCUMULATION_VELOCITY_WEIGHT == 0
+    #if TAA == 1
         color = max0(temporalAntiAliasing(getMaterial(texCoords), colortex5, colortex8));
     #endif
 

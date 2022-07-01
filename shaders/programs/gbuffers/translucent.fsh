@@ -66,7 +66,7 @@ void main() {
 
 		#if GI == 0
 			vec3 scenePos  = viewToScene(viewPos);
-			vec3 shadowmap = shadowMap(viewPos, mat.normal);
+			vec3 shadowmap = shadowMap(viewPos, geoNormal);
 
 			#if TONEMAP == 0
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);
