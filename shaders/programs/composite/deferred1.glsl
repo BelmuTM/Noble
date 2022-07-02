@@ -38,7 +38,7 @@ layout (location = 5) out vec4 clouds;
             depthWeight = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a))), 2.0);
         #else
             if(hideGUI == 0) {
-                color = mat.albedo;
+                color = mat.albedo + mat.emission * BLOCKLIGHT_INTENSITY;
                 return;
             }
             frames = hideGUI == 0 ? 0.0 : frames;
@@ -91,11 +91,12 @@ void main() {
         if(!mat.isMetal) {
             #if AO == 1
                 #if SSAO_FILTER == 1
-                    shadowmap.a = gaussianBlur(tempCoords, colortex3, 1.2, 2.0, 4).a;
+                    filterAO(shadowmap.a, tempCoords, colortex3, mat, 1.6, 2.0, 4);
                 #endif
             #endif
 
-            color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance);
+            float ssDepth = texture(colortex6, texCoords).a;
+            color = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance, ssDepth);
         }
     #else
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords) {

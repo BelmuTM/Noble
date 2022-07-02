@@ -25,7 +25,8 @@
         vec3 directLight = sampleDirectIlluminance();
 
         #if SUBSURFACE_SCATTERING == 1
-            diffuse = mix(diffuse, disneySubsurface(mat.normal, V, L, mat) * mat.albedo, mat.subsurface);
+            float ssDepth = texture(colortex6, hitPos.xy).a;
+            diffuse      += disneySSS(mat, V, L, ssDepth) * mat.albedo;
         #endif
 
         vec3 direct  = (mat.albedo * diffuse) + specular;

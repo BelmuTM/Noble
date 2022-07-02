@@ -21,11 +21,11 @@ vec3 getHitColor(vec3 hitPos) {
 
 vec3 getSkyFallback(vec3 reflected, Material mat) {
     vec2 coords = projectSphere(viewToScene(reflected));
-    vec3 sky    = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION)).rgb;
+    vec3 sky    = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION, randF())).rgb;
     
 	vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 	#if CLOUDS == 1
-		clouds = texture(colortex15, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION));
+		clouds = texture(colortex15, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION, 0.0));
 	#endif
 
     return (sky * clouds.a + clouds.rgb) * pow2(quintic(0.0, 1.0, mat.lightmap.y));
@@ -68,6 +68,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 
     vec3 roughReflections(vec3 viewPos, Material mat) {
 	    vec3 color = vec3(0.0); vec3 hitPos;
+        int samples = 0;
 
         viewPos     += mat.normal * 1e-2;
         mat3 TBN     = constructViewTBN(mat.normal);
@@ -95,9 +96,12 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
             float G1 = G1SmithGGX(NdotV, mat.rough);
             float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
 
-		    if(NdotV > 0.0 && NdotL > 0.0) color += hitColor * ((F * G2) / G1);
+		    if(NdotV > 0.0 && NdotL > 0.0) {
+                color += hitColor * ((F * G2) / G1);
+                samples++;
+            }
 	    }
-	    return max0(color / float(ROUGH_SAMPLES));
+	    return max0(color / float(samples));
     }
 #endif
 

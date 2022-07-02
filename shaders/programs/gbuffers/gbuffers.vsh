@@ -43,7 +43,7 @@ void main() {
 	TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
 
 	blockId 	  = int((mc_Entity.x - 1000.0) + 0.25);
-	vec3 worldPos = mat3(gbufferModelViewInverse) * viewPos;
+	vec3 worldPos = transMAD(gbufferModelViewInverse, viewPos);
 
 	#if ACCUMULATION_VELOCITY_WEIGHT == 0
 		worldPos += cameraPosition;
@@ -57,7 +57,7 @@ void main() {
 		worldPos -= cameraPosition;
 	#endif
 	
-	gl_Position = gl_ProjectionMatrix * vec4(mat3(gbufferModelView) * worldPos, 1.0);
+	gl_Position = transMAD(gbufferModelView, worldPos).xyzz * diag4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 
 	#ifdef PROGRAM_ENTITY
 		// Thanks Kneemund for the nametag fix

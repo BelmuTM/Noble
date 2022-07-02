@@ -162,9 +162,9 @@ vec3 unprojectSphere(vec2 coord) {
 
 #if defined STAGE_FRAGMENT
     // Thanks Niemand#1929 for the help with atmosphere upscaling
-    vec2 getAtmosphereCoordinates(in vec2 coords, float scale) {
+    vec2 getAtmosphereCoordinates(in vec2 coords, float scale, float jitter) {
 	    vec2 atmosRes = ceil(viewSize * scale);
-	         coords   = (coords * scale) + (randF() * pixelSize);
+	         coords   = (coords * scale) + (jitter * pixelSize);
 
 	    return clamp(coords, vec2(0.5 / viewSize), atmosRes / viewSize - 0.5 / viewSize);
     }

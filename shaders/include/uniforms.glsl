@@ -68,6 +68,7 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
 uniform mat4 shadowProjection;
+uniform mat4 shadowProjectionInverse;
 
 uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;

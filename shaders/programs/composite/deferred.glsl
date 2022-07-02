@@ -24,7 +24,7 @@
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec3 sky;
-    layout (location = 2) out vec3 skyIllum;
+    layout (location = 2) out vec4 skyIllum;
     layout (location = 3) out vec4 clouds;
 
     #include "/include/atmospherics/atmosphere.glsl"
@@ -43,12 +43,14 @@
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
-            shadowmap.rgb = shadowMap(viewPos, texture(colortex2, texCoords).rgb);
+            float ssDepth = 0.0;
+            shadowmap.rgb = shadowMap(viewPos, texture(colortex2, texCoords).rgb, ssDepth);
+            skyIllum.a    = ssDepth;
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
-            vec3 skyRay   = normalize(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
-                 sky      = atmosphericScattering(skyRay, skyIlluminance);
-                 skyIllum = skyIlluminance;
+            vec3 skyRay       = normalize(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
+                 sky          = atmosphericScattering(skyRay, skyIlluminance);
+                 skyIllum.rgb = skyIlluminance;
 
             /*    ------- VOLUMETRIC CLOUDS -------    */
             #if CLOUDS == 1
@@ -74,7 +76,7 @@
                     vec3 prevPos    = reprojection(viewToScreen(normalize(viewPos) * depth));
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
-                    clouds = mix(clouds, prevClouds, 0.96);
+                    if(!all(equal(prevClouds, vec4(0.0)))) clouds = mix(clouds, prevClouds, 0.96);
                 }
             #endif
         #endif

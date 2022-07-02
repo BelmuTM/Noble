@@ -47,7 +47,6 @@ void main() {
 	}
 
 	directIlluminance = sampleDirectIlluminance(); 
-    skyIlluminance    = sampleSkyIlluminance();
 
 	#if TAA == 1
 		bool canJitter = ACCUMULATION_VELOCITY_WEIGHT == 0 ? true : hasMoved();

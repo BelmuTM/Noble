@@ -24,6 +24,7 @@ in mat3 TBN;
 #include "/include/common.glsl"
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/shadows.glsl"
+#include "/include/atmospherics/atmosphere.glsl"
 #include "/include/fragment/water.glsl"
 
 void main() {
@@ -65,14 +66,15 @@ void main() {
 		mat.normal    = TBN * mat.normal;
 
 		#if GI == 0
+			float ssDepth = 0.0;
 			vec3 scenePos  = viewToScene(viewPos);
-			vec3 shadowmap = shadowMap(viewPos, geoNormal);
+			vec3 shadowmap = shadowMap(viewPos, geoNormal, ssDepth);
 
 			#if TONEMAP == 0
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);
     		#endif
 
-			sceneColor.rgb = mat.isMetal ? vec3(0.0) : computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, 1.0), directIlluminance, skyIlluminance);
+			sceneColor.rgb = mat.isMetal ? vec3(0.0) : computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, 1.0), directIlluminance, sampleSkyIlluminance(), ssDepth);
 		#else
 			sceneColor.rgb = mat.albedo;
 		#endif

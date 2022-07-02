@@ -55,8 +55,8 @@ vec3 getShadowColor(vec3 samplePos) {
 }
 
 #if SHADOW_TYPE == 1
-    float findBlockerDepth(vec3 shadowPos, float phi) {
-        float avgBlockerDepth = 0.0; int BLOCKERS;
+    float findBlockerDepth(vec3 shadowPos, float phi, out float ssDepth) {
+        float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int BLOCKERS;
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
             vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) / shadowMapResolution;
@@ -64,14 +64,19 @@ vec3 getShadowColor(vec3 samplePos) {
 
             if(shadowPos.z > z) {
                 avgBlockerDepth += z;
+                totalSSDepth    += max0(shadowPos.z - z);
                 BLOCKERS++;
             }
         }
+        // Subsurface depth calculation from SixthSurge#3922
+        // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
+        ssDepth = (totalSSDepth * -shadowProjectionInverse[2].z) / (SHADOW_DEPTH_STRETCH * BLOCKERS);
+
         return BLOCKERS > 0 ? avgBlockerDepth / BLOCKERS : -1.0;
     }
 #endif
 
-vec3 PCF(vec3 shadowPos, float penumbraSize) {
+vec3 PCF(vec3 shadowPos, float penumbraSize, inout float ssDepth) {
 	vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
 
     for(int i = 0; i < SHADOW_SAMPLES; i++) {
@@ -80,12 +85,17 @@ vec3 PCF(vec3 shadowPos, float penumbraSize) {
         #endif
 
         vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
-        shadowResult  += getShadowColor(samplePos);
+        #if SHADOW_TYPE != 1
+            ssDepth = max0(shadowPos.z - texelFetch(shadowtex0, ivec2(samplePos.xy * shadowMapResolution), 0).r);
+            ssDepth = (ssDepth * -shadowProjectionInverse[2].z) * (1.0 / SHADOW_DEPTH_STRETCH);
+        #endif
+
+        shadowResult += getShadowColor(samplePos);
     }
     return shadowResult / float(SHADOW_SAMPLES);
 }
 
-vec3 shadowMap(vec3 viewPos, vec3 geoNormal) {
+vec3 shadowMap(vec3 viewPos, vec3 geoNormal, out float ssDepth) {
     #if SHADOWS == 1 
         vec3 shadowPos = worldToShadow(viewToScene(viewPos));
         float NdotL    = dot(geoNormal, sceneShadowDir);
@@ -100,7 +110,7 @@ vec3 shadowMap(vec3 viewPos, vec3 geoNormal) {
 
         #elif SHADOW_TYPE == 1
             vec3 shadowPosDistort = distortShadowSpace(shadowPos) * 0.5 + 0.5;
-            float avgBlockerDepth = findBlockerDepth(shadowPosDistort, randF());
+            float avgBlockerDepth = findBlockerDepth(shadowPosDistort, randF(), ssDepth);
             if(avgBlockerDepth < 0.0) return vec3(1.0);
 
             if(texture(shadowcolor0, shadowPosDistort.xy).a >= 0.0)
@@ -110,7 +120,7 @@ vec3 shadowMap(vec3 viewPos, vec3 geoNormal) {
         #endif
 
         // contactShadow(viewPos, shadowDir, 24, bayer8(gl_FragCoord.xy))
-        return PCF(shadowPos, penumbraSize);
+        return PCF(shadowPos, penumbraSize, ssDepth);
     #else
         return vec3(1.0);
     #endif

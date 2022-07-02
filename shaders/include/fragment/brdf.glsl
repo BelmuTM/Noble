@@ -134,21 +134,6 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     else   { return NdotL * (mat.albedo * multi + single); }
 }
 
-// Disney SSS from: https://www.shadertoy.com/view/XdyyDd
-float disneySubsurface(vec3 N, vec3 V, vec3 L, Material mat) {
-    vec3 H      = normalize(V + L);
-    float NdotL = clamp01(dot(N, L));
-    float NdotV = clamp01(dot(N, V));
-    float HdotL = clamp01(dot(L, H));
-
-    float FL    = cornetteShanksPhase(NdotL, 0.5), FV = cornetteShanksPhase(NdotV, 0.5);
-    float Fss90 = pow2(HdotL) * mat.rough;
-    float Fss   = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
-    float ss    = 1.25 * (Fss * (1.0 / (NdotL + NdotV) - 0.5) + 0.5);
-
-    return quintic(0.0, 1.0, ss);
-}
-
 vec3 fresnelComplex(float cosTheta, Material mat) {
     mat2x3 hcm = getHardcodedMetal(mat);
     return mat.isMetal ? fresnelDieletricConductor(hcm[0], hcm[1], cosTheta) : vec3(fresnelDielectric(cosTheta, F0ToIOR(mat.F0)));
@@ -206,18 +191,33 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     return clamp01(clamp01(NdotL) * (D * G2) * F / (4.0 * NdotL * NdotV));
 }
 
+// Disney SSS from: https://www.shadertoy.com/view/XdyyDd
+float disneySSS(Material mat, vec3 V, vec3 L, float ssDepth) {
+    vec3 H      = normalize(V + L);
+    float NdotL = clamp01(dot(mat.normal, L));
+    float NdotV = clamp01(dot(mat.normal, V));
+    float HdotL = clamp01(dot(L, H));
+
+    float FL    = henyeyGreensteinPhase(NdotL, 0.5), FV = henyeyGreensteinPhase(NdotV, 0.5);
+    float Fss90 = pow2(HdotL) * mat.rough;
+    float Fss   = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
+    float sss   = 1.25 * (Fss * (1.0 / (NdotL + NdotV) - 0.5) + 0.5);
+
+    return max0(quintic(0.0, 1.0, sss) * INV_PI * mat.subsurface * (1.0 - ssDepth));
+}
+
 // Thanks LVutner and Jessie for the help!
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance) {
+vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ssDepth) {
     V = -normalize(V);
 
     vec3 diffuse  = hammonDiffuse(mat.normal, V, L, mat, false);
          diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
-        //diffuse += (mat.albedo * disneySubsurface(mat.normal, V, L, mat) * mat.subsurface);
+        diffuse += disneySSS(mat, V, L, ssDepth);
     #endif
 
     diffuse *= directLight;
@@ -225,7 +225,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     mat.lightmap.x = pow(quintic(0.0, 1.0, mat.lightmap.x), 1.5);
     mat.lightmap.y = pow2(1.0 - pow(1.0 - clamp01(mat.lightmap.y), SKYLIGHT_FALLOFF));
 
-    vec3 skyLight   = skyIlluminance * INV_PI * mat.lightmap.y;
+    vec3 skyLight   = skyIlluminance * INV_PI     * mat.lightmap.y;
     vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
          diffuse   += (blockLight + skyLight) * (mat.ao * shadowmap.a);
          diffuse   += mat.emission * BLOCKLIGHT_INTENSITY;

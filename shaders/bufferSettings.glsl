@@ -31,7 +31,7 @@ const int colortex5Format         = RGBA16F;
 const bool colortex5MipmapEnabled = true;
 
 VOLUMETRIC LIGHTING / SKY ILLUMINANCE
-const int colortex6Format         = R11F_G11F_B10F;
+const int colortex6Format         = RGBA16F;
 
 HISTORY BUFFERS
 const int colortex8Format         = RGBA16F;
