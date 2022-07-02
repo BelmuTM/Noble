@@ -243,9 +243,6 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE 1 // [0 1]
 #define PURKINJE 1 // [0 1]
 
-const float K =  12.5; // Light meter calibration
-const float S = 100.0; // Sensor sensitivity
-
 #define EXPOSURE_SPEED_TO_BRIGHT 1.2
 #define EXPOSURE_SPEED_TO_DARK   3.2
 

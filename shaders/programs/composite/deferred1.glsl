@@ -91,7 +91,7 @@ void main() {
         if(!mat.isMetal) {
             #if AO == 1
                 #if SSAO_FILTER == 1
-                    filterAO(shadowmap.a, tempCoords, colortex3, mat, 1.6, 2.0, 4);
+                    filterAO(shadowmap.a, tempCoords, colortex3, mat, 2.5, 2.0, 4);
                 #endif
             #endif
 

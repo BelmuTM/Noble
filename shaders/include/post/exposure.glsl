@@ -6,6 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+const float K =  12.5; // Light meter calibration
+const float S = 100.0; // Sensor sensitivity
+
+float minExposure = TAU / luminance(sunIlluminance);
+float maxExposure = 0.8 / luminance(moonIlluminance);
+
 #if EXPOSURE == 1
      float computeAverageLuminance(sampler2D prevTex) {
           float currLuma = pow2(textureLod(colortex5, vec2(0.5), log2(maxOf(viewSize))).a);
@@ -28,9 +34,6 @@ float EV100ToExposure(float EV100) {
 }
 
 float computeExposure(float avgLuminance) {
-     float minExposure = TAU / luminance(sunIlluminance);
-     float maxExposure = 0.5 / luminance(moonIlluminance);
-
      float EV100;
      #if EXPOSURE == 0
           EV100 = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
