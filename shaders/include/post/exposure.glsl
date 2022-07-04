@@ -10,7 +10,7 @@ const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 float minExposure = TAU / luminance(sunIlluminance);
-float maxExposure = 0.1 / luminance(moonIlluminance);
+float maxExposure = 0.2 / luminance(moonIlluminance);
 
 float computeEV100fromLuma(float avgLuminance) {
      return log2(avgLuminance * S / K);

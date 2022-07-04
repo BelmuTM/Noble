@@ -81,9 +81,9 @@
 
         #if WATER_CAUSTICS == 1
             vec3 caustics = vec3(waterCaustics(worldPos, TBN * getWaterNormals(worldPos, 2)));
-            color0        = vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) * float(blockId == 1);
+            color0        = albedoTex + vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) * float(blockId == 1);
         #else
-            color0 = albedoTex;
+            color0 = albedoTex + vec4(vec3(1.0), 0.0);
         #endif
     }
 #endif
