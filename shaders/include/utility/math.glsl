@@ -71,6 +71,11 @@ float quintic(float edge0, float edge1, float x) {
     return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
 }
 
+// https://www.shadertoy.com/view/Xt23zV
+float linearStep(float edge0, float edge1, float x) {
+    return clamp01((x - edge0) / (edge1 - edge0));
+}
+
 // https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
 float ACos(in float x) { 
     x = abs(x); 
@@ -110,9 +115,9 @@ float cubeLength(vec2 v) {
     return pow(pow3(abs(v.x)) + pow3(abs(v.y)), 1.0 / 3.0);
 }
 
-float lengthSqr(vec3 x) {
-    return dot(x, x);
-}
+float lengthSqr(vec3 x)     { return dot(x, x);              }
+float fastRcpLength(vec3 x) { return inversesqrt(dot(x, x)); }
+float fastLength(vec3 x)    { return sqrt(dot(x, x));        }
 
 //////////////////////////////////////////////////////////
 /*------------------------ MISC ------------------------*/

@@ -51,16 +51,20 @@ const float shadowDistanceRenderMul = 1.0;
 /*------------------ AMBIENT OCCLUSION -----------------*/
 //////////////////////////////////////////////////////////
 #define AO        1 // [0 1]
-#define AO_TYPE   1 // [0 1]
+#define AO_TYPE   1 // [0 1 2]
+#define AO_FILTER 1 // [0 1]
 
-#define SSAO_FILTER      1 // [0 1]
-#define SSAO_SAMPLES    12 // [4 8 12 16 20]
-#define SSAO_RADIUS   0.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00]
-#define SSAO_STRENGTH 1.80
+#define SSAO_SAMPLES   12 // [4 8 12 16 20]
+#define SSAO_RADIUS  0.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00]
+#define SSAO_STRENGTH 1.5
 
 #define RTAO_SAMPLES    3 // [3 5 7]
 #define RTAO_STEPS     32 // [16 24 32 40]
-#define RTAO_STRENGTH 2.5
+#define RTAO_STRENGTH 1.5
+
+#define GTAO_HORIZON_STEPS 4
+#define GTAO_SLICES        2 // [1 2 3 4 5 6]
+#define GTAO_RADIUS     0.70 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00]
 
 //////////////////////////////////////////////////////////
 /*---------------------- SHADOWS -----------------------*/
@@ -243,8 +247,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE 1 // [0 1]
 #define PURKINJE 1 // [0 1]
 
-#define EXPOSURE_SPEED_TO_BRIGHT 1.2
-#define EXPOSURE_SPEED_TO_DARK   3.2
+#define EXPOSURE_SPEED_TO_BRIGHT 3.2
+#define EXPOSURE_SPEED_TO_DARK   1.1
 
 #define FOCAL          20 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30]
 #define APERTURE     16.0 // [1.0 1.2 1.4 2.0 2.8 4.0 5.6 8.0 11.0 16.0 22.0 32.0]

@@ -8,7 +8,7 @@
 
 // Originally written by Capt Tatsu#7124
 // Modified by Belmu#4066
-float computeStarfield(vec3 viewPos) {
+vec3 computeStarfield(vec3 viewPos) {
 	vec3 scenePos    = mat3(gbufferModelViewInverse) * viewPos;
 	vec3 planeCoords = scenePos / (scenePos.y + length(scenePos.xz));
 	vec2 coords 	 = planeCoords.xz * 0.9 + cameraPosition.xz * 1e-5 + frameTime * 0.00125;
@@ -22,7 +22,7 @@ float computeStarfield(vec3 viewPos) {
 		star *= rand( coords.xy);
 		star *= rand(-coords.xy + 0.1);
 	}
-	return max0(star - (1.0 - STARS_AMOUNT)) * factor;
+	return max0(star - (1.0 - STARS_AMOUNT)) * factor * STARS_BRIGHTNESS * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)));
 }
 
 vec3 physicalSun(vec3 sceneDir) {
@@ -56,7 +56,7 @@ vec3 computeSky(vec3 viewPos) {
 
 		sky += physicalSun(sceneDir);
 		sky += physicalMoon(sceneDir);
-		sky += (computeStarfield(viewPos) * STARS_BRIGHTNESS * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords))));
+		//sky += computeStarfield(viewPos);
 
 		return sky * clouds.a + clouds.rgb;
 	#else

@@ -105,15 +105,16 @@ option.AO.comment = §bAmbient Occlusion. §rFeatures pseudo-shadows that enhanc
 value.AO.0 = §cOFF
 value.AO.1 = §aON
 
-option.SSAO_FILTER = SSAO Filter
-option.SSAO_FILTER.comment = Filters §bSSAO §rto reduce the noise.
-value.SSAO_FILTER.0 = §cOFF
-value.SSAO_FILTER.1 = §aON
+option.AO_FILTER = AO Filter
+option.AO_FILTER.comment = Filters §bAO §rto reduce the noise.
+value.AO_FILTER.0 = §cOFF
+value.AO_FILTER.1 = §aON
 
 option.AO_TYPE = AO Type
 option.AO_TYPE.comment = §aRTAO §7-> §rRay Traced Ambient Occlusion. §aSSAO §7-> §rScreen Space Ambient Occlusion.
 value.AO_TYPE.0 = §e§lSSAO
 value.AO_TYPE.1 = §e§lRTAO
+value.AO_TYPE.2 = §e§lGTAO
 
 option.SSAO_SAMPLES = SSAO Samples
 option.SSAO_SAMPLES.comment = Influences §bSSAO§r's quality. §cHigher value gives better results, but reduces §cperformance.
@@ -135,6 +136,18 @@ value.RTAO_STEPS.16 = §a16
 value.RTAO_STEPS.24 = §e24
 value.RTAO_STEPS.32 = §632
 value.RTAO_STEPS.40 = §c40
+
+option.GTAO_SLICES = GTAO Slices
+option.GTAO_SLICES.comment = Influences §bGTAO§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
+value.GTAO_SLICES.1 = §21
+value.GTAO_SLICES.2 = §a2
+value.GTAO_SLICES.3 = §e3
+value.GTAO_SLICES.4 = §64
+value.GTAO_SLICES.5 = §c5
+value.GTAO_SLICES.6 = §46
+
+option.GTAO_RADIUS = GTAO Radius
+option.GTAO_RADIUS.comment = Adjusts §bGTAO§r's radius.
 
 ##################### RAY TRACING #####################
 

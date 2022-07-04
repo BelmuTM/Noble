@@ -11,7 +11,6 @@
 layout (location = 0) out vec3 color;
 
 #include "/include/post/bloom.glsl"
-#include "/include/post/exposure.glsl"
 
 // Rod response coefficients & blending method provided by Jessie#7257
 // SOURCE: http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
@@ -109,7 +108,7 @@ layout (location = 0) out vec3 color;
 
 void main() {
     color          = texture(colortex5, texCoords).rgb;
-    float exposure = computeExposure(texture(colortex8, texCoords).a);
+    float exposure = texture(colortex8, texCoords).a;
 
     #if CHROMATIC_ABERRATION == 1
         chromaticAberration(color);

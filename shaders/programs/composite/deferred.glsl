@@ -60,7 +60,6 @@
 
                 if(clamp01(cloudsCoords) == cloudsCoords) {
                     float depth;
-
                     vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
                          clouds    = cloudsScattering(cloudsRay, depth);
 
@@ -80,17 +79,19 @@
                 }
             #endif
         #endif
-        
+
+        shadowmap.a = 1.0;
         #if AO == 1
-            if(!isSky(texCoords)) {
+            if(!isSky(texCoords) && !isHand(texCoords)) {
                 #if AO_TYPE == 0
-                    shadowmap.a = computeSSAO(viewPos, mat.normal);
+                    shadowmap.a = SSAO(viewPos, mat.normal);
+                #elif AO_TYPE == 1
+                    shadowmap.a = RTAO(viewPos, mat.normal);
                 #else
-                    shadowmap.a = computeRTAO(viewPos, mat.normal);
+                    shadowmap.a = GTAO(texCoords, viewPos, mat.normal);
                 #endif
+                shadowmap.a = clamp01(shadowmap.a);
             }
-        #else
-            shadowmap.a = 1.0;
         #endif
     }
 #endif

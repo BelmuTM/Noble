@@ -25,6 +25,7 @@ uniform float near;
 uniform float far;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float aspectRatio;
 uniform int isEyeInWater;
 uniform int hideGUI;
 uniform float rainStrength;

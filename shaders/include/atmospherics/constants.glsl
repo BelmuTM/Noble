@@ -62,7 +62,7 @@ const float atmosEnergyParam = 3e3;
 /* CELESTIAL CONSTANTS */
 const float moonRad       = 1.7374e3;
 const float moonDist      = 3.8440e5;
-const float moonAlbedo    = 0.12;
+const float moonAlbedo    = 0.136;
 const float moonRoughness = 0.40;
 
 const float sunRad  = 6.9634e8;

@@ -38,18 +38,9 @@ void main() {
 	blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-	if(int(blockId + 0.5) == 1) {
-		vec3 worldPos    = viewToWorld(viewPos);
-			 worldPos.y -= waterWaves(worldPos.xz, WATER_OCTAVES);
-
-    	vec4 viewToClip = gl_ProjectionMatrix * vec4(worldToView(worldPos), 1.0);
-		gl_Position     = viewToClip;
-	}
-
 	directIlluminance = sampleDirectIlluminance(); 
 
 	#if TAA == 1
-		bool canJitter = ACCUMULATION_VELOCITY_WEIGHT == 0 ? true : hasMoved();
-		if(canJitter) { gl_Position.xy += taaJitter(gl_Position); }
+		gl_Position.xy += taaJitter(gl_Position);
     #endif
 }

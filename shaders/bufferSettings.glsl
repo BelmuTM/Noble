@@ -27,11 +27,11 @@ const int colortex4Format         = RGBA32F;
 const bool colortex4Clear         = false;
 
 MAIN COLOR BUFFER
-const int colortex5Format         = RGBA16F;
+const int colortex5Format         = RGBA32F;
 const bool colortex5MipmapEnabled = true;
 
 VOLUMETRIC LIGHTING / SKY ILLUMINANCE
-const int colortex6Format         = RGBA16F;
+const int colortex6Format         = RGBA32F;
 
 HISTORY BUFFERS
 const int colortex8Format         = RGBA16F;

@@ -38,7 +38,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
     vec3 accumAirmass = vec3(0.0);
     for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
-        accumAirmass += getAtmosDensities(length(rayPos)) * stepLength;
+        accumAirmass += getAtmosDensities(fastLength(rayPos)) * stepLength;
     }
     return exp(-atmosExtinctionCoeff * accumAirmass);
 }
@@ -61,11 +61,11 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         mat2x3 singleScattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
-            vec3 airmass          = getAtmosDensities(length(rayPos)) * stepLength;
+            vec3 airmass          = getAtmosDensities(fastLength(rayPos)) * stepLength;
             vec3 stepOpticalDepth = atmosExtinctionCoeff * airmass;
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
-            vec3 visibleScattering  = transmittance   * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
+            vec3 visibleScattering  = transmittance * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
             vec3 sunStepScattering  = atmosScatteringCoeff * (airmass.xy * phase[0]) * visibleScattering;
             vec3 moonStepScattering = atmosScatteringCoeff * (airmass.xy * phase[1]) * visibleScattering;
 
@@ -101,7 +101,6 @@ vec3 sampleDirectIlluminance() {
             directIlluminance *= sRGB_2_AP1_ALBEDO;
         #endif
     #endif
-
     return directIlluminance;
 }
 
@@ -119,6 +118,5 @@ vec3 sampleSkyIlluminance() {
         }
         skyIlluminance *= (TAU / (samples.x * samples.y));
     #endif
-
     return skyIlluminance;
 }

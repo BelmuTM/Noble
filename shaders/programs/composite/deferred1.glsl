@@ -26,6 +26,28 @@ layout (location = 5) out vec4 clouds;
 #include "/include/fragment/pathtracer.glsl"
 #include "/include/fragment/shadows.glsl"
 
+float filterAO(vec2 coords, sampler2D tex, Material mat, float radius, float sigma, int steps) {
+    float ao = 0.0, totalWeight = 0.0;
+
+    for(int x = -steps; x <= steps; x++) {
+        for(int y = -steps; y <= steps; y++) {
+            vec2 sampleCoords = coords + vec2(x, y) * radius * pixelSize;
+            if(clamp01(sampleCoords) != sampleCoords) break;
+
+            Material sampleMat = getMaterial(sampleCoords);
+
+            float weight  = gaussianDistrib2D(vec2(x, y), sigma);
+                  weight *= exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(sampleMat.depth0)) * 2.0);
+                  weight *= pow(max0(dot(mat.normal, sampleMat.normal)), 8.0);
+                  weight  = clamp01(weight);
+
+            ao          += texture(tex, sampleCoords).a * weight;
+            totalWeight += weight;
+        }
+    }
+    return clamp01(ao * (1.0 / totalWeight));
+}
+
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
     #include "/include/post/taa.glsl"
 
@@ -44,13 +66,11 @@ layout (location = 5) out vec4 clouds;
             frames = hideGUI == 0 ? 0.0 : frames;
         #endif
 
-              frames = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+        frames       = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
         float weight = clamp01(1.0 - (1.0 / max(frames, 1.0)));
 
         color           = mix(color, prevColor.rgb, weight);
         float luminance = luminance(color);
-
-        moments.z = 0.0;
 
         // Thanks SixthSurge#3922 for the help with moments
         vec2 prevMoments = texture(colortex12, prevPos.xy).xy;
@@ -90,8 +110,8 @@ void main() {
     #if GI == 0
         if(!mat.isMetal) {
             #if AO == 1
-                #if SSAO_FILTER == 1
-                    filterAO(shadowmap.a, tempCoords, colortex3, mat, 2.5, 2.0, 4);
+                #if AO_FILTER == 1
+                    shadowmap.a = filterAO(tempCoords, colortex3, mat, 2.0, 2.0, 4);
                 #endif
             #endif
 

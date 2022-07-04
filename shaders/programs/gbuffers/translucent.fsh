@@ -37,7 +37,7 @@ void main() {
 	Material mat;
     mat.F0         = specularTex.y;
     mat.rough      = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
-    mat.ao         = all(greaterThan(geoNormal, vec3(0.0))) ? normalTex.z : 1.0; // Thanks Kneemund for the nametag fix
+    mat.ao         = normalTex.z; // Thanks Kneemund for the nametag fix
 	mat.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     mat.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
     mat.isMetal    = mat.F0 * maxVal8 > 229.5;
@@ -58,7 +58,7 @@ void main() {
 		mat.alpha  = 0.0;
 		mat.F0 	   = 0.02;
 		mat.rough  = 0.0;
-		mat.normal = TBN * getWaveNormals(viewToWorld(viewPos), WATER_OCTAVES);
+		mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES);
 		
 	} else {
 		mat.normal.xy = normalTex.xy * 2.0 - 1.0;

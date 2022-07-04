@@ -6,25 +6,40 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 5,8 */
-
-layout (location = 0) out vec3 color;
-layout (location = 1) out vec4 historyBuffer;
-
-#include "/include/utility/blur.glsl"
-#include "/include/post/taa.glsl"
 #include "/include/post/exposure.glsl"
 
-void main() {
-    color = texture(colortex5, texCoords).rgb;
+#if defined STAGE_VERTEX
 
-    #if TAA == 1
-        color = max0(temporalAntiAliasing(getMaterial(texCoords), colortex5, colortex8));
-    #endif
+    out float exposure;
 
-    historyBuffer.rgb = color;
+    void main() {
+        exposure = computeExposure();
 
-    #if EXPOSURE == 1
-        historyBuffer.a = computeAverageLuminance(colortex8);
-    #endif
-}
+        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+        texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    }
+
+#elif defined STAGE_FRAGMENT
+
+    /* RENDERTARGETS: 5,8 */
+
+    layout (location = 0) out vec3 color;
+    layout (location = 1) out vec4 historyBuffer;
+
+    #include "/include/utility/blur.glsl"
+    #include "/include/post/taa.glsl"
+
+    in float exposure;
+
+    void main() {
+        color = texture(colortex5, texCoords).rgb;
+
+        #if TAA == 1
+            color = max0(temporalAntiAliasing(getMaterial(texCoords), colortex5, colortex8));
+        #endif
+
+        historyBuffer.rgb = color;
+        historyBuffer.a   = exposure;
+    }
+
+#endif

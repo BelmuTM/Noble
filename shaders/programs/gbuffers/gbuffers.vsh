@@ -60,7 +60,7 @@ void main() {
 	gl_Position = transMAD(gbufferModelView, worldPos).xyzz * diag4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 
 	#ifdef PROGRAM_ENTITY
-		// Thanks Kneemund for the nametag fix
+		// Thanks Niemand#1929 for the nametag fix
 		if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
 			gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
 		}

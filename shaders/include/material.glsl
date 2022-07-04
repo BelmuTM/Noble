@@ -47,6 +47,10 @@ Material getMaterial(vec2 coords) {
     mat.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
     mat.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;
 
+    #if MATERIAL_AO == 0
+        mat.ao = 1.0;
+    #endif
+
     #if TONEMAP == 0
         mat.albedo = sRGBToAP1Albedo(mat.albedo);
     #else
