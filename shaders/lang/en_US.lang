@@ -132,13 +132,18 @@ option.SSAO_RADIUS.comment = Adjusts §bSSAO§r's radius.
 
 option.RTAO_SAMPLES = RTAO Samples
 option.RTAO_SAMPLES.comment = Influences §bRTAO§r's quality. §cHigher value gives better results, but reduces §cperformance.
+value.RTAO_SAMPLES.4 = §a4
+value.RTAO_SAMPLES.6 = §e6
+value.RTAO_SAMPLES.8 = §68
+value.RTAO_SAMPLES.10 = §c10
 
 option.RTAO_STEPS = RTAO Steps
 option.RTAO_STEPS.comment = Influences §bRTAO§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
-value.RTAO_STEPS.16 = §a16
-value.RTAO_STEPS.24 = §e24
-value.RTAO_STEPS.32 = §632
-value.RTAO_STEPS.40 = §c40
+value.RTAO_STEPS.16 = §216
+value.RTAO_STEPS.24 = §a24
+value.RTAO_STEPS.32 = §e32
+value.RTAO_STEPS.40 = §640
+value.RTAO_STEPS.64 = §c64
 
 option.GTAO_SLICES = GTAO Slices
 option.GTAO_SLICES.comment = Influences §bGTAO§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
@@ -324,11 +329,13 @@ option.WHITE_WORLD.comment = §rSets all block colors to white.
 value.WHITE_WORLD.0 = §cOFF
 value.WHITE_WORLD.1 = §aON
 
+option.RAIN_PUDDLES = Rain Puddles
+option.RAIN_PUDDLES.comment = Simulates the apparition of §bRain Puddles§r on the ground.
+value.RAIN_PUDDLES.0 = §cOFF
+value.RAIN_PUDDLES.1 = §aON
+
 option.RAIN_PUDDLES_SIZE = Rain Puddles Size
 option.RAIN_PUDDLES_SIZE.comment = Adjusts §bRain Puddles§r' size.
-
-option.RAIN_PUDDLES_STRENGTH = Rain Puddles Strength
-option.RAIN_PUDDLES_STRENGTH.comment = Adjusts §bRain Puddles§r' strength (reflectiveness).
 
 ## WATER
 

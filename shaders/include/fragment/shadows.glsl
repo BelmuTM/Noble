@@ -16,7 +16,7 @@ float contactShadow(vec3 viewPos, vec3 rayDir, int stepCount, float jitter) {
 
     const float contactShadowDepthLenience = 0.2;
 
-    vec3 increment = rayDir * (contactShadowDepthLenience * (1.0 / stepCount));
+    vec3 increment = rayDir * (contactShadowDepthLenience * rcp(stepCount));
          rayPos   += increment * (1.0 + jitter);
 
     for(int i = 0; i <= stepCount; i++, rayPos += increment) {
@@ -60,7 +60,7 @@ vec3 getShadowColor(vec3 samplePos) {
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
             vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) / shadowMapResolution;
-            float z     = texelFetch(shadowtex1, ivec2((shadowPos.xy + offset) * shadowMapResolution), 0).r;
+            float z     = texelFetch(shadowtex0, ivec2((shadowPos.xy + offset) * shadowMapResolution), 0).r;
 
             if(shadowPos.z > z) {
                 avgBlockerDepth += z;
@@ -70,9 +70,9 @@ vec3 getShadowColor(vec3 samplePos) {
         }
         // Subsurface depth calculation from SixthSurge#3922
         // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
-        ssDepth = (totalSSDepth * -shadowProjectionInverse[2].z) / (SHADOW_DEPTH_STRETCH * BLOCKERS);
+        ssDepth = (totalSSDepth * -shadowProjectionInverse[2].z) * rcp(SHADOW_DEPTH_STRETCH * float(BLOCKERS));
 
-        return BLOCKERS > 0 ? avgBlockerDepth / BLOCKERS : -1.0;
+        return BLOCKERS > 0 ? avgBlockerDepth * rcp(BLOCKERS) : -1.0;
     }
 #endif
 
@@ -87,12 +87,12 @@ vec3 PCF(vec3 shadowPos, float penumbraSize, inout float ssDepth) {
         vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
         #if SHADOW_TYPE != 1
             ssDepth = max0(shadowPos.z - texelFetch(shadowtex0, ivec2(samplePos.xy * shadowMapResolution), 0).r);
-            ssDepth = (ssDepth * -shadowProjectionInverse[2].z) * (1.0 / SHADOW_DEPTH_STRETCH);
+            ssDepth = (ssDepth * -shadowProjectionInverse[2].z) * rcp(SHADOW_DEPTH_STRETCH);
         #endif
 
         shadowResult += getShadowColor(samplePos);
     }
-    return shadowResult / float(SHADOW_SAMPLES);
+    return shadowResult * rcp(SHADOW_SAMPLES);
 }
 
 vec3 shadowMap(vec3 viewPos, vec3 geoNormal, out float ssDepth) {

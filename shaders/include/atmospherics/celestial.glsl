@@ -56,7 +56,7 @@ vec3 computeSky(vec3 viewPos) {
 
 		sky += physicalSun(sceneDir);
 		sky += physicalMoon(sceneDir);
-		//sky += computeStarfield(viewPos);
+		sky += computeStarfield(viewPos);
 
 		return sky * clouds.a + clouds.rgb;
 	#else

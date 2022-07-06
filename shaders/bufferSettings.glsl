@@ -16,7 +16,6 @@ const int colortex1Format         = RGBA32UI;
 
 MISC
 const int colortex2Format         = RGBA32F;
-const bool colortex2MipmapEnabled = true;
 
 SHADOWMAP & MISC
 const int shadowcolor0Format      = RGBA16F;
@@ -36,7 +35,7 @@ SKY ILLUMINANCE
 const int colortex6Format         = RGBA32F;
 
 HISTORY
-const int colortex8Format         = RGBA16F;
+const int colortex8Format         = RGBA32F;
 const bool colortex8Clear         = false;
 
 const int colortex9Format         = RGBA32F;
@@ -52,6 +51,6 @@ const int colortex12Format        = RGBA32F;
 const bool colortex12Clear        = false;
 
 CLOUDS
-const int colortex15Format        = RGBA16F;
+const int colortex15Format        = RGBA32F;
 const bool colortex15Clear        = false;
 */

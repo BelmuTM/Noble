@@ -44,8 +44,8 @@ void groundFog(inout vec3 color, vec3 viewPos, float skyLight, bool sky) {
 
 vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
     float stepLength = 1.0 / TRANSMITTANCE_STEPS;
-    vec3 increment  = lightDir * stepLength;
-    vec3 rayPos     = rayOrigin + increment * 0.5;
+    vec3 increment   = lightDir * stepLength;
+    vec3 rayPos      = rayOrigin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
     for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
@@ -60,11 +60,11 @@ vec3 volumetricFog(vec3 viewPos, float skyLight) {
 
     float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
 
-    vec3 increment = (endPos - startPos) / float(VL_STEPS);
+    vec3 increment = (endPos - startPos) * rcp(VL_STEPS);
     vec3 rayPos    = startPos + increment * jitter;
 
     vec3 shadowStartPos  = worldToShadow(startPos);
-    vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) / float(VL_STEPS);
+    vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * rcp(VL_STEPS);
     vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
 
     float VdotL = dot(normalize(endPos), sceneShadowDir);
@@ -81,7 +81,7 @@ vec3 volumetricFog(vec3 viewPos, float skyLight) {
         vec3 visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
 
         vec3 stepScatteringDirect   = atmosScatteringCoeff * vec2(airmass.xy * phase.xy) * visibleScattering;
-        vec3 stepScatteringIndirect = atmosScatteringCoeff * vec2(airmass.xy * vec2(isotropicPhase)) * visibleScattering;
+        vec3 stepScatteringIndirect = atmosScatteringCoeff * vec2(airmass.xy * isotropicPhase) * visibleScattering;
 
         vec3 sampleColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5);
 

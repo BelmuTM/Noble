@@ -8,14 +8,16 @@
 
 #if defined STAGE_VERTEX
 
-    out vec3 skyIlluminance;
+    out mat3[2] skyIlluminanceMat;
+    out vec3 skyMultScatterIllum;
+
     #include "/include/atmospherics/atmosphere.glsl"
 
     void main() {
         gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-        skyIlluminance = sampleSkyIlluminance();
+        skyIlluminanceMat = sampleSkyIlluminance(skyMultScatterIllum);
     }
 
 #elif defined STAGE_FRAGMENT
@@ -24,7 +26,7 @@
 
     layout (location = 0) out vec3 shadowmap;
     layout (location = 1) out vec3 sky;
-    layout (location = 2) out vec4 skyIllum;
+    layout (location = 2) out vec4 skyIlluminance;
     layout (location = 3) out vec4 ao;
     layout (location = 4) out vec4 clouds;
 
@@ -35,7 +37,8 @@
     #include "/include/fragment/ao.glsl"
     #include "/include/fragment/shadows.glsl"
 
-    in vec3 skyIlluminance;
+    in mat3[2] skyIlluminanceMat;
+    in vec3 skyMultScatterIllum;
 
     void main() {
         vec3 viewPos = getViewPos0(texCoords);
@@ -43,18 +46,19 @@
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
-            float ssDepth = 0.0;
-            shadowmap.rgb = shadowMap(viewPos, texture(colortex2, texCoords).rgb, ssDepth);
-            skyIllum.a    = ssDepth;
+            float ssDepth    = 0.0;
+            shadowmap.rgb    = shadowMap(viewPos, texture(colortex2, texCoords).rgb, ssDepth);
+            skyIlluminance.a = ssDepth;
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
-            vec3 skyRay       = normalize(unprojectSphere(texCoords * (1.0 / ATMOSPHERE_RESOLUTION)));
-                 sky          = atmosphericScattering(skyRay, skyIlluminance);
-                 skyIllum.rgb = skyIlluminance;
+            skyIlluminance.rgb = getSkyLight(mat.normal, skyIlluminanceMat);
+
+            vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
+                 sky    = atmosphericScattering(skyRay, skyMultScatterIllum);
 
             /*    ------- VOLUMETRIC CLOUDS -------    */
             #if CLOUDS == 1
-                vec2 cloudsCoords = texCoords * (1.0 / CLOUDS_RESOLUTION);
+                vec2 cloudsCoords = texCoords * rcp(CLOUDS_RESOLUTION);
                 
                 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -84,7 +88,7 @@
         #if AO == 1
 
             if(clamp(texCoords, vec2(0.0), vec2(AO_RESOLUTION)) == texCoords) {
-                vec2 scaledUv = texCoords * (1.0 / AO_RESOLUTION);
+                vec2 scaledUv = texCoords * rcp(AO_RESOLUTION);
 
                 if(!isSky(scaledUv) && !isHand(scaledUv)) {
                     vec3 scaledViewPos = getViewPos0(scaledUv);

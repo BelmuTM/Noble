@@ -104,8 +104,9 @@ vec3 sampleDirectIlluminance() {
     return directIlluminance;
 }
 
-vec3 sampleSkyIlluminance() {
-    vec3 skyIlluminance = vec3(0.0);
+mat3[2] sampleSkyIlluminance(inout vec3 skyMultScatterIllum) {
+    mat3[2] skyIllum    = mat3[2](mat3(0.0), mat3(0.0));
+    skyMultScatterIllum = vec3(0.0);
 
     #ifdef WORLD_OVERWORLD
         const ivec2 samples = ivec2(16, 8);
@@ -113,10 +114,39 @@ vec3 sampleSkyIlluminance() {
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
                 vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
-                skyIlluminance += texture(colortex0, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
+                vec3 atmoSample = texture(colortex0, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
+
+                skyIllum[0][0] += atmoSample * clamp01(dir.x);
+                skyIllum[0][1] += atmoSample * clamp01(dir.y);
+                skyIllum[0][2] += atmoSample * clamp01(dir.z);
+                skyIllum[1][0] += atmoSample * clamp01(-dir.x);
+                skyIllum[1][2] += atmoSample * clamp01(-dir.z);
+
+                skyMultScatterIllum += atmoSample;
             }
         }
-        skyIlluminance *= (TAU / (samples.x * samples.y));
+        const float sampleWeight = 2.0 * TAU / (samples.x * samples.y);
+        skyIllum[0][0] *= sampleWeight;
+        skyIllum[0][1] *= sampleWeight;
+        skyIllum[0][2] *= sampleWeight;
+        skyIllum[1][0] *= sampleWeight;
+        skyIllum[1][2] *= sampleWeight;
+
+        skyIllum[0][0] += skyIllum[0][1] * 0.14;
+        skyIllum[0][2] += skyIllum[0][1] * 0.14;
+        skyIllum[1][0] += skyIllum[0][1] * 0.14;
+        skyIllum[1][1] += skyIllum[0][1] * 0.14;
+        skyIllum[1][2] += skyIllum[0][1] * 0.14;
+
+        skyMultScatterIllum *= (TAU / (samples.x * samples.y));
     #endif
-    return skyIlluminance;
+    return skyIllum;
+}
+
+vec3 getSkyLight(vec3 normal, mat3[2] skyLight) {
+    vec3 octahedronPoint = normal / dot(abs(normal), vec3(1.0));
+    vec3 positive = clamp01(octahedronPoint), negative = clamp01(-octahedronPoint);
+    
+    return skyLight[0][0] * positive.x + skyLight[0][1] * positive.y + skyLight[0][2] * positive.z
+		 + skyLight[1][0] * negative.x + skyLight[1][1] * negative.y + skyLight[1][2] * negative.z;
 }

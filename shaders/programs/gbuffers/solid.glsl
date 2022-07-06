@@ -12,7 +12,7 @@
 #elif defined STAGE_FRAGMENT
 	/* RENDERTARGETS: 1,2 */
 
-	layout (location = 0) out uvec4 dataBuffer;
+	layout (location = 0) out uvec4 data;
 	layout (location = 1) out vec3  geometricNormal;
 
 	flat in int blockId;
@@ -69,16 +69,15 @@
 				if(F0 * maxVal8 <= 229.5) {
 					vec2 puddleCoords = (viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
 
-					float puddle  = pow3(voronoise(puddleCoords, 1, 1));
-						  puddle += pow5(voronoise(puddleCoords, 0, 1));
-		  	  	  	  	  puddle *= pow2(quintic(EPS, 1.0, lmCoords.y));
+					float puddle  = quintic(0.0, 1.0, FBM(puddleCoords, 1) * 0.5 + 0.5);
+		  	  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
 	  				  	  puddle *= (1.0 - porosity);
 			  	  	  	  puddle *= wetness;
 			  	  	  	  puddle *= quintic(0.89, 0.99, normal.y);
 						  puddle  = clamp01(puddle);
 	
-					F0        = mix(F0, RAIN_PUDDLES_STRENGTH, puddle);
-					roughness = mix(roughness, 0.0, puddle);
+					F0        = mix(F0, waterF0,       puddle);
+					roughness = mix(roughness, 0.0,    puddle);
 					normal    = mix(normal, geoNormal, puddle);
 				}
 			#endif
@@ -86,10 +85,10 @@
 
 		vec2 encNormal = encodeUnitVector(normalize(normal));
 	
-		dataBuffer.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) / maxVal8, lmCoords));
-		dataBuffer.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));
-		dataBuffer.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
-		dataBuffer.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
+		data.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) / maxVal8, lmCoords));
+		data.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));
+		data.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
+		data.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
 
 		geometricNormal = geoNormal;
 	}

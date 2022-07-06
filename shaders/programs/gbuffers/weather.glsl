@@ -17,12 +17,14 @@
 
 	in vec2 texCoords;
 	in vec4 vertexColor;
-	uniform sampler2D colortex0;
+
+	#include "/include/common.glsl"
 
 	void main() {
 		vec4 albedoTex = texture(colortex0, texCoords);
+			 albedoTex *= vertexColor;
 		if(albedoTex.a < 0.102) discard;
 
-		color = vertexColor * albedoTex;
+		color = albedoTex;
 	}
 #endif

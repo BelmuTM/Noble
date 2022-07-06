@@ -118,12 +118,12 @@ vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
     // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
     float smoothSurf;
     if(!pt) {
-        float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * (1.0 / 9.0);
+        float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * rcp(9.0);
         float ior       = F0ToIOR(mat.F0);
         float fresnelNL = 1.0 - fresnelDielectric(NdotL, ior);
         float fresnelNV = 1.0 - fresnelDielectric(NdotV, ior);
 
-        smoothSurf = fresnelNL * fresnelNV * (1.0 / energyConservationFactor);
+        smoothSurf = fresnelNL * fresnelNV * rcp(energyConservationFactor);
     } else {
         smoothSurf = 1.05 * (1.0 - pow5(1.0 - NdotL)) * (1.0 - pow5(1.0 - NdotV));
     }
@@ -201,7 +201,7 @@ float disneySSS(Material mat, vec3 V, vec3 L, float ssDepth) {
     float FL    = henyeyGreensteinPhase(NdotL, 0.5), FV = henyeyGreensteinPhase(NdotV, 0.5);
     float Fss90 = pow2(HdotL) * mat.rough;
     float Fss   = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
-    float sss   = 1.25 * (Fss * (1.0 / (NdotL + NdotV) - 0.5) + 0.5);
+    float sss   = 1.25 * (Fss * rcp((NdotL + NdotV) - 0.5) + 0.5);
 
     return max0(quintic(0.0, 1.0, sss) * INV_PI * mat.subsurface * (1.0 - ssDepth));
 }
@@ -217,10 +217,12 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec3 shadowmap, vec3 directLig
          diffuse *= shadowmap;
 
     #if SUBSURFACE_SCATTERING == 1
+        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = 0.7;
+
         diffuse += disneySSS(mat, V, L, ssDepth);
     #endif
 
-    diffuse *= directLight;
+    diffuse *= (directLight * quintic(0.0, 0.01, sceneShadowDir.y));
 
     mat.lightmap.x = pow(quintic(0.0, 1.0, mat.lightmap.x), 1.5);
     mat.lightmap.y = pow2(1.0 - pow(1.0 - clamp01(mat.lightmap.y), SKYLIGHT_FALLOFF));

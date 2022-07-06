@@ -95,7 +95,7 @@ void main() {
 
             #if SPECULAR == 1
                 vec3 shadowmap = texture(colortex3, coords).rgb;
-                color         += computeSpecular(mat.normal, viewDir0, shadowDir, mat) * sampleDirectIlluminance() * shadowmap;
+                color         += computeSpecular(mat.normal, viewDir0, shadowDir, mat) * shadowmap;
             #endif
 
             #if REFLECTIONS == 1

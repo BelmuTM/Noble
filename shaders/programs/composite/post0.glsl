@@ -6,15 +6,33 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 4,2,3,9 */
+/* RENDERTARGETS: 4,3,9 */
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out vec4 sqrtLuma;
-layout (location = 2) out vec3 bloomBuffer;
-layout (location = 3) out vec4 previousBuffer;
+layout (location = 1) out vec3 bloomBuffer;
+layout (location = 2) out vec4 previousBuffer;
 
-#include "/include/utility/blur.glsl"
 #include "/include/post/bloom.glsl"
+#include "/include/post/taa.glsl"
+
+#if VL == 1
+    #if VL_FILTER == 1
+        vec3 filterVL(sampler2D tex, vec2 coords, Material mat, float radius, float sigma, int steps) {
+            vec3 color = vec3(0.0);
+
+            for(int x = -steps; x <= steps; x++) {
+                for(int y = -steps; y <= steps; y++) {
+                    vec2 sampleCoords = coords + vec2(x, y) * radius * pixelSize;
+                    if(clamp01(sampleCoords) != sampleCoords) continue;
+
+                    float weight = gaussianDistrib2D(vec2(x, y), sigma);
+                    color       += texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb * weight;
+                }
+            }
+            return color;
+        }
+    #endif
+#endif
 
 #if DOF == 1
     // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
@@ -51,7 +69,7 @@ layout (location = 3) out vec4 previousBuffer;
                 }
             }
         }
-        color = dof * (1.0 / pow2(quality));
+        color = dof * rcp(pow2(quality));
     }
 #endif
 
@@ -70,12 +88,12 @@ void main() {
 
     #if VL == 1
         #if VL_FILTER == 1
-            color.rgb += gaussianBlur(colortex2, texCoords, 1.1, 2.0, 4).rgb;
+            color.rgb += filterVL(colortex2, texCoords, mat, 1.1, 2.0, 4);
         #else
-            color.rgb += texture(colortex2, texCoords).rgb;
+            color.rgb += texelFetch(colortex2, ivec2(texCoords * viewSize), 0).rgb;
         #endif
     #endif
 
-    sqrtLuma.a     = sqrt(luminance(color.rgb));
+    color.a        = sqrt(luminance(color.rgb));
     previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth0);
 }

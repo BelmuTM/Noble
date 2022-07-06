@@ -24,5 +24,5 @@
 
 #include "/include/material.glsl"
 
-bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0; }
-bool isHand(vec2 coords) { return linearizeDepth(texture(depthtex0, coords).r) == MC_HAND_DEPTH; }
+bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0;                          }
+bool isHand(vec2 coords) { return linearizeDepth(texture(depthtex0, coords).r) < MC_HAND_DEPTH; }

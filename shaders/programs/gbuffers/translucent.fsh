@@ -8,7 +8,7 @@
 
 /* RENDERTARGETS: 1,5 */
 
-layout (location = 0) out uvec4 dataBuffer;
+layout (location = 0) out uvec4 data;
 layout (location = 1) out vec4 sceneColor;
 
 flat in int blockId;
@@ -56,7 +56,7 @@ void main() {
 	if(blockId == 1) { 
 		mat.albedo = vec3(1.0);
 		mat.alpha  = 0.0;
-		mat.F0 	   = 0.02;
+		mat.F0 	   = waterF0;
 		mat.rough  = 0.0;
 		mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES);
 		
@@ -74,18 +74,20 @@ void main() {
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);
     		#endif
 
-			sceneColor.rgb = mat.isMetal ? vec3(0.0) : computeDiffuse(scenePos, sceneShadowDir, mat, shadowmap, directIlluminance, sampleSkyIlluminance(), ssDepth, 1.0);
+			vec3 foo;
+			mat3[2] skyLight = sampleSkyIlluminance(foo);
+
+			sceneColor.rgb = mat.isMetal ? vec3(0.0) : computeDiffuse(scenePos, sceneShadowDir, mat, shadowmap, directIlluminance, getSkyLight(mat.normal, skyLight), ssDepth, 1.0);
 		#else
 			sceneColor.rgb = mat.albedo;
 		#endif
-
 		sceneColor.a = mat.alpha;
 	}
 	
 	vec2 encNormal = encodeUnitVector(mat.normal);
 	
-	dataBuffer.x = packUnorm4x8(vec4(mat.rough, (blockId + 0.25) / maxVal8, clamp01(mat.lightmap)));
-	dataBuffer.y = packUnorm4x8(vec4(mat.ao, mat.emission, mat.F0, mat.subsurface));
-	dataBuffer.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
-	dataBuffer.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
+	data.x = packUnorm4x8(vec4(mat.rough, (blockId + 0.25) / maxVal8, clamp01(mat.lightmap)));
+	data.y = packUnorm4x8(vec4(mat.ao, mat.emission, mat.F0, mat.subsurface));
+	data.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
+	data.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
 }

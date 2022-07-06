@@ -12,6 +12,7 @@
     #define attribute in
     attribute vec4 at_tangent;
     attribute vec3 mc_Entity;
+    attribute vec2 mc_midTexCoord;
 
     flat out int blockId;
     out vec2 texCoords;
@@ -35,10 +36,7 @@
 	    TBN 		   = mat3(tangent, bitangent, normal);
 
 	    #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            worldPos += cameraPosition;
-            animate(worldPos);
-            worldPos -= cameraPosition;
-
+            animate(worldPos, texCoords.y < mc_midTexCoord.y);
             gl_Position = transMAD(shadowModelView, worldPos).xyzz * diag4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 	    #else
             gl_Position = ftransform();

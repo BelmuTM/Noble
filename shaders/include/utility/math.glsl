@@ -46,7 +46,7 @@ vec2  pow5(vec2 x)  { return pow4(x)*x; }
 vec3  pow5(vec3 x)  { return pow4(x)*x; }
 vec4  pow5(vec4 x)  { return pow4(x)*x; }
 
-float pow10(float x) { return pow(10, x); }
+float pow10(float x) { return pow(10, x);         }
 vec2  pow10(vec2 x)  { return pow(vec2(10.0), x); }
 vec3  pow10(vec3 x)  { return pow(vec3(10.0), x); }
 vec4  pow10(vec4 x)  { return pow(vec4(10.0), x); }
@@ -64,6 +64,12 @@ float maxOf(vec2 x) { return max(x.x, x.y);                     }
 float maxOf(vec3 x) { return max(x.x, max(x.y, x.z));           }
 float maxOf(vec4 x) { return max(max(x.x, x.y), max(x.z, x.w)); }
 
+float rcp(int x)   { return 1.0 / float(x); }
+float rcp(float x) { return 1.0 / x;        }
+vec2  rcp(vec2 x)  { return 1.0 / x;        }
+vec3  rcp(vec3 x)  { return 1.0 / x;        }
+vec4  rcp(vec4 x)  { return 1.0 / x;        }
+
 // Improved smoothstep function suggested by Ken Perlin
 // https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/improved-perlin-noise
 float quintic(float edge0, float edge1, float x) {
@@ -77,18 +83,18 @@ float linearStep(float edge0, float edge1, float x) {
 }
 
 // https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
-float ACos(in float x) { 
+float fastAcos(in float x) { 
     x = abs(x); 
     float res = -0.156583 * x + HALF_PI; 
     res *= sqrt(1.0 - x); 
     return (x >= 0) ? res : PI - res; 
 }
 
-float ASin(float x) {
-    return HALF_PI - ACos(x);
+float fastAsin(float x) {
+    return HALF_PI - fastAcos(x);
 }
 
-float ATanPos(float x)  { 
+float atanPos(float x)  { 
     float t0 = (x < 1.0) ? x : 1.0 / x;
     float t1 = t0 * t0;
     float poly = 0.0872929;
@@ -98,8 +104,8 @@ float ATanPos(float x)  {
     return (x < 1.0) ? poly : HALF_PI - poly;
 }
 
-float ATan(float x) {     
-    float t0 = ATanPos(abs(x));     
+float fastAtan(float x) {     
+    float t0 = atanPos(abs(x));     
     return (x < 0.0) ? -t0 : t0; 
 }
 
@@ -157,7 +163,7 @@ vec2 projectSphere(vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
     float latitude  = acos(direction.y);
 
-    return vec2(longitude * (1.0 / TAU) + 0.5, latitude * INV_PI);
+    return vec2(longitude * rcp(TAU) + 0.5, latitude * INV_PI);
 }
 
 vec3 unprojectSphere(vec2 coord) {
@@ -212,7 +218,7 @@ float gaussianDistrib2D(vec2 xy, float sigma) {
 // http://jcgt.org/published/0003/02/01/
 
 vec2 encodeUnitVector(vec3 v) {
-	vec2 enc = v.xy * (1.0 / (abs(v.x) + abs(v.y) + abs(v.z)));
+	vec2 enc = v.xy * rcp((abs(v.x) + abs(v.y) + abs(v.z)));
 	enc      = (v.z <= 0.0) ? ((1.0 - abs(enc.yx)) * signNonZero(enc)) : enc;
     
 	return 0.5 * enc + 0.5;
@@ -256,7 +262,7 @@ vec4 cubic(float v) {
     float y = s.y - 4.0 * s.x;
     float z = s.z - 4.0 * s.y + 6.0 * s.x;
     float w = 6.0 - x - y - z;
-    return vec4(x, y, z, w) * (1.0 / 6.0);
+    return vec4(x, y, z, w) * rcp(6.0);
 }
  
 vec4 textureBicubic(sampler2D tex, vec2 texCoords) {

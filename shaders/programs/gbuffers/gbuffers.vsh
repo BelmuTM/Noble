@@ -9,6 +9,7 @@
 #define attribute in
 attribute vec4 at_tangent;
 attribute vec3 mc_Entity;
+attribute vec2 mc_midTexCoord;
 
 flat out int blockId;
 out vec2 texCoords;
@@ -46,15 +47,11 @@ void main() {
 	vec3 worldPos = transMAD(gbufferModelViewInverse, viewPos);
 
 	#if ACCUMULATION_VELOCITY_WEIGHT == 0
-		worldPos += cameraPosition;
-		
-		animate(worldPos);
+		animate(worldPos, texCoords.y < mc_midTexCoord.y);
 
 		#ifdef WEATHER
 			worldPos.xz  += RAIN_DIRECTION * worldPos.y * RAIN_ANGLE_INTENSITY;
 		#endif
-
-		worldPos -= cameraPosition;
 	#endif
 	
 	gl_Position = transMAD(gbufferModelView, worldPos).xyzz * diag4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];

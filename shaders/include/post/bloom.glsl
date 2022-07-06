@@ -63,6 +63,6 @@
 	     	 bloom += getBloomTile(6);
 	     	 bloom += getBloomTile(7);
 	     	 bloom += getBloomTile(8);
-    	return bloom * (1.0 / 7.0);
+    	return bloom * rcp(7.0);
 	}
 #endif

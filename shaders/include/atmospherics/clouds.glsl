@@ -35,7 +35,7 @@ float densityAlter(float altitude, float weatherMap) {
 }
 
 float getCloudsDensity(vec3 position0) {
-    float altitude     = (position0.y - innerCloudRad) * (1.0 / CLOUDS_THICKNESS);
+    float altitude     = (position0.y - innerCloudRad) * rcp(CLOUDS_THICKNESS);
     vec2 windDirection = WIND_SPEED * sincos(windAngleRad);
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
@@ -159,7 +159,7 @@ vec4 cloudsScattering(vec3 rayDir, out float depth) {
     transmittance = clamp01((transmittance - cloudsTransmitThreshold) / (1.0 - cloudsTransmitThreshold));
 
     scattering += scattering.x * sampleDirectIlluminance();
-    scattering += scattering.y * texture(colortex6, texCoords).rgb;
+    scattering += scattering.y * texture(colortex6, projectSphere(vec3(0.0, 1.0, 0.0))).rgb;
     scattering += scattering.z;
 
     depth /= weight;

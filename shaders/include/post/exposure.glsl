@@ -9,22 +9,22 @@
 const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
-float minExposure = TAU / luminance(sunIlluminance);
-float maxExposure = 0.2 / luminance(moonIlluminance);
+float minExposure = PI  * rcp(luminance(sunIlluminance));
+float maxExposure = 0.3 * rcp(luminance(moonIlluminance));
 
-float computeEV100fromLuma(float avgLuminance) {
-     return log2(avgLuminance * S / K);
+float computeEV100fromLuma(float luma) {
+     return log2(luma * S / K);
 }
 
 float EV100ToExposure(float EV100) {
-     return 1.0 / (1.2 * exp2(EV100));
+     return 1.0 * rcp(1.2 * exp2(EV100));
 }
 
 float computeExposure() {
      #if EXPOSURE == 0
           float EV100 = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
      #else
-          float avgLuma = pow2(textureLod(colortex2, vec2(0.5), maxOf(ceil(log2(viewSize)))).a);
+          float avgLuma = pow2(textureLod(colortex4, vec2(0.5), maxOf(ceil(log2(viewSize)))).a);
           float EV100   = computeEV100fromLuma(avgLuma);
      #endif
 

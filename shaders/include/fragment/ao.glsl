@@ -12,7 +12,8 @@
 		float occlusion = 0.0;
 
 		for(int i = 0; i < SSAO_SAMPLES; i++) {
-			vec3 rayDir    = generateCosineVector(normal, uniformNoise(i, blueNoise));
+			vec2 noise     = TAA == 1 ? uniformAnimatedNoise(blueNoise.rg) : uniformNoise(i, blueNoise);
+			vec3 rayDir    = generateCosineVector(normal, noise);
 			vec3 rayPos    = viewPos + rayDir * SSAO_RADIUS;
 			float rayDepth = getViewPos0(viewToScreen(rayPos).xy).z;
 
@@ -30,13 +31,11 @@
 		float occlusion = 1.0; vec3 hitPos;
 
 		for(int i = 0; i < RTAO_SAMPLES; i++) {
-			vec2 noise  = TAA == 1 ? uniformAnimatedNoise(blueNoise.rg) : uniformNoise(i, blueNoise);
-			vec3 rayDir = generateCosineVector(normal, noise);
-
-			if(!raytrace(rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) { continue; }
+			vec3 rayDir = generateCosineVector(normal, vec2(randF(), randF()));
+			if(!raytrace(rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) continue;
 
 			// Thanks Jessie#7257 for providing the occlusion computation method
-			occlusion -= 1.0 / RTAO_SAMPLES;
+			occlusion -= rcp(RTAO_SAMPLES);
 		}
 		return occlusion;
 	}
@@ -56,7 +55,7 @@
 	float findMaximumHorizon(vec2 coords, vec3 viewPos, vec3 viewDir, vec3 normal, vec3 sliceDir, vec2 radius) {
 		float horizonCos = -1.0;
 
-		vec2 stepSize  = radius * (1.0 / float(GTAO_HORIZON_STEPS));
+		vec2 stepSize  = radius * rcp(float(GTAO_HORIZON_STEPS));
 		vec2 increment = sliceDir.xy * stepSize;
 		vec2 screenPos = coords + uniformAnimatedNoise(blueNoise.rg) * increment;
 
@@ -70,7 +69,7 @@
 		
 			horizonCos = max(horizonCos, cosTheta);
 		}
-		return ACos(horizonCos);
+		return fastAcos(horizonCos);
 	}
 
 	float GTAO(vec2 coords, vec3 viewPos, vec3 normal) {
@@ -81,7 +80,7 @@
 		vec3 viewDir 		= -viewPos * rcpViewLength;
 
 		for(int slice = 0; slice < GTAO_SLICES; slice++) {
-			float sliceAngle = (PI / float(GTAO_SLICES)) * (slice + randF());
+			float sliceAngle = (PI * rcp(GTAO_SLICES)) * (slice + randF());
 			vec3  sliceDir   = vec3(cos(sliceAngle), sin(sliceAngle), 0.0);
 
 			vec3 orthoDir   = sliceDir - (dot(sliceDir, viewDir) * viewDir);
@@ -91,7 +90,7 @@
 			float sgnGamma = sign(dot(projNormal, orthoDir));
 			float normLen  = fastRcpLength(projNormal);
 			float cosGamma = clamp01(dot(projNormal, viewDir) * normLen);
-			float gamma    = sgnGamma * ACos(cosGamma);
+			float gamma    = sgnGamma * fastAcos(cosGamma);
 
 			vec2 horizons;
 			horizons.x = -findMaximumHorizon(coords, viewPos, viewDir, normal,-sliceDir, radius);
@@ -101,6 +100,6 @@
 			vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
 			visibility += dot(arc, vec2(0.25)) * normLen;
 		}
-		return multiBounceApprox(visibility * (1.0 / GTAO_SLICES));
+		return multiBounceApprox(visibility * rcp(GTAO_SLICES));
 	}
 #endif
