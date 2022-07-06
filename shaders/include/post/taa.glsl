@@ -35,6 +35,14 @@ vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
     return clipAABB(prevColor, minColor, maxColor);
 }
 
+float getNormalWeight(vec3 normal0, vec3 normal1, float sigma) {
+    return pow(max0(dot(normal0, normal1)), sigma);
+}
+
+float getDepthWeight(float depth0, float depth1, float sigma) {
+    return exp(-abs(linearizeDepth(depth0) - linearizeDepth(depth1)) * sigma);
+}
+
 float getLumaWeight(vec3 currColor, vec3 prevColor) {
     float currLuma   = currColor.r, prevLuma = prevColor.r;
     float lumaWeight = exp(-abs(currLuma - prevLuma) / max(currLuma, max(prevLuma, TAA_LUMA_MIN)));
@@ -51,7 +59,7 @@ vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex
          prevColor = neighbourhoodClipping(currTex, prevColor);
 
     float weight      = float(clamp01(prevPos.xy) == prevPos.xy);
-    float depthWeight = exp(-abs(linearizeDepth(currMat.depth0) - linearizeDepth(texture(colortex9, prevPos.xy).a)) * TAA_DEPTH_WEIGHT);
+    float depthWeight = getDepthWeight(currMat.depth0, texture(colortex9, prevPos.xy).a, TAA_DEPTH_WEIGHT);
     //float lumaWeight  = getLumaWeight(currColor, prevColor);
 
     // Offcenter rejection from Zombye#7365

@@ -210,11 +210,11 @@ float disneySSS(Material mat, vec3 V, vec3 L, float ssDepth) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ssDepth) {
+vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec3 shadowmap, vec3 directLight, vec3 skyIlluminance, float ssDepth, float ao) {
     V = -normalize(V);
 
     vec3 diffuse  = hammonDiffuse(mat.normal, V, L, mat, false);
-         diffuse *= shadowmap.rgb;
+         diffuse *= shadowmap;
 
     #if SUBSURFACE_SCATTERING == 1
         diffuse += disneySSS(mat, V, L, ssDepth);
@@ -227,7 +227,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
 
     vec3 skyLight   = skyIlluminance * INV_PI     * mat.lightmap.y;
     vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
-         diffuse   += (blockLight + skyLight) * (mat.ao * shadowmap.a);
+         diffuse   += (blockLight + skyLight) * (mat.ao * ao);
          diffuse   += mat.emission * BLOCKLIGHT_INTENSITY;
 
     return mat.albedo * diffuse;

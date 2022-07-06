@@ -27,20 +27,18 @@
 
 	float RTAO(vec3 viewPos, vec3 normal) {
 		vec3 rayPos     = viewPos + normal * 1e-2;
-		float occlusion = 0.0; vec3 hitPos;
+		float occlusion = 1.0; vec3 hitPos;
 
-		for(int i = 1; i <= RTAO_SAMPLES; i++) {
-			vec2 noise = TAA == 1 ? uniformAnimatedNoise(blueNoise.rg) : uniformNoise(i, blueNoise);
-
+		for(int i = 0; i < RTAO_SAMPLES; i++) {
+			vec2 noise  = TAA == 1 ? uniformAnimatedNoise(blueNoise.rg) : uniformNoise(i, blueNoise);
 			vec3 rayDir = generateCosineVector(normal, noise);
-			if(dot(normal, rayDir) < 0.0) rayDir = -rayDir;
 
-			if(!raytrace(rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) { break; }
+			if(!raytrace(rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) { continue; }
 
-			float dist = distance(viewToWorld(rayPos), viewToWorld(getViewPos0(hitPos.xy)));
-			occlusion += RTAO_STRENGTH / (dist + 1.0);
+			// Thanks Jessie#7257 for providing the occlusion computation method
+			occlusion -= 1.0 / RTAO_SAMPLES;
 		}
-		return 1.0 - (occlusion * (1.0 / RTAO_SAMPLES));
+		return occlusion;
 	}
 #else
 

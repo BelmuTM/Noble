@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
+vec4 boxBlur(sampler2D tex, vec2 coords, int size) {
     vec4 color  = vec4(0.0);
     int samples = 1;
 
@@ -22,7 +22,7 @@ vec4 boxBlur(vec2 coords, sampler2D tex, int size) {
     return color / float(samples);
 }
 
-vec4 gaussianBlur(vec2 coords, sampler2D tex, float radius, float sigma, int steps) {
+vec4 gaussianBlur(sampler2D tex, vec2 coords, float radius, float sigma, int steps) {
     vec4 color = vec4(0.0);
 
     for(int x = -steps; x <= steps; x++) {

@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 5 */
+/* RENDERTARGETS: 4 */
 
 layout (location = 0) out vec3 color;
 
@@ -38,7 +38,7 @@ layout (location = 0) out vec3 color;
 
         for(int x = -1; x <= 1; x++) {
             for(int y = -1; y <= 1; y++) {
-                avgLuma += luminance(texture(colortex5, coords + vec2(x, y) * pixelSize).rgb);
+                avgLuma += luminance(texture(colortex4, coords + vec2(x, y) * pixelSize).rgb);
                 weight++;
             }
         }
@@ -56,7 +56,7 @@ void main() {
         if(isEyeInWater == 1) underwaterDistortion(distortCoords);
     #endif
 
-    color = texture(colortex5, distortCoords).rgb;
+    color = texture(colortex4, distortCoords).rgb;
 
     #if SHARPEN == 1
         sharpeningFilter(color, distortCoords);

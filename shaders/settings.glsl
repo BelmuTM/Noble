@@ -50,17 +50,17 @@ const float shadowDistanceRenderMul = 1.0;
 //////////////////////////////////////////////////////////
 /*------------------ AMBIENT OCCLUSION -----------------*/
 //////////////////////////////////////////////////////////
-#define AO        1 // [0 1]
-#define AO_TYPE   1 // [0 1 2]
-#define AO_FILTER 1 // [0 1]
+#define AO               1 // [0 1]
+#define AO_TYPE          1 // [0 1 2]
+#define AO_FILTER        1 // [0 1]
+#define AO_RESOLUTION 0.75 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define SSAO_SAMPLES   12 // [4 8 12 16 20]
 #define SSAO_RADIUS  0.50 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00]
 #define SSAO_STRENGTH 1.5
 
-#define RTAO_SAMPLES    3 // [3 5 7]
-#define RTAO_STEPS     32 // [16 24 32 40]
-#define RTAO_STRENGTH 1.5
+#define RTAO_SAMPLES 3 // [3 5 7]
+#define RTAO_STEPS  32 // [16 24 32 40]
 
 #define GTAO_HORIZON_STEPS 4
 #define GTAO_SLICES        2 // [1 2 3 4 5 6]
@@ -238,7 +238,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ABERRATION_STRENGTH 2.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00 3.25 3.50 3.75 4.00]
 
 #define SHARPEN             1 // [0 1]
-#define SHARPEN_STRENGTH 1.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
+#define SHARPEN_STRENGTH 0.75 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
 
 #define UNDERWATER_DISTORTION         1
 #define WATER_DISTORTION_SPEED     0.65

@@ -20,12 +20,13 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,0,6,15 */
+    /* RENDERTARGETS: 3,0,6,12,15 */
 
-    layout (location = 0) out vec4 shadowmap;
+    layout (location = 0) out vec3 shadowmap;
     layout (location = 1) out vec3 sky;
     layout (location = 2) out vec4 skyIllum;
-    layout (location = 3) out vec4 clouds;
+    layout (location = 3) out vec4 ao;
+    layout (location = 4) out vec4 clouds;
 
     #include "/include/atmospherics/atmosphere.glsl"
     #include "/include/atmospherics/clouds.glsl"
@@ -33,7 +34,6 @@
     #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/ao.glsl"
     #include "/include/fragment/shadows.glsl"
-    #include "/include/post/taa.glsl"
 
     in vec3 skyIlluminance;
 
@@ -80,18 +80,32 @@
             #endif
         #endif
 
-        shadowmap.a = 1.0;
+        ao.a = 1.0;
         #if AO == 1
-            if(!isSky(texCoords) && !isHand(texCoords)) {
-                #if AO_TYPE == 0
-                    shadowmap.a = SSAO(viewPos, mat.normal);
-                #elif AO_TYPE == 1
-                    shadowmap.a = RTAO(viewPos, mat.normal);
-                #else
-                    shadowmap.a = GTAO(texCoords, viewPos, mat.normal);
-                #endif
-                shadowmap.a = clamp01(shadowmap.a);
+
+            if(clamp(texCoords, vec2(0.0), vec2(AO_RESOLUTION)) == texCoords) {
+                vec2 scaledUv = texCoords * (1.0 / AO_RESOLUTION);
+
+                if(!isSky(scaledUv) && !isHand(scaledUv)) {
+                    vec3 scaledViewPos = getViewPos0(scaledUv);
+                    Material scaledMat = getMaterial(scaledUv);
+
+                    #if AO_TYPE == 0
+                        ao.a = SSAO(scaledViewPos, scaledMat.normal);
+                    #elif AO_TYPE == 1
+                        ao.a = RTAO(scaledViewPos, scaledMat.normal);
+                    #else
+                        ao.a = GTAO(scaledUv, scaledViewPos, scaledMat.normal);
+                    #endif
+
+                    vec3 prevPos = reprojection(vec3(scaledUv, scaledMat.depth0));
+                    float prevAO = texture(colortex12, prevPos.xy).a;
+                    float weight = clamp01(1.0 - (1.0 / max(texture(colortex5, prevPos.xy).a, 1.0)));
+
+                    if(prevAO >= EPS) ao.a = clamp01(mix(ao.a, prevAO, weight));
+                }
             }
+
         #endif
     }
 #endif

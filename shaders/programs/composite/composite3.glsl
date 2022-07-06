@@ -6,9 +6,9 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 5,2,12 */
+/* RENDERTARGETS: 4,2,12 */
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
 layout (location = 1) out vec3 reflections;
 layout (location = 2) out vec3 moments;
 
@@ -21,7 +21,7 @@ layout (location = 2) out vec3 moments;
 #include "/include/fragment/atrous.glsl"
 
 void main() {
-    color = texture(colortex5, texCoords);
+    color = texture(colortex4, texCoords).rgb;
 
     #if GI == 0
         #if REFLECTIONS == 1
@@ -40,7 +40,7 @@ void main() {
         #endif
     #else
         #if GI_FILTER == 1
-            aTrousFilter(color.rgb, colortex5, texCoords, moments, 3);
+            aTrousFilter(color, colortex4, texCoords, moments, 3);
         #endif
     #endif
 }

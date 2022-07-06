@@ -106,7 +106,7 @@ value.AO.0 = §cOFF
 value.AO.1 = §aON
 
 option.AO_FILTER = AO Filter
-option.AO_FILTER.comment = Filters §bAO §rto reduce the noise.
+option.AO_FILTER.comment = Filters §bAO§r to reduce the noise.
 value.AO_FILTER.0 = §cOFF
 value.AO_FILTER.1 = §aON
 
@@ -115,6 +115,9 @@ option.AO_TYPE.comment = §aRTAO §7-> §rRay Traced Ambient Occlusion. §aSSAO 
 value.AO_TYPE.0 = §e§lSSAO
 value.AO_TYPE.1 = §e§lRTAO
 value.AO_TYPE.2 = §e§lGTAO
+
+option.AO_RESOLUTION = AO Resolution
+option.AO_RESOLUTION.comment = Adjusts §bAO§r's resolution. §cHigher value gives better results, but reduces §cperformance.
 
 option.SSAO_SAMPLES = SSAO Samples
 option.SSAO_SAMPLES.comment = Influences §bSSAO§r's quality. §cHigher value gives better results, but reduces §cperformance.

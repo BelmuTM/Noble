@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 5,6 */
+/* RENDERTARGETS: 4,2 */
 
 layout (location = 0) out vec3 color;
 layout (location = 1) out vec3 fog;
@@ -23,7 +23,7 @@ layout (location = 1) out vec3 fog;
 #include "/include/fragment/atrous.glsl"
 
 void main() {
-    color = texture(colortex5, texCoords).rgb;
+    color = texture(colortex4, texCoords).rgb;
 
     Material mat = getMaterial(texCoords);
     vec2 coords  = texCoords;
@@ -38,14 +38,13 @@ void main() {
         #if GI == 1
             #if GI_FILTER == 1
                 vec3 moments;
-                aTrousFilter(color, colortex5, texCoords, moments, 4);
+                aTrousFilter(color, colortex4, texCoords, moments, 4);
             #endif
 
             vec3 direct         = texture(colortex10, texCoords * GI_RESOLUTION).rgb;
             vec3 indirectBounce = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
 
             color = direct + (indirectBounce * color);
-            //color = vec3(texture(colortex12, texCoords).z);
         #endif
 
         //////////////////////////////////////////////////////////
@@ -96,7 +95,7 @@ void main() {
 
             #if SPECULAR == 1
                 vec3 shadowmap = texture(colortex3, coords).rgb;
-                color         += (computeSpecular(mat.normal, viewDir0, shadowDir, mat) * sampleDirectIlluminance()) * shadowmap;
+                color         += computeSpecular(mat.normal, viewDir0, shadowDir, mat) * sampleDirectIlluminance() * shadowmap;
             #endif
 
             #if REFLECTIONS == 1

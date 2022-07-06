@@ -6,11 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 5,2,9 */
+/* RENDERTARGETS: 4,2,3,9 */
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out vec3 bloomBuffer;
-layout (location = 2) out vec4 previousBuffer;
+layout (location = 1) out vec4 sqrtLuma;
+layout (location = 2) out vec3 bloomBuffer;
+layout (location = 3) out vec4 previousBuffer;
 
 #include "/include/utility/blur.glsl"
 #include "/include/post/bloom.glsl"
@@ -55,12 +56,12 @@ layout (location = 2) out vec4 previousBuffer;
 #endif
 
 void main() {
-    color        = texture(colortex5, texCoords);
+    color        = texture(colortex4, texCoords);
     Material mat = getMaterial(texCoords);
     
     #if DOF == 1
         float coc = getCoC(linearizeDepthFast(mat.depth1), linearizeDepthFast(centerDepthSmooth));
-        depthOfField(color.rgb, texCoords, colortex5, 8, DOF_RADIUS, coc);
+        depthOfField(color.rgb, texCoords, colortex4, 8, DOF_RADIUS, coc);
     #endif
 
     #if BLOOM == 1
@@ -69,12 +70,12 @@ void main() {
 
     #if VL == 1
         #if VL_FILTER == 1
-            color.rgb += gaussianBlur(texCoords, colortex6, 1.1, 2.0, 4).rgb;
+            color.rgb += gaussianBlur(colortex2, texCoords, 1.1, 2.0, 4).rgb;
         #else
-            color.rgb += texture(colortex6, texCoords).rgb;
+            color.rgb += texture(colortex2, texCoords).rgb;
         #endif
     #endif
 
-    color.a        = sqrt(luminance(color.rgb));
+    sqrtLuma.a     = sqrt(luminance(color.rgb));
     previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth0);
 }

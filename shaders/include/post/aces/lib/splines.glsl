@@ -156,7 +156,7 @@ float segmentedSplineC5Fwd(float x) {
 
         logY = logX * C.slopeLow + (log10(C.minPoint.y) - C.slopeLow * log10(C.minPoint.x));
 
-    } else if((logX > log10(C.minPoint.x)) && (logX < log10(C.midPoint.x))) {
+    } else if(logX > log10(C.minPoint.x) && logX < log10(C.midPoint.x)) {
 
         float knot_coord = (N_KNOTS_LOW - 1) * (logX - log10(C.minPoint.x)) / (log10(C.midPoint.x) - log10(C.minPoint.x));
         int j   = int(knot_coord);
@@ -166,7 +166,7 @@ float segmentedSplineC5Fwd(float x) {
         vec3 monomials = vec3(pow2(t), t, 1.0);
         logY           = dot(monomials, M * coeffs);
 
-    } else if((logX >= log10(C.midPoint.x)) && (logX < log10(C.maxPoint.x))) {
+    } else if(logX >= log10(C.midPoint.x) && logX < log10(C.maxPoint.x)) {
 
         float knot_coord = (N_KNOTS_HIGH - 1) * (logX - log10(C.midPoint.x)) / (log10(C.maxPoint.x) - log10(C.midPoint.x));
         int j   = int(knot_coord);
@@ -198,7 +198,7 @@ float segmentedSplineC9Fwd(float x) {
 
         logY = logX * C.slopeLow + (log10(C.minPoint.y) - C.slopeLow * log10(C.minPoint.x));
 
-    } else if((logX > log10(C.minPoint.x)) && (logX < log10(C.midPoint.x))) {
+    } else if(logX > log10(C.minPoint.x) && logX < log10(C.midPoint.x)) {
 
         float knot_coord = (N_KNOTS_LOW - 1) * (logX - log10(C.minPoint.x)) / (log10(C.midPoint.x) - log10(C.minPoint.x));
         int j   = int(knot_coord);
@@ -208,7 +208,7 @@ float segmentedSplineC9Fwd(float x) {
         vec3 monomials = vec3(pow2(t), t, 1.0);
         logY           = dot(monomials, M * coeffs);
 
-    } else if((logX >= log10(C.midPoint.x)) && (logX < log10(C.maxPoint.x))) {
+    } else if(logX >= log10(C.midPoint.x) && logX < log10(C.maxPoint.x)) {
 
         float knot_coord = (N_KNOTS_HIGH - 1) * (logX - log10(C.midPoint.x)) / (log10(C.maxPoint.x) - log10(C.midPoint.x));
         int j   = int(knot_coord);

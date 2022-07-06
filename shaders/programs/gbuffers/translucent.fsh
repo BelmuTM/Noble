@@ -74,7 +74,7 @@ void main() {
        			mat.albedo = sRGBToAP1Albedo(mat.albedo);
     		#endif
 
-			sceneColor.rgb = mat.isMetal ? vec3(0.0) : computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, 1.0), directIlluminance, sampleSkyIlluminance(), ssDepth);
+			sceneColor.rgb = mat.isMetal ? vec3(0.0) : computeDiffuse(scenePos, sceneShadowDir, mat, shadowmap, directIlluminance, sampleSkyIlluminance(), ssDepth, 1.0);
 		#else
 			sceneColor.rgb = mat.albedo;
 		#endif

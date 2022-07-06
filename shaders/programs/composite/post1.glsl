@@ -21,7 +21,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 5,8 */
+    /* RENDERTARGETS: 4,8 */
 
     layout (location = 0) out vec3 color;
     layout (location = 1) out vec4 historyBuffer;
@@ -32,10 +32,10 @@
     in float exposure;
 
     void main() {
-        color = texture(colortex5, texCoords).rgb;
+        color = texture(colortex4, texCoords).rgb;
 
         #if TAA == 1
-            color = max0(temporalAntiAliasing(getMaterial(texCoords), colortex5, colortex8));
+            color = max0(temporalAntiAliasing(getMaterial(texCoords), colortex4, colortex8));
         #endif
 
         historyBuffer.rgb = color;

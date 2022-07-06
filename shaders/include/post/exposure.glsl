@@ -24,7 +24,7 @@ float computeExposure() {
      #if EXPOSURE == 0
           float EV100 = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
      #else
-          float avgLuma = pow2(textureLod(colortex5, vec2(0.5), maxOf(ceil(log2(viewSize)))).a);
+          float avgLuma = pow2(textureLod(colortex2, vec2(0.5), maxOf(ceil(log2(viewSize)))).a);
           float EV100   = computeEV100fromLuma(avgLuma);
      #endif
 

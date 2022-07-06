@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 5 */
+/* RENDERTARGETS: 4 */
 
 layout (location = 0) out vec3 color;
 
@@ -40,9 +40,9 @@ layout (location = 0) out vec3 color;
             vec2 offset = (1.0 - pow2(texCoords - vec2(0.5))) * ABERRATION_STRENGTH * pixelSize;
 
             color = vec3(
-                texture(colortex5, texCoords + offset).r,
-                texture(colortex5, texCoords).g,
-                texture(colortex5, texCoords - offset).b
+                texture(colortex4, texCoords + offset).r,
+                texture(colortex4, texCoords).g,
+                texture(colortex4, texCoords - offset).b
             );
         #endif
     }
@@ -107,7 +107,7 @@ layout (location = 0) out vec3 color;
 #endif
 
 void main() {
-    color          = texture(colortex5, texCoords).rgb;
+    color          = texture(colortex4, texCoords).rgb;
     float exposure = texture(colortex8, texCoords).a;
 
     #if CHROMATIC_ABERRATION == 1
