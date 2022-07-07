@@ -10,7 +10,7 @@ const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 float minExposure = PI  * rcp(luminance(sunIlluminance));
-float maxExposure = 0.3 * rcp(luminance(moonIlluminance));
+float maxExposure = 0.1 * rcp(luminance(moonIlluminance));
 
 float computeEV100fromLuma(float luma) {
      return log2(luma * S / K);
@@ -34,5 +34,5 @@ float computeExposure() {
            prevExposure   = clamp(prevExposure, minExposure, maxExposure);
 
      float exposureTime = targetExposure < prevExposure ? EXPOSURE_SPEED_TO_BRIGHT : EXPOSURE_SPEED_TO_DARK;
-     return max0(mix(targetExposure, prevExposure, exp(-exposureTime * frameTime)));
+     return mix(targetExposure, prevExposure, exp(-exposureTime * frameTime));
 }

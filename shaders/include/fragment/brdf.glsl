@@ -198,7 +198,7 @@ float disneySSS(Material mat, vec3 V, vec3 L, float ssDepth) {
     float NdotV = clamp01(dot(mat.normal, V));
     float HdotL = clamp01(dot(L, H));
 
-    float FL    = henyeyGreensteinPhase(NdotL, 0.5), FV = henyeyGreensteinPhase(NdotV, 0.5);
+    float FL    = cornetteShanksPhase(NdotL, 0.5), FV = cornetteShanksPhase(NdotV, 0.5);
     float Fss90 = pow2(HdotL) * mat.rough;
     float Fss   = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
     float sss   = 1.25 * (Fss * rcp((NdotL + NdotV) - 0.5) + 0.5);
@@ -210,27 +210,27 @@ float disneySSS(Material mat, vec3 V, vec3 L, float ssDepth) {
 // https://github.com/LVutner
 // https://github.com/Jessie-LC
 
-vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec3 shadowmap, vec3 directLight, vec3 skyIlluminance, float ssDepth, float ao) {
+vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao) {
     V = -normalize(V);
 
     vec3 diffuse  = hammonDiffuse(mat.normal, V, L, mat, false);
-         diffuse *= shadowmap;
+         diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
-        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = 0.7;
+        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = 0.6;
 
-        diffuse += disneySSS(mat, V, L, ssDepth);
+        diffuse += disneySSS(mat, V, L, shadowmap.a);
     #endif
 
-    diffuse *= (directLight * quintic(0.0, 0.01, sceneShadowDir.y));
+    diffuse *= directLight;
 
     mat.lightmap.x = pow(quintic(0.0, 1.0, mat.lightmap.x), 1.5);
-    mat.lightmap.y = pow2(1.0 - pow(1.0 - clamp01(mat.lightmap.y), SKYLIGHT_FALLOFF));
+    mat.lightmap.y = getSkyLightIntensity(mat.lightmap.y);
 
     vec3 skyLight   = skyIlluminance * INV_PI     * mat.lightmap.y;
     vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
          diffuse   += (blockLight + skyLight) * (mat.ao * ao);
          diffuse   += mat.emission * BLOCKLIGHT_INTENSITY;
 
-    return mat.albedo * diffuse;
+    return max0(mat.albedo * diffuse);
 }

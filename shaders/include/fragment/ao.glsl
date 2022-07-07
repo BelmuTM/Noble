@@ -26,17 +26,24 @@
 
 #elif AO_TYPE == 1
 
-	float RTAO(vec3 viewPos, vec3 normal) {
+	float RTAO(vec3 viewPos, vec3 normal, out vec3 bentNormal) {
 		vec3 rayPos     = viewPos + normal * 1e-2;
 		float occlusion = 1.0; vec3 hitPos;
 
+		int bentNormalSamples = 0;
+
 		for(int i = 0; i < RTAO_SAMPLES; i++) {
 			vec3 rayDir = generateCosineVector(normal, vec2(randF(), randF()));
-			if(!raytrace(rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) continue;
+
+			if(!raytrace(rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) {
+				bentNormal += rayDir;
+				bentNormalSamples++; continue;
+			}
 
 			// Thanks Jessie#7257 for providing the occlusion computation method
-			occlusion -= rcp(RTAO_SAMPLES);
+			occlusion  -= rcp(RTAO_SAMPLES);
 		}
+		bentNormal = normalize(bentNormal);
 		return occlusion;
 	}
 #else
@@ -72,7 +79,7 @@
 		return fastAcos(horizonCos);
 	}
 
-	float GTAO(vec2 coords, vec3 viewPos, vec3 normal) {
+	float GTAO(vec2 coords, vec3 viewPos, vec3 normal, out vec3 bentNormal) {
 		float visibility = 0.0;
 
 		float rcpViewLength = fastRcpLength(viewPos);
@@ -99,7 +106,11 @@
 			
 			vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
 			visibility += dot(arc, vec2(0.25)) * normLen;
+
+			float bentAngle = dot(horizons, vec2(0.5));
+			bentNormal 	   += viewDir * cos(bentAngle) + orthoDir * sin(bentAngle);
 		}
+		bentNormal = normalize(normalize(bentNormal) - viewDir * 0.5);
 		return multiBounceApprox(visibility * rcp(GTAO_SLICES));
 	}
 #endif

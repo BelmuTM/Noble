@@ -38,11 +38,11 @@
                 bloom  		+= textureLod(colortex4, coords + vec2(x, y) * texScale, LOD).rgb * weight;
             }
         }
-		return max0(bloom);
+		return bloom;
 	}
 
 	vec3 getBloomTile(int LOD) {
-		return textureBicubic(colortex3, texCoords / exp2(LOD) + bloomOffsets[LOD - 2]).rgb;
+		return textureBicubic(colortex3, texCoords * rcp(exp2(LOD)) + bloomOffsets[LOD - 2]).rgb;
 	}
 
 	void writeBloom(inout vec3 bloom) {

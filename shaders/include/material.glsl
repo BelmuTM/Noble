@@ -100,3 +100,7 @@ vec3 getBlockLightIntensity(Material mat) {
     }
     return blockLightIntensity;
 }
+
+float getSkyLightIntensity(float lightmapY) {
+    return pow2(1.0 - pow(1.0 - clamp01(lightmapY), SKYLIGHT_FALLOFF));
+}

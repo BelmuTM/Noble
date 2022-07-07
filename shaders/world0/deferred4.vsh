@@ -9,9 +9,4 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-in vec2 texCoords;
-
-#define STAGE_FRAGMENT
-
-#include "/include/common.glsl"
-#include "/programs/composite/post2.glsl"
+#include "/programs/composite/composite_vsh.glsl"

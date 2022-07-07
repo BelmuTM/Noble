@@ -66,18 +66,20 @@ void main() {
 		mat.normal    = TBN * mat.normal;
 
 		#if GI == 0
-			float ssDepth = 0.0;
-			vec3 scenePos  = viewToScene(viewPos);
-			vec3 shadowmap = shadowMap(viewPos, geoNormal, ssDepth);
+			if(mat.isMetal) {
+				float ssDepth = 0.0;
+				vec3 scenePos  = viewToScene(viewPos);
+				vec3 shadowmap = shadowMap(viewPos, geoNormal, ssDepth);
 
-			#if TONEMAP == 0
-       			mat.albedo = sRGBToAP1Albedo(mat.albedo);
-    		#endif
+				#if TONEMAP == 0
+       				mat.albedo = sRGBToAP1Albedo(mat.albedo);
+    			#endif
 
-			vec3 foo;
-			mat3[2] skyLight = sampleSkyIlluminance(foo);
+				vec3 foo;
+				mat3[2] skyLight = sampleSkyIlluminance(foo);
 
-			sceneColor.rgb = mat.isMetal ? vec3(0.0) : computeDiffuse(scenePos, sceneShadowDir, mat, shadowmap, directIlluminance, getSkyLight(mat.normal, skyLight), ssDepth, 1.0);
+				sceneColor.rgb = computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, ssDepth), directIlluminance, getSkyLight(mat.normal, skyLight), 1.0);
+			}
 		#else
 			sceneColor.rgb = mat.albedo;
 		#endif

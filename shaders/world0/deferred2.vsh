@@ -9,9 +9,4 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-out vec2 texCoords;
-
-#define STAGE_VERTEX
-
-#include "/include/common.glsl"
-#include "/programs/composite/post1.glsl"
+#include "/programs/composite/composite_vsh.glsl"

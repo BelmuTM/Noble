@@ -28,7 +28,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 		clouds = texture(colortex15, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION, 0.0));
 	#endif
 
-    return (sky * clouds.a + clouds.rgb) * pow2(quintic(0.0, 1.0, mat.lightmap.y));
+    return (sky * clouds.a + clouds.rgb) * getSkyLightIntensity(mat.lightmap.y);
 }
 
 //////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
             vec3 color = mix(getSkyFallback(reflected, mat), hitColor, factor);
         #endif
 
-        float NdotL = maxEps(dot(mat.normal, reflected));
+        float NdotL = clamp01(dot(mat.normal, reflected));
         float NdotV = maxEps(dot(mat.normal, viewDir));
 
         vec3  F  = fresnelComplex(NdotL, mat);

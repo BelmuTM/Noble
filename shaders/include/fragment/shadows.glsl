@@ -10,6 +10,7 @@ vec3 worldToShadow(vec3 worldPos) {
 	return projOrthoMAD(shadowProjection, transMAD(shadowModelView, worldPos));
 }
 
+/*
 float contactShadow(vec3 viewPos, vec3 rayDir, int stepCount, float jitter) {
     vec3 rayPos = viewToScreen(viewPos);
          rayDir = normalize(viewToScreen(viewPos + rayDir) - rayPos);
@@ -32,6 +33,7 @@ float contactShadow(vec3 viewPos, vec3 rayDir, int stepCount, float jitter) {
     }
     return 1.0;
 }
+*/
 
 float visibility(sampler2D tex, vec3 samplePos) {
     return step(samplePos.z, texelFetch(tex, ivec2(samplePos.xy * shadowMapResolution), 0).r);

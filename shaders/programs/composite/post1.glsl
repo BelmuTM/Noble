@@ -34,7 +34,7 @@
         color = texture(colortex4, texCoords).rgb;
 
         #if TAA == 1
-            color = max0(temporalAntiAliasing(getMaterial(texCoords), colortex4, colortex8));
+            color = temporalAntiAliasing(getMaterial(texCoords), colortex4, colortex8);
         #endif
 
         historyBuffer.rgb = color;

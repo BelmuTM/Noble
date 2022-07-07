@@ -9,10 +9,4 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-out vec2 texCoords;
-
-#define STAGE_VERTEX
-#define WORLD_NETHER
-
-#include "/include/common.glsl"
-#include "/programs/composite/deferred.glsl"
+#include "/programs/composite/composite_vsh.glsl"

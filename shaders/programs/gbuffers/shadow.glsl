@@ -65,7 +65,7 @@
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
         // Thanks jakemichie97#7237 for the help!
         float waterCaustics(vec3 oldPos, vec3 normal) {
-	        vec3 newPos = oldPos + refract(sceneShadowDir, normal, 0.75) * 3.5;
+	        vec3 newPos = oldPos + refract(sceneShadowDir, normal, 0.75) * 5.0;
 
             float oldArea = inversesqrt(lengthSqr(dFdx(oldPos)) * lengthSqr(dFdy(oldPos)));
             float newArea =        sqrt(lengthSqr(dFdx(newPos)) * lengthSqr(dFdy(newPos)));
@@ -78,10 +78,10 @@
         if(albedoTex.a < 0.102) discard;
 
         #if WATER_CAUSTICS == 1
-            vec3 caustics = vec3(waterCaustics(worldPos, TBN * getWaterNormals(worldPos, 2)));
-            color0        = albedoTex + vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) * float(blockId == 1);
+            vec3 caustics = vec3(waterCaustics(worldPos, TBN * getWaterNormals(worldPos, int((WATER_OCTAVES / 4.0) * 3.0))));
+            color0        = blockId == 1 ? vec4(1.0, 1.0, 1.0, 0.0) + vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) : albedoTex;
         #else
-            color0 = albedoTex + vec4(vec3(1.0), 0.0);
+            color0 = blockId == 1 ? vec4(1.0, 1.0, 1.0, 0.0) : albedoTex;
         #endif
     }
 #endif

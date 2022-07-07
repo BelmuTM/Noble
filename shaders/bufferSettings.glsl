@@ -20,7 +20,7 @@ const int colortex2Format         = RGBA32F;
 SHADOWMAP & MISC
 const int shadowcolor0Format      = RGBA16F;
 const vec4 shadowcolor0Clear      = vec4(0.0, 0.0, 0.0, 0.0);
-const int colortex3Format         = RGB32F;
+const int colortex3Format         = RGBA32F;
 
 MAIN COLOR
 const int colortex4Format         = RGBA32F;
@@ -46,8 +46,8 @@ const bool colortex10Clear        = false;
 const int colortex11Format        = RGBA32F;
 const bool colortex11Clear        = false;
 
-MOMENTS & AO
-const int colortex12Format        = RGBA32F;
+MOMENTS
+const int colortex12Format        = RGB32F;
 const bool colortex12Clear        = false;
 
 CLOUDS

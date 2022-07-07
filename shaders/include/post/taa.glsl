@@ -59,7 +59,7 @@ vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex
          prevColor = neighbourhoodClipping(currTex, prevColor);
 
     float weight      = float(clamp01(prevPos.xy) == prevPos.xy);
-    float depthWeight = getDepthWeight(currMat.depth0, texture(colortex9, prevPos.xy).a, TAA_DEPTH_WEIGHT);
+    float depthWeight = getDepthWeight(currMat.depth1, texture(colortex9, prevPos.xy).a, TAA_DEPTH_WEIGHT);
     //float lumaWeight  = getLumaWeight(currColor, prevColor);
 
     // Offcenter rejection from Zombye#7365

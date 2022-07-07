@@ -28,6 +28,8 @@ screen.ATMOSPHERE        = Atmosphere
 screen.CLOUDS            = Clouds
 screen.TERRAIN           = Terrain
 screen.WATER             = Water
+screen.WATER_ABSORPTION  = Absorption
+screen.WATER_SCATTERING  = Scattering
 screen.CAMERA            = Camera
 screen.CAMERA_SETTINGS   = Camera Settings
 screen.COLOR_CORRECTION  = Color Correction
@@ -347,6 +349,16 @@ value.WATER_CAUSTICS.1 = §aON
 option.WATER_CAUSTICS_STRENGTH = Caustics Strength
 option.WATER_CAUSTICS_STRENGTH.comment = Adjusts §bWater Caustics§r' intensity.
 
+option.WATER_OCTAVES = Wave Octaves
+option.WATER_OCTAVES.comment = Influences §bWater Waves§r' details. §cHigher value gives better results, but reduces §cperformance.
+value.WATER_OCTAVES.2 = §32
+value.WATER_OCTAVES.3 = §23
+value.WATER_OCTAVES.4 = §a4
+value.WATER_OCTAVES.5 = §e5
+value.WATER_OCTAVES.6 = §66
+value.WATER_OCTAVES.7 = §c7
+value.WATER_OCTAVES.8 = §48
+
 option.WAVE_STEEPNESS = Wave Steepness
 option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of height to width.
 
@@ -367,9 +379,6 @@ value.WATER_FOG_STEPS.4 = §24
 value.WATER_FOG_STEPS.8 = §a8
 value.WATER_FOG_STEPS.16 = §e16
 value.WATER_FOG_STEPS.32 = §632
-
-option.WATER_DENSITY = Water Density
-option.WATER_DENSITY.comment = Adjusts the density of water. It is used in water fog.
 
 option.WATER_ABSORPTION_R = Water Absorption §cRed
 option.WATER_ABSORPTION_R.comment = Adjusts how water absorbs light. Higher value means that §cred§r will be absorbed more.

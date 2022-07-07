@@ -15,6 +15,7 @@ layout (location = 2) out vec4 previousBuffer;
 #include "/include/post/bloom.glsl"
 #include "/include/post/taa.glsl"
 
+/*
 #if VL == 1
     #if VL_FILTER == 1
         vec3 filterVL(sampler2D tex, vec2 coords, Material mat, float radius, float sigma, int steps) {
@@ -33,6 +34,7 @@ layout (location = 2) out vec4 previousBuffer;
         }
     #endif
 #endif
+*/
 
 #if DOF == 1
     // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
@@ -86,14 +88,6 @@ void main() {
         writeBloom(bloomBuffer);
     #endif
 
-    #if VL == 1
-        #if VL_FILTER == 1
-            color.rgb += filterVL(colortex2, texCoords, mat, 1.1, 2.0, 4);
-        #else
-            color.rgb += texelFetch(colortex2, ivec2(texCoords * viewSize), 0).rgb;
-        #endif
-    #endif
-
     color.a        = sqrt(luminance(color.rgb));
-    previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth0);
+    previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth1);
 }
