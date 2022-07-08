@@ -15,7 +15,7 @@ DATA
 const int colortex1Format         = RGBA32UI;
 
 MISC
-const int colortex2Format         = RGBA32F;
+const int colortex2Format         = RGBA16F;
 
 SHADOWMAP & MISC
 const int shadowcolor0Format      = RGBA16F;
@@ -24,7 +24,6 @@ const int colortex3Format         = RGBA32F;
 
 MAIN COLOR
 const int colortex4Format         = RGBA32F;
-const bool colortex4MipmapEnabled = true;
 const bool colortex4Clear         = false;
 
 MAIN ACCUMULATION

@@ -16,8 +16,6 @@ layout (location = 2) out vec4 previousBuffer;
 #include "/include/post/taa.glsl"
 
 /*
-#if VL == 1
-    #if VL_FILTER == 1
         vec3 filterVL(sampler2D tex, vec2 coords, Material mat, float radius, float sigma, int steps) {
             vec3 color = vec3(0.0);
 
@@ -32,17 +30,15 @@ layout (location = 2) out vec4 previousBuffer;
             }
             return color;
         }
-    #endif
-#endif
 */
 
 #if DOF == 1
     // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
     float getCoC(float fragDepth, float cursorDepth) {
-        return fragDepth < 0.56 ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - FOCAL)))) * 0.5;
+        return fragDepth < MC_HAND_DEPTH ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - FOCAL)))) * 0.5;
     }
 
-    void depthOfField(inout vec3 color, vec2 coords, sampler2D tex, int quality, float radius, float coc) {
+    void depthOfField(inout vec3 color, sampler2D tex, vec2 coords, int quality, float radius, float coc) {
         vec3 dof   = vec3(0.0);
         vec2 noise = vec2(randF(), randF());
         vec2 caOffset;
@@ -54,7 +50,7 @@ layout (location = 2) out vec4 previousBuffer;
 
         for(int x = 0; x < quality; x++) {
             for(int y = 0; y < quality; y++) {
-                vec2 offset = ((vec2(x, y) + noise) - quality * 0.5) / quality;
+                vec2 offset = ((vec2(x, y) + noise) - quality * 0.5) * rcp(quality);
             
                 if(length(offset) < 0.5) {
                     vec2 sampleCoords = coords + (offset * radius * coc * pixelSize);
@@ -81,7 +77,7 @@ void main() {
     
     #if DOF == 1
         float coc = getCoC(linearizeDepthFast(mat.depth1), linearizeDepthFast(centerDepthSmooth));
-        depthOfField(color.rgb, texCoords, colortex4, 8, DOF_RADIUS, coc);
+        depthOfField(color.rgb, colortex4, texCoords, 8, DOF_RADIUS, coc);
     #endif
 
     #if BLOOM == 1

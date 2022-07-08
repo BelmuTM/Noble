@@ -100,7 +100,7 @@ vec4 cloudsScattering(vec3 rayDir, out float depth) {
     vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, innerCloudRad, outerCloudRad);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 0.0, 1.0);
 
-    float stepLength = (dists.y - dists.x) / float(CLOUDS_SCATTERING_STEPS);
+    float stepLength = (dists.y - dists.x) * rcp(CLOUDS_SCATTERING_STEPS);
     vec3 increment   = rayDir * stepLength;
     vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * randF());
 
@@ -156,7 +156,7 @@ vec4 cloudsScattering(vec3 rayDir, out float depth) {
         scattering    += (stepScattering * scatteringIntegral * transmittance);
         transmittance *= stepTransmittance;
     }
-    transmittance = clamp01((transmittance - cloudsTransmitThreshold) / (1.0 - cloudsTransmitThreshold));
+    transmittance = clamp01((transmittance - cloudsTransmitThreshold) * rcp(1.0 - cloudsTransmitThreshold));
 
     scattering += scattering.x * sampleDirectIlluminance();
     scattering += scattering.y * texture(colortex6, projectSphere(vec3(0.0, 1.0, 0.0))).rgb;
@@ -178,7 +178,7 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
          shadowPos     = transMAD(shadowModelViewInverse, shadowPos) + cameraPosition;
 
     vec2 dists       = intersectSphericalShell(shadowPos + vec3(0.0, earthRad, 0.0), rayDir, innerCloudRad, outerCloudRad);
-    float stepLength = (dists.y - dists.x) / float(stepCount);
+    float stepLength = (dists.y - dists.x) * rcp(stepCount);
 
     vec3 increment = rayDir * stepLength;
     vec3 rayPos    = shadowPos + rayDir * (dists.x + stepLength * randF());

@@ -58,23 +58,23 @@ vec3 getShadowColor(vec3 samplePos) {
 
 #if SHADOW_TYPE == 1
     float findBlockerDepth(vec3 shadowPos, float phi, out float ssDepth) {
-        float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int BLOCKERS;
+        float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int blockers;
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) / shadowMapResolution;
+            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);
             float z     = texelFetch(shadowtex0, ivec2((shadowPos.xy + offset) * shadowMapResolution), 0).r;
 
             if(shadowPos.z > z) {
                 avgBlockerDepth += z;
                 totalSSDepth    += max0(shadowPos.z - z);
-                BLOCKERS++;
+                blockers++;
             }
         }
         // Subsurface depth calculation from SixthSurge#3922
         // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
-        ssDepth = (totalSSDepth * -shadowProjectionInverse[2].z) * rcp(SHADOW_DEPTH_STRETCH * float(BLOCKERS));
+        ssDepth = (totalSSDepth * -shadowProjectionInverse[2].z) * rcp(SHADOW_DEPTH_STRETCH * float(blockers));
 
-        return BLOCKERS > 0 ? avgBlockerDepth * rcp(BLOCKERS) : -1.0;
+        return blockers > 0 ? avgBlockerDepth * rcp(blockers) : -1.0;
     }
 #endif
 
@@ -83,7 +83,7 @@ vec3 PCF(vec3 shadowPos, float penumbraSize, inout float ssDepth) {
 
     for(int i = 0; i < SHADOW_SAMPLES; i++) {
         #if SHADOW_TYPE != 2
-            offset = (diskSampling(i, SHADOW_SAMPLES, randF() * TAU) * penumbraSize) / shadowMapResolution;
+            offset = (diskSampling(i, SHADOW_SAMPLES, randF() * TAU) * penumbraSize) * rcp(shadowMapResolution);
         #endif
 
         vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
@@ -103,7 +103,8 @@ vec3 shadowMap(vec3 viewPos, vec3 geoNormal, out float ssDepth) {
         float NdotL    = dot(geoNormal, sceneShadowDir);
 
         // Shadow bias from Eldeston#3590 and gri573#7741
-        shadowPos += (mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPos.xy)) * 1.01;
+        float biasAdjustMult = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.25;
+        shadowPos           += (mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPos.xy)) * biasAdjustMult;
 
         float penumbraSize = 1.0;
 

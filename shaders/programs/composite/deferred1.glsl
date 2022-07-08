@@ -27,7 +27,7 @@
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec3 sky;
     layout (location = 2) out vec3 skyIlluminance;
-    layout (location = 3) out vec4 ao;
+    layout (location = 3) out vec4 aoHistory;
     layout (location = 4) out vec4 clouds;
 
     #include "/include/atmospherics/clouds.glsl"
@@ -39,56 +39,63 @@
     in mat3[2] skyIlluminanceMat;
     in vec3 skyMultScatterIllum;
 
-    float filterAO(sampler2D tex, vec2 coords, Material mat, float scale, float radius, float sigma, int steps) {
-        float ao = 0.0, totalWeight = 0.0;
+    #if GI == 0
+        #if AO == 1 && AO_FILTER == 1
 
-        for(int x = -steps; x <= steps; x++) {
-            for(int y = -steps; y <= steps; y++) {
-                vec2 offset         = vec2(x, y) * radius * pixelSize;
-                vec2 sampleCoords   = (coords * scale) + offset;
-                if(clamp01(sampleCoords) != sampleCoords) continue;
+            float filterAO(sampler2D tex, vec2 coords, Material mat, float scale, float radius, float sigma, int steps) {
+                float ao = 0.0, totalWeight = 0.0;
 
-                Material sampleMat = getMaterial(coords + offset);
+                for(int x = -steps; x <= steps; x++) {
+                    for(int y = -steps; y <= steps; y++) {
+                        vec2 offset         = vec2(x, y) * radius * pixelSize;
+                        vec2 sampleCoords   = (coords * scale) + offset;
+                        if(clamp01(sampleCoords) != sampleCoords) continue;
 
-                float weight  = gaussianDistrib2D(vec2(x, y), sigma);
-                      weight *= getDepthWeight(mat.depth0, sampleMat.depth0, 2.0);
-                      weight *= getNormalWeight(mat.normal, sampleMat.normal, 8.0);
-                      weight  = clamp01(weight);
+                        Material sampleMat = getMaterial(coords + offset);
 
-                ao          += texture(tex, sampleCoords).a * weight;
-                totalWeight += weight;
+                        float weight  = gaussianDistrib2D(vec2(x, y), sigma);
+                              weight *= getDepthWeight(mat.depth0, sampleMat.depth0, 2.0);
+                              weight *= getNormalWeight(mat.normal, sampleMat.normal, 8.0);
+                              weight  = clamp01(weight);
+
+                        ao          += texture(tex, sampleCoords).a * weight;
+                        totalWeight += weight;
+                    }
+                }
+                return clamp01(ao * (1.0 / totalWeight));
             }
-        }
-        return clamp01(ao * (1.0 / totalWeight));
-    }
+        #endif
+    #endif
 
     void main() {
-        vec3 viewPos = getViewPos0(texCoords);
-        Material mat = getMaterial(texCoords);
+        vec3 viewPos  = getViewPos0(texCoords);
+        Material mat  = getMaterial(texCoords);
+        bool skyCheck = isSky(texCoords);
 
         vec3 bentNormal = mat.normal;
 
         #if GI == 0
             #if AO == 1
-                vec4 aoHistory = texture(colortex10, texCoords * AO_RESOLUTION);
-                if(!all(equal(aoHistory.rgb, vec3(0.0)))) { 
-                    bentNormal = aoHistory.rgb;
-                    ao.rgb     = aoHistory.rgb;
-                }
+                if(!skyCheck) {
+                    vec4 ao = texture(colortex10, texCoords * AO_RESOLUTION);
+                    if(!all(equal(ao.rgb, vec3(0.0)))) { 
+                        bentNormal    = ao.rgb;
+                        aoHistory.rgb = ao.rgb;
+                    }
 
-                #if AO_FILTER == 1
-                    ao.a = filterAO(colortex10, texCoords, mat, AO_RESOLUTION, 0.5, 2.0, 4);
-                #else
-                    ao.a = aoHistory.a;
-                #endif
+                    #if AO_FILTER == 1
+                        aoHistory.a = filterAO(colortex10, texCoords, mat, AO_RESOLUTION, 0.5, 2.0, 4);
+                    #else
+                        aoHistory.a = ao.a;
+                    #endif
+                }
             #endif
         #endif
 
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
-            float ssDepth = 0.0;
-            shadowmap.rgb = shadowMap(viewPos, texture(colortex2, texCoords).rgb, ssDepth);
-            shadowmap.a   = ssDepth;
+            shadowmap.a   = 0.0;
+            shadowmap.rgb = !skyCheck ? shadowMap(viewPos, texture(colortex2, texCoords).rgb, shadowmap.a) : vec3(1.0);
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             skyIlluminance.rgb = getSkyLight(bentNormal, skyIlluminanceMat);
@@ -119,7 +126,18 @@
                     vec3 prevPos    = reprojection(viewToScreen(normalize(viewPos) * depth));
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
-                    if(!all(equal(prevClouds, vec4(0.0)))) clouds = mix(clouds, prevClouds, 0.96);
+                    // Offcenter rejection from Zombye#7365
+                    vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);
+                    float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.5 + 0.5;
+
+                    vec2  velocity       = (texCoords - prevPos.xy) * viewSize;
+                    float velocityWeight = exp(-length(velocity)) * 0.6 + 0.4;
+
+                    float frameWeight = clamp01(1.0 - (1.0 / max(texture(colortex5, prevPos.xy).a, 1.0)));
+
+                    float weight = float(clamp01(prevPos.xy) == prevPos.xy) * centerWeight * velocityWeight;
+
+                    clouds = mix(clouds, prevClouds, clamp01(weight));
                 }
             #endif
         #endif

@@ -6,16 +6,20 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 10 */
+#include "/bufferSettings.glsl"
 
-layout (location = 0) out vec4 ao;
+#if GI == 0
+    /* RENDERTARGETS: 10 */
+
+    layout (location = 0) out vec4 aoHistory;
     
-#include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/ao.glsl"
+    #if AO_TYPE == 1
+        #include "/include/fragment/raytracer.glsl"
+        #endif
+    #include "/include/fragment/ao.glsl"
 
-void main() {
-    #if GI == 0
-        ao = vec4(0.0, 0.0, 0.0, 1.0);
+    void main() {
+        aoHistory = vec4(0.0, 0.0, 0.0, 1.0);
 
         #if AO == 1
             if(clamp(texCoords, vec2(0.0), vec2(AO_RESOLUTION)) == texCoords) {
@@ -26,22 +30,30 @@ void main() {
                     Material scaledMat = getMaterial(scaledUv);
 
                     #if AO_TYPE == 0
-                        ao.a = SSAO(scaledViewPos, scaledMat.normal);
+                        aoHistory.a = SSAO(scaledViewPos, scaledMat.normal);
                     #elif AO_TYPE == 1
-                        ao.a = RTAO(scaledViewPos, scaledMat.normal, ao.xyz);
+                        aoHistory.a = RTAO(scaledViewPos, scaledMat.normal, aoHistory.rgb);
                     #else
-                        ao.a = GTAO(scaledUv, scaledViewPos, scaledMat.normal, ao.xyz);
+                        aoHistory.a = GTAO(scaledUv, scaledViewPos, scaledMat.normal, aoHistory.rgb);
                     #endif
 
                     vec3 prevPos = reprojection(vec3(scaledUv, scaledMat.depth0));
                     vec4 prevAO  = texture(colortex10, prevPos.xy);
                     float weight = clamp01(1.0 - (1.0 / max(texture(colortex5, prevPos.xy).a, 1.0)));
 
-                    if(prevAO.a >= EPS) ao.a   = mix(ao.a, prevAO.a, weight);
-                                        ao.xyz = mix(ao.xyz, prevAO.xyz, weight);
+                    if(prevAO.a >= EPS) aoHistory.a   = mix(aoHistory.a, prevAO.a, weight);
+                                        aoHistory.rgb = mix(aoHistory.rgb, prevAO.rgb, weight);
                 }
             }
         #endif
-    #endif
-}
+    }
+#else
+    /* RENDERTARGETS: 10 */
+
+    layout (location = 0) out vec4 history0;
+
+    void main() {
+        history0 = texture(colortex10, texCoords);
+    }
+#endif
     

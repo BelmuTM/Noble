@@ -76,8 +76,8 @@ vec3 getWaterNormals(vec3 worldPos, int octaves) {
 	float normal2 = waterWaves(coords + vec2(0.0, delta), octaves);
 
     return normalize(vec3(
-        (normal0 - normal1) / delta,
-        (normal0 - normal2) / delta,
+        (normal0 - normal1) * rcp(delta),
+        (normal0 - normal2) * rcp(delta),
         1.0
     ));
 }

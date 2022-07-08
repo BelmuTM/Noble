@@ -6,9 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 4 */
-
-layout (location = 0) out vec3 color;
+out vec3 color;
 
 #if UNDERWATER_DISTORTION == 1
     void underwaterDistortion(inout vec2 coords) {

@@ -6,10 +6,20 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 4,2 */
+#if GI == 1 && GI_FILTER == 1
+    /* RENDERTARGETS: 4,2,12 */
 
-layout (location = 0) out vec3 color;
-layout (location = 1) out vec3 fog;
+    layout (location = 0) out vec3 color;
+    layout (location = 1) out vec3 fog;
+    layout (location = 2) out vec3 moments;
+
+    #include "/include/fragment/atrous.glsl"
+#else
+    /* RENDERTARGETS: 4,2 */
+
+    layout (location = 0) out vec3 color;
+    layout (location = 1) out vec3 fog;
+#endif
 
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
@@ -20,7 +30,6 @@ layout (location = 1) out vec3 fog;
 
 #include "/include/fragment/reflections.glsl"
 #include "/include/fragment/water.glsl"
-#include "/include/fragment/atrous.glsl"
 
 void main() {
     color = texture(colortex4, texCoords).rgb;
@@ -31,13 +40,12 @@ void main() {
     vec3 viewPos0  = getViewPos0(texCoords);
     vec3 sceneDir0 = normalize(mat3(gbufferModelViewInverse) * viewPos0);
 
-    bool inWater = isEyeInWater > 0.5;
-    bool sky     = isSky(texCoords);
+    bool inWater  = isEyeInWater > 0.5;
+    bool skyCheck = isSky(texCoords);
 
-    if(!sky) {
+    if(!skyCheck) {
         #if GI == 1
             #if GI_FILTER == 1
-                vec3 moments;
                 aTrousFilter(color, colortex4, texCoords, moments, 4);
             #endif
 
@@ -85,7 +93,7 @@ void main() {
             }
         #endif
 
-    if(!sky) {
+    if(!skyCheck) {
         //////////////////////////////////////////////////////////
         /*-------------------- REFLECTIONS ---------------------*/
         //////////////////////////////////////////////////////////
@@ -115,7 +123,7 @@ void main() {
             #endif
         #else
             #if RAIN_FOG == 1
-                if(wetness > 0.0 && !inWater) { groundFog(color, viewPos0, getMaterial(texCoords).lightmap.y, sky); }
+                if(wetness > 0.0 && !inWater) { groundFog(color, viewPos0, getMaterial(texCoords).lightmap.y, skyCheck); }
             #endif
         #endif
     #endif

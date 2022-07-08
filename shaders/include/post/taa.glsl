@@ -58,15 +58,15 @@ vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
          prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    float weight      = float(clamp01(prevPos.xy) == prevPos.xy);
-    float depthWeight = getDepthWeight(currMat.depth1, texture(colortex9, prevPos.xy).a, TAA_DEPTH_WEIGHT);
+    float weight = float(clamp01(prevPos.xy) == prevPos.xy);
+    //float depthWeight = getDepthWeight(currMat.depth1, texture(colortex9, prevPos.xy).a, TAA_DEPTH_WEIGHT);
     //float lumaWeight  = getLumaWeight(currColor, prevColor);
 
     // Offcenter rejection from Zombye#7365
     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);
     float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
 
-    weight *= TAA_STRENGTH * centerWeight * depthWeight;
+    weight *= TAA_STRENGTH * centerWeight;
 
     return YCoCgToLinear(mix(currColor, prevColor, weight)); 
 }

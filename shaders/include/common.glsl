@@ -6,7 +6,9 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/bufferSettings.glsl"
+/*
+    const bool colortex4MipmapEnabled = true;
+*/
 
 #include "/settings.glsl"
 #include "/include/uniforms.glsl"

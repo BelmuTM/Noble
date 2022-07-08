@@ -6,12 +6,20 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 5,10,11,12 */
+#if GI == 1
+    /* RENDERTARGETS: 5,10,11,12 */
 
-layout (location = 0) out vec4 color;
-layout (location = 1) out vec4 history0;
-layout (location = 2) out vec3 history1;
-layout (location = 3) out vec4 moments;
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec4 history0;
+    layout (location = 2) out vec3 history1;
+    layout (location = 3) out vec4 moments;
+#else
+    /* RENDERTARGETS: 5,10,12 */
+
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec4 aoHistory;
+    layout (location = 2) out vec4 moments;
+#endif
 
 #include "/include/fragment/brdf.glsl"
 
@@ -50,29 +58,6 @@ layout (location = 3) out vec4 moments;
     }
 #endif
 
-float filterAO(sampler2D tex, vec2 coords, Material mat, float scale, float radius, float sigma, int steps) {
-    float ao = 0.0, totalWeight = 0.0;
-
-    for(int x = -steps; x <= steps; x++) {
-        for(int y = -steps; y <= steps; y++) {
-            vec2 offset         = vec2(x, y) * radius * pixelSize;
-            vec2 sampleCoords   = (coords * scale) + offset;
-            if(clamp01(sampleCoords) != sampleCoords) continue;
-
-            Material sampleMat = getMaterial(coords + offset);
-
-            float weight  = gaussianDistrib2D(vec2(x, y), sigma);
-                  weight *= getDepthWeight(mat.depth1, sampleMat.depth1, 2.0);
-                  weight *= getNormalWeight(mat.normal, sampleMat.normal, 8.0);
-                  weight  = clamp01(weight);
-
-            ao          += texture(tex, sampleCoords).a * weight;
-            totalWeight += weight;
-        }
-    }
-    return clamp01(ao * (1.0 / totalWeight));
-}
-
 void main() {
     vec2 tempCoords = texCoords;
     #if GI == 1
@@ -105,11 +90,11 @@ void main() {
                 shadowmap      = texture(colortex3, texCoords);
             #endif
 
-            history0 = texture(colortex10, texCoords);
+            aoHistory = texture(colortex10, texCoords);
 
             float ao = 1.0;
             #if AO == 1
-                ao = history0.a;
+                ao = aoHistory.a;
             #endif
 
             color.rgb = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance, clamp01(ao));

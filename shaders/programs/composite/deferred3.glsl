@@ -6,12 +6,18 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 4,12 */
+#if GI == 1 && GI_FILTER == 1
+    /* RENDERTARGETS: 4,12 */
 
-layout (location = 0) out vec3 color;
-layout (location = 1) out vec3 moments;
+    layout (location = 0) out vec3 color;
+    layout (location = 1) out vec3 moments;
 
-#include "/include/fragment/atrous.glsl"
+    #include "/include/fragment/atrous.glsl"
+#else
+    /* RENDERTARGETS: 4 */
+
+    layout (location = 0) out vec3 color;
+#endif
 
 void main() {
     color = texture(colortex5, texCoords).rgb;
