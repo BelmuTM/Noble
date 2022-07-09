@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 1,5 */
+/* RENDERTARGETS: 1,4 */
 
 layout (location = 0) out uvec4 data;
 layout (location = 1) out vec4 sceneColor;
@@ -67,16 +67,16 @@ void main() {
 
 		#if GI == 0
 			if(mat.isMetal) {
-				float ssDepth = 0.0;
 				vec3 scenePos  = viewToScene(viewPos);
+				float ssDepth  = 0.0;
 				vec3 shadowmap = shadowMap(viewPos, geoNormal, ssDepth);
 
 				#if TONEMAP == 0
        				mat.albedo = sRGBToAP1Albedo(mat.albedo);
     			#endif
 
-				vec3 foo;
-				mat3[2] skyLight = sampleSkyIlluminance(foo);
+				vec3 tmp;
+				mat3[2] skyLight = sampleSkyIlluminance(tmp);
 
 				sceneColor.rgb = computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, ssDepth), directIlluminance, getSkyLight(mat.normal, skyLight), 1.0);
 			}
@@ -88,8 +88,8 @@ void main() {
 	
 	vec2 encNormal = encodeUnitVector(mat.normal);
 	
-	data.x = packUnorm4x8(vec4(mat.rough, (blockId + 0.25) / maxVal8, clamp01(mat.lightmap)));
+	data.x = packUnorm4x8(vec4(mat.rough, (blockId + 0.25) * rcp(maxVal8), clamp01(mat.lightmap)));
 	data.y = packUnorm4x8(vec4(mat.ao, mat.emission, mat.F0, mat.subsurface));
-	data.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
+	data.z = (uint(albedoTex.r * maxVal8) << 16u)  | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
 	data.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
 }

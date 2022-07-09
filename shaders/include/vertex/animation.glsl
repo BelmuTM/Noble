@@ -25,10 +25,10 @@ void animate(inout vec3 worldPos, bool isTopVertex) {
 	worldPos += cameraPosition;
 	
 	switch(blockId) {
-		case 8:  wavingLeaves(worldPos); 					 break;
-		case 9:  wavingPlants(worldPos, isTopVertex, false); break;
+		case 9:  wavingLeaves(worldPos); 					 break;
 		case 10: wavingPlants(worldPos, isTopVertex, false); break;
 		case 11: wavingPlants(worldPos, isTopVertex, true);  break;
+		case 12: wavingPlants(worldPos, isTopVertex, false); break;
 	}
 	worldPos -= cameraPosition;
 }

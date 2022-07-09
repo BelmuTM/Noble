@@ -114,6 +114,8 @@
                     vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
                          clouds    = cloudsScattering(cloudsRay, depth);
 
+                    shadowmap.rgb *= cloudsShadows(cloudsCoords, cloudsRay, 20);
+
                     /* Aerial Perspective */
                     const float cloudsMiddle = CLOUDS_ALTITUDE + (CLOUDS_THICKNESS * 0.5);
                     vec2 dists               = intersectSphere(atmosRayPos, cloudsRay, earthRad + cloudsMiddle);

@@ -37,6 +37,8 @@
                         aoHistory.a = GTAO(scaledUv, scaledViewPos, scaledMat.normal, aoHistory.rgb);
                     #endif
 
+                    aoHistory.a = clamp01(aoHistory.a);
+
                     vec3 prevPos = reprojection(vec3(scaledUv, scaledMat.depth0));
                     vec4 prevAO  = texture(colortex10, prevPos.xy);
                     float weight = clamp01(1.0 - (1.0 / max(texture(colortex5, prevPos.xy).a, 1.0)));

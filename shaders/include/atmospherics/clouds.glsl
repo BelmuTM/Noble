@@ -170,7 +170,7 @@ vec4 cloudsScattering(vec3 rayDir, out float depth) {
 float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
     float transmittance = 1.0;
 
-    vec2 cloudsShadowsCoords = coords * (viewSize / cloudsShadowmapRes);
+    vec2 cloudsShadowsCoords = coords * viewSize * rcp(cloudsShadowmapRes);
     if(clamp01(cloudsShadowsCoords) != cloudsShadowsCoords) return transmittance;
 
     vec3 shadowPos     = vec3(cloudsShadowsCoords, 0.0) * 2.0 - 1.0;
