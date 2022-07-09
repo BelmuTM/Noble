@@ -44,7 +44,7 @@
 			occlusion -= rcp(RTAO_SAMPLES);
 		}
 		bentNormal = normalize(bentNormal);
-		return max0(occlusion);
+		return occlusion;
 	}
 #else
 

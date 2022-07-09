@@ -43,8 +43,8 @@
                     vec4 prevAO  = texture(colortex10, prevPos.xy);
                     float weight = clamp01(1.0 - (1.0 / max(texture(colortex5, prevPos.xy).a, 1.0)));
 
-                    if(prevAO.a >= EPS) aoHistory.a   = mix(aoHistory.a, prevAO.a, weight);
-                                        aoHistory.rgb = mix(aoHistory.rgb, prevAO.rgb, weight);
+                    if(prevAO.a >= EPS)                          aoHistory.a   = mix(aoHistory.a, prevAO.a, weight);
+                    if(!all(lessThan(aoHistory.rgb, vec3(EPS)))) aoHistory.rgb = mix(aoHistory.rgb, prevAO.rgb, weight);
                 }
             }
         #endif
