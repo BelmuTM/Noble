@@ -41,10 +41,10 @@
 			}
 
 			// Thanks Jessie#7257 for providing the occlusion computation method
-			occlusion  -= rcp(RTAO_SAMPLES);
+			occlusion -= rcp(RTAO_SAMPLES);
 		}
 		bentNormal = normalize(bentNormal);
-		return occlusion;
+		return max0(occlusion);
 	}
 #else
 

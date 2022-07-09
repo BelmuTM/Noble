@@ -15,7 +15,7 @@
     
     #if AO_TYPE == 1
         #include "/include/fragment/raytracer.glsl"
-        #endif
+    #endif
     #include "/include/fragment/ao.glsl"
 
     void main() {
