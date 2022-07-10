@@ -78,7 +78,8 @@
             #if AO == 1
                 if(!skyCheck) {
                     vec4 ao = texture(colortex10, texCoords * AO_RESOLUTION);
-                    if(!all(equal(ao.rgb, vec3(0.0)))) { 
+                    if(any(greaterThan(ao.rgb, vec3(0.0)))) {
+                        ao.rgb        = clamp01(ao.rgb);
                         bentNormal    = ao.rgb;
                         aoHistory.rgb = ao.rgb;
                     }
