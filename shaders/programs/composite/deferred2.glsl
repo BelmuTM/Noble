@@ -77,8 +77,18 @@ void main() {
     vec4 prevColor = texture(colortex5, prevPos.xy);
 
     float depthWeight  = getDepthWeight(mat.depth0, texture(colortex9, prevPos.xy).a, 2.0);
-    float normalWeight = getNormalWeight(mat.normal, texture(colortex9, prevPos.xy).rgb * 2.0 - 1.0, 2.0);
-    color.a            = (prevColor.a * depthWeight * normalWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+    float normalWeight = 1.0;
+
+    #if GI == 1
+        #if ACCUMULATION_VELOCITY_WEIGHT == 1
+            depthWeight  = 1.0;
+        #endif
+
+    #else
+        normalWeight = getNormalWeight(mat.normal, texture(colortex9, prevPos.xy).rgb * 2.0 - 1.0, 2.0);
+    #endif
+
+    color.a = (prevColor.a * depthWeight * normalWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
 
     #if GI == 0
         if(!mat.isMetal) {
@@ -109,4 +119,6 @@ void main() {
             #endif
         }
     #endif
+
+    color.rgb = max0(color.rgb);
 }

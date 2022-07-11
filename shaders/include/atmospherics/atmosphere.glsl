@@ -13,7 +13,7 @@
     ScratchaPixel:   https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/simulating-sky/simulating-colors-of-the-sky
     Wikipedia:       https://fr.wikipedia.org/wiki/Th%C3%A9orie_de_Mie
     Sebastian Lague: https://www.youtube.com/watch?v=DxfEbulyFcY
-    LVutner:         https://www.shadertoy.com/view/stSGRy
+    LVutner:         https://github.com/LVutner
     gltracy:         https://www.shadertoy.com/view/lslXDr
 */
 

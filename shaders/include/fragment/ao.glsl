@@ -12,7 +12,7 @@
 		float occlusion = 0.0;
 
 		for(int i = 0; i < SSAO_SAMPLES; i++) {
-			vec2 noise     = TAA == 1 ? uniformAnimatedNoise(blueNoise.rg) : uniformNoise(i, blueNoise);
+			vec2 noise     = TAA == 1 ? vec2(randF(), randF()) : uniformNoise(i, blueNoise);
 			vec3 rayDir    = generateCosineVector(normal, noise);
 			vec3 rayPos    = viewPos + rayDir * SSAO_RADIUS;
 			float rayDepth = getViewPos0(viewToScreen(rayPos).xy).z;
@@ -21,7 +21,7 @@
 			float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPos.z - rayDepth));
         	occlusion 		+= (rayDepth >= rayPos.z + EPS ? 1.0 : 0.0) * rangeCheck;
 		}
-		return pow(1.0 - (occlusion / SSAO_SAMPLES), SSAO_STRENGTH);
+		return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
 	}
 
 #elif AO_TYPE == 1
@@ -30,16 +30,13 @@
 		vec3 rayPos     = viewPos + normal * 1e-2;
 		float occlusion = 1.0; vec3 hitPos;
 
-		int bentNormalSamples = 0;
-
 		for(int i = 0; i < RTAO_SAMPLES; i++) {
 			vec3 rayDir = generateCosineVector(normal, vec2(randF(), randF()));
 
 			if(!raytrace(rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) {
 				bentNormal += rayDir;
-				bentNormalSamples++; continue;
+				continue;
 			}
-
 			// Thanks Jessie#7257 for providing the occlusion computation method
 			occlusion -= rcp(RTAO_SAMPLES);
 		}

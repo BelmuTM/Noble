@@ -20,6 +20,7 @@
 #define PI      3.14159265
 #define TAU     6.28318530
 #define INV_PI  0.31830988
+#define INV_TAU 0.15915494
 
 #define GOLDEN_RATIO 1.61803398
 #define GOLDEN_ANGLE 2.39996322
@@ -64,7 +65,7 @@ const float shadowDistanceRenderMul = 1.0;
 #define AO_RESOLUTION 0.75 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define SSAO_SAMPLES   12 // [4 8 12 16 20]
-#define SSAO_RADIUS  0.60 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00]
+#define SSAO_RADIUS  0.70 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00]
 #define SSAO_STRENGTH 1.3
 
 #define RTAO_SAMPLES 4 // [4 6 8 10]

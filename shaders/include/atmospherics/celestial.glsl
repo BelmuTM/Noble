@@ -31,15 +31,14 @@ vec3 physicalSun(vec3 sceneDir) {
 }
 
 vec3 physicalMoon(vec3 sceneDir) {
-    vec2 sphere     = intersectSphere(-sceneMoonDir, sceneDir, moonAngularRad);
-    vec3 moonNormal = normalize(sceneDir * sphere.x - sceneMoonDir);
+    vec2 sphere = intersectSphere(-sceneMoonDir, sceneDir, moonAngularRad);
 
 	Material moonMat;
+	moonMat.normal = normalize(sceneDir * sphere.x - sceneMoonDir);
 	moonMat.albedo = vec3(moonAlbedo);
 	moonMat.rough  = moonRoughness;
-    vec3 diffuse   = hammonDiffuse(moonNormal, -sceneDir, sceneSunDir, moonMat, false);
 
-    return sphere.y < 0.0 ? vec3(0.0) : moonMat.albedo * diffuse * sunIlluminance;
+    return sphere.y < 0.0 ? vec3(0.0) : moonMat.albedo * hammonDiffuse(moonMat, -sceneDir, sceneSunDir, false) * sunIlluminance;
 }
 
 vec3 computeSky(vec3 viewPos) {

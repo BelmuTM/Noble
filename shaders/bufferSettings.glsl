@@ -24,7 +24,6 @@ const int colortex3Format         = RGBA32F;
 
 MAIN COLOR
 const int colortex4Format         = RGBA32F;
-const bool colortex4Clear         = false;
 
 MAIN ACCUMULATION
 const int colortex5Format         = RGBA32F;

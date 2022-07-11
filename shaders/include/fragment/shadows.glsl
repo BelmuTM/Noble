@@ -62,7 +62,7 @@ vec3 getShadowColor(vec3 samplePos) {
 
         for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
             vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);
-            float z     = texelFetch(shadowtex1, ivec2((shadowPos.xy + offset) * shadowMapResolution), 0).r;
+            float z     = texelFetch(shadowtex0, ivec2((shadowPos.xy + offset) * shadowMapResolution), 0).r;
 
             if(shadowPos.z > z) {
                 avgBlockerDepth += z;
@@ -88,7 +88,7 @@ vec3 PCF(vec3 shadowPos, float penumbraSize, inout float ssDepth) {
 
         vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
         #if SHADOW_TYPE != 1
-            ssDepth = max0(shadowPos.z - texelFetch(shadowtex1, ivec2(samplePos.xy * shadowMapResolution), 0).r);
+            ssDepth = max0(shadowPos.z - texelFetch(shadowtex0, ivec2(samplePos.xy * shadowMapResolution), 0).r);
             ssDepth = (ssDepth * -shadowProjectionInverse[2].z) * rcp(SHADOW_DEPTH_STRETCH);
         #endif
 
@@ -103,7 +103,7 @@ vec3 shadowMap(vec3 viewPos, vec3 geoNormal, out float ssDepth) {
         float NdotL    = dot(geoNormal, sceneShadowDir);
 
         // Shadow bias from Eldeston#3590 and gri573#7741
-        float biasAdjustMult = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.25;
+        float biasAdjustMult = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.35;
         shadowPos           += (mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPos.xy)) * biasAdjustMult;
 
         float penumbraSize = 1.0;

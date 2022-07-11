@@ -38,7 +38,7 @@ void main() {
 	blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-	directIlluminance = sampleDirectIlluminance(); 
+	directIlluminance = sampleDirectIlluminance();
 
 	#if TAA == 1
 		gl_Position.xy += taaJitter(gl_Position);

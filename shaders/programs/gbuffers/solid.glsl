@@ -55,6 +55,11 @@
 		float subsurface = clamp01(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
 		float porosity   = clamp01(specularTex.z * (maxVal8 / 64.0));
 
+		#ifdef PROGRAM_BEACONBEAM
+			if(albedoTex.a <= 1.0 - EPS) discard;
+			emission = 1.0;
+		#endif
+
 		vec3 normal;
 		#if !defined PROGRAM_BLOCK
 			normal.xy = normalTex.xy * 2.0 - 1.0;

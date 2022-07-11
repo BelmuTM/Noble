@@ -59,7 +59,9 @@ layout (location = 0) out vec3 color;
     void tonemap(inout vec3 color) {
         #if TONEMAP == 0
             color *= AP1_2_AP0_MAT;
-            color *= 2.0;
+            #if ACCUMULATION_VELOCITY_WEIGHT == 0
+                color *= 1.8;
+            #endif
             rrt(color);
             odt(color);                          // ACES
         #elif TONEMAP == 1

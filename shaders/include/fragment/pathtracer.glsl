@@ -19,18 +19,18 @@
         return (fresnel * G2SmithGGX(NdotL, NdotV, roughness)) / G1SmithGGX(NdotV, roughness);
     }
 
-    vec3 directBRDF(vec2 hitPos, vec3 V, vec3 L, Material mat, vec3 shadowmap) {
-        vec3 diffuse     = hammonDiffuse(mat.normal, V, L, mat, false);
-        vec3 specular    = SPECULAR == 0 ? vec3(0.0) : computeSpecular(mat.normal, V, L, mat);
-        vec3 directLight = sampleDirectIlluminance();
+    vec3 directBRDF(vec2 hitPos, vec3 V, vec3 L, Material mat) {
+        vec3 diffuse  = hammonDiffuse(mat, V, L, true);
+        vec3 specular = SPECULAR == 0 ? vec3(0.0) : computeSpecular(mat.normal, V, L, mat);
+
+        vec4 shadowmap = texture(colortex3, hitPos.xy);
 
         #if SUBSURFACE_SCATTERING == 1
-            float ssDepth = texture(colortex6, hitPos.xy).a;
-            diffuse      += disneySSS(mat, V, L, ssDepth) * mat.albedo;
+            diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a);
         #endif
 
-        vec3 direct  = (mat.albedo * diffuse) + specular;
-             direct *= (shadowmap * directLight);
+        vec3 direct  = mat.albedo * diffuse + specular;
+             direct *= shadowmap.rgb * sampleDirectIlluminance();
         return direct;
     }
 
@@ -46,11 +46,11 @@
         vec3 BRDF = vec3(0.0);
         if(specularProb > randF()) {
             vec3 newDir = reflect(rayDir, microfacet);
-            BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.rough) / specularProb;
+            BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.rough) * rcp(specularProb);
             rayDir      = newDir;
         } else {
-            BRDF   = (1.0 - fresnel) / (1.0 - specularProb) * mat.albedo;
             rayDir = generateCosineVector(mat.normal, noise);
+            BRDF   = mat.albedo * INV_PI * (1.0 - fresnel) * rcp(1.0 - specularProb);
         }
         return BRDF;
     }
@@ -59,15 +59,14 @@
         vec3 viewPos   = screenToView(screenPos);
         vec3 skyRayDir = unprojectSphere(texCoords);
 
-        int samples = 0;
-        for(int i = 0; i < GI_SAMPLES; i++, samples++) {
+        for(int i = 0; i < GI_SAMPLES; i++) {
             vec3 throughput = vec3(1.0);
 
             vec3 hitPos = screenPos; 
             vec3 rayDir = normalize(viewPos);
             Material mat;
 
-            for(int j = 0; j <= GI_BOUNCES; j++) {
+            for(int j = 0; j < GI_BOUNCES; j++) {
                 vec2 noise = vec2(randF(), randF());
 
                 /* Russian Roulette */
@@ -79,11 +78,11 @@
                 
                 mat = getMaterial(hitPos.xy);
 
-                vec3 directLighting  = directBRDF(hitPos.xy, -rayDir, shadowDir, mat, texture(colortex3, hitPos.xy).rgb);
+                vec3 directLighting  = directBRDF(hitPos.xy, -rayDir, shadowDir, mat);
                      directLighting += getBlockLightIntensity(mat) * mat.emission;
                 vec3 indirectBounce  = indirectBRDF(noise, mat, rayDir);
              
-                if(dot(mat.normal, rayDir) < 0.0) { break; }
+                if(dot(mat.normal, rayDir) < 0.0) continue;
                 bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
 
                 if(j == 0) { 
@@ -107,6 +106,6 @@
                 }
             }
         }
-        radiance = max0(radiance) / float(samples);
+        radiance = max0(radiance) * rcp(GI_SAMPLES);
     }
 #endif

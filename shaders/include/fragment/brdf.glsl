@@ -6,13 +6,21 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/*
+    SOURCES / CREDITS:
+    LVutner: Help with understanding BRDFs, providing lambda smith equation and providing GGXVNDF function
+             https://github.com/LVutner
+    Jessie:  Help with getting the lighting right
+             https://github.com/Jessie-LC
+    Thanks to them!
+*/
+
 // http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
 float distributionGGX(float NdotH2, float roughness) {
     float alpha2 = pow4(roughness);
     return alpha2 / (PI * pow2(1.0 - NdotH2 + NdotH2 * alpha2));
 }
 
-// Thanks LVutner#5199 for providing lambda smith equation
 float lambdaSmith(float cosTheta, float alpha) {
     float cosTheta2 = pow2(cosTheta);
     return (-1.0 + sqrt(1.0 + alpha * (1.0 - cosTheta2) / cosTheta2)) * 0.5;
@@ -103,14 +111,14 @@ vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float roughness) {
 
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
-vec3 hammonDiffuse(vec3 N, vec3 V, vec3 L, Material mat, bool pt) {
+vec3 hammonDiffuse(Material mat, vec3 V, vec3 L, bool pt) {
     float alpha = pow2(mat.rough);
 
     vec3 H      = normalize(V + L);
-    float NdotL = maxEps(dot(N, L));
-    float NdotV = maxEps(dot(N, V));
+    float NdotL = maxEps(dot(mat.normal, L));
+    float NdotV = maxEps(dot(mat.normal, V));
     float VdotL = dot(V, L);
-    float NdotH = dot(N, H);
+    float NdotH = dot(mat.normal, H);
 
     float facing    = 0.5 + 0.5 * VdotL;
     float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
@@ -191,35 +199,28 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     return clamp01(clamp01(NdotL) * (D * G2) * F / (4.0 * NdotL * NdotV));
 }
 
-// Disney SSS from: https://www.shadertoy.com/view/XdyyDd
-float disneySSS(Material mat, vec3 V, vec3 L, float ssDepth) {
-    vec3 H      = normalize(V + L);
-    float NdotL = clamp01(dot(mat.normal, L));
-    float NdotV = clamp01(dot(mat.normal, V));
-    float HdotL = clamp01(dot(L, H));
+vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughMedium) {
+    if(mat.subsurface <= EPS) return vec3(0.0);
 
-    float FL    = cornetteShanksPhase(NdotL, 0.5), FV = cornetteShanksPhase(NdotV, 0.5);
-    float Fss90 = pow2(HdotL) * mat.rough;
-    float Fss   = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);
-    float sss   = 1.25 * (Fss * rcp((NdotL + NdotV) - 0.5) + 0.5);
+    vec3 beer = exp(-(1.0 - mat.albedo) * maxEps(distThroughMedium) / mat.subsurface);
 
-    return max0(quintic(0.0, 1.0, sss) * INV_PI * mat.subsurface * (1.0 - ssDepth));
+    vec3 isotropicLobe = beer * isotropicPhase;
+    vec3 forwardsLobe  = beer * henyeyGreensteinPhase(dot(normalize(V + L), V), 0.5);
+
+    const float sssForwardsScatter = 0.7;
+    return mix(isotropicLobe, forwardsLobe, sssForwardsScatter);
 }
-
-// Thanks LVutner and Jessie for the help!
-// https://github.com/LVutner
-// https://github.com/Jessie-LC
 
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao) {
     V = -normalize(V);
 
-    vec3 diffuse  = hammonDiffuse(mat.normal, V, L, mat, false);
+    vec3 diffuse  = hammonDiffuse(mat, V, L, false);
          diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
         if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = 0.6;
 
-        diffuse += disneySSS(mat, V, L, shadowmap.a);
+        diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a);
     #endif
 
     diffuse *= directLight;

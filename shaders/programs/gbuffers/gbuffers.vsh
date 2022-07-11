@@ -29,7 +29,6 @@ out mat3 TBN;
 #include "/include/utility/transforms.glsl"
 #include "/include/utility/color.glsl"
 
-#include "/include/fragment/water.glsl"
 #include "/include/vertex/animation.glsl"
 
 void main() {
@@ -50,7 +49,7 @@ void main() {
 		animate(worldPos, texCoords.y < mc_midTexCoord.y);
 
 		#ifdef WEATHER
-			worldPos.xz  += RAIN_DIRECTION * worldPos.y * RAIN_ANGLE_INTENSITY;
+			worldPos.xz += RAIN_DIRECTION * worldPos.y * RAIN_ANGLE_INTENSITY;
 		#endif
 	#endif
 	
