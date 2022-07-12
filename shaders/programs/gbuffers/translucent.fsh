@@ -37,7 +37,7 @@ void main() {
 	Material mat;
     mat.F0         = specularTex.y;
     mat.rough      = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
-    mat.ao         = normalTex.z; // Thanks Kneemund for the nametag fix
+    mat.ao         = normalTex.z;
 	mat.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     mat.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
     mat.isMetal    = mat.F0 * maxVal8 > 229.5;
@@ -61,9 +61,11 @@ void main() {
 		mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES);
 		
 	} else {
-		mat.normal.xy = normalTex.xy * 2.0 - 1.0;
-		mat.normal.z  = sqrt(1.0 - dot(mat.normal.xy, mat.normal.xy));
-		mat.normal    = TBN * mat.normal;
+		if(all(greaterThan(normalTex, vec4(EPS)))) {
+			mat.normal.xy = normalTex.xy * 2.0 - 1.0;
+			mat.normal.z  = sqrt(1.0 - dot(mat.normal.xy, mat.normal.xy));
+			mat.normal    = TBN * mat.normal;
+		}
 
 		#if GI == 0
 			if(mat.isMetal) {
@@ -75,10 +77,13 @@ void main() {
        				mat.albedo = sRGBToAP1Albedo(mat.albedo);
     			#endif
 
-				vec3 tmp;
-				mat3[2] skyLight = sampleSkyIlluminance(tmp);
+				vec3 skyLight = vec3(0.0);
+				if(mat.lightmap.y > EPS) {
+					vec3 tmp;
+					skyLight = getSkyLight(mat.normal, sampleSkyIlluminance(tmp));
+				}
 
-				sceneColor.rgb = computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, ssDepth), directIlluminance, getSkyLight(mat.normal, skyLight), 1.0);
+				sceneColor.rgb = computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, ssDepth), directIlluminance, skyLight, 1.0);
 			}
 		#else
 			sceneColor.rgb = mat.albedo;

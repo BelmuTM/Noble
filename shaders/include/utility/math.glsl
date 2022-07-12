@@ -171,7 +171,7 @@ vec3 unprojectSphere(vec2 coord) {
     return vec3(sincos(coord.x * TAU) * sin(latitude), cos(latitude)).xzy;
 }
 
-#if defined STAGE_FRAGMENT
+#ifdef STAGE_FRAGMENT
     // Thanks Niemand#1929 for the help with atmosphere upscaling
     vec2 getAtmosphereCoordinates(in vec2 coords, float scale, float jitter) {
 	    vec2 atmosRes = ceil(viewSize * scale);
@@ -189,6 +189,9 @@ vec3 generateUnitVector(vec2 xy) {
 vec3 generateCosineVector(vec3 vector, vec2 xy) {
     return normalize(vector + generateUnitVector(xy));
 }
+
+float coneAngleToSolidAngle(float x) { return TAU * (1.0 - cos(x));  }
+float solidAngleToConeAngle(float x) { return acos(1.0 - (x) / TAU); }
 
 vec2 vogelDisk(float i, float n, float phi) {
     float r     = sqrt(i + phi) / n;
@@ -218,7 +221,7 @@ float gaussianDistrib2D(vec2 xy, float sigma) {
 // http://jcgt.org/published/0003/02/01/
 
 vec2 encodeUnitVector(vec3 v) {
-	vec2 enc = v.xy * rcp((abs(v.x) + abs(v.y) + abs(v.z)));
+	vec2 enc = v.xy / (abs(v.x) + abs(v.y) + abs(v.z));
 	enc      = (v.z <= 0.0) ? ((1.0 - abs(enc.yx)) * signNonZero(enc)) : enc;
     
 	return 0.5 * enc + 0.5;

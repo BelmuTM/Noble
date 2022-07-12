@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#if defined STAGE_VERTEX
+#ifdef STAGE_VERTEX
     #include "/include/post/exposure.glsl"
 
     out float exposure;

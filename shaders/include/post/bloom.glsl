@@ -42,7 +42,7 @@
 	}
 
 	vec3 getBloomTile(int LOD) {
-		return textureBicubic(colortex3, texCoords * rcp(exp2(LOD)) + bloomOffsets[LOD - 2]).rgb;
+		return textureBicubic(colortex3, texCoords / exp2(LOD) + bloomOffsets[LOD - 2]).rgb;
 	}
 
 	void writeBloom(inout vec3 bloom) {

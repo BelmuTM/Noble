@@ -28,7 +28,7 @@ vec3 reprojection(vec3 screenPos) {
     vec4 position = gbufferProjectionInverse * vec4(screenPos, 1.0);
          position = gbufferModelViewInverse * (position / position.w);
 
-    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(screenPos.z > 0.56);
+    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(screenPos.z >= MC_HAND_DEPTH);
     
     position += vec4(cameraOffset, 0.0);
     position  = gbufferPreviousModelView  * position;
@@ -51,7 +51,7 @@ float getDistortionFactor(vec2 coords) {
 }
 
 vec2 distortShadowSpace(vec2 position) {
-	return position * vec2(1.0 / getDistortionFactor(position.xy));
+	return position / getDistortionFactor(position.xy);
 }
 
 vec3 distortShadowSpace(vec3 position) {
@@ -88,11 +88,6 @@ vec3 viewToWorld(vec3 viewPos) {
 mat3 constructViewTBN(vec3 viewNormal) {
 	vec3 tangent = normalize(cross(gbufferModelViewInverse[1].xyz, viewNormal));
 	return mat3(tangent, cross(tangent, viewNormal), viewNormal);
-}
-
-vec3 tangentToView(vec3 viewNormal, vec3 H) {
-    vec3 tangent = normalize(cross(gbufferModelViewInverse[1].xyz, viewNormal));
-    return vec3((tangent * H.x) + (cross(tangent, viewNormal) * H.y) + (viewNormal * H.z));
 }
 
 vec3 getViewPos0(vec2 coords) {

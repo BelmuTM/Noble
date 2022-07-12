@@ -59,7 +59,7 @@
 	float findMaximumHorizon(vec2 coords, vec3 viewPos, vec3 viewDir, vec3 normal, vec3 sliceDir, vec2 radius) {
 		float horizonCos = -1.0;
 
-		vec2 stepSize  = radius * rcp(float(GTAO_HORIZON_STEPS));
+		vec2 stepSize  = radius * rcp(GTAO_HORIZON_STEPS);
 		vec2 increment = sliceDir.xy * stepSize;
 		vec2 screenPos = coords + uniformAnimatedNoise(blueNoise.rg) * increment;
 

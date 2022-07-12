@@ -13,10 +13,12 @@
 
     layout (location = 0) out vec4 aoHistory;
     
-    #if AO_TYPE == 1
-        #include "/include/fragment/raytracer.glsl"
+    #if AO == 1
+        #if AO_TYPE == 1
+            #include "/include/fragment/raytracer.glsl"
+        #endif
+        #include "/include/fragment/ao.glsl"
     #endif
-    #include "/include/fragment/ao.glsl"
 
     void main() {
         aoHistory = vec4(0.0, 0.0, 0.0, 1.0);

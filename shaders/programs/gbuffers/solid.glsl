@@ -6,14 +6,25 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#if defined STAGE_VERTEX
+#ifdef STAGE_VERTEX
 	#include "/programs/gbuffers/gbuffers.vsh"
 
 #elif defined STAGE_FRAGMENT
-	/* RENDERTARGETS: 1,2 */
 
-	layout (location = 0) out uvec4 data;
-	layout (location = 1) out vec3  geometricNormal;
+	#ifdef PROGRAM_ENTITY
+		/* RENDERTARGETS: 1,2,6 */
+
+		layout (location = 0) out uvec4 data;
+		layout (location = 1) out vec3 geometricNormal;
+		layout (location = 2) out vec4 nametagCheck;
+
+		uniform vec4 entityColor;
+	#else
+		/* RENDERTARGETS: 1,2 */
+
+		layout (location = 0) out uvec4 data;
+		layout (location = 1) out vec3 geometricNormal;
+	#endif
 
 	flat in int blockId;
 	in vec2 texCoords;
@@ -24,10 +35,6 @@
 	in mat3 TBN;
 
 	#define STAGE_FRAGMENT
-
-	#ifdef PROGRAM_ENTITY
-		uniform vec4 entityColor;
-	#endif
 
 	#include "/include/common.glsl"
 
@@ -40,33 +47,35 @@
 
 		albedoTex *= vertexColor;
 
+		float F0 		 = specularTex.y;
+		float ao 		 = normalTex.z;
+		float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
+		float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
+		float subsurface = clamp01(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
+		float porosity   = clamp01(specularTex.z * (maxVal8 / 64.0));
+
 		#ifdef PROGRAM_ENTITY
 			albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
+
+			ao = all(lessThanEqual(normalTex.rgb, vec3(EPS))) ? 1.0 : ao;
 		#endif
 
 		#if WHITE_WORLD == 1
 	    	albedoTex.rgb = vec3(1.0);
     	#endif
 
-		float F0 		 = specularTex.y;
-		float ao 		 = normalTex.z; // Thanks Kneemund for the nametag fix
-		float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
-		float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
-		float subsurface = clamp01(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
-		float porosity   = clamp01(specularTex.z * (maxVal8 / 64.0));
-
 		#ifdef PROGRAM_BEACONBEAM
 			if(albedoTex.a <= 1.0 - EPS) discard;
 			emission = 1.0;
 		#endif
 
-		vec3 normal;
-		#if !defined PROGRAM_BLOCK
-			normal.xy = normalTex.xy * 2.0 - 1.0;
-			normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
-			normal    = TBN * normal;
-		#else
-			normal = geoNormal;
+		vec3 normal = geoNormal;
+		#ifndef PROGRAM_BLOCK
+			if(all(greaterThan(normalTex, vec4(EPS)))) {
+				normal.xy = normalTex.xy * 2.0 - 1.0;
+				normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
+				normal    = TBN * normal;
+			}
 		#endif
 
 		#ifdef PROGRAM_TERRAIN

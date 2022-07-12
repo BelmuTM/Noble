@@ -42,13 +42,13 @@ const float cloudsShadowmapDist = 600.0;
 // Coefficients provided by Jessie#7257 and LVutner#5199
 
 #if TONEMAP == 0
-    vec3 rayleighCoeff = (vec3(5.8, 13.3, 33.31) * 1e-6              ) * sRGB_2_AP1_ALBEDO;
-    vec3 mieCoeff      = (vec3(21.0)             * 1e-6              ) * sRGB_2_AP1_ALBEDO;
-    vec3 ozoneCoeff    = (vec3(8.30428e-07, 1.31491e-06, 5.44068e-08)) * sRGB_2_AP1_ALBEDO;
+    const vec3 rayleighCoeff = (vec3(5.8, 13.3, 33.31) * 1e-6              ) * sRGB_2_AP1_ALBEDO;
+    const vec3 mieCoeff      = (vec3(21.0)             * 1e-6              ) * sRGB_2_AP1_ALBEDO;
+    const vec3 ozoneCoeff    = (vec3(8.30428e-07, 1.31491e-06, 5.44068e-08)) * sRGB_2_AP1_ALBEDO;
 #else
-    vec3 rayleighCoeff = vec3(5.8, 13.3, 33.31) * 1e-6;
-    vec3 mieCoeff      = vec3(21.0)             * 1e-6;
-    vec3 ozoneCoeff    = vec3(8.30428e-07, 1.31491e-06, 5.44068e-08);
+    const vec3 rayleighCoeff = vec3(5.8, 13.3, 33.31) * 1e-6;
+    const vec3 mieCoeff      = vec3(21.0)             * 1e-6;
+    const vec3 ozoneCoeff    = vec3(8.30428e-07, 1.31491e-06, 5.44068e-08);
 #endif
 
 mat2x3 atmosScatteringCoeff = mat2x3(rayleighCoeff, mieCoeff);
@@ -72,10 +72,10 @@ const float sunTemp = 5778.0;
 const float sunAngularRad  = CELESTIAL_SIZE_MULTIPLIER * sunRad  / sunDist;
 const float moonAngularRad = CELESTIAL_SIZE_MULTIPLIER * moonRad / moonDist;
 
-vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (J/m²)
-vec3 sunLuminance   = sunIlluminance / (TAU * (1.0 - cos(sunAngularRad)));
+const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (J/m²)
+vec3 sunLuminance         = sunIlluminance / coneAngleToSolidAngle(sunAngularRad);
 
-vec3 moonLuminance   = moonAlbedo * sunIlluminance;
-vec3 moonIlluminance = moonLuminance * (TAU * (1.0 - cos(moonAngularRad))); // The rough amount of light the moon emits that reaches the earth
+const vec3 moonLuminance = moonAlbedo * sunIlluminance;
+vec3 moonIlluminance     = moonLuminance * coneAngleToSolidAngle(moonAngularRad); // The rough amount of light the moon emits that reaches the earth
 
 float shadowLightAngularRad = sunAngle < 0.5 ? sunAngularRad : moonAngularRad;

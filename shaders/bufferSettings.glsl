@@ -8,22 +8,23 @@
 
 /*
 SKY
-const int colortex0Format         = R11F_G11F_B10F;
+const int colortex0Format         = RGBA16F;
 const bool colortex0Clear         = false;
 
 DATA
 const int colortex1Format         = RGBA32UI;
+const vec4 colortex1Clear         = vec4(0, 0, 0, 0);
 
 MISC
 const int colortex2Format         = RGBA16F;
 
 SHADOWMAP & MISC
 const int shadowcolor0Format      = RGBA16F;
-const vec4 shadowcolor0Clear      = vec4(0.0, 0.0, 0.0, 0.0);
 const int colortex3Format         = RGBA32F;
 
 MAIN COLOR
 const int colortex4Format         = RGBA32F;
+const vec4 colortex4Clear         = vec4(0.0, 0.0, 0.0, 0.0);
 
 MAIN ACCUMULATION
 const int colortex5Format         = RGBA32F;

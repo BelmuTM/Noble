@@ -131,7 +131,7 @@ vec3 hammonDiffuse(Material mat, vec3 V, vec3 L, bool pt) {
         float fresnelNL = 1.0 - fresnelDielectric(NdotL, ior);
         float fresnelNV = 1.0 - fresnelDielectric(NdotV, ior);
 
-        smoothSurf = fresnelNL * fresnelNV * rcp(energyConservationFactor);
+        smoothSurf = fresnelNL * fresnelNV / energyConservationFactor;
     } else {
         smoothSurf = 1.05 * (1.0 - pow5(1.0 - NdotL)) * (1.0 - pow5(1.0 - NdotV));
     }
@@ -200,7 +200,7 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 }
 
 vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughMedium) {
-    if(mat.subsurface <= EPS) return vec3(0.0);
+    if(mat.subsurface <= EPS || distThroughMedium <= EPS) return vec3(0.0);
 
     vec3 beer = exp(-(1.0 - mat.albedo) * maxEps(distThroughMedium) / mat.subsurface);
 
@@ -208,7 +208,7 @@ vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughM
     vec3 forwardsLobe  = beer * henyeyGreensteinPhase(dot(normalize(V + L), V), 0.5);
 
     const float sssForwardsScatter = 0.7;
-    return mix(isotropicLobe, forwardsLobe, sssForwardsScatter);
+    return clamp01(mix(isotropicLobe, forwardsLobe, sssForwardsScatter));
 }
 
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao) {
@@ -228,9 +228,11 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     mat.lightmap.x = pow(quintic(0.0, 1.0, mat.lightmap.x), 1.5);
     mat.lightmap.y = getSkyLightIntensity(mat.lightmap.y);
 
+    float ambientOcclusion = mat.ao * ao;
+
     vec3 skyLight   = skyIlluminance * INV_PI     * mat.lightmap.y;
     vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
-         diffuse   += (blockLight + skyLight) * (mat.ao * ao);
+         diffuse   += (blockLight + skyLight) * ambientOcclusion;
          diffuse   += mat.emission * BLOCKLIGHT_INTENSITY;
 
     return max0(mat.albedo * diffuse);

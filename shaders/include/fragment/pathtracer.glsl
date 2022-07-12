@@ -46,11 +46,11 @@
         vec3 BRDF = vec3(0.0);
         if(specularProb > randF()) {
             vec3 newDir = reflect(rayDir, microfacet);
-            BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.rough) * rcp(specularProb);
+            BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.rough) / specularProb;
             rayDir      = newDir;
         } else {
             rayDir = generateCosineVector(mat.normal, noise);
-            BRDF   = mat.albedo * INV_PI * (1.0 - fresnel) * rcp(1.0 - specularProb);
+            BRDF   = mat.albedo * INV_PI * (1.0 - fresnel) / (1.0 - specularProb);
         }
         return BRDF;
     }

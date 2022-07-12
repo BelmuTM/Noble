@@ -95,7 +95,7 @@ float getCloudsPhase(float cosTheta, vec3 anisotropyFactors) {
     return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeakWeight);
 }
 
-vec4 cloudsScattering(vec3 rayDir, out float depth) {
+vec4 cloudsScattering(vec3 rayDir, out float depth, vec3 directIlluminance, vec3 skyIlluminance) {
 
     vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, innerCloudRad, outerCloudRad);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 0.0, 1.0);
@@ -156,10 +156,10 @@ vec4 cloudsScattering(vec3 rayDir, out float depth) {
         scattering    += (stepScattering * scatteringIntegral * transmittance);
         transmittance *= stepTransmittance;
     }
-    transmittance = clamp01((transmittance - cloudsTransmitThreshold) * rcp(1.0 - cloudsTransmitThreshold));
+    transmittance = clamp01((transmittance - cloudsTransmitThreshold) / (1.0 - cloudsTransmitThreshold));
 
-    scattering += scattering.x * sampleDirectIlluminance();
-    scattering += scattering.y * texture(colortex6, projectSphere(vec3(0.0, 1.0, 0.0))).rgb;
+    scattering += scattering.x * directIlluminance;
+    scattering += scattering.y * skyIlluminance;
     scattering += scattering.z;
 
     depth /= weight;

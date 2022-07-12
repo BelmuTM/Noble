@@ -8,6 +8,21 @@
 
 // MOST FUNCTIONS HERE ARE NOT MY PROPERTY
 
+// Jodie's dithering
+float bayer2(vec2 a) {
+    a = floor(a);
+    return fract(dot(a, vec2(0.5, a.y * 0.75)));
+}
+
+#define bayer4(a)   (bayer2(0.5   * (a))  *  0.25 + bayer2(a))
+#define bayer8(a)   (bayer4(0.5   * (a))  *  0.25 + bayer2(a))
+#define bayer16(a)  (bayer8(0.5   * (a))  *  0.25 + bayer2(a))
+#define bayer32(a)  (bayer16(0.5  * (a))  *  0.25 + bayer2(a))
+#define bayer64(a)  (bayer32(0.5  * (a))  *  0.25 + bayer2(a))
+#define bayer128(a) (bayer64(0.5  * (a))  *  0.25 + bayer2(a))
+#define bayer256(a) (bayer128(0.5 * (a))  *  0.25 + bayer2(a))
+#define bayer512(a) (bayer256(0.5 * (a))  *  0.25 + bayer2(a))
+
 const vec2 taaOffsets[8] = vec2[8](
 	vec2( 0.125,-0.375),
 	vec2(-0.125, 0.375),
@@ -30,26 +45,12 @@ void pcg(inout uint seed) {
     seed = (word >> 22u) ^ word;
 }
 
-#if defined STAGE_FRAGMENT
+#ifdef STAGE_FRAGMENT
     vec3 blueNoise = texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
 
     uint rngState = 185730u * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewSize.x);
     float randF() { pcg(rngState); return float(rngState) / float(0xffffffffu); }
 #endif
-
-// Hammersley
-float radicalInverse_VdC(uint bits) {
-     bits = (bits << 16u) | (bits >> 16u);
-     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
-     bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
-     bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
-     bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
-     return float(bits) * 2.3283064365e-10; // / 0x100000000
-}
-
-vec2 hammersley2d(uint i, uint N) {
-     return vec2(float(i) / float(N), radicalInverse_VdC(i));
-}
 
 // http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float rand(vec2 uv) {
@@ -105,11 +106,6 @@ vec2 uniformAnimatedNoise(in vec2 seed) {
 
 vec2 uniformNoise(int i, in vec3 seed) {
     return vec2(fract(seed.x + GOLDEN_RATIO * i), fract(seed.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i));
-}
-
-// Gold Noise ©2015 dcerisano@standard3d.com
-float goldNoise(vec2 xy, int seed){
-    return fract(tan(distance(xy * GOLDEN_RATIO, xy) * float(seed)) * xy.x);
 }
 
 // https://www.shadertoy.com/view/Xd23Dh

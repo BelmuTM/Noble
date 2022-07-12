@@ -43,7 +43,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     return exp(-atmosExtinctionCoeff * accumAirmass);
 }
 
-#if defined STAGE_FRAGMENT
+#ifdef STAGE_FRAGMENT
     vec3 atmosphericScattering(vec3 rayDir, vec3 skyIlluminance) {
         vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, atmosLowerRad, atmosUpperRad);
         if(dists.y < 0.0) return vec3(0.0);
@@ -52,8 +52,8 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         vec3 increment   = rayDir * stepLength;
         vec3 rayPos      = atmosRayPos + increment * 0.5;
 
-        vec2 VdotL    = vec2(dot(rayDir, sceneSunDir), dot(rayDir, sceneMoonDir));
-        vec2 phase[2] = vec2[2](
+        vec2 VdotL = vec2(dot(rayDir, sceneSunDir), dot(rayDir, sceneMoonDir));
+        vec4 phase = vec4(
             vec2(rayleighPhase(VdotL.x), kleinNishinaPhase(VdotL.x, atmosEnergyParam)), 
             vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, atmosEnergyParam))
         );
@@ -66,8 +66,8 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
             vec3 visibleScattering  = transmittance * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
-            vec3 sunStepScattering  = atmosScatteringCoeff * (airmass.xy * phase[0]) * visibleScattering;
-            vec3 moonStepScattering = atmosScatteringCoeff * (airmass.xy * phase[1]) * visibleScattering;
+            vec3 sunStepScattering  = atmosScatteringCoeff * (airmass.xy * phase.xy) * visibleScattering;
+            vec3 moonStepScattering = atmosScatteringCoeff * (airmass.xy * phase.zw) * visibleScattering;
 
             singleScattering[0] += sunStepScattering  * atmosphereTransmittance(rayPos, sceneSunDir);
             singleScattering[1] += moonStepScattering * atmosphereTransmittance(rayPos, sceneMoonDir);
@@ -76,7 +76,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
 
             vec3 multScatteringFactor = stepScatterAlbedo * 0.84;
-            vec3 multScatteringEnergy = multScatteringFactor * rcp(1.0 - multScatteringFactor);
+            vec3 multScatteringEnergy = multScatteringFactor / (1.0 - multScatteringFactor);
                  multipleScattering  += multScatteringEnergy * visibleScattering * stepScattering;
 
             transmittance *= stepTransmittance;
@@ -132,11 +132,11 @@ mat3[2] sampleSkyIlluminance(inout vec3 skyMultScatterIllum) {
         skyIllum[1][0] *= sampleWeight;
         skyIllum[1][2] *= sampleWeight;
 
-        skyIllum[0][0] += skyIllum[0][1] * 0.14;
-        skyIllum[0][2] += skyIllum[0][1] * 0.14;
-        skyIllum[1][0] += skyIllum[0][1] * 0.14;
-        skyIllum[1][1] += skyIllum[0][1] * 0.14;
-        skyIllum[1][2] += skyIllum[0][1] * 0.14;
+        skyIllum[0][0] += skyIllum[0][1] * 0.1;
+        skyIllum[0][2] += skyIllum[0][1] * 0.1;
+        skyIllum[1][0] += skyIllum[0][1] * 0.1;
+        skyIllum[1][1] += skyIllum[0][1] * 0.1;
+        skyIllum[1][2] += skyIllum[0][1] * 0.1;
 
         skyMultScatterIllum *= (TAU / (samples.x * samples.y));
     #endif

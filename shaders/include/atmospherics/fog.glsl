@@ -17,7 +17,7 @@ vec3 getVlDensities(in float height) {
     return vec3(rayleighMie, 0.0);
 }
 
-void groundFog(inout vec3 color, vec3 viewPos, float skyLight, bool sky) {
+void groundFog(inout vec3 color, vec3 viewPos, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
     vec3 scenePos = viewToScene(viewPos);
 
     float airmass     = sky ? far : length(scenePos);
@@ -31,10 +31,8 @@ void groundFog(inout vec3 color, vec3 viewPos, float skyLight, bool sky) {
     vec2  phase    = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, atmosEnergyParam));
           skyLight = sky ? 1.0 : getSkyLightIntensity(skyLight);
 
-    vec3 skyIlluminance = texture(colortex6, texCoords).rgb;
-
-	vec3 scattering  = atmosScatteringCoeff * (airmass * phase)                * (sampleDirectIlluminance() * skyLight);
-	     scattering += atmosScatteringCoeff * (airmass * vec2(isotropicPhase)) * (skyIlluminance * skyLight);
+	vec3 scattering  = atmosScatteringCoeff * (airmass * phase)                * (directIlluminance * skyLight);
+	     scattering += atmosScatteringCoeff * (airmass * vec2(isotropicPhase)) * (skyIlluminance    * skyLight);
 	     scattering *= transmittedFraction;
 
     color = color * transmittance + scattering;
@@ -54,7 +52,7 @@ vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
     return exp(-atmosExtinctionCoeff * accumAirmass);
 }
 
-vec3 volumetricFog(vec3 viewPos, float skyLight) {
+vec3 volumetricFog(vec3 viewPos, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
     vec3 startPos = gbufferModelViewInverse[3].xyz;
     vec3 endPos   = viewToScene(viewPos);
 
@@ -89,10 +87,8 @@ vec3 volumetricFog(vec3 viewPos, float skyLight) {
         indirectScattering += stepScatteringIndirect * vlTransmittance(rayPos, vec3(0.0, 1.0, 0.0));
         transmittance      *= stepTransmittance;
     }
-    
-    vec3 skyIlluminance = texture(colortex6, texCoords).rgb;
 
-    vec3 scattering  = directScattering   * sampleDirectIlluminance();
+    vec3 scattering  = directScattering   * directIlluminance;
          scattering += indirectScattering * skyIlluminance * getSkyLightIntensity(skyLight);
 
     return max0(scattering);
@@ -105,18 +101,18 @@ vec3 waterExtinctionCoeff = waterAbsorptionCoeff + waterScatteringCoeff;
 const int phaseMultiSamples = 8;
 
 // Sources: ShaderLabs, Spectrum - Zombye
-void waterFog(inout vec3 color, float dist, float VdotL, vec3 skyIlluminance, float skyLight) {
+void waterFog(inout vec3 color, float dist, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
     vec3 transmittance = exp(-waterAbsorptionCoeff * dist);
 
     vec3 scattering  = skyIlluminance * isotropicPhase * getSkyLightIntensity(skyLight);
-         scattering += (sunAngle < 0.5 ? sunIlluminance : moonIlluminance) * cornetteShanksPhase(VdotL, 0.5);
+         scattering += directIlluminance * cornetteShanksPhase(VdotL, 0.5);
          scattering *= waterScatteringCoeff * (1.0 - transmittance) / waterExtinctionCoeff;
 
     color = color * transmittance + scattering;
 }
 
 // Thanks Jessie#7257 for the help!
-void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 waterDir, vec3 skyIlluminance) {
+void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 waterDir, vec3 directIlluminance, vec3 skyIlluminance) {
     float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
 
     vec3 increment = (endPos - startPos) * rcp(WATER_FOG_STEPS);
@@ -143,11 +139,11 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
         transmittance      *= stepTransmittance;
     }
 
-    vec3 directIlluminance = sampleDirectIlluminance();
-    vec3 scattering        = directScattering * sampleDirectIlluminance() * cornetteShanksPhase(VdotL, 0.5);
-         scattering       *= waterScatteringCoeff  * (1.0 - stepTransmittance) / waterExtinctionCoeff;
+    vec3 scattering  = directScattering * directIlluminance * cornetteShanksPhase(VdotL, 0.5);
+         scattering *= waterScatteringCoeff  * (1.0 - stepTransmittance) / waterExtinctionCoeff;
 
     // Multiple scattering approximation provided by Zombye#7365
+    /*
     vec3 scatteringAlbedo     = clamp01(waterScatteringCoeff / waterExtinctionCoeff);
     vec3 multScatteringFactor = scatteringAlbedo * 0.84;
 
@@ -157,9 +153,10 @@ void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 water
     }
     phaseMulti /= phaseMultiSamples;
 
-    vec3 multipleScattering  = directScattering * sampleDirectIlluminance() * phaseMulti;
+    vec3 multipleScattering  = directScattering * directIlluminance * phaseMulti;
          multipleScattering += indirectScattering * isotropicPhase;
-         multipleScattering *= multScatteringFactor * rcp(1.0 - multScatteringFactor);
+         multipleScattering *= multScatteringFactor / (1.0 - multScatteringFactor);
+    */
     
     color = color * transmittance + scattering;
 }

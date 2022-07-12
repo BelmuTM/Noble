@@ -1,5 +1,4 @@
 #version 400 compatibility
-#include "/include/extensions.glsl"
 
 /***********************************************/
 /*        Copyright (C) NobleRT - 2022         */

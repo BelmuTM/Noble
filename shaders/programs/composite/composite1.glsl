@@ -43,6 +43,9 @@ void main() {
     bool inWater  = isEyeInWater > 0.5;
     bool skyCheck = isSky(texCoords);
 
+    vec3 directIlluminance = sampleDirectIlluminance();
+    vec3 skyIlluminance    = texture(colortex6, texCoords).rgb * INV_PI;
+
     if(!skyCheck) {
         #if GI == 1
             #if GI_FILTER == 1
@@ -81,14 +84,12 @@ void main() {
                 vec3 startPos = inWater ? vec3(0.0) : worldPos0;
                 vec3 endPos   = inWater ? worldPos0 : worldPos1;
 
-                vec3 skyIlluminance = texture(colortex6, texCoords).rgb;
-
                 #if WATER_FOG == 0
                     float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
-                    waterFog(color, depthDist, dot(sceneDir0, sceneSunDir), skyIlluminance, mat.lightmap.y);
+                    waterFog(color, depthDist, dot(sceneDir0, sceneSunDir), directIlluminance, skyIlluminance, mat.lightmap.y);
                 #else
                     vec3 worldDir  = normalize(inWater ? worldPos0 : worldPos1);
-                    volumetricWaterFog(color, startPos, endPos, worldDir, skyIlluminance);
+                    volumetricWaterFog(color, startPos, endPos, worldDir, directIlluminance, skyIlluminance);
                 #endif
             }
         #endif
@@ -103,7 +104,7 @@ void main() {
 
             #if SPECULAR == 1
                 vec3 shadowmap = texture(colortex3, coords).rgb;
-                color         += computeSpecular(mat.normal, viewDir0, shadowDir, mat) * sampleDirectIlluminance() * shadowmap;
+                color         += computeSpecular(mat.normal, viewDir0, shadowDir, mat) * directIlluminance * shadowmap;
             #endif
 
             #if REFLECTIONS == 1
@@ -117,13 +118,13 @@ void main() {
     //////////////////////////////////////////////////////////
 
     #if GI == 0
-        #if VL == 1
-            #ifdef WORLD_OVERWORLD
-                color += volumetricFog(viewPos0, mat.lightmap.y);
-            #endif
-        #else
-            #if RAIN_FOG == 1
-                if(wetness > 0.0 && !inWater) { groundFog(color, viewPos0, getMaterial(texCoords).lightmap.y, skyCheck); }
+        #ifdef WORLD_OVERWORLD
+            #if VL == 1
+                color += volumetricFog(viewPos0, directIlluminance, skyIlluminance, mat.lightmap.y);
+            #else
+                #if RAIN_FOG == 1
+                    if(wetness > 0.0 && !inWater) { groundFog(color, viewPos0, directIlluminance, skyIlluminance, mat.lightmap.y, skyCheck); }
+                #endif
             #endif
         #endif
     #endif

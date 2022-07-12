@@ -13,8 +13,7 @@
 #include "/settings.glsl"
 #include "/include/uniforms.glsl"
 
-#include "/include/utility/bayer.glsl"
-#include "/include/utility/noise.glsl"
+#include "/include/utility/rng.glsl"
 #include "/include/utility/math.glsl"
 #include "/include/utility/transforms.glsl"
 #include "/include/utility/color.glsl"

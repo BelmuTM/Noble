@@ -56,46 +56,48 @@ vec3 getShadowColor(vec3 samplePos) {
     return mix(shadowCol.rgb * shadow1, vec3(1.0), shadow0);
 }
 
-#if SHADOW_TYPE == 1
-    float findBlockerDepth(vec3 shadowPos, float phi, out float ssDepth) {
-        float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int blockers;
+#if SHADOWS == 1 
+    #if SHADOW_TYPE == 1
+        float findBlockerDepth(vec3 shadowPos, float phi, out float ssDepth) {
+            float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int blockers;
 
-        for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-            vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);
-            float z     = texelFetch(shadowtex0, ivec2((shadowPos.xy + offset) * shadowMapResolution), 0).r;
+            for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
+                vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);
+                float z     = texelFetch(shadowtex0, ivec2((shadowPos.xy + offset) * shadowMapResolution), 0).r;
 
-            if(shadowPos.z > z) {
-                avgBlockerDepth += z;
-                totalSSDepth    += max0(shadowPos.z - z);
-                blockers++;
+                if(shadowPos.z > z) {
+                    avgBlockerDepth += z;
+                    totalSSDepth    += max0(shadowPos.z - z);
+                    blockers++;
+                }
             }
-        }
-        // Subsurface depth calculation from SixthSurge#3922
-        // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
-        ssDepth = (totalSSDepth * -shadowProjectionInverse[2].z) * rcp(SHADOW_DEPTH_STRETCH * float(blockers));
+            // Subsurface depth calculation from SixthSurge#3922
+            // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
+            ssDepth = (totalSSDepth * -shadowProjectionInverse[2].z) / (SHADOW_DEPTH_STRETCH * float(blockers));
 
-        return blockers > 0 ? avgBlockerDepth * rcp(blockers) : -1.0;
+            return blockers > 0 ? avgBlockerDepth / float(blockers) : -1.0;
+        }
+    #endif
+
+    vec3 PCF(vec3 shadowPos, float penumbraSize, inout float ssDepth) {
+	    vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
+
+        for(int i = 0; i < SHADOW_SAMPLES; i++) {
+            #if SHADOW_TYPE != 2
+                offset = (diskSampling(i, SHADOW_SAMPLES, randF() * TAU) * penumbraSize) * rcp(shadowMapResolution);
+            #endif
+
+            vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
+            #if SHADOW_TYPE != 1
+                ssDepth = max0(shadowPos.z - texelFetch(shadowtex0, ivec2(samplePos.xy * shadowMapResolution), 0).r);
+                ssDepth = (ssDepth * -shadowProjectionInverse[2].z) * rcp(SHADOW_DEPTH_STRETCH);
+            #endif
+
+            shadowResult += getShadowColor(samplePos);
+        }
+        return shadowResult * rcp(SHADOW_SAMPLES);
     }
 #endif
-
-vec3 PCF(vec3 shadowPos, float penumbraSize, inout float ssDepth) {
-	vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
-
-    for(int i = 0; i < SHADOW_SAMPLES; i++) {
-        #if SHADOW_TYPE != 2
-            offset = (diskSampling(i, SHADOW_SAMPLES, randF() * TAU) * penumbraSize) * rcp(shadowMapResolution);
-        #endif
-
-        vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
-        #if SHADOW_TYPE != 1
-            ssDepth = max0(shadowPos.z - texelFetch(shadowtex0, ivec2(samplePos.xy * shadowMapResolution), 0).r);
-            ssDepth = (ssDepth * -shadowProjectionInverse[2].z) * rcp(SHADOW_DEPTH_STRETCH);
-        #endif
-
-        shadowResult += getShadowColor(samplePos);
-    }
-    return shadowResult * rcp(SHADOW_SAMPLES);
-}
 
 vec3 shadowMap(vec3 viewPos, vec3 geoNormal, out float ssDepth) {
     #if SHADOWS == 1 

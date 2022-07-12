@@ -8,29 +8,45 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-#if defined STAGE_VERTEX
+#ifdef STAGE_VERTEX
 
     out mat3[2] skyIlluminanceMat;
     out vec3 skyMultScatterIllum;
+    out vec3 directIlluminance;
 
     void main() {
         gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
         skyIlluminanceMat = sampleSkyIlluminance(skyMultScatterIllum);
+
+        #if CLOUDS == 1
+            directIlluminance = sampleDirectIlluminance();
+        #else
+            directIlluminance = vec3(0.0);
+        #endif
     }
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,0,6,10,15 */
+    #if CLOUDS == 0
+        /* RENDERTARGETS: 3,0,6,10 */
 
-    layout (location = 0) out vec4 shadowmap;
-    layout (location = 1) out vec3 sky;
-    layout (location = 2) out vec3 skyIlluminance;
-    layout (location = 3) out vec4 aoHistory;
-    layout (location = 4) out vec4 clouds;
+        layout (location = 0) out vec4 shadowmap;
+        layout (location = 1) out vec3 sky;
+        layout (location = 2) out vec3 skyIlluminance;
+        layout (location = 3) out vec4 aoHistory;
+    #else
+        /* RENDERTARGETS: 3,0,6,10,15 */
 
-    #include "/include/atmospherics/clouds.glsl"
+        layout (location = 0) out vec4 shadowmap;
+        layout (location = 1) out vec3 sky;
+        layout (location = 2) out vec3 skyIlluminance;
+        layout (location = 3) out vec4 aoHistory;
+        layout (location = 4) out vec4 clouds;
+
+        #include "/include/atmospherics/clouds.glsl"
+    #endif
     
     #include "/include/fragment/shadows.glsl"
 
@@ -99,7 +115,7 @@
             shadowmap.rgb = !skyCheck ? shadowMap(viewPos, texture(colortex2, texCoords).rgb, shadowmap.a) : vec3(1.0);
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
-            skyIlluminance.rgb = getSkyLight(bentNormal, skyIlluminanceMat);
+            skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(bentNormal, skyIlluminanceMat) : vec3(0.0);
 
             vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
                  sky    = atmosphericScattering(skyRay, skyMultScatterIllum);
@@ -113,7 +129,7 @@
                 if(clamp01(cloudsCoords) == cloudsCoords) {
                     float depth;
                     vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
-                         clouds    = cloudsScattering(cloudsRay, depth);
+                         clouds    = cloudsScattering(cloudsRay, depth, directIlluminance, skyIlluminance);
 
                     /* Aerial Perspective */
                     const float cloudsMiddle = CLOUDS_ALTITUDE + (CLOUDS_THICKNESS * 0.5);
