@@ -112,7 +112,7 @@
         #ifdef WORLD_OVERWORLD
             /*    ------- SHADOW MAPPING -------    */
             shadowmap.a   = 0.0;
-            shadowmap.rgb = !skyCheck ? shadowMap(viewPos, texture(colortex2, texCoords).rgb, shadowmap.a) : vec3(1.0);
+            shadowmap.rgb = !skyCheck ? shadowMap(viewToScene(viewPos), texture(colortex2, texCoords).rgb, shadowmap.a) : vec3(1.0);
 
             /*    ------- ATMOSPHERIC SCATTERING -------    */
             skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(bentNormal, skyIlluminanceMat) : vec3(0.0);

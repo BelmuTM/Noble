@@ -36,19 +36,23 @@ void main() {
 	lmCoords    = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	vertexColor = gl_Color;
 
-    geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
-    viewPos   = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
+	#ifndef PROGRAM_BASIC 
+    	geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
+    	viewPos   = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
 
-    vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
-	TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
+    	vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
+		TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
+	#endif
 
 	blockId 	  = int((mc_Entity.x - 1000.0) + 0.25);
 	vec3 worldPos = transMAD(gbufferModelViewInverse, viewPos);
 
 	#if ACCUMULATION_VELOCITY_WEIGHT == 0
-		animate(worldPos, texCoords.y < mc_midTexCoord.y);
+		#ifdef PROGRAM_TERRAIN
+			animate(worldPos, texCoords.y < mc_midTexCoord.y);
+		#endif
 
-		#ifdef WEATHER
+		#ifdef PROGRAM_WEATHER
 			worldPos.xz += RAIN_DIRECTION * worldPos.y * RAIN_ANGLE_INTENSITY;
 		#endif
 	#endif

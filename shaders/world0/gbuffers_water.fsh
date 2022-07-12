@@ -9,4 +9,6 @@
 /***********************************************/
 
 #define STAGE_FRAGMENT
-#include "/programs/gbuffers/translucent.fsh"
+#define WORLD_OVERWORLD
+
+#include "/programs/gbuffers/translucent.glsl"

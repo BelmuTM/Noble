@@ -34,8 +34,6 @@
 	in vec4 vertexColor;
 	in mat3 TBN;
 
-	#define STAGE_FRAGMENT
-
 	#include "/include/common.glsl"
 
 	void main() {

@@ -45,6 +45,7 @@ void main() {
 
     vec3 directIlluminance = sampleDirectIlluminance();
     vec3 skyIlluminance    = texture(colortex6, texCoords).rgb * INV_PI;
+    float skyLight         = getSkyLightIntensity(mat.lightmap.y);
 
     if(!skyCheck) {
         #if GI == 1
@@ -86,10 +87,10 @@ void main() {
 
                 #if WATER_FOG == 0
                     float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
-                    waterFog(color, depthDist, dot(sceneDir0, sceneSunDir), directIlluminance, skyIlluminance, mat.lightmap.y);
+                    waterFog(color, depthDist, dot(sceneDir0, sceneSunDir), directIlluminance, skyIlluminance, skyLight);
                 #else
                     vec3 worldDir  = normalize(inWater ? worldPos0 : worldPos1);
-                    volumetricWaterFog(color, startPos, endPos, worldDir, directIlluminance, skyIlluminance);
+                    volumetricWaterFog(color, startPos, endPos, worldDir, directIlluminance, skyIlluminance, skyLight, mat.depth1);
                 #endif
             }
         #endif
@@ -120,10 +121,10 @@ void main() {
     #if GI == 0
         #ifdef WORLD_OVERWORLD
             #if VL == 1
-                color += volumetricFog(viewPos0, directIlluminance, skyIlluminance, mat.lightmap.y);
+                color += volumetricFog(viewPos0, directIlluminance, skyIlluminance, skyLight);
             #else
                 #if RAIN_FOG == 1
-                    if(wetness > 0.0 && !inWater) { groundFog(color, viewPos0, directIlluminance, skyIlluminance, mat.lightmap.y, skyCheck); }
+                    if(wetness > 0.0 && !inWater) { groundFog(color, viewPos0, directIlluminance, skyIlluminance, skyLight, skyCheck); }
                 #endif
             #endif
         #endif

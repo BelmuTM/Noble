@@ -92,7 +92,9 @@ void main() {
     // moments.a = min(moments.a + 1.0, 316.0);
 
     #if GI == 0
-        if(!mat.isMetal) {
+        color.rgb = vec3(0.0);
+
+        if(mat.F0 * maxVal8 <= 229.5) {
             vec3 skyIlluminance = vec3(0.0);
             vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
 

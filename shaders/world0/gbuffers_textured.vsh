@@ -9,6 +9,4 @@
 /***********************************************/
 
 #define PROGRAM_TEXTURED
-#define STAGE_VERTEX
-
-#include "/programs/gbuffers/solid.glsl"
+#include "/programs/gbuffers/gbuffers.vsh"

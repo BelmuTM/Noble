@@ -99,9 +99,9 @@ vec3 getShadowColor(vec3 samplePos) {
     }
 #endif
 
-vec3 shadowMap(vec3 viewPos, vec3 geoNormal, out float ssDepth) {
+vec3 shadowMap(vec3 scenePos, vec3 geoNormal, out float ssDepth) {
     #if SHADOWS == 1 
-        vec3 shadowPos = worldToShadow(viewToScene(viewPos));
+        vec3 shadowPos = worldToShadow(scenePos);
         float NdotL    = dot(geoNormal, sceneShadowDir);
 
         // Shadow bias from Eldeston#3590 and gri573#7741

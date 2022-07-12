@@ -8,4 +8,4 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/programs/composite/composite_vsh.glsl"
+#include "/programs/vertex_simple.glsl"

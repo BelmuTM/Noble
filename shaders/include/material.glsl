@@ -12,7 +12,6 @@ struct Material {
     float ao;
     float emission;
     float subsurface;
-    bool isMetal;
 
     vec3 albedo;
     float alpha;
@@ -36,10 +35,9 @@ Material getMaterial(vec2 coords) {
     mat.emission   = unpacked[1].y;
     mat.F0         = unpacked[1].z;
     mat.subsurface = unpacked[1].w;
-    mat.isMetal    = mat.F0 * maxVal8 > 229.5;
 
-    mat.albedo = vec3((dataTex.z >> 16u) & 255u, (dataTex.z >> 8u) & 255u, dataTex.z & 255u) / maxVal8;
-    mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2((dataTex.w >> 16u) & 65535u, dataTex.w & 65535u) / maxVal16);
+    mat.albedo = vec3((dataTex.z >> 16u) & 255u, (dataTex.z >> 8u) & 255u, dataTex.z & 255u) * rcp(maxVal8);
+    mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2((dataTex.w >> 16u) & 65535u, dataTex.w & 65535u) * rcp(maxVal16));
 
     mat.blockId  = int(unpacked[0].y * maxVal8 + 0.5);
     mat.lightmap = unpacked[0].zw;
@@ -80,7 +78,7 @@ const mat2x3 hardcodedMetals[] = mat2x3[](
 
 mat2x3 getHardcodedMetal(Material mat) {
     int metalID = int(mat.F0 * maxVal8 - 229.5);
-    return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(vec3(F0ToIOR(mat.albedo)), vec3(0.0));
+    return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(F0ToIOR(mat.albedo) * airIOR, vec3(0.0));
 }
 
 vec3 getBlockLightIntensity(Material mat) {

@@ -50,14 +50,14 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
             vec3 color = mix(getSkyFallback(reflected, mat), hitColor, factor);
         #endif
 
-        float NdotL = clamp01(dot(mat.normal, reflected));
+        float NdotL = dot(mat.normal, reflected);
         float NdotV = maxEps(dot(mat.normal, viewDir));
 
         vec3  F  = fresnelComplex(NdotL, mat);
         float G1 = G1SmithGGX(NdotV, mat.rough);
         float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
 
-        return color * ((F * G2) / G1);
+        return NdotV > 0.0 && NdotL > 0.0 ? color * ((F * G2) / G1) : vec3(0.0);
     }
 #else
 
@@ -79,7 +79,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         
             vec3 microfacet = TBN * sampleGGXVNDF(-viewDir * TBN, noise, mat.rough);
 		    vec3 reflected  = reflect(viewDir, microfacet);	
-            float NdotL     = abs(dot(mat.normal, reflected));
+            float NdotL     = dot(mat.normal, reflected);
 
             if(NdotV > 0.0 && NdotL > 0.0) {
                 float hit     = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(), hitPos));

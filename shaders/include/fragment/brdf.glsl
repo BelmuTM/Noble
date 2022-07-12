@@ -115,8 +115,8 @@ vec3 hammonDiffuse(Material mat, vec3 V, vec3 L, bool pt) {
     float alpha = pow2(mat.rough);
 
     vec3 H      = normalize(V + L);
-    float NdotL = maxEps(dot(mat.normal, L));
-    float NdotV = maxEps(dot(mat.normal, V));
+    float NdotL = clamp01(dot(mat.normal, L));
+    float NdotV = clamp01(dot(mat.normal, V));
     float VdotL = dot(V, L);
     float NdotH = dot(mat.normal, H);
 
@@ -143,8 +143,15 @@ vec3 hammonDiffuse(Material mat, vec3 V, vec3 L, bool pt) {
 }
 
 vec3 fresnelComplex(float cosTheta, Material mat) {
-    mat2x3 hcm = getHardcodedMetal(mat);
-    return mat.isMetal ? fresnelDieletricConductor(hcm[0], hcm[1], cosTheta) : vec3(fresnelDielectric(cosTheta, F0ToIOR(mat.F0)));
+    vec3 n = vec3(0.0), k = vec3(0.0);
+
+    if(mat.F0 * maxVal8 > 229.5) {
+        mat2x3 hcm = getHardcodedMetal(mat);
+        n = hcm[0], k = hcm[1];
+    } else {
+        n = vec3(F0ToIOR(mat.F0) * airIOR);
+    }
+    return fresnelDieletricConductor(n, k, cosTheta);
 }
 
 // This function helps us consider the light source as a sphere

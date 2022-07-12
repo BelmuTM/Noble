@@ -7,7 +7,7 @@
 /***********************************************/
 
 #ifdef STAGE_VERTEX
-	#define WEATHER
+	#define PROGRAM_WEATHER
 	#include "/programs/gbuffers/gbuffers.vsh"
 
 #elif defined STAGE_FRAGMENT
