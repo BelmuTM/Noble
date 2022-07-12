@@ -218,7 +218,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
          diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
-        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = 0.6;
+        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = 0.7;
 
         diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a);
     #endif

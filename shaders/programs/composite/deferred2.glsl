@@ -83,12 +83,13 @@ void main() {
         #if ACCUMULATION_VELOCITY_WEIGHT == 1
             depthWeight  = 1.0;
         #endif
-
     #else
         normalWeight = getNormalWeight(mat.normal, texture(colortex9, prevPos.xy).rgb * 2.0 - 1.0, 2.0);
     #endif
 
     color.a = (prevColor.a * depthWeight * normalWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+
+    // moments.a = min(moments.a + 1.0, 316.0);
 
     #if GI == 0
         if(!mat.isMetal) {

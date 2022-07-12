@@ -32,7 +32,7 @@ vec3 getAtmosDensities(float centerDist) {
 }
 
 vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
-    float stepLength = intersectSphere(rayOrigin, lightDir, atmosUpperRad).y / float(TRANSMITTANCE_STEPS);
+    float stepLength = intersectSphere(rayOrigin, lightDir, atmosUpperRad).y * rcp(TRANSMITTANCE_STEPS);
     vec3 increment   = lightDir * stepLength;
     vec3 rayPos      = rayOrigin + increment * 0.5;
 
@@ -48,7 +48,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, atmosLowerRad, atmosUpperRad);
         if(dists.y < 0.0) return vec3(0.0);
 
-        float stepLength = (dists.y - dists.x) / float(SCATTERING_STEPS);
+        float stepLength = (dists.y - dists.x) * rcp(SCATTERING_STEPS);
         vec3 increment   = rayDir * stepLength;
         vec3 rayPos      = atmosRayPos + increment * 0.5;
 
@@ -76,7 +76,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
 
             vec3 multScatteringFactor = stepScatterAlbedo * 0.84;
-            vec3 multScatteringEnergy = multScatteringFactor / (1.0 - multScatteringFactor);
+            vec3 multScatteringEnergy = multScatteringFactor * rcp(1.0 - multScatteringFactor);
                  multipleScattering  += multScatteringEnergy * visibleScattering * stepScattering;
 
             transmittance *= stepTransmittance;

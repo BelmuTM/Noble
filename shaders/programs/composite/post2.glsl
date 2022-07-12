@@ -60,7 +60,7 @@ layout (location = 0) out vec3 color;
         #if TONEMAP == 0
             color *= AP1_2_AP0_MAT;
             #if ACCUMULATION_VELOCITY_WEIGHT == 0
-                color *= 1.8;
+                color *= 1.9;
             #endif
             rrt(color);
             odt(color);                          // ACES

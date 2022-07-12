@@ -115,8 +115,6 @@
                     vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
                          clouds    = cloudsScattering(cloudsRay, depth);
 
-                    shadowmap.rgb *= cloudsShadows(cloudsCoords, cloudsRay, 20);
-
                     /* Aerial Perspective */
                     const float cloudsMiddle = CLOUDS_ALTITUDE + (CLOUDS_THICKNESS * 0.5);
                     vec2 dists               = intersectSphere(atmosRayPos, cloudsRay, earthRad + cloudsMiddle);
@@ -136,7 +134,10 @@
                     vec2  velocity       = (texCoords - prevPos.xy) * viewSize;
                     float velocityWeight = exp(-length(velocity)) * 0.6 + 0.4;
 
-                    float weight = float(clamp01(prevPos.xy) == prevPos.xy) * centerWeight * velocityWeight;
+                    // float frames      = texture(colortex12, texCoords).a * float(clamp01(prevPos.xy) == prevPos.xy);
+                    // float frameWeight = 1.0 - (1.0 / max(frames, 1.0));
+
+                    float weight = centerWeight * velocityWeight;
 
                     clouds = mix(clouds, prevClouds, clamp01(weight));
                 }
