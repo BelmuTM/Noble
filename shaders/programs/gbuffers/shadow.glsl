@@ -27,13 +27,15 @@
         vertexColor = gl_Color;
         blockId     = int((mc_Entity.x - 1000.0) + 0.25);
 
-        vec3 normal        = normalize(gl_NormalMatrix * gl_Normal);
-        vec3 viewShadowPos = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
-        worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
+        #if WATER_CAUSTICS == 1
+            vec3 normal        = normalize(gl_NormalMatrix * gl_Normal);
+            vec3 viewShadowPos = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
+            worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
 
-        vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
-        vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
-	    TBN 		   = mat3(tangent, bitangent, normal);
+            vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
+            vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
+	        TBN 		   = mat3(tangent, bitangent, normal);
+        #endif
 
 	    #if ACCUMULATION_VELOCITY_WEIGHT == 0
             animate(worldPos, texCoords.y < mc_midTexCoord.y);
@@ -59,9 +61,9 @@
     in vec4 vertexColor;
     in mat3 TBN;
 
-    #include "/include/fragment/water.glsl"
-
     #if WATER_CAUSTICS == 1
+        #include "/include/fragment/water.glsl"
+
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
         // Thanks jakemichie97#7237 for the help!
         float waterCaustics(vec3 oldPos, vec3 normal) {
@@ -74,7 +76,7 @@
     #endif
 
     void main() {
-        vec4 albedoTex = texture(colortex0, texCoords);
+        vec4 albedoTex = texture(colortex0, texCoords) * vertexColor;
         if(albedoTex.a < 0.102) discard;
 
         #if WATER_CAUSTICS == 1

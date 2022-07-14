@@ -67,9 +67,8 @@
 			float depth = texelFetch(depthtex0, ivec2(screenPos * viewSize), 0).r;
 			if(clamp01(screenPos) != screenPos || depth == 1.0 || isHand(screenPos)) continue;
 
-			vec3 horizonVec     = normalize(screenToView(vec3(screenPos, depth)) - viewPos);
-			float lengthSquared = dot(horizonVec, horizonVec);
-			float cosTheta      = mix(dot(horizonVec, normal) * inversesqrt(lengthSquared), -1.0, linearStep(1.5, 2.25, lengthSquared));
+			vec3 horizonVec = (screenToView(vec3(screenPos, depth)) - viewPos);
+			float cosTheta  = mix(dot(horizonVec, viewDir), -1.0, quintic(2.0, 3.0, lengthSqr(horizonVec)));
 		
 			horizonCos = max(horizonCos, cosTheta);
 		}
@@ -102,7 +101,7 @@
 			horizons   = gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
 			
 			vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
-			visibility += dot(arc, vec2(0.25)) * normLen;
+			visibility += dot(arc, vec2(0.25)) * lengthSqr(projNormal) * normLen;
 
 			float bentAngle = dot(horizons, vec2(0.5));
 			bentNormal 	   += viewDir * cos(bentAngle) + orthoDir * sin(bentAngle);

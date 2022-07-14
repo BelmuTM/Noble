@@ -9,4 +9,4 @@
 /***********************************************/
 
 #define STAGE_VERTEX
-#include "/programs/gbuffers/solid.glsl"
+#include "/programs/gbuffers/opaque.glsl"

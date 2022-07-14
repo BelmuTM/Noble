@@ -11,4 +11,4 @@
 #define PROGRAM_TEXTURED
 #define STAGE_FRAGMENT
 
-#include "/programs/gbuffers/solid.glsl"
+#include "/programs/gbuffers/opaque.glsl"
