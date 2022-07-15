@@ -84,6 +84,6 @@ void main() {
         writeBloom(bloomBuffer);
     #endif
 
-    color.a        = sqrt(luminance(color.rgb));
+    color.a        = log2(luminance(color.rgb));
     previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth1);
 }

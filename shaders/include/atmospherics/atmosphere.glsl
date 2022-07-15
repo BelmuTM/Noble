@@ -81,7 +81,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
             transmittance *= stepTransmittance;
         }
-        multipleScattering  *= (skyIlluminance * INV_PI) * isotropicPhase;
+        multipleScattering  *= (skyIlluminance * RCP_PI) * isotropicPhase;
         singleScattering[0] *= sunIlluminance;
         singleScattering[1] *= moonIlluminance;
     

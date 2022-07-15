@@ -54,6 +54,7 @@
 
     in mat3[2] skyIlluminanceMat;
     in vec3 skyMultScatterIllum;
+    in vec3 directIlluminance;
 
     #if GI == 0
         #if AO == 1 && AO_FILTER == 1
@@ -127,20 +128,16 @@
                 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
                 if(clamp01(cloudsCoords) == cloudsCoords) {
-                    float depth;
+                    float distToCloud;
                     vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
-                         clouds    = cloudsScattering(cloudsRay, depth, directIlluminance, skyIlluminance);
+                         clouds    = cloudsScattering(cloudsRay, distToCloud, directIlluminance, skyMultScatterIllum);
 
                     /* Aerial Perspective */
-                    const float cloudsMiddle = CLOUDS_ALTITUDE + (CLOUDS_THICKNESS * 0.5);
-                    vec2 dists               = intersectSphere(atmosRayPos, cloudsRay, earthRad + cloudsMiddle);
+                    clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-7e-5 * distToCloud));
 
-                    if(dists.y >= 0.0) { 
-                        float distToCloud = cameraPosition.y >= cloudsMiddle ? dists.x : dists.y;
-                        clouds            = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-5e-5 * distToCloud));
-                    }
-
-                    vec3 prevPos    = reprojection(viewToScreen(normalize(viewPos) * depth));
+                    /* Reprojection */
+                    /*
+                    vec3 prevPos    = reprojection(viewToScreen(normalize(viewPos) * distToCloud));
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
                     // Offcenter rejection from Zombye#7365
@@ -150,12 +147,13 @@
                     vec2  velocity       = (texCoords - prevPos.xy) * viewSize;
                     float velocityWeight = exp(-length(velocity)) * 0.6 + 0.4;
 
-                    // float frames      = texture(colortex12, texCoords).a * float(clamp01(prevPos.xy) == prevPos.xy);
-                    // float frameWeight = 1.0 - (1.0 / max(frames, 1.0));
+                    float frames      = texture(colortex12, texCoords).a;
+                    float frameWeight = 1.0 - (1.0 / max(frames, 1.0));
 
-                    float weight = centerWeight * velocityWeight;
+                    float weight = clamp01(velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy));
 
-                    clouds = mix(clouds, prevClouds, clamp01(weight));
+                    clouds = mix(clouds, prevClouds, 0.0);
+                    */
                 }
             #endif
         #endif

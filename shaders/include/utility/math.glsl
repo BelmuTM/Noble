@@ -163,7 +163,7 @@ vec2 projectSphere(vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
     float latitude  = acos(direction.y);
 
-    return vec2(longitude * rcp(TAU) + 0.5, latitude * INV_PI);
+    return vec2(longitude * rcp(TAU) + 0.5, latitude * RCP_PI);
 }
 
 vec3 unprojectSphere(vec2 coord) {

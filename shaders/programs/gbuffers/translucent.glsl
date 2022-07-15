@@ -117,18 +117,18 @@
        					mat.albedo = sRGBToAP1Albedo(mat.albedo);
     				#endif
 
-					vec3 skyLight = vec3(0.0), shadowmap = vec3(0.0);
-					float ssDepth = 0.0;
+					vec3 skyLight  = vec3(0.0);
+					vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
 					#ifdef WORLD_OVERWORLD
 						if(mat.lightmap.y > EPS) {
 							vec3 tmp;
 							skyLight = getSkyLight(mat.normal, sampleSkyIlluminance(tmp));
 						}
-						shadowmap = shadowMap(scenePos, geoNormal, ssDepth);
+						shadowmap.rgb = shadowMap(scenePos, geoNormal, shadowmap.a);
 					#endif
 
-					sceneColor.rgb = computeDiffuse(scenePos, sceneShadowDir, mat, vec4(shadowmap, ssDepth), directIlluminance, skyLight, 1.0);
+					sceneColor.rgb = computeDiffuse(scenePos, sceneShadowDir, mat, shadowmap, directIlluminance, skyLight, 1.0);
 					sceneColor.a   = mat.alpha;
 				}
 			#endif

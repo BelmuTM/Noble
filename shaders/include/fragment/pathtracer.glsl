@@ -50,7 +50,7 @@
             rayDir      = newDir;
         } else {
             rayDir = generateCosineVector(mat.normal, noise);
-            BRDF   = mat.albedo * INV_PI * (1.0 - fresnel) / (1.0 - specularProb);
+            BRDF   = mat.albedo * RCP_PI * (1.0 - fresnel) / (1.0 - specularProb);
         }
         return BRDF;
     }

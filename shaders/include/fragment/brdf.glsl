@@ -135,7 +135,7 @@ vec3 hammonDiffuse(Material mat, vec3 V, vec3 L, bool pt) {
     } else {
         smoothSurf = 1.05 * (1.0 - pow5(1.0 - NdotL)) * (1.0 - pow5(1.0 - NdotV));
     }
-    float single = mix(smoothSurf, roughSurf, alpha) * INV_PI;
+    float single = mix(smoothSurf, roughSurf, alpha) * RCP_PI;
     float multi  = 0.1159 * alpha;
 
     if(pt) { return single + mat.albedo * multi;           }
@@ -237,7 +237,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
 
     float ambientOcclusion = mat.ao * ao;
 
-    vec3 skyLight   = skyIlluminance * INV_PI     * mat.lightmap.y;
+    vec3 skyLight   = skyIlluminance * RCP_PI     * mat.lightmap.y;
     vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
          diffuse   += (blockLight + skyLight) * ambientOcclusion;
          diffuse   += mat.emission * BLOCKLIGHT_INTENSITY;

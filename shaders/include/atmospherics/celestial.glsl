@@ -26,7 +26,7 @@ vec3 computeStarfield(vec3 viewPos) {
 }
 
 vec3 physicalSun(vec3 sceneDir) {
-    return dot(sceneDir, sceneSunDir) < cos(sunAngularRad) ? vec3(0.0) : sunLuminance * INV_PI;
+    return dot(sceneDir, sceneSunDir) < cos(sunAngularRad) ? vec3(0.0) : sunLuminance * RCP_PI;
 }
 
 vec3 physicalMoon(vec3 sceneDir) {

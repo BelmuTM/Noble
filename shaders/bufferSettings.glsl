@@ -8,7 +8,7 @@
 
 /*
 SKY
-const int colortex0Format         = RGBA16F;
+const int colortex0Format         = R11F_G11F_B10F;
 const bool colortex0Clear         = false;
 
 DATA
@@ -31,7 +31,7 @@ const int colortex5Format         = RGBA32F;
 const bool colortex5Clear         = false;
 
 SKY ILLUMINANCE
-const int colortex6Format         = RGBA32F;
+const int colortex6Format         = RGB32F;
 
 HISTORY
 const int colortex8Format         = RGBA32F;

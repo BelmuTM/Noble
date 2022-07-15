@@ -23,16 +23,17 @@ float EV100ToExposure(float EV100) {
 float computeExposure() {
      #if EXPOSURE == 0
           float EV100 = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
+          return EV100ToExposure(EV100);
      #else
-          float avgLuma = pow2(textureLod(colortex4, vec2(0.5), maxOf(ceil(log2(viewSize)))).a);
+          float avgLuma = exp2(textureLod(colortex4, vec2(0.5), maxOf(ceil(log2(viewSize)))).a);
           float EV100   = computeEV100fromLuma(avgLuma);
+
+          float targetExposure = EV100ToExposure(EV100);
+          float prevExposure   = texture(colortex8, vec2(0.5)).a;
+                prevExposure   = prevExposure > 0.0 ? prevExposure : targetExposure;
+                prevExposure   = clamp(prevExposure, minExposure, maxExposure);
+
+          float exposureTime = targetExposure < prevExposure ? EXPOSURE_SPEED_TO_BRIGHT : EXPOSURE_SPEED_TO_DARK;
+          return mix(targetExposure, prevExposure, exp(-exposureTime * frameTime));
      #endif
-
-     float targetExposure = EV100ToExposure(EV100);
-     float prevExposure   = texture(colortex8, vec2(0.5)).a;
-           prevExposure   = prevExposure > 0.0 ? prevExposure : targetExposure;
-           prevExposure   = clamp(prevExposure, minExposure, maxExposure);
-
-     float exposureTime = targetExposure < prevExposure ? EXPOSURE_SPEED_TO_BRIGHT : EXPOSURE_SPEED_TO_DARK;
-     return mix(targetExposure, prevExposure, exp(-exposureTime * frameTime));
 }

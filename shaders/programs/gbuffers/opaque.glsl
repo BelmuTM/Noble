@@ -97,7 +97,7 @@
 
 		vec2 encNormal = encodeUnitVector(normalize(normal));
 	
-		data.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) * rcp(maxVal8), lmCoords));
+		data.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) * rcp(maxVal8), max0(lmCoords)));
 		data.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));
 		data.z = (uint(albedoTex.r * maxVal8) << 16u)  | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
 		data.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);

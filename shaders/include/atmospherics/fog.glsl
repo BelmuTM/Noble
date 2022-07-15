@@ -31,8 +31,8 @@ void groundFog(inout vec3 color, vec3 viewPos, vec3 directIlluminance, vec3 skyI
     vec2  phase    = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, atmosEnergyParam));
           skyLight = sky ? 1.0 : getSkyLightIntensity(skyLight);
 
-	vec3 scattering  = atmosScatteringCoeff * (airmass * phase)                * (directIlluminance * skyLight);
-	     scattering += atmosScatteringCoeff * (airmass * vec2(isotropicPhase)) * (skyIlluminance    * skyLight);
+	vec3 scattering  = atmosScatteringCoeff * vec2(airmass * phase)          * (directIlluminance * skyLight);
+	     scattering += atmosScatteringCoeff * vec2(airmass * isotropicPhase) * (skyIlluminance    * skyLight);
 	     scattering *= transmittedFraction;
 
     color = color * transmittance + scattering;
