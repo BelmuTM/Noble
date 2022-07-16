@@ -136,8 +136,7 @@
                     clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-7e-5 * distToCloud));
 
                     /* Reprojection */
-                
-                    vec3 prevPos    = reprojectClouds(normalize(viewToScene(viewPos)) * distToCloud * rcp(CLOUDS_RESOLUTION));
+                    vec3 prevPos    = reprojectClouds(normalize(viewPos) * distToCloud);
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
                     // Offcenter rejection from Zombye#7365
@@ -150,7 +149,7 @@
                     float frames      = texture(colortex12, texCoords).a;
                     float frameWeight = 1.0 - (1.0 / max(frames, 1.0));
 
-                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy));
+                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy) * float(prevClouds.a > EPS));
 
                     clouds = mix(clouds, prevClouds, 0.0);
                 }
