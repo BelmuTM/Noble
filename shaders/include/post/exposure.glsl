@@ -10,9 +10,9 @@ const float K =  12.5; // Light meter calibration
 const float S = 100.0; // Sensor sensitivity
 
 float minExposure = PI  / luminance(sunIlluminance);
-float maxExposure = 0.3 / luminance(moonIlluminance);
+float maxExposure = 0.2 / luminance(moonIlluminance);
 
-float computeEV100fromLuma(float luma) {
+float EV100fromLuma(float luma) {
      return log2(luma * S / K);
 }
 
@@ -20,20 +20,15 @@ float EV100ToExposure(float EV100) {
      return 1.0 / (1.2 * exp2(EV100));
 }
 
-float computeExposure() {
-     #if EXPOSURE == 0
-          float EV100 = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
-          return EV100ToExposure(EV100);
-     #else
-          float avgLuma = exp2(textureLod(colortex4, vec2(0.5), maxOf(ceil(log2(viewSize)))).a);
-          float EV100   = computeEV100fromLuma(avgLuma);
+#if EXPOSURE == 1
+     float computeAvgLuminance() {
+          float currLuma = exp2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
 
-          float targetExposure = EV100ToExposure(EV100);
-          float prevExposure   = texture(colortex8, vec2(0.5)).a;
-                prevExposure   = prevExposure > 0.0 ? prevExposure : targetExposure;
-                prevExposure   = clamp(prevExposure, minExposure, maxExposure);
+          float prevLuma = texelFetch(colortex8, ivec2(0), 0).a;
+                prevLuma = prevLuma > 0.0 ? prevLuma : currLuma;
+                prevLuma = clamp(prevLuma, 2e-4, 4e4);
 
-          float exposureTime = targetExposure < prevExposure ? EXPOSURE_SPEED_TO_BRIGHT : EXPOSURE_SPEED_TO_DARK;
-          return mix(targetExposure, prevExposure, exp(-exposureTime * frameTime));
-     #endif
-}
+          float exposureTime = currLuma < prevLuma ? EXPOSURE_DARK_TO_BRIGHT : EXPOSURE_BRIGHT_TO_DARK;
+          return mix(currLuma, prevLuma, exp(-exposureTime * frameTime));
+     }
+#endif

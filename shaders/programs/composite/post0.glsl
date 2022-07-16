@@ -73,6 +73,7 @@ layout (location = 2) out vec4 previousBuffer;
 
 void main() {
     color        = texture(colortex4, texCoords);
+    color.a      = log2(luminance(color.rgb));
     Material mat = getMaterial(texCoords);
     
     #if DOF == 1
@@ -84,6 +85,5 @@ void main() {
         writeBloom(bloomBuffer);
     #endif
 
-    color.a        = log2(luminance(color.rgb));
     previousBuffer = vec4(mat.normal * 0.5 + 0.5, log2(mat.depth1));
 }

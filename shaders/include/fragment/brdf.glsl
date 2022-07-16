@@ -234,7 +234,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
 
     diffuse *= directLight;
 
-    mat.lightmap.x = pow(quintic(0.0, 1.0, mat.lightmap.x), 1.5);
+    mat.lightmap.x = pow(quintic(1e-3, 1.0, mat.lightmap.x), 1.5);
     mat.lightmap.y = getSkyLightIntensity(mat.lightmap.y);
 
     float ambientOcclusion = mat.ao * ao;

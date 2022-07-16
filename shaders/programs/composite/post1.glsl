@@ -6,13 +6,16 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#ifdef STAGE_VERTEX
-    #include "/include/post/exposure.glsl"
+#include "/include/post/exposure.glsl"
 
-    out float exposure;
+#ifdef STAGE_VERTEX
+
+    out float avgLuminance;
 
     void main() {
-        exposure = computeExposure();
+        #if EXPOSURE == 1
+            avgLuminance = computeAvgLuminance();
+        #endif
 
         gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -22,22 +25,31 @@
 
     /* RENDERTARGETS: 4,8 */
 
-    layout (location = 0) out vec3 color;
-    layout (location = 1) out vec4 historyBuffer;
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec4 history;
 
     #include "/include/post/taa.glsl"
 
-    in float exposure;
+    in float avgLuminance;
 
     void main() {
-        color = texture(colortex4, texCoords).rgb;
+        color = texture(colortex4, texCoords);
 
         #if TAA == 1
-            color = temporalAntiAliasing(getMaterial(texCoords), colortex4, colortex8);
+            color.rgb = temporalAntiAliasing(getMaterial(texCoords), colortex4, colortex8);
         #endif
 
-        historyBuffer.rgb = color;
-        historyBuffer.a   = exposure;
-    }
+        history.rgb = color.rgb;
 
+        #if EXPOSURE == 0
+            float EV100 = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
+            color.a     = EV100ToExposure(avgLuminance);
+        #else
+            color.a   = EV100ToExposure(EV100fromLuma(avgLuminance));
+            history.a = avgLuminance;
+        #endif
+
+        color.a    = clamp(color.a, minExposure, maxExposure);
+        color.rgb *= color.a;
+    }
 #endif
