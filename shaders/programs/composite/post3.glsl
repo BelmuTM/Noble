@@ -10,16 +10,14 @@ out vec3 color;
 
 #if UNDERWATER_DISTORTION == 1
     void underwaterDistortion(inout vec2 coords) {
-        const float scale = 25.0;
         float speed   = frameTimeCounter * WATER_DISTORTION_SPEED;
-        float offsetX = coords.x * scale + speed;
-        float offsetY = coords.y * scale + speed;
+        float offsetX = coords.x * 25.0 + speed;
+        float offsetY = coords.y * 25.0 + speed;
 
         vec2 distorted = coords + vec2(
             WATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
             WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
         );
-
         coords = clamp01(distorted) != distorted ? coords : distorted;
     }
 #endif
@@ -35,9 +33,8 @@ out vec3 color;
         float avgLuma = 0.0, weight = 0.0;
 
         for(int x = -1; x <= 1; x++) {
-            for(int y = -1; y <= 1; y++) {
+            for(int y = -1; y <= 1; y++, weight++) {
                 avgLuma += luminance(texture(colortex4, coords + vec2(x, y) * pixelSize).rgb);
-                weight++;
             }
         }
         avgLuma /= weight;
@@ -65,5 +62,5 @@ void main() {
         color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    color += bayer64(gl_FragCoord.xy) / maxVal8;
+    color += bayer8(gl_FragCoord.xy) * rcp(maxVal8);
 }

@@ -24,8 +24,8 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
     vec3 minColor = vec3(1e9), maxColor = vec3(-1e9);
 
-    for(int x = -NEIGHBORHOOD_SIZE; x <= NEIGHBORHOOD_SIZE; x++) {
-        for(int y = -NEIGHBORHOOD_SIZE; y <= NEIGHBORHOOD_SIZE; y++) {
+    for(int x = -TAA_NEIGHBORHOOD_SIZE; x <= TAA_NEIGHBORHOOD_SIZE; x++) {
+        for(int y = -TAA_NEIGHBORHOOD_SIZE; y <= TAA_NEIGHBORHOOD_SIZE; y++) {
             vec3 color = linearToYCoCg(texelFetch(currTex, ivec2(gl_FragCoord.xy) + ivec2(x, y), 0).rgb);
             minColor = min(minColor, color); 
             maxColor = max(maxColor, color); 

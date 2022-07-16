@@ -87,7 +87,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define NORMAL_SHADOW_BLUR_RADIUS 0.25
 
 // Soft Shadows
-#define BLOCKER_SEARCH_SAMPLES   8 // [8 12]
+#define BLOCKER_SEARCH_SAMPLES   8
 #define BLOCKER_SEARCH_RADIUS 10.0
 #define LIGHT_SIZE           100.0
 
@@ -125,9 +125,10 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 /*------------- REFLECTIONS | REFRACTIONS --------------*/
 //////////////////////////////////////////////////////////
 
-#define REFLECTIONS      1 // [0 1]
-#define REFLECTIONS_TYPE 1 // [0 1]
-#define REFRACTIONS      0 // [0 1]
+#define REFLECTIONS        1 // [0 1]
+#define REFLECTIONS_TYPE   1 // [0 1]
+#define REFLECTIONS_RES 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define REFRACTIONS        0 // [0 1]
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.2
@@ -136,11 +137,10 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define SSR_REPROJECTION 1 // [0 1]
 
 #define ROUGH_SAMPLES        1
-#define ROUGH_REFLECT_STEPS 40 // [40 64]
-#define REFLECTIONS_RES   0.75 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define ROUGH_REFLECT_STEPS 40
 
 #define SIMPLE_REFLECT_STEPS 64
-#define REFRACT_STEPS        80
+#define REFRACT_STEPS        64
 
 //////////////////////////////////////////////////////////
 /*-------------------- ATMOSPHERICS --------------------*/
@@ -180,8 +180,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 /*------------------------ WORLD -----------------------*/
 //////////////////////////////////////////////////////////
 
-#define WHITE_WORLD    0 // [0 1]
-#define ANIMATED_WATER 1 // [0 1]
+#define WHITE_WORLD 0 // [0 1]
 
 #define WATER_CAUSTICS               1 // [0 1]
 #define WATER_CAUSTICS_STRENGTH   1.00 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
@@ -213,10 +212,10 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 /*----------------------- CAMERA -----------------------*/
 //////////////////////////////////////////////////////////
 
-#define TAA               1 // [0 1]
-#define NEIGHBORHOOD_SIZE 1
+#define TAA                   1 // [0 1]
+#define TAA_NEIGHBORHOOD_SIZE 1
 
-#define TAA_STRENGTH            0.98
+#define TAA_STRENGTH            0.99
 #define TAA_DEPTH_WEIGHT        0.05
 #define TAA_OFFCENTER_REJECTION 0.25
 
@@ -239,7 +238,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ABERRATION_STRENGTH 2.00 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.25 2.50 2.75 3.00 3.25 3.50 3.75 4.00]
 
 #define SHARPEN             1 // [0 1]
-#define SHARPEN_STRENGTH 0.25 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
+#define SHARPEN_STRENGTH 0.75 // [0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
 
 #define UNDERWATER_DISTORTION         1
 #define WATER_DISTORTION_SPEED     0.65
@@ -248,8 +247,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE 1 // [0 1]
 #define PURKINJE 1 // [0 1]
 
-#define EXPOSURE_DARK_TO_BRIGHT 2.4
-#define EXPOSURE_BRIGHT_TO_DARK 0.2
+#define EXPOSURE_DARK_TO_BRIGHT 2.40
+#define EXPOSURE_BRIGHT_TO_DARK 0.15
 
 #define FOCAL          20 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30]
 #define APERTURE     16.0 // [1.0 1.2 1.4 2.0 2.8 4.0 5.6 8.0 11.0 16.0 22.0 32.0]
@@ -260,8 +259,9 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 /*------------------ COLOR CORRECTION ------------------*/
 //////////////////////////////////////////////////////////
 
-#define TONEMAP 0 // [-1 0 1 2 3 4 5]
-#define LUT     0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
+#define TONEMAP   0 // [-1 0 1 2 3 4 5]
+#define LUT       0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
+#define DEBUG_LUT 0
 
 // ACES Settings
 #define ACES_EPS 0.00006103

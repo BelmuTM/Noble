@@ -73,7 +73,7 @@ layout (location = 2) out vec4 previousBuffer;
 
 void main() {
     color        = texture(colortex4, texCoords);
-    color.a      = log2(luminance(color.rgb));
+    color.a      = sqrt(luminance(color.rgb));
     Material mat = getMaterial(texCoords);
     
     #if DOF == 1

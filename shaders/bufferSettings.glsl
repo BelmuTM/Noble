@@ -24,7 +24,6 @@ const int colortex3Format         = RGBA16F;
 
 MAIN COLOR
 const int colortex4Format         = RGBA32F;
-const vec4 colortex4Clear         = vec4(0.0, 0.0, 0.0, 0.0);
 
 MAIN ACCUMULATION
 const int colortex5Format         = RGBA32F;

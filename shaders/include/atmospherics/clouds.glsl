@@ -151,7 +151,7 @@ vec4 cloudsScattering(vec3 rayDir, out float distToCloud, vec3 directIlluminance
         scattering    += stepScattering * scatteringIntegral * transmittance;
         transmittance *= stepTransmittance;
     }
-    transmittance = clamp01((transmittance - cloudsTransmitThreshold) / (1.0 - cloudsTransmitThreshold));
+    transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
     distToCloud   = maxEps(depthSum / depthWeight);
 
     vec3 finalScattering;
@@ -183,10 +183,10 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
     return exp(-transmittance * stepLength);
 }
 
-vec3 reprojectClouds(vec3 viewPos) {
-    vec3 position     = transMAD(gbufferModelViewInverse, viewPos);
+vec3 reprojectClouds(vec3 position) {
     vec3 cameraOffset = cameraPosition - previousCameraPosition;
     
-    position = transMAD(gbufferPreviousModelView, position + gbufferModelViewInverse[3].xyz - cameraOffset);
-    return (projOrthoMAD(gbufferPreviousProjection, position) / -position.z) * 0.5 + 0.5;
+    position = transMAD(gbufferPreviousModelView, viewToScene(position) + cameraOffset);
+    position = projOrthoMAD(gbufferPreviousProjection, position) / -position.z;
+    return position * 0.5 + 0.5;
 }

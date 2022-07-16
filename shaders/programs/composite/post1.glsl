@@ -6,15 +6,20 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/include/post/exposure.glsl"
-
 #ifdef STAGE_VERTEX
 
     out float avgLuminance;
 
     void main() {
         #if EXPOSURE == 1
-            avgLuminance = computeAvgLuminance();
+            float currLuma = pow2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
+
+            float prevLuma = texelFetch(colortex8, ivec2(0), 0).a;
+                  prevLuma = prevLuma > 0.0 ? prevLuma : currLuma;
+                  prevLuma = isnan(prevLuma) || isinf(prevLuma) ? currLuma : clamp(prevLuma, 2e-4, 4e4);
+
+            float exposureTime = currLuma < prevLuma ? EXPOSURE_DARK_TO_BRIGHT : EXPOSURE_BRIGHT_TO_DARK;
+            avgLuminance = mix(currLuma, prevLuma, exp(-exposureTime * frameTime));
         #endif
 
         gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
@@ -32,6 +37,20 @@
 
     in float avgLuminance;
 
+    const float K =  12.5; // Light meter calibration
+    const float S = 100.0; // Sensor sensitivity
+
+    float minExposure = PI  / luminance(sunIlluminance);
+    float maxExposure = 0.3 / luminance(moonIlluminance);
+
+    float EV100fromLuminance(float luma) {
+        return log2(luma * S / K);
+    }
+
+    float EV100ToExposure(float EV100) {
+        return 1.0 / (1.2 * exp2(EV100));
+    }
+
     void main() {
         color = texture(colortex4, texCoords);
 
@@ -45,7 +64,7 @@
             float EV100 = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
             color.a     = EV100ToExposure(avgLuminance);
         #else
-            color.a   = EV100ToExposure(EV100fromLuma(avgLuminance));
+            color.a   = EV100ToExposure(EV100fromLuminance(avgLuminance));
             history.a = avgLuminance;
         #endif
 

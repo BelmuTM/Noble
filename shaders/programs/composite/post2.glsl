@@ -87,23 +87,30 @@ layout (location = 0) out vec3 color;
     const int lutRes       = lutSize * lutTile;
     const float invLutTile = 1.0 / lutTile;
 
-    // LUT grid concept from Raspberry shaders (https://rutherin.netlify.app/)
-    const vec2 invRes = 1.0 / vec2(lutRes, lutRes * lutCount);
-    const mat2 lutGrid = mat2(
-        vec2(1.0, invRes.y * lutRes),
-        vec2(0.0, (LUT - 1) * invRes.y * lutRes)
-    );
+    const vec2 lutTexSize    = vec2(lutRes, lutRes * lutCount);
+    const vec2 rcpLutTexSize = 1.0 / lutTexSize;
 
-    const vec2 lutTexSize = vec2(lutRes, lutRes * lutCount);
+    // LUT grid concept from Raspberry shaders (https://rutherin.netlify.app/)
+    const mat2 lutGrid = mat2(
+        vec2(1.0, rcpLutTexSize.y * 512),
+        vec2(0.0, (LUT - 1) * rcpLutTexSize.y * 512)
+    );
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
-        color.b *= lutSize - 1.0;
+        #if DEBUG_LUT == 1
+            if(gl_FragCoord.x < 256.0 && gl_FragCoord.y < 256.0) {
+                color = texture(lookupTable, (gl_FragCoord.xy * rcpLutTexSize * 2.0) + lutGrid[1]).rgb;
+                return;
+            }
+        #endif
+
+        color.b *= (lutSize - 1.0);
         int bL   = int(color.b);
         int bH   = bL + 1;
 
-        vec2 offLo = vec2(mod(bL, lutTile), bL / lutTile) * invLutTile;
-        vec2 offHi = vec2(mod(bH, lutTile), bH / lutTile) * invLutTile;
+        vec2 offLo = vec2(bL % lutTile.x, bL / lutTile.x) * invLutTile;
+        vec2 offHi = vec2(bH % lutTile.x, bH / lutTile.x) * invLutTile;
 
         color = mix(
             textureLodLinearRGB(lookupTable, (offLo + color.rg * invLutTile) * lutGrid[0] + lutGrid[1], lutTexSize, 0).rgb,
@@ -124,7 +131,7 @@ void main() {
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
         float bloomStrgth = max0(exp2(tmp.a + (BLOOM_STRENGTH + BLOOM_TWEAK) - 3.0));
-        color             = mix(color, readBloom(), bloomStrgth);
+        color             = mix(color / tmp.a, readBloom(), bloomStrgth) * tmp.a;
     #endif
 
     #if FILM_GRAIN == 1

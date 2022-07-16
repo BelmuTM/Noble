@@ -84,7 +84,7 @@ void main() {
 
     color.a = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
 
-    //moments.a = texture(colortex12, prevPos.xy).a + 1.0;
+    moments.a = texture(colortex12, prevPos.xy).a + 1.0;
 
     #if GI == 0
         color.rgb = vec3(0.0);
