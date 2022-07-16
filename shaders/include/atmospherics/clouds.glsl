@@ -182,3 +182,11 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
     }
     return exp(-transmittance * stepLength);
 }
+
+vec3 reprojectClouds(vec3 viewPos) {
+    vec3 position     = transMAD(gbufferModelViewInverse, viewPos);
+    vec3 cameraOffset = cameraPosition - previousCameraPosition;
+    
+    position = transMAD(gbufferPreviousModelView, position + gbufferModelViewInverse[3].xyz - cameraOffset);
+    return (projOrthoMAD(gbufferPreviousProjection, position) / -position.z) * 0.5 + 0.5;
+}

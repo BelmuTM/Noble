@@ -92,6 +92,8 @@ layout (location = 0) out vec3 color;
         vec2(0.0, (LUT - 1) * invRes.y * lutRes)
     );
 
+    const vec2 lutTexSize = vec2(lutRes, lutRes * lutCount);
+
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
         color.b *= lutSize - 1.0;
@@ -102,8 +104,8 @@ layout (location = 0) out vec3 color;
         vec2 offHi = vec2(mod(bH, lutTile), bH / lutTile) * invLutTile;
 
         color = mix(
-            textureBicubic(lookupTable, (offLo + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
-            textureBicubic(lookupTable, (offHi + color.rg * invLutTile) * lutGrid[0] + lutGrid[1]).rgb,
+            textureLodLinearRGB(lookupTable, (offLo + color.rg * invLutTile) * lutGrid[0] + lutGrid[1], lutTexSize, 0).rgb,
+            textureLodLinearRGB(lookupTable, (offHi + color.rg * invLutTile) * lutGrid[0] + lutGrid[1], lutTexSize, 0).rgb,
             color.b - bL
         );
     }

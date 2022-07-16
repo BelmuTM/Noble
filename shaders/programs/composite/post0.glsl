@@ -85,5 +85,5 @@ void main() {
     #endif
 
     color.a        = log2(luminance(color.rgb));
-    previousBuffer = vec4(mat.normal * 0.5 + 0.5, mat.depth1);
+    previousBuffer = vec4(mat.normal * 0.5 + 0.5, log2(mat.depth1));
 }

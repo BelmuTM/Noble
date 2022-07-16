@@ -23,7 +23,6 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec3 r
 
     rayPos += rayDir * jitter;
     for(int i = 0; i <= stepCount && !intersect; i++, rayPos += rayDir) {
-
         if(clamp01(rayPos.xy) != rayPos.xy) return false;
 
         float depth         = texelFetch(depthtex0, ivec2(rayPos.xy * viewSize), 0).r;
@@ -33,7 +32,7 @@ bool raytrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec3 r
     }
 
     #if BINARY_REFINEMENT == 1
-        binarySearch(rayPos, rayDir);
+        if(intersect) binarySearch(rayPos, rayDir);
     #endif
 
     return intersect;

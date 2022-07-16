@@ -207,15 +207,17 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 }
 
 vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughMedium) {
-    if(mat.subsurface <= EPS || distThroughMedium <= EPS) return vec3(0.0);
+    if(mat.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
-    vec3 beer = exp(-(1.0 - mat.albedo) * maxEps(distThroughMedium) / mat.subsurface);
+    vec3 beer      = clamp01(exp(-(1.0 - mat.albedo) * maxEps(distThroughMedium) / mat.subsurface));
+    float cosTheta = dot(normalize(V + L), V);
 
     vec3 isotropicLobe = beer * isotropicPhase;
-    vec3 forwardsLobe  = beer * henyeyGreensteinPhase(dot(normalize(V + L), V), 0.5);
+    vec3 forwardsLobe  = beer * cornetteShanksPhase(cosTheta, 0.5);
+    vec3 backwardsLobe = beer * cornetteShanksPhase(cosTheta,-0.5);
 
-    const float sssForwardsScatter = 0.7;
-    return clamp01(mix(isotropicLobe, forwardsLobe, sssForwardsScatter));
+    const float backScatterWeight = 0.3;
+    return mix(isotropicLobe, mix(forwardsLobe, backwardsLobe, backScatterWeight), 0.6);
 }
 
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao) {
@@ -225,7 +227,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
          diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
-        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = 0.7;
+        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = HARDCODED_SSS_VAL;
 
         diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a);
     #endif

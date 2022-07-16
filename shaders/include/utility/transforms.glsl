@@ -22,7 +22,7 @@ vec3 transMAD(mat4 mat, vec3 v)     { return mat3(mat)  * v + mat[3].xyz; }
 /*------------------ ACCUMULATION ----------------------*/
 //////////////////////////////////////////////////////////
 
-vec3 reprojection(vec3 screenPos) {
+vec3 reproject(vec3 screenPos) {
     screenPos = screenPos * 2.0 - 1.0;
 
     vec4 position = gbufferProjectionInverse * vec4(screenPos, 1.0);

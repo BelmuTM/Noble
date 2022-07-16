@@ -61,7 +61,7 @@
 void main() {
     vec2 tempCoords = texCoords;
     #if GI == 1
-        tempCoords = texCoords * (1.0 / GI_RESOLUTION);
+        tempCoords = texCoords * rcp(GI_RESOLUTION);
     #endif
 
     vec3 viewPos0 = getViewPos0(tempCoords);
@@ -73,10 +73,10 @@ void main() {
 
     Material mat = getMaterial(tempCoords);
 
-    vec3 prevPos   = reprojection(vec3(texCoords, mat.depth0));
+    vec3 prevPos   = reproject(vec3(texCoords, mat.depth0));
     vec4 prevColor = texture(colortex5, prevPos.xy);
 
-    float depthWeight = getDepthWeight(mat.depth0, texture(colortex9, prevPos.xy).a, 2.0);
+    float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex9, prevPos.xy).a), 1.5);
 
     #if GI == 1 && ACCUMULATION_VELOCITY_WEIGHT == 1
         depthWeight  = 1.0;

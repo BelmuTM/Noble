@@ -11,7 +11,7 @@ float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
 
 vec3 getHitColor(in vec3 hitPos) {
     #if SSR_REPROJECTION == 1
-        hitPos = reprojection(hitPos);
+        hitPos = reproject(hitPos);
         return texture(colortex8, hitPos.xy).rgb;
     #else
         return texture(colortex4, hitPos.xy).rgb;
@@ -39,25 +39,25 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         viewPos     += mat.normal * 1e-2;
         vec3 viewDir = normalize(viewPos);
 
-        vec3 reflected = reflect(viewDir, mat.normal); vec3 hitPos;
-        float hit      = float(raytrace(viewPos, reflected, SIMPLE_REFLECT_STEPS, randF(), hitPos));
-        float factor   = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
-        vec3 hitColor  = getHitColor(hitPos);
+        vec3 rayDir   = reflect(viewDir, mat.normal); vec3 hitPos;
+        float hit     = float(raytrace(viewPos, rayDir, SIMPLE_REFLECT_STEPS, randF(), hitPos));
+        float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
+        vec3 hitColor = getHitColor(hitPos);
 
         #if SKY_FALLBACK == 0
             vec3 color = mix(vec3(0.0), hitColor, factor);
         #else
-            vec3 color = mix(getSkyFallback(reflected, mat), hitColor, factor);
+            vec3 color = mix(getSkyFallback(rayDir, mat), hitColor, factor);
         #endif
 
-        float NdotL = dot(mat.normal, reflected);
-        float NdotV = maxEps(dot(mat.normal, viewDir));
+        float NdotL = abs(dot(mat.normal, rayDir));
+        float NdotV = dot(mat.normal, -viewDir);
 
         vec3  F  = fresnelComplex(NdotL, mat);
         float G1 = G1SmithGGX(NdotV, mat.rough);
         float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
 
-        return NdotV > 0.0 && NdotL > 0.0 ? color * ((F * G2) / G1) : vec3(0.0);
+        return NdotV > 0.0 && NdotL > 0.0 ? color * F : vec3(0.0);
     }
 #else
 
@@ -72,24 +72,24 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         viewPos     += mat.normal * 1e-2;
         mat3 TBN     = constructViewTBN(mat.normal);
         vec3 viewDir = normalize(viewPos);
-        float NdotV  = maxEps(dot(mat.normal, viewDir));
+        float NdotV  = dot(mat.normal, -viewDir);
 	
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
             vec2 noise = TAA == 1 ? vec2(randF(), randF()) : uniformNoise(i, blueNoise);
         
             vec3 microfacet = TBN * sampleGGXVNDF(-viewDir * TBN, noise, mat.rough);
-		    vec3 reflected  = reflect(viewDir, microfacet);	
-            float NdotL     = dot(mat.normal, reflected);
+		    vec3 rayDir     = reflect(viewDir, microfacet);	
+            float NdotL     = abs(dot(mat.normal, rayDir));
 
             if(NdotV > 0.0 && NdotL > 0.0) {
-                float hit     = float(raytrace(viewPos, reflected, ROUGH_REFLECT_STEPS, randF(), hitPos));
+                float hit     = float(raytrace(viewPos, rayDir, ROUGH_REFLECT_STEPS, randF(), hitPos));
                 float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
                 vec3 hitColor = getHitColor(hitPos);
 
                 #if SKY_FALLBACK == 0
                     hitColor = mix(vec3(0.0), hitColor, factor);
                 #else
-                    hitColor = mix(getSkyFallback(reflected, mat), hitColor, factor);
+                    hitColor = mix(getSkyFallback(rayDir, mat), hitColor, factor);
                 #endif
 
                 vec3  F  = fresnelComplex(dot(microfacet, -viewDir), mat);

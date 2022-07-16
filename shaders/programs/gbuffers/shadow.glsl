@@ -27,11 +27,11 @@
         vertexColor = gl_Color;
         blockId     = int((mc_Entity.x - 1000.0) + 0.25);
 
-        #if WATER_CAUSTICS == 1
-            vec3 normal        = normalize(gl_NormalMatrix * gl_Normal);
-            vec3 viewShadowPos = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
-            worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
+        vec3 viewShadowPos = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
+        worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
 
+        #if WATER_CAUSTICS == 1
+            vec3 normal    = normalize(gl_NormalMatrix * gl_Normal);
             vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
             vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
 	        TBN 		   = mat3(tangent, bitangent, normal);
@@ -50,10 +50,9 @@
     
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 0,1 */
+    /* RENDERTARGETS: 0 */
 
     layout (location = 0) out vec4 color0;
-    layout (location = 1) out vec4 color1;
 
     flat in int blockId;
     in vec2 texCoords;

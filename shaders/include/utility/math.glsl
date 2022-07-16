@@ -253,11 +253,12 @@ vec2 unpackUnorm2x8(float pack) {
 }
 
 //////////////////////////////////////////////////////////
-/*---------------------- BICUBIC -----------------------*/
+/*----------------- TEXTURE SAMPLING -------------------*/
 //////////////////////////////////////////////////////////
 
-// Provided by swr#1793
-
+/*
+    Texture Bicubic provided by swr#1793
+*/
 vec4 cubic(float v) {
     vec4 n  = vec4(1.0, 2.0, 3.0, 4.0) - v;
     vec4 s  = pow3(n);
@@ -296,4 +297,39 @@ vec4 textureBicubic(sampler2D tex, vec2 texCoords) {
     float sy = s.z / (s.z + s.w);
  
     return mix(mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
+}
+
+/*
+    Texture LOD Linear provided by null511#3026 (https://github.com/null511)
+*/
+vec2 getLinearCoords(const in vec2 texcoord, const in vec2 texSize, out vec2 uv[4]) {
+    vec2 f = fract(texcoord * texSize);
+    vec2 pixelSize = rcp(texSize);
+
+    uv[0] = texcoord - f * pixelSize;
+    uv[1] = uv[0] + vec2(1.0, 0.0) * pixelSize;
+    uv[2] = uv[0] + vec2(0.0, 1.0) * pixelSize;
+    uv[3] = uv[0] + vec2(1.0, 1.0) * pixelSize;
+    return f;
+}
+
+vec3 linearBlend4(const in vec3 samples[4], const in vec2 f) {
+    vec3 x1 = mix(samples[0], samples[1], f.x);
+    vec3 x2 = mix(samples[2], samples[3], f.x);
+    return mix(x1, x2, f.y);
+}
+
+vec3 textureLodLinearRGB(const in sampler2D samplerName, const in vec2 uv[4], const in int lod, const in vec2 f) {
+    vec3 samples[4];
+    samples[0] = textureLod(samplerName, uv[0], lod).rgb;
+    samples[1] = textureLod(samplerName, uv[1], lod).rgb;
+    samples[2] = textureLod(samplerName, uv[2], lod).rgb;
+    samples[3] = textureLod(samplerName, uv[3], lod).rgb;
+    return linearBlend4(samples, f);
+}
+
+vec3 textureLodLinearRGB(const in sampler2D samplerName, const in vec2 texcoord, const in vec2 texSize, const in int lod) {
+    vec2 uv[4];
+    vec2 f = getLinearCoords(texcoord, texSize, uv);
+    return textureLodLinearRGB(samplerName, uv, lod, f);
 }

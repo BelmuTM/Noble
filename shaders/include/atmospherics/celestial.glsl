@@ -9,10 +9,10 @@
 // Originally written by Capt Tatsu#7124
 // Modified by Belmu#4066
 vec3 computeStarfield(vec3 viewPos) {
-	vec3 scenePos    = mat3(gbufferModelViewInverse) * viewPos;
+	vec3 scenePos    = viewToScene(viewPos);
 	vec3 planeCoords = scenePos / (scenePos.y + length(scenePos.xz));
 	vec2 coords 	 = planeCoords.xz * 0.9 + cameraPosition.xz * 1e-5 + frameTime * 0.00125;
-	coords 			 = floor(coords * 1024.0) / 1024.0;
+	     coords 	 = floor(coords * 1024.0) * rcp(1024.0);
 
 	float VdotU  = clamp01(dot(normalize(viewPos), normalize(upPosition)));
 	float factor = sqrt(sqrt(VdotU)) * (1.0 - rainStrength);
