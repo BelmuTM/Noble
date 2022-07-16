@@ -102,7 +102,7 @@
                     }
 
                     #if AO_FILTER == 1
-                        aoHistory.a = filterAO(colortex10, texCoords, mat, AO_RESOLUTION, 0.5, 2.0, 4);
+                        aoHistory.a = filterAO(colortex10, texCoords, mat, AO_RESOLUTION, 0.8, 2.0, 5);
                     #else
                         aoHistory.a = ao.a;
                     #endif
@@ -136,8 +136,8 @@
                     clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-7e-5 * distToCloud));
 
                     /* Reprojection */
-                    /*
-                    vec3 prevPos    = reprojection(viewToScreen(normalize(viewPos) * distToCloud));
+                
+                    vec3 prevPos    = reprojectClouds(normalize(viewToScene(viewPos)) * distToCloud * rcp(CLOUDS_RESOLUTION));
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
                     // Offcenter rejection from Zombye#7365
@@ -150,10 +150,9 @@
                     float frames      = texture(colortex12, texCoords).a;
                     float frameWeight = 1.0 - (1.0 / max(frames, 1.0));
 
-                    float weight = clamp01(velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy));
+                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy));
 
                     clouds = mix(clouds, prevClouds, 0.0);
-                    */
                 }
             #endif
         #endif
