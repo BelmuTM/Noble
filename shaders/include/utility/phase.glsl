@@ -25,6 +25,13 @@ float henyeyGreensteinPhase(float cosTheta, float g) {
 }
 
 // Provided by Jessie#7257
-float kleinNishinaPhase(float cosTheta, float e) {
-    return e / (2.0 * PI * (e * (1.0 - cosTheta) + 1.0) * log(2.0 * e + 1.0));
+float kleinNishinaPhase(float cosTheta, float g) {
+    float e = 1.0;
+    for(int i = 0; i < 8; i++) {
+        float gFromE = 1.0 / e - 2.0 / log(2.0 * e + 1.0) + 1.0;
+        float deriv  = 4.0 / ((2.0 * e + 1.0) * pow2(log(2.0 * e + 1.0))) - 1.0 / pow2(e);
+        if(abs(deriv) < 1e-8) break;
+        e = e - (gFromE - g) / deriv;
+    }
+    return e / (TAU * (e * (1.0 - cosTheta) + 1.0) * log(2.0 * e + 1.0));
 }

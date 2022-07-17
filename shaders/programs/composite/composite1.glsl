@@ -115,17 +115,15 @@ void main() {
     }
 
     //////////////////////////////////////////////////////////
-    /*------------------ VL / RAIN FOG ---------------------*/
+    /*------------------ FOG / RAIN FOG ---------------------*/
     //////////////////////////////////////////////////////////
 
     #if GI == 0
         #ifdef WORLD_OVERWORLD
-            #if VL == 1
-                color += volumetricFog(viewPos0, directIlluminance, skyIlluminance, skyLight);
+            #if FOG == 1
+                volumetricFog(color, viewPos0, directIlluminance, skyIlluminance, skyLight);
             #else
-                #if RAIN_FOG == 1
-                    if(wetness > 0.0 && !inWater) { groundFog(color, viewPos0, directIlluminance, skyIlluminance, skyLight, skyCheck); }
-                #endif
+                groundFog(color, viewPos0, directIlluminance, skyIlluminance, skyLight, skyCheck);
             #endif
         #endif
     #endif

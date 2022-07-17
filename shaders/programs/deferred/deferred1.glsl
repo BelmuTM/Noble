@@ -91,6 +91,10 @@
 
         vec3 bentNormal = mat.normal;
 
+        //////////////////////////////////////////////////////////
+        /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
+        //////////////////////////////////////////////////////////
+
         #if GI == 0
             #if AO == 1
                 if(!skyCheck) {
@@ -111,17 +115,23 @@
         #endif
 
         #ifdef WORLD_OVERWORLD
-            /*    ------- SHADOW MAPPING -------    */
+            //////////////////////////////////////////////////////////
+            /*----------------- SHADOW MAPPING ---------------------*/
+            //////////////////////////////////////////////////////////
             shadowmap.a   = 0.0;
             shadowmap.rgb = !skyCheck ? shadowMap(viewToScene(viewPos), texture(colortex2, texCoords).rgb, shadowmap.a) : vec3(1.0);
 
-            /*    ------- ATMOSPHERIC SCATTERING -------    */
+            //////////////////////////////////////////////////////////
+            /*------------- ATMOSPHERIC SCATTERING -----------------*/
+            //////////////////////////////////////////////////////////
             skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(bentNormal, skyIlluminanceMat) : vec3(0.0);
 
             vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
                  sky    = atmosphericScattering(skyRay, skyMultScatterIllum);
 
-            /*    ------- VOLUMETRIC CLOUDS -------    */
+            //////////////////////////////////////////////////////////
+            /*---------------- VOLUMETRIC CLOUDS -------------------*/
+            //////////////////////////////////////////////////////////
             #if CLOUDS == 1
                 vec2 cloudsCoords = texCoords * rcp(CLOUDS_RESOLUTION);
                 

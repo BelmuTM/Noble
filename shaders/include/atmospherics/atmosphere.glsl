@@ -54,8 +54,8 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
         vec2 VdotL = vec2(dot(rayDir, sceneSunDir), dot(rayDir, sceneMoonDir));
         vec4 phase = vec4(
-            vec2(rayleighPhase(VdotL.x), kleinNishinaPhase(VdotL.x, atmosEnergyParam)), 
-            vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, atmosEnergyParam))
+            vec2(rayleighPhase(VdotL.x), kleinNishinaPhase(VdotL.x, anisotropyFactor)), 
+            vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, anisotropyFactor))
         );
 
         mat2x3 singleScattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
@@ -132,11 +132,11 @@ mat3[2] sampleSkyIlluminance(inout vec3 skyMultScatterIllum) {
         skyIllum[1][0] *= sampleWeight;
         skyIllum[1][2] *= sampleWeight;
 
-        skyIllum[0][0] += skyIllum[0][1] * 0.1;
-        skyIllum[0][2] += skyIllum[0][1] * 0.1;
-        skyIllum[1][0] += skyIllum[0][1] * 0.1;
-        skyIllum[1][1] += skyIllum[0][1] * 0.1;
-        skyIllum[1][2] += skyIllum[0][1] * 0.1;
+        skyIllum[0][0] += skyIllum[0][1] * 0.2;
+        skyIllum[0][2] += skyIllum[0][1] * 0.2;
+        skyIllum[1][0] += skyIllum[0][1] * 0.2;
+        skyIllum[1][1] += skyIllum[0][1] * 0.2;
+        skyIllum[1][2] += skyIllum[0][1] * 0.2;
 
         skyMultScatterIllum *= (TAU / (samples.x * samples.y));
     #endif
