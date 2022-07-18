@@ -228,21 +228,16 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
 
     #if SUBSURFACE_SCATTERING == 1
         if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = HARDCODED_SSS_VAL;
-
         diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a);
     #endif
 
     diffuse *= directLight;
 
-    mat.lightmap.x = pow(quintic(EPS, 1.0, mat.lightmap.x), 1.5);
-    mat.lightmap.y = getSkyLightIntensity(mat.lightmap.y);
+    vec3 blockLight = getBlockLightColor(mat) * getBlockLightIntensity(mat.lightmap.x);
+    vec3 skyLight   = skyIlluminance * RCP_PI * getSkyLightIntensity(mat.lightmap.y);
 
-    float ambientOcclusion = mat.ao * ao;
-
-    vec3 skyLight   = skyIlluminance * RCP_PI     * mat.lightmap.y;
-    vec3 blockLight = getBlockLightIntensity(mat) * mat.lightmap.x;
-         diffuse   += (blockLight + skyLight) * ambientOcclusion;
-         diffuse   += mat.emission * BLOCKLIGHT_INTENSITY;
+    diffuse += (blockLight + skyLight) * (mat.ao * ao);
+    diffuse += mat.emission * BLOCKLIGHT_INTENSITY;
 
     return max0(mat.albedo * diffuse);
 }

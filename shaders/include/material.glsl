@@ -81,23 +81,33 @@ mat2x3 getHardcodedMetal(Material mat) {
     return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(F0ToIOR(mat.albedo) * airIOR, vec3(0.0));
 }
 
-vec3 getBlockLightIntensity(Material mat) {
-    vec3 blockLightIntensity = vec3(0.0);
-
+vec3 getBlockLightColor(Material mat) {
     switch(mat.blockId) {
-        case 5: blockLightIntensity = blackbody(1573.0) * 500.0; break; // Lava, magma
-        case 6: blockLightIntensity = blackbody(1900.0) * 800.0; break; // Flames, fire
+        case 5: return blackbody(1573.0) * 500.0; // Lava, magma
+        case 6: return blackbody(1900.0) * 800.0; // Flames, fire
 
         default:
         #if GI == 0
-            blockLightIntensity = blackbody(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY;
+            return blackbody(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY;
         #else
-            blockLightIntensity = mat.albedo * BLOCKLIGHT_INTENSITY;
+            return mat.albedo * BLOCKLIGHT_INTENSITY;
         #endif
         break;
     }
-    return blockLightIntensity;
+    return vec3(0.0);
 }
+
+float getBlockLightIntensity(float lightmapX) {
+    /* 
+    Accurate light falloff from Zombye#7365
+    I pre-calculated the illuminance values from their code with a light size of 1.0
+    Thanks also to SixthSurge#3922 for explaining the distance squared law
+    ~ Belmu
+    */
+	float lightDistance = 15.0 * (1.0 - lightmapX);
+	return (QUARTER_PI / pow2(lightDistance + 0.5)) * 1.00104166442 - 0.00327248528;
+}
+
 
 float getSkyLightIntensity(float lightmapY) {
     return pow2(1.0 - pow(1.0 - quintic(EPS, 1.0, lightmapY), SKYLIGHT_FALLOFF));
