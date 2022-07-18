@@ -83,30 +83,15 @@ float linearStep(float edge0, float edge1, float x) {
 }
 
 // https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
-float fastAcos(in float x) { 
-    x = abs(x); 
+float fastAcos(in float inX) { 
+    float x = abs(inX); 
     float res = -0.156583 * x + HALF_PI; 
     res *= sqrt(1.0 - x); 
-    return (x >= 0) ? res : PI - res; 
+    return (inX >= 0) ? res : PI - res; 
 }
 
 float fastAsin(float x) {
     return HALF_PI - fastAcos(x);
-}
-
-float atanPos(float x)  { 
-    float t0 = (x < 1.0) ? x : 1.0 / x;
-    float t1 = t0 * t0;
-    float poly = 0.0872929;
-    poly = -0.301895 + poly * t1;
-    poly = 1.0 + poly * t1;
-    poly = poly * t0;
-    return (x < 1.0) ? poly : HALF_PI - poly;
-}
-
-float fastAtan(float x) {     
-    float t0 = atanPos(abs(x));     
-    return (x < 0.0) ? -t0 : t0; 
 }
 
 vec2 sincos(float x) {
@@ -151,7 +136,6 @@ vec2 intersectSphericalShell(vec3 rayOrigin, vec3 rayDir, float innerSphereRad, 
     vec2 dists;
     dists.x = innerSphereIntersected && innerSphereDists.x < 0.0 ? innerSphereDists.y : max0(outerSphereDists.x);
     dists.y = innerSphereIntersected && innerSphereDists.x > 0.0 ? innerSphereDists.x : outerSphereDists.y;
-
     return dists;
 }
 
@@ -161,7 +145,7 @@ float remap(float x, float oldLow, float oldHigh, float newLow, float newHigh) {
 
 vec2 projectSphere(vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
-    float latitude  = acos(direction.y);
+    float latitude  = fastAcos(direction.y);
 
     return vec2(longitude * rcp(TAU) + 0.5, latitude * RCP_PI);
 }
@@ -191,7 +175,7 @@ vec3 generateCosineVector(vec3 vector, vec2 xy) {
 }
 
 float coneAngleToSolidAngle(float x) { return TAU * (1.0 - cos(x));  }
-float solidAngleToConeAngle(float x) { return acos(1.0 - (x) / TAU); }
+float solidAngleToConeAngle(float x) { return fastAcos(1.0 - (x) / TAU); }
 
 vec2 vogelDisk(float i, float n, float phi) {
     float r     = sqrt(i + phi) / n;

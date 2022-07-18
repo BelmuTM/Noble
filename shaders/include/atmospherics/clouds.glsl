@@ -20,7 +20,7 @@
 */
 
 float heightAlter(float altitude, float weatherMap) {
-    const float stopHeight = 0.98;
+    float stopHeight = clamp01(weatherMap + 0.12);
 
     float heightAlter  = clamp01(remap(altitude, 0.0, 0.07, 0.0, 1.0));
           heightAlter *= clamp01(remap(altitude, stopHeight * 0.2, stopHeight, 1.0, 0.0));
@@ -41,20 +41,19 @@ float getCloudsDensity(vec3 position) {
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
         position.xz += windDirection * frameTimeCounter;
     #endif
-
-    vec2 weatherNoise = vec2(FBM(position.xz * 8e-4, 2) * 0.6 + 0.4, texture(colortex7, position.xz * 5e-4).r);
-    float weatherMap  = max(weatherNoise.r, clamp01(CLOUDS_COVERAGE - 0.5) * weatherNoise.g * 2.0);
-          weatherMap  = mix(weatherMap, 1.0, wetness);
+    
+    float weatherMap = mix(FBM(position.xz * 2e-3, 3, 0.8) * 0.5 + 0.5, 1.0, wetness);
 
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
 
-    vec3 curlTex = texture(colortex14, position * 6e-5).rgb * 2.0 - 1.0;
-    position    += curlTex * CLOUDS_SWIRL;
+    vec3 curlTex  = texture(colortex14, position * 1e-4).rgb * 2.0 - 1.0;
+    vec3 curlPos  = position * 5e-4;
+         curlPos += curlTex * CLOUDS_SWIRL;
 
-    vec4 shapeTex     = texture(depthtex2,  position * 4.5e-4);
-    vec3 detailTex    = texture(colortex13, position * 3e-4).rgb;
-    vec3 blueNoiseTex = texelFetch(noisetex, ivec2(mod(position.xz * viewSize, noiseRes)), 0).rgb;
+    vec4 shapeTex     = texture(depthtex2,  curlPos);
+    vec3 detailTex    = texture(colortex13, curlPos).rgb;
+    vec3 blueNoiseTex = texelFetch(noisetex, ivec2(mod(position.xz * 2e-4 * viewSize, noiseRes)), 0).rgb;
 
     detailTex = mix(detailTex, vec3(1.0), blueNoiseTex);
 
@@ -69,13 +68,13 @@ float getCloudsDensity(vec3 position) {
 }
 
 float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount) {
-    float stepLength = 23.0, opticalDepth = 0.0;
+    float stepLength = 22.0, opticalDepth = 0.0;
 
     for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength) {
         if(clamp(rayPos.y, innerCloudRad, outerCloudRad) != rayPos.y) continue;
 
         opticalDepth += getCloudsDensity(rayPos) * stepLength;
-        stepLength   *= 1.5;
+        stepLength   *= 2.0;
 
         if(opticalDepth < EPS) continue;
     }
@@ -101,7 +100,7 @@ vec4 cloudsScattering(vec3 rayDir, out float distToCloud, vec3 directIlluminance
 
     float VdotL        = dot(rayDir, sceneShadowDir);
     const vec3 up      = vec3(0.0, 1.0, 0.0);
-    float bouncedLight = abs(dot(rayDir, -up)) * RCP_PI * 0.6 * isotropicPhase;
+    float bouncedLight = abs(dot(rayDir, -up)) * RCP_PI * 0.5 * isotropicPhase;
 
     vec2 scattering = vec2(0.0);
     float transmittance = 1.0, depthWeight = 0.0, depthSum = 0.0;
@@ -142,7 +141,7 @@ vec4 cloudsScattering(vec3 rayDir, out float distToCloud, vec3 directIlluminance
             scatteringCoeff   *= cloudsScatteringFalloff;
             anisotropyFactors *= cloudsAnisotropyFalloff;
         }
-        float scatteringIntegral = (1.0 - stepTransmittance) / cloudsScatteringCoeff;
+        float scatteringIntegral = (1.0 - stepTransmittance) * rcp(cloudsScatteringCoeff);
 
         scattering    += stepScattering * scatteringIntegral * transmittance;
         transmittance *= stepTransmittance;
@@ -179,10 +178,8 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
     return exp(-transmittance * stepLength);
 }
 
-vec3 reprojectClouds(vec3 position) {
-    vec3 cameraOffset = cameraPosition - previousCameraPosition;
-    
-    position = transMAD(gbufferPreviousModelView, viewToScene(position) + cameraOffset);
+vec3 reprojectClouds(in vec3 position) {
+    position = transMAD(gbufferPreviousModelView, viewToScene(position) + (cameraPosition - previousCameraPosition));
     position = projOrthoMAD(gbufferPreviousProjection, position) / -position.z;
     return position * 0.5 + 0.5;
 }

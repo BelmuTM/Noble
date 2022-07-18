@@ -34,14 +34,6 @@ vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
     return clipAABB(prevColor, minColor, maxColor);
 }
 
-float getNormalWeight(vec3 normal0, vec3 normal1, float sigma) {
-    return pow(max0(dot(normal0, normal1)), sigma);
-}
-
-float getDepthWeight(float depth0, float depth1, float sigma) {
-    return exp(-abs(linearizeDepth(depth0) - linearizeDepth(depth1)) * sigma);
-}
-
 // Thanks LVutner for the help with TAA (buffer management)
 // https://github.com/LVutner
 vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex) {

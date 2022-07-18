@@ -81,7 +81,7 @@
 				if(F0 * maxVal8 <= 229.5) {
 					vec2 puddleCoords = (viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
 
-					float puddle  = quintic(0.0, 1.0, FBM(puddleCoords, 1) * 0.5 + 0.5);
+					float puddle  = quintic(0.0, 1.0, FBM(puddleCoords, 1, 1.3) * 0.5 + 0.5);
 		  	  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
 	  				  	  puddle *= (1.0 - porosity);
 			  	  	  	  puddle *= wetness;

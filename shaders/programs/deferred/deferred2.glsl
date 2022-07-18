@@ -14,11 +14,10 @@
     layout (location = 2) out vec3 history1;
     layout (location = 3) out vec4 moments;
 #else
-    /* RENDERTARGETS: 5,10,12 */
+    /* RENDERTARGETS: 5,12 */
 
     layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 aoHistory;
-    layout (location = 2) out vec4 moments;
+    layout (location = 1) out vec4 moments;
 #endif
 
 #include "/include/fragment/brdf.glsl"
@@ -29,8 +28,6 @@
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/pathtracer.glsl"
 #include "/include/fragment/shadows.glsl"
-
-#include "/include/post/taa.glsl"
 
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
 
@@ -82,8 +79,7 @@ void main() {
         depthWeight  = 1.0;
     #endif
 
-    color.a = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
-
+    color.a   = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
     moments.a = texture(colortex12, prevPos.xy).a + 1.0;
 
     #if GI == 0
@@ -98,11 +94,9 @@ void main() {
                 shadowmap      = texture(colortex3, texCoords);
             #endif
 
-            aoHistory = texture(colortex10, texCoords);
-
             float ao = 1.0;
             #if AO == 1
-                ao = aoHistory.a;
+                ao = texture(colortex10, texCoords).a;
             #endif
 
             color.rgb = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance, clamp01(ao));

@@ -67,8 +67,8 @@
 			float depth = texelFetch(depthtex0, ivec2(screenPos * viewSize), 0).r;
 			if(clamp01(screenPos) != screenPos || depth == 1.0 || isHand(screenPos)) continue;
 
-			vec3 horizonVec = (screenToView(vec3(screenPos, depth)) - viewPos);
-			float cosTheta  = mix(dot(horizonVec, viewDir), -1.0, quintic(2.0, 3.0, lengthSqr(horizonVec)));
+			vec3 horizonVec = screenToView(vec3(screenPos, depth)) - viewPos;
+			float cosTheta  = mix(dot(horizonVec, viewDir) * fastRcpLength(horizonVec), -1.0, linearStep(2.0, 3.0, lengthSqr(horizonVec)));
 		
 			horizonCos = max(horizonCos, cosTheta);
 		}
@@ -79,15 +79,15 @@
 		float visibility = 0.0;
 
 		float rcpViewLength = fastRcpLength(viewPos);
-		vec2 radius  		= GTAO_RADIUS * rcpViewLength / vec2(1.0, aspectRatio);
-		vec3 viewDir 		= -viewPos * rcpViewLength;
+		vec2 radius  		= GTAO_RADIUS * rcpViewLength * rcp(vec2(1.0, aspectRatio));
+		vec3 viewDir 		= viewPos * -rcpViewLength;
 
-		for(int slice = 0; slice < GTAO_SLICES; slice++) {
-			float sliceAngle = (PI * rcp(GTAO_SLICES)) * (slice + randF());
+		for(int i = 0; i < GTAO_SLICES; i++) {
+			float sliceAngle = (PI * rcp(GTAO_SLICES)) * (i + randF());
 			vec3  sliceDir   = vec3(cos(sliceAngle), sin(sliceAngle), 0.0);
 
-			vec3 orthoDir   = sliceDir - (dot(sliceDir, viewDir) * viewDir);
-			vec3 axis       = normalize(cross(sliceDir, viewDir));
+			vec3 orthoDir   = sliceDir - dot(sliceDir, viewDir) * viewDir;
+			vec3 axis       = cross(sliceDir, viewDir);
 			vec3 projNormal = normal - axis * dot(normal, axis);
 
 			float sgnGamma = sign(dot(projNormal, orthoDir));
@@ -101,7 +101,7 @@
 			horizons   = gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
 			
 			vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
-			visibility += dot(arc, vec2(0.25)) * lengthSqr(projNormal) * normLen;
+			visibility += dot(arc, vec2(0.25)) * normLen;
 
 			float bentAngle = dot(horizons, vec2(0.5));
 			bentNormal 	   += viewDir * cos(bentAngle) + orthoDir * sin(bentAngle);

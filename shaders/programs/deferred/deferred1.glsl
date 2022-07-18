@@ -50,8 +50,6 @@
     
     #include "/include/fragment/shadows.glsl"
 
-    #include "/include/post/taa.glsl"
-
     in mat3[2] skyIlluminanceMat;
     in vec3 skyMultScatterIllum;
     in vec3 directIlluminance;
@@ -95,23 +93,17 @@
         /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
         //////////////////////////////////////////////////////////
 
-        #if GI == 0
-            #if AO == 1
-                if(!skyCheck) {
-                    vec4 ao = texture(colortex10, texCoords * AO_RESOLUTION);
-                    if(any(greaterThan(ao.rgb, vec3(0.0)))) {
-                        ao.rgb        = clamp01(ao.rgb);
-                        bentNormal    = ao.rgb;
-                        aoHistory.rgb = ao.rgb;
-                    }
+        #if GI == 0 && AO == 1
+            if(!skyCheck) {
+                vec4 ao = texture(colortex10, texCoords * AO_RESOLUTION);
+                if(any(greaterThan(ao.rgb, vec3(0.0)))) bentNormal = clamp01(ao.rgb);
 
-                    #if AO_FILTER == 1
-                        aoHistory.a = filterAO(colortex10, texCoords, mat, AO_RESOLUTION, 0.8, 2.0, 5);
-                    #else
-                        aoHistory.a = ao.a;
-                    #endif
-                }
-            #endif
+                aoHistory = ao;
+
+                #if AO_FILTER == 1
+                    aoHistory.a = filterAO(colortex10, texCoords, mat, AO_RESOLUTION, 0.3, 2.0, 2);
+                #endif
+            }
         #endif
 
         #ifdef WORLD_OVERWORLD
@@ -146,6 +138,7 @@
                     clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-1e-4 * distToCloud));
 
                     /* Reprojection */
+                    /*
                     vec3 prevPos    = reprojectClouds(normalize(viewPos) * distToCloud);
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
@@ -159,9 +152,10 @@
                     float frames      = texture(colortex12, texCoords).a;
                     float frameWeight = 1.0 - (1.0 / max(frames, 1.0));
 
-                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy) * float(prevClouds.a > EPS));
+                    float weight = clamp01(frameWeight * velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy));
 
                     clouds = mix(clouds, prevClouds, 0.0);
+                    */
                 }
             #endif
         #endif

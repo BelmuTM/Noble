@@ -27,3 +27,11 @@
 
 bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0;                          }
 bool isHand(vec2 coords) { return linearizeDepth(texture(depthtex0, coords).r) < MC_HAND_DEPTH; }
+
+float getNormalWeight(vec3 normal0, vec3 normal1, float sigma) {
+    return pow(max0(dot(normal0, normal1)), sigma);
+}
+
+float getDepthWeight(float depth0, float depth1, float sigma) {
+    return exp(-abs(linearizeDepth(depth0) - linearizeDepth(depth1)) * sigma);
+}

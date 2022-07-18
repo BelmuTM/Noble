@@ -134,6 +134,7 @@ option.SSAO_RADIUS.comment = Adjusts §bSSAO§r's radius.
 
 option.RTAO_SAMPLES = RTAO Samples
 option.RTAO_SAMPLES.comment = Influences §bRTAO§r's quality. §cHigher value gives better results, but reduces §cperformance.
+value.RTAO_SAMPLES.2 = §22
 value.RTAO_SAMPLES.4 = §a4
 value.RTAO_SAMPLES.6 = §e6
 value.RTAO_SAMPLES.8 = §68
