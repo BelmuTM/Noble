@@ -143,7 +143,7 @@
                          clouds    = cloudsScattering(cloudsRay, distToCloud, directIlluminance, skyMultScatterIllum);
 
                     /* Aerial Perspective */
-                    clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-7e-5 * distToCloud));
+                    clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-1e-4 * distToCloud));
 
                     /* Reprojection */
                     vec3 prevPos    = reprojectClouds(normalize(viewPos) * distToCloud);

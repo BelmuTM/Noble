@@ -19,7 +19,6 @@ const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // meters
 /* CLOUDS CONSTANTS */
 const float innerCloudRad = earthRad      + CLOUDS_ALTITUDE;
 const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
-const float windAngleRad  = 0.785398;
 
 const int cloudsMultiScatterSteps = 8;
 

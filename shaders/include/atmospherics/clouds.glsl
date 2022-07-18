@@ -20,7 +20,7 @@
 */
 
 float heightAlter(float altitude, float weatherMap) {
-    float stopHeight = clamp01(weatherMap + 0.12);
+    const float stopHeight = 0.98;
 
     float heightAlter  = clamp01(remap(altitude, 0.0, 0.07, 0.0, 1.0));
           heightAlter *= clamp01(remap(altitude, stopHeight * 0.2, stopHeight, 1.0, 0.0));
@@ -31,43 +31,39 @@ float densityAlter(float altitude, float weatherMap) {
     float densityAlter  = altitude * clamp01(remap(altitude, 0.0, 0.2, 0.0, 1.0));
           densityAlter *= clamp01(remap(altitude, 0.9, 1.0, 1.0, 0.0));
           densityAlter *= weatherMap * 2.0;
-    return densityAlter;
+    return densityAlter * 1.5;
 }
 
 float getCloudsDensity(vec3 position) {
     float altitude     = (position.y - innerCloudRad) * rcp(CLOUDS_THICKNESS);
-    vec2 windDirection = WIND_SPEED * sincos(windAngleRad);
+    vec2 windDirection = WIND_SPEED * sincos(-0.785398);
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
         position.xz += windDirection * frameTimeCounter;
     #endif
 
-    vec3 position1 = position * 2e-4;
-    vec3 position0 = position * 2e-5;
-
-    float globalCoverage = mix(CLOUDS_COVERAGE, 1.0, wetness);
-
-    vec2 weatherNoise = vec2(FBM(position.xz * 8e-4, 2) * 0.5 + 0.5, texture(colortex7, position1.xz).r);
-    float weatherMap  = max(weatherNoise.r, clamp01(globalCoverage - 0.5) * weatherNoise.g * 2.0);
+    vec2 weatherNoise = vec2(FBM(position.xz * 8e-4, 2) * 0.6 + 0.4, texture(colortex7, position.xz * 5e-4).r);
+    float weatherMap  = max(weatherNoise.r, clamp01(CLOUDS_COVERAGE - 0.5) * weatherNoise.g * 2.0);
+          weatherMap  = mix(weatherMap, 1.0, wetness);
 
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
 
     vec3 curlTex = texture(colortex14, position * 6e-5).rgb * 2.0 - 1.0;
-    position1   += curlTex * CLOUDS_SWIRL;
+    position    += curlTex * CLOUDS_SWIRL;
 
-    vec4 shapeTex     = texture(depthtex2,  position * 4e-4);
+    vec4 shapeTex     = texture(depthtex2,  position * 4.5e-4);
     vec3 detailTex    = texture(colortex13, position * 3e-4).rgb;
     vec3 blueNoiseTex = texelFetch(noisetex, ivec2(mod(position.xz * viewSize, noiseRes)), 0).rgb;
 
     detailTex = mix(detailTex, vec3(1.0), blueNoiseTex);
 
-    float shapeNoise = remap(shapeTex.r, (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125) - 1.0, 1.0, 0.0, 1.0);
-          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - globalCoverage * weatherMap, 1.0, 0.0, 1.0));
+    float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
+          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - CLOUDS_COVERAGE * weatherMap, 1.0, 0.0, 1.0));
 
     float detailNoise  = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
           detailNoise  = mix(detailNoise, 1.0 - detailNoise, clamp01(altitude * 5.0));
-          detailNoise *= (0.35 * exp(-globalCoverage * 0.75));
+          detailNoise *= (0.35 * exp(-CLOUDS_COVERAGE * 0.75));
 
     return clamp01(remap(shapeNoise, detailNoise, 1.0, 0.0, 1.0)) * densityAlter;
 }

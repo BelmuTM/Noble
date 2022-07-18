@@ -91,7 +91,7 @@ void volumetricFog(inout vec3 color, vec3 viewPos, vec3 directIlluminance, vec3 
     scattering[0] *= directIlluminance;
     scattering[1] *= skyIlluminance * getSkyLightIntensity(skyLight);
 
-    color = color * transmittance + (scattering[0] + scattering[1]);
+    color += scattering[0] + scattering[1];
 }
 
 #if TONEMAP == 0
