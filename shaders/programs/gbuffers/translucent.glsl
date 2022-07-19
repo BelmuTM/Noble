@@ -52,7 +52,7 @@
 	/* RENDERTARGETS: 1,4 */
 
 	layout (location = 0) out uvec4 data;
-	layout (location = 1) out vec4 sceneColor;
+	layout (location = 1) out vec3 sceneColor;
 
 	flat in int blockId;
 	in vec2 texCoords;
@@ -101,7 +101,6 @@
     		mat.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
 
     		mat.albedo = albedoTex.rgb;
-    		mat.alpha  = albedoTex.a;
 
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				mat.normal.xy = normalTex.xy * 2.0 - 1.0;
@@ -128,8 +127,7 @@
 						shadowmap.rgb = shadowMap(scenePos, geoNormal, shadowmap.a);
 					#endif
 
-					sceneColor.rgb = computeDiffuse(scenePos, sceneShadowDir, mat, shadowmap, directIlluminance, skyLight, 1.0);
-					sceneColor.a   = mat.alpha;
+					sceneColor = computeDiffuse(scenePos, sceneShadowDir, mat, shadowmap, directIlluminance, skyLight, 1.0);
 				}
 			#endif
 		}
@@ -138,7 +136,7 @@
 	
 		data.x = packUnorm4x8(vec4(mat.rough, (blockId + 0.25) * rcp(maxVal8), clamp01(lmCoords)));
 		data.y = packUnorm4x8(vec4(mat.ao, mat.emission, mat.F0, mat.subsurface));
-		data.z = (uint(albedoTex.r * maxVal8) << 16u)  | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
+		data.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
 		data.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
 	}
 #endif

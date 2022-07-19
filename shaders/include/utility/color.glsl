@@ -32,14 +32,14 @@
 
 // https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x
 vec3 linearTosRGB(vec3 linear) {
-    vec3 higher = (pow(abs(linear), vec3(1.0 / 2.4)) * 1.055) - 0.055;
+    vec3 higher = (pow(abs(linear), vec3(0.41666666)) * 1.055) - 0.055;
     vec3 lower  = linear * 12.92;
     return mix(higher, lower, step(linear, vec3(0.0031308)));
 }
 
 vec3 sRGBToLinear(vec3 sRGB) {
-    vec3 higher = pow((sRGB + 0.055) / 1.055, vec3(2.4));
-    vec3 lower  = sRGB / 12.92;
+    vec3 higher = pow((sRGB + 0.055) * 0.94786729, vec3(2.4));
+    vec3 lower  = sRGB * 0.07739938;
     return mix(higher, lower, step(sRGB, vec3(0.04045)));
 }
 
@@ -162,28 +162,6 @@ void burgess(vec3 color) {
 //////////////////////////////////////////////////////////
 /*------------------ COLOR CORRECTION ------------------*/
 //////////////////////////////////////////////////////////
-
-// https://www.shadertoy.com/view/lsSXW1
-// https://tannerhelland.com/2012/09/18/convert-temperature-rgb-algorithm-code.html
-vec3 temperatureToRGB(in float temperature){
-    vec3 color;
-    temperature = clamp(temperature, 1000, 40000) * 0.01;
-    
-    if (temperature <= 66) {
-        color.r = 1.0;
-        color.g = clamp01(0.390081578 * log(temperature) - 0.631841443);
-    } else {
-    	float t    = temperature - 60;
-        color.r = clamp01(1.292936186 * pow(t, -0.133204759));
-        color.g = clamp01(1.129890860 * pow(t, -0.075514849));
-    }
-    
-    if(temperature >= 66)      { color.b = 1; }
-    else if(temperature <= 19) { color.b = 0; }
-    else                       { color.b = clamp01(0.543206789 * log(temperature - 10) - 1.196254089); }
-
-    return sRGBToLinear(color);
-}   
 
 // Black body radiation from https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl
 vec3 plancks(in float t, in vec3 lambda) {

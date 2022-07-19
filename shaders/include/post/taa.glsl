@@ -34,10 +34,20 @@ vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
     return clipAABB(prevColor, minColor, maxColor);
 }
 
+vec3 getVelocity(vec3 currPos) {
+    vec3 cameraOffset = cameraPosition - previousCameraPosition;
+
+    vec3 prevPos = transMAD(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPos)));
+         prevPos = (projOrthoMAD(gbufferPreviousProjection, prevPos) / -prevPos.z) * 0.5 + 0.5;
+
+    return currPos - prevPos;
+}
+
 // Thanks LVutner for the help with TAA (buffer management)
 // https://github.com/LVutner
 vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex) {
-    vec3 prevPos = reproject(vec3(texCoords, currMat.depth1));
+    vec3 currPos = vec3(texCoords, currMat.depth0);
+    vec3 prevPos = currPos - getVelocity(currPos);
 
     vec3 currColor = linearToYCoCg(texelFetch(currTex, ivec2(gl_FragCoord.xy), 0).rgb);
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
@@ -49,5 +59,5 @@ vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex
     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);
          weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
 
-    return YCoCgToLinear(mix(currColor, prevColor, weight)); 
+    return YCoCgToLinear(mix(currColor, prevColor, clamp01(weight))); 
 }

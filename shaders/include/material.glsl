@@ -14,7 +14,6 @@ struct Material {
     float subsurface;
 
     vec3 albedo;
-    float alpha;
     vec3 normal;
 
     int blockId;

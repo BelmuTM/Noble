@@ -11,20 +11,10 @@
 
 #elif defined STAGE_FRAGMENT
 
-	#ifdef PROGRAM_ENTITY
-		/* RENDERTARGETS: 1,2,6 */
+	/* RENDERTARGETS: 1,2 */
 
-		layout (location = 0) out uvec4 data;
-		layout (location = 1) out vec3 geometricNormal;
-		layout (location = 2) out vec4 nametagCheck;
-
-		uniform vec4 entityColor;
-	#else
-		/* RENDERTARGETS: 1,2 */
-
-		layout (location = 0) out uvec4 data;
-		layout (location = 1) out vec3 geometricNormal;
-	#endif
+	layout (location = 0) out uvec4 data;
+	layout (location = 1) out vec3 geometricNormal;
 
 	flat in int blockId;
 	in vec2 texCoords;
@@ -35,6 +25,10 @@
 	in mat3 TBN;
 
 	#include "/include/common.glsl"
+
+	#ifdef PROGRAM_ENTITY
+		uniform vec4 entityColor;
+	#endif
 
 	void main() {
 		vec4 albedoTex   = texture(colortex0, texCoords);
@@ -99,7 +93,7 @@
 	
 		data.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) * rcp(maxVal8), max0(lmCoords)));
 		data.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));
-		data.z = (uint(albedoTex.r * maxVal8) << 16u)  | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
+		data.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
 		data.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
 
 		geometricNormal = geoNormal;
