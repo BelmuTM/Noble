@@ -138,7 +138,7 @@ vec3 linearToAP1(vec3 color) {
 }
 
 vec3 sRGBToAP1Albedo(vec3 color) {
-    return sRGBToLinear(color) * sRGB_2_AP1_ALBEDO;
+    return srgbToLinear(color) * sRGB_2_AP1_ALBEDO;
 }
 
 vec3 XYZToxyY(vec3 XYZ) {  

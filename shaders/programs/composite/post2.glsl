@@ -154,7 +154,7 @@ void main() {
     #endif
 
     #if TONEMAP != 0
-        color = linearTosRGB(color);
+        color = linearToSrgb(color);
     #endif
     color = clamp01(color);
 

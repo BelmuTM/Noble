@@ -49,7 +49,7 @@ vec3 getShadowColor(vec3 samplePos) {
     #if TONEMAP == 0
         shadowCol.rgb = sRGBToAP1Albedo(shadowCol.rgb);
     #else
-        shadowCol.rgb = sRGBToLinear(shadowCol.rgb);
+        shadowCol.rgb = srgbToLinear(shadowCol.rgb);
     #endif
 
     shadowCol.rgb *= (1.0 - max0(shadowCol.a));
