@@ -31,13 +31,13 @@
 #endif
 
 // https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x
-vec3 linearTosRGB(vec3 linear) {
+vec3 linearToSrgb(vec3 linear) {
     vec3 higher = (pow(abs(linear), vec3(0.41666666)) * 1.055) - 0.055;
     vec3 lower  = linear * 12.92;
     return mix(higher, lower, step(linear, vec3(0.0031308)));
 }
 
-vec3 sRGBToLinear(vec3 sRGB) {
+vec3 srgbToLinear(vec3 sRGB) {
     vec3 higher = pow((sRGB + 0.055) * 0.94786729, vec3(2.4));
     vec3 lower  = sRGB * 0.07739938;
     return mix(higher, lower, step(sRGB, vec3(0.04045)));
