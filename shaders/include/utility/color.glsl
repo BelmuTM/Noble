@@ -79,15 +79,15 @@ vec3 YCoCgToLinear(vec3 YCoCg)  { return srgbToLinear(YCoCg_2_RGB_MAT * YCoCg).r
 //////////////////////////////////////////////////////////
 
 void whitePreservingReinhard(inout vec3 color, float white) {
-	float luma           = luminance(color);
-	float toneMappedLuma = luma * (1.0 + luma / (white * white)) / (1.0 + luma);
-	color               *= toneMappedLuma / luma;
+	float luminance      = luminance(color);
+	float toneMappedLuma = luminance * (1.0 + luminance / (white * white)) / (1.0 + luminance);
+	color               *= toneMappedLuma / luminance;
 }
 
 void reinhardJodie(inout vec3 color) {
-    float luma = luminance(color);
-    vec3 tv    = color / (1.0 + color);
-    color      = mix(color / (1.0 + luma), tv, tv);
+    float luminance = luminance(color);
+    vec3 tv         = color / (1.0 + color);
+    color           = mix(color / (1.0 + luminance), tv, tv);
 }
 
 void lottes(inout vec3 color) {

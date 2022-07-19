@@ -43,8 +43,8 @@
     float minExposure = PI  / luminance(sunIlluminance);
     float maxExposure = 0.3 / luminance(moonIlluminance);
 
-    float EV100fromLuminance(float luma) {
-        return log2(luma * S / K);
+    float EV100fromLuminance(float luminance) {
+        return log2(luminance * S / K);
     }
 
     float EV100ToExposure(float EV100) {

@@ -38,12 +38,12 @@
             weight *= hideGUI;
         #endif
 
-        color      = mix(color, prevColor, weight);
-        float luma = luminance(color);
+        color           = mix(color, prevColor, weight);
+        float luminance = luminance(color);
 
         // Thanks SixthSurge#3922 for the help with moments
         vec2 prevMoments = texture(colortex12, prevPos.xy).xy;
-        vec2 currMoments = vec2(luma, luma * luma);
+        vec2 currMoments = vec2(luminance, luminance * luminance);
              moments.xy  = mix(currMoments, prevMoments, weight);
              moments.z   = moments.y - moments.x * moments.x;
 
