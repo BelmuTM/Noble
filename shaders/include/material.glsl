@@ -98,14 +98,8 @@ vec3 getBlockLightColor(Material mat) {
 }
 
 float getBlockLightIntensity(float lightmapX) {
-    /* 
-    Accurate light falloff from Zombye#7365
-    I pre-calculated the illuminance values from their code with a light size of 1.0
-    Thanks also to SixthSurge#3922 for explaining the distance squared law
-    ~ Belmu
-    */
-	float lightDistance = 15.0 * (1.0 - lightmapX);
-	return (QUARTER_PI / pow2(lightDistance + 0.5)) * 1.00104166442 - 0.00327248528;
+    // Square distance law, thanks to SixthSurge#3922 for the help!
+    return linearStep(0.00390625, 1.0, 1.0 / pow2(16.0 - 15.0 * lightmapX));
 }
 
 
