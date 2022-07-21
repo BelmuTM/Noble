@@ -79,7 +79,7 @@
                 mat = getMaterial(hitPos.xy);
 
                 vec3 directLighting  = directBRDF(hitPos.xy, -rayDir, shadowDir, mat);
-                     directLighting += getBlockLightIntensity(mat) * mat.emission;
+                     directLighting += getBlockLightColor(mat) * mat.emission;
                 vec3 indirectBounce  = indirectBRDF(noise, mat, rayDir);
              
                 if(dot(mat.normal, rayDir) < 0.0) continue;
