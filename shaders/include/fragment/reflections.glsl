@@ -117,14 +117,13 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 
         vec3 refracted = refract(viewDir, mat.normal, airIOR / ior);
         bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
-        bool hand      = linearizeDepth(mat.depth0) < 0.56;
-        if(!hit || hand) hitPos.xy = texCoords;
+        if(!hit || isHand(hitPos.xy)) hitPos.xy = texCoords;
 
         float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), ior);
         vec3 hitColor = vec3(
-            texture(colortex4, hitPos.xy + vec2(5e-4 * rand(gl_FragCoord.xy))).r,
-            texture(colortex4, hitPos.xy).g,
-            texture(colortex4, hitPos.xy - vec2(5e-4 * rand(gl_FragCoord.yx))).b
+            texture(colortex5, hitPos.xy + vec2(2.0) * pixelSize).r,
+            texture(colortex5, hitPos.xy).g,
+            texture(colortex5, hitPos.xy - vec2(2.0) * pixelSize).b
         );
 
         return hitColor * (1.0 - fresnel);
