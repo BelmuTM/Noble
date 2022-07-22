@@ -21,7 +21,6 @@ float spatialVariance(sampler2D tex, vec2 coords) {
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++, samples++) {
-
             float luminance    = luminance(texture(tex, coords + vec2(x, y) * pixelSize).rgb);
             sigmaVariancePair += vec2(luminance, luminance * luminance);
         }
@@ -36,7 +35,7 @@ float gaussianVariance(sampler2D tex, vec2 coords) {
 
     for(int x = -radius; x <= radius; x++) {
         for(int y = -radius; y <= radius; y++) {
-            variance += texture(tex, coords + vec2(x, y) * pixelSize).z * gaussianDistrib2D(vec2(x, y), 1.0);
+            variance += texture(tex, coords + vec2(x, y) * pixelSize).z * gaussianDistrib2D(vec2(x, y), 1.5);
         }
     }
     return variance;
@@ -65,13 +64,13 @@ float getATrousLuminanceWeight(float luminance, float sampleLuminance, float lum
 
 void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 moments, int passIndex) {
     Material mat = getMaterial(coords);
-    if(mat.depth1 == 1.0) return;
+    if(mat.depth0 == 1.0) return;
 
     float totalWeight = 1.0, totalWeightSquared = 1.0;
     vec2 stepSize     = steps[passIndex] * pixelSize;
 
-    float frames = clamp01(texture(colortex5, coords).a / 4.0);
-    vec2 dgrad   = vec2(dFdx(mat.depth1), dFdy(mat.depth1));
+    float frames = clamp01(texture(colortex5, coords).a * rcp(4.0));
+    vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
 
     float centerLuma   = luminance(color);
     float variance     = gaussianVariance(colortex12, coords);
@@ -90,7 +89,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 momen
             vec3 sampleColor   = texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb;
 
             float normalWeight = getATrousNormalWeight(mat.normal, sampleMat.normal);
-            float depthWeight  = getATrousDepthWeight(mat.depth1, sampleMat.depth1, dgrad, offset);
+            float depthWeight  = getATrousDepthWeight(mat.depth0, sampleMat.depth0, dgrad, offset);
             float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleColor), luminancePhi), frames);
 
             float weight  = aTrous[abs(x)] * aTrous[abs(y)];
@@ -102,6 +101,6 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 momen
             totalWeightSquared += weight * weight;
         }
     }
-    color      = color / totalWeight;
+    color      = max0(color / totalWeight);
     moments.z *= totalWeightSquared;
 }

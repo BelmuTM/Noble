@@ -233,8 +233,8 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
 
     diffuse *= directLight;
 
-    vec3 blockLight = getBlockLightColor(mat) * getBlockLightIntensity(mat.lightmap.x);
-    vec3 skyLight   = skyIlluminance * RCP_PI * getSkyLightIntensity(mat.lightmap.y);
+    vec3 blockLight = getBlockLightColor(mat) * getBlockLightFalloff(mat.lightmap.x);
+    vec3 skyLight   = skyIlluminance * RCP_PI * getSkyLightFalloff(mat.lightmap.y);
 
     diffuse += (blockLight + skyLight) * mat.ao * ao;
     diffuse += mat.emission * BLOCKLIGHT_INTENSITY;

@@ -220,7 +220,7 @@ option.GI_RESOLUTION = GI Resolution
 option.GI_RESOLUTION.comment = Downscales §bGI §rto increase performance. §cHigher value gives better results, but reduces §cperformance.
 
 option.GI_SAMPLES = GI Samples
-option.GI_SAMPLES.comment = Adjusts the amount of samples taken to calculate §bGlobal Illumination§r.
+option.GI_SAMPLES.comment = Adjusts the amount of samples taken to calculate §bGlobal Illumination§r. §cHigher value gives better results, but reduces §cperformance.
 
 option.GI_BOUNCES = GI Bounces
 option.GI_BOUNCES.comment = Makes §bGlobal Illumination§r bounce §aX§r times to gather light. §cHigher value gives better results, but reduces §cperformance.

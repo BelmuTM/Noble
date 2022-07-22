@@ -27,7 +27,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 		clouds = texture(colortex15, getAtmosphereCoordinates(coords, CLOUDS_RESOLUTION, 0.0));
 	#endif
 
-    return (sky * clouds.a + clouds.rgb) * getSkyLightIntensity(mat.lightmap.y);
+    return (sky * clouds.a + clouds.rgb) * getSkyLightFalloff(mat.lightmap.y);
 }
 
 //////////////////////////////////////////////////////////

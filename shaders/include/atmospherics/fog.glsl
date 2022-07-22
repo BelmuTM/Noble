@@ -29,7 +29,7 @@ void groundFog(inout vec3 color, vec3 viewPos, vec3 directIlluminance, vec3 skyI
 
     float VdotL    = dot(normalize(scenePos), sceneShadowDir);
     vec2  phase    = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, anisotropyFactor));
-          skyLight = sky ? 1.0 : getSkyLightIntensity(skyLight);
+          skyLight = sky ? 1.0 : getSkyLightFalloff(skyLight);
 
 	vec3 scattering  = atmosScatteringCoeff * vec2(airmass * phase)          * (directIlluminance * skyLight);
 	     scattering += atmosScatteringCoeff * vec2(airmass * isotropicPhase) * (skyIlluminance    * skyLight);
@@ -89,7 +89,7 @@ void volumetricFog(inout vec3 color, vec3 viewPos, vec3 directIlluminance, vec3 
     }
 
     scattering[0] *= directIlluminance;
-    scattering[1] *= skyIlluminance * getSkyLightIntensity(skyLight);
+    scattering[1] *= skyIlluminance * getSkyLightFalloff(skyLight);
 
     color += scattering[0] + scattering[1];
 }
@@ -109,7 +109,7 @@ const int phaseMultiSamples = 8;
 void waterFog(inout vec3 color, float dist, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
     vec3 transmittance = exp(-waterAbsorptionCoeff * dist);
 
-    vec3 scattering  = skyIlluminance * isotropicPhase * getSkyLightIntensity(skyLight);
+    vec3 scattering  = skyIlluminance * isotropicPhase * getSkyLightFalloff(skyLight);
          scattering += directIlluminance * cornetteShanksPhase(VdotL, 0.5);
          scattering *= waterScatteringCoeff * (1.0 - transmittance) / waterExtinctionCoeff;
 

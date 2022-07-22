@@ -75,10 +75,6 @@ void main() {
 
     float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex9, prevPos.xy).a), 1.5);
 
-    #if GI == 1 && ACCUMULATION_VELOCITY_WEIGHT == 1
-        depthWeight  = 1.0;
-    #endif
-
     color.a   = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
     moments.a = texture(colortex12, prevPos.xy).a + 1.0;
 

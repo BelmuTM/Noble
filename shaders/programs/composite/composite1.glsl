@@ -45,7 +45,7 @@ void main() {
 
     vec3 directIlluminance = sampleDirectIlluminance();
     vec3 skyIlluminance    = texture(colortex6, texCoords).rgb * RCP_PI;
-    float skyLight         = getSkyLightIntensity(mat.lightmap.y);
+    float skyLight         = getSkyLightFalloff(mat.lightmap.y);
 
     if(!skyCheck) {
         #if GI == 1

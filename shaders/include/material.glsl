@@ -96,12 +96,13 @@ vec3 getBlockLightColor(Material mat) {
     return vec3(0.0);
 }
 
-float getBlockLightIntensity(float lightmapX) {
+float getBlockLightFalloff(float lightmapX) {
     // Square distance law, thanks to SixthSurge#3922 for the help!
     return linearStep(0.00390625, 1.0, 1.0 / pow2(16.0 - 15.0 * lightmapX));
 }
 
 
-float getSkyLightIntensity(float lightmapY) {
-    return pow2(1.0 - pow(1.0 - quintic(EPS, 1.0, lightmapY), SKYLIGHT_FALLOFF));
+float getSkyLightFalloff(float lightmapY) {
+    // Taken from Spectrum (Zombye#7365)
+    return lightmapY * exp(6.0 * (lightmapY - 1.0));
 }
