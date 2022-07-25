@@ -11,7 +11,7 @@ float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
 
 vec3 getHitColor(in vec3 hitPos) {
     #if SSR_REPROJECTION == 1
-        hitPos = reproject(hitPos);
+        hitPos -= getVelocity(hitPos);
         return texture(colortex8, hitPos.xy).rgb;
     #else
         return texture(colortex4, hitPos.xy).rgb;

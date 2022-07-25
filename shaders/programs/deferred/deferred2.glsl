@@ -70,7 +70,8 @@ void main() {
 
     Material mat = getMaterial(tempCoords);
 
-    vec3 prevPos   = reproject(vec3(texCoords, mat.depth0));
+    vec3 currPos   = vec3(texCoords, mat.depth0);
+    vec3 prevPos   = currPos - getVelocity(currPos);
     vec4 prevColor = texture(colortex5, prevPos.xy);
 
     float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex9, prevPos.xy).a), 1.5);

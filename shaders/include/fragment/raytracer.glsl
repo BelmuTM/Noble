@@ -15,6 +15,9 @@ void binarySearch(inout vec3 rayPos, vec3 rayDir) {
 
 // The favorite raytracer of your favorite raytracer
 bool raytrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec3 rayPos) {
+    // Thanks Bálint#1673 for the clipping fix!
+    if(rayDir.z > 0.0 && rayDir.z >= -viewPos.z) return false;
+
     rayPos  = viewToScreen(viewPos);
     rayDir  = normalize(viewToScreen(viewPos + rayDir) - rayPos);
     rayDir *= minOf((sign(rayDir) - rayPos) / rayDir) * rcp(stepCount); // Taken from the DDA algorithm

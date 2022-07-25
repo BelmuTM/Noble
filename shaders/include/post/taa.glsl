@@ -34,15 +34,6 @@ vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
     return clipAABB(prevColor, minColor, maxColor);
 }
 
-vec3 getVelocity(vec3 currPos) {
-    vec3 cameraOffset = cameraPosition - previousCameraPosition;
-
-    vec3 prevPos = transMAD(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPos)));
-         prevPos = (projOrthoMAD(gbufferPreviousProjection, prevPos) / -prevPos.z) * 0.5 + 0.5;
-
-    return currPos - prevPos;
-}
-
 // Thanks LVutner for the help with TAA (buffer management)
 // https://github.com/LVutner
 vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex) {

@@ -8,8 +8,7 @@
 
 #ifdef STAGE_VERTEX
     void main() {
-        gl_Position = vec4(-1.0);
-        return;
+        gl_Position = vec4(1.0);
     }
 #elif defined STAGE_FRAGMENT
     void main() {

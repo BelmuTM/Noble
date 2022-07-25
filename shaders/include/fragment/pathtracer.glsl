@@ -14,7 +14,7 @@
 #if GI == 1
     vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, in float roughness) {
         float NdotV = maxEps(dot(N, V));
-        float NdotL = dot(N, L);
+        float NdotL = clamp01(dot(N, L));
 
         return (fresnel * G2SmithGGX(NdotL, NdotV, roughness)) / G1SmithGGX(NdotV, roughness);
     }

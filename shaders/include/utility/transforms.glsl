@@ -19,30 +19,6 @@ vec3 projOrthoMAD(mat4 mat, vec3 v) { return diag3(mat) * v + mat[3].xyz; }
 vec3 transMAD(mat4 mat, vec3 v)     { return mat3(mat)  * v + mat[3].xyz; }
 
 //////////////////////////////////////////////////////////
-/*------------------ ACCUMULATION ----------------------*/
-//////////////////////////////////////////////////////////
-
-vec3 reproject(vec3 screenPos) {
-    screenPos = screenPos * 2.0 - 1.0;
-
-    vec4 position = gbufferProjectionInverse * vec4(screenPos, 1.0);
-         position = gbufferModelViewInverse * (position / position.w);
-
-    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(screenPos.z >= MC_HAND_DEPTH);
-    
-    position += vec4(cameraOffset, 0.0);
-    position  = gbufferPreviousModelView  * position;
-    position  = gbufferPreviousProjection * position;
-
-    return (position.xyz / position.w) * 0.5 + 0.5;
-}
-
-bool hasMoved() {
-    return gbufferModelView != gbufferPreviousModelView
-		|| cameraPosition   != previousCameraPosition;
-}
-
-//////////////////////////////////////////////////////////
 /*--------------------- SHADOWS ------------------------*/
 //////////////////////////////////////////////////////////
 
@@ -125,4 +101,17 @@ vec3 F0ToIOR(vec3 F0) {
 float IORToF0(float ior) {
 	float a = (ior - airIOR) / (ior + airIOR);
 	return a * a;
+}
+
+//////////////////////////////////////////////////////////
+/*------------------ REPROJECTION ----------------------*/
+//////////////////////////////////////////////////////////
+
+vec3 getVelocity(vec3 currPos) {
+    vec3 cameraOffset = cameraPosition - previousCameraPosition;
+
+    vec3 prevPos = transMAD(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPos)));
+         prevPos = (projOrthoMAD(gbufferPreviousProjection, prevPos) / -prevPos.z) * 0.5 + 0.5;
+
+    return currPos - prevPos;
 }
