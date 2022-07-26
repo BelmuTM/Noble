@@ -34,7 +34,7 @@
 #include "/include/fragment/reflections.glsl"
 
 void main() {
-    color = texture(colortex4, texCoords).rgb;
+    color = texture(colortex5, texCoords).rgb;
 
     #if GI == 0
         #if REFLECTIONS == 1
@@ -55,7 +55,7 @@ void main() {
         #endif
     #else
         #if GI_FILTER == 1
-            aTrousFilter(color, colortex4, texCoords, moments, 3);
+            aTrousFilter(color, colortex5, texCoords, moments, 3);
         #endif
     #endif
 }
