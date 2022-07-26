@@ -88,17 +88,17 @@ float linearizeDepthFast(float depth) {
 /*---------------- MATERIAL CONVERSIONS ----------------*/
 //////////////////////////////////////////////////////////
 
-float F0ToIOR(float F0) {
+float f0ToIOR(float F0) {
 	F0 = sqrt(F0) * 0.99999;
 	return (1.0 + F0) / (1.0 - F0);
 }
 
-vec3 F0ToIOR(vec3 F0) {
+vec3 f0ToIOR(vec3 F0) {
 	F0 = sqrt(F0) * 0.99999;
 	return (1.0 + F0) / (1.0 - F0);
 }
 
-float IORToF0(float ior) {
+float iorToF0(float ior) {
 	float a = (ior - airIOR) / (ior + airIOR);
 	return a * a;
 }

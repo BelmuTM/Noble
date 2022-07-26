@@ -39,26 +39,24 @@ float G2SmithGGX(float NdotL, float NdotV, float roughness) {
 }
 
 // https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
-float fresnelDielectric(float NdotV, float surfaceIOR) {
-    float n1 = airIOR, n2 = surfaceIOR;
-    float sinThetaT = (n1 / n2) * max0(1.0 - pow2(NdotV));
+float fresnelDielectric(float cosTheta, float n1, float n2) {
+    float sinThetaT = (n1 / n2) * max0(1.0 - pow2(cosTheta));
     float cosThetaT = 1.0 - pow2(sinThetaT);
 
     if(sinThetaT >= 1.0) { return 1.0; }
 
-    float sPolar = (n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT);
-    float pPolar = (n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV);
+    float sPolar = (n2 * cosTheta - n1 * cosThetaT) / (n2 * cosTheta + n1 * cosThetaT);
+    float pPolar = (n2 * cosThetaT - n1 * cosTheta) / (n2 * cosThetaT + n1 * cosTheta);
 
     return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
 }
 
-vec3 fresnelDielectric(float NdotV, vec3 surfaceIOR) {
-    vec3 n1 = vec3(airIOR), n2 = surfaceIOR;
-    vec3 sinThetaT = (n1 / n2) * max0(1.0 - pow2(NdotV));
+vec3 fresnelDielectric(float cosTheta, vec3 n1, vec3 n2) {
+    vec3 sinThetaT = (n1 / n2) * max0(1.0 - pow2(cosTheta));
     vec3 cosThetaT = 1.0 - pow2(sinThetaT);
 
-    vec3 sPolar = (n2 * NdotV - n1 * cosThetaT) / (n2 * NdotV + n1 * cosThetaT);
-    vec3 pPolar = (n2 * cosThetaT - n1 * NdotV) / (n2 * cosThetaT + n1 * NdotV);
+    vec3 sPolar = (n2 * cosTheta - n1 * cosThetaT) / (n2 * cosTheta + n1 * cosThetaT);
+    vec3 pPolar = (n2 * cosThetaT - n1 * cosTheta) / (n2 * cosThetaT + n1 * cosTheta);
 
     return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
 }
@@ -127,9 +125,9 @@ vec3 hammonDiffuse(Material mat, vec3 V, vec3 L, bool pt) {
     float smoothSurf;
     if(!pt) {
         float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * rcp(9.0);
-        float ior       = F0ToIOR(mat.F0);
-        float fresnelNL = 1.0 - fresnelDielectric(NdotL, ior);
-        float fresnelNV = 1.0 - fresnelDielectric(NdotV, ior);
+        float ior       = f0ToIOR(mat.F0);
+        float fresnelNL = 1.0 - fresnelDielectric(NdotL, airIOR, ior);
+        float fresnelNV = 1.0 - fresnelDielectric(NdotV, airIOR, ior);
 
         smoothSurf = fresnelNL * fresnelNV / energyConservationFactor;
     } else {
@@ -149,7 +147,7 @@ vec3 fresnelComplex(float cosTheta, Material mat) {
         mat2x3 hcm = getHardcodedMetal(mat);
         n = hcm[0], k = hcm[1];
     } else {
-        n = vec3(F0ToIOR(mat.F0) * airIOR);
+        n = vec3(f0ToIOR(mat.F0) * airIOR);
     }
     return fresnelDieletricConductor(n, k, cosTheta);
 }

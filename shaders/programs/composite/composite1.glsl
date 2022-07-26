@@ -66,7 +66,7 @@ void main() {
         #if REFRACTIONS == 1
             vec3 hitPos;
             if(viewPos0.z != getViewPos1(texCoords).z) {
-                color  = simpleRefractions(viewPos0, mat, hitPos);
+                color += simpleRefractions(viewPos0, mat, hitPos);
                 coords = hitPos.xy;
             }
         #endif
@@ -89,7 +89,7 @@ void main() {
                     float depthDist = inWater ? length(worldPos0) : distance(worldPos0, worldPos1);
                     waterFog(color, depthDist, dot(sceneDir0, sceneSunDir), directIlluminance, skyIlluminance, skyLight);
                 #else
-                    vec3 worldDir  = normalize(inWater ? worldPos0 : worldPos1);
+                    vec3 worldDir = normalize(inWater ? worldPos0 : worldPos1);
                     volumetricWaterFog(color, startPos, endPos, worldDir, directIlluminance, skyIlluminance, skyLight, mat.depth1);
                 #endif
             }
