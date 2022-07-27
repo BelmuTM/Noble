@@ -92,13 +92,17 @@ value.SHADOW_SAMPLES.14 = §c14
 value.SHADOW_SAMPLES.15 = §415
 value.SHADOW_SAMPLES.16 = §416
 
-option.shadowMapResolution = Shadow Quality
+option.shadowMapResolution = Shadow Resolution
 option.shadowMapResolution.comment = Adjusts §bShadow§r resolution. §cHigher resolution gives sharper shadows, but reduces §cperformance.
-value.shadowMapResolution.512 = §aVery Low §7| §a512
-value.shadowMapResolution.1024 = §eLow §7| §e1024
-value.shadowMapResolution.2048 = §6Medium §7| §62048
-value.shadowMapResolution.3072 = §cHigh §7| §c3072
-value.shadowMapResolution.4096 = §4Very High §7| §44096
+value.shadowMapResolution.512 = §b512
+value.shadowMapResolution.1024 = §31024
+value.shadowMapResolution.2048 = §22048
+value.shadowMapResolution.3072 = §a3072
+value.shadowMapResolution.4096 = §e4096
+value.shadowMapResolution.6144 = §66144
+value.shadowMapResolution.8192 = §c8192
+value.shadowMapResolution.10240 = §410240
+suffix.shadowMapResolution = x
 
 ##################### AMBIENT OCCLUSION #####################
 
