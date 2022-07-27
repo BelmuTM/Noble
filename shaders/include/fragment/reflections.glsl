@@ -122,6 +122,8 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), airIOR, ior);
         vec3 hitColor = texture(colortex5, hitPos.xy).rgb;
 
-        return hitColor * (1.0 - fresnel);
+        vec3 beer = exp(-(1.0 - mat.albedo) * clamp(distance(viewToScene(screenToView(hitPos)), viewToScene(getViewPos1(texCoords))), EPS, 2.0));
+
+        return max0(hitColor * (1.0 - fresnel)) * beer;
     }
 #endif

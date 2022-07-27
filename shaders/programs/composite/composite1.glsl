@@ -66,7 +66,7 @@ void main() {
         #if REFRACTIONS == 1
             vec3 hitPos;
             if(viewPos0.z != getViewPos1(texCoords).z) {
-                color  = simpleRefractions(viewPos0, mat, hitPos) * exp(-(1.0 - mat.albedo) * length(hitPos));
+                color  = simpleRefractions(viewPos0, mat, hitPos);
                 coords = hitPos.xy;
             }
         #endif
