@@ -109,7 +109,7 @@ vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float roughness) {
 
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
-vec3 hammonDiffuse(Material mat, vec3 V, vec3 L, bool pt) {
+vec3 hammonDiffuse(Material mat, vec3 V, vec3 L) {
     float alpha = pow2(mat.rough);
 
     vec3 H      = normalize(V + L);
@@ -122,22 +122,17 @@ vec3 hammonDiffuse(Material mat, vec3 V, vec3 L, bool pt) {
     float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
 
     // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
-    float smoothSurf;
-    if(!pt) {
-        float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * rcp(9.0);
-        float ior       = f0ToIOR(mat.F0);
-        float fresnelNL = 1.0 - fresnelDielectric(NdotL, airIOR, ior);
-        float fresnelNV = 1.0 - fresnelDielectric(NdotV, airIOR, ior);
+    float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * rcp(9.0);
+    float ior       = f0ToIOR(mat.F0);
+    float fresnelNL = 1.0 - fresnelDielectric(NdotL, airIOR, ior);
+    float fresnelNV = 1.0 - fresnelDielectric(NdotV, airIOR, ior);
 
-        smoothSurf = fresnelNL * fresnelNV / energyConservationFactor;
-    } else {
-        smoothSurf = 1.05 * (1.0 - pow5(1.0 - NdotL)) * (1.0 - pow5(1.0 - NdotV));
-    }
+    float smoothSurf = fresnelNL * fresnelNV / energyConservationFactor;
+
     float single = mix(smoothSurf, roughSurf, alpha) * RCP_PI;
     float multi  = 0.1159 * alpha;
 
-    if(pt) { return single + mat.albedo * multi;           }
-    else   { return NdotL * (mat.albedo * multi + single); }
+    return NdotL * (mat.albedo * multi + single);
 }
 
 vec3 fresnelComplex(float cosTheta, Material mat) {
@@ -201,7 +196,7 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     vec3  F  = fresnelComplex(VdotH, mat);
     float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
         
-    return clamp01(clamp01(NdotL) * (D * G2) * F / (4.0 * NdotL * NdotV));
+    return max0(clamp01(NdotL) * ((D * G2) * F / (4.0 * NdotL * NdotV)));
 }
 
 vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughMedium) {
@@ -221,18 +216,21 @@ vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughM
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao) {
     V = -normalize(V);
 
-    vec3 diffuse  = hammonDiffuse(mat, V, L, false);
+    mat.lightmap.x = getBlockLightFalloff(mat.lightmap.x);
+    mat.lightmap.y = getSkyLightFalloff(mat.lightmap.y);
+
+    vec3 diffuse  = hammonDiffuse(mat, V, L);
          diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
         if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = HARDCODED_SSS_VAL;
-        diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a);
+        diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * mat.lightmap.y;
     #endif
 
     diffuse *= directLight;
 
-    vec3 blockLight = getBlockLightColor(mat) * getBlockLightFalloff(mat.lightmap.x);
-    vec3 skyLight   = skyIlluminance * RCP_PI * getSkyLightFalloff(mat.lightmap.y);
+    vec3 blockLight = getBlockLightColor(mat) * mat.lightmap.x;
+    vec3 skyLight   = skyIlluminance * RCP_PI * mat.lightmap.y;
 
     diffuse += (blockLight + skyLight) * mat.ao * ao;
     diffuse += mat.emission * BLOCKLIGHT_INTENSITY;

@@ -20,13 +20,13 @@
     }
 
     vec3 directBRDF(vec2 hitPos, vec3 V, vec3 L, Material mat) {
-        vec3 diffuse  = hammonDiffuse(mat, V, L, true);
+        vec3 diffuse  = hammonDiffuse(mat, V, L);
         vec3 specular = SPECULAR == 0 ? vec3(0.0) : computeSpecular(mat.normal, V, L, mat);
 
         vec4 shadowmap = texture(colortex3, hitPos.xy);
 
         #if SUBSURFACE_SCATTERING == 1
-            diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a);
+            diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * mat.lightmap.y;
         #endif
 
         vec3 direct  = mat.albedo * diffuse + specular;
@@ -76,7 +76,8 @@
                     throughput /= roulette;
                 }
                 
-                mat = getMaterial(hitPos.xy);
+                mat            = getMaterial(hitPos.xy);
+                mat.lightmap.y = getSkyLightFalloff(mat.lightmap.y);
 
                 vec3 directLighting  = directBRDF(hitPos.xy, -rayDir, shadowDir, mat);
                      directLighting += getBlockLightColor(mat) * mat.emission;
@@ -95,12 +96,8 @@
 
                 if(!hit) {
                     #if SKY_CONTRIBUTION == 1
-                        vec3 skyHitPos;
-                        raytrace(screenToView(hitPos), skyRayDir, int(GI_STEPS * 0.3), randF(), skyHitPos);
-
-                        if(isSky(skyHitPos.xy)) {
-                            radiance += throughput * texture(colortex0, skyHitPos.xy).rgb;
-                        }
+		                vec3 sky = texture(colortex6, hitPos.xy).rgb;
+                        radiance += throughput * sky * mat.lightmap.y;
                     #endif
                     break;
                 }

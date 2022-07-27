@@ -24,8 +24,8 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
     vec3 minColor = vec3(1e9), maxColor = vec3(-1e9);
 
-    for(int x = -TAA_NEIGHBORHOOD_SIZE; x <= TAA_NEIGHBORHOOD_SIZE; x++) {
-        for(int y = -TAA_NEIGHBORHOOD_SIZE; y <= TAA_NEIGHBORHOOD_SIZE; y++) {
+    for(int x = -TAA_NEIGHBORHOOD_RADIUS; x <= TAA_NEIGHBORHOOD_RADIUS; x++) {
+        for(int y = -TAA_NEIGHBORHOOD_RADIUS; y <= TAA_NEIGHBORHOOD_RADIUS; y++) {
             vec3 color = linearToYCoCg(texelFetch(currTex, ivec2(gl_FragCoord.xy) + ivec2(x, y), 0).rgb);
             minColor = min(minColor, color); 
             maxColor = max(maxColor, color); 
@@ -44,11 +44,11 @@ vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex
     vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
          prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    float weight = clamp01(prevPos.xy) == prevPos.xy ? TAA_STRENGTH : 0.0;
+    float weight = float(clamp01(prevPos.xy) == prevPos.xy) * TAA_STRENGTH;
 
     // Offcenter rejection from Zombye#7365
     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);
          weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
 
-    return YCoCgToLinear(mix(currColor, prevColor, clamp01(weight))); 
+    return yCoCgToLinear(mix(currColor, prevColor, clamp01(weight))); 
 }

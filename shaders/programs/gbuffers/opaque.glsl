@@ -90,11 +90,19 @@
 		#endif
 
 		vec2 encNormal = encodeUnitVector(normalize(normal));
-	
-		data.x = packUnorm4x8(vec4(roughness, (blockId + 0.25) * rcp(maxVal8), max0(lmCoords)));
-		data.y = packUnorm4x8(vec4(ao, emission, F0, subsurface));
-		data.z = (uint(albedoTex.r * maxVal8) << 16u) | (uint(albedoTex.g * maxVal8) << 8u) | uint(albedoTex.b * maxVal8);
-		data.w = (uint(encNormal.x * maxVal16) << 16u) | uint(encNormal.y * maxVal16);
+
+		vec3 data0 = vec3(roughness, lmCoords);
+		vec4 data1 = vec4(ao, emission, F0, subsurface);
+
+		uvec4 shiftedData0  = uvec4(round(data0         * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
+		uvec4 shiftedData1  = uvec4(round(data1         * maxVal8))                              << uvec4(0, 8, 17, 26);
+		uvec3 shiftedAlbedo = uvec3(round(albedoTex.rgb * vec3(2047.0, 1023.0, 2047.0)))         << uvec3(0, 11, 21);
+		uvec2 shiftedNormal = uvec2(round(encNormal     * maxVal16))                             << uvec2(0, 16);
+
+		data.x = shiftedData0.x  | shiftedData0.y  | shiftedData0.z | shiftedData0.w;
+		data.y = shiftedData1.x  | shiftedData1.y  | shiftedData1.z | shiftedData1.w;
+		data.z = shiftedAlbedo.x | shiftedAlbedo.y | shiftedAlbedo.z;
+		data.w = shiftedNormal.x | shiftedNormal.y;
 
 		geometricNormal = geoNormal;
 	}

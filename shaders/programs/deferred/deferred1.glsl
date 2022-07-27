@@ -54,32 +54,29 @@
     in vec3 skyMultScatterIllum;
     in vec3 directIlluminance;
 
-    #if GI == 0
-        #if AO == 1 && AO_FILTER == 1
+    #if GI == 0 && AO == 1 && AO_FILTER == 1
+        float filterAO(sampler2D tex, vec2 coords, Material mat, float scale, float radius, float sigma, int steps) {
+            float ao = 0.0, totalWeight = 0.0;
 
-            float filterAO(sampler2D tex, vec2 coords, Material mat, float scale, float radius, float sigma, int steps) {
-                float ao = 0.0, totalWeight = 0.0;
+            for(int x = -steps; x <= steps; x++) {
+                for(int y = -steps; y <= steps; y++) {
+                    vec2 offset         = vec2(x, y) * radius * pixelSize;
+                    vec2 sampleCoords   = (coords * scale) + offset;
+                    if(clamp01(sampleCoords) != sampleCoords) continue;
 
-                for(int x = -steps; x <= steps; x++) {
-                    for(int y = -steps; y <= steps; y++) {
-                        vec2 offset         = vec2(x, y) * radius * pixelSize;
-                        vec2 sampleCoords   = (coords * scale) + offset;
-                        if(clamp01(sampleCoords) != sampleCoords) continue;
+                    Material sampleMat = getMaterial(coords + offset);
 
-                        Material sampleMat = getMaterial(coords + offset);
+                    float weight  = gaussianDistrib2D(vec2(x, y), sigma);
+                          weight *= getDepthWeight(mat.depth0, sampleMat.depth0, 2.0);
+                          weight *= getNormalWeight(mat.normal, sampleMat.normal, 8.0);
+                          weight  = clamp01(weight);
 
-                        float weight  = gaussianDistrib2D(vec2(x, y), sigma);
-                              weight *= getDepthWeight(mat.depth0, sampleMat.depth0, 2.0);
-                              weight *= getNormalWeight(mat.normal, sampleMat.normal, 8.0);
-                              weight  = clamp01(weight);
-
-                        ao          += texture(tex, sampleCoords).a * weight;
-                        totalWeight += weight;
-                    }
+                    ao          += texture(tex, sampleCoords).a * weight;
+                    totalWeight += weight;
                 }
-                return clamp01(ao * (1.0 / totalWeight));
             }
-        #endif
+            return clamp01(ao * (1.0 / totalWeight));
+        }
     #endif
 
     void main() {

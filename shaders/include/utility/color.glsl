@@ -72,7 +72,7 @@ const mat3 RGB_2_YCoCg_MAT = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.
 const mat3 YCoCg_2_RGB_MAT = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
 
 vec3 linearToYCoCg(vec3 linear) { return RGB_2_YCoCg_MAT * linearToSrgb(linear).rgb; }
-vec3 YCoCgToLinear(vec3 YCoCg)  { return srgbToLinear(YCoCg_2_RGB_MAT * YCoCg).rgb;  }
+vec3 yCoCgToLinear(vec3 YCoCg)  { return srgbToLinear(YCoCg_2_RGB_MAT * YCoCg).rgb;  }
 
 //////////////////////////////////////////////////////////
 /*---------------------- TONEMAPS ----------------------*/

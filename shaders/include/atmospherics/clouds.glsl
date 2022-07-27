@@ -42,7 +42,7 @@ float getCloudsDensity(vec3 position) {
         position.xz += windDirection * frameTimeCounter;
     #endif
     
-    float weatherMap = mix(FBM(position.xz * 2e-3, 3, 0.8) * 0.5 + 0.5, 1.0, wetness);
+    float weatherMap = mix(FBM(position.xz * 4e-4, 4, 3.0) * 0.8 + 0.2, 1.0, wetness);
 
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);

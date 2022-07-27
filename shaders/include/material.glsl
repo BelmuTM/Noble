@@ -24,22 +24,25 @@ struct Material {
 };
 
 Material getMaterial(vec2 coords) {
-    coords         *= viewSize;
-    uvec4 dataTex   = texelFetch(colortex1, ivec2(coords), 0);
-    mat2x4 unpacked = mat2x4(unpackUnorm4x8(dataTex.x), unpackUnorm4x8(dataTex.y));
+    coords       *= viewSize;
+    uvec4 dataTex = texelFetch(colortex1, ivec2(coords), 0);
+    vec4 unpacked = unpackUnorm4x8(dataTex.y);
 
     Material mat;
-    mat.rough      = unpacked[0].x;
-    mat.ao         = unpacked[1].x;
-    mat.emission   = unpacked[1].y;
-    mat.F0         = unpacked[1].z;
-    mat.subsurface = unpacked[1].w;
+    mat.rough      = (dataTex.x & 255u)          * rcpMaxVal8;
+    mat.ao         = (dataTex.y & 255u)          * rcpMaxVal8;
+    mat.emission   = ((dataTex.y >> 8u) & 255u)  * rcpMaxVal8;
+    mat.F0         = ((dataTex.y >> 16u) & 255u) * rcpMaxVal8;
+    mat.subsurface = ((dataTex.y >> 24u) & 255u) * rcpMaxVal8;
 
-    mat.albedo = vec3((dataTex.z >> 16u) & 255u, (dataTex.z >> 8u) & 255u, dataTex.z & 255u) * rcp(maxVal8);
-    mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2((dataTex.w >> 16u) & 65535u, dataTex.w & 65535u) * rcp(maxVal16));
+    mat.albedo.r = (dataTex.z          & 2047u) * rcpMaxVal11;
+	mat.albedo.g = ((dataTex.z >> 11u) & 1023u) * rcpMaxVal10;
+	mat.albedo.b = ((dataTex.z >> 21u) & 2047u) * rcpMaxVal11;
 
-    mat.blockId  = int(unpacked[0].y * maxVal8 + 0.5);
-    mat.lightmap = unpacked[0].zw;
+    mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTex.w & 65535u, (dataTex.w >> 16u) & 65535u) * rcpMaxVal16);
+
+    mat.blockId  = int((dataTex.x >> 26u) & 63u);
+    mat.lightmap = vec2((dataTex.x >> 8u) & 511u, (dataTex.x >> 17u) & 511u) * rcpMaxVal9;
 
     mat.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
     mat.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;
