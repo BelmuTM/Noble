@@ -92,7 +92,9 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
                     hitColor = mix(getSkyFallback(rayDir, mat), hitColor, factor);
                 #endif
 
-                vec3  F  = fresnelComplex(dot(microfacet, -viewDir), mat);
+                float MdotV = dot(microfacet, -viewDir);
+
+                vec3  F  = isEyeInWater == 1 ? vec3(fresnelDielectric(MdotV, 1.333, airIOR)) : fresnelComplex(MdotV, mat);
                 float G1 = G1SmithGGX(NdotV, mat.rough);
                 float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
 
