@@ -121,7 +121,7 @@
 
 					#ifdef WORLD_OVERWORLD
 						if(mat.lightmap.y > EPS) {
-							vec3 tmp;
+							vec3 tmp = vec3(0.0);
 							skyLight = getSkyLight(mat.normal, sampleSkyIlluminance(tmp));
 						}
 						shadowmap.rgb = shadowMap(scenePos, geoNormal, shadowmap.a);

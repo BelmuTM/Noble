@@ -88,13 +88,11 @@ vec3 getBlockLightColor(Material mat) {
         case 5: return blackbody(1573.0) * 500.0; // Lava, magma
         case 6: return blackbody(1900.0) * 800.0; // Flames, fire
 
-        default:
         #if GI == 0
-            return blackbody(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY;
+            default: return blackbody(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY;
         #else
-            return mat.albedo * BLOCKLIGHT_INTENSITY;
+            default: return mat.albedo * BLOCKLIGHT_INTENSITY;
         #endif
-        break;
     }
     return vec3(0.0);
 }
