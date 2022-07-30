@@ -42,7 +42,7 @@ float getCloudsDensity(vec3 position) {
         position.xz += windDirection * frameTimeCounter;
     #endif
     
-    float weatherMap = mix(FBM(position.xz * 4e-4, 4, 3.0) * 0.8 + 0.2, 1.0, wetness);
+    float weatherMap = mix(clamp01((FBM(position.xz * 3e-4, 10, 3.7) * 0.8 + 0.2)), 1.0, wetness);
 
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
@@ -58,11 +58,11 @@ float getCloudsDensity(vec3 position) {
     detailTex = mix(detailTex, vec3(1.0), blueNoiseTex);
 
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - CLOUDS_COVERAGE * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
 
     float detailNoise  = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
           detailNoise  = mix(detailNoise, 1.0 - detailNoise, clamp01(altitude * 5.0));
-          detailNoise *= (0.35 * exp(-CLOUDS_COVERAGE * 0.75));
+          detailNoise *= (0.35 * exp(-0.7 * 0.75));
 
     return clamp01(remap(shapeNoise, detailNoise, 1.0, 0.0, 1.0)) * densityAlter;
 }

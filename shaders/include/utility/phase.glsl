@@ -35,3 +35,10 @@ float kleinNishinaPhase(float cosTheta, float g) {
     }
     return e / (TAU * (e * (1.0 - cosTheta) + 1.0) * log(2.0 * e + 1.0));
 }
+
+// Provided by Jessie#7257
+// Phase function specifically designed for leaves
+float biLambertianPlatePhaseFunction(in float kd, in float cosTheta) {
+    float phase = 2.0 * (-PI * kd * cosTheta + sqrt(1.0 - pow2(cosTheta)) + cosTheta * acos(-cosTheta));
+    return phase / (3.0 * pow2(PI));
+}

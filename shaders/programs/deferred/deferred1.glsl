@@ -115,20 +115,21 @@
             //////////////////////////////////////////////////////////
             skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(bentNormal, skyIlluminanceMat) : vec3(0.0);
 
-            vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
-                 sky    = atmosphericScattering(skyRay, skyMultScatterIllum);
+            if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION)) == texCoords) {
+                vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
+                     sky    = atmosphericScattering(skyRay, skyMultScatterIllum);
+            }
 
             //////////////////////////////////////////////////////////
             /*---------------- VOLUMETRIC CLOUDS -------------------*/
             //////////////////////////////////////////////////////////
             #if CLOUDS == 1
-                vec2 cloudsCoords = texCoords * rcp(CLOUDS_RESOLUTION);
                 
                 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
-                if(clamp01(cloudsCoords) == cloudsCoords) {
+                if(clamp(texCoords, vec2(0.0), vec2(CLOUDS_RESOLUTION)) == texCoords) {
                     float distToCloud;
-                    vec3 cloudsRay = normalize(unprojectSphere(cloudsCoords));
+                    vec3 cloudsRay = normalize(unprojectSphere(texCoords * rcp(CLOUDS_RESOLUTION)));
                          clouds    = cloudsScattering(cloudsRay, distToCloud, directIlluminance, skyMultScatterIllum);
 
                     /* Aerial Perspective */
