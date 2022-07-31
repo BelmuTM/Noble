@@ -12,6 +12,16 @@
 */
 
 #if GI == 1
+    // Provided by Jessie#7257
+    float hemisphericalAlbedo(in float n) {
+        float n2  = pow2(n);
+        float T_1 = (4.0 * (2.0 * n + 1.0)) / (3.0 * pow2(n + 1.0));
+        float T_2 = ((4.0 * pow3(n) * (n2 + 2.0 * n - 1.0)) / (pow2(n2 + 1.0) * (n2 - 1.0))) - 
+                ((2.0 * n2 * (n2 + 1.0) * log(n)) / pow2(n2 - 1.0)) +
+                ((2.0 * n2 * pow2(n2 - 1.0) * log((n * (n + 1.0)) / (n-  1.0))) / pow3(n2 + 1.0));
+        return clamp01(1.0 - 0.5 * (T_1 + T_2));
+    }
+
     vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, in float roughness) {
         float NdotV = maxEps(dot(N, V));
         float NdotL = clamp01(dot(N, L));
@@ -37,7 +47,7 @@
     vec3 indirectBRDF(vec2 noise, Material mat, inout vec3 rayDir) {
         mat3 TBN        = constructViewTBN(mat.normal);
         vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, mat.rough);
-        vec3 fresnel    = fresnelComplex(dot(-rayDir, microfacet), mat);
+        vec3 fresnel    = fresnelComplex(dot(microfacet, -rayDir), mat);
 
         // Specular bounce probability from https://www.shadertoy.com/view/ssc3WH
         float specular     = clamp01(luminance(fresnel));
@@ -50,8 +60,14 @@
             BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.rough) / specularProb;
             rayDir      = newDir;
         } else {
+            float matIOR                   = f0ToIOR(mat.F0);
+            float energyConservationFactor = 1.0 - hemisphericalAlbedo(matIOR * rcp(airIOR));
+
             rayDir = generateCosineVector(mat.normal, noise);
-            BRDF   = mat.albedo * (1.0 - fresnel) / (1.0 - specularProb);
+            BRDF   = (1.0 - fresnel) / (1.0 - specularProb);
+            BRDF  /= energyConservationFactor;
+            BRDF  *= (1.0 - fresnelDielectric(dot(mat.normal, rayDir), airIOR, matIOR));
+            BRDF  *= mat.albedo * mat.ao;
         }
         return BRDF;
     }
