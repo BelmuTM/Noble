@@ -127,7 +127,7 @@ const int phaseMultiSamples = 8;
         vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * rcp(WATER_FOG_STEPS);
         vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
 
-        float rayLength = distance(startPos, endPos) * rcp(WATER_FOG_STEPS);
+        float rayLength = (sky ? far : distance(startPos, endPos)) * rcp(WATER_FOG_STEPS);
 
         vec3 opticalDepth       = waterExtinctionCoeff * rayLength;
         vec3 stepTransmittance  = exp(-opticalDepth);
