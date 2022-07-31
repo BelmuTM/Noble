@@ -128,16 +128,17 @@
                 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
                 if(clamp(texCoords, vec2(0.0), vec2(CLOUDS_RESOLUTION)) == texCoords) {
+                    vec3 scaledViewDir = normalize(getViewPos1(texCoords * rcp(CLOUDS_RESOLUTION)));
+
                     float distToCloud;
-                    vec3 cloudsRay = normalize(unprojectSphere(texCoords * rcp(CLOUDS_RESOLUTION)));
+                    vec3 cloudsRay = mat3(gbufferModelViewInverse) * scaledViewDir;
                          clouds    = cloudsScattering(cloudsRay, distToCloud, directIlluminance, skyMultScatterIllum);
 
                     /* Aerial Perspective */
                     clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-1e-4 * distToCloud));
 
                     /* Reprojection */
-                    /*
-                    vec3 prevPos    = reprojectClouds(normalize(viewPos) * distToCloud);
+                    vec3 prevPos    = reprojectClouds(viewPos, 1e4 * distToCloud);
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
                     // Offcenter rejection from Zombye#7365
@@ -145,15 +146,11 @@
                     float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.5 + 0.5;
 
                     vec2  velocity       = (texCoords - prevPos.xy) * viewSize;
-                    float velocityWeight = exp(-length(velocity)) * 0.6 + 0.4;
+                    float velocityWeight = exp(-length(velocity)) * 0.7 + 0.3;
 
-                    float frames      = texture(colortex12, texCoords).a;
-                    float frameWeight = 1.0 - (1.0 / max(frames, 1.0));
+                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy));
 
-                    float weight = clamp01(frameWeight * velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy));
-
-                    clouds = mix(clouds, prevClouds, 0.0);
-                    */
+                    clouds = mix(clouds, prevClouds, 0.9 * weight);
                 }
             #endif
         #endif

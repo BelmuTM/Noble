@@ -34,12 +34,13 @@ float densityAlter(float altitude, float weatherMap) {
     return densityAlter * 1.5;
 }
 
+vec2 wind = WIND_SPEED * frameTimeCounter * sincos(-0.785398);
+
 float getCloudsDensity(vec3 position) {
-    float altitude     = (position.y - innerCloudRad) * rcp(CLOUDS_THICKNESS);
-    vec2 windDirection = WIND_SPEED * sincos(-0.785398);
+    float altitude = (position.y - innerCloudRad) * rcp(CLOUDS_THICKNESS);
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
-        position.xz += windDirection * frameTimeCounter;
+        position.xz += wind;
     #endif
     
     float weatherMap = mix(clamp01((FBM(position.xz * 3e-4, 10, 3.7) * 0.8 + 0.2)), 1.0, wetness);
@@ -147,7 +148,7 @@ vec4 cloudsScattering(vec3 rayDir, out float distToCloud, vec3 directIlluminance
         transmittance *= stepTransmittance;
     }
     transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
-    distToCloud   = maxEps(depthSum / depthWeight);
+    distToCloud   = depthWeight < 1e-5 ? 1e4 : depthSum / depthWeight;
 
     vec3 finalScattering;
     finalScattering += scattering.x * directIlluminance;
@@ -178,8 +179,11 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
     return exp(-transmittance * stepLength);
 }
 
-vec3 reprojectClouds(in vec3 position) {
-    position = transMAD(gbufferPreviousModelView, viewToScene(position) + (cameraPosition - previousCameraPosition));
-    position = projOrthoMAD(gbufferPreviousProjection, position) / -position.z;
-    return position * 0.5 + 0.5;
+vec3 reprojectClouds(vec3 viewPos, float distToCloud) {
+    vec3 offset = (previousCameraPosition - cameraPosition) + vec3(wind.x, 0.0, wind.y);
+
+    vec3 position = normalize(mat3(gbufferModelViewInverse) * viewPos) * distToCloud * rcp(CLOUDS_RESOLUTION);
+         position = transMAD(gbufferPreviousModelView, position + gbufferModelViewInverse[3].xyz - offset);
+         position = (projOrthoMAD(gbufferPreviousProjection, position) / -position.z) * 0.5 + 0.5;
+    return position;
 }
