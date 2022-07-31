@@ -164,7 +164,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define CLOUDS_SWIRL      0.10  // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define WIND_SPEED        10.0  // [5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0 90.0 95.0 100.0]
 
-#define FOG      1 // [0 1]
+#define AIR_FOG  1 // [0 1]
 #define VL_STEPS 8 // [4 8 16 32]
 
 #define VL_ALTITUDE      64.0

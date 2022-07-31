@@ -306,10 +306,10 @@ option.CLOUDS_THICKNESS.comment = Adjusts the thickness of §bClouds§r.
 option.CLOUDS_SWIRL = Clouds Swirliness
 option.CLOUDS_SWIRL.comment = Adjusts the swirliness of §bClouds§r.
 
-option.FOG = Fog
-option.FOG.comment = Simulates light scattering in dense particles. §aApproximation§r fog is a semi-accurate way of computing it. §aVolumetric§r fog uses ray marching and complex calculations to compute it more accurately.
-value.FOG.0 = §e§lApproximation
-value.FOG.1 = §e§lVolumetric
+option.AIR_FOG = Fog
+option.AIR_FOG.comment = Simulates light scattering in dense particles. §aApproximation§r fog is a semi-accurate way of computing it. §aVolumetric§r fog uses ray marching and complex calculations to compute it more accurately.
+value.AIR_FOG.0 = §e§lApproximation
+value.AIR_FOG.1 = §e§lVolumetric
 
 option.VL_STEPS = Volumetric Fog Steps
 option.VL_STEPS.comment = Influences §bVolumetric Fog§r's accuracy. §cHigher value gives better results, but reduces §cperformance.

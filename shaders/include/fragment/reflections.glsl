@@ -121,11 +121,14 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
         if(!hit || isHand(hitPos.xy)) { hitPos.xy = texCoords; }
 
-        float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), airIOR, ior);
+        float n1 = airIOR, n2 = ior;
+        if(isEyeInWater == 1) { n1 = 1.333; n2 = airIOR; }
+
+        float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), n1, n2);
         vec3 hitColor = texture(colortex5, hitPos.xy).rgb;
 
         vec3 beer = exp(-(1.0 - mat.albedo) * clamp(distance(viewToScene(screenToView(hitPos)), viewToScene(getViewPos1(texCoords))), EPS, 2.0));
 
-        return max0(hitColor * (1.0 - fresnel)) * beer;
+        return max0(hitColor * (1.0 - fresnel) * beer);
     }
 #endif
