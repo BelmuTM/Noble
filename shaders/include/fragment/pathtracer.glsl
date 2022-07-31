@@ -39,9 +39,10 @@
         vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, mat.rough);
         vec3 fresnel    = fresnelComplex(dot(-rayDir, microfacet), mat);
 
-        float fresnelLum   = luminance(fresnel);
-        float totalLum     = luminance(mat.albedo) * (1.0 - fresnelLum) + fresnelLum;
-        float specularProb = fresnelLum / totalLum;
+        // Specular bounce probability from https://www.shadertoy.com/view/ssc3WH
+        float specular     = clamp01(luminance(fresnel));
+        float diffuse      = luminance(mat.albedo) * (1.0 - float(mat.F0 * maxVal8 > 229.5)) * (1.0 - specular);
+        float specularProb = specular / maxEps(specular + diffuse);
  
         vec3 BRDF = vec3(0.0);
         if(specularProb > randF()) {
@@ -50,7 +51,7 @@
             rayDir      = newDir;
         } else {
             rayDir = generateCosineVector(mat.normal, noise);
-            BRDF   = mat.albedo * RCP_PI * (1.0 - fresnel) / (1.0 - specularProb);
+            BRDF   = mat.albedo * (1.0 - fresnel) / (1.0 - specularProb);
         }
         return BRDF;
     }
