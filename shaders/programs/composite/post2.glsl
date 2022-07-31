@@ -106,8 +106,8 @@ layout (location = 0) out vec3 color;
         int bL   = int(color.b);
         int bH   = bL + 1;
 
-        vec2 offLo = vec2(bL % lutTile.x, bL / lutTile.x) * invLutTile;
-        vec2 offHi = vec2(bH % lutTile.x, bH / lutTile.x) * invLutTile;
+        vec2 offLo = vec2(bL % lutTile, bL / lutTile) * invLutTile;
+        vec2 offHi = vec2(bH % lutTile, bH / lutTile) * invLutTile;
 
         color = mix(
             textureLodLinearRGB(lookupTable, (offLo + color.rg * invLutTile) * lutGrid[0] + lutGrid[1], lutTexSize, 0).rgb,
