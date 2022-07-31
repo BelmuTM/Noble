@@ -47,9 +47,11 @@ void main() {
 
     vec3 directIlluminance = sampleDirectIlluminance();
     vec3 skyIlluminance    = texture(colortex6, texCoords).rgb * RCP_PI;
-    float skyLight         = 0.0;
 
-    if(!isSky(texCoords)) {
+    bool  sky      = isSky(texCoords);
+    float skyLight = 0.0;
+
+    if(!sky) {
         skyLight = getSkyLightFalloff(mat.lightmap.y);
 
         //////////////////////////////////////////////////////////
@@ -89,7 +91,7 @@ void main() {
                     #if WATER_FOG == 0
                         waterFog(color, worldPos0, worldPos1, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #else
-                        volumetricWaterFog(color, worldPos0, worldPos1, VdotL, directIlluminance, skyIlluminance, skyLight, mat.depth1);
+                        volumetricWaterFog(color, worldPos0, worldPos1, VdotL, directIlluminance, skyIlluminance, skyLight, false);
                     #endif
                 } else {
                     #if AIR_FOG == 1
@@ -130,7 +132,7 @@ void main() {
             #if WATER_FOG == 0
                 waterFog(color, gbufferModelViewInverse[3].xyz, worldPos0, VdotL, directIlluminance, skyIlluminance, skyLight);
             #else
-                volumetricWaterFog(color, gbufferModelViewInverse[3].xyz, worldPos0, VdotL, directIlluminance, skyIlluminance, skyLight, mat.depth1);
+                volumetricWaterFog(color, gbufferModelViewInverse[3].xyz, worldPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
             #endif
         } else {
             #if AIR_FOG == 1

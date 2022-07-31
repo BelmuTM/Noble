@@ -117,7 +117,7 @@ const int phaseMultiSamples = 8;
 #else
 
     // Thanks Jessie#7257 for the help!
-    void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, float depth1) {
+    void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
         float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
 
         vec3 increment = (endPos - startPos) * rcp(WATER_FOG_STEPS);
@@ -127,13 +127,13 @@ const int phaseMultiSamples = 8;
         vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * rcp(WATER_FOG_STEPS);
         vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
 
-        float rayLength = (depth1 == 1.0 ? far : distance(startPos, endPos)) * rcp(WATER_FOG_STEPS);
+        float rayLength = distance(startPos, endPos) * rcp(WATER_FOG_STEPS);
 
         vec3 opticalDepth       = waterExtinctionCoeff * rayLength;
         vec3 stepTransmittance  = exp(-opticalDepth);
         vec3 scatteringIntegral = (1.0 - stepTransmittance) / waterExtinctionCoeff;
 
-        mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 transmittance = vec3(1.0);
+        mat2x3 scatteringMat = mat2x3(vec3(0.0), vec3(0.0)); vec3 transmittance = vec3(1.0);
 
         for(int i = 0; i < WATER_FOG_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
             vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5);
@@ -142,18 +142,18 @@ const int phaseMultiSamples = 8;
                 float phase = mix(kleinNishinaPhase(VdotL, 0.6), isotropicPhase, float(n) * rcp(3.0));
                 float aN = pow(0.6, n), bN = pow(0.4, n);
 
-                mat2x3 stepScattering = mat2x3(vec3(0.0), vec3(0.0));
-                stepScattering[0] = exp(-opticalDepth * bN) * shadowColor * phase          * waterScatteringCoeff * scatteringIntegral;
-                stepScattering[1] = exp(-opticalDepth * bN) * skyLight    * isotropicPhase * waterScatteringCoeff * scatteringIntegral;
+                mat2x3 stepScatteringMat = mat2x3(vec3(0.0), vec3(0.0));
+                stepScatteringMat[0] = exp(-opticalDepth * bN) * shadowColor * phase          * waterScatteringCoeff * scatteringIntegral;
+                stepScatteringMat[1] = exp(-opticalDepth * bN) * skyLight    * isotropicPhase * waterScatteringCoeff * scatteringIntegral;
 
-                scattering[0] += stepScattering[0] * transmittance * aN;
-                scattering[1] += stepScattering[1] * transmittance * aN;
+                scatteringMat[0] += stepScatteringMat[0] * transmittance * aN;
+                scatteringMat[1] += stepScatteringMat[1] * transmittance * aN;
             }
             transmittance *= stepTransmittance;
         }
 
-        scattering[0] *= directIlluminance;
-        scattering[1] *= skyIlluminance;
+        scatteringMat[0] *= directIlluminance;
+        scatteringMat[1] *= skyIlluminance;
 
         // Multiple scattering approximation provided by Zombye#7365
         /*
@@ -170,7 +170,10 @@ const int phaseMultiSamples = 8;
              multipleScattering += indirectScattering * isotropicPhase;
              multipleScattering *= multScatteringFactor / (1.0 - multScatteringFactor);
         */
+
+        vec3 scattering = scatteringMat[0] + scatteringMat[1];
+        if(sky) { transmittance = vec3(0.0); }
     
-        color = color * transmittance + (scattering[0] + scattering[1]);
+        color = color * transmittance + scattering;
     }
 #endif
