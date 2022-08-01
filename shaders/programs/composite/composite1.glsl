@@ -77,8 +77,7 @@ void main() {
             #if REFRACTIONS == 1
                 color = simpleRefractions(viewPos0, mat, coords);
                 mat   = getMaterial(coords.xy);
-
-                worldPos0 = transMAD(gbufferModelViewInverse, getViewPos0(coords.xy));
+                
                 worldPos1 = transMAD(gbufferModelViewInverse, getViewPos1(coords.xy));
             #endif
 
