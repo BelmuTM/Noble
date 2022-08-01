@@ -72,20 +72,17 @@
 
 		#ifdef PROGRAM_TERRAIN
 			#if RAIN_PUDDLES == 1
-				if(F0 * maxVal8 <= 229.5) {
-					vec2 puddleCoords = (viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
+				vec2 puddleCoords = (viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
 
-					float puddle  = quintic(0.0, 1.0, FBM(puddleCoords, 1, 1.3) * 0.5 + 0.5);
-		  	  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
-	  				  	  puddle *= (1.0 - porosity);
-			  	  	  	  puddle *= wetness;
-			  	  	  	  puddle *= quintic(0.89, 0.99, normal.y);
-						  puddle  = clamp01(puddle);
+				float puddle  = quintic(0.0, 1.0, FBM(puddleCoords, 1, 1.3) * 0.5 + 0.5);
+		  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
+	  				  puddle *= (1.0 - porosity);
+			  	  	  puddle *= wetness;
+			  	  	  puddle *= quintic(0.89, 0.99, normal.y);
+					  puddle  = clamp01(puddle);
 	
-					F0        = mix(F0, waterF0,       puddle);
-					roughness = mix(roughness, 0.0,    puddle);
-					normal    = mix(normal, geoNormal, puddle);
-				}
+				roughness = mix(roughness, 0.0,    puddle);
+				normal    = mix(normal, geoNormal, puddle);
 			#endif
 		#endif
 
