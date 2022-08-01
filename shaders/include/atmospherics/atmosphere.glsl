@@ -22,11 +22,11 @@ vec3 getAtmosDensities(float centerDist) {
 	vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * 1e-3));
 
     // Ozone approximation from Jessie#7257
-    float o1 = 25.0 *     exp(( 0.0 - altitudeKm) /   8.0);
-    float o2 = 30.0 * pow(exp((18.0 - altitudeKm) /  80.0), altitudeKm - 18.0);
-    float o3 = 75.0 * pow(exp((25.3 - altitudeKm) /  35.0), altitudeKm - 25.3);
-    float o4 = 50.0 * pow(exp((30.0 - altitudeKm) / 150.0), altitudeKm - 30.0);
-    float ozone = (o1 + o2 + o3 + o4) / 134.628;
+    float o1 = 25.0 *     exp(( 0.0 - altitudeKm) * rcp(  8.0));
+    float o2 = 30.0 * pow(exp((18.0 - altitudeKm) * rcp( 80.0)), altitudeKm - 18.0);
+    float o3 = 75.0 * pow(exp((25.3 - altitudeKm) * rcp( 35.0)), altitudeKm - 25.3);
+    float o4 = 50.0 * pow(exp((30.0 - altitudeKm) * rcp(150.0)), altitudeKm - 30.0);
+    float ozone = (o1 + o2 + o3 + o4) * rcp(134.628);
 
 	return vec3(rayleighMie, ozone);
 }
@@ -52,7 +52,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         vec3 increment   = rayDir * stepLength;
         vec3 rayPos      = atmosRayPos + increment * 0.5;
 
-        vec2 VdotL = vec2(dot(rayDir, sceneSunDir), dot(rayDir, sceneMoonDir));
+        vec2 VdotL = vec2(dot(rayDir, sunVector), dot(rayDir, moonVector));
         vec4 phase = vec4(
             vec2(rayleighPhase(VdotL.x), kleinNishinaPhase(VdotL.x, anisotropyFactor)), 
             vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, anisotropyFactor))
@@ -69,8 +69,8 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec3 sunStepScattering  = atmosScatteringCoeff * (airmass.xy * phase.xy) * visibleScattering;
             vec3 moonStepScattering = atmosScatteringCoeff * (airmass.xy * phase.zw) * visibleScattering;
 
-            singleScattering[0] += sunStepScattering  * atmosphereTransmittance(rayPos, sceneSunDir);
-            singleScattering[1] += moonStepScattering * atmosphereTransmittance(rayPos, sceneMoonDir);
+            singleScattering[0] += sunStepScattering  * atmosphereTransmittance(rayPos, sunVector);
+            singleScattering[1] += moonStepScattering * atmosphereTransmittance(rayPos, moonVector);
 
             vec3 stepScattering    = atmosScatteringCoeff * airmass.xy;
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
@@ -93,8 +93,8 @@ vec3 sampleDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
     #ifdef WORLD_OVERWORLD
-        vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, sceneSunDir)  * sunIlluminance;
-        vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, sceneMoonDir) * moonIlluminance;
+        vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, sunVector)  * sunIlluminance;
+        vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, moonVector) * moonIlluminance;
         directIlluminance = sunTransmit + moonTransmit;
 
         #if TONEMAP == 0
@@ -116,9 +116,9 @@ mat3[2] sampleSkyIlluminance(inout vec3 skyMultScatterIllum) {
                 vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
                 vec3 atmoSample = texture(colortex0, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
 
-                skyIllum[0][0] += atmoSample * clamp01(dir.x);
-                skyIllum[0][1] += atmoSample * clamp01(dir.y);
-                skyIllum[0][2] += atmoSample * clamp01(dir.z);
+                skyIllum[0][0] += atmoSample * clamp01( dir.x);
+                skyIllum[0][1] += atmoSample * clamp01( dir.y);
+                skyIllum[0][2] += atmoSample * clamp01( dir.z);
                 skyIllum[1][0] += atmoSample * clamp01(-dir.x);
                 skyIllum[1][2] += atmoSample * clamp01(-dir.z);
 

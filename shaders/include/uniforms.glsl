@@ -6,9 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-uniform vec3 shadowLightPosition;
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
+uniform vec3 shadowLightPosition;
+uniform vec3 sunVector;
+uniform vec3 moonVector;
+uniform vec3 shadowLightVector;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
@@ -88,7 +91,5 @@ const float rcpMaxVal10 = 0.00097751;
 const float rcpMaxVal11 = 0.00048851;
 const float rcpMaxVal16 = 0.00001525;
 
-vec3 shadowDir      = shadowLightPosition * 0.01;
-vec3 sceneShadowDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition + gbufferModelViewInverse[3].xyz);
-vec3 sceneSunDir    = normalize(mat3(gbufferModelViewInverse) * sunPosition         + gbufferModelViewInverse[3].xyz);
-vec3 sceneMoonDir   = normalize(mat3(gbufferModelViewInverse) * moonPosition        + gbufferModelViewInverse[3].xyz);
+vec3 shadowDir = shadowLightPosition * 0.01;
+

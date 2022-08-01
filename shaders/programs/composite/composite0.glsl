@@ -26,12 +26,14 @@
     layout (location = 1) out vec3 reflections;
 #endif
 
-#include "/include/fragment/brdf.glsl"
+#if GI == 0 && REFLECTIONS == 1
+    #include "/include/fragment/brdf.glsl"
+    
+    #include "/include/atmospherics/celestial.glsl"
 
-#include "/include/atmospherics/celestial.glsl"
-
-#include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/reflections.glsl"
+    #include "/include/fragment/raytracer.glsl"
+    #include "/include/fragment/reflections.glsl"
+#endif
 
 void main() {
     color = texture(colortex4, texCoords).rgb;

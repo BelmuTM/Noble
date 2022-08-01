@@ -6,6 +6,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#include "/include/fragment/raytracer.glsl"
+
 #if GI == 1
     /* RENDERTARGETS: 5,10,11,12 */
 
@@ -13,6 +15,8 @@
     layout (location = 1) out vec4 history0;
     layout (location = 2) out vec3 history1;
     layout (location = 3) out vec4 moments;
+
+    #include "/include/fragment/pathtracer.glsl"
 #else
     /* RENDERTARGETS: 5,12 */
 
@@ -24,10 +28,6 @@
 
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
-
-#include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/pathtracer.glsl"
-#include "/include/fragment/shadows.glsl"
 
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
 

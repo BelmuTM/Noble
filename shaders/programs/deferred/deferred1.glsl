@@ -141,7 +141,7 @@
                     vec3 prevPos    = reprojectClouds(viewPos, 1e4 * distToCloud);
                     vec4 prevClouds = texture(colortex15, prevPos.xy);
 
-                    // Offcenter rejection from Zombye#7365
+                    // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);
                     float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.5 + 0.5;
 

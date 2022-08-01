@@ -46,7 +46,7 @@ vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex
 
     float weight = float(clamp01(prevPos.xy) == prevPos.xy) * TAA_STRENGTH;
 
-    // Offcenter rejection from Zombye#7365
+    // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);
          weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
 

@@ -11,7 +11,7 @@ const float anisotropyFactor = 0.76;
 const float isotropicPhase   = 0.07957747;
 
 const float earthRad      = 6371e3;           // meters
-const float atmosLowerRad = earthRad - 2e3;   // meters
+const float atmosLowerRad = earthRad - 3e3;   // meters
 const float atmosUpperRad = earthRad + 110e3; // meters
 
 const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // meters

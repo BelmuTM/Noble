@@ -53,7 +53,7 @@ void main() {
 		#endif
 
 		#ifdef PROGRAM_WEATHER
-			worldPos.xz += RAIN_DIRECTION * worldPos.y * RAIN_ANGLE_INTENSITY;
+			worldPos.xz += RAIN_DIRECTION * worldPos.y;
 		#endif
 	#endif
 	

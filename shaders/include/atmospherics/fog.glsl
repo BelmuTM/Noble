@@ -26,7 +26,7 @@ vec3 getVlDensities(in float height) {
         vec3 transmittance       = exp(-opticalDepth);
         vec3 transmittedFraction = clamp01((transmittance - 1.0) / -opticalDepth);
 
-        float VdotL = dot(normalize(scenePos), sceneShadowDir);
+        float VdotL = dot(normalize(scenePos), shadowLightVector);
         vec2  phase = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, anisotropyFactor));
 
 	    vec3 scattering  = atmosScatteringCoeff * vec2(airmass * phase)          * (directIlluminance * skyLight);
@@ -79,7 +79,7 @@ vec3 getVlDensities(in float height) {
 
             vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5);
 
-            scattering[0] += stepScatteringDirect   * vlTransmittance(rayPos, sceneShadowDir) * shadowColor;
+            scattering[0] += stepScatteringDirect   * vlTransmittance(rayPos, shadowLightVector) * shadowColor;
             scattering[1] += stepScatteringIndirect * vlTransmittance(rayPos, vec3(0.0, 1.0, 0.0));
             transmittance *= stepTransmittance;
         }

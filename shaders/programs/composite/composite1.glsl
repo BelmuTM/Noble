@@ -43,7 +43,7 @@ void main() {
     vec3 worldPos0 = transMAD(gbufferModelViewInverse, viewPos0);
     vec3 worldPos1 = transMAD(gbufferModelViewInverse, viewPos1);
 
-    float VdotL = dot(normalize(worldPos0), sceneShadowDir);
+    float VdotL = dot(normalize(worldPos0), shadowLightVector);
 
     vec3 directIlluminance = sampleDirectIlluminance();
     vec3 skyIlluminance    = texture(colortex6, texCoords).rgb * RCP_PI;

@@ -127,7 +127,7 @@
 						shadowmap.rgb = shadowMap(scenePos, geoNormal, shadowmap.a);
 					#endif
 
-					sceneColor = computeDiffuse(scenePos, sceneShadowDir, mat, shadowmap, directIlluminance, skyLight, 1.0);
+					sceneColor = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyLight, 1.0);
 				}
 			#endif
 		}

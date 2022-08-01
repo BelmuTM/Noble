@@ -99,7 +99,7 @@ vec4 cloudsScattering(vec3 rayDir, out float distToCloud, vec3 directIlluminance
     vec3 increment   = rayDir * stepLength;
     vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * randF());
 
-    float VdotL        = dot(rayDir, sceneShadowDir);
+    float VdotL        = dot(rayDir, shadowLightVector);
     const vec3 up      = vec3(0.0, 1.0, 0.0);
     float bouncedLight = abs(dot(rayDir, -up)) * RCP_PI * 0.5 * isotropicPhase;
 
@@ -118,7 +118,7 @@ vec4 cloudsScattering(vec3 rayDir, out float distToCloud, vec3 directIlluminance
         float stepOpticalDepth  = cloudsExtinctionCoeff * density * stepLength;
         float stepTransmittance = exp(-stepOpticalDepth);
 
-        float directOpticalDepth = getCloudsOpticalDepth(rayPos, sceneShadowDir, 8);
+        float directOpticalDepth = getCloudsOpticalDepth(rayPos, shadowLightVector, 8);
         float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,             6);
         float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,             3);
 

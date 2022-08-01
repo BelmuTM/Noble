@@ -15,23 +15,6 @@ layout (location = 2) out vec4 previousBuffer;
 #include "/include/post/bloom.glsl"
 #include "/include/post/taa.glsl"
 
-/*
-        vec3 filterVL(sampler2D tex, vec2 coords, Material mat, float radius, float sigma, int steps) {
-            vec3 color = vec3(0.0);
-
-            for(int x = -steps; x <= steps; x++) {
-                for(int y = -steps; y <= steps; y++) {
-                    vec2 sampleCoords = coords + vec2(x, y) * radius * pixelSize;
-                    if(clamp01(sampleCoords) != sampleCoords) continue;
-
-                    float weight = gaussianDistrib2D(vec2(x, y), sigma);
-                    color       += texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb * weight;
-                }
-            }
-            return color;
-        }
-*/
-
 #if DOF == 1
     // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
     float getCoC(float fragDepth, float cursorDepth) {

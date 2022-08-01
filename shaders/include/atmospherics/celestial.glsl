@@ -26,18 +26,18 @@ vec3 computeStarfield(vec3 viewPos) {
 }
 
 vec3 physicalSun(vec3 sceneDir) {
-    return dot(sceneDir, sceneSunDir) < cos(sunAngularRad) ? vec3(0.0) : sunLuminance * RCP_PI;
+    return dot(sceneDir, sunVector) < cos(sunAngularRad) ? vec3(0.0) : sunLuminance * RCP_PI;
 }
 
 vec3 physicalMoon(vec3 sceneDir) {
-    vec2 sphere = intersectSphere(-sceneMoonDir, sceneDir, moonAngularRad);
+    vec2 sphere = intersectSphere(-moonVector, sceneDir, moonAngularRad);
 
 	Material moonMat;
-	moonMat.normal = normalize(sceneDir * sphere.x - sceneMoonDir);
+	moonMat.normal = normalize(sceneDir * sphere.x - moonVector);
 	moonMat.albedo = vec3(moonAlbedo);
 	moonMat.rough  = moonRoughness;
 
-    return sphere.y < 0.0 ? vec3(0.0) : moonMat.albedo * hammonDiffuse(moonMat, -sceneDir, sceneSunDir) * sunIlluminance;
+    return sphere.y < 0.0 ? vec3(0.0) : moonMat.albedo * hammonDiffuse(moonMat, -sceneDir, sunVector) * sunIlluminance;
 }
 
 vec3 computeSky(vec3 viewPos) {

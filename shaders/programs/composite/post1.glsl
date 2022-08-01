@@ -33,7 +33,9 @@
     layout (location = 0) out vec4 color;
     layout (location = 1) out vec4 history;
 
-    #include "/include/post/taa.glsl"
+    #if TAA == 1
+        #include "/include/post/taa.glsl"
+    #endif
 
     in float avgLuminance;
 
