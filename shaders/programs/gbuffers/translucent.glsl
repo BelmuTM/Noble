@@ -28,7 +28,7 @@
 
 	void main() {
 		texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-		lmCoords    = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+		lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor = gl_Color;
 
     	geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);

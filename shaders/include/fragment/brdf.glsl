@@ -221,21 +221,27 @@ vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughM
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao) {
     V = -normalize(V);
 
-    mat.lightmap.x = getBlockLightFalloff(mat.lightmap.x);
-    mat.lightmap.y = getSkyLightFalloff(mat.lightmap.y);
+    float falloff0 = mat.blockId >= 5 && mat.blockId < 8 && DIRECTIONAL_LIGHTMAP == 1 ? 1.0 : getBlockLightFalloff(mat.lightmap.x);
+    float falloff1 = getSkyLightFalloff(mat.lightmap.y);
 
     vec3 diffuse  = hammonDiffuse(mat, V, L);
          diffuse *= shadowmap.rgb;
 
     #if SUBSURFACE_SCATTERING == 1
         if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = HARDCODED_SSS_VAL;
-        diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * mat.lightmap.y;
+        diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * falloff1;
     #endif
 
-    diffuse *= directLight;
+    #ifdef SUNLIGHT_LEAKING_FIX
+        float isSkyOccluded = float(mat.lightmap.y > EPS);
+        diffuse            *= directLight * isSkyOccluded;
+        skyIlluminance     *= isSkyOccluded;
+    #else
+        diffuse *= directLight;
+    #endif
 
-    vec3 blockLight = getBlockLightColor(mat) * mat.lightmap.x;
-    vec3 skyLight   = skyIlluminance * RCP_PI * mat.lightmap.y;
+    vec3 blockLight = getBlockLightColor(mat) * falloff0;
+    vec3 skyLight   = skyIlluminance * RCP_PI * falloff1;
 
     diffuse += (blockLight + skyLight) * mat.ao * ao;
     diffuse += mat.emission * BLOCKLIGHT_INTENSITY;

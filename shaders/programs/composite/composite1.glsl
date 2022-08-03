@@ -110,12 +110,16 @@ void main() {
             vec3 viewDir0 = -normalize(viewPos0);
 
             #if SPECULAR == 1
-                vec3 shadowmap = texture(colortex3, coords.xy).rgb;
-                color         += computeSpecular(mat.normal, viewDir0, shadowDir, mat) * directIlluminance * shadowmap;
+                vec3 visibility = texture(colortex3, coords.xy).rgb * float(mat.lightmap.y > EPS);
+                #ifdef SUNLIGHT_LEAKING_FIX
+                    visibility *= float(mat.lightmap.y > EPS);
+                #endif
+
+                color += computeSpecular(mat.normal, viewDir0, shadowDir, mat) * directIlluminance * visibility;
             #endif
 
             #if REFLECTIONS == 1
-                color += texture(colortex2, texCoords * REFLECTIONS_RES).rgb;
+                color += texture(colortex2, texCoords * REFLECTIONS_RESOLUTION).rgb;
             #endif
         #endif
     } else {

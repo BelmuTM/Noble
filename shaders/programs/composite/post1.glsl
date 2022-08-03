@@ -16,7 +16,7 @@
 
             float prevLuma = texelFetch(colortex8, ivec2(0), 0).a;
                   prevLuma = prevLuma > 0.0 ? prevLuma : currLuma;
-                  prevLuma = isnan(prevLuma) || isinf(prevLuma) ? currLuma : clamp(prevLuma, 2e-4, 4e4);
+                  prevLuma = isnan(prevLuma) || isinf(prevLuma) ? currLuma : prevLuma;
 
             float exposureTime = currLuma < prevLuma ? EXPOSURE_DARK_TO_BRIGHT : EXPOSURE_BRIGHT_TO_DARK;
             avgLuminance = mix(currLuma, prevLuma, exp(-exposureTime * frameTime));

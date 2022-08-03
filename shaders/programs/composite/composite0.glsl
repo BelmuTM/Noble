@@ -40,8 +40,8 @@ void main() {
 
     #if GI == 0
         #if REFLECTIONS == 1
-            if(clamp(texCoords, vec2(0.0), vec2(REFLECTIONS_RES)) == texCoords) {
-                vec2 scaledUv  = texCoords * rcp(REFLECTIONS_RES);
+            if(clamp(texCoords, vec2(0.0), vec2(REFLECTIONS_RESOLUTION)) == texCoords) {
+                vec2 scaledUv  = texCoords * rcp(REFLECTIONS_RESOLUTION);
 
                 if(!isSky(scaledUv)) {
                     vec3 viewPos = getViewPos0(scaledUv);

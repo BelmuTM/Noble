@@ -83,6 +83,9 @@ float linearStep(float edge0, float edge1, float x) {
 }
 
 // https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
+// max absolute error 9.0x10^-3
+// Eberly's polynomial degree 1 - respect bounds
+// input [-1, 1] and output [0, PI]
 float fastAcos(in float inX) { 
     float x = abs(inX); 
     float res = -0.156583 * x + HALF_PI; 
@@ -90,6 +93,9 @@ float fastAcos(in float inX) {
     return (inX >= 0) ? res : PI - res; 
 }
 
+// Same cost as Acos + 1 FR
+// Same error
+// input [-1, 1] and output [-PI/2, PI/2]
 float fastAsin(float x) {
     return HALF_PI - fastAcos(x);
 }

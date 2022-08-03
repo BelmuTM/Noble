@@ -86,11 +86,24 @@
 			#endif
 		#endif
 
-		vec2 encNormal = encodeUnitVector(normalize(normal));
+		        normal = normalize(normal);
+		vec2 encNormal = encodeUnitVector(normal);
 
-		vec3 data0 = vec3(roughness, lmCoords);
+		vec2 lightmapCoords = lmCoords;
+
+		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
+			vec3 scenePos    = viewToScene(viewPos);
+			vec3 dirLmCoords = dFdx(scenePos) * dFdx(lmCoords.x) + dFdy(scenePos) * dFdy(lmCoords.x);
+
+			// Dot product's range shifting and invalid direction handling ideas from ninjamike1211#5424
+			if(length(dirLmCoords) < 1e-9) { lightmapCoords.x *= clamp01(dot(TBN * vec3(0.0, 0.0, 0.9), normal));                }
+			else                           { lightmapCoords.x *= clamp01(dot(normalize(dirLmCoords), normal) + 0.8) * 0.8 + 0.2; }
+		#endif
+
+		vec3 data0 = vec3(roughness, clamp01(lightmapCoords));
 		vec4 data1 = vec4(ao, emission, F0, subsurface);
 
+		// I bet you've never seen a cleaner data packing implementation huh?? SAY IT!!!!
 		uvec4 shiftedData0  = uvec4(round(data0         * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
 		uvec4 shiftedData1  = uvec4(round(data1         * maxVal8))                              << uvec4(0, 8, 17, 26);
 		uvec3 shiftedAlbedo = uvec3(round(albedoTex.rgb * vec3(2047.0, 1023.0, 2047.0)))         << uvec3(0, 11, 21);

@@ -85,8 +85,8 @@ mat2x3 getHardcodedMetal(Material mat) {
 
 vec3 getBlockLightColor(Material mat) {
     switch(mat.blockId) {
-        case 5: return blackbody(1573.0) * 500.0; // Lava, magma
-        case 6: return blackbody(1900.0) * 800.0; // Flames, fire
+        case 5: return blackbody(1573.0) * BLOCKLIGHT_INTENSITY; // Lava, magma
+        case 6: return blackbody(1900.0) * BLOCKLIGHT_INTENSITY; // Flames, fire
 
         #if GI == 0
             default: return blackbody(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY;
@@ -104,6 +104,6 @@ float getBlockLightFalloff(float lightmapX) {
 
 
 float getSkyLightFalloff(float lightmapY) {
-    // Taken from Spectrum (Zombye#7365)
+    // Taken from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
     return lightmapY * exp(6.0 * (lightmapY - 1.0));
 }
