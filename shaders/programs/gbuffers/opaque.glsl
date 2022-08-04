@@ -93,10 +93,11 @@
 
 		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
 			vec3 scenePos    = viewToScene(viewPos);
-			vec3 dirLmCoords = dFdx(scenePos) * dFdx(lmCoords.x) + dFdy(scenePos) * dFdy(lmCoords.x);
+			vec2 dFdLmCoords = vec2(dFdx(lmCoords.x), dFdy(lmCoords.x));
+			vec3 dirLmCoords = dFdx(scenePos) * dFdLmCoords.x + dFdy(scenePos) * dFdLmCoords.y;
 
 			// Dot product's range shifting and invalid direction handling ideas from ninjamike1211#5424
-			if(length(dirLmCoords) < 1e-9) { lightmapCoords.x *= clamp01(dot(TBN * vec3(0.0, 0.0, 0.9), normal));                }
+			if(length(dFdLmCoords) < 1e-6) { lightmapCoords.x *= clamp01(dot(TBN * vec3(0.0, 0.0, 0.9), normal));                }
 			else                           { lightmapCoords.x *= clamp01(dot(normalize(dirLmCoords), normal) + 0.8) * 0.8 + 0.2; }
 		#endif
 
