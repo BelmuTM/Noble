@@ -8,6 +8,8 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
+float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
+
 vec3 getVlDensities(in float height) {
     height -= VL_ALTITUDE;
 
@@ -53,8 +55,6 @@ vec3 getVlDensities(in float height) {
     }
 
     void volumetricFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
-        float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
-
         vec3 increment = (endPos - startPos) * rcp(VL_STEPS);
         vec3 rayPos    = startPos + increment * jitter;
 
@@ -118,8 +118,6 @@ const int phaseMultiSamples = 8;
 
     // Thanks Jessie#7257 for the help!
     void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
-        float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
-
         vec3 increment = (endPos - startPos) * rcp(WATER_FOG_STEPS);
         vec3 rayPos    = startPos + increment * jitter;
 

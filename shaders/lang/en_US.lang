@@ -305,6 +305,9 @@ option.CLOUDS_ALTITUDE.comment = Adjusts the altitude of §bClouds§r.
 option.CLOUDS_THICKNESS = Clouds Thickness
 option.CLOUDS_THICKNESS.comment = Adjusts the thickness of §bClouds§r.
 
+option.CLOUDS_COVERAGE = Clouds Coverage
+option.CLOUDS_COVERAGE.comment = Adjusts how much of the sky the §bClouds§r cover.
+
 option.CLOUDS_SWIRL = Clouds Swirliness
 option.CLOUDS_SWIRL.comment = Adjusts the swirliness of §bClouds§r.
 

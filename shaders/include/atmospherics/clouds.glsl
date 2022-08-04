@@ -43,7 +43,8 @@ float getCloudsDensity(vec3 position) {
         position.xz += wind;
     #endif
     
-    float weatherMap = mix(clamp01((FBM(position.xz * 3e-4, 10, 3.7) * 0.8 + 0.2)), 1.0, wetness);
+    float coverage   = mix(CLOUDS_COVERAGE, 1.0, wetness);
+    float weatherMap = clamp01((FBM(position.xz * 3e-4, 4, 3.7) * (1.0 - coverage) + coverage));
 
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
@@ -52,15 +53,11 @@ float getCloudsDensity(vec3 position) {
     vec3 curlPos  = position * 5e-4;
          curlPos += curlTex * CLOUDS_SWIRL;
 
-    vec4 shapeTex     = texture(depthtex2,  curlPos);
-    vec3 detailTex    = texture(colortex13, curlPos).rgb;
-    vec3 blueNoiseTex = texelFetch(noisetex, ivec2(mod(position.xz * 2e-4 * viewSize, noiseRes)), 0).rgb;
-
-    detailTex = mix(detailTex, vec3(1.0), blueNoiseTex);
-
+    vec4  shapeTex   = texture(depthtex2,  curlPos);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
           shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
 
+    vec3  detailTex    = texture(colortex13, curlPos).rgb;
     float detailNoise  = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
           detailNoise  = mix(detailNoise, 1.0 - detailNoise, clamp01(altitude * 5.0));
           detailNoise *= (0.35 * exp(-0.7 * 0.75));
@@ -69,15 +66,15 @@ float getCloudsDensity(vec3 position) {
 }
 
 float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount) {
-    float stepLength = 22.0, opticalDepth = 0.0;
+    float stepLength = 23.0, opticalDepth = 0.0;
 
     for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength) {
+        stepLength *= 2.0;
+
         if(clamp(rayPos.y, innerCloudRad, outerCloudRad) != rayPos.y) continue;
 
-        opticalDepth += getCloudsDensity(rayPos) * stepLength;
-        stepLength   *= 2.0;
-
-        if(opticalDepth < EPS) continue;
+        float jitter  = fract(frameTimeCounter + bayer32(gl_FragCoord.xy));
+        opticalDepth += getCloudsDensity(rayPos + lightDir * stepLength * jitter) * stepLength;
     }
     return opticalDepth;
 }
@@ -119,8 +116,8 @@ vec4 cloudsScattering(vec3 rayDir, out float distToCloud, vec3 directIlluminance
         float stepTransmittance = exp(-stepOpticalDepth);
 
         float directOpticalDepth = getCloudsOpticalDepth(rayPos, shadowLightVector, 8);
-        float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,             6);
-        float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,             3);
+        float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,                6);
+        float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,                3);
 
         // Beer's-Powder effect from "The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn" (see sources above)
 	    float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
