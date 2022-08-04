@@ -127,15 +127,15 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 /*------------- REFLECTIONS | REFRACTIONS --------------*/
 //////////////////////////////////////////////////////////
 
-#define REFLECTIONS        1 // [0 1]
-#define REFLECTIONS_TYPE   1 // [0 1]
+#define REFLECTIONS               1 // [0 1]
+#define REFLECTIONS_TYPE          1 // [0 1]
 #define REFLECTIONS_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define REFRACTIONS        1 // [0 1]
+#define REFRACTIONS               1 // [0 1]
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.2
 
-#define SKY_FALLBACK     1
+#define SKY_FALLBACK
 #define SSR_REPROJECTION 1 // [0 1]
 
 #define ROUGH_SAMPLES        1
@@ -221,7 +221,6 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define BLOOM             1 // [0 1]
 #define BLOOM_STRENGTH 0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define BLOOM_TWEAK    0.00
 #define BLOOM_STEPS       4
 #define BLOOM_SIGMA     2.0
 

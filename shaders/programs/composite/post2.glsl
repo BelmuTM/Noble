@@ -61,6 +61,8 @@ layout (location = 0) out vec3 color;
     void tonemap(inout vec3 color) {
         #if TONEMAP == 0
             color *= AP1_2_AP0_MAT;
+            color *= 2.2;
+
             rrt(color);
             odt(color);                          // ACES
         #elif TONEMAP == 1
@@ -129,8 +131,8 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        float bloomStrgth = max0(exp2(tmp.a + (BLOOM_STRENGTH + BLOOM_TWEAK) - 3.0));
-        color            += mix(color / tmp.a, readBloom(), bloomStrgth) * tmp.a;
+        float bloomStrgth = max0(exp2(tmp.a + BLOOM_STRENGTH - 3.0));
+        color             = mix(color / tmp.a, readBloom(), bloomStrgth) * tmp.a;
     #endif
 
     #if FILM_GRAIN == 1

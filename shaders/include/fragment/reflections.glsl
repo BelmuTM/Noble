@@ -46,10 +46,10 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
         vec3 hitColor = getHitColor(hitPos);
 
-        #if SKY_FALLBACK == 0
-            vec3 color = mix(vec3(0.0), hitColor, factor);
-        #else
+        #ifdef SKY_FALLBACK
             vec3 color = mix(getSkyFallback(rayDir, mat), hitColor, factor);
+        #else
+            vec3 color = mix(vec3(0.0), hitColor, factor);
         #endif
 
         float NdotL = abs(dot(mat.normal, rayDir));
@@ -88,10 +88,10 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
                 float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
                 vec3 hitColor = getHitColor(hitPos);
 
-                #if SKY_FALLBACK == 0
-                    hitColor = mix(vec3(0.0), hitColor, factor);
-                #else
+                #ifdef SKY_FALLBACK
                     hitColor = mix(getSkyFallback(rayDir, mat), hitColor, factor);
+                #else
+                    hitColor = mix(vec3(0.0), hitColor, factor);
                 #endif
 
                 float MdotV = dot(microfacet, -viewDir);
