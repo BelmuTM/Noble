@@ -95,6 +95,8 @@ layout (location = 0) out vec3 color;
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
+        color = clamp(color, vec3(0.02), vec3(256.0 / 255.0));
+
         #if DEBUG_LUT == 1
             if(gl_FragCoord.x < 256.0 && gl_FragCoord.y < 256.0) {
                 color = texture(lookupTable, (gl_FragCoord.xy * rcpLutTexSize * 2.0) + lutGrid[1]).rgb;
