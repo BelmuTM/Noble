@@ -119,7 +119,7 @@ vec3 shadowMap(vec3 scenePos, vec3 geoNormal, out float ssDepth) {
             if(avgBlockerDepth < 0.0) return vec3(1.0);
 
             if(texture(shadowcolor0, shadowPosDistort.xy).a >= 0.0)
-                penumbraSize = (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth;
+                penumbraSize = max(0.1, (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth);
             else
                 penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
         #endif

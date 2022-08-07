@@ -36,7 +36,7 @@
         vec4 shadowmap = texture(colortex3, hitPos.xy);
 
         #if SUBSURFACE_SCATTERING == 1
-            diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * mat.lightmap.y;
+            diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * float(mat.lightmap.y > EPS);
         #endif
 
         vec3 direct  = mat.albedo * diffuse + specular;
