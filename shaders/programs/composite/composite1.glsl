@@ -92,7 +92,8 @@ void main() {
                     #if WATER_FOG == 0
                         waterFog(color, worldPos0, worldPos1, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #else
-                        volumetricWaterFog(color, worldPos0, worldPos1, VdotL, directIlluminance, skyIlluminance, skyLight, false);
+                        bool skyTranslucents = texture(depthtex1, coords.xy).r == 1.0;
+                        volumetricWaterFog(color, worldPos0, worldPos1, VdotL, directIlluminance, skyIlluminance, skyLight, skyTranslucents);
                     #endif
                 } else {
                     #if AIR_FOG == 1
