@@ -244,7 +244,6 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     vec3 skyLight   = skyIlluminance * RCP_PI * mat.lightmap.y;
 
     diffuse += (blockLight + skyLight) * mat.ao * ao;
-    diffuse += mat.emission * BLOCKLIGHT_INTENSITY;
 
-    return max0(mat.albedo * diffuse);
+    return (mat.albedo * diffuse) + mat.emission;
 }
