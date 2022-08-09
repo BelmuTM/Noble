@@ -21,14 +21,7 @@ out mat3 TBN;
 
 #define STAGE_VERTEX
 
-#include "/settings.glsl"
-#include "/include/uniforms.glsl"
-
-#include "/include/utility/rng.glsl"
-#include "/include/utility/math.glsl"
-#include "/include/utility/transforms.glsl"
-#include "/include/utility/color.glsl"
-
+#include "/include/common.glsl"
 #include "/include/vertex/animation.glsl"
 
 void main() {

@@ -13,18 +13,20 @@
 #elif defined STAGE_FRAGMENT
 	/* RENDERTARGETS: 4 */
 
-	layout (location = 0) out vec4 color;
+	layout (location = 0) out vec3 color;
 
 	in vec2 texCoords;
 	in vec4 vertexColor;
 
 	#include "/include/common.glsl"
+	#include "/include/atmospherics/atmosphere.glsl"
 
 	void main() {
 		vec4 albedoTex = texture(colortex0, texCoords);
-			 albedoTex *= vertexColor;
 		if(albedoTex.a < 0.102) discard;
 
-		color = albedoTex;
+		albedoTex *= vertexColor;
+
+		color = (albedoTex.rgb * RCP_PI) * sampleDirectIlluminance();
 	}
 #endif

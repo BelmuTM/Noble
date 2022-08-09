@@ -34,7 +34,7 @@ float densityAlter(float altitude, float weatherMap) {
     return densityAlter * 1.5;
 }
 
-vec2 wind = WIND_SPEED * frameTimeCounter * sincos(-0.785398);
+vec2 wind = WIND_SPEED * mix(1.0, 2.0, wetness) * frameTimeCounter * sincos(-0.785398);
 
 float getCloudsDensity(vec3 position) {
     float altitude = (position.y - innerCloudRad) * rcp(CLOUDS_THICKNESS);

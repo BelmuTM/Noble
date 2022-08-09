@@ -6,6 +6,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#include "/include/common.glsl"
+#include "/include/atmospherics/atmosphere.glsl"
+#include "/include/fragment/water.glsl"
+
 #ifdef STAGE_VERTEX
 
 	#define attribute in
@@ -21,10 +25,6 @@
 	out vec3 directIlluminance;
 	out vec4 vertexColor;
 	out mat3 TBN;
-
-	#include "/include/common.glsl"
-	#include "/include/atmospherics/atmosphere.glsl"
-	#include "/include/fragment/water.glsl"
 
 	void main() {
 		texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -64,19 +64,15 @@
 	in vec4 vertexColor;
 	in mat3 TBN;
 
-	#include "/include/common.glsl"
-
 	#include "/include/fragment/brdf.glsl"
 	#include "/include/fragment/shadows.glsl"
-
-	#include "/include/atmospherics/atmosphere.glsl"
-
-	#include "/include/fragment/water.glsl"
 
 	void main() {
 		vec4 albedoTex   = texture(colortex0, texCoords);
 		vec4 normalTex   = texture(normals,   texCoords);
 		vec4 specularTex = texture(specular,  texCoords);
+
+		if(albedoTex.a < 0.102) discard;
 
 		albedoTex *= vertexColor;
 
