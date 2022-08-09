@@ -62,12 +62,15 @@ vec3 getShadowColor(vec3 samplePos) {
             float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int blockers;
 
             for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-                vec2 offset = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);
-                float z     = texelFetch(shadowtex0, ivec2((shadowPos.xy + offset) * shadowMapResolution), 0).r;
+                vec2 offset  = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);
+                ivec2 coords = ivec2((shadowPos.xy + offset) * shadowMapResolution);
 
-                if(shadowPos.z > z) {
-                    avgBlockerDepth += z;
-                    totalSSDepth    += max0(shadowPos.z - z);
+                float depth0 = texelFetch(shadowtex0, coords, 0).r;
+                float depth1 = texelFetch(shadowtex1, coords, 0).r;
+
+                if(shadowPos.z > depth0) {
+                    avgBlockerDepth += depth0;
+                    totalSSDepth    += max0(shadowPos.z - depth1);
                     blockers++;
                 }
             }
