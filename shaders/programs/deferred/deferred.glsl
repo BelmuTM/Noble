@@ -53,12 +53,12 @@
         #endif
     }
 #else
-    /* RENDERTARGETS: 10 */
+    /* RENDERTARGETS: 9 */
 
-    layout (location = 0) out vec4 history0;
+    layout (location = 0) out vec4 historyCol0;
 
     void main() {
-        history0 = texture(colortex10, texCoords);
+        historyCol0 = texture(colortex9, texCoords);
     }
 #endif
     

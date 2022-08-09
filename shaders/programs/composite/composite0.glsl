@@ -8,10 +8,10 @@
 
 #if GI == 1
     #if GI_FILTER == 1
-        /* RENDERTARGETS: 4,12 */
+        /* RENDERTARGETS: 4,11 */
 
         layout (location = 0) out vec3 color;
-        layout (location = 1) out vec3 moments;
+        layout (location = 1) out vec4 moments;
 
         #include "/include/fragment/atrous.glsl"
     #else

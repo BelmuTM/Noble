@@ -25,7 +25,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
     /*
 	vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 	#if CLOUDS == 1
-		clouds = texture(colortex15, getAtmosphereCoordinates(texCoords, CLOUDS_RESOLUTION, 0.0));
+		clouds = texture(colortex12, getAtmosphereCoordinates(texCoords, CLOUDS_RESOLUTION, 0.0));
 	#endif
     */
 

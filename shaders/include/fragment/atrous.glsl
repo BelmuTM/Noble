@@ -62,7 +62,7 @@ float getATrousLuminanceWeight(float luminance, float sampleLuminance, float lum
     return exp(-abs(luminance - sampleLuminance) * luminancePhi);
 }
 
-void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 moments, int passIndex) {
+void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec4 moments, int passIndex) {
     Material mat = getMaterial(coords);
     if(mat.depth0 == 1.0) return;
 
@@ -73,10 +73,10 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 momen
     vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
 
     float centerLuma   = luminance(color);
-    float variance     = gaussianVariance(colortex12, coords);
+    float variance     = gaussianVariance(colortex11, coords);
     float luminancePhi = 1.0 / (LUMA_WEIGHT_SIGMA * sqrt(variance) + EPS);
 
-    moments = texture(colortex12, texCoords).xyz;
+    moments = texture(colortex11, texCoords);
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
@@ -102,5 +102,5 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec3 momen
         }
     }
     color      = max0(color / totalWeight);
-    moments.z *= totalWeightSquared;
+    moments.b *= totalWeightSquared;
 }

@@ -7,11 +7,11 @@
 /***********************************************/
 
 #if GI == 1 && GI_FILTER == 1
-    /* RENDERTARGETS: 4,2,12 */
+    /* RENDERTARGETS: 4,2,11 */
 
     layout (location = 0) out vec3 color;
     layout (location = 1) out vec3 fog;
-    layout (location = 2) out vec3 moments;
+    layout (location = 2) out vec4 moments;
 
     #include "/include/fragment/atrous.glsl"
 #else
@@ -60,13 +60,15 @@ void main() {
 
         #if GI == 1
             #if GI_FILTER == 1
-                aTrousFilter(color, colortex4, texCoords, moments, 4);
+                aTrousFilter(color, colortex4, texCoords * GI_RESOLUTION, moments, 4);
+            #else
+                color = texture(colortex4, texCoords * GI_RESOLUTION).rgb;
             #endif
 
-            vec3 direct         = texture(colortex10, texCoords * GI_RESOLUTION).rgb;
-            vec3 indirectBounce = texture(colortex11, texCoords * GI_RESOLUTION).rgb;
+            vec3 direct   = texture(colortex9,  texCoords * GI_RESOLUTION).rgb;
+            vec3 indirect = texture(colortex10, texCoords * GI_RESOLUTION).rgb;
             
-            color = direct + (indirectBounce * color);
+            color = direct + (indirect * color);
         #endif
 
         if(viewPos0.z != viewPos1.z) {

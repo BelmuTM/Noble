@@ -53,6 +53,13 @@
         return 1.0 / (1.2 * exp2(EV100));
     }
 
+    /*
+    #define HISTOGRAM_BINS 128
+
+    float getAverageLuminanceFromHistogram(float[] histogram) {
+    }
+    */
+
     void main() {
         color = texture(colortex4, texCoords);
 

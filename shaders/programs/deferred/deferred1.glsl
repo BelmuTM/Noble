@@ -29,22 +29,24 @@
 
 #elif defined STAGE_FRAGMENT
 
-    #if CLOUDS == 0
-        /* RENDERTARGETS: 3,0,6,10 */
+    #if GI == 1
+        /* RENDERTARGETS: 3,0,6,12 */
 
         layout (location = 0) out vec4 shadowmap;
         layout (location = 1) out vec3 sky;
         layout (location = 2) out vec3 skyIlluminance;
-        layout (location = 3) out vec4 aoHistory;
+        layout (location = 3) out vec4 clouds;
     #else
-        /* RENDERTARGETS: 3,0,6,10,15 */
+        /* RENDERTARGETS: 3,0,6,10,12 */
 
         layout (location = 0) out vec4 shadowmap;
         layout (location = 1) out vec3 sky;
         layout (location = 2) out vec3 skyIlluminance;
         layout (location = 3) out vec4 aoHistory;
         layout (location = 4) out vec4 clouds;
+    #endif
 
+    #if CLOUDS == 1
         #include "/include/atmospherics/clouds.glsl"
     #endif
     
@@ -139,7 +141,7 @@
 
                     /* Reprojection */
                     vec3 prevPos    = reprojectClouds(viewPos, 1e8 * distToCloud);
-                    vec4 prevClouds = texture(colortex15, prevPos.xy);
+                    vec4 prevClouds = texture(colortex12, prevPos.xy);
 
                     // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);

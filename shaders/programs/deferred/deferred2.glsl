@@ -7,27 +7,26 @@
 /***********************************************/
 
 #include "/include/fragment/raytracer.glsl"
-
-#if GI == 1
-    /* RENDERTARGETS: 5,10,11,12 */
-
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 history0;
-    layout (location = 2) out vec3 history1;
-    layout (location = 3) out vec4 moments;
-
-    #include "/include/fragment/pathtracer.glsl"
-#else
-    /* RENDERTARGETS: 5,12 */
-
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 moments;
-#endif
-
 #include "/include/fragment/brdf.glsl"
 
 #include "/include/atmospherics/celestial.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
+
+#if GI == 1
+    /* RENDERTARGETS: 5,9,10,11 */
+
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec3 historyCol0;
+    layout (location = 2) out vec3 historyCol1;
+    layout (location = 3) out vec4 moments;
+
+    #include "/include/fragment/pathtracer.glsl"
+#else
+    /* RENDERTARGETS: 5,11 */
+
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec4 moments;
+#endif
 
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
 
@@ -42,13 +41,15 @@
         float luminance = luminance(color);
 
         // Thanks SixthSurge#3922 for the help with moments
-        vec2 prevMoments = texture(colortex12, prevPos.xy).xy;
-        vec2 currMoments = vec2(luminance, luminance * luminance);
-             moments.xy  = mix(currMoments, prevMoments, weight);
-             moments.z   = moments.y - moments.x * moments.x;
+        #if GI_FILTER == 1
+            vec2 prevMoments = texture(colortex11, prevPos.xy).rg;
+            vec2 currMoments = vec2(luminance, luminance * luminance);
+                 moments.rg  = mix(currMoments, prevMoments, weight);
+                 moments.b   = moments.g - moments.r * moments.r;
+        #endif
 
-        vec3 prevColorDirect   = texture(colortex10, prevPos.xy).rgb;
-        vec3 prevColorIndirect = texture(colortex11, prevPos.xy).rgb;
+        vec3 prevColorDirect   = texture(colortex9,  prevPos.xy).rgb;
+        vec3 prevColorIndirect = texture(colortex10, prevPos.xy).rgb;
 
         direct   = max0(mix(direct,   prevColorDirect,   weight));
         indirect = max0(mix(indirect, prevColorIndirect, weight));
@@ -56,14 +57,15 @@
 #endif
 
 void main() {
-    vec2 tempCoords = texCoords;
     #if GI == 1
-        tempCoords = texCoords * rcp(GI_RESOLUTION);
+        vec2 tempCoords = texCoords * rcp(GI_RESOLUTION);
+    #else
+        vec2 tempCoords = texCoords;
     #endif
 
-    vec3 viewPos0 = getViewPos0(tempCoords);
+    vec3 viewPos0 = getViewPos0(texCoords);
 
-    if(isSky(tempCoords)) {
+    if(isSky(texCoords)) {
         color.rgb = computeSky(viewPos0);
         return;
     }
@@ -78,7 +80,7 @@ void main() {
     vec3 prevPos   = currPos - getVelocity(currPos);
     vec4 prevColor = texture(colortex5, prevPos.xy);
 
-    float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex9, prevPos.xy).a), 1.5);
+    float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex11, prevPos.xy).a), 2.0);
 
     color.a = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
 
@@ -104,11 +106,13 @@ void main() {
     #else
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords) {
-            pathTrace(color.rgb, vec3(tempCoords, mat.depth0), history0.rgb, history1);
+            pathTrace(color.rgb, vec3(tempCoords, mat.depth0), historyCol0, historyCol1);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(mat, color.rgb, prevColor.rgb, prevPos, history0.rgb, history1, moments.rgb, color.a);
+                temporalAccumulation(mat, color.rgb, prevColor.rgb, prevPos, historyCol0, historyCol1, moments.rgb, color.a);
             #endif
         }
     #endif
+
+    moments.a = log2(mat.depth0);
 }

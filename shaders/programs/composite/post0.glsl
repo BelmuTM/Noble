@@ -6,14 +6,14 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 4,3,9 */
+/* RENDERTARGETS: 4,3 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec3 bloomBuffer;
-layout (location = 2) out vec4 previousBuffer;
 
-#include "/include/post/bloom.glsl"
-#include "/include/post/taa.glsl"
+#if BLOOM == 1
+    #include "/include/post/bloom.glsl"
+#endif
 
 #if DOF == 1
     // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
@@ -55,18 +55,17 @@ layout (location = 2) out vec4 previousBuffer;
 #endif
 
 void main() {
-    color        = texture(colortex4, texCoords);
-    color.a      = sqrt(luminance(color.rgb));
-    Material mat = getMaterial(texCoords);
+    color   = texture(colortex4, texCoords);
+    color.a = sqrt(luminance(color.rgb));
     
     #if DOF == 1
-        float coc = getCoC(linearizeDepthFast(mat.depth1), linearizeDepthFast(centerDepthSmooth));
+        float depth0 = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+        float coc    = getCoC(linearizeDepthFast(depth0), linearizeDepthFast(centerDepthSmooth));
+
         depthOfField(color.rgb, colortex4, texCoords, 8, DOF_RADIUS, coc);
     #endif
 
     #if BLOOM == 1
         writeBloom(bloomBuffer);
     #endif
-
-    previousBuffer = vec4(mat.normal * 0.5 + 0.5, log2(mat.depth1));
 }
