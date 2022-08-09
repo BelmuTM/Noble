@@ -202,7 +202,7 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
 vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughMedium) {
     if(mat.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
-    vec3 beer      = clamp01(exp(-(1.0 - mat.albedo) * maxEps(distThroughMedium) / mat.subsurface));
+    vec3 beer      = exp((mat.albedo * 0.5 - 1.0) * maxEps(distThroughMedium) / mat.subsurface);
     float cosTheta = dot(normalize(V + L), V);
 
     // Phase function specifically made for leaves
@@ -230,7 +230,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     mat.lightmap.y = getSkyLightFalloff(mat.lightmap.y);
 
     #if SUBSURFACE_SCATTERING == 1
-        diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * isSkyOccluded;
+        diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a);
     #endif
 
     #ifdef SUNLIGHT_LEAKING_FIX
