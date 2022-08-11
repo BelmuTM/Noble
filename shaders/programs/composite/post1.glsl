@@ -12,7 +12,7 @@
 
     void main() {
         #if EXPOSURE == 1
-            float currLuma = pow2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
+            float currLuma = pow2(textureLod(colortex4, vec2(0.5), round(log2(maxOf(viewSize)))).a);
 
             float prevLuma = texelFetch(colortex8, ivec2(0), 0).a;
                   prevLuma = prevLuma > 0.0 ? prevLuma : currLuma;

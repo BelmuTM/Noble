@@ -14,6 +14,8 @@ attribute vec2 mc_midTexCoord;
 flat out int blockId;
 out vec2 texCoords;
 out vec2 lmCoords;
+out vec2 texSize;
+out vec2 botLeft;
 out vec3 viewPos;
 out vec3 geoNormal;
 out vec4 vertexColor;
@@ -28,6 +30,8 @@ void main() {
 	texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
 	vertexColor = gl_Color;
+	texSize     = abs(texCoords - mc_midTexCoord) * 2.0;
+	botLeft     = mc_midTexCoord - (texSize * 0.5);
 
 	#ifndef PROGRAM_BASIC 
     	geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);

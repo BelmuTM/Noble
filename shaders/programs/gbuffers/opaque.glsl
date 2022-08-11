@@ -19,6 +19,8 @@
 	flat in int blockId;
 	in vec2 texCoords;
 	in vec2 lmCoords;
+	in vec2 texSize;
+	in vec2 botLeft;
 	in vec3 viewPos;
 	in vec3 geoNormal;
 	in vec4 vertexColor;
@@ -30,10 +32,47 @@
 		uniform vec4 entityColor;
 	#endif
 
+	#if POM == 1
+		const float layerHeight = 1.0 / float(POM_LAYERS);
+
+		float sampleHeightMap(vec2 coords, mat2 texDeriv) {
+			return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
+		}
+
+		// Thanks ninjamike1211#5424 for the help!
+    	vec2 parallaxMapping(vec3 viewPos, mat2 texDeriv) {
+			vec3 tangentDir       = normalize(viewToScene(viewPos)) * TBN;
+        	float currLayerHeight = 0.0;
+
+        	vec2 P           = (tangentDir.xy / tangentDir.z) * POM_DEPTH * texSize;
+        	vec2 deltaCoords = P * layerHeight;
+
+        	vec2  coords         = texCoords;
+        	float currFragHeight = sampleHeightMap(coords, texDeriv);
+
+        	for(int i = 0; i < POM_MAX_STEPS && currLayerHeight < currFragHeight; i++) {
+            	coords -= deltaCoords;
+				coords -= floor((coords - botLeft) / texSize) * texSize;
+
+            	currFragHeight   = sampleHeightMap(coords, texDeriv);
+            	currLayerHeight += layerHeight;
+        	}
+ 			return coords;
+    	}
+	#endif
+
 	void main() {
-		vec4 albedoTex   = texture(colortex0, texCoords);
-		vec4 normalTex   = texture(normals,   texCoords);
-		vec4 specularTex = texture(specular,  texCoords);
+		#if POM == 1
+			mat2 texDeriv = mat2(dFdx(texCoords), dFdy(texCoords));
+			vec2 coords   = parallaxMapping(viewPos, texDeriv);
+			if(clamp01(coords) != coords) discard;
+		#else
+			vec2 coords = texCoords;
+		#endif
+
+		vec4 albedoTex   = texture(colortex0, coords);
+		vec4 normalTex   = texture(normals,   coords);
+		vec4 specularTex = texture(specular,  coords);
 
 		if(albedoTex.a < 0.102) discard;
 

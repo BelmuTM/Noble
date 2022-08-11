@@ -188,7 +188,7 @@ option.REFLECTIONS_RESOLUTION.comment = Adjusts §bReflections§r' resolution. �
 suffix.REFLECTIONS_RESOLUTION = x
 
 option.GI = Global Illumination (GI)
-option.GI.comment = §bScreen Space Global Illumination. §rIt simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it. §cCan only sample what's being displayed §con your screen.
+option.GI.comment = Simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it. §cCan only sample what's being displayed §con your screen.
 value.GI.0 = §cOFF
 value.GI.1 = §aON
 
@@ -334,12 +334,28 @@ value.WHITE_WORLD.0 = §cOFF
 value.WHITE_WORLD.1 = §aON
 
 option.RAIN_PUDDLES = Rain Puddles
-option.RAIN_PUDDLES.comment = Simulates the apparition of §bRain Puddles§r on the ground.
+option.RAIN_PUDDLES.comment = Simulates the apparition of puddles on the ground during the rain.
 value.RAIN_PUDDLES.0 = §cOFF
 value.RAIN_PUDDLES.1 = §aON
 
 option.RAIN_PUDDLES_SIZE = Rain Puddles Size
 option.RAIN_PUDDLES_SIZE.comment = Adjusts §bRain Puddles§r' size.
+
+option.POM = POM
+option.POM.comment = §bParallax Occlusion Mapping. §rGives depth to a material by creating 3D definition from its heightmap.
+value.POM.0 = §cOFF
+value.POM.1 = §aON
+
+option.POM_LAYERS = POM layers
+option.POM_LAYERS.comment = Adjusts §bPOM§r's quality, the more layers there are, the more detailed it will be. §cHigher value gives better results, but reduces §cperformance.
+value.POM_LAYERS.32 = §a32
+value.POM_LAYERS.64 = §e64
+value.POM_LAYERS.128 = §6128
+value.POM_LAYERS.256 = §c256
+value.POM_LAYERS.512 = §4512
+
+option.POM_DEPTH = POM Depth
+option.POM_DEPTH.comment = Adjusts §bPOM§r's depth.
 
 ## WATER
 
