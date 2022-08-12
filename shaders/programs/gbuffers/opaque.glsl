@@ -32,12 +32,42 @@
 		uniform vec4 entityColor;
 	#endif
 
-	#if POM == 1
+	#if POM > 0
+		/*
+			CREDITS:
+			Null:      https://github.com/null511 - null511#3026
+			NinjaMike:                            - ninjamike1211#5424
+			
+			Thanks to them!
+		*/
+
 		const float layerHeight = 1.0 / float(POM_LAYERS);
 
-		float sampleHeightMap(vec2 coords, mat2 texDeriv) {
-			return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
-		}
+		void wrapCoordinates(inout vec2 coords) { coords -= floor((coords - botLeft) / texSize) * texSize; }
+
+		vec2 localToAtlas(vec2 localCoords) { return (fract(localCoords) * texSize + botLeft); }
+		vec2 atlasToLocal(vec2 atlasCoords) { return (atlasCoords - botLeft) / texSize;        }
+
+		#if POM == 1
+			float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
+				wrapCoordinates(coords);
+
+				vec2 uv[4];
+				vec2 f = getLinearCoords(atlasToLocal(coords), texSize * atlasSize, uv);
+
+				uv[0] = localToAtlas(uv[0]);
+				uv[1] = localToAtlas(uv[1]);
+				uv[2] = localToAtlas(uv[2]);
+				uv[3] = localToAtlas(uv[3]);
+
+    			return 1.0 - textureGradLinear(normals, uv, texDeriv, f, 3);
+			}
+		#else
+			float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
+				wrapCoordinates(coords);
+				return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
+			}
+		#endif
 
 		// Thanks ninjamike1211#5424 for the help!
     	vec2 parallaxMapping(vec3 viewPos, mat2 texDeriv) {
@@ -47,24 +77,33 @@
         	vec2 P           = (tangentDir.xy / tangentDir.z) * POM_DEPTH * texSize;
         	vec2 deltaCoords = P * layerHeight;
 
-        	vec2  coords         = texCoords;
-        	float currFragHeight = sampleHeightMap(coords, texDeriv);
+        	vec2  currCoords     = texCoords;
+        	float currFragHeight = sampleHeightMap(currCoords, texDeriv);
 
         	for(int i = 0; i < POM_MAX_STEPS && currLayerHeight < currFragHeight; i++) {
-            	coords -= deltaCoords;
-				coords -= floor((coords - botLeft) / texSize) * texSize;
-
-            	currFragHeight   = sampleHeightMap(coords, texDeriv);
+            	currCoords      -= deltaCoords;
+            	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
             	currLayerHeight += layerHeight;
         	}
- 			return coords;
+
+			#if POM == 1
+				vec2 prevCoords = currCoords + deltaCoords;
+
+				float afterDepth  = currFragHeight - currLayerHeight;
+				float beforeDepth = sampleHeightMap(prevCoords, texDeriv) - currLayerHeight + layerHeight;
+
+				float weight = afterDepth / (afterDepth - beforeDepth);
+				return mix(currCoords, prevCoords, weight);
+			#endif
+
+ 			return currCoords;
     	}
 	#endif
 
 	void main() {
-		#if POM == 1
-			mat2 texDeriv = mat2(dFdx(texCoords), dFdy(texCoords));
-			vec2 coords   = parallaxMapping(viewPos, texDeriv);
+		#if POM > 0
+			mat2 texDeriv   = mat2(dFdx(texCoords), dFdy(texCoords));
+			vec2 coords     = parallaxMapping(viewPos, texDeriv);
 			if(clamp01(coords) != coords) discard;
 		#else
 			vec2 coords = texCoords;

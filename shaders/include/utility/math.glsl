@@ -290,17 +290,24 @@ vec4 textureBicubic(sampler2D tex, vec2 texCoords) {
 }
 
 /*
-    Texture LOD Linear provided by null511#3026 (https://github.com/null511)
+    Linear texture sampling methods provided by null511#3026 (https://github.com/null511)
+    SOURCE: https://github.com/null511/MC-Arc-Shader/blob/main/shaders/lib/sampling/linear.glsl
 */
-vec2 getLinearCoords(const in vec2 texcoord, const in vec2 texSize, out vec2 uv[4]) {
-    vec2 f = fract(texcoord * texSize);
+vec2 getLinearCoords(const in vec2 coords, const in vec2 texSize, out vec2 uv[4]) {
+    vec2 f         = fract(coords * texSize);
     vec2 pixelSize = rcp(texSize);
 
-    uv[0] = texcoord - f * pixelSize;
+    uv[0] = coords - f * pixelSize;
     uv[1] = uv[0] + vec2(1.0, 0.0) * pixelSize;
     uv[2] = uv[0] + vec2(0.0, 1.0) * pixelSize;
     uv[3] = uv[0] + vec2(1.0, 1.0) * pixelSize;
     return f;
+}
+
+float linearBlend4(const in vec4 samples, const in vec2 f) {
+    float x1 = mix(samples[0], samples[1], f.x);
+    float x2 = mix(samples[2], samples[3], f.x);
+    return mix(x1, x2, f.y);
 }
 
 vec3 linearBlend4(const in vec3 samples[4], const in vec2 f) {
@@ -318,8 +325,23 @@ vec3 textureLodLinearRGB(const in sampler2D samplerName, const in vec2 uv[4], co
     return linearBlend4(samples, f);
 }
 
-vec3 textureLodLinearRGB(const in sampler2D samplerName, const in vec2 texcoord, const in vec2 texSize, const in int lod) {
+vec3 textureLodLinearRGB(const in sampler2D samplerName, const in vec2 coords, const in vec2 texSize, const in int lod) {
     vec2 uv[4];
-    vec2 f = getLinearCoords(texcoord, texSize, uv);
+    vec2 f = getLinearCoords(coords, texSize, uv);
     return textureLodLinearRGB(samplerName, uv, lod, f);
+}
+
+float textureGradLinear(const in sampler2D samplerName, const in vec2 uv[4], const in mat2 dFdXY, const in vec2 f, const in int comp) {
+    vec4 samples;
+    samples[0] = textureGrad(samplerName, uv[0], dFdXY[0], dFdXY[1])[comp];
+    samples[1] = textureGrad(samplerName, uv[1], dFdXY[0], dFdXY[1])[comp];
+    samples[2] = textureGrad(samplerName, uv[2], dFdXY[0], dFdXY[1])[comp];
+    samples[3] = textureGrad(samplerName, uv[3], dFdXY[0], dFdXY[1])[comp];
+    return linearBlend4(samples, f);
+}
+
+float textureGradLinear(const in sampler2D samplerName, const in vec2 coords, const in vec2 texSize, const in mat2 dFdXY, const in int comp) {
+    vec2 uv[4];
+    vec2 f = getLinearCoords(coords, texSize, uv);
+    return textureGradLinear(samplerName, uv, dFdXY, f, comp);
 }

@@ -30,8 +30,10 @@ void main() {
 	texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
 	vertexColor = gl_Color;
-	texSize     = abs(texCoords - mc_midTexCoord) * 2.0;
-	botLeft     = mc_midTexCoord - (texSize * 0.5);
+
+	vec2 halfSize = abs(texCoords - mc_midTexCoord);
+	texSize       = halfSize * 2.0;
+	botLeft       = mc_midTexCoord - halfSize;
 
 	#ifndef PROGRAM_BASIC 
     	geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);

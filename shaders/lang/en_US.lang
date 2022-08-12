@@ -342,9 +342,10 @@ option.RAIN_PUDDLES_SIZE = Rain Puddles Size
 option.RAIN_PUDDLES_SIZE.comment = Adjusts §bRain Puddles§r' size.
 
 option.POM = POM
-option.POM.comment = §bParallax Occlusion Mapping. §rGives depth to a material by creating 3D definition from its heightmap.
+option.POM.comment = §bParallax Occlusion Mapping. §rGives depth to a material by creating 3D definition from its heightmap. §aSmooth§r POM filters the heightmap to de-pixelate it. §aSteep§r POM is pixelated.
 value.POM.0 = §cOFF
-value.POM.1 = §aON
+value.POM.1 = §e§lSmooth
+value.POM.2 = §e§lSteep
 
 option.POM_LAYERS = POM layers
 option.POM_LAYERS.comment = Adjusts §bPOM§r's quality, the more layers there are, the more detailed it will be. §cHigher value gives better results, but reduces §cperformance.

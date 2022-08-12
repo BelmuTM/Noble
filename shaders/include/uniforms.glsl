@@ -16,8 +16,12 @@ uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 
+uniform float viewWidth;
+uniform float viewHeight;
+uniform float aspectRatio;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
+uniform ivec2 atlasSize;
 
 uniform int framemod;
 uniform int frameCounter;
@@ -26,9 +30,6 @@ uniform float frameTimeCounter;
 uniform float centerDepthSmooth;
 uniform float near;
 uniform float far;
-uniform float viewWidth;
-uniform float viewHeight;
-uniform float aspectRatio;
 uniform int isEyeInWater;
 uniform int hideGUI;
 uniform float rainStrength;
