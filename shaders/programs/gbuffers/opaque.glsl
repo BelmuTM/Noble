@@ -32,7 +32,7 @@
 		uniform vec4 entityColor;
 	#endif
 
-	#if POM > 0
+	#if POM > 0 && defined PROGRAM_TERRAIN
 		/*
 			CREDITS:
 			Null:      https://github.com/null511 - null511#3026
@@ -101,7 +101,7 @@
 	#endif
 
 	void main() {
-		#if POM > 0
+		#if POM > 0 && defined PROGRAM_TERRAIN
 			mat2 texDeriv   = mat2(dFdx(texCoords), dFdy(texCoords));
 			vec2 coords     = parallaxMapping(viewPos, texDeriv);
 			if(clamp01(coords) != coords) discard;
