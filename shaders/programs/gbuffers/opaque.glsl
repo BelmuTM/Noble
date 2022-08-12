@@ -51,6 +51,11 @@
 		#if POM == 1
 			float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
 				wrapCoordinates(coords);
+				return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
+			}
+		#else
+			float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
+				wrapCoordinates(coords);
 
 				vec2 uv[4];
 				vec2 f = getLinearCoords(atlasToLocal(coords), texSize * atlasSize, uv);
@@ -61,11 +66,6 @@
 				uv[3] = localToAtlas(uv[3]);
 
     			return 1.0 - textureGradLinear(normals, uv, texDeriv, f, 3);
-			}
-		#else
-			float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
-				wrapCoordinates(coords);
-				return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
 			}
 		#endif
 
@@ -86,7 +86,7 @@
             	currLayerHeight += layerHeight;
         	}
 
-			#if POM == 1
+			#if POM == 2
 				vec2 prevCoords = currCoords + deltaCoords;
 
 				float afterDepth  = currFragHeight - currLayerHeight;
