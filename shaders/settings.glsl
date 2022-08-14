@@ -54,8 +54,10 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define DIRECTIONAL_LIGHTMAP 1 // [0 1]
 #define SUNLIGHT_LEAKING_FIX
 
-// This hardcoded value is only used when the PBR texture pack doesn't put any SSS values on certain blocks (leaves, plants, cobwebs,...)
-#define HARDCODED_SSS_VAL 0.70
+#define HARDCODED_SSS             1
+#define HARDCODED_SSS_VAL      0.70
+#define HARDCODED_EMISSION        1
+#define HARDCODED_EMISSION_VAL 0.70
 
 //////////////////////////////////////////////////////////
 /*------------------ AMBIENT OCCLUSION -----------------*/
@@ -185,10 +187,9 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define RAIN_PUDDLES_SIZE 0.35 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95]
 #define RAIN_DIRECTION vec2(0.35, 0.1)
 
-#define POM             1 // [0 1 2]
-#define POM_LAYERS     64 // [32 64 128 256 512]
-#define POM_DEPTH     0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define POM_MAX_STEPS 100
+#define POM         1 // [0 1 2]
+#define POM_LAYERS 64 // [32 64 128 256 512]
+#define POM_DEPTH 0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 
 #define WATER_CAUSTICS               1 // [0 1]
 #define WATER_CAUSTICS_STRENGTH   1.00 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]

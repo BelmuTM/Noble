@@ -13,8 +13,8 @@
 
 	/* RENDERTARGETS: 1,2 */
 
-	layout (location = 0) out uvec4 data;
-	layout (location = 1) out vec3 geometricNormal;
+	layout (location = 0) out uvec4 data0;
+	layout (location = 1) out vec4  data1;
 
 	flat in int blockId;
 	in vec2 texCoords;
@@ -38,7 +38,7 @@
 			Null:      https://github.com/null511 - null511#3026
 			NinjaMike:                            - ninjamike1211#5424
 			
-			Thanks to them!
+			Thanks to them for their help!
 		*/
 
 		const float layerHeight = 1.0 / float(POM_LAYERS);
@@ -69,8 +69,7 @@
 			}
 		#endif
 
-		// Thanks ninjamike1211#5424 for the help!
-    	vec2 parallaxMapping(vec3 viewPos, mat2 texDeriv) {
+    	vec2 parallaxMapping(vec3 viewPos, mat2 texDeriv, inout float height, out vec2 shadowCoords) {
 			vec3 tangentDir       = normalize(viewToScene(viewPos)) * TBN;
         	float currLayerHeight = 0.0;
 
@@ -80,30 +79,66 @@
         	vec2  currCoords     = texCoords;
         	float currFragHeight = sampleHeightMap(currCoords, texDeriv);
 
-        	for(int i = 0; i < POM_MAX_STEPS && currLayerHeight < currFragHeight; i++) {
+        	for(int i = 0; i < POM_LAYERS && currLayerHeight < currFragHeight; i++) {
             	currCoords      -= deltaCoords;
             	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
             	currLayerHeight += layerHeight;
         	}
 
-			#if POM == 2
-				vec2 prevCoords = currCoords + deltaCoords;
+			vec2 prevCoords = currCoords + deltaCoords;
+			   shadowCoords = prevCoords;
 
-				float afterDepth  = currFragHeight - currLayerHeight;
-				float beforeDepth = sampleHeightMap(prevCoords, texDeriv) - currLayerHeight + layerHeight;
+			#if POM == 1
+				height = currLayerHeight;
+			#else
+				float afterHeight  = currFragHeight - currLayerHeight;
+				float beforeHeight = sampleHeightMap(prevCoords, texDeriv) - currLayerHeight + layerHeight;
+				float weight       = afterHeight / (afterHeight - beforeHeight);
 
-				float weight = afterDepth / (afterDepth - beforeDepth);
+				height = 0.0;
+
 				return mix(currCoords, prevCoords, weight);
 			#endif
 
  			return currCoords;
     	}
+
+		float parallaxShadowing(vec2 parallaxCoords, float height, mat2 texDeriv) {
+			vec3 tangentDir       = shadowLightVector * TBN;
+        	float currLayerHeight = height;
+
+        	vec2 P           = (tangentDir.xy / tangentDir.z) * POM_DEPTH * texSize;
+        	vec2 deltaCoords = P * layerHeight;
+
+        	vec2  currCoords     = parallaxCoords;
+        	float currFragHeight = 1.0;
+
+			float shadow = 1.0;
+
+        	for(int i = 0; i < POM_LAYERS; i++) {
+				if(currLayerHeight >= currFragHeight) {
+					shadow = 0.0; break;
+				}
+
+            	currCoords      += deltaCoords;
+            	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
+            	currLayerHeight -= layerHeight;
+        	}
+ 			return shadow;
+    	}
 	#endif
 
 	void main() {
+		data1.w = 1.0;
+
 		#if POM > 0 && defined PROGRAM_TERRAIN
-			mat2 texDeriv   = mat2(dFdx(texCoords), dFdy(texCoords));
-			vec2 coords     = parallaxMapping(viewPos, texDeriv);
+			mat2 texDeriv = mat2(dFdx(texCoords), dFdy(texCoords));
+			float height  = 1.0;
+			vec2 shadowCoords;
+
+			vec2 coords = parallaxMapping(viewPos, texDeriv, height, shadowCoords);
+
+			data1.w = parallaxShadowing(shadowCoords, height, texDeriv);
 			if(clamp01(coords) != coords) discard;
 		#else
 			vec2 coords = texCoords;
@@ -137,6 +172,10 @@
 		#ifdef PROGRAM_BEACONBEAM
 			if(albedoTex.a <= 1.0 - EPS) discard;
 			emission = 1.0;
+		#endif
+
+		#if HARDCODED_EMISSION == 1
+			if(blockId >= 5 && blockId < 8 && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
 		#endif
 
 		vec3 normal = geoNormal;
@@ -179,20 +218,20 @@
 			else                           { lightmapCoords.x *= clamp01(dot(normalize(dirLmCoords), normal) + 0.8) * 0.8 + 0.2; }
 		#endif
 
-		vec3 data0 = vec3(roughness, clamp01(lightmapCoords));
-		vec4 data1 = vec4(ao, emission, F0, subsurface);
+		vec3 labPbrData0 = vec3(roughness, clamp01(lightmapCoords));
+		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
 
 		// I bet you've never seen a cleaner data packing implementation huh?? SAY IT!!!!
-		uvec4 shiftedData0  = uvec4(round(data0         * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
-		uvec4 shiftedData1  = uvec4(round(data1         * maxVal8))                              << uvec4(0, 8, 17, 26);
+		uvec4 shiftedData0  = uvec4(round(labPbrData0   * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1   * maxVal8))                              << uvec4(0, 8, 17, 26);
 		uvec3 shiftedAlbedo = uvec3(round(albedoTex.rgb * vec3(2047.0, 1023.0, 2047.0)))         << uvec3(0, 11, 21);
 		uvec2 shiftedNormal = uvec2(round(encNormal     * maxVal16))                             << uvec2(0, 16);
 
-		data.x = shiftedData0.x  | shiftedData0.y  | shiftedData0.z | shiftedData0.w;
-		data.y = shiftedData1.x  | shiftedData1.y  | shiftedData1.z | shiftedData1.w;
-		data.z = shiftedAlbedo.x | shiftedAlbedo.y | shiftedAlbedo.z;
-		data.w = shiftedNormal.x | shiftedNormal.y;
+		data0.x = shiftedData0.x  | shiftedData0.y  | shiftedData0.z | shiftedData0.w;
+		data0.y = shiftedData1.x  | shiftedData1.y  | shiftedData1.z | shiftedData1.w;
+		data0.z = shiftedAlbedo.x | shiftedAlbedo.y | shiftedAlbedo.z;
+		data0.w = shiftedNormal.x | shiftedNormal.y;
 
-		geometricNormal = geoNormal;
+		data1.xyz = geoNormal;
 	}
 #endif

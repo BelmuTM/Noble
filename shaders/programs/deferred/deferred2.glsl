@@ -72,9 +72,9 @@ void main() {
 
     Material mat = getMaterial(tempCoords);
 
-    if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) {
-        mat.subsurface = HARDCODED_SSS_VAL;
-    }
+    #if HARDCODED_SSS == 1
+        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = HARDCODED_SSS_VAL;
+    #endif
 
     vec3 currPos   = vec3(texCoords, mat.depth0);
     vec3 prevPos   = currPos - getVelocity(currPos);

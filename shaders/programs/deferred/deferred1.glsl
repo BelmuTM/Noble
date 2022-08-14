@@ -109,8 +109,11 @@
             //////////////////////////////////////////////////////////
             /*----------------- SHADOW MAPPING ---------------------*/
             //////////////////////////////////////////////////////////
-            shadowmap.a   = 0.0;
-            shadowmap.rgb = !skyCheck ? shadowMap(viewToScene(viewPos), texture(colortex2, texCoords).rgb, shadowmap.a) : vec3(1.0);
+            vec4 tmp = texture(colortex2, texCoords);
+
+            shadowmap.a    = 0.0;
+            shadowmap.rgb  = !skyCheck ? shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a) : vec3(1.0);
+            shadowmap.rgb *= tmp.a;
 
             //////////////////////////////////////////////////////////
             /*------------- ATMOSPHERIC SCATTERING -----------------*/
