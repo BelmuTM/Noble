@@ -35,21 +35,6 @@ layout (location = 0) out vec3 color;
     }
 #endif
 
-
-#if CHROMATIC_ABERRATION == 1
-    void chromaticAberration(inout vec3 color) {
-        #if DOF == 0
-            vec2 offset = (1.0 - pow2(texCoords - vec2(0.5))) * ABERRATION_STRENGTH * pixelSize;
-
-            color = vec3(
-                texture(colortex4, texCoords + offset).r,
-                texture(colortex4, texCoords).g,
-                texture(colortex4, texCoords - offset).b
-            );
-        #endif
-    }
-#endif
-
 #if TONEMAP == 0
     #include "/include/post/aces/lib/splines.glsl"
 
@@ -125,13 +110,9 @@ void main() {
     vec4 tmp = texture(colortex4, texCoords);
     color    = tmp.rgb;
 
-    #if CHROMATIC_ABERRATION == 1
-        chromaticAberration(color);
-    #endif
-
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        float bloomStrgth = max0(exp2(tmp.a + BLOOM_STRENGTH - 3.0));
+        float bloomStrgth = max0(exp2(tmp.a + (BLOOM_STRENGTH - 1.0) - 3.0));
         color             = mix(color / tmp.a, readBloom(), bloomStrgth) * tmp.a;
     #endif
 

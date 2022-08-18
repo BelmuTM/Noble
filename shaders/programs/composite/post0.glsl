@@ -24,12 +24,9 @@ layout (location = 1) out vec3 bloomBuffer;
     void depthOfField(inout vec3 color, sampler2D tex, vec2 coords, int quality, float radius, float coc) {
         vec3 dof   = vec3(0.0);
         vec2 noise = vec2(randF(), randF());
-        vec2 caOffset;
 
-        #if CHROMATIC_ABERRATION == 1
-            float distFromCenter = pow2(distance(coords, vec2(0.5)));
-                  caOffset       = vec2(ABERRATION_STRENGTH * distFromCenter) * coc / pow2(quality);
-        #endif
+        float distFromCenter = pow2(distance(coords, vec2(0.5)));
+        vec2  caOffset       = vec2(distFromCenter) * coc / pow2(quality);
 
         for(int x = 0; x < quality; x++) {
             for(int y = 0; y < quality; y++) {
@@ -38,15 +35,11 @@ layout (location = 1) out vec3 bloomBuffer;
                 if(length(offset) < 0.5) {
                     vec2 sampleCoords = coords + (offset * radius * coc * pixelSize);
 
-                    #if CHROMATIC_ABERRATION == 1
-                        dof += vec3(
-                            texture(tex, sampleCoords + caOffset).r,
-                            texture(tex, sampleCoords).g,
-                            texture(tex, sampleCoords - caOffset).b
-                        );
-                    #else
-                        dof += texture(tex, sampleCoords).rgb;
-                    #endif
+                    dof += vec3(
+                        texture(tex, sampleCoords + caOffset).r,
+                        texture(tex, sampleCoords).g,
+                        texture(tex, sampleCoords - caOffset).b
+                    );
                 }
             }
         }

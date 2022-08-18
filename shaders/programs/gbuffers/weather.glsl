@@ -27,6 +27,8 @@
 
 		if(albedoTex.a < 0.102) discard;
 
+		albedoTex.a = 0.2;
+
 		color = albedoTex;
 	}
 #endif
