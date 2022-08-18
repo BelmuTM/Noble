@@ -37,13 +37,12 @@ void main() {
     Material mat = getMaterial(texCoords);
     vec3 coords  = vec3(texCoords, 0.0);
 
-    vec3 viewPos0 = getViewPos0(texCoords);
-    vec3 viewPos1 = getViewPos1(texCoords);
+    vec3 viewPos0  = getViewPos0(texCoords);
+    vec3 viewPos1  = getViewPos1(texCoords);
+    vec3 scenePos0 = viewToScene(viewPos0);
+    vec3 scenePos1 = viewToScene(viewPos1);
 
-    vec3 worldPos0 = transMAD(gbufferModelViewInverse, viewPos0);
-    vec3 worldPos1 = transMAD(gbufferModelViewInverse, viewPos1);
-
-    float VdotL = dot(normalize(worldPos0), shadowLightVector);
+    float VdotL = dot(normalize(scenePos0), shadowLightVector);
 
     vec3 directIlluminance = sampleDirectIlluminance();
     vec3 skyIlluminance    = texture(colortex6, texCoords).rgb * RCP_PI;
@@ -80,7 +79,7 @@ void main() {
                 color = simpleRefractions(viewPos0, mat, coords);
                 mat   = getMaterial(coords.xy);
                 
-                worldPos1 = transMAD(gbufferModelViewInverse, getViewPos1(coords.xy));
+                scenePos1 = viewToScene(getViewPos1(coords.xy));
             #endif
 
             //////////////////////////////////////////////////////////
@@ -90,16 +89,16 @@ void main() {
             #ifdef WORLD_OVERWORLD
                 if(isEyeInWater != 1 && mat.blockId == 1) {
                     #if WATER_FOG == 0
-                        waterFog(color, worldPos0, worldPos1, VdotL, directIlluminance, skyIlluminance, skyLight);
+                        waterFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #else
                         bool skyTranslucents = texture(depthtex1, coords.xy).r == 1.0;
-                        volumetricWaterFog(color, worldPos0, worldPos1, VdotL, directIlluminance, skyIlluminance, skyLight, skyTranslucents);
+                        volumetricWaterFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight, skyTranslucents);
                     #endif
                 } else {
                     #if AIR_FOG == 1
-                        volumetricFog(color, worldPos0, worldPos1, VdotL, directIlluminance, skyIlluminance, skyLight);
+                        volumetricFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #else
-                        groundFog(color, worldPos0, directIlluminance, skyIlluminance, skyLight, skyCheck);
+                        groundFog(color, scenePos0, directIlluminance, skyIlluminance, skyLight, skyCheck);
                     #endif
                 }
             #endif
@@ -136,13 +135,13 @@ void main() {
     #ifdef WORLD_OVERWORLD
         if(isEyeInWater == 1) {
             #if WATER_FOG == 0
-                waterFog(color, gbufferModelViewInverse[3].xyz, worldPos0, VdotL, directIlluminance, skyIlluminance, skyLight);
+                waterFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight);
             #else
-                volumetricWaterFog(color, gbufferModelViewInverse[3].xyz, worldPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
+                volumetricWaterFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
             #endif
         } else {
             #if AIR_FOG == 1
-                volumetricFog(color, gbufferModelViewInverse[3].xyz, worldPos0, VdotL, directIlluminance, skyIlluminance, skyLight);
+                volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight);
             #else
                 groundFog(color, gbufferModelViewInverse[3].xyz, directIlluminance, skyIlluminance, skyLight, skyCheck);
             #endif

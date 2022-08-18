@@ -17,7 +17,7 @@
     gltracy:         https://www.shadertoy.com/view/lslXDr
 */
 
-vec3 getAtmosDensities(float centerDist) {
+vec3 getAtmosphereDensities(float centerDist) {
 	float altitudeKm = (centerDist - earthRad) * 1e-3;
 	vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * 1e-3));
 
@@ -31,14 +31,14 @@ vec3 getAtmosDensities(float centerDist) {
 	return vec3(rayleighMie, ozone);
 }
 
-vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
+vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     float stepLength = intersectSphere(rayOrigin, lightDir, atmosUpperRad).y * rcp(TRANSMITTANCE_STEPS);
     vec3 increment   = lightDir * stepLength;
     vec3 rayPos      = rayOrigin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
     for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
-        accumAirmass += getAtmosDensities(fastLength(rayPos)) * stepLength;
+        accumAirmass += getAtmosphereDensities(length(rayPos)) * stepLength;
     }
     return exp(-atmosExtinctionCoeff * accumAirmass);
 }
@@ -61,7 +61,7 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         mat2x3 singleScattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
-            vec3 airmass          = getAtmosDensities(fastLength(rayPos)) * stepLength;
+            vec3 airmass          = getAtmosphereDensities(length(rayPos)) * stepLength;
             vec3 stepOpticalDepth = atmosExtinctionCoeff * airmass;
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
@@ -69,8 +69,8 @@ vec3 atmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec3 sunStepScattering  = atmosScatteringCoeff * (airmass.xy * phase.xy) * visibleScattering;
             vec3 moonStepScattering = atmosScatteringCoeff * (airmass.xy * phase.zw) * visibleScattering;
 
-            singleScattering[0] += sunStepScattering  * atmosphereTransmittance(rayPos, sunVector);
-            singleScattering[1] += moonStepScattering * atmosphereTransmittance(rayPos, moonVector);
+            singleScattering[0] += sunStepScattering  * getAtmosphereTransmittance(rayPos, sunVector);
+            singleScattering[1] += moonStepScattering * getAtmosphereTransmittance(rayPos, moonVector);
 
             vec3 stepScattering    = atmosScatteringCoeff * airmass.xy;
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
@@ -93,8 +93,8 @@ vec3 sampleDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
     #ifdef WORLD_OVERWORLD
-        vec3 sunTransmit  = atmosphereTransmittance(atmosRayPos, sunVector)  * sunIlluminance;
-        vec3 moonTransmit = atmosphereTransmittance(atmosRayPos, moonVector) * moonIlluminance;
+        vec3 sunTransmit  = getAtmosphereTransmittance(atmosRayPos, sunVector)  * sunIlluminance;
+        vec3 moonTransmit = getAtmosphereTransmittance(atmosRayPos, moonVector) * moonIlluminance;
         directIlluminance = sunTransmit + moonTransmit;
 
         #if TONEMAP == 0

@@ -7,16 +7,18 @@
 /***********************************************/
 
 /* ATMOSPHERE CONSTANTS */
+
 const float anisotropyFactor = 0.76;
 const float isotropicPhase   = 0.07957747;
 
-const float earthRad      = 6371e3;           // meters
-const float atmosLowerRad = earthRad - 3e3;   // meters
-const float atmosUpperRad = earthRad + 110e3; // meters
+const float earthRad      = 6371e3;           // Meters
+const float atmosLowerRad = earthRad - 3e3;   // Meters
+const float atmosUpperRad = earthRad + 110e3; // Meters
 
-const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // meters
+const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
 
 /* CLOUDS CONSTANTS */
+
 const float innerCloudRad = earthRad      + CLOUDS_ALTITUDE;
 const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
 
@@ -37,6 +39,17 @@ const float cloudsAnisotropyFalloff = 0.80;
 
 const float cloudsShadowmapRes  = 1024.0;
 const float cloudsShadowmapDist = 600.0;
+
+/* FOG CONSTANTS */
+
+const float fogExtinctionCoeff = 0.06;
+const float fogScatteringCoeff = 0.3;
+
+const float fogForwardsLobe = 0.45;
+const float fogBackardsLobe = 0.45;
+const float fogForwardsPeak = 0.90;
+const float fogBackScatter  = 0.15;
+const float fogPeakWeight   = 0.25;
 
 // Coefficients provided by Jessie#7257 and LVutner#5199
 

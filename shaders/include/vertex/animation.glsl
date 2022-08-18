@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-vec3 windDir = frameTimeCounter * vec3(-0.2, 0.35, -1.0) * mix(1.5, 2.5, wetness);
+vec3 windDir = frameTimeCounter * vec3(-0.2, 0.35, -1.0);
 
 void wavingLeaves(inout vec3 worldPos) {
     worldPos += (sin(worldPos * vec3(1.0, 1.4, 1.05) + windDir * vec3(2.0, 3.2, 2.3)) * vec3(0.1, 0.06, 0.2)) * 0.15;

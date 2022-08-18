@@ -8,21 +8,26 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-float jitter = fract(frameTimeCounter + bayer16(gl_FragCoord.xy));
+float jitter = fract(frameTimeCounter + bayer128(gl_FragCoord.xy));
 
-vec3 getVlDensities(in float height) {
-    height -= VL_ALTITUDE;
+float getFogDensity(vec3 position) {
+    float altitude   = (position.y - FOG_ALTITUDE) * rcp(FOG_THICKNESS);
+    float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0) * 1.5;
 
-    vec2 rayleighMie    = exp(-height / scaleHeights);
-         rayleighMie.x *= mix(FOG_DENSITY, FOG_RAIN_DENSITY, wetness); // Increasing aerosols for fog to be unrealistically visible
-
-    return vec3(rayleighMie, 0.0);
+    /*
+        CREDITS (density function):
+        SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
+    */
+    float shapeNoise  = FBM(position * 0.02, 5, 4.0);
+          shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
+          shapeNoise *= exp(-max0(position.y - FOG_ALTITUDE) * 0.2);
+        
+    return clamp01(shapeNoise) * mix(0.0, 1.0, rainStrength);
 }
 
 #if AIR_FOG == 0
     void groundFog(inout vec3 color, vec3 scenePos, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
-        float airmass     = sky ? far : length(scenePos);
-              airmass    *= mix(FOG_DENSITY, FOG_RAIN_DENSITY, wetness);
+        float airmass     = getFogDensity(scenePos) * length(scenePos);
         vec3 opticalDepth = (atmosExtinctionCoeff[0] + atmosExtinctionCoeff[1] + atmosExtinctionCoeff[2]) * airmass;
 
         vec3 transmittance       = exp(-opticalDepth);
@@ -40,54 +45,62 @@ vec3 getVlDensities(in float height) {
 
 #else
 
-    // Thanks Jessie, LVutner and SixthSurge for the help!
-    
-    vec3 vlTransmittance(vec3 rayOrigin, vec3 lightDir) {
-        float stepLength = 1.0 / TRANSMITTANCE_STEPS;
+    float getFogPhase(float cosTheta) {
+        float forwardsLobe  = cornetteShanksPhase(cosTheta, fogForwardsLobe);
+        float backwardsLobe = cornetteShanksPhase(cosTheta,-fogBackardsLobe);
+        float forwardsPeak  = cornetteShanksPhase(cosTheta, fogForwardsPeak);
+
+        return mix(mix(forwardsLobe, backwardsLobe, fogBackScatter), forwardsPeak, fogPeakWeight);
+    }
+
+    /*
+    float getFogTransmittance(vec3 rayOrigin, vec3 lightDir) {
+        const float stepLength = 1.0 / VL_TRANSMITTANCE_STEPS;
         vec3 increment   = lightDir * stepLength;
         vec3 rayPos      = rayOrigin + increment * 0.5;
 
-        vec3 accumAirmass = vec3(0.0);
-        for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
-            accumAirmass += getVlDensities(rayPos.y) * stepLength;
+        float accumAirmass = 0.0;
+        for(int i = 0; i < VL_TRANSMITTANCE_STEPS; i++, rayPos += increment) {
+            accumAirmass += getFogDensity(rayPos) * stepLength;
         }
-        return exp(-atmosExtinctionCoeff * accumAirmass);
+        return exp(-fogExtinctionCoeff * accumAirmass);
     }
+    */
 
     void volumetricFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
-        vec3 increment = (endPos - startPos) * rcp(VL_STEPS);
+        const float stepLength = 1.0 / VL_SCATTERING_STEPS;
+        vec3 increment = (endPos - startPos) * stepLength;
         vec3 rayPos    = startPos + increment * jitter;
+             rayPos   += cameraPosition;
 
         vec3 shadowStartPos  = worldToShadow(startPos);
-        vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * rcp(VL_STEPS);
+        vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepLength;
         vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
 
-        vec2 phase  = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, anisotropyFactor));
+        float phase = getFogPhase(VdotL);
 
-        mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 transmittance = vec3(1.0);
-        float stepLength = length(increment);
+        mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); float transmittance = 1.0;
+        float rayLength   = length(increment);
 
-        for(int i = 0; i < VL_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
-            vec3 airmass      = getVlDensities(rayPos.y) * stepLength;
-            vec3 opticalDepth = atmosExtinctionCoeff * airmass;
+        for(int i = 0; i < VL_SCATTERING_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
+            float airmass      = getFogDensity(rayPos) * rayLength;
+            float opticalDepth = fogExtinctionCoeff    * airmass;
 
-            vec3 stepTransmittance = exp(-opticalDepth);
-            vec3 visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
+            float stepTransmittance = exp(-opticalDepth);
+            float visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
 
-            vec3 stepScatteringDirect   = atmosScatteringCoeff * vec2(airmass.xy * phase.xy)       * visibleScattering;
-            vec3 stepScatteringIndirect = atmosScatteringCoeff * vec2(airmass.xy * isotropicPhase) * visibleScattering;
+            float stepScatteringDirect   = fogScatteringCoeff * airmass * phase          * visibleScattering;
+            float stepScatteringIndirect = fogScatteringCoeff * airmass * isotropicPhase * visibleScattering;
 
             vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5);
 
-            scattering[0] += stepScatteringDirect   * vlTransmittance(rayPos, shadowLightVector) * shadowColor;
-            scattering[1] += stepScatteringIndirect * vlTransmittance(rayPos, vec3(0.0, 1.0, 0.0));
+            scattering[0] += stepScatteringDirect * shadowColor;
+            scattering[1] += stepScatteringIndirect;
             transmittance *= stepTransmittance;
         }
 
-        scattering[0] *= directIlluminance;
-        scattering[1] *= skyIlluminance * skyLight;
-
-        color += scattering[0] + scattering[1];
+        color += scattering[0] * directIlluminance;
+        color += scattering[1] * skyIlluminance * skyLight;
     }
 #endif
 
@@ -118,14 +131,16 @@ const int phaseMultiSamples = 8;
 
     // Thanks Jessie#7257 for the help!
     void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
-        vec3 increment = (endPos - startPos) * rcp(WATER_FOG_STEPS);
+        const float stepLength = 1.0 / WATER_FOG_STEPS;
+        vec3 increment = (endPos - startPos) * stepLength;
         vec3 rayPos    = startPos + increment * jitter;
+             rayPos   += cameraPosition;
 
         vec3 shadowStartPos  = worldToShadow(startPos);
-        vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * rcp(WATER_FOG_STEPS);
+        vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepLength;
         vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
 
-        float rayLength = (sky ? far : distance(startPos, endPos)) * rcp(WATER_FOG_STEPS);
+        float rayLength = length(increment);
 
         vec3 opticalDepth       = waterExtinctionCoeff * rayLength;
         vec3 stepTransmittance  = exp(-opticalDepth);
@@ -170,7 +185,7 @@ const int phaseMultiSamples = 8;
         */
 
         vec3 scattering = scatteringMat[0] + scatteringMat[1];
-        if(sky) { transmittance = vec3(0.0); }
+        if(sky) transmittance = vec3(0.0);
     
         color = color * transmittance + scattering;
     }

@@ -42,9 +42,9 @@ float visibility(sampler2D tex, vec3 samplePos) {
 vec3 getShadowColor(vec3 samplePos) {
     if(clamp01(samplePos) != samplePos) return vec3(1.0);
 
-    float shadow0  = visibility(shadowtex0, samplePos);
-    float shadow1  = visibility(shadowtex1, samplePos);
-    vec4 shadowCol = texelFetch(shadowcolor0, ivec2(samplePos.xy * shadowMapResolution), 0);
+    float shadowDepth0 = visibility(shadowtex0, samplePos);
+    float shadowDepth1 = visibility(shadowtex1, samplePos);
+    vec4 shadowCol     = texelFetch(shadowcolor0, ivec2(samplePos.xy * shadowMapResolution), 0);
 
     #if TONEMAP == 0
         shadowCol.rgb = sRGBToAP1Albedo(shadowCol.rgb);
@@ -52,8 +52,7 @@ vec3 getShadowColor(vec3 samplePos) {
         shadowCol.rgb = srgbToLinear(shadowCol.rgb);
     #endif
 
-    shadowCol.rgb *= (1.0 - max0(shadowCol.a));
-    return mix(shadowCol.rgb * shadow1, vec3(1.0), shadow0);
+    return mix(vec3(shadowDepth0), shadowCol.rgb * (1.0 - shadowCol.a), clamp01(shadowDepth1 - shadowDepth0));
 }
 
 #if SHADOWS == 1 

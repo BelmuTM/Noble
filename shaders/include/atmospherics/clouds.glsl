@@ -34,7 +34,7 @@ float densityAlter(float altitude, float weatherMap) {
     return densityAlter * 1.5;
 }
 
-vec2 wind = WIND_SPEED * mix(1.0, 2.0, wetness) * frameTimeCounter * sincos(-0.785398);
+vec2 wind = WIND_SPEED * frameTimeCounter * sincos(-0.785398);
 
 float getCloudsDensity(vec3 position) {
     float altitude = (position.y - innerCloudRad) * rcp(CLOUDS_THICKNESS);
@@ -43,7 +43,7 @@ float getCloudsDensity(vec3 position) {
         position.xz += wind;
     #endif
     
-    float coverage   = mix(CLOUDS_COVERAGE, 1.0, wetness);
+    float coverage   = mix(CLOUDS_COVERAGE, 0.91, rainStrength);
     float weatherMap = clamp01((FBM(position.xz * 3e-4, 4, 3.7) * (1.0 - coverage) + coverage));
 
     float shapeAlter   = heightAlter(altitude,  weatherMap);
@@ -53,7 +53,7 @@ float getCloudsDensity(vec3 position) {
     vec3 curlPos  = position * 5e-4;
          curlPos += curlTex * CLOUDS_SWIRL;
 
-    vec4  shapeTex   = texture(depthtex2,  curlPos);
+    vec4  shapeTex   = texture(depthtex2, curlPos);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
           shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
 

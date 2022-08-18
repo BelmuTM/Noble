@@ -165,11 +165,10 @@ float FBM(vec2 uv, int octaves, float frequency) {
     return height;
 }
 
-float FBM(vec3 uv, int octaves) {
+float FBM(vec3 uv, int octaves, float frequency) {
     float height      = 0.0;
-    float frequency   = 3.5;
     float amplitude   = 1.0;
-    float lacunarity  = 0.9;
+    float lacunarity  = 2.0;
     float persistance = 0.5;
 
     for(int i = 0; i < octaves; i++) {

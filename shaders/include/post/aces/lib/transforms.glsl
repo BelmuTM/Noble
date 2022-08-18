@@ -56,7 +56,7 @@
 /*************************************************************************/
 
 /*
-    Coefficients taken from:
+    CREDITS:
     SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
 */
 

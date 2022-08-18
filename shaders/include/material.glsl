@@ -31,7 +31,7 @@ Material getMaterial(vec2 coords) {
     Material mat;
     mat.rough      = (dataTex.x & 255u)          * rcpMaxVal8;
     mat.ao         = (dataTex.y & 255u)          * rcpMaxVal8;
-    mat.emission   = ((dataTex.y >> 8u) & 255u)  * rcpMaxVal8;
+    mat.emission   = ((dataTex.y >> 8u)  & 255u) * rcpMaxVal8;
     mat.F0         = ((dataTex.y >> 16u) & 255u) * rcpMaxVal8;
     mat.subsurface = ((dataTex.y >> 24u) & 255u) * rcpMaxVal8;
 

@@ -52,7 +52,7 @@
 	/* RENDERTARGETS: 1,4 */
 
 	layout (location = 0) out uvec4 data;
-	layout (location = 1) out vec3 sceneColor;
+	layout (location = 1) out vec4 sceneColor;
 
 	flat in int blockId;
 	in vec2 texCoords;
@@ -123,7 +123,8 @@
 						shadowmap.rgb = shadowMap(scenePos, geoNormal, shadowmap.a);
 					#endif
 
-					sceneColor = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyLight, 1.0);
+					sceneColor.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyLight, 1.0);
+					sceneColor.a   = albedoTex.a;
 				}
 			#endif
 		}
@@ -134,7 +135,7 @@
 		vec4 labPbrData1 = vec4(mat.ao, mat.emission, mat.F0, mat.subsurface);
 	
 		uvec4 shiftedData0  = uvec4(round(labPbrData0   * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1   * maxVal8))                              << uvec4(0, 8, 17, 26);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1   * maxVal8))                              << uvec4(0, 8, 16, 24);
 		uvec3 shiftedAlbedo = uvec3(round(albedoTex.rgb * vec3(2047.0, 1023.0, 2047.0)))         << uvec3(0, 11, 21);
 		uvec2 shiftedNormal = uvec2(round(encNormal     * maxVal16))                             << uvec2(0, 16);
 

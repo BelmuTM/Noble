@@ -198,6 +198,7 @@
 			  	  	  puddle *= quintic(0.89, 0.99, normal.y);
 					  puddle  = clamp01(puddle);
 	
+				F0       += mix(F0, waterF0,       puddle);
 				roughness = mix(roughness, 0.0,    puddle);
 				normal    = mix(normal, geoNormal, puddle);
 			#endif
@@ -223,7 +224,7 @@
 
 		// I bet you've never seen a cleaner data packing implementation huh?? SAY IT!!!!
 		uvec4 shiftedData0  = uvec4(round(labPbrData0   * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1   * maxVal8))                              << uvec4(0, 8, 17, 26);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1   * maxVal8))                              << uvec4(0, 8, 16, 24);
 		uvec3 shiftedAlbedo = uvec3(round(albedoTex.rgb * vec3(2047.0, 1023.0, 2047.0)))         << uvec3(0, 11, 21);
 		uvec2 shiftedNormal = uvec2(round(encNormal     * maxVal16))                             << uvec2(0, 16);
 

@@ -314,17 +314,24 @@ option.CLOUDS_SWIRL.comment = Adjusts the swirliness of §bClouds§r.
 option.AIR_FOG = Fog
 option.AIR_FOG.comment = Simulates light scattering in dense particles. §aApproximation§r fog is a semi-accurate way of computing it. §aVolumetric§r fog uses ray marching and complex calculations to compute it more accurately.
 value.AIR_FOG.0 = §e§lApproximation
-value.AIR_FOG.1 = §e§lVolumetric
+value.AIR_FOG.1 = §e§lVolumetric (VF)
 
-option.VL_STEPS = Volumetric Fog Steps
-option.VL_STEPS.comment = Influences §bVolumetric Fog§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
-value.VL_STEPS.4 = §24
-value.VL_STEPS.8 = §a8
-value.VL_STEPS.16 = §e16
-value.VL_STEPS.32 = §632
+option.VL_SCATTERING_STEPS = VF Scattering Steps
+option.VL_SCATTERING_STEPS.comment = Influences §bVolumetric Fog§r's scattering accuracy. §cHigher value gives better results, but reduces §cperformance.
+value.VL_SCATTERING_STEPS.4  = §b4
+value.VL_SCATTERING_STEPS.8  = §38
+value.VL_SCATTERING_STEPS.12 = §212
+value.VL_SCATTERING_STEPS.16 = §a16
+value.VL_SCATTERING_STEPS.20 = §e20
+value.VL_SCATTERING_STEPS.24 = §624
+value.VL_SCATTERING_STEPS.28 = §c28
+value.VL_SCATTERING_STEPS.32 = §432
 
-option.FOG_DENSITY = Fog Density
-option.FOG_DENSITY.comment = Adjusts §bFog§r's density.
+option.FOG_ALTITUDE = Fog Altitude
+option.FOG_ALTITUDE.comment = Adjusts §bFog§r's altitude.
+
+option.FOG_THICKNESS = Fog Thickness
+option.FOG_THICKNESS.comment = Adjusts §bFog§r's thickness.
 
 ##################### TERRAIN #####################
 
