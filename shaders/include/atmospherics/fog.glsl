@@ -12,7 +12,7 @@ float jitter = fract(frameTimeCounter + bayer128(gl_FragCoord.xy));
 
 float getFogDensity(vec3 position) {
     float altitude   = (position.y - FOG_ALTITUDE) * rcp(FOG_THICKNESS);
-    float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0) * 1.5;
+    float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
 
     /*
         CREDITS (density function):
@@ -22,7 +22,7 @@ float getFogDensity(vec3 position) {
           shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
           shapeNoise *= exp(-max0(position.y - FOG_ALTITUDE) * 0.2);
         
-    return clamp01(shapeNoise) * mix(0.0, 1.0, rainStrength);
+    return clamp01(shapeNoise) * mix(0.1, 1.0, max(rainStrength, wetness));
 }
 
 #if AIR_FOG == 0
@@ -77,14 +77,19 @@ float getFogDensity(vec3 position) {
         vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepLength;
         vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
 
-        float phase = getFogPhase(VdotL);
+        float rayLength = length(increment);
+        float phase     = getFogPhase(VdotL);
 
-        mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); float transmittance = 1.0;
-        float rayLength   = length(increment);
+        mat2x3 scattering   = mat2x3(vec3(0.0), vec3(0.0)); 
+        float transmittance = 1.0, depthWeight = 0.0, depthSum = 0.0;
 
         for(int i = 0; i < VL_SCATTERING_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
-            float airmass      = getFogDensity(rayPos) * rayLength;
+            float density      = getFogDensity(rayPos);
+            float airmass      = density * rayLength;
             float opticalDepth = fogExtinctionCoeff    * airmass;
+
+            depthSum    += distance(startPos, rayPos) * density; 
+            depthWeight += density;
 
             float stepTransmittance = exp(-opticalDepth);
             float visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
@@ -99,8 +104,12 @@ float getFogDensity(vec3 position) {
             transmittance *= stepTransmittance;
         }
 
-        color += scattering[0] * directIlluminance;
-        color += scattering[1] * skyIlluminance * skyLight;
+        float distToFog = depthSum / depthWeight;
+
+        scattering[0] *= directIlluminance;
+        scattering[1] *= skyIlluminance * skyLight;
+
+        color += mix(vec3(0.0), scattering[0] + scattering[1], quintic(0.0, 1.0, pow(exp(-1e-3 * distToFog), 1.2)));
     }
 #endif
 
