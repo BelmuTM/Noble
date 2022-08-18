@@ -11,16 +11,13 @@
 const float anisotropyFactor = 0.76;
 const float isotropicPhase   = 0.07957747;
 
-const float earthRad      = 6371e3;           // Meters
-const float atmosLowerRad = earthRad - 3e3;   // Meters
-const float atmosUpperRad = earthRad + 110e3; // Meters
+const float planetRadius  = 6371e3;               // Meters
+const float atmosLowerRad = planetRadius - 3e3;   // Meters
+const float atmosUpperRad = planetRadius + 110e3; // Meters
 
 const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
 
 /* CLOUDS CONSTANTS */
-
-const float innerCloudRad = earthRad      + CLOUDS_ALTITUDE;
-const float outerCloudRad = innerCloudRad + CLOUDS_THICKNESS;
 
 const float cloudsExtinctionCoeff   = 0.06;
 const float cloudsScatteringCoeff   = 1.0;
@@ -66,7 +63,7 @@ const float fogPeakWeight   = 0.25;
 mat2x3 atmosScatteringCoeff = mat2x3(rayleighCoeff, mieCoeff);
 mat3x3 atmosExtinctionCoeff = mat3x3(rayleighCoeff, mieCoeff * 1.11111, ozoneCoeff);
 
-vec3 atmosRayPos = vec3(0.0, earthRad, 0.0) + cameraPosition;
+vec3 atmosRayPos = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 
 /* CELESTIAL CONSTANTS */
 const float moonRad       = 1.7374e3;

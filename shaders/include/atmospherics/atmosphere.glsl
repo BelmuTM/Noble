@@ -18,7 +18,7 @@
 */
 
 vec3 getAtmosphereDensities(float centerDist) {
-	float altitudeKm = (centerDist - earthRad) * 1e-3;
+	float altitudeKm = (centerDist - planetRadius) * 1e-3;
 	vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * 1e-3));
 
     // Ozone approximation from Jessie#7257
@@ -65,7 +65,7 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec3 stepOpticalDepth = atmosExtinctionCoeff * airmass;
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
-            vec3 visibleScattering  = transmittance * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
+            vec3 visibleScattering  = transmittance        * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
             vec3 sunStepScattering  = atmosScatteringCoeff * (airmass.xy * phase.xy) * visibleScattering;
             vec3 moonStepScattering = atmosScatteringCoeff * (airmass.xy * phase.zw) * visibleScattering;
 
@@ -104,9 +104,9 @@ vec3 sampleDirectIlluminance() {
     return directIlluminance;
 }
 
-mat3[2] sampleSkyIlluminance(inout vec3 skyMultScatterIllum) {
+mat3[2] sampleSkyIlluminance(inout vec3 skyMultiScatterIllum) {
     mat3[2] skyIllum    = mat3[2](mat3(0.0), mat3(0.0));
-    skyMultScatterIllum = vec3(0.0);
+    skyMultiScatterIllum = vec3(0.0);
 
     #ifdef WORLD_OVERWORLD
         const ivec2 samples = ivec2(16, 8);
@@ -122,7 +122,7 @@ mat3[2] sampleSkyIlluminance(inout vec3 skyMultScatterIllum) {
                 skyIllum[1][0] += atmoSample * clamp01(-dir.x);
                 skyIllum[1][2] += atmoSample * clamp01(-dir.z);
 
-                skyMultScatterIllum += atmoSample;
+                skyMultiScatterIllum += atmoSample;
             }
         }
         const float sampleWeight = 2.0 * TAU / (samples.x * samples.y);
@@ -138,7 +138,7 @@ mat3[2] sampleSkyIlluminance(inout vec3 skyMultScatterIllum) {
         skyIllum[1][1] += skyIllum[0][1] * 0.2;
         skyIllum[1][2] += skyIllum[0][1] * 0.2;
 
-        skyMultScatterIllum *= (TAU / (samples.x * samples.y));
+        skyMultiScatterIllum *= (TAU / (samples.x * samples.y));
     #endif
     return skyIllum;
 }

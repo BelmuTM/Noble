@@ -299,17 +299,17 @@ value.CLOUDS_SCATTERING_STEPS.32 = §432
 option.WIND_SPEED = Wind Speed
 option.WIND_SPEED.comment = Adjusts the speed which §bClouds§r are moving at.
 
-option.CLOUDS_ALTITUDE = Clouds Altitude
-option.CLOUDS_ALTITUDE.comment = Adjusts the altitude of §bClouds§r.
+option.CLOUDS_LAYER0_ALTITUDE = Clouds Altitude
+option.CLOUDS_LAYER0_ALTITUDE.comment = Adjusts the altitude of §bClouds§r.
 
-option.CLOUDS_THICKNESS = Clouds Thickness
-option.CLOUDS_THICKNESS.comment = Adjusts the thickness of §bClouds§r.
+option.CLOUDS_LAYER0_THICKNESS = Clouds Thickness
+option.CLOUDS_LAYER0_THICKNESS.comment = Adjusts the thickness of §bClouds§r.
 
-option.CLOUDS_COVERAGE = Clouds Coverage
-option.CLOUDS_COVERAGE.comment = Adjusts how much of the sky the §bClouds§r cover.
+option.CLOUDS_LAYER0_COVERAGE = Clouds Coverage
+option.CLOUDS_LAYER0_COVERAGE.comment = Adjusts how much of the sky the §bClouds§r cover.
 
-option.CLOUDS_SWIRL = Clouds Swirliness
-option.CLOUDS_SWIRL.comment = Adjusts the swirliness of §bClouds§r.
+option.CLOUDS_LAYER0_SWIRL = Clouds Swirliness
+option.CLOUDS_LAYER0_SWIRL.comment = Adjusts the swirliness of §bClouds§r.
 
 option.AIR_FOG = Fog
 option.AIR_FOG.comment = Simulates light scattering in dense particles. §aApproximation§r fog is a semi-accurate way of computing it. §aVolumetric§r fog uses ray marching and complex calculations to compute it more accurately.

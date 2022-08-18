@@ -11,14 +11,14 @@
 #ifdef STAGE_VERTEX
 
     out mat3[2] skyIlluminanceMat;
-    out vec3 skyMultScatterIllum;
+    out vec3 skyMultiScatterIllum;
     out vec3 directIlluminance;
 
     void main() {
         gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-        skyIlluminanceMat = sampleSkyIlluminance(skyMultScatterIllum);
+        skyIlluminanceMat = sampleSkyIlluminance(skyMultiScatterIllum);
 
         #if CLOUDS == 1
             directIlluminance = sampleDirectIlluminance();
@@ -53,7 +53,7 @@
     #include "/include/fragment/shadows.glsl"
 
     in mat3[2] skyIlluminanceMat;
-    in vec3 skyMultScatterIllum;
+    in vec3 skyMultiScatterIllum;
     in vec3 directIlluminance;
 
     #if GI == 0 && AO == 1 && AO_FILTER == 1
@@ -122,7 +122,7 @@
 
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION)) == texCoords) {
                 vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
-                     sky    = atmosphericScattering(skyRay, skyMultScatterIllum);
+                     sky    = atmosphericScattering(skyRay, skyMultiScatterIllum);
             }
 
             //////////////////////////////////////////////////////////
@@ -134,10 +134,35 @@
 
                 if(clamp(texCoords, vec2(0.0), vec2(CLOUDS_RESOLUTION)) == texCoords) {
                     vec3 scaledViewDir = normalize(getViewPos1(texCoords * rcp(CLOUDS_RESOLUTION)));
+                    vec3 cloudsRay     = mat3(gbufferModelViewInverse) * scaledViewDir;
 
-                    float distToCloud;
-                    vec3 cloudsRay = mat3(gbufferModelViewInverse) * scaledViewDir;
-                         clouds    = cloudsScattering(cloudsRay, distToCloud, directIlluminance, skyMultScatterIllum);
+                    CloudLayer layer0;
+                    layer0.altitude  = CLOUDS_LAYER0_ALTITUDE;
+                    layer0.thickness = CLOUDS_LAYER0_THICKNESS;
+                    layer0.coverage  = CLOUDS_LAYER0_COVERAGE;
+                    layer0.swirl     = CLOUDS_LAYER0_SWIRL;
+                    layer0.scale     = CLOUDS_LAYER0_SCALE;
+                    layer0.frequency = CLOUDS_LAYER0_FREQUENCY;
+                    layer0.density   = CLOUDS_LAYER0_DENSITY;
+
+                    CloudLayer layer1;
+                    layer1.altitude  = CLOUDS_LAYER1_ALTITUDE;
+                    layer1.thickness = CLOUDS_LAYER1_THICKNESS;
+                    layer1.coverage  = CLOUDS_LAYER1_COVERAGE;
+                    layer1.swirl     = CLOUDS_LAYER1_SWIRL;
+                    layer1.scale     = CLOUDS_LAYER1_SCALE;
+                    layer1.frequency = CLOUDS_LAYER1_FREQUENCY;
+                    layer1.density   = CLOUDS_LAYER1_DENSITY;
+                    
+                    vec4 cloudLayer0 = cloudsScattering(layer0, cloudsRay);
+                    vec4 cloudLayer1 = cloudsScattering(layer1, cloudsRay);
+
+                    vec2 scattering   = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
+	                float distToCloud = min(cloudLayer0.a, cloudLayer1.a);
+
+                    clouds.rgb += scattering.r  * directIlluminance;
+                    clouds.rgb += scattering.g  * skyMultiScatterIllum;
+                    clouds.a    = cloudLayer0.b * cloudLayer1.b;
 
                     /* Aerial Perspective */
                     clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-1e-4 * distToCloud));
