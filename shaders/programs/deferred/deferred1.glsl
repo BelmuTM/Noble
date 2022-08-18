@@ -69,7 +69,7 @@
                     Material sampleMat = getMaterial(coords + offset);
 
                     float weight  = gaussianDistrib2D(vec2(x, y), sigma);
-                          weight *= getDepthWeight(mat.depth0, sampleMat.depth0, 2.0);
+                          weight *= getDepthWeight(mat.depth0, sampleMat.depth0,  2.0);
                           weight *= getNormalWeight(mat.normal, sampleMat.normal, 8.0);
                           weight  = clamp01(weight);
 
@@ -176,7 +176,7 @@
                     float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.5 + 0.5;
 
                     vec2  velocity       = (texCoords - prevPos.xy) * viewSize;
-                    float velocityWeight = exp(-length(velocity)) * 0.8 + 0.2;
+                    float velocityWeight = exp(-length(velocity)) * 0.65 + 0.35;
 
                     float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy));
 
