@@ -9,12 +9,12 @@
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 uniform vec3 shadowLightPosition;
+uniform vec3 shadowVec;
 uniform vec3 sunVector;
 uniform vec3 moonVector;
 uniform vec3 shadowLightVector;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
-uniform vec3 skyColor;
 
 uniform float viewWidth;
 uniform float viewHeight;
@@ -34,7 +34,6 @@ uniform int isEyeInWater;
 uniform int hideGUI;
 uniform float rainStrength;
 uniform float wetness;
-uniform float eyeAltitude;
 uniform float sunAngle;
 
 uniform sampler2D normals;
@@ -78,19 +77,3 @@ uniform mat4 shadowProjectionInverse;
 uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
-
-const int noiseRes  = 256;
-const float airIOR  = 1.00029;
-const float waterF0 = 0.02;
-
-// Maximum values for X amount of bits (2^x - 1)
-const float maxVal8     = 255.0;
-const float maxVal16    = 65535.0;
-const float rcpMaxVal8  = 0.00392156;
-const float rcpMaxVal9  = 0.00195694;
-const float rcpMaxVal10 = 0.00097751;
-const float rcpMaxVal11 = 0.00048851;
-const float rcpMaxVal16 = 0.00001525;
-
-vec3 shadowDir = shadowLightPosition * 0.01;
-

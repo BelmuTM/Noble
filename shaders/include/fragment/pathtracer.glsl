@@ -96,7 +96,7 @@
                 mat            = getMaterial(hitPos.xy);
                 mat.lightmap.y = getSkyLightFalloff(mat.lightmap.y);
 
-                vec3 directLighting  = directBRDF(hitPos.xy, -rayDir, shadowDir, mat);
+                vec3 directLighting  = directBRDF(hitPos.xy, -rayDir, shadowVec, mat);
                      directLighting += getBlockLightColor(mat) * mat.emission;
                 vec3 indirectBounce  = indirectBRDF(noise, mat, rayDir);
              

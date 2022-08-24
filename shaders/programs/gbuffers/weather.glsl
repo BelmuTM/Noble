@@ -18,8 +18,7 @@
 	in vec2 texCoords;
 	in vec4 vertexColor;
 
-	#include "/include/common.glsl"
-	#include "/include/atmospherics/atmosphere.glsl"
+	uniform sampler2D colortex0;
 
 	void main() {
 		vec4 albedoTex  = texture(colortex0, texCoords);

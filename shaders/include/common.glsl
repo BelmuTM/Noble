@@ -10,6 +10,18 @@
     const bool colortex4MipmapEnabled = true;
 */
 
+const float airIOR  = 1.00029;
+const float waterF0 = 0.02;
+
+// Maximum values for X amount of bits (2^x - 1)
+const float maxVal8     = 255.0;
+const float maxVal16    = 65535.0;
+const float rcpMaxVal8  = 0.00392156;
+const float rcpMaxVal9  = 0.00195694;
+const float rcpMaxVal10 = 0.00097751;
+const float rcpMaxVal11 = 0.00048851;
+const float rcpMaxVal16 = 0.00001525;
+
 #include "/settings.glsl"
 #include "/include/uniforms.glsl"
 

@@ -126,7 +126,7 @@ vec3 shadowMap(vec3 scenePos, vec3 geoNormal, out float ssDepth) {
                 penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
         #endif
 
-        // contactShadow(viewPos, shadowDir, 24, bayer8(gl_FragCoord.xy))
+        // contactShadow(viewPos, shadowVec, 24, bayer8(gl_FragCoord.xy))
         return PCF(shadowPos, penumbraSize, ssDepth);
     #else
         return vec3(1.0);

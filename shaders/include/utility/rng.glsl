@@ -46,7 +46,7 @@ void pcg(inout uint seed) {
 }
 
 #ifdef STAGE_FRAGMENT
-    vec3 blueNoise = texelFetch(noisetex, ivec2(mod(gl_FragCoord, noiseRes)), 0).rgb;
+    vec3 blueNoise = texelFetch(noisetex, ivec2(mod(gl_FragCoord, 256)), 0).rgb;
 
     uint rngState = 185730u * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewSize.x);
     float randF() { pcg(rngState); return float(rngState) / float(0xffffffffu); }

@@ -101,7 +101,7 @@ void main() {
                 ao = texture(colortex10, texCoords).a;
             #endif
 
-            color.rgb = computeDiffuse(viewPos0, shadowDir, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance, clamp01(ao));
+            color.rgb = computeDiffuse(viewPos0, shadowVec, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance, clamp01(ao));
         }
     #else
 
