@@ -52,7 +52,7 @@ Material getMaterial(vec2 coords) {
     #endif
 
     #if TONEMAP == 0
-        mat.albedo = sRGBToAP1Albedo(mat.albedo);
+        mat.albedo = srgbToAP1Albedo(mat.albedo);
     #else
         mat.albedo = srgbToLinear(mat.albedo);
     #endif

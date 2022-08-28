@@ -60,7 +60,7 @@ float YTolinearCV(float y, float maxY, float minY) {
 }
 
 vec3 darkSurroundToDimSurround(vec3 linearCV) {
-    vec3 xyY = XYZToxyY(linearCV * AP1_2_XYZ_MAT);
+    vec3 xyY = xyzToXyV(linearCV * AP1_2_XYZ_MAT);
     xyY.b    = pow(clamp01(xyY.b), DIM_SURROUND_GAMMA);
     return xyYToXYZ(xyY) * XYZ_2_AP1_MAT;
 }
@@ -102,7 +102,7 @@ void odt(inout vec3 color) {
     color *= D60_2_D65_CAT; // Apply CAT from ACES white point to assumed observer adapted white point
 
     // CIE XYZ to display primaries and handling out-of-gamut values
-    color = clamp01(color * XYZ_2_sRGB_MAT);
+    color = clamp01(color * XYZ_2_SRGB_MAT);
 
     color.r = moncurve_r(color.r, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
     color.g = moncurve_r(color.g, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);

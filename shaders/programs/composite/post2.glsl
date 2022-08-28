@@ -21,9 +21,9 @@ layout (location = 0) out vec3 color;
         color /= exposure;
 
         #if TONEMAP == 0
-            mat3 toXYZ = sRGB_2_XYZ_MAT, fromXYZ = XYZ_2_sRGB_MAT;
+            mat3 toXYZ = SRGB_2_XYZ_MAT, fromXYZ = XYZ_2_SRGB_MAT;
         #else
-            rodResponse *= sRGB_2_AP1_ALBEDO;
+            rodResponse *= SRGB_2_AP1_ALBEDO;
             mat3 toXYZ   = AP1_2_XYZ_MAT, fromXYZ = XYZ_2_AP1_MAT;
         #endif
         vec3 xyzColor = color * toXYZ;
@@ -46,7 +46,6 @@ layout (location = 0) out vec3 color;
     void tonemap(inout vec3 color) {
         #if TONEMAP == 0
             color *= AP1_2_AP0_MAT;
-            color *= 1.8;
 
             rrt(color);
             odt(color);                          // ACES

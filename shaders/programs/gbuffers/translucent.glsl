@@ -109,7 +109,7 @@
 					vec3 scenePos = viewToScene(viewPos);
 
 					#if TONEMAP == 0
-       					mat.albedo = sRGBToAP1Albedo(mat.albedo);
+       					mat.albedo = srgbToAP1Albedo(mat.albedo);
     				#endif
 
 					vec3 skyLight  = vec3(0.0);

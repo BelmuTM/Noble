@@ -47,7 +47,7 @@ vec3 getShadowColor(vec3 samplePos) {
     vec4 shadowCol     = texelFetch(shadowcolor0, ivec2(samplePos.xy * shadowMapResolution), 0);
 
     #if TONEMAP == 0
-        shadowCol.rgb = sRGBToAP1Albedo(shadowCol.rgb);
+        shadowCol.rgb = srgbToAP1Albedo(shadowCol.rgb);
     #else
         shadowCol.rgb = srgbToLinear(shadowCol.rgb);
     #endif

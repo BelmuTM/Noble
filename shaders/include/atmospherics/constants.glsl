@@ -51,9 +51,9 @@ const float fogPeakWeight   = 0.25;
 // Coefficients provided by Jessie#7257 and LVutner#5199
 
 #if TONEMAP == 0
-    const vec3 rayleighCoeff = vec3(5.8e-6, 13.3e-6, 33.31e-6)                                                      * sRGB_2_AP1_ALBEDO;
-    const vec3 mieCoeff      = vec3(0.00001028098)                                                                  * sRGB_2_AP1_ALBEDO;
-    const vec3 ozoneCoeff    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14 * sRGB_2_AP1_ALBEDO;
+    const vec3 rayleighCoeff = vec3(5.8e-6, 13.3e-6, 33.31e-6)                                                      * SRGB_2_AP1_ALBEDO;
+    const vec3 mieCoeff      = vec3(0.00001028098)                                                                  * SRGB_2_AP1_ALBEDO;
+    const vec3 ozoneCoeff    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14 * SRGB_2_AP1_ALBEDO;
 #else
     const vec3 rayleighCoeff = vec3(5.8e-6, 13.3e-6, 33.31e-6);
     const vec3 mieCoeff      = vec3(0.00001028098);

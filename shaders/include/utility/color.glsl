@@ -14,19 +14,103 @@
 */
 
 //////////////////////////////////////////////////////////
-/*----------------- COLOR CONVERSIONS ------------------*/
+/*------------------ COLOR MATRICES --------------------*/
 //////////////////////////////////////////////////////////
 
+const mat3 SRGB_2_XYZ_MAT = mat3(
+	0.4124564, 0.3575761, 0.1804375,
+	0.2126729, 0.7151522, 0.0721750,
+	0.0193339, 0.1191920, 0.9503041
+);
+
+const mat3 XYZ_2_SRGB_MAT = mat3(
+	 3.2409699419,-1.5373831776,-0.4986107603,
+	-0.9692436363, 1.8759675015, 0.0415550574,
+	 0.0556300797,-0.2039769589, 1.0569715142
+);
+
+const mat3 XYZ_2_AP0_MAT = mat3(
+	 1.0498110175, 0.0000000000,-0.0000974845,
+	-0.4959030231, 1.3733130458, 0.0982400361,
+	 0.0000000000, 0.0000000000, 0.9912520182
+);
+
+const mat3 XYZ_2_AP1_MAT = mat3(
+	 1.6410233797,-0.3248032942,-0.2364246952,
+	-0.6636628587, 1.6153315917, 0.0167563477,
+	 0.0117218943,-0.0082844420, 0.9883948585
+);
+
+const mat3 AP0_2_XYZ_MAT = mat3(
+	0.9525523959, 0.0000000000, 0.0000936786,
+	0.3439664498, 0.7281660966,-0.0721325464,
+	0.0000000000, 0.0000000000, 1.0088251844
+);
+
+const mat3 AP1_2_XYZ_MAT = mat3(
+	 0.6624541811, 0.1340042065, 0.1561876870,
+	 0.2722287168, 0.6740817658, 0.0536895174,
+	-0.0055746495, 0.0040607335, 1.0103391003
+);
+
+const mat3 AP0_2_AP1_MAT = mat3(
+	 1.4514393161,-0.2365107469,-0.2149285693,
+	-0.0765537734, 1.1762296998,-0.0996759264,
+	 0.0083161484,-0.0060324498, 0.9977163014
+);
+
+const mat3 AP1_2_AP0_MAT = mat3(
+	 0.6954522414, 0.1406786965, 0.1638690622,
+	 0.0447945634, 0.8596711185, 0.0955343182,
+    -0.0055258826, 0.0040252103, 1.0015006723
+);
+
+const mat3 D60_2_D65_CAT = mat3(
+	 0.98722400,-0.00611327, 0.01595330,
+	-0.00759836, 1.00186000, 0.00533002,
+	 0.00307257,-0.00509595, 1.08168000
+);
+
+const mat3 D65_2_D60_CAT = mat3(
+	 1.01303000, 0.00610531,-0.01497100,
+	 0.00769823, 0.99816500,-0.00503203,
+	-0.00284131, 0.00468516, 0.92450700
+);
+
+const mat3 CONE_RESP_CAT02 = mat3(
+	vec3( 0.7328, 0.4296,-0.1624),
+	vec3(-0.7036, 1.6975, 0.0061),
+	vec3( 0.0030, 0.0136, 0.9834)
+);
+
+const mat3 CONE_RESP_BRADFORD = mat3(
+	vec3( 0.8951, 0.2664,-0.1614),
+	vec3(-0.7502, 1.7135, 0.0367),
+	vec3( 0.0389,-0.0685, 1.0296)
+);
+
+const vec3 AP1_RGB2Y = vec3(0.2722287168, 0.6740817658, 0.0536895174); // Desaturation Coefficients
+
+const mat3 SRGB_2_AP1        = SRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP1_MAT;
+const mat3 SRGB_2_AP1_ALBEDO = SRGB_2_XYZ_MAT * XYZ_2_AP1_MAT;
+
+// https://www.shadertoy.com/view/ltjBWG
+const mat3 SRGB_2_YCoCg_MAT = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
+const mat3 YCoCg_2_SRGB_MAT = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
+
+//////////////////////////////////////////////////////////
+/*----------------- COLOR CONVERSIONS ------------------*/
+//////////////////////////////////////////////////////////
 
 #if TONEMAP == 0
     // AP1 color space -> https://en.wikipedia.org/wiki/Academy_Color_Encoding_System
     float luminance(vec3 color) {
-        return dot(color, AP1);
+        return dot(color, AP1_2_XYZ_MAT[1]);
     }
 #else
     // REC. 709 -> https://en.wikipedia.org/wiki/Luma_(video)
     float luminance(vec3 color) {
-        return dot(color, REC_709);
+        return dot(color, SRGB_2_XYZ_MAT[1]);
     }
 #endif
 
@@ -43,36 +127,8 @@ vec3 srgbToLinear(vec3 sRGB) {
     return mix(higher, lower, step(sRGB, vec3(0.04045)));
 }
 
-const mat3 SRGB_2_XYZ_MAT = (mat3(
-    0.4124, 0.3576, 0.1805,
-    0.2126, 0.7152, 0.0722,
-    0.0193, 0.1192, 0.9505
-));
-
-const mat3 XYZ_2_SRGB_MAT = (mat3(
-     3.2406,-1.5372,-0.4986,
-    -0.9689, 1.8758, 0.0415,
-     0.0557,-0.2040, 1.0570
-));
-
-const mat3 CONE_RESP_CAT02 = mat3(
-	vec3( 0.7328, 0.4296,-0.1624),
-	vec3(-0.7036, 1.6975, 0.0061),
-	vec3( 0.0030, 0.0136, 0.9834)
-);
-
-const mat3 CONE_RESP_BRADFORD = mat3(
-	vec3( 0.8951, 0.2664,-0.1614),
-	vec3(-0.7502, 1.7135, 0.0367),
-	vec3( 0.0389,-0.0685, 1.0296)
-);
-
-// https://www.shadertoy.com/view/ltjBWG
-const mat3 RGB_2_YCoCg_MAT = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
-const mat3 YCoCg_2_RGB_MAT = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
-
-vec3 linearToYCoCg(vec3 linear) { return RGB_2_YCoCg_MAT * linearToSrgb(linear).rgb; }
-vec3 yCoCgToLinear(vec3 YCoCg)  { return srgbToLinear(YCoCg_2_RGB_MAT * YCoCg).rgb;  }
+vec3 linearToYCoCg(vec3 color) { return SRGB_2_YCoCg_MAT * linearToSrgb(color); }
+vec3 yCoCgToLinear(vec3 color) { return srgbToLinear(YCoCg_2_SRGB_MAT * color); }
 
 //////////////////////////////////////////////////////////
 /*---------------------- TONEMAPS ----------------------*/
