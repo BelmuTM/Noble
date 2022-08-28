@@ -77,12 +77,10 @@ float getCloudsDensity(vec3 position, CloudLayer layer, vec2 radius) {
 }
 
 float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount, CloudLayer layer, vec2 radius) {
-    float stepLength = 23.0, opticalDepth = 0.0;
+    float stepLength = 0.04 * layer.thickness * (6.0 / float(stepCount)), opticalDepth = 0.0;
 
     for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength) {
         stepLength *= 2.0;
-
-        if(clamp(rayPos.y, radius.x, radius.y) != rayPos.y) continue;
 
         float jitter  = fract(frameTimeCounter + bayer32(gl_FragCoord.xy));
         opticalDepth += getCloudsDensity(rayPos + lightDir * stepLength * jitter, layer, radius) * stepLength;

@@ -333,6 +333,9 @@ option.FOG_ALTITUDE.comment = Adjusts §bFog§r's altitude.
 option.FOG_THICKNESS = Fog Thickness
 option.FOG_THICKNESS.comment = Adjusts §bFog§r's thickness.
 
+option.FOG_DENSITY = Fog Density
+option.FOG_DENSITY.comment = Adjusts §bFog§r's density.
+
 ##################### TERRAIN #####################
 
 option.WHITE_WORLD = White World
