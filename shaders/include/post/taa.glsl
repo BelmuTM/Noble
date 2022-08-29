@@ -22,11 +22,11 @@ vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
 }
 
 vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
-    vec3 minColor = vec3(1e9), maxColor = vec3(-1e9);
+    vec3 minColor = vec3(1e8), maxColor = vec3(-1e8);
 
     for(int x = -TAA_NEIGHBORHOOD_RADIUS; x <= TAA_NEIGHBORHOOD_RADIUS; x++) {
         for(int y = -TAA_NEIGHBORHOOD_RADIUS; y <= TAA_NEIGHBORHOOD_RADIUS; y++) {
-            vec3 color = linearToYCoCg(texelFetch(currTex, ivec2(gl_FragCoord.xy) + ivec2(x, y), 0).rgb);
+            vec3 color = SRGB_2_YCoCg_MAT * texelFetch(currTex, ivec2(gl_FragCoord.xy) + ivec2(x, y), 0).rgb;
             minColor = min(minColor, color); 
             maxColor = max(maxColor, color); 
         }
@@ -34,21 +34,35 @@ vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
     return clipAABB(prevColor, minColor, maxColor);
 }
 
-// Thanks LVutner for the help with TAA (buffer management)
-// https://github.com/LVutner
-vec3 temporalAntiAliasing(Material currMat, sampler2D currTex, sampler2D prevTex) {
-    vec3 currPos = vec3(texCoords, currMat.depth0);
-    vec3 prevPos = currPos - getVelocity(currPos);
+vec3 getClosestFragment(vec3 position) {
+	vec3 closestFragment = position;
+    vec3 currentFragment;
 
-    vec3 currColor = linearToYCoCg(texelFetch(currTex, ivec2(gl_FragCoord.xy), 0).rgb);
-    vec3 prevColor = linearToYCoCg(texture(prevTex, prevPos.xy).rgb);
+    const int searchRadius = 2;
+
+    for(int x = -searchRadius; x <= searchRadius; x++) {
+        for(int y = -searchRadius; y <= searchRadius; y++) {
+            currentFragment.xy = position.xy + vec2(x, y) * pixelSize;
+            currentFragment.z  = texelFetch(depthtex0, ivec2(gl_FragCoord) + ivec2(x, y), 0).r;
+            closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
+        }
+    }
+    return closestFragment;
+}
+
+vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
+    vec3 closestFragment = getClosestFragment(vec3(texCoords, texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r));
+    vec2 prevCoords      = texCoords - getVelocity(closestFragment).xy;
+
+    vec3 currColor = SRGB_2_YCoCg_MAT * textureCatmullRom(currTex, texCoords).rgb;
+    vec3 prevColor = SRGB_2_YCoCg_MAT * textureCatmullRom(prevTex, prevCoords).rgb;
          prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    float weight = float(clamp01(prevPos.xy) == prevPos.xy) * TAA_STRENGTH;
+    float weight = float(clamp01(prevCoords) == prevCoords) * TAA_STRENGTH;
 
     // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
-    vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);
+    vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
          weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
 
-    return yCoCgToLinear(mix(currColor, prevColor, clamp01(weight))); 
+    return YCoCg_2_SRGB_MAT * mix(currColor, prevColor, clamp01(weight)); 
 }

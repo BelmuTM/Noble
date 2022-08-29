@@ -127,9 +127,6 @@ vec3 srgbToLinear(vec3 sRGB) {
     return mix(higher, lower, step(sRGB, vec3(0.04045)));
 }
 
-vec3 linearToYCoCg(vec3 color) { return SRGB_2_YCoCg_MAT * linearToSrgb(color); }
-vec3 yCoCgToLinear(vec3 color) { return srgbToLinear(YCoCg_2_SRGB_MAT * color); }
-
 //////////////////////////////////////////////////////////
 /*---------------------- TONEMAPS ----------------------*/
 //////////////////////////////////////////////////////////

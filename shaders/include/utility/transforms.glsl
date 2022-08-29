@@ -108,7 +108,7 @@ float iorToF0(float ior) {
 //////////////////////////////////////////////////////////
 
 vec3 getVelocity(vec3 currPos) {
-    vec3 cameraOffset = cameraPosition - previousCameraPosition;
+    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(linearizeDepthFast(currPos.z) >= MC_HAND_DEPTH);
 
     vec3 prevPos = transMAD(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPos)));
          prevPos = (projOrthoMAD(gbufferPreviousProjection, prevPos) / -prevPos.z) * 0.5 + 0.5;

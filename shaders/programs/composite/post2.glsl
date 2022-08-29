@@ -46,6 +46,7 @@ layout (location = 0) out vec3 color;
     void tonemap(inout vec3 color) {
         #if TONEMAP == 0
             color *= AP1_2_AP0_MAT;
+            color *= 1.5;
 
             rrt(color);
             odt(color);                          // ACES

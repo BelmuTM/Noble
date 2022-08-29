@@ -47,3 +47,166 @@ float getNormalWeight(vec3 normal0, vec3 normal1, float sigma) {
 float getDepthWeight(float depth0, float depth1, float sigma) {
     return exp(-abs(linearizeDepth(depth0) - linearizeDepth(depth1)) * sigma);
 }
+
+//////////////////////////////////////////////////////////
+/*----------------- TEXTURE SAMPLING -------------------*/
+//////////////////////////////////////////////////////////
+
+/*
+    Bicubic sampling provided by swr#1793
+*/
+vec4 cubic(float v) {
+    vec4 n  = vec4(1.0, 2.0, 3.0, 4.0) - v;
+    vec4 s  = pow3(n);
+    float x = s.x;
+    float y = s.y - 4.0 * s.x;
+    float z = s.z - 4.0 * s.y + 6.0 * s.x;
+    float w = 6.0 - x - y - z;
+    return vec4(x, y, z, w) * rcp(6.0);
+}
+ 
+vec4 textureBicubic(sampler2D tex, vec2 texCoords) {
+    vec2 texSize    = textureSize(tex, 0);
+    vec2 invTexSize = 1.0 / texSize;
+ 
+    texCoords = texCoords * texSize - 0.5;
+ 
+    vec2 fxy   = fract(texCoords);
+    texCoords -= fxy;
+ 
+    vec4 xcubic = cubic(fxy.x);
+    vec4 ycubic = cubic(fxy.y);
+ 
+    vec4 c = texCoords.xxyy + vec2(-0.5, 1.5).xyxy;
+ 
+    vec4 s      = vec4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
+    vec4 offset = c + vec4(xcubic.yw, ycubic.yw) / s;
+ 
+    offset *= invTexSize.xxyy;
+ 
+    vec4 sample0 = texture(tex, offset.xz);
+    vec4 sample1 = texture(tex, offset.yz);
+    vec4 sample2 = texture(tex, offset.xw);
+    vec4 sample3 = texture(tex, offset.yw);
+ 
+    float sx = s.x / (s.x + s.y);
+    float sy = s.z / (s.z + s.w);
+ 
+    return mix(mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
+}
+
+/*
+    Texture CatmullRom taken from TheRealMJP (https://github.com/TheRealMJP)
+    SOURCE: https://gist.github.com/TheRealMJP/c83b8c0f46b63f3a88a5986f4fa982b1
+*/
+
+// Samples a texture with Catmull-Rom filtering, using 9 texture fetches instead of 16.
+// See http://vec3.ca/bicubic-filtering-in-fewer-taps/ for more details
+vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
+    vec2 texSize    = textureSize(tex, 0);
+    vec2 rcpTexSize = 1.0 / texSize;
+
+    // We're going to sample a a 4x4 grid of texels surrounding the target UV coordinate. We'll do this by rounding
+    // down the sample location to get the exact center of our "starting" texel. The starting texel will be at
+    // location [1, 1] in the grid, where [0, 0] is the top left corner.
+    vec2 samplePos = coords * texSize;
+    vec2 texPos1   = floor(samplePos - 0.5) + 0.5;
+
+    // Compute the fractional offset from our starting texel to our original sample location, which we'll
+    // feed into the Catmull-Rom spline function to get our filter weights.
+    vec2 f = samplePos - texPos1;
+
+    // Compute the Catmull-Rom weights using the fractional offset that we calculated earlier.
+    // These equations are pre-expanded based on our knowledge of where the texels will be located,
+    // which lets us avoid having to evaluate a piece-wise function.
+    vec2 w0 = f * (-0.5 + f * (1.0 - 0.5 * f));
+    vec2 w1 = 1.0 + f * f * (-2.5 + 1.5 * f);
+    vec2 w2 = f * (0.5 + f * (2.0 - 1.5 * f));
+    vec2 w3 = f * f * (-0.5 + 0.5 * f);
+
+    // Work out weighting factors and sampling offsets that will let us use bilinear filtering to
+    // simultaneously evaluate the middle 2 samples from the 4x4 grid.
+    vec2 w12      = w1 + w2;
+    vec2 offset12 = w2 / (w1 + w2);
+
+    // Compute the final UV coordinates we'll use for sampling the texture
+    vec2 texPos0  = texPos1 - 1.0;
+    vec2 texPos3  = texPos1 + 2.0;
+    vec2 texPos12 = texPos1 + offset12;
+
+    texPos0  *= rcpTexSize;
+    texPos3  *= rcpTexSize;
+    texPos12 *= rcpTexSize;
+
+    vec4 result = vec4(0.0);
+    result += texture(tex, vec2(texPos0.x, texPos0.y),  0.0) * w0.x  * w0.y;
+    result += texture(tex, vec2(texPos12.x, texPos0.y), 0.0) * w12.x * w0.y;
+    result += texture(tex, vec2(texPos3.x, texPos0.y),  0.0) * w3.x  * w0.y;
+
+    result += texture(tex, vec2(texPos0.x, texPos12.y),  0.0) * w0.x  * w12.y;
+    result += texture(tex, vec2(texPos12.x, texPos12.y), 0.0) * w12.x * w12.y;
+    result += texture(tex, vec2(texPos3.x, texPos12.y),  0.0) * w3.x  * w12.y;
+
+    result += texture(tex, vec2(texPos0.x, texPos3.y),  0.0) * w0.x  * w3.y;
+    result += texture(tex, vec2(texPos12.x, texPos3.y), 0.0) * w12.x * w3.y;
+    result += texture(tex, vec2(texPos3.x, texPos3.y),  0.0) * w3.x  * w3.y;
+
+    return result;
+}
+
+/*
+    Linear texture sampling methods provided by null511#3026 (https://github.com/null511)
+    SOURCE: https://github.com/null511/MC-Arc-Shader/blob/main/shaders/lib/sampling/linear.glsl
+*/
+vec2 getLinearCoords(const in vec2 coords, const in vec2 texSize, out vec2 uv[4]) {
+    vec2 f         = fract(coords * texSize);
+    vec2 pixelSize = rcp(texSize);
+
+    uv[0] = coords - f * pixelSize;
+    uv[1] = uv[0] + vec2(1.0, 0.0) * pixelSize;
+    uv[2] = uv[0] + vec2(0.0, 1.0) * pixelSize;
+    uv[3] = uv[0] + vec2(1.0, 1.0) * pixelSize;
+    return f;
+}
+
+float linearBlend4(const in vec4 samples, const in vec2 f) {
+    float x1 = mix(samples[0], samples[1], f.x);
+    float x2 = mix(samples[2], samples[3], f.x);
+    return mix(x1, x2, f.y);
+}
+
+vec3 linearBlend4(const in vec3 samples[4], const in vec2 f) {
+    vec3 x1 = mix(samples[0], samples[1], f.x);
+    vec3 x2 = mix(samples[2], samples[3], f.x);
+    return mix(x1, x2, f.y);
+}
+
+vec3 textureLodLinearRGB(const in sampler2D samplerName, const in vec2 uv[4], const in int lod, const in vec2 f) {
+    vec3 samples[4];
+    samples[0] = textureLod(samplerName, uv[0], lod).rgb;
+    samples[1] = textureLod(samplerName, uv[1], lod).rgb;
+    samples[2] = textureLod(samplerName, uv[2], lod).rgb;
+    samples[3] = textureLod(samplerName, uv[3], lod).rgb;
+    return linearBlend4(samples, f);
+}
+
+vec3 textureLodLinearRGB(const in sampler2D samplerName, const in vec2 coords, const in vec2 texSize, const in int lod) {
+    vec2 uv[4];
+    vec2 f = getLinearCoords(coords, texSize, uv);
+    return textureLodLinearRGB(samplerName, uv, lod, f);
+}
+
+float textureGradLinear(const in sampler2D samplerName, const in vec2 uv[4], const in mat2 dFdXY, const in vec2 f, const in int comp) {
+    vec4 samples;
+    samples[0] = textureGrad(samplerName, uv[0], dFdXY[0], dFdXY[1])[comp];
+    samples[1] = textureGrad(samplerName, uv[1], dFdXY[0], dFdXY[1])[comp];
+    samples[2] = textureGrad(samplerName, uv[2], dFdXY[0], dFdXY[1])[comp];
+    samples[3] = textureGrad(samplerName, uv[3], dFdXY[0], dFdXY[1])[comp];
+    return linearBlend4(samples, f);
+}
+
+float textureGradLinear(const in sampler2D samplerName, const in vec2 coords, const in vec2 texSize, const in mat2 dFdXY, const in int comp) {
+    vec2 uv[4];
+    vec2 f = getLinearCoords(coords, texSize, uv);
+    return textureGradLinear(samplerName, uv, dFdXY, f, comp);
+}

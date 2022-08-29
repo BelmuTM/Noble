@@ -44,7 +44,6 @@ float getFogDensity(vec3 position) {
     }
 
 #else
-
     float getFogPhase(float cosTheta) {
         float forwardsLobe  = cornetteShanksPhase(cosTheta, fogForwardsLobe);
         float backwardsLobe = cornetteShanksPhase(cosTheta,-fogBackardsLobe);
@@ -109,7 +108,7 @@ float getFogDensity(vec3 position) {
         scattering[0] *= directIlluminance;
         scattering[1] *= skyIlluminance * skyLight;
 
-        color += mix(vec3(0.0), scattering[0] + scattering[1], quintic(0.0, 1.0, pow(exp(-1e-3 * distToFog), 1.2)));
+        color += mix(vec3(0.0), scattering[0] + scattering[1], quintic(0.0, 1.0, pow(exp(-1e-3 * distToFog), 1.1)));
     }
 #endif
 

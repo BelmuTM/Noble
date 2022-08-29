@@ -64,7 +64,7 @@
         color = texture(colortex4, texCoords);
 
         #if TAA == 1
-            color.rgb = temporalAntiAliasing(getMaterial(texCoords), colortex4, colortex8);
+            color.rgb = temporalAntiAliasing(colortex4, colortex8);
         #endif
 
         history.rgb = color.rgb;
