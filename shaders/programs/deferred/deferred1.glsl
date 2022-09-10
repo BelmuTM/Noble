@@ -168,7 +168,7 @@
                     clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-1e-4 * distToCloud));
 
                     /* Reprojection */
-                    vec3 prevPos    = reprojectClouds(viewPos, 1e8 * distToCloud);
+                    vec3 prevPos    = reprojectClouds(viewPos, 1e7 * distToCloud);
                     vec4 prevClouds = texture(colortex12, prevPos.xy);
 
                     // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)

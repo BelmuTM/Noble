@@ -157,7 +157,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         transmittance *= stepTransmittance;
     }
     transmittance     = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
-    float distToCloud = depthWeight < 1e-5 ? 1e8 : depthSum / depthWeight;
+    float distToCloud = depthSum / depthWeight;
 
     return vec4(scattering, transmittance, distToCloud);
 }
