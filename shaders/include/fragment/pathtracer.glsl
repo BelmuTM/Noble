@@ -101,7 +101,7 @@
                 vec3 indirectBounce  = indirectBRDF(noise, mat, rayDir);
              
                 if(dot(mat.normal, rayDir) < 0.0) continue;
-                bool hit = raytrace(screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
+                bool hit = raytrace(depthtex0, screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
 
                 if(j == 0) { 
                     outColorDirect   = directLighting;

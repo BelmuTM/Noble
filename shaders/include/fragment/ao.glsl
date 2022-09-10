@@ -33,7 +33,7 @@
 		for(int i = 0; i < RTAO_SAMPLES; i++) {
 			vec3 rayDir = generateCosineVector(normal, vec2(randF(), randF()));
 
-			if(!raytrace(rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) {
+			if(!raytrace(depthtex1, rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) {
 				bentNormal += rayDir;
 				continue;
 			}

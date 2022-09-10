@@ -42,7 +42,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         vec3 viewDir = normalize(viewPos);
 
         vec3 rayDir   = reflect(viewDir, mat.normal); vec3 hitPos;
-        float hit     = float(raytrace(viewPos, rayDir, SIMPLE_REFLECT_STEPS, randF(), hitPos));
+        float hit     = float(raytrace(depthtex0, viewPos, rayDir, SIMPLE_REFLECT_STEPS, randF(), hitPos));
         float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
         vec3 hitColor = getHitColor(hitPos);
 
@@ -84,7 +84,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
             float NdotL     = abs(dot(mat.normal, rayDir));
 
             if(NdotV > 0.0 && NdotL > 0.0) {
-                float hit     = float(raytrace(viewPos, rayDir, ROUGH_REFLECT_STEPS, randF(), hitPos));
+                float hit     = float(raytrace(depthtex0, viewPos, rayDir, ROUGH_REFLECT_STEPS, randF(), hitPos));
                 float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
                 vec3 hitColor = getHitColor(hitPos);
 
@@ -120,7 +120,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         vec3 viewDir = normalize(viewPos);
 
         vec3 refracted = refract(viewDir, mat.normal, airIOR / ior);
-        bool hit       = raytrace(viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
+        bool hit       = raytrace(depthtex1, viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
         if(!hit || isHand(hitPos.xy)) { hitPos.xy = texCoords; }
 
         float n1 = airIOR, n2 = ior;
