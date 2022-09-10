@@ -65,20 +65,12 @@ layout (location = 0) out vec3 color;
 #endif
 
 #if LUT > 0
-    const int lutCount     = 22;
-    const int lutTile      = 8;
-    const int lutSize      = lutTile * lutTile;
-    const int lutRes       = lutSize * lutTile;
-    const float invLutTile = 1.0 / lutTile;
+    const int lutTileSize = 8;
+    const int lutSize     = lutTileSize  * lutTileSize;
+    const vec2 lutRes     = vec2(lutSize * lutTileSize);
 
-    const vec2 lutTexSize    = vec2(lutRes, lutRes * lutCount);
-    const vec2 rcpLutTexSize = 1.0 / lutTexSize;
-
-    // LUT grid concept from Raspberry shaders (https://rutherin.netlify.app/)
-    const mat2 lutGrid = mat2(
-        vec2(1.0, rcpLutTexSize.y * 512),
-        vec2(0.0, (LUT - 1) * rcpLutTexSize.y * 512)
-    );
+    const float rcpLutTileSize = 1.0 / lutTileSize;
+    const vec2  rcpLutTexSize  = 1.0 / lutRes;
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
@@ -86,7 +78,7 @@ layout (location = 0) out vec3 color;
 
         #if DEBUG_LUT == 1
             if(gl_FragCoord.x < 256.0 && gl_FragCoord.y < 256.0) {
-                color = texture(lookupTable, (gl_FragCoord.xy * rcpLutTexSize * 2.0) + lutGrid[1]).rgb;
+                color = texture(lookupTable, gl_FragCoord.xy * rcpLutTexSize * 2.0).rgb;
                 return;
             }
         #endif
@@ -95,12 +87,12 @@ layout (location = 0) out vec3 color;
         int bL   = int(color.b);
         int bH   = bL + 1;
 
-        vec2 offLo = vec2(bL % lutTile, bL / lutTile) * invLutTile;
-        vec2 offHi = vec2(bH % lutTile, bH / lutTile) * invLutTile;
+        vec2 offLo = vec2(bL % lutTileSize, bL / lutTileSize) * rcpLutTileSize;
+        vec2 offHi = vec2(bH % lutTileSize, bH / lutTileSize) * rcpLutTileSize;
 
         color = mix(
-            textureLodLinearRGB(lookupTable, (offLo + color.rg * invLutTile) * lutGrid[0] + lutGrid[1], lutTexSize, 0).rgb,
-            textureLodLinearRGB(lookupTable, (offHi + color.rg * invLutTile) * lutGrid[0] + lutGrid[1], lutTexSize, 0).rgb,
+            textureLodLinearRGB(lookupTable, offLo + color.rg * rcpLutTileSize, lutRes, 0).rgb,
+            textureLodLinearRGB(lookupTable, offHi + color.rg * rcpLutTileSize, lutRes, 0).rgb,
             color.b - bL
         );
     }
