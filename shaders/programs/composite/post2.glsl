@@ -65,7 +65,7 @@ layout (location = 0) out vec3 color;
 #endif
 
 #if LUT > 0
-    const int lutCount     = 19;
+    const int lutCount     = 22;
     const int lutTile      = 8;
     const int lutSize      = lutTile * lutTile;
     const int lutRes       = lutSize * lutTile;

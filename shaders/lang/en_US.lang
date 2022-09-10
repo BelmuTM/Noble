@@ -543,6 +543,9 @@ value.LUT.16 = §eValley Mist
 value.LUT.17 = §eNight Colors
 value.LUT.18 = §eBinary Code
 value.LUT.19 = §eBlack and Red
+value.LUT.20 = §e2Strip
+value.LUT.21 = §eFuturistic Bleak
+value.LUT.22 = §eTeal Orange
 
 option.WHITE_BALANCE = White Balance
 option.WHITE_BALANCE.comment = Balances the color temperature to keep the image neutral.
