@@ -52,26 +52,26 @@ float getCloudsDensity(vec3 position, CloudLayer layer, vec2 radius) {
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
         position.xz += wind;
     #endif
-    
-    float globalCoverage = mix(layer.coverage, 0.91, rainStrength);
-    float weatherMap     = clamp01((FBM(position.xz * layer.scale, 4, layer.frequency) * (1.0 - globalCoverage) + globalCoverage));
 
+    float weatherMap   = clamp01(FBM(position.xz * layer.scale, 3, layer.frequency) * (1.0 - layer.coverage) + layer.coverage);
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
 
-    position *= 5e-4;
+    position *= 7e-4;
 
     vec3 curlTex  = texture(colortex14, position * 0.2).rgb * 2.0 - 1.0;
         position += curlTex * layer.swirl;
 
+    float mapCoverage = mix(0.7, 1.0, wetness);
+
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - mapCoverage * weatherMap, 1.0, 0.0, 1.0));
 
     vec3  detailTex    = texture(colortex13, position).rgb;
     float detailNoise  = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
           detailNoise  = mix(detailNoise, 1.0 - detailNoise, clamp01(altitude * 5.0));
-          detailNoise *= (0.35 * exp(-0.7 * 0.75));
+          detailNoise *= (0.35 * exp(-mapCoverage * 0.75));
 
     return clamp01(remap(shapeNoise, detailNoise, 1.0, 0.0, 1.0)) * densityAlter * layer.density;
 }
@@ -157,7 +157,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         transmittance *= stepTransmittance;
     }
     transmittance     = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
-    float distToCloud = depthSum / depthWeight;
+    float distToCloud = depthWeight < EPS ? 1e6 : depthSum / depthWeight;
 
     return vec4(scattering, transmittance, distToCloud);
 }
