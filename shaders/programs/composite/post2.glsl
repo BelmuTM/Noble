@@ -135,4 +135,10 @@ void main() {
     #if LUT > 0
         applyLUT(colortex7, color);
     #endif
+
+    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+	    if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
+            color = texture(colortex6, texCoords).rgb;
+        }
+    #endif
 }

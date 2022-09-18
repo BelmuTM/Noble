@@ -250,11 +250,22 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define WATER_DISTORTION_SPEED     0.65
 #define WATER_DISTORTION_AMPLITUDE 0.40
 
-#define EXPOSURE 1 // [0 1]
+#define EXPOSURE 1 // [0 1 2]
 #define PURKINJE 1 // [0 1]
 
 #define EXPOSURE_GROWTH 2.40
 #define EXPOSURE_DECAY  0.25
+
+#define HISTOGRAM_BINS 32
+#define DEBUG_HISTOGRAM 1
+
+// Logarithmic scale
+const float minLuminance      = -12.28771237; // log2(0.0002)
+const float maxLuminance      =  11.96578428; // log2(4000.0)
+const float luminanceRange    = maxLuminance - minLuminance;
+const float rcpLuminanceRange = 1.0 / luminanceRange;
+
+const vec2 debugHistogramSize = vec2(320, 192);
 
 #define FOCAL          20 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30]
 #define APERTURE     16.0 // [1.0 1.2 1.4 2.0 2.8 4.0 5.6 8.0 11.0 16.0 22.0 32.0]

@@ -480,9 +480,10 @@ option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§r's intensity.
 ##################### CAMERA SETTINGS #####################
 
 option.EXPOSURE = Exposure
-option.EXPOSURE.comment = §aManual§r exposure lets you use the camera settings to adjust the image. §aAutomatic§r exposure tweaks the camera settings depending on the average screen brightness.
+option.EXPOSURE.comment = §aManual§r exposure lets you use the manual camera settings to adjust the image. §aAverage§r exposure tweaks the camera exposure depending on the average screen brightness. §aHistogram§r exposure tweaks the camera exposure depending on the median of a screen luminance histogram.
 value.EXPOSURE.0 = §e§lManual
-value.EXPOSURE.1 = §e§lAutomatic
+value.EXPOSURE.1 = §e§lAverage (Auto)
+value.EXPOSURE.2 = §e§lHistogram (Auto)
 
 option.PURKINJE = Purkinje Effect
 option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.

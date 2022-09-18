@@ -6,10 +6,18 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 4,3 */
+#if DEBUG_HISTOGRAM == 0
+    /* RENDERTARGETS: 4,3 */
 
-layout (location = 0) out vec4 color;
-layout (location = 1) out vec3 bloomBuffer;
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec3 bloomBuffer;
+#else
+    /* RENDERTARGETS: 4,3,6 */
+
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec3 bloomBuffer;
+    layout (location = 2) out vec3 histogram;
+#endif
 
 #if BLOOM == 1
     #include "/include/post/bloom.glsl"
@@ -47,9 +55,59 @@ layout (location = 1) out vec3 bloomBuffer;
     }
 #endif
 
+#if EXPOSURE == 2
+    const int tiles = 64;
+    ivec2 gridSize  = ivec2(viewSize / tiles);
+    vec2 tileSize   = 1.0 / gridSize;
+
+    int getBinFromLuminance(float luminance) {
+	    return luminance < EPS ? 0 : int(clamp((log2(luminance) * rcpLuminanceRange - (minLuminance * rcpLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
+    }
+        
+    float[HISTOGRAM_BINS] buildLuminanceHistogram() {
+        float lod = ceil(log2(maxOf(viewSize * tileSize)));
+
+        float[HISTOGRAM_BINS] pdf;
+        for(int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] = 0.0;
+
+        for(int x = 0; x < gridSize.x; x++) {
+            for(int y = 0; y < gridSize.y; y++) {
+                vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
+                float luminance = luminance(textureLod(colortex4, coords, lod).rgb);
+
+                pdf[getBinFromLuminance(luminance)] += 1;
+            }
+        }
+        for(int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] *= tileSize.x * tileSize.y;
+        return pdf;
+    }
+
+    int getClosestBinToMedian(float[HISTOGRAM_BINS] pdf) {
+        float cumulativeDensity = 0.0;
+        vec2 closestBinToMedian = vec2(0.0, 1.0); // vec2(bin, dist)
+
+        // Binary search to find the closest bin to the median (CDF = 0.5)
+        for(int i = 0; i < HISTOGRAM_BINS; i++, cumulativeDensity += pdf[i]) {
+            float distToMedian = distance(cumulativeDensity, 0.5);
+            closestBinToMedian = distToMedian < closestBinToMedian.y ? vec2(i, distToMedian) : closestBinToMedian;
+        }
+        return int(closestBinToMedian.x);
+    }
+
+    #if DEBUG_HISTOGRAM == 1
+        void drawHistogram(inout vec3 color, float[HISTOGRAM_BINS] pdf, int closestBinToMedian) {
+	        vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
+
+	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
+		        int index = int(HISTOGRAM_BINS * coords.x);
+                color     = pdf[index] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs((index - closestBinToMedian))) : vec3(1.0);
+	        }
+        }
+    #endif
+#endif
+
 void main() {
-    color   = texture(colortex4, texCoords);
-    color.a = sqrt(luminance(color.rgb));
+    color = texture(colortex4, texCoords);
     
     #if DOF == 1
         float depth0 = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
@@ -60,5 +118,18 @@ void main() {
 
     #if BLOOM == 1
         writeBloom(bloomBuffer);
+    #endif
+
+    #if EXPOSURE == 1
+        color.a = sqrt(luminance(color.rgb));
+    #elif EXPOSURE == 2
+        float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
+        int closestBinToMedian    = getClosestBinToMedian(pdf);
+
+        #if DEBUG_HISTOGRAM == 1
+            drawHistogram(histogram, pdf, closestBinToMedian);
+        #endif
+
+        color.a = closestBinToMedian * rcpMaxVal8;
     #endif
 }

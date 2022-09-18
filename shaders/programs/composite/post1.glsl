@@ -8,61 +8,21 @@
 
 #ifdef STAGE_VERTEX
 
-    out float avgLuminance;
+    flat out float avgLuminance;
 
-    #define HISTOGRAM_BINS 128
-
-    const ivec2 tiles   = ivec2(64);
-    const vec2 tileSize = 1.0 / tiles;
-
-    int getBinFromLuminance(float luminance) {
-        if(luminance < EPS) return 0;
-
-        return clamp(int(log(luminance) * histogram_log_scale + histogram_log_zero), 0, HISTOGRAM_BINS - 1);
-    }
-
-    float getLuminanceFromBin(int bin) {
-
-    }
-
-    int[HISTOGRAM_BINS] buildLuminanceHistogram() {
-        float lod = ceil(log2(maxOf(viewSize * tileSize)));
-
-        int pdf[HISTOGRAM_BINS];
-        for(int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] = 0;
-
-        for(int x = 0; x <= tiles.x; x++) {
-            for(int y = 0; y <= tiles.y; y++) {
-                vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
-                float luminance = luminance(textureLod(colortex4, coords, lod).rgb);
-
-                pdf[getBinFromLuminance(luminance)] += 1;
-            }
+    #if EXPOSURE == 2
+        float getLuminanceFromBin(int bin) {
+            return exp2((bin * rcp(HISTOGRAM_BINS)) * luminanceRange + minLuminance);
         }
-        return pdf;
-    }
-
-    float calculateAverageLuminanceFromHistogram(int[HISTOGRAM_BINS] pdf) {
-        int density               = 0;
-        int closestBinToMedian    = 0;
-        float closestDistToMedian = 0.0;
-
-        for(int i = 0; i < HISTOGRAM_BINS; i++) {
-            density   += pdf[i];
-            float dist = distance(0.5, density);
-
-            if(dist < closestDistToMedian) {
-                closestBinToMedian  = i;
-                closestDistToMedian = dist;
-            }
-        }
-
-        return exp((float(closestBinToMedian) - histogram_log_zero) / histogram_log_scale);
-    }
+    #endif
 
     void main() {
-        #if EXPOSURE == 1
-            float currLuma = pow2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
+        #if EXPOSURE > 0
+            #if EXPOSURE == 1
+                float currLuma = pow2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
+            #else
+                float currLuma = getLuminanceFromBin(int(texture(colortex4, vec2(0.0)).a * maxVal8 + 0.5));
+            #endif
 
             float prevLuma = texelFetch(colortex8, ivec2(0), 0).a;
                   prevLuma = prevLuma > 0.0 ? prevLuma : currLuma;
@@ -87,7 +47,7 @@
         #include "/include/post/taa.glsl"
     #endif
 
-    in float avgLuminance;
+    flat in float avgLuminance;
 
     const float K =  12.5; // Light meter calibration
     const float S = 100.0; // Sensor sensitivity
