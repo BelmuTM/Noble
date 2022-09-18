@@ -22,7 +22,7 @@ vec3 computeStarfield(vec3 viewPos) {
 		star *= rand( coords.xy);
 		star *= rand(-coords.xy + 0.1);
 	}
-	return max0(star - (1.0 - STARS_AMOUNT)) * factor * STARS_BRIGHTNESS * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)));
+	return max0(clamp01(star - (1.0 - STARS_AMOUNT)) * factor * STARS_BRIGHTNESS * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords))));
 }
 
 vec3 physicalSun(vec3 sceneDir) {

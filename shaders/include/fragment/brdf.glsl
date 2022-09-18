@@ -211,11 +211,10 @@ vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughM
     }
 
     vec3 isotropicLobe = beer * isotropicPhase;
-    vec3 forwardsLobe  = beer * cornetteShanksPhase(cosTheta, 0.4);
-    vec3 backwardsLobe = beer * cornetteShanksPhase(cosTheta,-0.4);
+    vec3 forwardsLobe  = beer * cornetteShanksPhase(cosTheta, 0.45);
+    vec3 backwardsLobe = beer * cornetteShanksPhase(cosTheta,-0.45);
 
-    const float backScatterWeight = 0.3;
-    return mix(isotropicLobe, mix(forwardsLobe, backwardsLobe, backScatterWeight), 0.6);
+    return mix(isotropicLobe, mix(forwardsLobe, backwardsLobe, 0.3), 0.6);
 }
 
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao) {

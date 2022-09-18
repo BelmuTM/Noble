@@ -253,8 +253,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE 1 // [0 1]
 #define PURKINJE 1 // [0 1]
 
-#define EXPOSURE_DARK_TO_BRIGHT 2.40
-#define EXPOSURE_BRIGHT_TO_DARK 0.25
+#define EXPOSURE_GROWTH 2.40
+#define EXPOSURE_DECAY  0.25
 
 #define FOCAL          20 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30]
 #define APERTURE     16.0 // [1.0 1.2 1.4 2.0 2.8 4.0 5.6 8.0 11.0 16.0 22.0 32.0]

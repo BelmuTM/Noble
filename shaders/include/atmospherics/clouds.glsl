@@ -27,6 +27,8 @@ struct CloudLayer {
     float scale;
     float frequency;
     float density;
+
+    int steps;
 };
 
 float heightAlter(float altitude, float weatherMap) {
@@ -104,7 +106,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
     vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, radius.x, radius.y);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 0.0, 1.0);
 
-    float stepLength = (dists.y - dists.x) * rcp(CLOUDS_SCATTERING_STEPS);
+    float stepLength = (dists.y - dists.x) * rcp(layer.steps);
     vec3 increment   = rayDir * stepLength;
     vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * randF());
 
@@ -115,7 +117,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
     vec2 scattering = vec2(0.0);
     float transmittance = 1.0, depthWeight = 0.0, depthSum = 0.0;
     
-    for(int i = 0; i < CLOUDS_SCATTERING_STEPS; i++, rayPos += increment) {
+    for(int i = 0; i < layer.steps; i++, rayPos += increment) {
         if(transmittance <= cloudsTransmitThreshold) break;
 
         float density = getCloudsDensity(rayPos, layer, radius);

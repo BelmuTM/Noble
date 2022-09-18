@@ -144,6 +144,7 @@
                     layer0.scale     = CLOUDS_LAYER0_SCALE;
                     layer0.frequency = CLOUDS_LAYER0_FREQUENCY;
                     layer0.density   = CLOUDS_LAYER0_DENSITY;
+                    layer0.steps     = CLOUDS_SCATTERING_STEPS;
 
                     CloudLayer layer1;
                     layer1.altitude  = CLOUDS_LAYER1_ALTITUDE;
@@ -153,6 +154,7 @@
                     layer1.scale     = CLOUDS_LAYER1_SCALE;
                     layer1.frequency = CLOUDS_LAYER1_FREQUENCY;
                     layer1.density   = CLOUDS_LAYER1_DENSITY;
+                    layer1.steps     = 10;
                     
                     vec4 cloudLayer0 = cloudsScattering(layer0, cloudsRay);
                     vec4 cloudLayer1 = cloudsScattering(layer1, cloudsRay);
