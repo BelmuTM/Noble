@@ -56,6 +56,12 @@
 #endif
 
 #if EXPOSURE == 2
+
+    /*
+        SOURCE:
+        Alex Tardif - https://www.alextardif.com/HistogramLuminance.html
+    */
+
     const int tiles = 64;
     ivec2 gridSize  = ivec2(viewSize / tiles);
     vec2 tileSize   = 1.0 / gridSize;
