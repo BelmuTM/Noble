@@ -256,8 +256,8 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE_GROWTH 2.40
 #define EXPOSURE_DECAY  0.25
 
-#define HISTOGRAM_BINS 32
-#define DEBUG_HISTOGRAM 0
+#define HISTOGRAM_BINS 128
+#define DEBUG_HISTOGRAM  1
 
 // Logarithmic scale
 const float minLuminance      = -8.0;
