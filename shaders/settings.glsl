@@ -257,11 +257,11 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE_DECAY  0.25
 
 #define HISTOGRAM_BINS 32
-#define DEBUG_HISTOGRAM 1
+#define DEBUG_HISTOGRAM 0
 
 // Logarithmic scale
-const float minLuminance      = -12.28771237; // log2(0.0002)
-const float maxLuminance      =  11.96578428; // log2(4000.0)
+const float minLuminance      = -8.0;
+const float maxLuminance      =  9.0;
 const float luminanceRange    = maxLuminance - minLuminance;
 const float rcpLuminanceRange = 1.0 / luminanceRange;
 

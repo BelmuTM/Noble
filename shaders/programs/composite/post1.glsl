@@ -12,7 +12,7 @@
 
     #if EXPOSURE == 2
         float getLuminanceFromBin(int bin) {
-            return exp2((bin * rcp(HISTOGRAM_BINS)) * luminanceRange + minLuminance);
+            return exp((bin * rcp(HISTOGRAM_BINS)) * luminanceRange + minLuminance);
         }
     #endif
 
@@ -21,7 +21,7 @@
             #if EXPOSURE == 1
                 float currLuma = pow2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
             #else
-                float currLuma = getLuminanceFromBin(int(texture(colortex4, vec2(0.0)).a * maxVal8 + 0.5));
+                float currLuma = getLuminanceFromBin(int(texelFetch(colortex4, ivec2(0), 0).a * maxVal8 + 0.5));
             #endif
 
             float prevLuma = texelFetch(colortex8, ivec2(0), 0).a;
@@ -29,7 +29,7 @@
                   prevLuma = isnan(prevLuma) || isinf(prevLuma) ? currLuma : prevLuma;
 
             float exposureTime = currLuma < prevLuma ? EXPOSURE_GROWTH : EXPOSURE_DECAY;
-            avgLuminance = mix(currLuma, prevLuma, exp(-exposureTime * frameTime));
+                  avgLuminance = mix(currLuma, prevLuma, exp(-exposureTime * frameTime));
         #endif
 
         gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;

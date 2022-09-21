@@ -67,7 +67,7 @@
     vec2 tileSize   = 1.0 / gridSize;
 
     int getBinFromLuminance(float luminance) {
-	    return luminance < EPS ? 0 : int(clamp((log2(luminance) * rcpLuminanceRange - (minLuminance * rcpLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
+	    return luminance < EPS ? 0 : int(clamp((log(luminance) * rcpLuminanceRange - (minLuminance * rcpLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
     }
         
     float[HISTOGRAM_BINS] buildLuminanceHistogram() {
@@ -106,7 +106,7 @@
 
 	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
 		        int index = int(HISTOGRAM_BINS * coords.x);
-                color     = pdf[index] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs((index - closestBinToMedian))) : vec3(1.0);
+                color     = pdf[index] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - closestBinToMedian)) : vec3(1.0);
 	        }
         }
     #endif
