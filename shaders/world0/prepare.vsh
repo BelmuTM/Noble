@@ -8,10 +8,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-in vec2 texCoords;
+out vec2 texCoords;
 
-#define STAGE_FRAGMENT
+#define STAGE_VERTEX
 #define WORLD_OVERWORLD
 
 #include "/include/common.glsl"
-#include "/programs/deferred/deferred0.glsl"
+#include "/programs/prepare/prepare0.glsl"

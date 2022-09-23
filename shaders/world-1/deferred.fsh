@@ -14,4 +14,4 @@ in vec2 texCoords;
 #define WORLD_NETHER
 
 #include "/include/common.glsl"
-#include "/programs/deferred/deferred.glsl"
+#include "/programs/deferred/deferred0.glsl"

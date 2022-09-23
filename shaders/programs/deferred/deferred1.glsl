@@ -19,12 +19,7 @@
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
         skyIlluminanceMat = sampleSkyIlluminance(skyMultiScatterIllum);
-
-        #if CLOUDS == 1
-            directIlluminance = sampleDirectIlluminance();
-        #else
-            directIlluminance = vec3(0.0);
-        #endif
+        directIlluminance = texture(colortex15, texCoords).rgb;
     }
 
 #elif defined STAGE_FRAGMENT
@@ -107,15 +102,6 @@
 
         #ifdef WORLD_OVERWORLD
             //////////////////////////////////////////////////////////
-            /*----------------- SHADOW MAPPING ---------------------*/
-            //////////////////////////////////////////////////////////
-            vec4 tmp = texture(colortex2, texCoords);
-
-            shadowmap.a    = 0.0;
-            shadowmap.rgb  = !skyCheck ? shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a) : vec3(1.0);
-            shadowmap.rgb *= tmp.a;
-
-            //////////////////////////////////////////////////////////
             /*------------- ATMOSPHERIC SCATTERING -----------------*/
             //////////////////////////////////////////////////////////
             skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(bentNormal, skyIlluminanceMat) : vec3(0.0);
@@ -124,6 +110,15 @@
                 vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
                      sky    = atmosphericScattering(skyRay, skyMultiScatterIllum);
             }
+
+            //////////////////////////////////////////////////////////
+            /*----------------- SHADOW MAPPING ---------------------*/
+            //////////////////////////////////////////////////////////
+            vec4 tmp = texture(colortex2, texCoords);
+
+            shadowmap.a    = 0.0;
+            shadowmap.rgb  = !skyCheck ? shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a) : vec3(1.0);
+            shadowmap.rgb *= tmp.a;
 
             //////////////////////////////////////////////////////////
             /*---------------- VOLUMETRIC CLOUDS -------------------*/

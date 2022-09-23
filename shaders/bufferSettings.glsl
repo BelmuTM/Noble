@@ -13,7 +13,6 @@ const bool colortex0Clear         = false;
 
 DATA
 const int colortex1Format         = RGBA32UI;
-const vec4 colortex1Clear         = vec4(0, 0, 0, 0);
 
 MISC
 const int colortex2Format         = RGBA16F;
@@ -50,4 +49,7 @@ const bool colortex11Clear        = false;
 CLOUDS
 const int colortex12Format        = RGBA16F;
 const bool colortex12Clear        = false;
+
+DIRECT ILLUMINANCE
+const int colortex15Format        = R11F_G11F_B10F;
 */

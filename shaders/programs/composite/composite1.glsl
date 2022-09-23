@@ -44,8 +44,12 @@ void main() {
 
     float VdotL = dot(normalize(scenePos0), shadowLightVector);
 
-    vec3 directIlluminance = sampleDirectIlluminance();
-    vec3 skyIlluminance    = texture(colortex6, texCoords).rgb * RCP_PI;
+    vec3 directIlluminance = vec3(0.0), skyIlluminance = vec3(0.0);
+    
+    #ifdef WORLD_OVERWORLD
+        directIlluminance = texture(colortex15, texCoords).rgb;
+        skyIlluminance    = texture(colortex6,  texCoords).rgb * RCP_PI;
+    #endif
 
     bool  sky      = isSky(texCoords);
     float skyLight = 0.0;

@@ -40,7 +40,7 @@
         #endif
 
         vec3 direct  = mat.albedo * diffuse + specular;
-             direct *= shadowmap.rgb * sampleDirectIlluminance();
+             direct *= shadowmap.rgb * texture(colortex15, texCoords).rgb;
         return direct;
     }
 

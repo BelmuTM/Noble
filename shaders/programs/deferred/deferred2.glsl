@@ -88,12 +88,13 @@ void main() {
         color.rgb = vec3(0.0);
 
         if(mat.F0 * maxVal8 <= 229.5) {
-            vec3 skyIlluminance = vec3(0.0);
             vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
+            vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
 
             #ifdef WORLD_OVERWORLD
-                skyIlluminance = texture(colortex6, texCoords).rgb;
-                shadowmap      = texture(colortex3, texCoords);
+                shadowmap         = texture(colortex3,  texCoords);
+                skyIlluminance    = texture(colortex6,  texCoords).rgb;
+                directIlluminance = texture(colortex15, texCoords).rgb;
             #endif
 
             float ao = 1.0;
@@ -101,7 +102,7 @@ void main() {
                 ao = texture(colortex10, texCoords).a;
             #endif
 
-            color.rgb = computeDiffuse(viewPos0, shadowVec, mat, shadowmap, sampleDirectIlluminance(), skyIlluminance, clamp01(ao));
+            color.rgb = computeDiffuse(viewPos0, shadowVec, mat, shadowmap, directIlluminance, skyIlluminance, clamp01(ao));
         }
     #else
 

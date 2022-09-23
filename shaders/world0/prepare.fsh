@@ -14,4 +14,4 @@ in vec2 texCoords;
 #define WORLD_OVERWORLD
 
 #include "/include/common.glsl"
-#include "/programs/deferred/deferred0.glsl"
+#include "/programs/prepare/prepare0.glsl"

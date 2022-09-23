@@ -21,7 +21,7 @@
 	out vec2 lmCoords;
 	out vec3 viewPos;
 	out vec3 geoNormal;
-	out vec3 skyIlluminance;
+	out mat3[2] skyIlluminanceMat;
 	out vec3 directIlluminance;
 	out vec4 vertexColor;
 	out mat3 TBN;
@@ -40,7 +40,9 @@
 		blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-		directIlluminance = sampleDirectIlluminance();
+		vec3 tmp;
+		skyIlluminanceMat = sampleSkyIlluminance(tmp);
+		directIlluminance = texture(colortex15, texCoords).rgb;
 
 		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);
@@ -59,7 +61,7 @@
 	in vec2 lmCoords;
 	in vec3 viewPos;
 	in vec3 geoNormal;
-	in vec3 skyIlluminance;
+	in mat3[2] skyIlluminanceMat;
 	in vec3 directIlluminance;
 	in vec4 vertexColor;
 	in mat3 TBN;
@@ -112,15 +114,15 @@
        					mat.albedo = srgbToAP1Albedo(mat.albedo);
     				#endif
 
-					vec3 skyLight  = vec3(0.0);
 					vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
+					vec3 skyLight  = vec3(0.0);
 
 					#ifdef WORLD_OVERWORLD
-						if(mat.lightmap.y > EPS) {
-							vec3 tmp = vec3(0.0);
-							skyLight = getSkyLight(mat.normal, sampleSkyIlluminance(tmp));
-						}
 						shadowmap.rgb = shadowMap(scenePos, geoNormal, shadowmap.a);
+
+						if(lmCoords.y > EPS) {
+							skyLight = getSkyLight(mat.normal, skyIlluminanceMat);
+						}
 					#endif
 
 					sceneColor.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyLight, 1.0);
