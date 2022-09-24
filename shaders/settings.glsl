@@ -166,12 +166,12 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define CLOUDS_LAYER0_DENSITY     1.50
 
 #define CLOUDS_LAYER1_ALTITUDE 4000.0
-#define CLOUDS_LAYER1_THICKNESS 300.0
+#define CLOUDS_LAYER1_THICKNESS 600.0
 #define CLOUDS_LAYER1_COVERAGE   0.30
-#define CLOUDS_LAYER1_SWIRL      0.50
+#define CLOUDS_LAYER1_SWIRL      0.60
 #define CLOUDS_LAYER1_SCALE      3e-4
 #define CLOUDS_LAYER1_FREQUENCY  4.00
-#define CLOUDS_LAYER1_DENSITY    0.20
+#define CLOUDS_LAYER1_DENSITY    0.15
 
 #define AIR_FOG             1 // [0 1]
 #define VL_SCATTERING_STEPS 8 // [4 8 12 16 20 24 28 32]
@@ -278,7 +278,7 @@ const vec2 debugHistogramSize = vec2(320, 192);
 
 #define TONEMAP   0 // [-1 0 1 2 3 4 5]
 #define LUT       0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
-#define DEBUG_LUT 0
+#define DEBUG_LUT 1
 
 // ACES Settings
 #define ACES_EPS 0.00006103

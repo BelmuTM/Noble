@@ -22,6 +22,40 @@ out vec3 color;
     }
 #endif
 
+#if LUT > 0
+    const int lutTileSize = 8;
+    const int lutSize     = lutTileSize  * lutTileSize;
+    const vec2 lutRes     = vec2(lutSize * lutTileSize);
+
+    const float rcpLutTileSize = 1.0 / lutTileSize;
+    const vec2  rcpLutTexSize  = 1.0 / lutRes;
+
+    // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
+    void applyLUT(sampler2D lookupTable, inout vec3 color) {
+        color = min(color, vec3(0.985));
+
+        #if DEBUG_LUT == 1
+            if(all(lessThan(gl_FragCoord.xy, ivec2(256)))) {
+                color = texture(lookupTable, gl_FragCoord.xy * rcpLutTexSize * 2.0).rgb;
+                return;
+            }
+        #endif
+
+        color.b *= (lutSize - 1.0);
+        int bL   = int(color.b);
+        int bH   = bL + 1;
+
+        vec2 offLo = vec2(bL % lutTileSize, bL / lutTileSize) * rcpLutTileSize;
+        vec2 offHi = vec2(bH % lutTileSize, bH / lutTileSize) * rcpLutTileSize;
+
+        color = mix(
+            textureLodLinearRGB(lookupTable, offLo + color.rg * rcpLutTileSize, lutRes, 0).rgb,
+            textureLodLinearRGB(lookupTable, offHi + color.rg * rcpLutTileSize, lutRes, 0).rgb,
+            color.b - bL
+        );
+    }
+#endif
+
 #if SHARPEN == 1
     /*
         SOURCES / CREDITS:
@@ -55,6 +89,16 @@ void main() {
 
     #if SHARPEN == 1
         sharpeningFilter(color, distortCoords);
+    #endif
+
+    #if LUT > 0
+        applyLUT(colortex7, color);
+    #endif
+
+    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+	    if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
+            color = texture(colortex6, texCoords).rgb;
+        }
     #endif
 
     #if VIGNETTE == 1

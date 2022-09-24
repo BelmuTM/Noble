@@ -59,9 +59,9 @@ float getCloudsDensity(vec3 position, CloudLayer layer, vec2 radius) {
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
 
-    position *= 7e-4;
+    position *= 6e-4;
 
-    vec3 curlTex  = texture(colortex14, position * 0.2).rgb * 2.0 - 1.0;
+    vec3 curlTex  = texture(colortex14, position * 0.3).rgb * 2.0 - 1.0;
         position += curlTex * layer.swirl;
 
     float mapCoverage = mix(0.7, 1.0, wetness);
