@@ -59,6 +59,7 @@
             return int(closestBinToMedian.x);
         }
 
+        /*
         #if DEBUG_HISTOGRAM == 1
             void drawHistogram(out vec3 color, vec2 screenCoords, float[HISTOGRAM_BINS] pdf, int closestBinToMedian) {
     	        vec2 coords = screenCoords * rcp(debugHistogramSize);
@@ -66,9 +67,11 @@
     	        if(all(lessThan(screenCoords, debugHistogramSize))) {
     		        int index = int(HISTOGRAM_BINS * coords.x);
                     color     = pdf[index] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - closestBinToMedian)) : vec3(1.0);
+                    color = vec3(1.0, 0.0, 0.0);
     	        }
             }
         #endif
+        */
     #endif
 
     void main() {
@@ -82,10 +85,12 @@
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
                 int closestBinToMedian    = getClosestBinToMedian(pdf);
 
+                /*
                 #if DEBUG_HISTOGRAM == 1
-                    vec2 screenCoords = (gl_Position.xyz / gl_Position.w).xy * 0.5 + 0.5;
+                    vec2 screenCoords = ((gl_Position.xyz / gl_Position.w).xy * 0.5 + 0.5) * viewSize;
                     drawHistogram(luminanceHistogram, screenCoords, pdf, closestBinToMedian);
                 #endif
+                */
 
                 float currLuma = getLuminanceFromBin(closestBinToMedian);
             #endif
@@ -151,9 +156,11 @@
             color.a   = EV100ToExposure(EV100fromLuminance(avgLuminance));
             history.a = avgLuminance;
 
+            /*
             #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
                 histogram = luminanceHistogram;
             #endif
+            */
         #endif
 
         color.a    = clamp(color.a, minExposure, maxExposure);

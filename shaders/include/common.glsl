@@ -37,6 +37,12 @@ const float rcpMaxVal16 = 0.00001525;
 
 #include "/include/material.glsl"
 
+const vec2 sunRotationData = vec2(cos(sunPathRotation * 0.01745329251994), -sin(sunPathRotation * 0.01745329251994));
+float tmp = fract(worldTime / 24000.0 - 0.25);
+float ang = (tmp + (cos(tmp * 3.14159265358979) * -0.5 + 0.5 - tmp) / 3.0) * 6.28318530717959;
+
+vec3 sunPosNorm = vec3(-sin(ang), cos(ang) * sunRotationData);
+
 bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0;                          }
 bool isHand(vec2 coords) { return linearizeDepth(texture(depthtex0, coords).r) < MC_HAND_DEPTH; }
 

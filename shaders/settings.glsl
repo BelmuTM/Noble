@@ -73,7 +73,7 @@ const float shadowDistance    = 256.0; // [64.0 128.0 256.0 512.0 1024.0]
 
 #define GTAO_HORIZON_STEPS 4
 #define GTAO_SLICES        2 // [1 2 3 4 5 6]
-#define GTAO_RADIUS     1.20 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
+#define GTAO_RADIUS     1.00 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00 1.10 1.20 1.30 1.40 1.50 1.60 1.70 1.80 1.90 2.00]
 
 //////////////////////////////////////////////////////////
 /*---------------------- SHADOWS -----------------------*/
@@ -278,7 +278,7 @@ const vec2 debugHistogramSize = vec2(320, 192);
 
 #define TONEMAP   0 // [-1 0 1 2 3 4 5]
 #define LUT       0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
-#define DEBUG_LUT 1
+#define DEBUG_LUT 0
 
 // ACES Settings
 #define ACES_EPS 0.00006103

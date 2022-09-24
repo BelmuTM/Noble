@@ -93,8 +93,8 @@ vec3 sampleDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
     #ifdef WORLD_OVERWORLD
-        vec3 sunTransmit  = getAtmosphereTransmittance(atmosRayPos, sunVector)  * sunIlluminance;
-        vec3 moonTransmit = getAtmosphereTransmittance(atmosRayPos, moonVector) * moonIlluminance;
+        vec3 sunTransmit  = getAtmosphereTransmittance(atmosRayPos, sunPosNorm) * sunIlluminance;
+        vec3 moonTransmit = getAtmosphereTransmittance(atmosRayPos,-sunPosNorm) * moonIlluminance;
         directIlluminance = sunTransmit + moonTransmit;
 
         #if TONEMAP == 0
