@@ -18,8 +18,8 @@ MISC
 const int colortex2Format         = RGBA16F;
 
 SHADOWMAP & MISC
-const int shadowcolor0Format      = RGBA16;
-const int shadowcolor1Format      = RGBA16;
+const int shadowcolor0Format      = RGBA16F;
+const int shadowcolor1Format      = RGBA8;
 const int colortex3Format         = RGBA16F;
 
 MAIN COLOR

@@ -39,6 +39,7 @@ layout (location = 0) out vec3 color;
 
 #if TONEMAP == 0
     #include "/include/post/aces/lib/splines.glsl"
+    #include "/include/post/aces/lib/transforms.glsl"
 
     #include "/include/post/aces/rrt.glsl"
     #include "/include/post/aces/odt.glsl"

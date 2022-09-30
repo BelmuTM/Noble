@@ -55,18 +55,6 @@
 /*  WHETHER DISCLOSED OR UNDISCLOSED.                                    */
 /*************************************************************************/
 
-vec3 linearToAP1(vec3 color) {
-    return color * SRGB_2_AP1;
-}
-
-vec3 ap1ToLinear(vec3 color) {
-    return (AP1_2_XYZ_MAT * color) * XYZ_2_SRGB_MAT;
-}
-
-vec3 srgbToAP1Albedo(vec3 color) {
-    return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
-}
-
 vec3 xyzToXyV(vec3 XYZ) {  
     float divisor = max(XYZ[0] + XYZ[1] + XYZ[2], ACES_EPS);
     return vec3(XYZ.rg / divisor, XYZ.g);

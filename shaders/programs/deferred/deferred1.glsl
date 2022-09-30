@@ -24,28 +24,16 @@
 
 #elif defined STAGE_FRAGMENT
 
-    #if GI == 1
-        /* RENDERTARGETS: 3,0,6,12 */
+    /* RENDERTARGETS: 0,6,10,12 */
 
-        layout (location = 0) out vec4 shadowmap;
-        layout (location = 1) out vec3 sky;
-        layout (location = 2) out vec3 skyIlluminance;
-        layout (location = 3) out vec4 clouds;
-    #else
-        /* RENDERTARGETS: 3,0,6,10,12 */
-
-        layout (location = 0) out vec4 shadowmap;
-        layout (location = 1) out vec3 sky;
-        layout (location = 2) out vec3 skyIlluminance;
-        layout (location = 3) out vec4 aoHistory;
-        layout (location = 4) out vec4 clouds;
-    #endif
+    layout (location = 0) out vec3 sky;
+    layout (location = 1) out vec3 skyIlluminance;
+    layout (location = 2) out vec4 aoHistory;
+    layout (location = 3) out vec4 clouds;
 
     #if CLOUDS == 1
         #include "/include/atmospherics/clouds.glsl"
     #endif
-    
-    #include "/include/fragment/shadows.glsl"
 
     in mat3[2] skyIlluminanceMat;
     in vec3 skyMultiScatterIllum;
@@ -110,15 +98,6 @@
                 vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
                      sky    = atmosphericScattering(skyRay, skyMultiScatterIllum);
             }
-
-            //////////////////////////////////////////////////////////
-            /*----------------- SHADOW MAPPING ---------------------*/
-            //////////////////////////////////////////////////////////
-            vec4 tmp = texture(colortex2, texCoords);
-
-            shadowmap.a    = 0.0;
-            shadowmap.rgb  = !skyCheck ? shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a) : vec3(1.0);
-            shadowmap.rgb *= tmp.a;
 
             //////////////////////////////////////////////////////////
             /*---------------- VOLUMETRIC CLOUDS -------------------*/

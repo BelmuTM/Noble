@@ -6,6 +6,13 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* RENDERTARGETS: 5,9,10,11 */
+
+layout (location = 0) out vec4 color;
+layout (location = 1) out vec3 historyCol0;
+layout (location = 2) out vec3 historyCol1;
+layout (location = 3) out vec4 moments;
+
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/brdf.glsl"
 
@@ -13,19 +20,7 @@
 #include "/include/atmospherics/atmosphere.glsl"
 
 #if GI == 1
-    /* RENDERTARGETS: 5,9,10,11 */
-
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec3 historyCol0;
-    layout (location = 2) out vec3 historyCol1;
-    layout (location = 3) out vec4 moments;
-
     #include "/include/fragment/pathtracer.glsl"
-#else
-    /* RENDERTARGETS: 5,11 */
-
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 moments;
 #endif
 
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1

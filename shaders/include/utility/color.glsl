@@ -127,6 +127,18 @@ vec3 srgbToLinear(vec3 sRGB) {
     return mix(higher, lower, step(sRGB, vec3(0.04045)));
 }
 
+vec3 linearToAP1(vec3 color) {
+    return color * SRGB_2_AP1;
+}
+
+vec3 ap1ToLinear(vec3 color) {
+    return (AP1_2_XYZ_MAT * color) * XYZ_2_SRGB_MAT;
+}
+
+vec3 srgbToAP1Albedo(vec3 color) {
+    return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
+}
+
 //////////////////////////////////////////////////////////
 /*---------------------- TONEMAPS ----------------------*/
 //////////////////////////////////////////////////////////

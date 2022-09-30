@@ -40,7 +40,7 @@ void main() {
     	viewPos   = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     	vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
-		TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
+		TBN			 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
 	#endif
 
 	blockId 	  = int((mc_Entity.x - 1000.0) + 0.25);

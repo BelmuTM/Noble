@@ -6,19 +6,14 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+/* RENDERTARGETS: 4,2,11 */
+
+layout (location = 0) out vec3 color;
+layout (location = 1) out vec3 fog;
+layout (location = 2) out vec4 moments;
+
 #if GI == 1 && GI_FILTER == 1
-    /* RENDERTARGETS: 4,2,11 */
-
-    layout (location = 0) out vec3 color;
-    layout (location = 1) out vec3 fog;
-    layout (location = 2) out vec4 moments;
-
     #include "/include/fragment/atrous.glsl"
-#else
-    /* RENDERTARGETS: 4,2 */
-
-    layout (location = 0) out vec3 color;
-    layout (location = 1) out vec3 fog;
 #endif
 
 #include "/include/fragment/brdf.glsl"
@@ -102,7 +97,7 @@ void main() {
                     #if AIR_FOG == 1
                         volumetricFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #else
-                        groundFog(color, scenePos0, directIlluminance, skyIlluminance, skyLight, skyCheck);
+                        groundFog(color, scenePos0, directIlluminance, skyIlluminance, skyLight, sky);
                     #endif
                 }
             #endif
@@ -147,7 +142,7 @@ void main() {
             #if AIR_FOG == 1
                 volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight);
             #else
-                groundFog(color, gbufferModelViewInverse[3].xyz, directIlluminance, skyIlluminance, skyLight, skyCheck);
+                groundFog(color, gbufferModelViewInverse[3].xyz, directIlluminance, skyIlluminance, skyLight, sky);
             #endif
         }
     #endif

@@ -31,10 +31,10 @@
         worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
 
         #if WATER_CAUSTICS == 1
-            vec3 normal    = normalize(gl_NormalMatrix * gl_Normal);
-            vec3 tangent   = normalize(gl_NormalMatrix * at_tangent.xyz);
-            vec3 bitangent = normalize(cross(tangent, normal) * sign(at_tangent.w));
-	        TBN 		   = mat3(tangent, bitangent, normal);
+            vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
+
+    	    vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
+		    TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
         #endif
 
 	    #if ACCUMULATION_VELOCITY_WEIGHT == 0
@@ -79,10 +79,10 @@
         if(albedoTex.a < 0.102) discard;
 
         #if WATER_CAUSTICS == 1
-            vec3 caustics = vec3(waterCaustics(worldPos, TBN * getWaterNormals(worldPos, int((WATER_OCTAVES / 4.0) * 3.0))));
-            color0        = blockId == 1 ? vec4(1.0, 1.0, 1.0, 0.0) + vec4(max0(caustics * WATER_CAUSTICS_STRENGTH), -1.0) : albedoTex;
+            float caustics = max0(1.0 + waterCaustics(worldPos, TBN * getWaterNormals(worldPos, 3)) * WATER_CAUSTICS_STRENGTH);
+            color0         = mix(albedoTex, vec4(vec3(caustics * rcpMaxVal16), -1.0), float(blockId == 1));
         #else
-            color0 = blockId == 1 ? vec4(1.0, 1.0, 1.0, 0.0) : albedoTex;
+            color0 = mix(albedoTex, vec4(1.0, 1.0, 1.0, 0.0), float(blockId == 1));
         #endif
     }
 #endif
