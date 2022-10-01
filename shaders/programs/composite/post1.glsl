@@ -106,11 +106,18 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 4,6,8 */
+    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+        /* RENDERTARGETS: 4,6,8 */
 
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec3 histogram;
-    layout (location = 2) out vec4 history;
+        layout (location = 0) out vec4 color;
+        layout (location = 1) out vec3 histogram;
+        layout (location = 2) out vec4 history;
+    #else
+        /* RENDERTARGETS: 4,8 */
+
+        layout (location = 0) out vec4 color;
+        layout (location = 1) out vec4 history;
+    #endif
 
     #if TAA == 1
         #include "/include/post/taa.glsl"

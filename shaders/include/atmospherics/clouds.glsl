@@ -104,7 +104,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
          radius.y = radius.x + layer.thickness;
 
     vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, radius.x, radius.y);
-    if(dists.y < 0.0) return vec4(0.0, 0.0, 0.0, 1.0);
+    if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e7);
 
     float stepLength = (dists.y - dists.x) * rcp(layer.steps);
     vec3 increment   = rayDir * stepLength;
@@ -159,7 +159,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         transmittance *= stepTransmittance;
     }
     transmittance     = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
-    float distToCloud = depthWeight < EPS ? 1e6 : depthSum / depthWeight;
+    float distToCloud = depthWeight < EPS ? 1e7 : depthSum / depthWeight;
 
     return vec4(scattering, transmittance, distToCloud);
 }

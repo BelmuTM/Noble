@@ -24,12 +24,20 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 0,6,10,12 */
+    #if GI == 1
+        /* RENDERTARGETS: 0,6,12 */
 
-    layout (location = 0) out vec3 sky;
-    layout (location = 1) out vec3 skyIlluminance;
-    layout (location = 2) out vec4 aoHistory;
-    layout (location = 3) out vec4 clouds;
+        layout (location = 0) out vec3 sky;
+        layout (location = 1) out vec3 skyIlluminance;
+        layout (location = 2) out vec4 clouds;
+    #else
+        /* RENDERTARGETS: 0,6,10,12 */
+
+        layout (location = 0) out vec3 sky;
+        layout (location = 1) out vec3 skyIlluminance;
+        layout (location = 2) out vec4 aoHistory;
+        layout (location = 3) out vec4 clouds;
+    #endif
 
     #if CLOUDS == 1
         #include "/include/atmospherics/clouds.glsl"
@@ -141,7 +149,7 @@
                     clouds.a    = cloudLayer0.b * cloudLayer1.b;
 
                     /* Aerial Perspective */
-                    clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-1e-4 * distToCloud));
+                    clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-7e-5 * distToCloud));
 
                     /* Reprojection */
                     vec3 prevPos    = reprojectClouds(viewPos, 1e8 * distToCloud);

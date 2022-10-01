@@ -6,13 +6,17 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* RENDERTARGETS: 4,11 */
-
-layout (location = 0) out vec3 color;
-layout (location = 1) out vec4 moments;
-
 #if GI == 1 && GI_FILTER == 1
+    /* RENDERTARGETS: 4,11 */
+
+    layout (location = 0) out vec3 color;
+    layout (location = 1) out vec4 moments;
+
     #include "/include/fragment/atrous.glsl"
+#else
+    /* RENDERTARGETS: 4 */
+
+    layout (location = 0) out vec3 color;
 #endif
 
 void main() {
