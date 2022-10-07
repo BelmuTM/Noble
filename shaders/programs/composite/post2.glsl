@@ -47,22 +47,22 @@ layout (location = 0) out vec3 color;
 
 #if TONEMAP >= 0
     void tonemap(inout vec3 color) {
-        #if TONEMAP == 0
+        #if TONEMAP == 0           // ACES
             color *= AP1_2_AP0_MAT;
             color *= 1.4;
 
             rrt(color);
-            odt(color);                          // ACES
-        #elif TONEMAP == 1
-            burgess(color);                      // Burgess
-        #elif TONEMAP == 2
-            whitePreservingReinhard(color, 2.0); // Reinhard
-        #elif TONEMAP == 3
-            lottes(color);                       // Lottes
-        #elif TONEMAP == 4
-            uchimura(color);                     // Uchimura
-        #elif TONEMAP == 5
-            uncharted2(color);                   // Uncharted 2
+            odt(color);
+        #elif TONEMAP == 1         // Burgess
+            burgess(color);
+        #elif TONEMAP == 2         // Reinhard-Jodie
+            reinhardJodie(color);
+        #elif TONEMAP == 3         // Lottes
+            lottes(color);
+        #elif TONEMAP == 4         // Uchimura
+            uchimura(color);
+        #elif TONEMAP == 5         // Uncharted 2
+            uncharted2(color);
         #endif
     }
 #endif

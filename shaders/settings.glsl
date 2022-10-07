@@ -52,7 +52,7 @@ const float shadowDistance    = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define SUNLIGHT_LEAKING_FIX
 
 #define HARDCODED_SSS             1
-#define HARDCODED_SSS_VAL      0.70
+#define HARDCODED_SSS_VAL      0.85
 #define HARDCODED_EMISSION        1
 #define HARDCODED_EMISSION_VAL 0.70
 
