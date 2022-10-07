@@ -23,7 +23,13 @@ layout (location = 1) out vec4 aoHistory;
 #include "/include/fragment/shadows.glsl"
 
 void main() {
-    aoHistory = vec4(0.0, 0.0, 0.0, 1.0);
+    #if AO == 1 && GI == 0
+        aoHistory = vec4(0.0, 0.0, 0.0, 1.0);
+    #endif
+
+    #if GI == 1
+        aoHistory = texture(colortex10, texCoords);
+    #endif
 
     if(isSky(texCoords)) return;
 
@@ -43,7 +49,7 @@ void main() {
     /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
     //////////////////////////////////////////////////////////
 
-    #if AO == 1
+    #if AO == 1 && GI == 0
         if(clamp(texCoords, vec2(0.0), vec2(AO_RESOLUTION)) == texCoords) {
             vec2 scaledUv = texCoords * rcp(AO_RESOLUTION);
 

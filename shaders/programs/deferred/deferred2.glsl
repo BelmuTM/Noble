@@ -13,8 +13,6 @@
     layout (location = 1) out vec3 historyCol0;
     layout (location = 2) out vec3 historyCol1;
     layout (location = 3) out vec4 moments;
-
-    #include "/include/fragment/pathtracer.glsl"
 #else
     /* RENDERTARGETS: 5,11 */
 
