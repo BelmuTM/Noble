@@ -84,7 +84,11 @@ void main() {
 
     float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex11, prevPos.xy).a), 2.0);
 
-    color.a = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+    #if ACCUMULATION_VELOCITY_WEIGHT == 0
+        color.a = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+    #else
+        color.a = prevColor.a + 1.0;
+    #endif
 
     #if GI == 0
         color.rgb = vec3(0.0);
