@@ -32,7 +32,7 @@
 		vertexColor = gl_Color;
 
     	geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
-    	viewPos   = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
+    	viewPos   = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     	vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
 		TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);

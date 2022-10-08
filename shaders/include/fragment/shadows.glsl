@@ -7,7 +7,7 @@
 /***********************************************/
 
 vec3 worldToShadow(vec3 worldPos) {
-	return projOrthoMAD(shadowProjection, transMAD(shadowModelView, worldPos));
+	return projectOrtho(shadowProjection, transform(shadowModelView, worldPos));
 }
 
 /*

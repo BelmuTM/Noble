@@ -27,7 +27,7 @@
         vertexColor = gl_Color;
         blockId     = int((mc_Entity.x - 1000.0) + 0.25);
 
-        vec3 viewShadowPos = transMAD(gl_ModelViewMatrix, gl_Vertex.xyz);
+        vec3 viewShadowPos = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
         worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
 
         #if WATER_CAUSTICS == 1
@@ -39,7 +39,7 @@
 
 	    #if ACCUMULATION_VELOCITY_WEIGHT == 0
             animate(worldPos, texCoords.y < mc_midTexCoord.y);
-            gl_Position = transMAD(shadowModelView, worldPos).xyzz * diag4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+            gl_Position = transform(shadowModelView, worldPos).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 	    #else
             gl_Position = ftransform();
         #endif

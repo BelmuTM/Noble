@@ -10,13 +10,13 @@
 /*--------------- MATRICES OPERATIONS ------------------*/
 //////////////////////////////////////////////////////////
 
-vec2 diag2(mat4 mat) { return vec2(mat[0].x, mat[1].y); 		   }
-vec3 diag3(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z);  }
-vec4 diag4(mat4 mat) { return vec4(mat[0].x, mat[1].y, mat[2].zw); }
+vec2 diagonal2(mat4 mat) { return vec2(mat[0].x, mat[1].y); 		   }
+vec3 diagonal3(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z);  }
+vec4 diagonal4(mat4 mat) { return vec4(mat[0].x, mat[1].y, mat[2].zw); }
 
-vec2 projOrthoMAD(mat4 mat, vec2 v) { return diag2(mat) * v + mat[3].xy;  }
-vec3 projOrthoMAD(mat4 mat, vec3 v) { return diag3(mat) * v + mat[3].xyz; }
-vec3 transMAD(mat4 mat, vec3 v)     { return mat3(mat)  * v + mat[3].xyz; }
+vec2 projectOrtho(mat4 mat, vec2 v) { return diagonal2(mat) * v + mat[3].xy;  }
+vec3 projectOrtho(mat4 mat, vec3 v) { return diagonal3(mat) * v + mat[3].xyz; }
+vec3 transform   (mat4 mat, vec3 v) { return mat3(mat)      * v + mat[3].xyz; }
 
 //////////////////////////////////////////////////////////
 /*--------------------- SHADOWS ------------------------*/
@@ -42,15 +42,15 @@ vec3 distortShadowSpace(vec3 position) {
 
 vec3 screenToView(vec3 screenPos) {
 	screenPos = screenPos * 2.0 - 1.0;
-	return projOrthoMAD(gbufferProjectionInverse, screenPos) / (gbufferProjectionInverse[2].w * screenPos.z + gbufferProjectionInverse[3].w);
+	return projectOrtho(gbufferProjectionInverse, screenPos) / (gbufferProjectionInverse[2].w * screenPos.z + gbufferProjectionInverse[3].w);
 }
 
 vec3 viewToScreen(vec3 viewPos) {
-	return (projOrthoMAD(gbufferProjection, viewPos) / -viewPos.z) * 0.5 + 0.5;
+	return (projectOrtho(gbufferProjection, viewPos) / -viewPos.z) * 0.5 + 0.5;
 }
 
 vec3 viewToScene(vec3 viewPos) {
-	return transMAD(gbufferModelViewInverse, viewPos);
+	return transform(gbufferModelViewInverse, viewPos);
 }
 
 vec3 worldToView(vec3 worldPos) {
@@ -110,8 +110,8 @@ float iorToF0(float ior) {
 vec3 getVelocity(vec3 currPos) {
     vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(linearizeDepthFast(currPos.z) >= MC_HAND_DEPTH);
 
-    vec3 prevPos = transMAD(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPos)));
-         prevPos = (projOrthoMAD(gbufferPreviousProjection, prevPos) / -prevPos.z) * 0.5 + 0.5;
+    vec3 prevPos = transform(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPos)));
+         prevPos = (projectOrtho(gbufferPreviousProjection, prevPos) / -prevPos.z) * 0.5 + 0.5;
 
     return currPos - prevPos;
 }

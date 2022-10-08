@@ -19,9 +19,7 @@ layout (location = 0) out vec3 color;
 #if PURKINJE == 1
     vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
 
-    void purkinje(inout vec3 color, float exposure) {
-        color /= exposure;
-
+    void purkinje(inout vec3 color) {
         #if TONEMAP == 0
             mat3 toXYZ = SRGB_2_XYZ_MAT, fromXYZ = XYZ_2_SRGB_MAT;
         #else
@@ -33,7 +31,7 @@ layout (location = 0) out vec3 color;
         vec3 scotopicLum = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
         float purkinje   = dot(rodResponse, scotopicLum * fromXYZ);
 
-        color = mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0)) * exposure;
+        color = mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0));
     }
 #endif
 
@@ -69,21 +67,18 @@ layout (location = 0) out vec3 color;
 
 void main() {
     vec4 tmp = texture(colortex4, texCoords);
-    color    = tmp.rgb;
+    color    = tmp.rgb / tmp.a;
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        float bloomStrgth = max0(exp2(tmp.a + (BLOOM_STRENGTH - 1.0) - 3.0));
-        color             = mix(color / tmp.a, readBloom(), bloomStrgth) * tmp.a;
-    #endif
-
-    #if FILM_GRAIN == 1
-        color += randF() * color * FILM_GRAIN_STRENGTH;
+        color = mix(color, readBloom(), exp2(tmp.a + BLOOM_STRENGTH - 3.0));
     #endif
 
     #if PURKINJE == 1
-        purkinje(color, tmp.a);
+        purkinje(color);
     #endif
+
+    color *= tmp.a;
     
     // Tonemapping & Color Correction
     whiteBalance(color);

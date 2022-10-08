@@ -118,8 +118,6 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 
 #if REFRACTIONS == 1
     vec3 simpleRefractions(vec3 viewPos, Material mat, inout vec3 hitPos) {
-        viewPos += mat.normal * 1e-2;
-
         float ior    = f0ToIOR(mat.F0);
         vec3 viewDir = normalize(viewPos);
 

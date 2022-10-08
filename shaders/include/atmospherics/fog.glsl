@@ -8,7 +8,7 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-float jitter = fract(frameTimeCounter + bayer128(gl_FragCoord.xy));
+float dither = fract(frameTimeCounter + bayer32(gl_FragCoord.xy));
 
 float getFogDensity(vec3 position) {
     float altitude   = (position.y - FOG_ALTITUDE) * rcp(FOG_THICKNESS);
@@ -69,12 +69,12 @@ float getFogDensity(vec3 position) {
     void volumetricFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
         const float stepLength = 1.0 / VL_SCATTERING_STEPS;
         vec3 increment = (endPos - startPos) * stepLength;
-        vec3 rayPos    = startPos + increment * jitter;
+        vec3 rayPos    = startPos + increment * dither;
              rayPos   += cameraPosition;
 
         vec3 shadowStartPos  = worldToShadow(startPos);
         vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepLength;
-        vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
+        vec3 shadowPos       = shadowStartPos + shadowIncrement * dither;
 
         float rayLength = length(increment);
         float phase     = getFogPhase(VdotL);
@@ -141,12 +141,12 @@ const int phaseMultiSamples = 8;
     void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
         const float stepLength = 1.0 / WATER_FOG_STEPS;
         vec3 increment = (endPos - startPos) * stepLength;
-        vec3 rayPos    = startPos + increment * jitter;
+        vec3 rayPos    = startPos + increment * dither;
              rayPos   += cameraPosition;
 
         vec3 shadowStartPos  = worldToShadow(startPos);
         vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepLength;
-        vec3 shadowPos       = shadowStartPos + shadowIncrement * jitter;
+        vec3 shadowPos       = shadowStartPos + shadowIncrement * dither;
 
         float rayLength = length(increment);
 

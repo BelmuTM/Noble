@@ -32,7 +32,7 @@ out vec3 color;
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
-        color = min(color, vec3(0.985));
+        color = clamp(color, vec3(0.0), vec3(0.99609375));
 
         #if DEBUG_LUT == 1
             if(all(lessThan(gl_FragCoord.xy, ivec2(256)))) {
@@ -93,6 +93,10 @@ void main() {
 
     #if LUT > 0
         applyLUT(colortex7, color);
+    #endif
+
+    #if FILM_GRAIN == 1
+        color += randF() * color * FILM_GRAIN_STRENGTH;
     #endif
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2

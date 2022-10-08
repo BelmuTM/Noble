@@ -31,6 +31,9 @@ struct CloudLayer {
     int steps;
 };
 
+vec2 windDir = sincos(-0.785398);
+vec2 wind    = WIND_SPEED * frameTimeCounter * windDir;
+
 float heightAlter(float altitude, float weatherMap) {
     float stopHeight = clamp01(weatherMap + 0.12);
 
@@ -46,8 +49,6 @@ float densityAlter(float altitude, float weatherMap) {
     return densityAlter;
 }
 
-vec2 wind = WIND_SPEED * frameTimeCounter * sincos(-0.785398);
-
 float getCloudsDensity(vec3 position, CloudLayer layer, vec2 radius) {
     float altitude = (position.y - radius.x) * rcp(layer.thickness);
 
@@ -55,11 +56,11 @@ float getCloudsDensity(vec3 position, CloudLayer layer, vec2 radius) {
         position.xz += wind;
     #endif
 
-    float weatherMap   = clamp01(FBM(position.xz * layer.scale, 3, layer.frequency) * (1.0 - layer.coverage) + layer.coverage);
+    float weatherMap   = clamp01(FBM(position.xz * layer.scale, 2, layer.frequency) * (1.0 - layer.coverage) + layer.coverage);
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
 
-    position *= 6e-4;
+    position *= 7e-4;
 
     vec3 curlTex  = texture(colortex14, position * 0.3).rgb * 2.0 - 1.0;
         position += curlTex * layer.swirl;
@@ -84,8 +85,7 @@ float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount, CloudLaye
     for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength) {
         stepLength *= 2.0;
 
-        float jitter  = fract(frameTimeCounter + bayer32(gl_FragCoord.xy));
-        opticalDepth += getCloudsDensity(rayPos + lightDir * stepLength * jitter, layer, radius) * stepLength;
+        opticalDepth += getCloudsDensity(rayPos + lightDir * stepLength * randF(), layer, radius) * stepLength;
     }
     return opticalDepth;
 }
@@ -104,7 +104,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
          radius.y = radius.x + layer.thickness;
 
     vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, radius.x, radius.y);
-    if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e7);
+    if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e6);
 
     float stepLength = (dists.y - dists.x) * rcp(layer.steps);
     vec3 increment   = rayDir * stepLength;
@@ -158,10 +158,9 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         scattering    += stepScattering * scatteringIntegral * transmittance;
         transmittance *= stepTransmittance;
     }
-    transmittance     = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
-    float distToCloud = depthWeight < EPS ? 1e7 : depthSum / depthWeight;
+    transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
 
-    return vec4(scattering, transmittance, distToCloud);
+    return vec4(scattering, transmittance, depthSum / depthWeight);
 }
 
 /*
@@ -173,7 +172,7 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
 
     vec3 shadowPos     = vec3(cloudsShadowsCoords, 0.0) * 2.0 - 1.0;
          shadowPos.xy *= cloudsShadowmapDist;
-         shadowPos     = transMAD(shadowModelViewInverse, shadowPos) + cameraPosition;
+         shadowPos     = transform(shadowModelViewInverse, shadowPos) + cameraPosition;
 
     vec2 dists       = intersectSphericalShell(shadowPos + vec3(0.0, planetRadius, 0.0), rayDir, innerCloudRad, outerCloudRad);
     float stepLength = (dists.y - dists.x) * rcp(stepCount);
@@ -189,10 +188,11 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
 */
 
 vec3 reprojectClouds(vec3 viewPos, float distToCloud) {
-    vec3 offset = (previousCameraPosition - cameraPosition) + vec3(wind.x, 0.0, wind.y);
+    vec3 velocity     = previousCameraPosition - cameraPosition;
+         velocity.xz += WIND_SPEED * frameTime * windDir;
 
-    vec3 position = normalize(mat3(gbufferModelViewInverse) * viewPos) * distToCloud * rcp(CLOUDS_RESOLUTION);
-         position = transMAD(gbufferPreviousModelView, position + gbufferModelViewInverse[3].xyz - offset);
-         position = (projOrthoMAD(gbufferPreviousProjection, position) / -position.z) * 0.5 + 0.5;
+    vec3 position = normalize(mat3(gbufferModelViewInverse) * viewPos) * distToCloud;
+         position = transform(gbufferPreviousModelView, position + gbufferModelViewInverse[3].xyz - velocity);
+         position = (projectOrtho(gbufferPreviousProjection, position) / -position.z) * 0.5 + 0.5;
     return position;
 }
