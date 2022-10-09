@@ -152,17 +152,17 @@
                     clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-5e-5 * distanceToClouds));
 
                     /* Reprojection */
-                    vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
-                    vec4 prevClouds = texture(colortex12, prevPos);
+                    vec3 prevPos    = reprojectClouds(viewPos, distanceToClouds);
+                    vec4 prevClouds = textureCatmullRom(colortex12, prevPos.xy);
 
                     // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
-                    vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
+                    vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos.xy * viewSize) - 1.0);
                     float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.5 + 0.5;
 
-                    vec2  velocity       = (texCoords - prevPos) * viewSize;
+                    vec2  velocity       = (texCoords - prevPos.xy) * viewSize;
                     float velocityWeight = exp(-length(velocity)) * 0.7 + 0.3;
 
-                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos));
+                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos.xy) == prevPos.xy));
 
                     clouds = mix(clouds, prevClouds, 0.95 * weight);
                 }
