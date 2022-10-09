@@ -153,7 +153,7 @@
 
                     /* Reprojection */
                     vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
-                    vec4 prevClouds = texture(colortex12, prevPos);
+                    vec4 prevClouds = textureCatmullRom(colortex12, prevPos);
 
                     // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
