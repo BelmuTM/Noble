@@ -160,7 +160,9 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
     }
     transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
 
-    return vec4(scattering, transmittance, depthSum / depthWeight);
+    float distanceToClouds = depthSum / depthWeight;
+
+    return vec4(scattering, transmittance, );
 }
 
 /*
@@ -187,11 +189,11 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
 }
 */
 
-vec3 reprojectClouds(vec3 viewPos, float distToCloud) {
+vec3 reprojectClouds(vec3 viewPos, float distanceToClouds) {
     vec3 velocity     = previousCameraPosition - cameraPosition;
          velocity.xz += WIND_SPEED * frameTime * windDir;
 
-    vec3 position = normalize(mat3(gbufferModelViewInverse) * viewPos) * distToCloud;
+    vec3 position = normalize(mat3(gbufferModelViewInverse) * viewPos) * distanceToClouds;
          position = transform(gbufferPreviousModelView, position + gbufferModelViewInverse[3].xyz - velocity);
          position = (projectOrtho(gbufferPreviousProjection, position) / -position.z) * 0.5 + 0.5;
     return position;
