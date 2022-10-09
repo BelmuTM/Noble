@@ -162,7 +162,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
 
     float distanceToClouds = depthSum / depthWeight;
 
-    return vec4(scattering, transmittance, );
+    return vec4(scattering, transmittance, distanceToClouds);
 }
 
 /*
