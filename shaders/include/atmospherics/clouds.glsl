@@ -31,7 +31,8 @@ struct CloudLayer {
     int steps;
 };
 
-vec2 wind = WIND_SPEED * frameTimeCounter * sincos(-0.785398);
+vec2 windDir = sincos(-0.785398);
+vec2 wind    = WIND_SPEED * frameTimeCounter * windDir;
 
 float heightAlter(float altitude, float weatherMap) {
     float stopHeight = clamp01(weatherMap + 0.12);
@@ -188,7 +189,7 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
 
 vec3 reprojectClouds(vec3 viewPos, float distanceToClouds) {
     vec3 velocity     = previousCameraPosition - cameraPosition;
-         velocity.xz += WIND_SPEED * frameTime * sincos(-0.785398);
+         velocity.xz += WIND_SPEED * frameTime * windDir;
 
     vec3 position = normalize(mat3(gbufferModelViewInverse) * viewPos) * distanceToClouds;
          position = transform(gbufferPreviousModelView, position + gbufferModelViewInverse[3].xyz - velocity);

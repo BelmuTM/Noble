@@ -162,7 +162,7 @@
                     vec2  velocity       = (texCoords - prevPos) * viewSize;
                     float velocityWeight = exp(-length(velocity)) * 0.7 + 0.3;
 
-                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos));
+                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0)))));
 
                     clouds = mix(clouds, prevClouds, 0.95 * weight);
                 }
