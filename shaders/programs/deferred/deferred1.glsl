@@ -141,19 +141,19 @@
                     vec4 cloudLayer0 = cloudsScattering(layer0, cloudsRay);
                     vec4 cloudLayer1 = cloudsScattering(layer1, cloudsRay);
 
-	                float distanceToClouds = min(cloudLayer0.a, cloudLayer1.a);
+	                float distanceToClouds = max0(min(cloudLayer0.a, cloudLayer1.a));
 
                     vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
-                    clouds.rgb     += scattering.r  * directIlluminance;
-                    clouds.rgb     += scattering.g  * skyMultiScatterIllum;
-                    clouds.a        = cloudLayer0.b * cloudLayer1.b;
+                    clouds.rgb     += scattering.r   * directIlluminance;
+                    clouds.rgb     += scattering.g   * skyMultiScatterIllum;
+                    clouds.a        = cloudLayer0.b  * cloudLayer1.b;
 
                     /* Aerial Perspective */
                     clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-5e-5 * distanceToClouds));
 
                     /* Reprojection */
                     vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
-                    vec4 prevClouds = texture(colortex12, prevPos);
+                    vec4 prevClouds = textureCatmullRom(colortex12, prevPos);
 
                     // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
@@ -162,9 +162,9 @@
                     vec2  velocity       = (texCoords - prevPos) * viewSize;
                     float velocityWeight = exp(-length(velocity)) * 0.7 + 0.3;
 
-                    float weight = clamp01(centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0)))));
+                    float weight = centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
 
-                    clouds = mix(clouds, prevClouds, 0.95 * weight);
+                    clouds = mix(clouds, prevClouds, clamp01(0.95 * weight));
                 }
             #endif
         #endif
