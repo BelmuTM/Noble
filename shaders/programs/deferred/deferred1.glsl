@@ -143,29 +143,32 @@
 
 	                float distanceToClouds = min(cloudLayer0.a, cloudLayer1.a);
 
-                    vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
-                    clouds.rgb     += scattering.r   * directIlluminance;
-                    clouds.rgb     += scattering.g   * skyMultiScatterIllum;
-                    clouds.a        = cloudLayer0.b  * cloudLayer1.b;
+                    if(distanceToClouds > 0.0) {
 
-                    /* Aerial Perspective */
-                    clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-5e-5 * distanceToClouds));
+                        vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
+                        clouds.rgb     += scattering.r   * directIlluminance;
+                        clouds.rgb     += scattering.g   * skyMultiScatterIllum;
+                        clouds.a        = cloudLayer0.b  * cloudLayer1.b;
 
-                    /* Reprojection */
-                    vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
-                    vec4 prevClouds = textureCatmullRom(colortex12, prevPos);
+                        /* Aerial Perspective */
+                        clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-5e-5 * distanceToClouds));
 
-                    // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
-                    vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
-                    float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.5 + 0.5;
+                        /* Reprojection */
+                        vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
+                        vec4 prevClouds = textureCatmullRom(colortex12, prevPos);
 
-                    vec2  velocity       = (texCoords - prevPos) * viewSize;
-                    float velocityWeight = exp(-length(velocity)) * 0.7 + 0.3;
+                        // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
+                        vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
+                        float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.5 + 0.5;
 
-                    float weight = centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
-                          weight = clamp01(0.95 * weight);
+                        vec2  velocity       = (texCoords - prevPos) * viewSize;
+                        float velocityWeight = exp(-length(velocity)) * 0.7 + 0.3;
 
-                    clouds = mix(clouds, prevClouds, weight);
+                        float weight = centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
+                              weight = clamp01(0.95 * weight);
+
+                        clouds = mix(clouds, prevClouds, weight);
+                    }
                 }
             #endif
         #endif

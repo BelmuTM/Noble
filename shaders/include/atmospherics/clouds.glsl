@@ -56,7 +56,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer, vec2 radius) {
         position.xz += wind;
     #endif
 
-    float weatherMap   = clamp01(FBM(position.xz * layer.scale, 2, layer.frequency) * (1.0 - layer.coverage) + layer.coverage);
+    float weatherMap   = clamp01(FBM(position.xz * layer.scale, 1, layer.frequency) * (1.0 - layer.coverage) + layer.coverage);
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
 
@@ -91,9 +91,9 @@ float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount, CloudLaye
 }
 
 float getCloudsPhase(float cosTheta, vec3 anisotropyFactors) {
-    float forwardsLobe  = cornetteShanksPhase(cosTheta, anisotropyFactors.x);
-    float backwardsLobe = cornetteShanksPhase(cosTheta,-anisotropyFactors.y);
-    float forwardsPeak  = cornetteShanksPhase(cosTheta, anisotropyFactors.z);
+    float forwardsLobe  = henyeyGreensteinPhase(cosTheta, anisotropyFactors.x);
+    float backwardsLobe = henyeyGreensteinPhase(cosTheta,-anisotropyFactors.y);
+    float forwardsPeak  = henyeyGreensteinPhase(cosTheta, anisotropyFactors.z);
 
     return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeakWeight);
 }
@@ -129,9 +129,9 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         float stepOpticalDepth  = cloudsExtinctionCoeff * density * stepLength;
         float stepTransmittance = exp(-stepOpticalDepth);
 
-        float directOpticalDepth = getCloudsOpticalDepth(rayPos, shadowLightVector, 8, layer, radius);
-        float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,                6, layer, radius);
-        float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,                3, layer, radius);
+        float directOpticalDepth = getCloudsOpticalDepth(rayPos, shadowLightVector, 6, layer, radius);
+        float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,                4, layer, radius);
+        float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,                2, layer, radius);
 
         // Beer's-Powder effect from "The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn" (see sources above)
 	    float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
