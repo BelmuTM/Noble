@@ -141,7 +141,7 @@
                     vec4 cloudLayer0 = cloudsScattering(layer0, cloudsRay);
                     vec4 cloudLayer1 = cloudsScattering(layer1, cloudsRay);
 
-	                float distanceToClouds = max0(min(cloudLayer0.a, cloudLayer1.a));
+	                float distanceToClouds = min(cloudLayer0.a, cloudLayer1.a);
 
                     vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
                     clouds.rgb     += scattering.r   * directIlluminance;
@@ -163,8 +163,9 @@
                     float velocityWeight = exp(-length(velocity)) * 0.7 + 0.3;
 
                     float weight = centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
+                          weight = clamp01(0.95 * weight);
 
-                    clouds = mix(clouds, prevClouds, clamp01(0.95 * weight));
+                    clouds = mix(clouds, prevClouds, weight);
                 }
             #endif
         #endif

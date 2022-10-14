@@ -115,7 +115,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
     float bouncedLight = abs(dot(rayDir, -up)) * RCP_PI * 0.5 * isotropicPhase;
 
     vec2 scattering = vec2(0.0);
-    float transmittance = 1.0, depthWeight = 0.0, depthSum = 0.0;
+    float transmittance = 1.0, sum = 0.0, weight = 0.0;
     
     for(int i = 0; i < layer.steps; i++, rayPos += increment) {
         if(transmittance <= cloudsTransmitThreshold) break;
@@ -123,8 +123,8 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         float density = getCloudsDensity(rayPos, layer, radius);
         if(density < EPS) continue;
 
-        depthSum    += distance(atmosRayPos, rayPos) * density; 
-        depthWeight += density;
+        sum    += distance(atmosRayPos, rayPos) * density; 
+        weight += density;
 
         float stepOpticalDepth  = cloudsExtinctionCoeff * density * stepLength;
         float stepTransmittance = exp(-stepOpticalDepth);
@@ -160,7 +160,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
     }
     transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
 
-    return vec4(scattering, transmittance, depthSum / depthWeight);
+    return vec4(scattering, transmittance, sum / weight);
 }
 
 /*
