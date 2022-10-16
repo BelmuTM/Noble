@@ -67,13 +67,17 @@ void main() {
 
                 aoHistory.a = clamp01(aoHistory.a);
 
-                vec3 currPos = vec3(scaledUv, scaledMat.depth0);
-                vec3 prevPos = currPos - getVelocity(currPos);
-                vec4 prevAO  = texture(colortex10, prevPos.xy);
-                float weight = clamp01(1.0 - (1.0 / max(texture(colortex5, prevPos.xy).a, 1.0)));
+                #if AO_FILTER == 1
+                    vec3 currPos = vec3(scaledUv, scaledMat.depth0);
+                    vec3 prevPos = currPos - getVelocity(currPos);
+                    vec4 prevAO  = texture(colortex10, prevPos.xy);
+                    float weight = clamp01(1.0 - (1.0 / max(texture(colortex5, prevPos.xy).a, 1.0)));
 
-                aoHistory.a   = prevAO.a >= EPS ? mix(aoHistory.a, prevAO.a, weight) : aoHistory.a;
-                aoHistory.rgb = max0(mix(aoHistory.rgb, prevAO.rgb, weight));
+                    aoHistory.a   = prevAO.a >= EPS ? mix(aoHistory.a, prevAO.a, weight) : aoHistory.a;
+                    aoHistory.rgb = max0(mix(aoHistory.rgb, prevAO.rgb, weight));
+                #else
+                    aoHistory.rgb = max0(aoHistory.rgb);
+                #endif
             }
         }
     #endif

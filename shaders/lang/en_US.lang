@@ -113,7 +113,7 @@ value.AO.0 = §cOFF
 value.AO.1 = §aON
 
 option.AO_FILTER = AO Filter
-option.AO_FILTER.comment = Filters §bAO§r to reduce the noise.
+option.AO_FILTER.comment = Accumulates §bAmbient Occlusion§r over multiple frames to reduce noise and give a cleaner result.
 value.AO_FILTER.0 = §cOFF
 value.AO_FILTER.1 = §aON
 

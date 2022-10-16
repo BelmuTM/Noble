@@ -47,31 +47,6 @@
     in vec3 skyMultiScatterIllum;
     in vec3 directIlluminance;
 
-    #if GI == 0 && AO == 1 && AO_FILTER == 1
-        float filterAO(sampler2D tex, vec2 coords, Material mat, float scale, float radius, float sigma, int steps) {
-            float ao = 0.0, totalWeight = 0.0;
-
-            for(int x = -steps; x <= steps; x++) {
-                for(int y = -steps; y <= steps; y++) {
-                    vec2 offset         = vec2(x, y) * radius * pixelSize;
-                    vec2 sampleCoords   = (coords * scale) + offset;
-                    if(clamp01(sampleCoords) != sampleCoords) continue;
-
-                    Material sampleMat = getMaterial(coords + offset);
-
-                    float weight  = gaussianDistrib2D(vec2(x, y), sigma);
-                          weight *= getDepthWeight(mat.depth0, sampleMat.depth0,  2.0);
-                          weight *= getNormalWeight(mat.normal, sampleMat.normal, 8.0);
-                          weight  = clamp01(weight);
-
-                    ao          += texture(tex, sampleCoords).a * weight;
-                    totalWeight += weight;
-                }
-            }
-            return clamp01(ao * (1.0 / totalWeight));
-        }
-    #endif
-
     void main() {
         vec3 viewPos  = getViewPos0(texCoords);
         Material mat  = getMaterial(texCoords);
@@ -85,14 +60,8 @@
 
         #if GI == 0 && AO == 1
             if(!skyCheck) {
-                vec4 ao = texture(colortex10, texCoords * AO_RESOLUTION);
-                if(any(greaterThan(ao.rgb, vec3(0.0)))) bentNormal = clamp01(ao.rgb);
-
-                aoHistory = ao;
-
-                #if AO_FILTER == 1
-                    aoHistory.a = filterAO(colortex10, texCoords, mat, AO_RESOLUTION, 0.3, 2.0, 2);
-                #endif
+                aoHistory = texture(colortex10, texCoords * AO_RESOLUTION);
+                if(any(greaterThan(aoHistory.rgb, vec3(0.0)))) bentNormal = clamp01(aoHistory.rgb);
             }
         #endif
 
