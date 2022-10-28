@@ -32,9 +32,8 @@
 
         #if WATER_CAUSTICS == 1
             vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
-
-    	    vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
-		    TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
+    	    vec3 tangent   = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
+		    TBN 		   = mat3(tangent, cross(tangent, geoNormal), geoNormal);
         #endif
 
 	    #if ACCUMULATION_VELOCITY_WEIGHT == 0

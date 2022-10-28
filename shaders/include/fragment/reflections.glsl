@@ -20,7 +20,7 @@ vec3 getHitColor(in vec3 hitPos) {
 
 vec3 getSkyFallback(vec3 reflected, Material mat) {
     #ifdef WORLD_OVERWORLD
-        vec2 coords = projectSphere(viewToScene(reflected));
+        vec2 coords = projectSphere(viewToWorld(reflected));
         vec3 sky    = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION, randF())).rgb;
     
         /*

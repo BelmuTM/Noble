@@ -103,17 +103,19 @@
                 if(dot(mat.normal, rayDir) < 0.0) continue;
                 bool hit = raytrace(depthtex0, screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
 
-                if(j == 0) { 
-                    outColorDirect   = directLighting;
-                    outColorIndirect = indirectBounce;
+                if(hit) {
+                    if(j == 0) {
+                        outColorDirect   = directLighting;
+                        outColorIndirect = indirectBounce;
+                    } else {
+                        radiance   += throughput * directLighting; 
+                        throughput *= indirectBounce;
+                    }
                 } else {
-                    radiance   += throughput * directLighting; 
-                    throughput *= indirectBounce;
-                }
-
-                if(!hit) {
                     #if SKY_CONTRIBUTION == 1
-		                vec3 sky = texture(colortex6, hitPos.xy).rgb;
+                        vec2 coords = projectSphere(normalize(viewToScene(rayDir)));
+		                vec3 sky    = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION, randF())).rgb;
+
                         radiance += throughput * sky * mat.lightmap.y;
                     #endif
                     break;

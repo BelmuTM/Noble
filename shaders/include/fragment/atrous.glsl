@@ -35,7 +35,7 @@ float gaussianVariance(sampler2D tex, vec2 coords) {
 
     for(int x = -radius; x <= radius; x++) {
         for(int y = -radius; y <= radius; y++) {
-            variance += texture(tex, coords + vec2(x, y) * pixelSize).z * gaussianDistrib2D(vec2(x, y), 1.5);
+            variance += texture(tex, coords + vec2(x, y) * pixelSize).z * gaussianDistrib2D(vec2(x, y), 2.0);
         }
     }
     return variance;
@@ -55,7 +55,7 @@ float getATrousNormalWeight(vec3 normal, vec3 sampleNormal) {
 }
 
 float getATrousDepthWeight(float depth, float sampleDepth, vec2 dgrad, vec2 offset) {
-    return exp(-abs(linearizeDepth(depth) - linearizeDepth(sampleDepth)) / (abs(DEPTH_WEIGHT_SIGMA * dot(dgrad, offset)) + 0.1));
+    return exp(-abs(depth - sampleDepth) / (abs(DEPTH_WEIGHT_SIGMA * dot(dgrad, offset)) + 0.05));
 }
 
 float getATrousLuminanceWeight(float luminance, float sampleLuminance, float luminancePhi) {
@@ -69,7 +69,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec4 momen
     float totalWeight = 1.0, totalWeightSquared = 1.0;
     vec2 stepSize     = steps[passIndex] * pixelSize;
 
-    float frames = clamp01(texture(colortex5, coords).a * rcp(4.0));
+    float frames = clamp01(texture(colortex5, coords).a * 0.25);
     vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
 
     float centerLuma   = luminance(color);
@@ -101,6 +101,6 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec4 momen
             totalWeightSquared += weight * weight;
         }
     }
-    color      = max0(color / totalWeight);
+    color      = color / totalWeight;
     moments.b *= totalWeightSquared;
 }

@@ -180,7 +180,7 @@ vec3 generateCosineVector(vec3 vector, vec2 xy) {
     return normalize(vector + generateUnitVector(xy));
 }
 
-float coneAngleToSolidAngle(float x) { return TAU * (1.0 - cos(x));  }
+float coneAngleToSolidAngle(float x) { return TAU * (1.0 - cos(x));      }
 float solidAngleToConeAngle(float x) { return fastAcos(1.0 - (x) / TAU); }
 
 vec2 vogelDisk(float i, float n, float phi) {
@@ -189,7 +189,7 @@ vec2 vogelDisk(float i, float n, float phi) {
     return sincos(r * theta);
 }
 
-vec2 diskSampling(float i, float n, float phi){
+vec2 diskSampling(float i, float n, float phi) {
     float theta = (i + phi) / n; 
     return sincos(theta * TAU * n * GOLDEN_ANGLE) * theta;
 }

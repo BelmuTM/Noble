@@ -29,6 +29,7 @@ struct CloudLayer {
     float density;
 
     int steps;
+    int octaves;
 };
 
 vec2 windDir = sincos(-0.785398);
@@ -58,7 +59,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer, vec2 radius) {
 
     float mapCoverage = mix(layer.coverage, 0.95, wetness);
 
-    float weatherMap   = clamp01(FBM(position.xz * layer.scale, 2, layer.frequency) * (1.0 - mapCoverage) + mapCoverage);
+    float weatherMap   = clamp01(FBM(position.xz * layer.scale, layer.octaves, layer.frequency) * (1.0 - mapCoverage) + mapCoverage);
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
 
@@ -71,10 +72,9 @@ float getCloudsDensity(vec3 position, CloudLayer layer, vec2 radius) {
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
           shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
 
-    vec3  detailTex    = texture(colortex13, position).rgb;
-    float detailNoise  = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
-          detailNoise  = mix(detailNoise, 1.0 - detailNoise, clamp01(altitude * 5.0));
-          detailNoise *= (0.35 * exp(-0.7 * 0.75));
+    vec3  detailTex   = texture(colortex13, position).rgb;
+    float detailNoise = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
+          detailNoise = mix(detailNoise, 1.0 - detailNoise, clamp01(altitude * 5.0)) * 0.16532829;
 
     return clamp01(remap(shapeNoise, detailNoise, 1.0, 0.0, 1.0)) * densityAlter * layer.density;
 }

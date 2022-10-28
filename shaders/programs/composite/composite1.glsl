@@ -80,9 +80,7 @@ void main() {
             //////////////////////////////////////////////////////////
 
             #if REFRACTIONS == 1
-                color = simpleRefractions(viewPos0, mat, coords);
-                mat   = getMaterial(coords.xy);
-                
+                color     = simpleRefractions(viewPos0, mat, coords);
                 scenePos1 = viewToScene(getViewPos1(coords.xy));
             #endif
 
@@ -113,15 +111,13 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if GI == 0
-            vec3 viewDir0 = -normalize(viewPos0);
-
             #if SPECULAR == 1
-                vec3 visibility = texture(colortex3, coords.xy).rgb * float(mat.lightmap.y > EPS);
+                vec3 visibility = texture(colortex3, coords.xy).rgb;
                 #ifdef SUNLIGHT_LEAKING_FIX
                     visibility *= float(mat.lightmap.y > EPS);
                 #endif
 
-                color += computeSpecular(mat.normal, viewDir0, shadowVec, mat) * directIlluminance * visibility;
+                color += computeSpecular(mat.normal, -normalize(viewPos0), shadowVec, mat) * directIlluminance * visibility;
             #endif
 
             #if REFLECTIONS == 1

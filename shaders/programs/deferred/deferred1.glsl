@@ -69,7 +69,9 @@
             //////////////////////////////////////////////////////////
             /*------------- ATMOSPHERIC SCATTERING -----------------*/
             //////////////////////////////////////////////////////////
-            skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(bentNormal, skyIlluminanceMat) : vec3(0.0);
+            if(!skyCheck) {
+                skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(bentNormal, skyIlluminanceMat) : vec3(0.0);
+            }
 
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION)) == texCoords) {
                 vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
@@ -96,6 +98,7 @@
                     layer0.frequency = CLOUDS_LAYER0_FREQUENCY;
                     layer0.density   = CLOUDS_LAYER0_DENSITY;
                     layer0.steps     = CLOUDS_SCATTERING_STEPS;
+                    layer0.octaves   = 2;
 
                     CloudLayer layer1;
                     layer1.altitude  = CLOUDS_LAYER1_ALTITUDE;
@@ -106,6 +109,7 @@
                     layer1.frequency = CLOUDS_LAYER1_FREQUENCY;
                     layer1.density   = CLOUDS_LAYER1_DENSITY;
                     layer1.steps     = 10;
+                    layer1.octaves   = 2;
                     
                     vec4 cloudLayer0 = cloudsScattering(layer0, cloudsRay);
                     vec4 cloudLayer1 = cloudsScattering(layer1, cloudsRay);
@@ -126,15 +130,11 @@
                         vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
                         vec4 prevClouds = textureCatmullRom(colortex12, prevPos);
 
-                        // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
-                        vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
-                        float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.5 + 0.5;
-
                         vec2  velocity       = (texCoords - prevPos) * viewSize;
-                        float velocityWeight = exp(-length(velocity)) * 0.7 + 0.3;
+                        float velocityWeight = exp(-length(velocity));
 
-                        float weight = centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
-                              weight = clamp01(0.95 * weight);
+                        float weight = velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
+                              weight = clamp01(0.98 * weight);
 
                         clouds = mix(clouds, prevClouds, weight);
                     }

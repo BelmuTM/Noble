@@ -76,14 +76,21 @@ vec3 getWaterNormals(vec3 worldPos, int octaves) {
     vec2 coords = worldPos.xz - worldPos.y;
 
     const float delta = 1e-1;
-    float normal0 = waterWaves(coords,                    octaves);
-	float normal1 = waterWaves(coords + vec2(delta, 0.0), octaves);
-	float normal2 = waterWaves(coords + vec2(0.0, delta), octaves);
+    float pos0 = waterWaves(coords,                    octaves);
+	float pos1 = waterWaves(coords + vec2(delta, 0.0), octaves);
+	float pos2 = waterWaves(coords + vec2(0.0, delta), octaves);
 
-    return normalize(vec3(
-        (normal0 - normal1) * rcp(delta),
-        (normal0 - normal2) * rcp(delta),
-        1.0
-    ));
+    return normalize(vec3(pos0 - pos1, pos0 - pos2, 1.0));
 }
+
+#if defined STAGE_FRAGMENT
+    vec3 getWaterNormalsCheap(vec3 worldPos, int octaves) {
+        vec2 coords  = worldPos.xz - worldPos.y;
+        float height = waterWaves(coords, octaves);
+
+        vec3 pos = vec3(coords.x, height, coords.y);
+
+        return normalize(cross(dFdx(pos), dFdy(pos)));
+    }
+#endif
     
