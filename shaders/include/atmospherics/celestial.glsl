@@ -48,7 +48,7 @@ vec3 computeSky(vec3 viewPos) {
 		vec3 sky = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION, randF())).rgb;
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
-		#if CLOUDS == 1
+		#if VOLUMETRIC_CLOUDS == 1 || PLANAR_CLOUDS == 1
 			clouds = textureCatmullRom(colortex12, getAtmosphereCoordinates(texCoords, CLOUDS_RESOLUTION, 0.0));
 		#endif
 

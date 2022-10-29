@@ -22,13 +22,6 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
     #ifdef WORLD_OVERWORLD
         vec2 coords = projectSphere(viewToWorld(reflected));
         vec3 sky    = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION, randF())).rgb;
-    
-        /*
-	    vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
-	    #if CLOUDS == 1
-		    clouds = texture(colortex12, getAtmosphereCoordinates(texCoords, CLOUDS_RESOLUTION, 0.0));
-	    #endif
-        */
 
         return sky * getSkyLightFalloff(mat.lightmap.y);
     #else

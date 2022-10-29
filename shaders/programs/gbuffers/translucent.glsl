@@ -89,7 +89,7 @@
 			albedoTex  = vec4(0.0);
 			mat.F0 	   = waterF0;
 			mat.rough  = 0.0;
-			mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES);
+			mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES, 1.0);
 		
 		} else {
 			mat.F0         = specularTex.y;

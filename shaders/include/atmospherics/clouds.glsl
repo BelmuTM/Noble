@@ -27,13 +27,15 @@ struct CloudLayer {
     float scale;
     float frequency;
     float density;
+    float texDetail;
 
     int steps;
     int octaves;
 };
 
-vec2 windDir = sincos(-0.785398);
-vec2 wind    = WIND_SPEED * frameTimeCounter * windDir;
+float windSpeed = 10.0;
+vec2 windDir    = sincos(-0.785398);
+vec2 wind       = windSpeed * frameTimeCounter * windDir;
 
 float heightAlter(float altitude, float weatherMap) {
     float stopHeight = clamp01(weatherMap + 0.12);
@@ -63,7 +65,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer, vec2 radius) {
     float shapeAlter   = heightAlter(altitude,  weatherMap);
     float densityAlter = densityAlter(altitude, weatherMap);
 
-    position *= 7e-4;
+    position *= layer.texDetail;
 
     vec3 curlTex  = texture(colortex14, position * 0.3).rgb * 2.0 - 1.0;
         position += curlTex * layer.swirl;
@@ -189,7 +191,7 @@ float cloudsShadows(vec2 coords, vec3 rayDir, int stepCount) {
 
 vec3 reprojectClouds(vec3 viewPos, float distanceToClouds) {
     vec3 velocity     = previousCameraPosition - cameraPosition;
-         velocity.xz += WIND_SPEED * frameTime * windDir;
+         velocity.xz += windSpeed * frameTime * windDir;
 
     vec3 position = normalize(mat3(gbufferModelViewInverse) * viewPos) * distanceToClouds;
          position = transform(gbufferPreviousModelView, position + gbufferModelViewInverse[3].xyz - velocity);

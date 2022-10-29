@@ -277,10 +277,15 @@ value.TRANSMITTANCE_STEPS.24 = §624
 value.TRANSMITTANCE_STEPS.28 = §c28
 value.TRANSMITTANCE_STEPS.32 = §432
 
-option.CLOUDS = Volumetric Clouds
-option.CLOUDS.comment = Features clouds simulated as 3D volumes.
-value.CLOUDS.0 = §cOFF
-value.CLOUDS.1 = §aON
+option.VOLUMETRIC_CLOUDS = Volumetric Clouds
+option.VOLUMETRIC_CLOUDS.comment = Features a layer of voluptuous volumetric clouds above the ground.
+value.VOLUMETRIC_CLOUDS.0 = §cOFF
+value.VOLUMETRIC_CLOUDS.1 = §aON
+
+option.PLANAR_CLOUDS = Planar Clouds
+option.PLANAR_CLOUDS.comment = Features another layer of volumetric clouds very high above the ground.
+value.PLANAR_CLOUDS.0 = §cOFF
+value.PLANAR_CLOUDS.1 = §aON
 
 option.CLOUDS_RESOLUTION = Clouds Resolution
 option.CLOUDS_RESOLUTION.comment = Adjusts the §bClouds§r' resolution. §cHigher value gives better results, but reduces §cperformance.
@@ -296,19 +301,16 @@ value.CLOUDS_SCATTERING_STEPS.24 = §624
 value.CLOUDS_SCATTERING_STEPS.28 = §c28
 value.CLOUDS_SCATTERING_STEPS.32 = §432
 
-option.WIND_SPEED = Wind Speed
-option.WIND_SPEED.comment = Adjusts the speed which §bClouds§r are moving at.
-
-option.CLOUDS_LAYER0_ALTITUDE = Clouds Altitude
+option.CLOUDS_LAYER0_ALTITUDE = V Clouds Altitude
 option.CLOUDS_LAYER0_ALTITUDE.comment = Adjusts the altitude of §bClouds§r.
 
-option.CLOUDS_LAYER0_THICKNESS = Clouds Thickness
+option.CLOUDS_LAYER0_THICKNESS = V Clouds Thickness
 option.CLOUDS_LAYER0_THICKNESS.comment = Adjusts the thickness of §bClouds§r.
 
-option.CLOUDS_LAYER0_COVERAGE = Clouds Coverage
+option.CLOUDS_LAYER0_COVERAGE = V Clouds Coverage
 option.CLOUDS_LAYER0_COVERAGE.comment = Adjusts how much of the sky the §bClouds§r cover.
 
-option.CLOUDS_LAYER0_SWIRL = Clouds Swirliness
+option.CLOUDS_LAYER0_SWIRL = V Clouds Swirliness
 option.CLOUDS_LAYER0_SWIRL.comment = Adjusts the swirliness of §bClouds§r.
 
 option.AIR_FOG = Fog

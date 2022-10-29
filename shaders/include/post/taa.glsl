@@ -38,7 +38,7 @@ vec3 getClosestFragment(vec3 position) {
 	vec3 closestFragment = position;
     vec3 currentFragment;
 
-    const int searchRadius = 2;
+    const int searchRadius = 1;
 
     for(int x = -searchRadius; x <= searchRadius; x++) {
         for(int y = -searchRadius; y <= searchRadius; y++) {

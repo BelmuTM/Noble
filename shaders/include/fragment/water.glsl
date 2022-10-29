@@ -12,7 +12,7 @@
 */
 
 float seaOctave(vec2 pos, float steep) {
-    pos     += (-1.0 + 2.0 * noise(pos));        
+    pos     += (noise(pos) * 2.0 - 1.0);        
     vec2 wv  = 1.0 - abs(sin(pos));
     vec2 swv = abs(cos(pos));    
          wv  = mix(wv, swv, wv);
@@ -74,14 +74,14 @@ float calculateWaterWaves(vec2 coords, int octaves) {
 
 const vec2[2] offset = vec2[2](vec2(1e-1, 0.0), vec2(0.0, 1e-1));
 
-vec3 getWaterNormals(vec3 worldPos, int octaves) {
+vec3 getWaterNormals(vec3 worldPos, int octaves, float heightFactor) {
     vec2 coords = worldPos.xz - worldPos.y;
 
     float pos0 = waterWaves(coords,             octaves);
 	float pos1 = waterWaves(coords + offset[0], octaves);
 	float pos2 = waterWaves(coords + offset[1], octaves);
 
-    return normalize(vec3(pos0 - pos1, pos0 - pos2, 1.0));
+    return normalize(vec3((pos0 - pos1) * heightFactor, (pos0 - pos2) * heightFactor, 1.0));
 }
 
 #if defined STAGE_FRAGMENT

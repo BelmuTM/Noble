@@ -17,7 +17,7 @@ const float atmosUpperRad = planetRadius + 110e3; // Meters
 
 const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
 
-/* CLOUDS CONSTANTS */
+/* VOLUMETRIC_CLOUDS CONSTANTS */
 
 const float cloudsExtinctionCoeff   = 0.06;
 const float cloudsScatteringCoeff   = 1.0;

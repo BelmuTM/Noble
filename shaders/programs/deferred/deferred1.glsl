@@ -39,7 +39,7 @@
         layout (location = 3) out vec4 clouds;
     #endif
 
-    #if CLOUDS == 1
+    #if VOLUMETRIC_CLOUDS == 1 || PLANAR_CLOUDS == 1
         #include "/include/atmospherics/clouds.glsl"
     #endif
 
@@ -76,9 +76,9 @@
             }
 
             //////////////////////////////////////////////////////////
-            /*---------------- VOLUMETRIC CLOUDS -------------------*/
+            /*---------------- VOLUMETRIC VOLUMETRIC_CLOUDS -------------------*/
             //////////////////////////////////////////////////////////
-            #if CLOUDS == 1
+            #if VOLUMETRIC_CLOUDS == 1 || PLANAR_CLOUDS == 1
                 
                 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -86,35 +86,45 @@
                     vec3 scaledViewDir = normalize(getViewPos1(texCoords * rcp(CLOUDS_RESOLUTION)));
                     vec3 cloudsRay     = mat3(gbufferModelViewInverse) * scaledViewDir;
 
-                    CloudLayer layer0;
-                    layer0.altitude  = CLOUDS_LAYER0_ALTITUDE;
-                    layer0.thickness = CLOUDS_LAYER0_THICKNESS;
-                    layer0.coverage  = CLOUDS_LAYER0_COVERAGE;
-                    layer0.swirl     = CLOUDS_LAYER0_SWIRL;
-                    layer0.scale     = CLOUDS_LAYER0_SCALE;
-                    layer0.frequency = CLOUDS_LAYER0_FREQUENCY;
-                    layer0.density   = CLOUDS_LAYER0_DENSITY;
-                    layer0.steps     = CLOUDS_SCATTERING_STEPS;
-                    layer0.octaves   = 2;
+                    vec4 cloudLayer0 = vec4(0.0, 0.0, 1.0, 1e8);
+                    vec4 cloudLayer1 = vec4(0.0, 0.0, 1.0, 1e8);
 
-                    CloudLayer layer1;
-                    layer1.altitude  = CLOUDS_LAYER1_ALTITUDE;
-                    layer1.thickness = CLOUDS_LAYER1_THICKNESS;
-                    layer1.coverage  = CLOUDS_LAYER1_COVERAGE;
-                    layer1.swirl     = CLOUDS_LAYER1_SWIRL;
-                    layer1.scale     = CLOUDS_LAYER1_SCALE;
-                    layer1.frequency = CLOUDS_LAYER1_FREQUENCY;
-                    layer1.density   = CLOUDS_LAYER1_DENSITY;
-                    layer1.steps     = 10;
-                    layer1.octaves   = 2;
-                    
-                    vec4 cloudLayer0 = cloudsScattering(layer0, cloudsRay);
-                    vec4 cloudLayer1 = cloudsScattering(layer1, cloudsRay);
+                    #if VOLUMETRIC_CLOUDS == 1
+                        CloudLayer layer0;
+                        layer0.altitude  = CLOUDS_LAYER0_ALTITUDE;
+                        layer0.thickness = CLOUDS_LAYER0_THICKNESS;
+                        layer0.coverage  = CLOUDS_LAYER0_COVERAGE;
+                        layer0.swirl     = CLOUDS_LAYER0_SWIRL;
+                        layer0.scale     = CLOUDS_LAYER0_SCALE;
+                        layer0.frequency = CLOUDS_LAYER0_FREQUENCY;
+                        layer0.density   = CLOUDS_LAYER0_DENSITY;
+                        layer0.texDetail = CLOUDS_LAYER0_TEXDETAIL;
+                        layer0.steps     = CLOUDS_SCATTERING_STEPS;
+                        layer0.octaves   = CLOUDS_LAYER0_OCTAVES;
+
+                        cloudLayer0 = cloudsScattering(layer0, cloudsRay);
+                    #endif
+
+                    #if PLANAR_CLOUDS == 1
+                        CloudLayer layer1;
+                        layer1.altitude  = CLOUDS_LAYER1_ALTITUDE;
+                        layer1.thickness = CLOUDS_LAYER1_THICKNESS;
+                        layer1.coverage  = CLOUDS_LAYER1_COVERAGE;
+                        layer1.swirl     = CLOUDS_LAYER1_SWIRL;
+                        layer1.scale     = CLOUDS_LAYER1_SCALE;
+                        layer1.frequency = CLOUDS_LAYER1_FREQUENCY;
+                        layer1.density   = CLOUDS_LAYER1_DENSITY;
+                        layer1.texDetail = CLOUDS_LAYER1_TEXDETAIL;
+                        layer1.steps     = 10;
+                        layer1.octaves   = CLOUDS_LAYER1_OCTAVES;
+
+                        cloudLayer1 = cloudsScattering(layer1, cloudsRay);
+                    #endif
 
 	                float distanceToClouds = min(cloudLayer0.a, cloudLayer1.a);
 
                     if(distanceToClouds > 0.0) {
-
+                        
                         vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
                         clouds.rgb     += scattering.r   * directIlluminance;
                         clouds.rgb     += scattering.g   * skyMultiScatterIllum;
