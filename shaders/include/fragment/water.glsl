@@ -72,13 +72,14 @@ float calculateWaterWaves(vec2 coords, int octaves) {
 }
 */
 
+const vec2[2] offset = vec2[2](vec2(1e-1, 0.0), vec2(0.0, 1e-1));
+
 vec3 getWaterNormals(vec3 worldPos, int octaves) {
     vec2 coords = worldPos.xz - worldPos.y;
 
-    const float delta = 1e-1;
-    float pos0 = waterWaves(coords,                    octaves);
-	float pos1 = waterWaves(coords + vec2(delta, 0.0), octaves);
-	float pos2 = waterWaves(coords + vec2(0.0, delta), octaves);
+    float pos0 = waterWaves(coords,             octaves);
+	float pos1 = waterWaves(coords + offset[0], octaves);
+	float pos2 = waterWaves(coords + offset[1], octaves);
 
     return normalize(vec3(pos0 - pos1, pos0 - pos2, 1.0));
 }

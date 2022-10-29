@@ -48,9 +48,8 @@
     in vec3 directIlluminance;
 
     void main() {
-        vec3 viewPos  = getViewPos0(texCoords);
-        Material mat  = getMaterial(texCoords);
-        bool skyCheck = isSky(texCoords);
+        vec3 viewPos = getViewPos0(texCoords);
+        Material mat = getMaterial(texCoords);
 
         vec3 bentNormal = mat.normal;
 
@@ -59,7 +58,7 @@
         //////////////////////////////////////////////////////////
 
         #if GI == 0 && AO == 1
-            if(!skyCheck) {
+            if(!isSky(texCoords)) {
                 aoHistory = texture(colortex10, texCoords * AO_RESOLUTION);
                 if(any(greaterThan(aoHistory.rgb, vec3(0.0)))) bentNormal = clamp01(aoHistory.rgb);
             }
@@ -69,9 +68,7 @@
             //////////////////////////////////////////////////////////
             /*------------- ATMOSPHERIC SCATTERING -----------------*/
             //////////////////////////////////////////////////////////
-            if(!skyCheck) {
-                skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(bentNormal, skyIlluminanceMat) : vec3(0.0);
-            }
+            skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat) : vec3(0.0);
 
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION)) == texCoords) {
                 vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));

@@ -117,7 +117,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 //////////////////////////////////////////////////////////
 
 #if REFRACTIONS == 1
-    vec3 simpleRefractions(vec3 viewPos, Material mat, inout vec3 hitPos) {
+    vec3 refractions(vec3 viewPos, Material mat, inout vec3 hitPos) {
         float ior    = f0ToIOR(mat.F0);
         vec3 viewDir = normalize(viewPos);
 
@@ -131,7 +131,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), n1, n2);
         vec3 hitColor = texture(colortex5, hitPos.xy).rgb;
 
-        vec3 beer = exp(-(1.0 - mat.albedo) * clamp(distance(viewToScene(screenToView(hitPos)), viewToScene(getViewPos1(texCoords))), EPS, 3.0));
+        vec3 beer = mat.blockId == 1 ? vec3(1.0) : exp(-(1.0 - mat.albedo) * clamp(distance(viewToScene(screenToView(hitPos)), viewToScene(getViewPos1(texCoords))), EPS, 3.0));
 
         return max0(hitColor * (1.0 - fresnel) * beer);
     }
