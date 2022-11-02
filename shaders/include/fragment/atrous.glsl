@@ -55,7 +55,7 @@ float getATrousNormalWeight(vec3 normal, vec3 sampleNormal) {
 }
 
 float getATrousDepthWeight(float depth, float sampleDepth, vec2 dgrad, vec2 offset) {
-    return exp(-abs(depth - sampleDepth) / (abs(DEPTH_WEIGHT_SIGMA * dot(dgrad, offset)) + 0.05));
+    return exp(-abs(depth - sampleDepth) / (abs(DEPTH_WEIGHT_SIGMA * dot(dgrad, offset)) + EPS));
 }
 
 float getATrousLuminanceWeight(float luminance, float sampleLuminance, float luminancePhi) {
@@ -69,7 +69,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec4 momen
     float totalWeight = 1.0, totalWeightSquared = 1.0;
     vec2 stepSize     = steps[passIndex] * pixelSize;
 
-    float frames = clamp01(texture(colortex5, coords).a * 0.25);
+    float frames = float(texture(colortex5, coords).a > 4.0);
     vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
 
     float centerLuma   = luminance(color);
@@ -92,9 +92,8 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec4 momen
             float depthWeight  = getATrousDepthWeight(mat.depth0, sampleMat.depth0, dgrad, offset);
             float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleColor), luminancePhi), frames);
 
-            float weight  = aTrous[abs(x)] * aTrous[abs(y)];
-                  weight *= normalWeight * depthWeight * lumaWeight;
-                  weight  = clamp01(weight);
+            float weight  = clamp01(normalWeight * depthWeight * lumaWeight);
+                  weight *= aTrous[abs(x)] * aTrous[abs(y)];
            
             color              += sampleColor * weight;
             totalWeight        += weight;

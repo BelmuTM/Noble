@@ -37,7 +37,6 @@
 				bentNormal += rayDir;
 				continue;
 			}
-			// Thanks Jessie#7257 for providing the occlusion computation method
 			occlusion -= rcp(RTAO_SAMPLES);
 		}
 		bentNormal = normalize(bentNormal);

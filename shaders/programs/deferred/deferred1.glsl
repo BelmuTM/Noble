@@ -19,7 +19,7 @@
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
         skyIlluminanceMat = sampleSkyIlluminance(skyMultiScatterIllum);
-        directIlluminance = texture(colortex15, texCoords).rgb;
+        directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
     }
 
 #elif defined STAGE_FRAGMENT
@@ -68,7 +68,12 @@
             //////////////////////////////////////////////////////////
             /*------------- ATMOSPHERIC SCATTERING -----------------*/
             //////////////////////////////////////////////////////////
-            skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat) : vec3(0.0);
+
+            if(ivec2(gl_FragCoord) != ivec2(0)) {
+                skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat) : vec3(0.0);
+            } else {
+                skyIlluminance = directIlluminance;
+            }
 
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION)) == texCoords) {
                 vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));

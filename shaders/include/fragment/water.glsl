@@ -20,11 +20,9 @@ float seaOctave(vec2 pos, float steep) {
 }
 
 float waterWaves(vec2 pos, int octaves) {
-    float frequency         = 0.16;
-    float amplitude         = WAVE_AMPLITUDE;
-    float steepness         = WAVE_STEEPNESS;
-    const float lacunarity  = 1.9;
-    const float persistance = 0.22;
+    float frequency = WAVE_FREQUENCY;
+    float amplitude = WAVE_AMPLITUDE;
+    float steepness = WAVE_STEEPNESS;
 
     float speed = ACCUMULATION_VELOCITY_WEIGHT == 0 ? WAVE_SPEED : 0.0;
     pos.x *= 0.75;
@@ -36,8 +34,8 @@ float waterWaves(vec2 pos, int octaves) {
 
         height    += octave * amplitude;        
     	pos       *= mat2(1.6, 1.2, -1.2, 1.6); 
-        frequency *= lacunarity; 
-        amplitude *= persistance;
+        frequency *= WAVE_LACUNARITY; 
+        amplitude *= WAVE_PERSISTANCE;
         steepness  = mix(steepness, 1.0, 0.2);
     }
     return height;

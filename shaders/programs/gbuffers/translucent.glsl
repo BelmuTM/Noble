@@ -42,7 +42,16 @@
 
 		vec3 tmp;
 		skyIlluminanceMat = sampleSkyIlluminance(tmp);
-		directIlluminance = texture(colortex15, texCoords).rgb;
+		directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
+
+		/*
+		#if ACCUMULATION_VELOCITY_WEIGHT == 0
+            vec3 worldPos    = transform(gbufferModelViewInverse, viewPos) + cameraPosition;
+				 worldPos.y -= waterWaves(worldPos.xz, WATER_OCTAVES) * 0.25;
+
+            gl_Position = transform(gbufferModelView, worldPos - cameraPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+		#endif
+		*/
 
 		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);

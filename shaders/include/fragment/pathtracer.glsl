@@ -40,7 +40,7 @@
         #endif
 
         vec3 direct  = mat.albedo * diffuse + specular;
-             direct *= shadowmap.rgb * texture(colortex15, texCoords).rgb;
+             direct *= shadowmap.rgb * texelFetch(colortex6, ivec2(0), 0).rgb;
         return direct;
     }
 
@@ -103,15 +103,15 @@
                 if(dot(mat.normal, rayDir) < 0.0) continue;
                 bool hit = raytrace(depthtex0, screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
 
-                if(hit) {
-                    if(j == 0) {
-                        outColorDirect   = directLighting;
-                        outColorIndirect = indirectBounce;
-                    } else {
-                        radiance   += throughput * directLighting; 
-                        throughput *= indirectBounce;
-                    }
+                if(j == 0) {
+                    outColorDirect   = directLighting;
+                    outColorIndirect = indirectBounce;
                 } else {
+                    radiance   += throughput * directLighting; 
+                    throughput *= indirectBounce;
+                }
+
+                if(!hit) {
                     #if SKY_CONTRIBUTION == 1
                         vec2 coords = projectSphere(normalize(viewToScene(rayDir)));
 		                vec3 sky    = texture(colortex0, getAtmosphereCoordinates(coords, ATMOSPHERE_RESOLUTION, randF())).rgb;

@@ -21,13 +21,15 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 15 */
+    /* RENDERTARGETS: 6 */
 
     layout (location = 0) out vec3 directIlluminanceOut;
 
     in vec3 directIlluminance;
 
     void main() {
-        directIlluminanceOut = directIlluminance;
+        if(ivec2(gl_FragCoord) == ivec2(0)) {
+            directIlluminanceOut = directIlluminance;
+        }
     }
 #endif
