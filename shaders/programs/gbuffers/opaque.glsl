@@ -129,6 +129,10 @@
 	#endif
 
 	void main() {
+		#if defined PROGRAM_HAND && DISCARD_HAND == 1
+			discard;
+		#endif
+
 		data1.w = 1.0;
 
 		#if POM > 0 && defined PROGRAM_TERRAIN

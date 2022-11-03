@@ -27,6 +27,11 @@
 	out mat3 TBN;
 
 	void main() {
+		#if defined PROGRAM_HAND && DISCARD_HAND == 1
+			gl_Position = vec4(1.0);
+			return;
+		#endif
+
 		texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 		lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor = gl_Color;
@@ -79,6 +84,10 @@
 	#include "/include/fragment/shadows.glsl"
 
 	void main() {
+		#if defined PROGRAM_HAND && DISCARD_HAND == 1
+			discard;
+		#endif
+
 		vec4 albedoTex   = texture(colortex0, texCoords);
 		vec4 normalTex   = texture(normals,   texCoords);
 		vec4 specularTex = texture(specular,  texCoords);

@@ -27,6 +27,8 @@
 /*----------------- OPTIFINE CONSTANTS -----------------*/
 //////////////////////////////////////////////////////////
 
+#define DISCARD_HAND 0 // [0 1]
+
 #ifndef MC_HAND_DEPTH
 	#define MC_HAND_DEPTH 0.56
 #endif

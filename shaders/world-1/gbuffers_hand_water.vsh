@@ -8,6 +8,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#define PROGRAM_HAND
 #define STAGE_VERTEX
 #define WORLD_NETHER
 

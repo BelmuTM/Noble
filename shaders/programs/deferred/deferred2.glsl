@@ -82,7 +82,7 @@ void main() {
     vec3 prevPos   = currPos - getVelocity(currPos);
     vec4 prevColor = texture(colortex5, prevPos.xy);
 
-    #if AO_FILTER == 1 && GI == 0 || GI == 1 && ACCUMULATION_VELOCITY_WEIGHT == 0
+    #if AO_FILTER == 1 && GI == 0 || GI == 1
         float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex11, prevPos.xy).a), 2.0);
         color.a           = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
         moments.a         = log2(mat.depth0);

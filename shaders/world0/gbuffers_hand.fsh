@@ -8,5 +8,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#define PROGRAM_HAND
 #define STAGE_FRAGMENT
+
 #include "/programs/gbuffers/opaque.glsl"
