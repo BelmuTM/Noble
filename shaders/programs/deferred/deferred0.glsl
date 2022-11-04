@@ -31,18 +31,18 @@ void main() {
         aoHistory = texture(colortex10, texCoords);
     #endif
 
-    if(isSky(texCoords)) return;
-
     #ifdef WORLD_OVERWORLD
-        //////////////////////////////////////////////////////////
-        /*----------------- SHADOW MAPPING ---------------------*/
-        //////////////////////////////////////////////////////////
-        vec3 viewPos = getViewPos0(texCoords);
-        vec4 tmp     = texture(colortex2, texCoords);
+        if(!isSky(texCoords)) {
+            //////////////////////////////////////////////////////////
+            /*----------------- SHADOW MAPPING ---------------------*/
+            //////////////////////////////////////////////////////////
+            vec3 viewPos = getViewPos0(texCoords);
+            vec4 tmp     = texture(colortex2, texCoords);
 
-        shadowmap.a    = 0.0;
-        shadowmap.rgb  = shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a);
-        shadowmap.rgb *= tmp.a;
+            shadowmap.a    = 0.0;
+            shadowmap.rgb  = shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a);
+            shadowmap.rgb *= tmp.a;
+        }
     #endif
 
     //////////////////////////////////////////////////////////
