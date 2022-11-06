@@ -53,8 +53,8 @@
         vec3 prevColorDirect   = texture(colortex9,  prevPos.xy).rgb;
         vec3 prevColorIndirect = texture(colortex10, prevPos.xy).rgb;
 
-        direct   = mix(direct,   prevColorDirect,   weight);
-        indirect = mix(indirect, prevColorIndirect, weight);
+        direct   = max0(mix(direct,   prevColorDirect,   weight));
+        indirect = max0(mix(indirect, prevColorIndirect, weight));
     }
 #endif
 
@@ -89,8 +89,8 @@ void main() {
             float depthWeight = 1.0;
         #endif
 
-        color.a           = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
-        moments.a         = log2(mat.depth0);
+        color.a   = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+        moments.a = log2(mat.depth0);
     #endif
 
     #if GI == 0
