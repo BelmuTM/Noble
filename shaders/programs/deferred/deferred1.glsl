@@ -136,7 +136,7 @@
                         clouds.a        = cloudLayer0.b  * cloudLayer1.b;
 
                         /* Aerial Perspective */
-                        clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-5e-5 * distanceToClouds));
+                        clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-8e-5 * distanceToClouds));
 
                         /* Reprojection */
                         vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;

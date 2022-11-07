@@ -84,7 +84,7 @@ void main() {
 
     #if AO_FILTER == 1 && GI == 0 || GI == 1
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex11, prevPos.xy).a), 2.0);
+            float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex11, prevPos.xy).a), 1.0);
         #else
             float depthWeight = 1.0;
         #endif

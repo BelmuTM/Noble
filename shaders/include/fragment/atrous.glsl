@@ -35,7 +35,7 @@ float gaussianVariance(sampler2D tex, vec2 coords) {
 
     for(int x = -radius; x <= radius; x++) {
         for(int y = -radius; y <= radius; y++) {
-            variance += texture(tex, coords + vec2(x, y) * pixelSize).z * gaussianDistrib2D(vec2(x, y), 2.0);
+            variance += texture(tex, coords + vec2(x, y) * pixelSize).z * gaussianDistrib2D(vec2(x, y), 1.0);
         }
     }
     return variance;
@@ -73,7 +73,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec4 momen
     vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
 
     float centerLuma   = luminance(color);
-    float variance     = gaussianVariance(colortex11, coords);
+    float variance     = spatialVariance(colortex11, coords);
     float luminancePhi = 1.0 / (LUMA_WEIGHT_SIGMA * sqrt(variance) + EPS);
 
     moments = texture(colortex11, texCoords);
