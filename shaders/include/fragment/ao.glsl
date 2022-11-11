@@ -12,7 +12,7 @@
 		float occlusion = 0.0;
 
 		for(int i = 0; i < SSAO_SAMPLES; i++) {
-			vec2 noise     = TAA == 1 ? vec2(randF(), randF()) : uniformNoise(i, blueNoise);
+			vec2 noise     = vec2(randF(), randF());
 			vec3 rayDir    = generateCosineVector(normal, noise);
 			vec3 rayPos    = viewPos + rayDir * SSAO_RADIUS;
 			float rayDepth = getViewPos0(viewToScreen(rayPos).xy).z;
@@ -60,7 +60,7 @@
 
 		vec2 stepSize  = radius * rcp(GTAO_HORIZON_STEPS);
 		vec2 increment = sliceDir.xy * stepSize;
-		vec2 screenPos = coords + uniformAnimatedNoise(blueNoise.rg) * increment;
+		vec2 screenPos = coords + uniformAnimatedNoise(vec2(randF(), randF())) * increment;
 
 		for(int i = 0; i < GTAO_HORIZON_STEPS; i++, screenPos += increment) {
 			float depth = texelFetch(depthtex0, ivec2(screenPos * viewSize), 0).r;

@@ -222,6 +222,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
 
     vec3 diffuse  = hammonDiffuse(mat, V, L);
          diffuse *= shadowmap.rgb;
+         //diffuse *= texture(colortex0, getCloudsShadowCoords(viewToScene(normalize(getViewPos0(texCoords)))) * cloudsShadowmapRes / viewSize).a;
 
     float isSkyOccluded = float(mat.lightmap.y > EPS);
 

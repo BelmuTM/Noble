@@ -27,13 +27,13 @@
     #if GI == 1
         /* RENDERTARGETS: 0,6,12 */
 
-        layout (location = 0) out vec3 sky;
+        layout (location = 0) out vec4 sky;
         layout (location = 1) out vec3 skyIlluminance;
         layout (location = 2) out vec4 clouds;
     #else
         /* RENDERTARGETS: 0,6,10,12 */
 
-        layout (location = 0) out vec3 sky;
+        layout (location = 0) out vec4 sky;
         layout (location = 1) out vec3 skyIlluminance;
         layout (location = 2) out vec4 aoHistory;
         layout (location = 3) out vec4 clouds;
@@ -76,8 +76,8 @@
             }
 
             if(clamp(texCoords, vec2(0.0), vec2(ATMOSPHERE_RESOLUTION)) == texCoords) {
-                vec3 skyRay = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
-                     sky    = atmosphericScattering(skyRay, skyMultiScatterIllum);
+                vec3 skyRay  = normalize(unprojectSphere(texCoords * rcp(ATMOSPHERE_RESOLUTION)));
+                     sky.rgb = atmosphericScattering(skyRay, skyMultiScatterIllum);
             }
 
             //////////////////////////////////////////////////////////
@@ -125,6 +125,8 @@
 
                         cloudLayer1 = cloudsScattering(layer1, cloudsRay);
                     #endif
+
+                    //sky.a = cloudsShadows(getCloudsShadowPos(gl_FragCoord.xy * rcp(cloudsShadowmapRes)), shadowLightVector, layer1, 64);
 
 	                float distanceToClouds = min(cloudLayer0.a, cloudLayer1.a);
 

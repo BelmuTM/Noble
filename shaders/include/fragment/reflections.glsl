@@ -74,8 +74,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         float NdotV  = dot(mat.normal, -viewDir);
 	
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
-            vec2 noise = TAA == 1 ? vec2(randF(), randF()) : uniformNoise(i, blueNoise);
-        
+            vec2 noise      = vec2(randF(), randF());
             vec3 microfacet = TBN * sampleGGXVNDF(-viewDir * TBN, noise, mat.rough);
 		    vec3 rayDir     = reflect(viewDir, microfacet);	
             float NdotL     = abs(dot(mat.normal, rayDir));
