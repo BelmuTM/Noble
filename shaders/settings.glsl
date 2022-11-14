@@ -152,7 +152,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define SCATTERING_STEPS         16 // [8 12 16 20 24 28 32]
 #define TRANSMITTANCE_STEPS       8 // [8 12 16 20 24 28 32]
 
-#define VOLUMETRIC_CLOUDS        0 // [0 1]
+#define VOLUMETRIC_CLOUDS        1 // [0 1]
 #define PLANAR_CLOUDS            1 // [0 1]
 #define CLOUDS_RESOLUTION     0.50 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define CLOUDS_SCATTERING_STEPS 20 // [8 12 16 20 24 28 32]
