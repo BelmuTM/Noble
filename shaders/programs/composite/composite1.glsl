@@ -80,7 +80,7 @@ void main() {
             //////////////////////////////////////////////////////////
 
             #if REFRACTIONS == 1
-                color     = refractions(viewPos0, mat, coords);
+                color     = refractions(viewPos0, scenePos1, mat, coords);
                 scenePos1 = viewToScene(getViewPos1(coords.xy));
             #endif
 
