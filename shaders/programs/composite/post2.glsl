@@ -89,7 +89,7 @@ void main() {
         tonemap(color);
     #endif
 
-    #if TONEMAP != 0
+    #if TONEMAP != 0 && TONEMAP != 1
         color = linearToSrgb(color);
     #endif
     color = clamp01(color);
