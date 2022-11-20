@@ -33,6 +33,7 @@ struct CloudLayer {
     int octaves;
 };
 
+const vec3 up   = vec3(0.0, 1.0, 0.0);
 float windSpeed = 10.0;
 vec2 windDir    = sincos(-0.785398);
 vec2 wind       = windSpeed * frameTimeCounter * windDir;
@@ -59,7 +60,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
         position.xz += wind;
     #endif
 
-    float mapCoverage = mix(layer.coverage, 0.95, wetness);
+    float mapCoverage = mix(layer.coverage, 1.0, wetness);
 
     float weatherMap   = clamp01(FBM(position.xz * layer.scale, layer.octaves, layer.frequency) * (1.0 - mapCoverage) + mapCoverage);
     float shapeAlter   = heightAlter(altitude,  weatherMap);
@@ -72,7 +73,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.8 * weatherMap, 1.0, 0.0, 1.0));
 
     vec3  detailTex   = texture(colortex13, position).rgb;
     float detailNoise = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
@@ -112,9 +113,10 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
     vec3 rayPos      = atmosRayPos + rayDir * (dists.x + stepLength * randF());
     vec3 increment   = rayDir * stepLength;
 
-    float VdotL        = dot(rayDir, shadowLightVector);
-    const vec3 up      = vec3(0.0, 1.0, 0.0);
-    float bouncedLight = abs(dot(rayDir, -up)) * RCP_PI * 0.5 * isotropicPhase;
+    float VdotL = dot(rayDir, shadowLightVector);
+    float VdotU = dot(rayDir, up);
+    
+    float bouncedLight = abs(-VdotU) * RCP_PI * 0.5 * isotropicPhase;
 
     vec2 scattering = vec2(0.0);
     float transmittance = 1.0, sum = 0.0, weight = 0.0;
@@ -138,7 +140,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         // Beer's-Powder effect from "The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn" (see sources above)
 	    float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
 	    float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
-        float powderSky = mix(powder, 1.0, dot(rayDir, up) * 0.5 + 0.5);
+        float powderSky = mix(powder, 1.0, VdotU * 0.5 + 0.5);
 
         vec3 anisotropyFactors = pow(vec3(cloudsForwardsLobe, cloudsBackardsLobe, cloudsForwardsPeak), vec3(directOpticalDepth + 1.0));
         float extinctionCoeff  = cloudsExtinctionCoeff;
@@ -160,9 +162,14 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         scattering    += stepScattering * scatteringIntegral * transmittance;
         transmittance *= stepTransmittance;
     }
-    transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
 
-    return vec4(scattering, transmittance, sum / weight);
+    transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
+    vec4 result   = vec4(scattering, transmittance, sum / weight);
+
+    // Aerial Perspective
+    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, exp2(-4e-5 * result.a));
+
+    return result;
 }
 
 vec3 getCloudsShadowPos(vec2 coords) {

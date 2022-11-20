@@ -49,6 +49,7 @@ const float fogBackScatter  = 0.15;
 const float fogPeakWeight   = 0.25;
 
 // Coefficients provided by Jessie#7257 and LVutner#5199
+// 3.4 Ozone absorption (https://media.contentapi.ea.com/content/dam/eacom/frostbite/files/s2016-pbs-frostbite-sky-clouds-new.pdf)
 
 #if TONEMAP == 0
     const vec3 rayleighCoeff = vec3(5.8e-6, 13.3e-6, 33.31e-6)                                                      * SRGB_2_AP1_ALBEDO;

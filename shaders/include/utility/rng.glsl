@@ -146,7 +146,7 @@ float worley(vec3 uv, float frequency) {
             }
         }
     }
-    return 1.0 - minDist;
+    return minDist;
 }
 
 float FBM(vec2 uv, int octaves, float frequency) {

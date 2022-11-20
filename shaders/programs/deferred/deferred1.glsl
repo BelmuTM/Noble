@@ -91,15 +91,15 @@
                     vec3 scaledViewDir = normalize(getViewPos1(texCoords * rcp(CLOUDS_RESOLUTION)));
                     vec3 cloudsRay     = mat3(gbufferModelViewInverse) * scaledViewDir;
 
-                    vec4 cloudLayer0 = vec4(0.0, 0.0, 1.0, 1e8);
-                    vec4 cloudLayer1 = vec4(0.0, 0.0, 1.0, 1e8);
+                    vec4 cloudLayer0 = vec4(0.0, 0.0, 1.0, 1e6);
+                    vec4 cloudLayer1 = vec4(0.0, 0.0, 1.0, 1e6);
 
                     #if VOLUMETRIC_CLOUDS == 1
                         CloudLayer layer0;
                         layer0.altitude  = CLOUDS_LAYER0_ALTITUDE;
                         layer0.thickness = CLOUDS_LAYER0_THICKNESS;
-                        layer0.coverage  = CLOUDS_LAYER0_COVERAGE;
-                        layer0.swirl     = CLOUDS_LAYER0_SWIRL;
+                        layer0.coverage  = CLOUDS_LAYER0_COVERAGE * 0.01;
+                        layer0.swirl     = CLOUDS_LAYER0_SWIRL    * 0.01;
                         layer0.scale     = CLOUDS_LAYER0_SCALE;
                         layer0.frequency = CLOUDS_LAYER0_FREQUENCY;
                         layer0.density   = CLOUDS_LAYER0_DENSITY;
@@ -131,21 +131,17 @@
 	                float distanceToClouds = min(cloudLayer0.a, cloudLayer1.a);
 
                     if(distanceToClouds > 0.0) {
-                        
                         vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
                         clouds.rgb     += scattering.r   * directIlluminance;
                         clouds.rgb     += scattering.g   * skyMultiScatterIllum;
                         clouds.a        = cloudLayer0.b  * cloudLayer1.b;
-
-                        /* Aerial Perspective */
-                        clouds = mix(vec4(0.0, 0.0, 0.0, 1.0), clouds, exp(-8e-5 * distanceToClouds));
 
                         /* Reprojection */
                         vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
                         vec4 prevClouds = textureCatmullRom(colortex12, prevPos);
 
                         vec2  velocity       = (texCoords - prevPos) * viewSize;
-                        float velocityWeight = exp(-length(velocity));
+                        float velocityWeight = exp(-length(velocity)) * 0.9 + 0.1;
 
                         float weight = velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
                               weight = clamp01(0.98 * weight);
