@@ -16,7 +16,7 @@ void binarySearch(sampler2D depthTexture, inout vec3 rayPos, vec3 rayDir) {
 // The favorite raytracer of your favorite raytracer
 bool raytrace(sampler2D depthTexture, vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec3 rayPos) {
     // Thanks Bálint#1673 for the clipping fix!
-    if(rayDir.z > 0.0 && rayDir.z >= -viewPos.z) return false;
+    if(rayDir.z > -viewPos.z) return false;
 
     rayPos  = viewToScreen(viewPos);
     rayDir  = normalize(viewToScreen(viewPos + rayDir) - rayPos);

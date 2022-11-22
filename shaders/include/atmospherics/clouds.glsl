@@ -73,7 +73,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.8 * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
 
     vec3  detailTex   = texture(colortex13, position).rgb;
     float detailNoise = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
@@ -85,9 +85,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
 float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount, CloudLayer layer) {
     float stepLength = 23.0, opticalDepth = 0.0;
 
-    for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength) {
-        stepLength *= 2.0;
-
+    for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength, stepLength *= 2.0) {
         opticalDepth += getCloudsDensity(rayPos + lightDir * stepLength * randF(), layer) * stepLength;
     }
     return opticalDepth;
@@ -167,7 +165,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
     vec4 result   = vec4(scattering, transmittance, sum / weight);
 
     // Aerial Perspective
-    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, exp2(-4e-5 * result.a));
+    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, exp2(-5e-5 * result.a));
 
     return result;
 }
