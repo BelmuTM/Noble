@@ -141,7 +141,7 @@
                         vec4 prevClouds = textureCatmullRom(colortex12, prevPos);
 
                         vec2  velocity       = (texCoords - prevPos) * viewSize;
-                        float velocityWeight = exp(-length(velocity)) * 0.9 + 0.1;
+                        float velocityWeight = clamp01(exp(-length(velocity)) * 0.9 + 0.1);
 
                         float weight = velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
                               weight = clamp01(0.98 * weight);
