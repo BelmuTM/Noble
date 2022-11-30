@@ -78,10 +78,11 @@ const float sunDist = 1.496e11;
 const float sunAngularRad  = CELESTIAL_SIZE_MULTIPLIER * sunRad  / sunDist;
 const float moonAngularRad = CELESTIAL_SIZE_MULTIPLIER * moonRad / moonDist;
 
-const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
-vec3 sunLuminance         = sunIlluminance / coneAngleToSolidAngle(sunAngularRad);
+const vec3 sunColor = vec3(1.0, 0.949, 0.937);
+vec3 sunIlluminance = (sunColor / luminance(sunColor)) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
+vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRad);
 
-const vec3 moonLuminance = moonAlbedo * sunIlluminance;
-vec3 moonIlluminance     = moonLuminance * coneAngleToSolidAngle(moonAngularRad); // The rough amount of light the moon emits that reaches the earth
+vec3 moonLuminance   = moonAlbedo * RCP_PI * sunIlluminance;
+vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRad); // The rough amount of light the moon emits that reaches the earth
 
 float shadowLightAngularRad = sunAngle < 0.5 ? sunAngularRad : moonAngularRad;

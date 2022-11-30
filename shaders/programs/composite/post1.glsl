@@ -113,7 +113,7 @@
     const float S = 100.0; // Sensor sensitivity
 
     float minExposure = PI  / luminance(sunIlluminance);
-    float maxExposure = 0.5 / luminance(moonIlluminance);
+    float maxExposure = 0.3 / luminance(moonIlluminance);
 
     float EV100fromLuminance(float luminance) {
         return log2(luminance * S / K);

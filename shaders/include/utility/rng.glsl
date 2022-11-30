@@ -85,10 +85,10 @@ float noise(vec2 uv) {
 	return res * res;
 }
 
-float noise(vec3 uv) {
+float noise(vec3 pos) {
 	const vec3 step = vec3(110.0, 241.0, 171.0);
-	vec3 i  = floor(uv);
-	vec3 f  = fract(uv);
+	vec3 i  = floor(pos);
+	vec3 f  = fract(pos);
     float n = dot(i, step);
 
 	vec3 u = f * f * (3.0 - 2.0 * f);
@@ -104,6 +104,10 @@ vec2 uniformAnimatedNoise(in vec2 seed) {
 
 vec2 uniformNoise(int i, in vec3 seed) {
     return vec2(fract(seed.x + GOLDEN_RATIO * i), fract(seed.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i));
+}
+
+float goldNoise(vec2 uv, float seed) {
+    return fract(tan(distance(uv * GOLDEN_RATIO, uv) * seed) * uv.x);
 }
 
 // https://www.shadertoy.com/view/Xd23Dh
@@ -130,9 +134,9 @@ float voronoise(in vec2 x, int u, int v) {
     return va / wt;
 }
 
-float worley(vec3 uv, float frequency) {    
-    vec3 id = floor(uv);
-    vec3 p  = fract(uv);
+float worley(vec3 pos, float frequency) {    
+    vec3 id = floor(pos);
+    vec3 p  = fract(pos);
     
     float minDist = 1e6;
     for(int x = -1; x <= 1; x++) {
@@ -163,14 +167,14 @@ float FBM(vec2 uv, int octaves, float frequency) {
     return height;
 }
 
-float FBM(vec3 uv, int octaves, float frequency) {
+float FBM(vec3 pos, int octaves, float frequency) {
     float height      = 0.0;
     float amplitude   = 1.0;
     float lacunarity  = 2.0;
     float persistance = 0.5;
 
     for(int i = 0; i < octaves; i++) {
-        height    += noise(uv * frequency) * amplitude;
+        height    += noise(pos * frequency) * amplitude;
         frequency *= lacunarity;
         amplitude *= persistance;
     }
