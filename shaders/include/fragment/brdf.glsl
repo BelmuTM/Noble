@@ -203,11 +203,11 @@ vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughM
     if(mat.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
     vec3 beer      = exp((mat.albedo * 0.5 - 1.0) * maxEps(distThroughMedium) / mat.subsurface);
-    float cosTheta = max0(dot(normalize(V + L), V));
+    float cosTheta = dot(normalize(V + L), V);
 
     // Phase function specifically made for leaves
     if(mat.blockId == 9) {
-        return beer * biLambertianPlatePhaseFunction(0.3, cosTheta);
+        return max0(beer * biLambertianPlatePhaseFunction(0.3, cosTheta));
     }
 
     vec3 isotropicLobe = beer * isotropicPhase;
