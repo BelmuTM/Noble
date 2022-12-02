@@ -85,8 +85,9 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
 float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount, CloudLayer layer) {
     float stepLength = 23.0, opticalDepth = 0.0;
 
-    for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength, stepLength *= 2.0) {
+    for(int i = 0; i < stepCount; i++, rayPos += lightDir * stepLength) {
         opticalDepth += getCloudsDensity(rayPos + lightDir * stepLength * randF(), layer) * stepLength;
+        stepLength   *= 2.0;
     }
     return opticalDepth;
 }
