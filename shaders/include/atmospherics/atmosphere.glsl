@@ -105,7 +105,7 @@ vec3 sampleDirectIlluminance() {
 }
 
 mat3[2] sampleSkyIlluminance(inout vec3 skyMultiScatterIllum) {
-    mat3[2] skyIllum    = mat3[2](mat3(0.0), mat3(0.0));
+    mat3[2] skyIllum = mat3[2](mat3(0.0), mat3(0.0));
     skyMultiScatterIllum = vec3(0.0);
 
     #ifdef WORLD_OVERWORLD

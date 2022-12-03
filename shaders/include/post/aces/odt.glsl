@@ -83,8 +83,6 @@ float bt1886_r(float L, float gamma, float Lw, float Lb) {
 }
 
 void odt(inout vec3 color) {
-    color *= AP0_2_AP1_MAT; // OCES to RGB rendering space
-
     // Apply the tonescale independently in rendering-space RGB
     color.r = segmentedSplineC9Fwd(color.r);
     color.g = segmentedSplineC9Fwd(color.g);

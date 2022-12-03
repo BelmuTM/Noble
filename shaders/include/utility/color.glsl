@@ -266,10 +266,19 @@ mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
 }
 
 void whiteBalance(inout vec3 color) {
-    vec3 source              = blackbody(WHITE_BALANCE) * SRGB_2_XYZ_MAT;
-    vec3 destination         = blackbody(WHITE_POINT)   * SRGB_2_XYZ_MAT;
-    mat3 chromaticAdaptation = SRGB_2_XYZ_MAT * chromaticAdaptationMatrix(source, destination) * XYZ_2_SRGB_MAT;
-    color                   *= chromaticAdaptation;
+    #if TONEMAP == 0
+        mat3 toXyz   = AP1_2_XYZ_MAT;
+        mat3 fromXyz = XYZ_2_AP1_MAT;
+    #else
+        mat3 toXyz   = SRGB_2_XYZ_MAT;
+        mat3 fromXyz = XYZ_2_SRGB_MAT;
+    #endif
+
+    vec3 source           = blackbody(WHITE_BALANCE) * toXyz;
+    vec3 destination      = blackbody(WHITE_POINT)   * toXyz;
+    mat3 chromaAdaptation = toXyz * chromaticAdaptationMatrix(source, destination) * fromXyz;
+
+    color *= chromaAdaptation;
 }
 
 void vibrance(inout vec3 color, float intensity) {

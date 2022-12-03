@@ -39,7 +39,7 @@
         layout (location = 3) out vec4 clouds;
     #endif
 
-    #if VOLUMETRIC_CLOUDS == 1 || PLANAR_CLOUDS == 1
+    #if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
         #include "/include/atmospherics/clouds.glsl"
     #endif
 
@@ -81,9 +81,9 @@
             }
 
             //////////////////////////////////////////////////////////
-            /*---------------- VOLUMETRIC VOLUMETRIC_CLOUDS -------------------*/
+            /*---------------- VOLUMETRIC PRIMARY_CLOUDS -------------------*/
             //////////////////////////////////////////////////////////
-            #if VOLUMETRIC_CLOUDS == 1 || PLANAR_CLOUDS == 1
+            #if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
                 
                 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -94,7 +94,7 @@
                     vec4 cloudLayer0 = vec4(0.0, 0.0, 1.0, 1e6);
                     vec4 cloudLayer1 = vec4(0.0, 0.0, 1.0, 1e6);
 
-                    #if VOLUMETRIC_CLOUDS == 1
+                    #if PRIMARY_CLOUDS == 1
                         CloudLayer layer0;
                         layer0.altitude  = CLOUDS_LAYER0_ALTITUDE;
                         layer0.thickness = CLOUDS_LAYER0_THICKNESS;
@@ -110,7 +110,7 @@
                         cloudLayer0 = cloudsScattering(layer0, cloudsRay);
                     #endif
 
-                    #if PLANAR_CLOUDS == 1
+                    #if SECONDARY_CLOUDS == 1
                         CloudLayer layer1;
                         layer1.altitude  = CLOUDS_LAYER1_ALTITUDE;
                         layer1.thickness = CLOUDS_LAYER1_THICKNESS;
@@ -143,7 +143,7 @@
                         vec2  velocity       = (texCoords - prevPos) * viewSize;
                         float velocityWeight = clamp01(exp(-length(velocity)) * 0.9 + 0.1);
 
-                        float weight = float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
+                        float weight = velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
                               weight = clamp01(0.98 * weight);
 
                         clouds = mix(clouds, prevClouds, weight);

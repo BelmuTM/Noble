@@ -67,6 +67,8 @@ float centerHue(float hue, float centerHue) {
 }
 
 void rrt(inout vec3 color) {
+	color *= AP1_2_AP0_MAT;
+
 	// --- Glow module --- //
 	float saturation = rgbToSaturation(color);
 	float ycIn       = rgbToYc(color);
@@ -89,7 +91,4 @@ void rrt(inout vec3 color) {
 	color.r = segmentedSplineC5Fwd(color.r);
 	color.g = segmentedSplineC5Fwd(color.g);
 	color.b = segmentedSplineC5Fwd(color.b);
-	
-	// --- RGB rendering space to OCES --- //
-	color *= AP1_2_AP0_MAT;
 }

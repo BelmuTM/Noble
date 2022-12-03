@@ -46,7 +46,6 @@ layout (location = 0) out vec3 color;
 #if TONEMAP >= 0
     void tonemap(inout vec3 color) {
         #if TONEMAP == 0           // ACES
-            color *= AP1_2_AP0_MAT;
             rrt(color);
             odt(color);
         #elif TONEMAP == 1         // Burgess
