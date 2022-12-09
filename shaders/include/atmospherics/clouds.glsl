@@ -27,7 +27,6 @@ struct CloudLayer {
     float scale;
     float frequency;
     float density;
-    float texDetail;
 
     int steps;
     int octaves;
@@ -35,8 +34,8 @@ struct CloudLayer {
 
 const vec3 up   = vec3(0.0, 1.0, 0.0);
 float windSpeed = 10.0;
-vec2 windDir    = sincos(-0.785398);
-vec2 wind       = windSpeed * frameTimeCounter * windDir;
+vec3 windDir    = vec3(sin(-0.785398), 0.0, cos(-0.785398));
+vec3 wind       = windSpeed * frameTimeCounter * windDir;
 
 float heightAlter(float altitude, float weatherMap) {
     float stopHeight = clamp01(weatherMap + 0.12);
@@ -57,29 +56,22 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
     float altitude = (position.y - (planetRadius + layer.altitude)) * rcp(layer.thickness);
 
     #if ACCUMULATION_VELOCITY_WEIGHT == 0
-        position.xz += wind;
+        position += wind;
     #endif
 
+    position *= layer.scale;
+
     float mapCoverage = mix(layer.coverage, 1.0, wetness);
+    float weatherMap  = clamp01(FBM(position.xz, layer.octaves, layer.frequency) * (1.0 - mapCoverage) + mapCoverage);
 
-    float weatherMap   = clamp01(FBM(position.xz * layer.scale, layer.octaves, layer.frequency) * (1.0 - mapCoverage) + mapCoverage);
-    float shapeAlter   = heightAlter(altitude,  weatherMap);
-    float densityAlter = densityAlter(altitude, weatherMap);
-
-    position *= layer.texDetail;
-
-    vec3 curlTex  = texture(noisetex, position * 0.3).rgb * 2.0 - 1.0;
+    vec3 curlTex  = texture(noisetex, position * 0.4).rgb * 2.0 - 1.0;
         position += curlTex * layer.swirl;
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = clamp01(remap(shapeNoise * shapeAlter, 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = clamp01(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
 
-    vec3  detailTex   = texture(colortex13, position).rgb;
-    float detailNoise = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
-          detailNoise = mix(detailNoise, 1.0 - detailNoise, clamp01(altitude * 5.0)) * 0.16532829;
-
-    return clamp01(remap(shapeNoise, detailNoise, 1.0, 0.0, 1.0)) * densityAlter * layer.density;
+    return clamp01(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }
 
 float getCloudsOpticalDepth(vec3 rayPos, vec3 lightDir, int stepCount, CloudLayer layer) {
@@ -203,11 +195,10 @@ float cloudsShadows(vec3 shadowPos, vec3 rayDir, CloudLayer layer, int stepCount
 }
 
 vec3 reprojectClouds(vec3 viewPos, float distanceToClouds) {
-    vec3 velocity     = previousCameraPosition - cameraPosition;
-         velocity.xz += windSpeed * frameTime * windDir;
+    vec3 scenePos = normalize((gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz) * distanceToClouds;
+    vec3 velocity = previousCameraPosition - cameraPosition - windSpeed * frameTime * windDir;
 
-    vec3 position = normalize(mat3(gbufferModelViewInverse) * viewPos) * distanceToClouds;
-         position = transform(gbufferPreviousModelView, position + gbufferModelViewInverse[3].xyz - velocity);
-         position = (projectOrtho(gbufferPreviousProjection, position) / -position.z) * 0.5 + 0.5;
-    return position;
+    vec4 prevPos = gbufferPreviousModelView * vec4(scenePos + velocity, 1.0);
+         prevPos = gbufferPreviousProjection * vec4(prevPos.xyz, 1.0);
+    return prevPos.xyz / prevPos.w * 0.5 + 0.5;
 }

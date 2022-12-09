@@ -45,8 +45,7 @@
 		blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-		vec3 tmp;
-		//skyIlluminanceMat = sampleSkyIlluminance(tmp);
+		skyIlluminanceMat = sampleSkyIlluminanceComplex();
 		directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
 
 		/*

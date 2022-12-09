@@ -6,121 +6,99 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#if GI == 1
-    /* RENDERTARGETS: 5,9,10,11 */
+#ifdef STAGE_VERTEX
 
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec3 historyCol0;
-    layout (location = 2) out vec3 historyCol1;
-    layout (location = 3) out vec4 moments;
-#else
-    /* RENDERTARGETS: 5,11 */
+    #include "/include/atmospherics/atmosphere.glsl"
 
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 moments;
-#endif
+    out vec3 skyIlluminance;
+    out vec3 directIlluminance;
 
-#include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/brdf.glsl"
+    void main() {
+        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+        texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-#include "/include/atmospherics/celestial.glsl"
-#include "/include/atmospherics/atmosphere.glsl"
-
-#if GI == 1
-    #include "/include/fragment/pathtracer.glsl"
-#endif
-
-#if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
-
-    void temporalAccumulation(Material mat, inout vec3 color, vec3 prevColor, vec3 prevPos, inout vec3 direct, inout vec3 indirect, inout vec3 moments, float frames) {
-        float weight = clamp01(1.0 - (1.0 / max(frames, 1.0)));
-
-        #if ACCUMULATION_VELOCITY_WEIGHT == 1
-            weight *= hideGUI;
-        #endif
-
-        color = mix(color, prevColor, weight);
-        float luminance = luminance(color);
-
-        // Thanks SixthSurge#3922 for the help with moments
-        #if GI_FILTER == 1
-            vec2 prevMoments = texture(colortex11, prevPos.xy).rg;
-            vec2 currMoments = vec2(luminance, luminance * luminance);
-                 moments.rg  = mix(currMoments, prevMoments, weight);
-                 moments.b   = moments.g - moments.r * moments.r;
-        #endif
-
-        vec3 prevColorDirect   = texture(colortex9,  prevPos.xy).rgb;
-        vec3 prevColorIndirect = texture(colortex10, prevPos.xy).rgb;
-
-        direct   = max0(mix(direct,   prevColorDirect,   weight));
-        indirect = max0(mix(indirect, prevColorIndirect, weight));
-    }
-#endif
-
-void main() {
-    #if GI == 1
-        vec2 tempCoords = texCoords * rcp(GI_RESOLUTION);
-    #else
-        vec2 tempCoords = texCoords;
-    #endif
-
-    vec3 viewPos0 = getViewPos0(texCoords);
-
-    if(isSky(texCoords)) {
-        color.rgb = computeSky(viewPos0);
-        return;
+        skyIlluminance    = sampleSkyIlluminanceSimple();
+        directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
     }
 
-    Material mat = getMaterial(tempCoords);
+#elif defined STAGE_FRAGMENT
 
-    #if HARDCODED_SSS == 1
-        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = HARDCODED_SSS_VAL;
+    /* RENDERTARGETS: 12 */
+
+    layout (location = 0) out vec4 clouds;
+
+    #if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
+        #include "/include/atmospherics/clouds.glsl"
     #endif
 
-    vec3 currPos   = vec3(texCoords, mat.depth0);
-    vec3 prevPos   = currPos - getVelocity(currPos);
-    vec4 prevColor = texture(colortex5, prevPos.xy);
+    in vec3 skyIlluminance;
+    in vec3 directIlluminance;
 
-    #if AO_FILTER == 1 && GI == 0 || GI == 1
-        #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex11, prevPos.xy).a), 1.0);
-        #else
-            float depthWeight = 1.0;
+    void main() {
+        vec3 viewPos = getViewPos1(texCoords);
+
+        #ifdef WORLD_OVERWORLD
+            #if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
+                
+                clouds = vec4(0.0, 0.0, 0.0, 1.0);
+
+                vec3 cloudsRay   = mat3(gbufferModelViewInverse) * normalize(viewPos);
+                vec4 cloudLayer0 = vec4(0.0, 0.0, 1.0, 1e6);
+                vec4 cloudLayer1 = vec4(0.0, 0.0, 1.0, 1e6);
+
+                #if PRIMARY_CLOUDS == 1
+                    CloudLayer layer0;
+                    layer0.altitude  = CLOUDS_LAYER0_ALTITUDE;
+                    layer0.thickness = CLOUDS_LAYER0_THICKNESS;
+                    layer0.coverage  = CLOUDS_LAYER0_COVERAGE * 0.01;
+                    layer0.swirl     = CLOUDS_LAYER0_SWIRL    * 0.01;
+                    layer0.scale     = CLOUDS_LAYER0_SCALE;
+                    layer0.frequency = CLOUDS_LAYER0_FREQUENCY;
+                    layer0.density   = CLOUDS_LAYER0_DENSITY;
+                    layer0.steps     = CLOUDS_SCATTERING_STEPS;
+                    layer0.octaves   = CLOUDS_LAYER0_OCTAVES;
+
+                    cloudLayer0 = cloudsScattering(layer0, cloudsRay);
+                #endif
+
+                #if SECONDARY_CLOUDS == 1
+                    CloudLayer layer1;
+                    layer1.altitude  = CLOUDS_LAYER1_ALTITUDE;
+                    layer1.thickness = CLOUDS_LAYER1_THICKNESS;
+                    layer1.coverage  = CLOUDS_LAYER1_COVERAGE;
+                    layer1.swirl     = CLOUDS_LAYER1_SWIRL;
+                    layer1.scale     = CLOUDS_LAYER1_SCALE;
+                    layer1.frequency = CLOUDS_LAYER1_FREQUENCY;
+                    layer1.density   = CLOUDS_LAYER1_DENSITY;
+                    layer1.steps     = 10;
+                    layer1.octaves   = CLOUDS_LAYER1_OCTAVES;
+
+                    cloudLayer1 = cloudsScattering(layer1, cloudsRay);
+                #endif
+
+                //sky.a = cloudsShadows(getCloudsShadowPos(gl_FragCoord.xy * rcp(cloudsShadowmapRes)), shadowLightVector, layer1, 64);
+
+                float distanceToClouds = min(cloudLayer0.a, cloudLayer1.a);
+
+                if(distanceToClouds > 0.0) {
+                    vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
+                    clouds.rgb     += scattering.r   * directIlluminance;
+                    clouds.rgb     += scattering.g   * skyIlluminance;
+                    clouds.a        = cloudLayer0.b  * cloudLayer1.b;
+
+                    /* Reprojection */
+                    vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
+                    vec4 prevClouds = textureCatmullRom(colortex12, prevPos);
+
+                    vec2  velocity       = (texCoords - prevPos) * viewSize;
+                    float velocityWeight = clamp01(exp(-length(velocity)) * 0.8 + 0.2);
+
+                    float weight = velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
+                          weight = clamp01(0.98 * weight);
+
+                    clouds = mix(clouds, prevClouds, weight);
+                }
+            #endif
         #endif
-
-        color.a   = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
-        moments.a = log2(mat.depth0);
-    #endif
-
-    #if GI == 0
-        color.rgb = vec3(0.0);
-
-        if(mat.F0 * maxVal8 <= 229.5) {
-            vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
-            vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
-
-            #ifdef WORLD_OVERWORLD
-                shadowmap         = texture(colortex3,  texCoords);
-                skyIlluminance    = texture(colortex6,  texCoords).rgb;
-                directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
-            #endif
-
-            float ao = 1.0;
-            #if AO == 1
-                ao = texture(colortex10, texCoords).a;
-            #endif
-
-            color.rgb = computeDiffuse(viewPos0, shadowVec, mat, shadowmap, directIlluminance, skyIlluminance, ao);
-        }
-    #else
-
-        if(clamp(texCoords, vec2(0.0), vec2(GI_RESOLUTION)) == texCoords) {
-            pathTrace(color.rgb, vec3(tempCoords, mat.depth0), historyCol0, historyCol1);
-
-            #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(mat, color.rgb, prevColor.rgb, prevPos, historyCol0, historyCol1, moments.rgb, color.a);
-            #endif
-        }
-    #endif
-}
+    }
+#endif

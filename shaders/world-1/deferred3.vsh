@@ -8,4 +8,10 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/programs/vertex_simple.glsl"
+out vec2 texCoords;
+
+#define STAGE_VERTEX
+#define WORLD_NETHER
+
+#include "/include/common.glsl"
+#include "/programs/deferred/deferred3.glsl"

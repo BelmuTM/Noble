@@ -59,10 +59,11 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 //////////////////////////////////////////////////////////
 /*------------------ AMBIENT OCCLUSION -----------------*/
 //////////////////////////////////////////////////////////
-#define AO               1 // [0 1]
-#define AO_TYPE          2 // [0 1 2]
-#define AO_FILTER        1 // [0 1]
-#define AO_RESOLUTION 0.75 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+
+#define AO          1 // [0 1]
+#define AO_TYPE     2 // [0 1 2]
+#define AO_FILTER   1 // [0 1]
+#define AO_SCALE 0.50 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define SSAO_SAMPLES   12 // [4 8 12 16 20]
 #define SSAO_RADIUS  0.70 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00]
@@ -78,6 +79,7 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 //////////////////////////////////////////////////////////
 /*---------------------- SHADOWS -----------------------*/
 //////////////////////////////////////////////////////////
+
 #define SHADOWS     1 // [0 1]
 #define SHADOW_TYPE 1 // [0 1 2]
 
@@ -95,6 +97,7 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 //////////////////////////////////////////////////////////
 /*-------------------- RAY TRACING ---------------------*/
 //////////////////////////////////////////////////////////
+
 #define RAY_DEPTH_TOLERANCE 0.5
 
 #define BINARY_REFINEMENT 1 // [0 1]
@@ -104,6 +107,7 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/
 //////////////////////////////////////////////////////////
+
 #define GI               0 // [0 1]
 #define SKY_CONTRIBUTION 1 // [0 1]
 
@@ -116,20 +120,21 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define DEPTH_WEIGHT_SIGMA   1.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
 #define LUMA_WEIGHT_SIGMA    4.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0 51.0 52.0 53.0 54.0 55.0 56.0 57.0 58.0 59.0 60.0 61.0 62.0 63.0 64.0 65.0 66.0 67.0 68.0 69.0 70.0 71.0 72.0 73.0 74.0 75.0 76.0 77.0 78.0 79.0 80.0 81.0 82.0 83.0 84.0 85.0 86.0 87.0 88.0 89.0 90.0 91.0 92.0 93.0 94.0 95.0 96.0 97.0 98.0 99.0 100.0]
 
-#define GI_SAMPLES            1 // [1 2 3 4 5 6 7 8]
-#define GI_BOUNCES            4 // [1 2 3 4 5 6 7 8 9 10 11 12]
-#define GI_STEPS             64 // [64 128 256]
-#define GI_RESOLUTION      1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define GI_SAMPLES  1 // [1 2 3 4 5 6 7 8]
+#define GI_BOUNCES  4 // [1 2 3 4 5 6 7 8 9 10 11 12]
+#define GI_STEPS   64 // [64 128 256]
+#define GI_SCALE 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+
 #define ROULETTE_MIN_BOUNCES  3
 
 //////////////////////////////////////////////////////////
 /*------------- REFLECTIONS | REFRACTIONS --------------*/
 //////////////////////////////////////////////////////////
 
-#define REFLECTIONS               1 // [0 1]
-#define REFLECTIONS_TYPE          1 // [0 1]
-#define REFLECTIONS_RESOLUTION 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define REFRACTIONS               1 // [0 1]
+#define REFLECTIONS          1 // [0 1]
+#define REFLECTIONS_TYPE     1 // [0 1]
+#define REFLECTIONS_SCALE 1.00 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define REFRACTIONS          1 // [0 1]
 
 const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ATTENUATION_FACTOR 0.2
@@ -148,33 +153,32 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 //////////////////////////////////////////////////////////
 
 #define CELESTIAL_SIZE_MULTIPLIER 1 // [1 2 3 4]
-#define ATMOSPHERE_RESOLUTION  0.25 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define SCATTERING_STEPS         16 // [8 12 16 20 24 28 32]
-#define TRANSMITTANCE_STEPS       8 // [8 12 16 20 24 28 32]
 
-#define PRIMARY_CLOUDS        0 // [0 1]
-#define SECONDARY_CLOUDS            1 // [0 1]
-#define CLOUDS_RESOLUTION     0.50 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define ATMOSPHERE_SCALE 0.25 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define SCATTERING_STEPS   16 // [8 12 16 20 24 28 32]
+#define TRANSMITTANCE_STEPS 8 // [8 12 16 20 24 28 32]
+
+#define PRIMARY_CLOUDS           0 // [0 1]
+#define SECONDARY_CLOUDS         1 // [0 1]
+#define CLOUDS_SCALE          0.50 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define CLOUDS_SCATTERING_STEPS 20 // [8 12 16 20 24 28 32]
 
 #define CLOUDS_LAYER0_ALTITUDE  1000.0 // [100.0 200.0 300.0 400.0 500.0 600.0 700.0 800.0 900.0 1000.0 1100.0 1200.0 1300.0 1400.0 1500.0 1600.0 1700.0 1800.0 1900.0 2000.0]
 #define CLOUDS_LAYER0_THICKNESS 1000.0 // [100.0 200.0 300.0 400.0 500.0 600.0 700.0 800.0 900.0 1000.0 1100.0 1200.0 1300.0 1400.0 1500.0 1600.0 1700.0 1800.0 1900.0 2000.0]
-#define CLOUDS_LAYER0_COVERAGE      20 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define CLOUDS_LAYER0_COVERAGE      10 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_LAYER0_SWIRL         10 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define CLOUDS_LAYER0_SCALE       1e-3
-#define CLOUDS_LAYER0_FREQUENCY   1.00
+#define CLOUDS_LAYER0_SCALE       6e-4
+#define CLOUDS_LAYER0_FREQUENCY   1.50
 #define CLOUDS_LAYER0_DENSITY     1.00
-#define CLOUDS_LAYER0_TEXDETAIL   6e-4
-#define CLOUDS_LAYER0_OCTAVES        2
+#define CLOUDS_LAYER0_OCTAVES        1
 
 #define CLOUDS_LAYER1_ALTITUDE 7000.0
 #define CLOUDS_LAYER1_THICKNESS 400.0
 #define CLOUDS_LAYER1_COVERAGE   0.50
 #define CLOUDS_LAYER1_SWIRL      0.50
-#define CLOUDS_LAYER1_SCALE      1e-4
-#define CLOUDS_LAYER1_FREQUENCY  1.40
+#define CLOUDS_LAYER1_SCALE      2e-5
+#define CLOUDS_LAYER1_FREQUENCY  2.00
 #define CLOUDS_LAYER1_DENSITY    0.10
-#define CLOUDS_LAYER1_TEXDETAIL  4e-5
 #define CLOUDS_LAYER1_OCTAVES       2
 
 #define AIR_FOG             1 // [0 1]
@@ -319,10 +323,3 @@ const vec2 debugHistogramSize = vec2(320, 192);
 #define GAMMA      0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define GAIN       0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define LIFT       0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-
-/*------------------ VANILLA AO ------------------*/
-#if AO == 1 || GI == 1
-     const float ambientOcclusionLevel = 0.0;
-#else
-     const float ambientOcclusionLevel = 1.0;
-#endif

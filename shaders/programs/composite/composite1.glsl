@@ -44,11 +44,11 @@ void main() {
 
     float VdotL = dot(normalize(scenePos0), shadowLightVector);
 
-    vec3 directIlluminance = vec3(0.0), skyIlluminance = vec3(0.0);
+    vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
     
     #ifdef WORLD_OVERWORLD
-        directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
         skyIlluminance    = texture(colortex6,  texCoords).rgb * RCP_PI;
+        directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
     #endif
 
     bool  sky      = isSky(texCoords);
@@ -63,13 +63,13 @@ void main() {
 
         #if GI == 1
             #if GI_FILTER == 1
-                aTrousFilter(color, colortex4, texCoords * GI_RESOLUTION, moments, 4);
+                aTrousFilter(color, colortex4, texCoords * GI_SCALE, moments, 4);
             #else
-                color = texture(colortex4, texCoords * GI_RESOLUTION).rgb;
+                color = texture(colortex4, texCoords * GI_SCALE).rgb;
             #endif
 
-            vec3 direct   = texture(colortex9,  texCoords * GI_RESOLUTION).rgb;
-            vec3 indirect = texture(colortex10, texCoords * GI_RESOLUTION).rgb;
+            vec3 direct   = texture(colortex9,  texCoords * GI_SCALE).rgb;
+            vec3 indirect = texture(colortex10, texCoords * GI_SCALE).rgb;
             
             color = direct + (indirect * color);
         #endif
@@ -121,7 +121,7 @@ void main() {
             #endif
 
             #if REFLECTIONS == 1
-                color += texture(colortex2, texCoords * REFLECTIONS_RESOLUTION).rgb;
+                color += texture(colortex2, texCoords * REFLECTIONS_SCALE).rgb;
             #endif
         #endif
     } else {

@@ -69,8 +69,8 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec3 sunStepScattering  = atmosScatteringCoeff * (airmass.xy * phase.xy) * visibleScattering;
             vec3 moonStepScattering = atmosScatteringCoeff * (airmass.xy * phase.zw) * visibleScattering;
 
-            singleScattering[0] += sunStepScattering  * getAtmosphereTransmittance(rayPos, sunVector);
-            singleScattering[1] += moonStepScattering * getAtmosphereTransmittance(rayPos, moonVector);
+            singleScattering[0] += sunStepScattering  * getAtmosphereTransmittance(rayPos, sunPosNorm);
+            singleScattering[1] += moonStepScattering * getAtmosphereTransmittance(rayPos,-sunPosNorm);
 
             vec3 stepScattering    = atmosScatteringCoeff * airmass.xy;
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
@@ -104,9 +104,8 @@ vec3 sampleDirectIlluminance() {
     return directIlluminance;
 }
 
-mat3[2] sampleSkyIlluminance(inout vec3 skyMultiScatterIllum) {
+mat3[2] sampleSkyIlluminanceComplex() {
     mat3[2] skyIllum = mat3[2](mat3(0.0), mat3(0.0));
-    skyMultiScatterIllum = vec3(0.0);
 
     #ifdef WORLD_OVERWORLD
         const ivec2 samples = ivec2(16, 8);
@@ -114,15 +113,13 @@ mat3[2] sampleSkyIlluminance(inout vec3 skyMultiScatterIllum) {
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
                 vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
-                vec3 atmoSample = texture(colortex0, projectSphere(dir) * ATMOSPHERE_RESOLUTION).rgb;
+                vec3 atmoSample = texture(colortex0, projectSphere(dir)).rgb;
 
                 skyIllum[0][0] += atmoSample * clamp01( dir.x);
                 skyIllum[0][1] += atmoSample * clamp01( dir.y);
                 skyIllum[0][2] += atmoSample * clamp01( dir.z);
                 skyIllum[1][0] += atmoSample * clamp01(-dir.x);
                 skyIllum[1][2] += atmoSample * clamp01(-dir.z);
-
-                skyMultiScatterIllum += atmoSample;
             }
         }
         const float sampleWeight = 2.0 * TAU / (samples.x * samples.y);
@@ -135,10 +132,25 @@ mat3[2] sampleSkyIlluminance(inout vec3 skyMultiScatterIllum) {
         skyIllum[0][0] += skyIllum[0][1] * 0.2;
         skyIllum[0][2] += skyIllum[0][1] * 0.2;
         skyIllum[1][0] += skyIllum[0][1] * 0.2;
-        skyIllum[1][1] += skyIllum[0][1] * 0.2;
+        skyIllum[1][1] += skyIllum[0][1];
         skyIllum[1][2] += skyIllum[0][1] * 0.2;
+    #endif
+    return skyIllum;
+}
 
-        skyMultiScatterIllum *= (TAU / (samples.x * samples.y));
+vec3 sampleSkyIlluminanceSimple() {
+    vec3 skyIllum = vec3(0.0);
+
+    #ifdef WORLD_OVERWORLD
+        const ivec2 samples = ivec2(16, 8);
+
+        for(int x = 0; x < samples.x; x++) {
+            for(int y = 0; y < samples.y; y++) {
+                vec3 dir  = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
+                skyIllum += texture(colortex0, projectSphere(dir)).rgb;
+            }
+        }
+        skyIllum *= (TAU / (samples.x * samples.y));
     #endif
     return skyIllum;
 }

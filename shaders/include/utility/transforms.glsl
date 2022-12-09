@@ -49,6 +49,10 @@ vec3 viewToScreen(vec3 viewPos) {
 	return (projectOrtho(gbufferProjection, viewPos) / -viewPos.z) * 0.5 + 0.5;
 }
 
+vec3 sceneToView(vec3 scenePos) {
+	return transform(gbufferModelView, scenePos);
+}
+
 vec3 viewToScene(vec3 viewPos) {
 	return transform(gbufferModelViewInverse, viewPos);
 }

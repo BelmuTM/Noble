@@ -19,7 +19,7 @@ const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
 
 /* CLOUDS CONSTANTS */
 
-const float cloudsExtinctionCoeff   = 0.06;
+const float cloudsExtinctionCoeff   = 0.08;
 const float cloudsScatteringCoeff   = 1.0;
 const float cloudsTransmitThreshold = 5e-2;
 

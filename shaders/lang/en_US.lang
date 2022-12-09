@@ -123,9 +123,9 @@ value.AO_TYPE.0 = §e§lSSAO
 value.AO_TYPE.1 = §e§lRTAO
 value.AO_TYPE.2 = §e§lGTAO
 
-option.AO_RESOLUTION = AO Resolution
-option.AO_RESOLUTION.comment = Adjusts §bAO§r's resolution. §cHigher value gives better results, but reduces §cperformance.
-suffix.AO_RESOLUTION = x
+option.AO_SCALE = AO Render Scale
+option.AO_SCALE.comment = Adjusts §bAO§r's rendering scale. §cHigher value gives better results, but reduces §cperformance.
+suffix.AO_SCALE = x
 
 option.SSAO_SAMPLES = SSAO Samples
 option.SSAO_SAMPLES.comment = Influences §bSSAO§r's quality. §cHigher value gives better results, but reduces §cperformance.
@@ -183,9 +183,9 @@ option.REFLECTIONS_TYPE.comment = §bSimple reflections §rdo not consider a mat
 value.REFLECTIONS_TYPE.0 = §eSimple Reflections
 value.REFLECTIONS_TYPE.1 = §eRough Reflections
 
-option.REFLECTIONS_RESOLUTION = Reflections Resolution
-option.REFLECTIONS_RESOLUTION.comment = Adjusts §bReflections§r' resolution. §cHigher value gives better results, but reduces §cperformance.
-suffix.REFLECTIONS_RESOLUTION = x
+option.REFLECTIONS_SCALE = Reflections Render Scale
+option.REFLECTIONS_SCALE.comment = Adjusts §bReflections§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
+suffix.REFLECTIONS_SCALE = x
 
 option.GI = Global Illumination (GI)
 option.GI.comment = Simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it. §cCan only sample what's being displayed §con your screen.
@@ -223,9 +223,9 @@ option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r
 value.SKY_CONTRIBUTION.0 = §cOFF
 value.SKY_CONTRIBUTION.1 = §aON
 
-option.GI_RESOLUTION = GI Resolution
-option.GI_RESOLUTION.comment = Downscales §bGI §rto increase performance. §cHigher value gives better results, but reduces §cperformance.
-suffix.GI_RESOLUTION = x
+option.GI_SCALE = GI Render Scale
+option.GI_SCALE.comment = Adjusts §bGI§r's rendering scale. §cHigher value gives better results, but reduces §cperformance.
+suffix.GI_SCALE = x
 
 option.GI_SAMPLES = GI Samples
 option.GI_SAMPLES.comment = Adjusts the amount of samples taken to calculate §bGlobal Illumination§r. §cHigher value gives better results, but reduces §cperformance.
@@ -253,9 +253,9 @@ option.CELESTIAL_SIZE_MULTIPLIER = Celestial Size Multiplier
 option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the Sun/Moon.
 suffix.CELESTIAL_SIZE_MULTIPLIER = x
 
-option.ATMOSPHERE_RESOLUTION = Atmosphere Resolution
-option.ATMOSPHERE_RESOLUTION.comment = Adjusts the §bAtmosphere§r's resolution. §cHigher value gives better results, but reduces §cperformance.
-suffix.ATMOSPHERE_RESOLUTION = x
+option.ATMOSPHERE_SCALE = Atmosphere Render Scale
+option.ATMOSPHERE_SCALE.comment = Adjusts the §bAtmosphere§r's rendering scale. §cHigher value gives better results, but reduces §cperformance.
+suffix.ATMOSPHERE_SCALE = x
 
 option.SCATTERING_STEPS = Atmos. Scattering Samples
 option.SCATTERING_STEPS.comment = Influences how accurately light scatters. This influences §bAtmospheric §bScattering§r and §bVolumetric §bLighting. §cWould preferably be higher than transmittance samples.
@@ -287,9 +287,9 @@ option.SECONDARY_CLOUDS.comment = Features a secondary layer of volumetric cloud
 value.SECONDARY_CLOUDS.0 = §cOFF
 value.SECONDARY_CLOUDS.1 = §aON
 
-option.CLOUDS_RESOLUTION = Clouds Resolution
-option.CLOUDS_RESOLUTION.comment = Adjusts the §bClouds§r' resolution. §cHigher value gives better results, but reduces §cperformance.
-suffix.CLOUDS_RESOLUTION = x
+option.CLOUDS_SCALE = Clouds Render Scale
+option.CLOUDS_SCALE.comment = Adjusts the §bClouds§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
+suffix.CLOUDS_SCALE = x
 
 option.CLOUDS_SCATTERING_STEPS = Clouds Scattering Samples
 option.CLOUDS_SCATTERING_STEPS.comment = Influences how accurately light scatters inside of §bClouds§r. §cHigher value gives better results, but reduces §cperformance.

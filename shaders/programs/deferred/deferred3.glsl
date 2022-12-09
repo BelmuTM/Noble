@@ -6,23 +6,73 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#if GI == 1 && GI_FILTER == 1
-    /* RENDERTARGETS: 4,11 */
+#include "/include/atmospherics/atmosphere.glsl"
 
-    layout (location = 0) out vec3 color;
-    layout (location = 1) out vec4 moments;
+#ifdef STAGE_VERTEX
 
-    #include "/include/fragment/atrous.glsl"
-#else
-    /* RENDERTARGETS: 4 */
+    out mat3[2] skyIlluminanceMat;
+    out vec3 directIlluminance;
 
-    layout (location = 0) out vec3 color;
-#endif
+    void main() {
+        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+        texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-void main() {
-    color = texture(colortex5, texCoords).rgb;
+        skyIlluminanceMat = sampleSkyIlluminanceComplex();
+        directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
+    }
 
-    #if GI == 1 && GI_FILTER == 1
-        aTrousFilter(color, colortex5, texCoords, moments, 0);
+#elif defined STAGE_FRAGMENT
+
+    /* RENDERTARGETS: 3,6 */
+
+    layout (location = 0) out vec4 shadowmap;
+    layout (location = 1) out vec3 skyIlluminance;
+
+    #if defined WORLD_OVERWORLD && defined SHADOWS
+        #include "/include/fragment/shadows.glsl"
     #endif
-}
+
+    in mat3[2] skyIlluminanceMat;
+    in vec3 directIlluminance;
+
+    void main() {
+        vec3 viewPos = getViewPos0(texCoords);
+        Material mat = getMaterial(texCoords);
+        bool sky     = isSky(texCoords);
+
+        vec3 bentNormal = mat.normal;
+
+        //////////////////////////////////////////////////////////
+        /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
+        //////////////////////////////////////////////////////////
+
+        #if GI == 0 && AO == 1
+            if(!sky) {
+                vec4 aoHistory = texture(colortex10, texCoords);
+                if(any(greaterThan(aoHistory.rgb, vec3(0.0)))) bentNormal = clamp01(aoHistory.rgb);
+            }
+        #endif
+
+        #ifdef WORLD_OVERWORLD
+            //////////////////////////////////////////////////////////
+            /*----------------- SHADOW MAPPING ---------------------*/
+            //////////////////////////////////////////////////////////
+            
+            if(!sky) {
+                vec4 tmp = texture(colortex2, texCoords);
+                shadowmap.a    = 0.0;
+                shadowmap.rgb  = shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a);
+                shadowmap.rgb *= tmp.a;
+            }
+
+            //////////////////////////////////////////////////////////
+            /*------------------ SKY ILLUMINANCE -------------------*/
+            //////////////////////////////////////////////////////////
+
+            if(ivec2(gl_FragCoord) != ivec2(0))
+                skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat) : vec3(0.0);
+            else
+                skyIlluminance = directIlluminance;
+        #endif
+    }
+#endif

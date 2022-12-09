@@ -6,6 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
+#if AO == 1 || GI == 1
+     const float ambientOcclusionLevel = 0.0;
+#else
+     const float ambientOcclusionLevel = 1.0;
+#endif
+
 /*
 const int shadowcolor0Format = RGBA16F;
 const int shadowcolor1Format = RGBA8;

@@ -20,9 +20,9 @@
 #endif
 
 void main() {
-    color = texture(colortex5, texCoords).rgb;
+    color = texture(colortex4, texCoords).rgb;
 
     #if GI == 1 && GI_FILTER == 1
-        aTrousFilter(color, colortex5, texCoords, moments, 0);
+        aTrousFilter(color, colortex4, texCoords, moments, 1);
     #endif
 }

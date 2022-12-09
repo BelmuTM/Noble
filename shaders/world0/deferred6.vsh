@@ -8,10 +8,4 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-out vec2 texCoords;
-
-#define STAGE_VERTEX
-#define WORLD_OVERWORLD
-
-#include "/include/common.glsl"
-#include "/programs/deferred/deferred2.glsl"
+#include "/programs/vertex_simple.glsl"

@@ -161,16 +161,6 @@ vec3 unprojectSphere(vec2 coord) {
     return vec3(sincos(coord.x * TAU) * sin(latitude), cos(latitude)).xzy;
 }
 
-#ifdef STAGE_FRAGMENT
-    // Thanks Niemand#1929 for the help with atmosphere upscaling
-    vec2 getAtmosphereCoordinates(in vec2 coords, float scale, float jitter) {
-	    vec2 atmosRes = ceil(viewSize * scale);
-	         coords   = (coords * scale) + (jitter * pixelSize);
-
-	    return clamp(coords, vec2(0.5 / viewSize), atmosRes / viewSize - 0.5 / viewSize);
-    }
-#endif
-
 vec3 generateUnitVector(vec2 xy) {
     xy.x *= TAU; xy.y = 2.0 * xy.y - 1.0;
     return vec3(sincos(xy.x) * sqrt(1.0 - xy.y * xy.y), xy.y);
