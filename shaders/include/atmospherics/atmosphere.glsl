@@ -40,39 +40,39 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
         accumAirmass += getAtmosphereDensities(length(rayPos)) * stepLength;
     }
-    return exp(-atmosExtinctionCoeff * accumAirmass);
+    return exp(-atmosphereExtinctionCoefficients * accumAirmass);
 }
 
 #ifdef STAGE_FRAGMENT
     vec3 atmosphericScattering(vec3 rayDir, vec3 skyIlluminance) {
-        vec2 dists = intersectSphericalShell(atmosRayPos, rayDir, atmosLowerRad, atmosUpperRad);
+        vec2 dists = intersectSphericalShell(atmosphereRayPos, rayDir, atmosLowerRad, atmosUpperRad);
         if(dists.y < 0.0) return vec3(0.0);
 
         float stepLength = (dists.y - dists.x) * rcp(SCATTERING_STEPS);
         vec3 increment   = rayDir * stepLength;
-        vec3 rayPos      = atmosRayPos + increment * 0.5;
+        vec3 rayPos      = atmosphereRayPos + increment * 0.5;
 
         vec2 VdotL = vec2(dot(rayDir, sunVector), dot(rayDir, moonVector));
         vec4 phase = vec4(
-            vec2(rayleighPhase(VdotL.x), kleinNishinaPhase(VdotL.x, anisotropyFactor)), 
-            vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, anisotropyFactor))
+            vec2(rayleighPhase(VdotL.x), kleinNishinaPhase(VdotL.x, mieAnisotropyFactor)), 
+            vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, mieAnisotropyFactor))
         );
 
         mat2x3 singleScattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
             vec3 airmass          = getAtmosphereDensities(length(rayPos)) * stepLength;
-            vec3 stepOpticalDepth = atmosExtinctionCoeff * airmass;
+            vec3 stepOpticalDepth = atmosphereExtinctionCoefficients * airmass;
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
-            vec3 visibleScattering  = transmittance        * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
-            vec3 sunStepScattering  = atmosScatteringCoeff * (airmass.xy * phase.xy) * visibleScattering;
-            vec3 moonStepScattering = atmosScatteringCoeff * (airmass.xy * phase.zw) * visibleScattering;
+            vec3 visibleScattering  = transmittance                    * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);
+            vec3 sunStepScattering  = atmosphereScatteringCoefficients * (airmass.xy * phase.xy) * visibleScattering;
+            vec3 moonStepScattering = atmosphereScatteringCoefficients * (airmass.xy * phase.zw) * visibleScattering;
 
             singleScattering[0] += sunStepScattering  * getAtmosphereTransmittance(rayPos, sunPosNorm);
             singleScattering[1] += moonStepScattering * getAtmosphereTransmittance(rayPos,-sunPosNorm);
 
-            vec3 stepScattering    = atmosScatteringCoeff * airmass.xy;
+            vec3 stepScattering    = atmosphereScatteringCoefficients * airmass.xy;
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
 
             vec3 multScatteringFactor = stepScatterAlbedo * 0.84;
@@ -93,8 +93,8 @@ vec3 sampleDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
     #ifdef WORLD_OVERWORLD
-        vec3 sunTransmit  = getAtmosphereTransmittance(atmosRayPos, sunPosNorm) * sunIlluminance;
-        vec3 moonTransmit = getAtmosphereTransmittance(atmosRayPos,-sunPosNorm) * moonIlluminance;
+        vec3 sunTransmit  = getAtmosphereTransmittance(atmosphereRayPos, sunPosNorm) * sunIlluminance;
+        vec3 moonTransmit = getAtmosphereTransmittance(atmosphereRayPos,-sunPosNorm) * moonIlluminance;
         directIlluminance = sunTransmit + moonTransmit;
 
         #if TONEMAP == 0
@@ -112,7 +112,7 @@ mat3[2] sampleSkyIlluminanceComplex() {
 
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
-                vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
+                vec3 dir        = generateUnitVector((vec2(x, y) + 0.5) / samples); // Uniform hemisphere sampling thanks to SixthSurge#3922
                 vec3 atmoSample = texture(colortex0, projectSphere(dir)).rgb;
 
                 skyIllum[0][0] += atmoSample * clamp01( dir.x);

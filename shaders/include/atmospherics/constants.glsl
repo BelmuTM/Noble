@@ -6,16 +6,33 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-/* ATMOSPHERE CONSTANTS */
+/* ATMOSPHERIC CONSTANTS */
 
-const float anisotropyFactor = 0.76;
-const float isotropicPhase   = 0.07957747;
+const float mieAnisotropyFactor = 0.76;
+const float isotropicPhase      = 0.07957747;
 
 const float planetRadius  = 6371e3;               // Meters
-const float atmosLowerRad = planetRadius - 3e3;   // Meters
+const float atmosLowerRad = planetRadius - 4e3;   // Meters
 const float atmosUpperRad = planetRadius + 110e3; // Meters
 
 const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
+
+const float mieAlbedo = 0.9;
+
+#if TONEMAP == 0
+    const vec3 rayleighScatteringCoefficient = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5)                                     * SRGB_2_AP1_ALBEDO;
+    const vec3 mieScatteringCoefficient      = vec3(0.00000925288)                                                                  * SRGB_2_AP1_ALBEDO;
+    const vec3 ozoneScatteringCoefficient    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14 * SRGB_2_AP1_ALBEDO;
+#else
+    const vec3 rayleighScatteringCoefficient = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
+    const vec3 mieScatteringCoefficient      = vec3(0.00000925288);
+    const vec3 ozoneScatteringCoefficient    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14;
+#endif
+
+mat2x3 atmosphereScatteringCoefficients = mat2x3(rayleighScatteringCoefficient, mieScatteringCoefficient);
+mat3x3 atmosphereExtinctionCoefficients = mat3x3(rayleighScatteringCoefficient, mieScatteringCoefficient / mieAlbedo, ozoneScatteringCoefficient);
+
+vec3 atmosphereRayPos = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 
 /* CLOUDS CONSTANTS */
 
@@ -48,27 +65,10 @@ const float fogForwardsPeak = 0.90;
 const float fogBackScatter  = 0.15;
 const float fogPeakWeight   = 0.25;
 
-// Coefficients provided by Jessie#7257 and LVutner#5199
-// 3.4 Ozone absorption (https://media.contentapi.ea.com/content/dam/eacom/frostbite/files/s2016-pbs-frostbite-sky-clouds-new.pdf)
-
-#if TONEMAP == 0
-    const vec3 rayleighCoeff = vec3(5.8e-6, 13.3e-6, 33.31e-6)                                                      * SRGB_2_AP1_ALBEDO;
-    const vec3 mieCoeff      = vec3(0.00001028098)                                                                  * SRGB_2_AP1_ALBEDO;
-    const vec3 ozoneCoeff    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14 * SRGB_2_AP1_ALBEDO;
-#else
-    const vec3 rayleighCoeff = vec3(5.8e-6, 13.3e-6, 33.31e-6);
-    const vec3 mieCoeff      = vec3(0.00001028098);
-    const vec3 ozoneCoeff    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14;
-#endif
-
-mat2x3 atmosScatteringCoeff = mat2x3(rayleighCoeff, mieCoeff);
-mat3x3 atmosExtinctionCoeff = mat3x3(rayleighCoeff, mieCoeff * 1.11111, ozoneCoeff);
-
-vec3 atmosRayPos = vec3(0.0, planetRadius, 0.0) + cameraPosition;
-
 /* CELESTIAL CONSTANTS */
-const float moonRad       = 1.7374e3;
-const float moonDist      = 3.8440e5;
+
+const float moonRad       = 1.7374e6;
+const float moonDist      = 3.8440e8;
 const float moonAlbedo    = 0.136; // The moon reflects approximately 12-13% of the sun's emitted light 
 const float moonRoughness = 0.40;
 

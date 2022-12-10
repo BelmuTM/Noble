@@ -217,23 +217,8 @@ vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughM
     return mix(isotropicLobe, mix(forwardsLobe, backwardsLobe, 0.3), 0.6);
 }
 
-vec3 DiffuseHammonAmbient(float NoV, vec3 diffuseAlbedo, float roughness) {
-
-	NoV = abs(NoV);
-
-	const float single_rough = 0.8; // TODO, this is just roughly the value it usually gets.
-	float single_smooth = 1.0 - pow5(1.0 - NoV);
-
-	float single = mix(single_smooth, single_rough, roughness);
-	float multi  = 0.1159 * PI * roughness;
-
-	return multi * diffuseAlbedo + single;
-}
-
 vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao) {
     V = -normalize(V);
-
-    vec3 hemisphereDiffuse = DiffuseHammonAmbient(dot(mat.normal, V), mat.albedo, mat.rough);
 
     vec3 diffuse  = hammonDiffuse(mat, V, L);
          diffuse *= shadowmap.rgb;

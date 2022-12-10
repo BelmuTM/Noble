@@ -60,10 +60,10 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 /*------------------ AMBIENT OCCLUSION -----------------*/
 //////////////////////////////////////////////////////////
 
-#define AO          1 // [0 1]
-#define AO_TYPE     2 // [0 1 2]
-#define AO_FILTER   1 // [0 1]
-#define AO_SCALE 0.50 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define AO        1 // [0 1]
+#define AO_TYPE   2 // [0 1 2]
+#define AO_FILTER 1 // [0 1]
+#define AO_SCALE 50 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 #define SSAO_SAMPLES   12 // [4 8 12 16 20]
 #define SSAO_RADIUS  0.70 // [0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00]
@@ -154,13 +154,13 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define CELESTIAL_SIZE_MULTIPLIER 1 // [1 2 3 4]
 
-#define ATMOSPHERE_SCALE 0.25 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define ATMOSPHERE_SCALE   25 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define SCATTERING_STEPS   16 // [8 12 16 20 24 28 32]
 #define TRANSMITTANCE_STEPS 8 // [8 12 16 20 24 28 32]
 
 #define PRIMARY_CLOUDS           0 // [0 1]
 #define SECONDARY_CLOUDS         1 // [0 1]
-#define CLOUDS_SCALE          0.50 // [0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define CLOUDS_SCALE            50 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_SCATTERING_STEPS 20 // [8 12 16 20 24 28 32]
 
 #define CLOUDS_LAYER0_ALTITUDE  1000.0 // [100.0 200.0 300.0 400.0 500.0 600.0 700.0 800.0 900.0 1000.0 1100.0 1200.0 1300.0 1400.0 1500.0 1600.0 1700.0 1800.0 1900.0 2000.0]
@@ -237,7 +237,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define TAA                     1 // [0 1]
 #define TAA_NEIGHBORHOOD_RADIUS 1
 
-#define TAA_STRENGTH            0.99
+#define TAA_STRENGTH            0.986
 #define TAA_OFFCENTER_REJECTION 0.25
 
 #define DOF           0 // [0 1]

@@ -28,16 +28,16 @@ float getFogDensity(vec3 position) {
 #if AIR_FOG == 0
     void groundFog(inout vec3 color, vec3 scenePos, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
         float airmass     = getFogDensity(scenePos) * length(scenePos);
-        vec3 opticalDepth = (atmosExtinctionCoeff[0] + atmosExtinctionCoeff[1] + atmosExtinctionCoeff[2]) * airmass;
+        vec3 opticalDepth = (atmosphereExtinctionCoefficients[0] + atmosphereExtinctionCoefficients[1] + atmosphereExtinctionCoefficients[2]) * airmass;
 
         vec3 transmittance       = exp(-opticalDepth);
         vec3 transmittedFraction = clamp01((transmittance - 1.0) / -opticalDepth);
 
         float VdotL = dot(normalize(scenePos), shadowLightVector);
-        vec2  phase = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, anisotropyFactor));
+        vec2  phase = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
-	    vec3 scattering  = atmosScatteringCoeff * vec2(airmass * phase)          * (directIlluminance * skyLight);
-	         scattering += atmosScatteringCoeff * vec2(airmass * isotropicPhase) * (skyIlluminance    * skyLight);
+	    vec3 scattering  = atmosphereScatteringCoefficients * vec2(airmass * phase)          * (directIlluminance * skyLight);
+	         scattering += atmosphereScatteringCoefficients * vec2(airmass * isotropicPhase) * (skyIlluminance    * skyLight);
 	         scattering *= transmittedFraction;
 
         color = color * transmittance + scattering;
