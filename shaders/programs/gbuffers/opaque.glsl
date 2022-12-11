@@ -164,7 +164,6 @@
 		float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
 		float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
 		float subsurface = clamp01(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
-		float porosity   = clamp01(specularTex.z * (maxVal8 / 64.0));
 
 		#ifdef PROGRAM_ENTITY
 			albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
@@ -196,17 +195,18 @@
 
 		#ifdef PROGRAM_TERRAIN
 			#if RAIN_PUDDLES == 1
-				if(wetness > 0) {
+				if(wetness > 0.0) {
+					float porosity    = clamp01(specularTex.z * (maxVal8 / 64.0));
 					vec2 puddleCoords = (viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
 
 					float puddle  = quintic(0.0, 1.0, FBM(puddleCoords, 1, 1.3) * 0.5 + 0.5);
 		  	  	  		  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
 	  					  puddle *= (1.0 - porosity);
 			  	  		  puddle *= wetness;
-			  	  		  puddle *= quintic(0.89, 0.99, normal.y);
+			  	  		  puddle *= quintic(0.89, 0.99, TBN[2].y);
 						  puddle  = clamp01(puddle);
 	
-					F0       += mix(F0, waterF0,     puddle);
+					F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxVal8, float(F0 * maxVal8 <= 229.5)));
 					roughness = mix(roughness, 0.0, puddle);
 					normal    = mix(normal, TBN[2], puddle);
 				}

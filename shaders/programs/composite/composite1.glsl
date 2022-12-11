@@ -118,7 +118,7 @@ void main() {
                     visibility *= float(mat.lightmap.y > EPS);
                 #endif
 
-                color += computeSpecular(mat.normal, -normalize(viewPos0), shadowVec, mat) * directIlluminance * visibility;
+                color += computeSpecular(mat.normal, normalize(-viewPos0), shadowVec, mat) * directIlluminance * visibility;
             #endif
 
             #if REFLECTIONS == 1

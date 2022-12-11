@@ -189,12 +189,14 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     float NdotH = NdotHSquared(shadowLightAngularRad, NdotL, NdotV, VdotL, NdotV, VdotL);
     float VdotH = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
 
-    NdotV    = maxEps(NdotV);
+    NdotV = maxEps(NdotV);
+    NdotL = clamp01(NdotL);
+    
     float D  = distributionGGX(NdotH, mat.rough);
     vec3  F  = fresnelComplex(VdotH, mat);
     float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
         
-    return max0(clamp01(NdotL) * ((D * G2) * F / (4.0 * NdotL * NdotV)));
+    return max0(NdotL * ((D * G2) * F / (4.0 * NdotL * NdotV)));
 }
 
 vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughMedium) {

@@ -8,7 +8,7 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-float dither = fract(frameTimeCounter + bayer32(gl_FragCoord.xy));
+float dither = fract(frameTimeCounter + bayer256(gl_FragCoord.xy));
 
 float getFogDensity(vec3 position) {
     float altitude   = (position.y - FOG_ALTITUDE) * rcp(FOG_THICKNESS);
@@ -80,15 +80,12 @@ float getFogDensity(vec3 position) {
         float phase     = getFogPhase(VdotL);
 
         mat2x3 scattering   = mat2x3(vec3(0.0), vec3(0.0)); 
-        float transmittance = 1.0, depthWeight = 0.0, depthSum = 0.0;
+        float transmittance = 1.0;
 
         for(int i = 0; i < VL_SCATTERING_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
             float density      = getFogDensity(rayPos);
             float airmass      = density * rayLength;
-            float opticalDepth = fogExtinctionCoeff    * airmass;
-
-            depthSum    += distance(startPos, rayPos) * density; 
-            depthWeight += density;
+            float opticalDepth = fogExtinctionCoeff * airmass;
 
             float stepTransmittance = exp(-opticalDepth);
             float visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
@@ -102,13 +99,10 @@ float getFogDensity(vec3 position) {
             scattering[1] += stepScatteringIndirect;
             transmittance *= stepTransmittance;
         }
-
-        float distToFog = depthSum / depthWeight;
-
         scattering[0] *= directIlluminance;
         scattering[1] *= skyIlluminance * skyLight;
 
-        color += mix(vec3(0.0), scattering[0] + scattering[1], quintic(0.0, 1.0, pow(exp(-1e-3 * distToFog), 1.1)));
+        color += scattering[0] + scattering[1];
     }
 #endif
 
