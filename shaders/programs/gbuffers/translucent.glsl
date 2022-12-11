@@ -64,7 +64,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 1,4 */
+	/* RENDERTARGETS: 1,13 */
 
 	layout (location = 0) out uvec4 data;
 	layout (location = 1) out vec4 sceneColor;
@@ -87,9 +87,9 @@
 			discard;
 		#endif
 
-		vec4 albedoTex   = texture(colortex0, texCoords);
-		vec4 normalTex   = texture(normals,   texCoords);
-		vec4 specularTex = texture(specular,  texCoords);
+		vec4 albedoTex   = texture(tex, 	 texCoords);
+		vec4 normalTex   = texture(normals,  texCoords);
+		vec4 specularTex = texture(specular, texCoords);
 
 		if(albedoTex.a < 0.102) discard;
 
@@ -115,7 +115,8 @@
 			mat.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     		mat.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
 
-    		mat.albedo = albedoTex.rgb;
+    		mat.albedo   = albedoTex.rgb;
+			mat.lightmap = lmCoords.xy;
 
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				mat.normal.xy = normalTex.xy * 2.0 - 1.0;
@@ -137,9 +138,7 @@
 					#ifdef WORLD_OVERWORLD
 						shadowmap.rgb = shadowMap(scenePos, geoNormal, shadowmap.a);
 
-						if(lmCoords.y > EPS) {
-							skyLight = getSkyLight(mat.normal, skyIlluminanceMat);
-						}
+						if(mat.lightmap.y > EPS) skyLight = getSkyLight(mat.normal, skyIlluminanceMat);
 					#endif
 
 					sceneColor.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyLight, 1.0);

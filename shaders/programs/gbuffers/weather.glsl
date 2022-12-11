@@ -11,22 +11,24 @@
 	#include "/programs/gbuffers/gbuffers.vsh"
 
 #elif defined STAGE_FRAGMENT
-	/* RENDERTARGETS: 4 */
+
+	/* RENDERTARGETS: 13 */
 
 	layout (location = 0) out vec4 color;
 
 	in vec2 texCoords;
+	in vec3 viewPos;
 	in vec4 vertexColor;
 
-	uniform sampler2D colortex0;
+	#include "/include/atmospherics/atmosphere.glsl"
 
 	void main() {
-		vec4 albedoTex  = texture(colortex0, texCoords);
+		vec4 albedoTex  = texture(tex, texCoords);
 		     albedoTex *= vertexColor;
 
 		if(albedoTex.a < 0.102) discard;
 
-		albedoTex.a = 0.5;
-		color       = albedoTex;
+		color.rgb = albedoTex.rgb * sampleSkyIlluminanceSimple() * 0.2;
+		color.a   = 0.5;
 	}
 #endif

@@ -23,7 +23,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 12 */
+    /* RENDERTARGETS: 0 */
 
     layout (location = 0) out vec4 clouds;
 
@@ -48,30 +48,32 @@
 
                 #if PRIMARY_CLOUDS == 1
                     CloudLayer layer0;
-                    layer0.altitude  = CLOUDS_LAYER0_ALTITUDE;
-                    layer0.thickness = CLOUDS_LAYER0_THICKNESS;
-                    layer0.coverage  = CLOUDS_LAYER0_COVERAGE * 0.01;
-                    layer0.swirl     = CLOUDS_LAYER0_SWIRL    * 0.01;
-                    layer0.scale     = CLOUDS_LAYER0_SCALE;
-                    layer0.frequency = CLOUDS_LAYER0_FREQUENCY;
-                    layer0.density   = CLOUDS_LAYER0_DENSITY;
-                    layer0.steps     = CLOUDS_SCATTERING_STEPS;
-                    layer0.octaves   = CLOUDS_LAYER0_OCTAVES;
+                    layer0.altitude   = CLOUDS_LAYER0_ALTITUDE;
+                    layer0.thickness  = CLOUDS_LAYER0_THICKNESS;
+                    layer0.coverage   = CLOUDS_LAYER0_COVERAGE * 0.01;
+                    layer0.swirl      = CLOUDS_LAYER0_SWIRL    * 0.01;
+                    layer0.scale      = CLOUDS_LAYER0_SCALE;
+                    layer0.shapeScale = CLOUDS_LAYER0_SHAPESCALE;
+                    layer0.frequency  = CLOUDS_LAYER0_FREQUENCY;
+                    layer0.density    = CLOUDS_LAYER0_DENSITY;
+                    layer0.steps      = CLOUDS_SCATTERING_STEPS;
+                    layer0.octaves    = CLOUDS_LAYER0_OCTAVES;
 
                     cloudLayer0 = cloudsScattering(layer0, cloudsRay);
                 #endif
 
                 #if SECONDARY_CLOUDS == 1
                     CloudLayer layer1;
-                    layer1.altitude  = CLOUDS_LAYER1_ALTITUDE;
-                    layer1.thickness = CLOUDS_LAYER1_THICKNESS;
-                    layer1.coverage  = CLOUDS_LAYER1_COVERAGE;
-                    layer1.swirl     = CLOUDS_LAYER1_SWIRL;
-                    layer1.scale     = CLOUDS_LAYER1_SCALE;
-                    layer1.frequency = CLOUDS_LAYER1_FREQUENCY;
-                    layer1.density   = CLOUDS_LAYER1_DENSITY;
-                    layer1.steps     = 10;
-                    layer1.octaves   = CLOUDS_LAYER1_OCTAVES;
+                    layer1.altitude   = CLOUDS_LAYER1_ALTITUDE;
+                    layer1.thickness  = CLOUDS_LAYER1_THICKNESS;
+                    layer1.coverage   = CLOUDS_LAYER1_COVERAGE;
+                    layer1.swirl      = CLOUDS_LAYER1_SWIRL;
+                    layer1.scale      = CLOUDS_LAYER1_SCALE;
+                    layer1.shapeScale = CLOUDS_LAYER1_SHAPESCALE;
+                    layer1.frequency  = CLOUDS_LAYER1_FREQUENCY;
+                    layer1.density    = CLOUDS_LAYER1_DENSITY;
+                    layer1.steps      = 10;
+                    layer1.octaves    = CLOUDS_LAYER1_OCTAVES;
 
                     cloudLayer1 = cloudsScattering(layer1, cloudsRay);
                 #endif
@@ -80,7 +82,7 @@
 
                 float distanceToClouds = min(cloudLayer0.a, cloudLayer1.a);
 
-                if(distanceToClouds > 0.0) {
+                if(distanceToClouds > 1e-6) {
                     vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
                     clouds.rgb     += scattering.r   * directIlluminance;
                     clouds.rgb     += scattering.g   * skyIlluminance;
@@ -88,7 +90,7 @@
 
                     /* Reprojection */
                     vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
-                    vec4 prevClouds = textureCatmullRom(colortex12, prevPos);
+                    vec4 prevClouds = textureCatmullRom(colortex0, prevPos);
 
                     vec2  velocity       = (texCoords - prevPos) * viewSize;
                     float velocityWeight = clamp01(exp(-length(velocity)) * 0.8 + 0.2);

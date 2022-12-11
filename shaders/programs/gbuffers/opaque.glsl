@@ -148,9 +148,9 @@
 			vec2 coords = texCoords;
 		#endif
 
-		vec4 albedoTex   = texture(colortex0, coords);
-		vec4 normalTex   = texture(normals,   coords);
-		vec4 specularTex = texture(specular,  coords);
+		vec4 albedoTex   = texture(tex, 	 coords);
+		vec4 normalTex   = texture(normals,  coords);
+		vec4 specularTex = texture(specular, coords);
 
 		if(albedoTex.a < 0.102) discard;
 

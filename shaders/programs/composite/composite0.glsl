@@ -36,7 +36,7 @@
 #endif
 
 void main() {
-    color = texture(colortex4, texCoords).rgb;
+    color = texture(colortex13, texCoords).rgb;
 
     #if GI == 0
         #if REFLECTIONS == 1

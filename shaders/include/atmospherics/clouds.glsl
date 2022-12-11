@@ -25,6 +25,7 @@ struct CloudLayer {
     float coverage;
     float swirl;
     float scale;
+    float shapeScale;
     float frequency;
     float density;
 
@@ -59,17 +60,17 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
         position += wind;
     #endif
 
-    position *= layer.scale;
+    float rcpWetness = max0(wetness - 0.6);
+    float weatherMap = clamp01(FBM(position.xz * layer.scale, layer.octaves, layer.frequency) * (1.0 - layer.coverage) + layer.coverage) * (1.0 - rcpWetness) + rcpWetness;
 
-    float mapCoverage = mix(layer.coverage, 1.0, wetness);
-    float weatherMap  = clamp01(FBM(position.xz, layer.octaves, layer.frequency) * (1.0 - mapCoverage) + mapCoverage);
+    position *= layer.shapeScale;
 
     vec3 curlTex  = texture(noisetex, position * 0.4).rgb * 2.0 - 1.0;
         position += curlTex * layer.swirl;
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = clamp01(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = clamp01(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - mix(0.6, 0.8, wetness) * weatherMap, 1.0, 0.0, 1.0));
 
     return clamp01(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }
@@ -158,7 +159,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
     vec4 result   = vec4(scattering, transmittance, sum / weight);
 
     // Aerial Perspective
-    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, exp2(-5e-5 * result.a));
+    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, max(1e-6, exp2(-5e-5 * result.a)));
 
     return result;
 }
