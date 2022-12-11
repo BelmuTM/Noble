@@ -14,10 +14,11 @@
     layout (location = 2) out vec3 historyCol1;
     layout (location = 3) out vec4 moments;
 #else
-    /* RENDERTARGETS: 5,11 */
+    /* RENDERTARGETS: 5,13,11 */
 
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 moments;
+    layout (location = 0) out vec3 deferredCol;
+    layout (location = 1) out vec4 color;
+    layout (location = 2) out vec4 moments;
 #endif
 
 #include "/include/fragment/raytracer.glsl"
@@ -59,16 +60,21 @@
 #endif
 
 void main() {
+    vec3 viewPos0 = getViewPos0(texCoords);
+
     #if GI == 1
         vec2 tempCoords = texCoords * rcp(GI_SCALE);
     #else
         vec2 tempCoords = texCoords;
     #endif
 
-    vec3 viewPos0 = getViewPos0(texCoords);
-
     if(isSky(texCoords)) {
-        color.rgb = computeSky(viewPos0);
+        vec3 sky = computeSky(viewPos0);
+        #if GI == 1
+            historyCol0.rgb = sky;
+        #else
+            color.rgb = sky;
+        #endif
         return;
     }
 
@@ -78,11 +84,16 @@ void main() {
         if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = HARDCODED_SSS_VAL;
     #endif
 
-    vec3 currPos   = vec3(texCoords, mat.depth0);
-    vec3 prevPos   = currPos - getVelocity(currPos);
-    vec4 prevColor = texture(colortex5, prevPos.xy);
-
     #if AO_FILTER == 1 && GI == 0 || GI == 1
+        vec3 currPos   = vec3(texCoords, mat.depth0);
+        vec3 prevPos   = currPos - getVelocity(currPos);
+
+        #if GI == 1
+            vec4 prevColor = texture(colortex5, prevPos.xy);
+        #else
+            vec4 prevColor = texture(colortex13, prevPos.xy);
+        #endif
+
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
             float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex11, prevPos.xy).a), 1.0);
         #else
@@ -113,6 +124,8 @@ void main() {
 
             color.rgb = computeDiffuse(viewPos0, shadowVec, mat, shadowmap, directIlluminance, skyIlluminance, ao);
         }
+
+        deferredCol = color.rgb;
     #else
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_SCALE)) == texCoords) {

@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
 
     flat out float avgLuminance;
     //flat out vec4[HISTOGRAM_BINS / 4] luminanceHistogram;

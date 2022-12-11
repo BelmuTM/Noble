@@ -10,7 +10,7 @@
     #include "/include/atmospherics/atmosphere.glsl"
 #endif
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
 
     out vec3 skyIlluminance;
 

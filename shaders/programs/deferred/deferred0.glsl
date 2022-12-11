@@ -51,7 +51,7 @@ void main() {
                 vec3 currPos = vec3(texCoords, mat.depth0);
                 vec3 prevPos = currPos - getVelocity(currPos);
                 vec4 prevAO  = texture(colortex10, prevPos.xy);
-                float weight = clamp01(1.0 - (1.0 / max(texture(colortex5, prevPos.xy).a, 1.0)));
+                float weight = clamp01(1.0 - (1.0 / max(texture(colortex13, prevPos.xy).a, 1.0)));
 
                 aoHistory.a   = prevAO.a >= EPS ? mix(aoHistory.a, prevAO.a, weight) : aoHistory.a;
                 aoHistory.rgb = max0(mix(aoHistory.rgb, prevAO.rgb, weight));

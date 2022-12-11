@@ -159,7 +159,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
     vec4 result   = vec4(scattering, transmittance, sum / weight);
 
     // Aerial Perspective
-    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, max(1e-6, exp2(-5e-5 * result.a)));
+    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, max(1e-8, exp2(-5e-5 * result.a)));
 
     return result;
 }

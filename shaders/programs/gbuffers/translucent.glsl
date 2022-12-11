@@ -10,7 +10,7 @@
 #include "/include/atmospherics/atmosphere.glsl"
 #include "/include/fragment/water.glsl"
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
 
 	#define attribute in
 	attribute vec4 at_tangent;
@@ -20,7 +20,6 @@
 	out vec2 texCoords;
 	out vec2 lmCoords;
 	out vec3 viewPos;
-	out vec3 geoNormal;
 	out mat3[2] skyIlluminanceMat;
 	out vec3 directIlluminance;
 	out vec4 vertexColor;
@@ -36,8 +35,8 @@
 		lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor = gl_Color;
 
-    	geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
-    	viewPos   = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
+    	vec3 geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
+    		 viewPos   = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     	vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
 		TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
@@ -73,7 +72,6 @@
 	in vec2 texCoords;
 	in vec2 lmCoords;
 	in vec3 viewPos;
-	in vec3 geoNormal;
 	in mat3[2] skyIlluminanceMat;
 	in vec3 directIlluminance;
 	in vec4 vertexColor;
@@ -87,11 +85,11 @@
 			discard;
 		#endif
 
-		vec4 albedoTex   = texture(tex, 	 texCoords);
+		vec4 albedoTex = texture(colortex0, texCoords);
+		if(albedoTex.a < 0.102) discard;
+
 		vec4 normalTex   = texture(normals,  texCoords);
 		vec4 specularTex = texture(specular, texCoords);
-
-		if(albedoTex.a < 0.102) discard;
 
 		albedoTex *= vertexColor;
 
@@ -136,7 +134,7 @@
 					vec3 skyLight  = vec3(0.0);
 
 					#ifdef WORLD_OVERWORLD
-						shadowmap.rgb = shadowMap(scenePos, geoNormal, shadowmap.a);
+						shadowmap.rgb = shadowMap(scenePos, TBN[2], shadowmap.a);
 
 						if(mat.lightmap.y > EPS) skyLight = getSkyLight(mat.normal, skyIlluminanceMat);
 					#endif

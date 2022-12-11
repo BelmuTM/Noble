@@ -8,4 +8,8 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#include "/programs/vertex_simple.glsl"
+#define STAGE_VERTEX
+#define WORLD_OVERWORLD
+
+#include "/include/common.glsl"
+#include "/programs/deferred/deferred5.glsl"

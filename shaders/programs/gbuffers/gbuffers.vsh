@@ -17,7 +17,6 @@ out vec2 lmCoords;
 out vec2 texSize;
 out vec2 botLeft;
 out vec3 viewPos;
-out vec3 geoNormal;
 out vec4 vertexColor;
 out mat3 TBN;
 
@@ -41,8 +40,8 @@ void main() {
 	botLeft       = mc_midTexCoord - halfSize;
 
 	#ifndef PROGRAM_BASIC 
-    	geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
-    	viewPos   = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
+    	vec3 geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
+    		 viewPos   = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     	vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
 		TBN			 = mat3(tangent, cross(tangent, geoNormal), geoNormal);

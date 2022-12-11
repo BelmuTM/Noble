@@ -91,7 +91,7 @@ vec3 getBlockLightColor(Material mat) {
         #if GI == 0
             default: return blackbody(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY;
         #else
-            default: return mat.albedo * 100.0;
+            default: return mat.albedo * 20.0;
         #endif
     }
     return vec3(0.0);

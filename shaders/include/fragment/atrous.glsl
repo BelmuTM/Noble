@@ -73,7 +73,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec4 momen
     vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
 
     float centerLuma   = luminance(color);
-    float variance     = spatialVariance(colortex11, coords);
+    float variance     = gaussianVariance(colortex11, coords);
     float luminancePhi = 1.0 / (LUMA_WEIGHT_SIGMA * sqrt(variance) + EPS);
 
     moments = texture(colortex11, texCoords);
@@ -90,7 +90,7 @@ void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec4 momen
 
             float normalWeight = getATrousNormalWeight(mat.normal, sampleMat.normal);
             float depthWeight  = getATrousDepthWeight(mat.depth0, sampleMat.depth0, dgrad, offset);
-            float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleColor), luminancePhi), frames);
+            float lumaWeight   = getATrousLuminanceWeight(centerLuma, luminance(sampleColor), luminancePhi);
 
             float weight  = clamp01(normalWeight * depthWeight * lumaWeight);
                   weight *= aTrous[abs(x)] * aTrous[abs(y)];

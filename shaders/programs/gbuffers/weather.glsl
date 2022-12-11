@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
 	#define PROGRAM_WEATHER
 	#include "/programs/gbuffers/gbuffers.vsh"
 

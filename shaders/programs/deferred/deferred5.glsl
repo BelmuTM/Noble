@@ -6,23 +6,32 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#if GI == 1 && GI_FILTER == 1
-    /* RENDERTARGETS: 4,11 */
+#if GI == 1
+    #if defined STAGE_VERTEX
+        #include "/programs/vertex_simple.glsl"
 
-    layout (location = 0) out vec3 color;
-    layout (location = 1) out vec4 moments;
+    #elif defined STAGE_FRAGMENT
+        #if GI_FILTER == 1
+            /* RENDERTARGETS: 5,11 */
 
-    #include "/include/fragment/atrous.glsl"
-#else
-    /* RENDERTARGETS: 4 */
+            layout (location = 0) out vec4 color;
+            layout (location = 1) out vec4 moments;
 
-    layout (location = 0) out vec3 color;
-#endif
+            #include "/include/fragment/atrous.glsl"
+        #else
+            /* RENDERTARGETS: 5 */
 
-void main() {
-    color = texture(colortex5, texCoords).rgb;
+            layout (location = 0) out vec4 color;
+        #endif
 
-    #if GI == 1 && GI_FILTER == 1
-        aTrousFilter(color, colortex5, texCoords, moments, 0);
+        void main() {
+            color = texture(colortex5, texCoords);
+
+            #if GI_FILTER == 1
+                aTrousFilter(color.rgb, colortex5, texCoords, moments, 0);
+            #endif
+        }
     #endif
-}
+#else
+    #include "/programs/discard.glsl"
+#endif

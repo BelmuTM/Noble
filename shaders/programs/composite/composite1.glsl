@@ -34,6 +34,24 @@
 void main() {
     color = texture(colortex4, texCoords).rgb;
 
+    //////////////////////////////////////////////////////////
+    /*---------------- GLOBAL ILLUMINATION -----------------*/
+    //////////////////////////////////////////////////////////
+
+    #if GI == 1
+        vec2 scaledUv = texCoords * GI_SCALE;
+        color = texture(colortex5, scaledUv).rgb;
+
+        #if GI_FILTER == 1
+            aTrousFilter(color, colortex5, scaledUv, moments, 4);
+        #endif
+
+        vec3 direct   = texture(colortex9,  scaledUv).rgb;
+        vec3 indirect = texture(colortex10, scaledUv).rgb;
+            
+        color = direct + (indirect * color);
+    #endif
+
     Material mat = getMaterial(texCoords);
     vec3 coords  = vec3(texCoords, 0.0);
 
@@ -57,29 +75,12 @@ void main() {
     if(!sky) {
         skyLight = getSkyLightFalloff(mat.lightmap.y);
 
-        //////////////////////////////////////////////////////////
-        /*---------------- GLOBAL ILLUMINATION -----------------*/
-        //////////////////////////////////////////////////////////
-
-        #if GI == 1
-            #if GI_FILTER == 1
-                aTrousFilter(color, colortex4, texCoords * GI_SCALE, moments, 4);
-            #else
-                color = texture(colortex4, texCoords * GI_SCALE).rgb;
-            #endif
-
-            vec3 direct   = texture(colortex9,  texCoords * GI_SCALE).rgb;
-            vec3 indirect = texture(colortex10, texCoords * GI_SCALE).rgb;
-            
-            color = direct + (indirect * color);
-        #endif
-
         if(viewPos0.z != viewPos1.z) {
             //////////////////////////////////////////////////////////
             /*-------------------- REFRACTIONS ---------------------*/
             //////////////////////////////////////////////////////////
 
-            #if REFRACTIONS == 1
+            #if GI == 0 && REFRACTIONS == 1
                 color     = refractions(viewPos0, scenePos1, mat, coords);
                 scenePos1 = viewToScene(getViewPos1(coords.xy));
             #endif

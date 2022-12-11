@@ -8,7 +8,7 @@
 
 #include "/include/atmospherics/atmosphere.glsl"
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
 
     out mat3[2] skyIlluminanceMat;
     out vec3 directIlluminance;

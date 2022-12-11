@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
     void main() {
         gl_Position = vec4(1.0);
     }

@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
 	#include "/programs/gbuffers/gbuffers.vsh"
 
 #elif defined STAGE_FRAGMENT
@@ -22,7 +22,6 @@
 	in vec2 texSize;
 	in vec2 botLeft;
 	in vec3 viewPos;
-	in vec3 geoNormal;
 	in vec4 vertexColor;
 	in mat3 TBN;
 
@@ -119,7 +118,6 @@
 				if(currLayerHeight >= currFragHeight) {
 					shadow = 0.0; break;
 				}
-
             	currCoords      += deltaCoords;
             	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
             	currLayerHeight -= layerHeight;
@@ -133,7 +131,7 @@
 			discard;
 		#endif
 
-		data1.w = 1.0;
+		float pomSelfShadowing = 1.0;
 
 		#if POM > 0 && defined PROGRAM_TERRAIN
 			mat2 texDeriv = mat2(dFdx(texCoords), dFdy(texCoords));
@@ -142,17 +140,22 @@
 
 			vec2 coords = parallaxMapping(viewPos, texDeriv, height, shadowCoords);
 
-			data1.w = parallaxShadowing(shadowCoords, height, texDeriv);
+			pomSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
 			if(clamp01(coords) != coords) discard;
 		#else
 			vec2 coords = texCoords;
 		#endif
 
-		vec4 albedoTex   = texture(tex, 	 coords);
-		vec4 normalTex   = texture(normals,  coords);
-		vec4 specularTex = texture(specular, coords);
-
+		vec4 albedoTex = texture(colortex0, coords);
 		if(albedoTex.a < 0.102) discard;
+
+		vec4 normalTex = texture(normals,  coords);
+
+		#if !defined PROGRAM_TEXTURED
+			vec4 specularTex = texture(specular, coords);
+		#else
+			vec4 specularTex = vec4(0.0);
+		#endif
 
 		albedoTex *= vertexColor;
 
@@ -182,7 +185,7 @@
 			if(blockId >= 5 && blockId < 8 && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
 		#endif
 
-		vec3 normal = geoNormal;
+		vec3 normal = TBN[2];
 		#ifndef PROGRAM_BLOCK
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				normal.xy = normalTex.xy * 2.0 - 1.0;
@@ -203,9 +206,9 @@
 			  	  		  puddle *= quintic(0.89, 0.99, normal.y);
 						  puddle  = clamp01(puddle);
 	
-					F0       += mix(F0, waterF0,       puddle);
-					roughness = mix(roughness, 0.0,    puddle);
-					normal    = mix(normal, geoNormal, puddle);
+					F0       += mix(F0, waterF0,     puddle);
+					roughness = mix(roughness, 0.0, puddle);
+					normal    = mix(normal, TBN[2], puddle);
 				}
 			#endif
 		#endif
@@ -237,6 +240,7 @@
 		data0.z = shiftedAlbedo.x | shiftedAlbedo.y | shiftedAlbedo.z;
 		data0.w = shiftedNormal.x | shiftedNormal.y;
 
-		data1.xyz = geoNormal;
+		data1.xyz = TBN[2];
+		data1.w   = pomSelfShadowing;
 	}
 #endif

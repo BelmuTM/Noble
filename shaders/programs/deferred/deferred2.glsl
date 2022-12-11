@@ -6,7 +6,7 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
 
     #include "/include/atmospherics/atmosphere.glsl"
 

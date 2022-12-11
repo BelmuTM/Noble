@@ -8,7 +8,7 @@
 
 #include "/include/common.glsl"
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
     #define attribute in
     attribute vec4 at_tangent;
     attribute vec3 mc_Entity;

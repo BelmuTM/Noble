@@ -182,14 +182,12 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
 }
 
 vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
-    vec3 H      = normalize(V + L);
     float NdotV = dot(N, V);
     float NdotL = dot(N, L);
     float VdotL = dot(V, L);
-    float VdotH = dot(V, H);
 
     float NdotH = NdotHSquared(shadowLightAngularRad, NdotL, NdotV, VdotL, NdotV, VdotL);
-          VdotH = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
+    float VdotH = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
 
     NdotV    = maxEps(NdotV);
     float D  = distributionGGX(NdotH, mat.rough);

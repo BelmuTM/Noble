@@ -6,12 +6,12 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#ifdef STAGE_VERTEX
+#if defined STAGE_VERTEX
 	#define PROGRAM_BASIC
 	#include "/programs/gbuffers/gbuffers.vsh"
 
 #elif defined STAGE_FRAGMENT
-	/* RENDERTARGETS: 4 */
+	/* RENDERTARGETS: 13 */
 
 	layout (location = 0) out vec4 color;
 
