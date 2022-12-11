@@ -23,7 +23,7 @@
 	#include "/include/atmospherics/atmosphere.glsl"
 
 	void main() {
-		vec4 albedoTex  = texture(tex, texCoords);
+		vec4 albedoTex  = texture(colortex0, texCoords);
 		     albedoTex *= vertexColor;
 
 		if(albedoTex.a < 0.102) discard;
