@@ -17,18 +17,13 @@
 	layout (location = 0) out vec4 color;
 
 	in vec2 texCoords;
-	in vec3 viewPos;
-	in vec4 vertexColor;
 
 	#include "/include/atmospherics/atmosphere.glsl"
 
 	void main() {
-		vec4 albedoTex  = texture(colortex0, texCoords);
-		     albedoTex *= vertexColor;
+		if(texture(colortex0, texCoords).a < 0.102) discard;
 
-		if(albedoTex.a < 0.102) discard;
-
-		color.rgb = albedoTex.rgb * sampleSkyIlluminanceSimple() * 0.2;
-		color.a   = 0.5;
+		color.rgb = vec3(dot(sampleSkyIlluminanceSimple() * 0.35, vec3(1.0 / 3.0)));
+		color.a   = 0.3;
 	}
 #endif
