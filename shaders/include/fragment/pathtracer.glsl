@@ -114,7 +114,7 @@
                 if(!hit) {
                     #if SKY_CONTRIBUTION == 1
                         vec2 coords = projectSphere(normalize(viewToScene(rayDir)));
-		                vec3 sky    = texture(colortex12, coords + randF() * pixelSize).rgb;
+		                vec3 sky    = texture(colortex12, clamp01(coords + randF() * pixelSize)).rgb;
 
                         radiance += throughput * sky * mat.lightmap.y;
                     #endif

@@ -45,7 +45,7 @@ vec3 computeSky(vec3 viewPos) {
 		vec3 sceneDir    = normalize(viewToScene(viewPos));
     	vec2 coords      = projectSphere(sceneDir);
 
-		vec3 sky = textureCatmullRom(colortex12, coords + randF() * pixelSize).rgb;
+		vec3 sky = textureCatmullRom(colortex12, clamp01(coords + randF() * pixelSize)).rgb;
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
