@@ -22,7 +22,7 @@ float getFogDensity(vec3 position) {
           shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
           shapeNoise *= exp(-max0(position.y - FOG_ALTITUDE) * 0.2);
         
-    return clamp01(shapeNoise) * mix(FOG_DENSITY, 1.0, max(rainStrength, wetness));
+    return clamp01(shapeNoise) * mix(FOG_DENSITY, 1.0, wetness);
 }
 
 #if AIR_FOG == 0

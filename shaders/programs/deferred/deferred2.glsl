@@ -35,11 +35,10 @@
     in vec3 directIlluminance;
 
     void main() {
-        vec3 viewPos = getViewPos1(texCoords);
-
         #ifdef WORLD_OVERWORLD
             #if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
-                
+
+                vec3 viewPos = getViewPos1(texCoords);
                 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
                 vec3 cloudsRay   = mat3(gbufferModelViewInverse) * normalize(viewPos);
@@ -92,13 +91,14 @@
                     vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
                     vec4 prevClouds = textureCatmullRom(colortex0, prevPos);
 
+                    vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
+                    float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
+
                     vec2  velocity       = (texCoords - prevPos) * viewSize;
                     float velocityWeight = clamp01(exp(-length(velocity)) * 0.8 + 0.2);
 
-                    float weight = velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
-                          weight = clamp01(0.98 * weight);
-
-                    clouds = mix(clouds, prevClouds, weight);
+                    float weight = centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos || any(greaterThan(prevClouds.rgb, vec3(0.0))));
+                          clouds = mix(clouds, prevClouds, clamp01(weight));
                 }
             #endif
         #endif

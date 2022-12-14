@@ -112,11 +112,17 @@
     const float K =  12.5; // Light meter calibration
     const float S = 100.0; // Sensor sensitivity
 
-    float minExposure = PI  / luminance(sunIlluminance);
-    float maxExposure = 0.3 / luminance(moonIlluminance);
+    #if TONEMAP == 0
+        const float exposureBias = 1.6;
+    #else
+        const float exposureBias = 1.0;
+    #endif
+
+    float minExposure = PI  * exposureBias / luminance(sunIlluminance);
+    float maxExposure = 0.3 * exposureBias / luminance(moonIlluminance);
 
     float EV100fromLuminance(float luminance) {
-        return log2(luminance * S / K);
+        return log2(luminance * S * exposureBias / K);
     }
 
     float EV100ToExposure(float EV100) {

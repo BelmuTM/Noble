@@ -70,7 +70,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = clamp01(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - mix(0.6, 0.8, wetness) * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = clamp01(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - mix(0.7, 0.85, wetness) * weatherMap, 1.0, 0.0, 1.0));
 
     return clamp01(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }
