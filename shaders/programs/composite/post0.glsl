@@ -17,8 +17,8 @@ layout (location = 1) out vec3 bloomBuffer;
 
 #if DOF == 1
     // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
-    float getCoC(float fragDepth, float cursorDepth) {
-        return fragDepth < MC_HAND_DEPTH ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (cursorDepth - fragDepth)) / (fragDepth * (cursorDepth - FOCAL)))) * 0.5;
+    float getCoC(float fragDepth, float targetDepth) {
+        return fragDepth < MC_HAND_DEPTH ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
     }
 
     void depthOfField(inout vec3 color, sampler2D tex, vec2 coords, int quality, float radius, float coc) {
@@ -51,10 +51,15 @@ void main() {
     color = texture(colortex4, texCoords);
     
     #if DOF == 1
-        float depth0 = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
-        float coc    = getCoC(linearizeDepthFast(depth0), linearizeDepthFast(centerDepthSmooth));
+        float depth0 = linearizeDepthFast(texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r);
 
-        depthOfField(color.rgb, colortex4, texCoords, 8, DOF_RADIUS, coc);
+        #if DOF_DEPTH == 0
+            float targetDepth = linearizeDepthFast(centerDepthSmooth);
+        #else
+            float targetDepth = float(DOF_DEPTH);
+        #endif
+
+        depthOfField(color.rgb, colortex4, texCoords, 8, DOF_RADIUS, getCoC(depth0, targetDepth));
     #endif
 
     #if BLOOM == 1

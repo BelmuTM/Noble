@@ -32,7 +32,7 @@ screen.WATER_ABSORPTION  = Absorption
 screen.WATER_SCATTERING  = Scattering
 screen.CAMERA            = Camera
 screen.CAMERA_SETTINGS   = Camera Settings
-screen.COLOR_CORRECTION  = Color Correction
+screen.COLOR_GRADING     = Color Grading
 
 ##################### LIGHTING #####################
 
@@ -505,6 +505,10 @@ value.DOF.1 = §aON
 
 option.DOF_RADIUS = DOF Radius
 option.DOF_RADIUS.comment = Adjusts §bDepth of Field§r's intensity.
+
+option.DOF_DEPTH = DOF Focus Depth
+option.DOF_DEPTH.comment = Adjusts §bDepth of Field§r's depth at which it focuses.
+value.DOF_DEPTH.0 = §eAuto-Focus
 
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
