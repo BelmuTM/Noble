@@ -303,6 +303,6 @@ void contrast(inout vec3 color, float contrast) {
 
 // http://filmicworlds.com/blog/minimal-color-grading-tools/
 void liftGammaGain(inout vec3 color, float lift, float gamma, float gain) {
-    vec3 lerpV = clamp01(pow(color, vec3(gamma)));
+    vec3 lerpV = pow(color, vec3(gamma));
     color = gain * lerpV + lift * (1.0 - lerpV);
 }

@@ -77,7 +77,7 @@ void main() {
 
     color *= tmp.a;
     
-    // Tonemapping & Color Correction
+    // Tonemapping & Color Grading
     whiteBalance(color);
     vibrance(color,   1.0 + VIBRANCE);
     saturation(color, 1.0 + SATURATION);
