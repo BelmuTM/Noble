@@ -56,8 +56,8 @@ const float cloudsShadowmapDist = 600.0;
 
 /* FOG CONSTANTS */
 
-const float fogExtinctionCoeff = 0.06;
-const float fogScatteringCoeff = 0.3;
+const float fogExtinctionCoefficient = 0.06;
+const float fogScatteringCoefficient = 0.3;
 
 const float fogForwardsLobe = 0.45;
 const float fogBackardsLobe = 0.45;

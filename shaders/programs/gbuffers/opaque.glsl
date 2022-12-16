@@ -11,7 +11,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 1,2 */
+	/* RENDERTARGETS: 1,3 */
 
 	layout (location = 0) out uvec4 data0;
 	layout (location = 1) out vec4  data1;

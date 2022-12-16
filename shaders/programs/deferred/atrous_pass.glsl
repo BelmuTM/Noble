@@ -28,7 +28,7 @@
             color = texture(colortex5, texCoords);
 
             #if GI_FILTER == 1
-                aTrousFilter(color.rgb, colortex5, texCoords, moments, 0);
+                aTrousFilter(color.rgb, colortex5, texCoords, moments, ATROUS_PASS_INDEX);
             #endif
         }
     #endif

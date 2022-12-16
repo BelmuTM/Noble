@@ -205,6 +205,25 @@ value.REFLECTIONS_TYPE.1 = §eRough Reflections
 option.REFLECTIONS_SCALE = Reflections Render Scale
 option.REFLECTIONS_SCALE.comment = Adjusts §bReflections§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
 suffix.REFLECTIONS_SCALE = x
+value.REFLECTIONS_SCALE.10 = 0.10
+value.REFLECTIONS_SCALE.15 = 0.15
+value.REFLECTIONS_SCALE.20 = 0.20
+value.REFLECTIONS_SCALE.25 = 0.25
+value.REFLECTIONS_SCALE.30 = 0.30
+value.REFLECTIONS_SCALE.35 = 0.35
+value.REFLECTIONS_SCALE.40 = 0.40
+value.REFLECTIONS_SCALE.45 = 0.45
+value.REFLECTIONS_SCALE.50 = 0.50
+value.REFLECTIONS_SCALE.55 = 0.55
+value.REFLECTIONS_SCALE.60 = 0.60
+value.REFLECTIONS_SCALE.65 = 0.65
+value.REFLECTIONS_SCALE.70 = 0.70
+value.REFLECTIONS_SCALE.75 = 0.75
+value.REFLECTIONS_SCALE.80 = 0.80
+value.REFLECTIONS_SCALE.85 = 0.85
+value.REFLECTIONS_SCALE.90 = 0.90
+value.REFLECTIONS_SCALE.95 = 0.95
+value.REFLECTIONS_SCALE.100 = 1.00
 
 option.GI = Global Illumination (GI)
 option.GI.comment = Simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it. §cCan only sample what's being displayed §con your screen.
@@ -507,7 +526,7 @@ option.DOF_RADIUS = DOF Radius
 option.DOF_RADIUS.comment = Adjusts §bDepth of Field§r's intensity.
 
 option.DOF_DEPTH = DOF Focus Depth
-option.DOF_DEPTH.comment = Adjusts §bDepth of Field§r's depth at which it focuses.
+option.DOF_DEPTH.comment = Adjusts §bDepth of Field§r's depth at which it focuses. It is measured in blocks.
 value.DOF_DEPTH.0 = §eAuto-Focus
 
 option.BLOOM = Bloom

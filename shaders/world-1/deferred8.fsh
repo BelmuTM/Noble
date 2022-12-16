@@ -13,7 +13,7 @@ in vec2 texCoords;
 #define STAGE_FRAGMENT
 #define WORLD_NETHER
 
-#define ATROUS_PASS_INDEX 2
+#define ATROUS_PASS_INDEX 3
 
 #include "/include/common.glsl"
 #include "/programs/deferred/atrous_pass.glsl"

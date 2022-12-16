@@ -93,8 +93,7 @@
                     throughput /= roulette;
                 }
                 
-                mat            = getMaterial(hitPos.xy);
-                mat.lightmap.y = getSkyLightFalloff(mat.lightmap.y);
+                mat = getMaterial(hitPos.xy);
 
                 vec3 directLighting  = directBRDF(hitPos.xy, -rayDir, shadowVec, mat);
                      directLighting += getBlockLightColor(mat) * mat.emission;
@@ -113,10 +112,10 @@
 
                 if(!hit) {
                     #if SKY_CONTRIBUTION == 1
-                        vec2 coords = projectSphere(normalize(viewToScene(rayDir)));
-		                vec3 sky    = texture(colortex12, clamp01(coords + randF() * pixelSize)).rgb;
+                        // vec2 coords = projectSphere(normalize(viewToScene(rayDir)));
+		                // vec3 sky    = texture(colortex12, clamp01(coords + randF() * pixelSize)).rgb;
 
-                        radiance += throughput * sky * mat.lightmap.y;
+                        radiance += throughput * texture(colortex6, hitPos.xy).rgb * RCP_PI * getSkyLightFalloff(mat.lightmap.y);
                     #endif
                     break;
                 }

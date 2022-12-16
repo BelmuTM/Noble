@@ -10,46 +10,41 @@
 
 float dither = fract(frameTimeCounter + bayer256(gl_FragCoord.xy));
 
-float getFogDensity(vec3 position) {
-    float altitude   = (position.y - FOG_ALTITUDE) * rcp(FOG_THICKNESS);
-    float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
+float getFogPhase(float cosTheta) {
+    float forwardsLobe  = cornetteShanksPhase(cosTheta, fogForwardsLobe);
+    float backwardsLobe = cornetteShanksPhase(cosTheta,-fogBackardsLobe);
+    float forwardsPeak  = cornetteShanksPhase(cosTheta, fogForwardsPeak);
 
-    /*
-        CREDITS (density function):
-        SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
-    */
-    float shapeNoise  = FBM(position * 0.02, 3, 4.0);
-          shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
-          shapeNoise *= exp(-max0(position.y - FOG_ALTITUDE) * 0.2);
-        
-    return clamp01(shapeNoise) * mix(FOG_DENSITY, 1.0, wetness);
+    return mix(mix(forwardsLobe, backwardsLobe, fogBackScatter), forwardsPeak, fogPeakWeight);
 }
 
 #if AIR_FOG == 0
-    void groundFog(inout vec3 color, vec3 scenePos, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
-        float airmass     = getFogDensity(scenePos) * length(scenePos);
-        vec3 opticalDepth = (atmosphereExtinctionCoefficients[0] + atmosphereExtinctionCoefficients[1] + atmosphereExtinctionCoefficients[2]) * airmass;
+    void fog(inout vec3 color, vec3 viewPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
+        float airmass       = length(viewPos) * 0.01 * (FOG_DENSITY * 10.0);
+        float transmittance = exp(-fogExtinctionCoefficient * airmass);
 
-        vec3 transmittance       = exp(-opticalDepth);
-        vec3 transmittedFraction = clamp01((transmittance - 1.0) / -opticalDepth);
-
-        float VdotL = dot(normalize(scenePos), shadowLightVector);
-        vec2  phase = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
-
-	    vec3 scattering  = atmosphereScatteringCoefficients * vec2(airmass * phase)          * (directIlluminance * skyLight);
-	         scattering += atmosphereScatteringCoefficients * vec2(airmass * isotropicPhase) * (skyIlluminance    * skyLight);
-	         scattering *= transmittedFraction;
+        vec3 scattering  = skyIlluminance    * isotropicPhase     * skyLight;
+             scattering += directIlluminance * getFogPhase(VdotL) * skyLight;
+             scattering *= fogScatteringCoefficient * ((1.0 - transmittance) / fogExtinctionCoefficient);
 
         color = color * transmittance + scattering;
     }
 
 #else
-    float getFogPhase(float cosTheta) {
-        float forwardsLobe  = cornetteShanksPhase(cosTheta, fogForwardsLobe);
-        float backwardsLobe = cornetteShanksPhase(cosTheta,-fogBackardsLobe);
-        float forwardsPeak  = cornetteShanksPhase(cosTheta, fogForwardsPeak);
 
-        return mix(mix(forwardsLobe, backwardsLobe, fogBackScatter), forwardsPeak, fogPeakWeight);
+    float getFogDensity(vec3 position) {
+        float altitude   = (position.y - FOG_ALTITUDE) * rcp(FOG_THICKNESS);
+        float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
+
+        /*
+            CREDITS (density function):
+            SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
+        */
+        float shapeNoise  = FBM(position * 0.02, 3, 4.0);
+              shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
+              shapeNoise *= exp(-max0(position.y - FOG_ALTITUDE) * 0.2);
+        
+        return clamp01(shapeNoise) * mix(FOG_DENSITY, 1.0, wetness);
     }
 
     /*
@@ -62,7 +57,7 @@ float getFogDensity(vec3 position) {
         for(int i = 0; i < VL_TRANSMITTANCE_STEPS; i++, rayPos += increment) {
             accumAirmass += getFogDensity(rayPos) * stepLength;
         }
-        return exp(-fogExtinctionCoeff * accumAirmass);
+        return exp(-fogExtinctionCoefficient * accumAirmass);
     }
     */
 
@@ -85,13 +80,13 @@ float getFogDensity(vec3 position) {
         for(int i = 0; i < VL_SCATTERING_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
             float density      = getFogDensity(rayPos);
             float airmass      = density * rayLength;
-            float opticalDepth = fogExtinctionCoeff * airmass;
+            float opticalDepth = fogExtinctionCoefficient * airmass;
 
             float stepTransmittance = exp(-opticalDepth);
             float visibleScattering = transmittance * clamp01((stepTransmittance - 1.0) / -opticalDepth);
 
-            float stepScatteringDirect   = fogScatteringCoeff * airmass * phase          * visibleScattering;
-            float stepScatteringIndirect = fogScatteringCoeff * airmass * isotropicPhase * visibleScattering;
+            float stepScatteringDirect   = fogScatteringCoefficient * airmass * phase          * visibleScattering;
+            float stepScatteringIndirect = fogScatteringCoefficient * airmass * isotropicPhase * visibleScattering;
 
             vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5);
 
@@ -122,9 +117,9 @@ const int phaseMultiSamples = 8;
     void waterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
         vec3 transmittance = exp(-waterAbsorptionCoeff * distance(startPos, endPos));
 
-        vec3 scattering  = skyIlluminance * isotropicPhase * skyLight;
+        vec3 scattering  = skyIlluminance    * isotropicPhase                * skyLight;
              scattering += directIlluminance * kleinNishinaPhase(VdotL, 0.5) * skyLight;
-             scattering *= waterScatteringCoeff - waterScatteringCoeff * transmittance;
+             scattering *= waterScatteringCoeff * ((1.0 - transmittance) / waterExtinctionCoeff);
 
         color = color * transmittance + scattering;
     }

@@ -112,8 +112,8 @@ void main() {
             vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
 
             #ifdef WORLD_OVERWORLD
-                shadowmap         = texture(colortex3,  texCoords);
-                skyIlluminance    = texture(colortex6,  texCoords).rgb;
+                shadowmap         = texture(colortex3, texCoords);
+                skyIlluminance    = texture(colortex6, texCoords).rgb;
                 directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
             #endif
 

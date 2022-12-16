@@ -9,7 +9,7 @@
 /***********************************************/
 
 #define STAGE_VERTEX
-#define WORLD_OVERWORLD
+#define WORLD_NETHER
 
 #include "/include/common.glsl"
-#include "/programs/deferred/deferred6.glsl"
+#include "/programs/deferred/atrous_pass.glsl"

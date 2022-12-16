@@ -11,7 +11,9 @@
 in vec2 texCoords;
 
 #define STAGE_FRAGMENT
-#define WORLD_OVERWORLD
+#define WORLD_NETHER
+
+#define ATROUS_PASS_INDEX 0
 
 #include "/include/common.glsl"
-#include "/programs/deferred/deferred5.glsl"
+#include "/programs/deferred/atrous_pass.glsl"

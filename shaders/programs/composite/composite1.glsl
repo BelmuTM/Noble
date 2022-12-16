@@ -6,20 +6,9 @@
 /*     to the license and its terms of use.    */
 /***********************************************/
 
-#if GI == 1 && GI_FILTER == 1
-    /* RENDERTARGETS: 4,2,11 */
+/* RENDERTARGETS: 4 */
 
-    layout (location = 0) out vec3 color;
-    layout (location = 1) out vec3 fog;
-    layout (location = 2) out vec4 moments;
-
-    #include "/include/fragment/atrous.glsl"
-#else
-    /* RENDERTARGETS: 4,2 */
-
-    layout (location = 0) out vec3 color;
-    layout (location = 1) out vec3 fog;
-#endif
+layout (location = 0) out vec3 color;
 
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
@@ -32,7 +21,7 @@
 #include "/include/fragment/water.glsl"
 
 void main() {
-    color = texture(colortex4, texCoords).rgb;
+    color = texture(colortex13, texCoords).rgb;
 
     //////////////////////////////////////////////////////////
     /*---------------- GLOBAL ILLUMINATION -----------------*/
@@ -42,14 +31,11 @@ void main() {
         vec2 scaledUv = texCoords * GI_SCALE;
         color = texture(colortex5, scaledUv).rgb;
 
-        #if GI_FILTER == 1
-            aTrousFilter(color, colortex5, scaledUv, moments, 4);
-        #endif
-
         vec3 direct   = texture(colortex9,  scaledUv).rgb;
         vec3 indirect = texture(colortex10, scaledUv).rgb;
-            
+        
         color = direct + (indirect * color);
+        // color = vec3(texture(colortex11, scaledUv).b);
     #endif
 
     Material mat = getMaterial(texCoords);
@@ -101,7 +87,7 @@ void main() {
                     #if AIR_FOG == 1
                         volumetricFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #else
-                        groundFog(color, scenePos0, directIlluminance, skyIlluminance, skyLight, sky);
+                        fog(color, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
                     #endif
                 }
             #endif
@@ -122,7 +108,7 @@ void main() {
             #endif
 
             #if REFLECTIONS == 1
-                color += texture(colortex2, texCoords * REFLECTIONS_SCALE).rgb;
+                color += texture(colortex2, texCoords).rgb;
             #endif
         #endif
     } else {
@@ -144,7 +130,7 @@ void main() {
             #if AIR_FOG == 1
                 volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight);
             #else
-                groundFog(color, gbufferModelViewInverse[3].xyz, directIlluminance, skyIlluminance, skyLight, sky);
+                fog(color, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
             #endif
         }
     #endif

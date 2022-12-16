@@ -122,7 +122,7 @@
 				mat.normal    = TBN * mat.normal;
 			}
 
-			#if GI == 0
+			#if GI == 0 && REFRACTIONS == 0
 				if(mat.F0 * maxVal8 <= 229.5) {
 					vec3 scenePos = viewToScene(viewPos);
 

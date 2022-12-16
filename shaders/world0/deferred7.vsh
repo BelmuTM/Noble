@@ -12,4 +12,4 @@
 #define WORLD_OVERWORLD
 
 #include "/include/common.glsl"
-#include "/programs/deferred/deferred7.glsl"
+#include "/programs/deferred/atrous_pass.glsl"
