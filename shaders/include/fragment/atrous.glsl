@@ -30,53 +30,47 @@ float getATrousNormalWeight(vec3 normal, vec3 sampleNormal) {
 }
 
 float getATrousDepthWeight(float depth, float sampleDepth, vec2 dgrad, vec2 offset) {
-    return exp(-abs(depth - sampleDepth) / (abs(DEPTH_WEIGHT_SIGMA * dot(dgrad, offset)) + EPS));
+    return exp(-abs(depth - sampleDepth) / (abs(DEPTH_WEIGHT_SIGMA * dot(dgrad, offset)) + 5e-3));
 }
 
 float getATrousLuminanceWeight(float luminance, float sampleLuminance, float luminancePhi) {
     return exp(-abs(luminance - sampleLuminance) * luminancePhi);
 }
 
-void aTrousFilter(inout vec3 color, sampler2D tex, vec2 coords, inout vec4 moments, int passIndex) {
+void aTrousFilter(inout vec3 irradiance, sampler2D tex, vec2 coords, int passIndex) {
     Material mat = getMaterial(coords);
     if(mat.depth0 == 1.0) return;
 
-    float totalWeight = 1.0, totalWeightSquared = 1.0;
+    float totalWeight = 1.0;
     vec2 stepSize     = steps[passIndex] * pixelSize;
 
     float frames = float(texture(colortex5, coords).a > 4.0);
     vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
 
-    float centerLuma   = luminance(color);
-    float variance     = texture(colortex11, coords).b;
-    float luminancePhi = 1.0 / (LUMA_WEIGHT_SIGMA * sqrt(variance) + EPS);
-
-    moments = texture(colortex11, texCoords);
+    float variance     = texture(colortex11, texCoords).b;
+    float centerLuma   = luminance(irradiance);
+    float luminancePhi = 1.0 / (LUMA_WEIGHT_SIGMA * variance + EPS);
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
             if(all(equal(ivec2(x,y), ivec2(0)))) continue;
 
-            vec2 offset        = vec2(x, y) * stepSize;
-            vec2 sampleCoords  = coords + offset;
+            vec2 offset       = vec2(x, y) * stepSize;
+            vec2 sampleCoords = coords + offset;
 
             if(clamp01(sampleCoords) != sampleCoords) continue;
 
-            Material sampleMat = getMaterial(sampleCoords);
-            vec3 sampleColor   = texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb;
+            Material sampleMat    = getMaterial(sampleCoords);
+            vec3 sampleIrradiance = texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb;
 
             float normalWeight = getATrousNormalWeight(mat.normal, sampleMat.normal);
             float depthWeight  = getATrousDepthWeight(mat.depth0, sampleMat.depth0, dgrad, offset);
-            float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleColor), luminancePhi), frames);
+            float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleIrradiance), luminancePhi), frames);
 
-            float weight  = clamp01(normalWeight * depthWeight * lumaWeight);
-                  weight *= aTrous[abs(x)] * aTrous[abs(y)];
-           
-            color              += sampleColor * weight;
-            totalWeight        += weight;
-            totalWeightSquared += weight * weight;
+            float weight = clamp01(normalWeight * depthWeight * lumaWeight) * aTrous[abs(x)] * aTrous[abs(y)];
+            irradiance  += sampleIrradiance * weight;
+            totalWeight += weight;
         }
     }
-    color      = color / totalWeight;
-    moments.b *= totalWeightSquared;
+    irradiance /= totalWeight;
 }

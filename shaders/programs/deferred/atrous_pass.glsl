@@ -11,24 +11,20 @@
         #include "/programs/vertex_simple.glsl"
 
     #elif defined STAGE_FRAGMENT
+
+        /* RENDERTARGETS: 5 */
+
+        layout (location = 0) out vec4 color;
+
         #if GI_FILTER == 1
-            /* RENDERTARGETS: 5,11 */
-
-            layout (location = 0) out vec4 color;
-            layout (location = 1) out vec4 moments;
-
             #include "/include/fragment/atrous.glsl"
-        #else
-            /* RENDERTARGETS: 5 */
-
-            layout (location = 0) out vec4 color;
         #endif
 
         void main() {
             color = texture(colortex5, texCoords);
 
             #if GI_FILTER == 1
-                aTrousFilter(color.rgb, colortex5, texCoords, moments, ATROUS_PASS_INDEX);
+                aTrousFilter(color.rgb, colortex5, texCoords, ATROUS_PASS_INDEX);
             #endif
         }
     #endif

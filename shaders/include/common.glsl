@@ -13,7 +13,7 @@
 const float airIOR  = 1.00029;
 const float waterF0 = 0.02;
 
-// Maximum values for X amount of bits (2^x - 1)
+// Maximum values for x amount of bits and their inverses (2^x - 1)
 const float maxVal8     = 255.0;
 const float maxVal16    = 65535.0;
 const float rcpMaxVal8  = 0.00392156;
@@ -44,20 +44,13 @@ vec3 sunPosNorm = vec3(-sin(ang), cos(ang) * sunRotationData);
 bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0;                          }
 bool isHand(vec2 coords) { return linearizeDepth(texture(depthtex0, coords).r) < MC_HAND_DEPTH; }
 
-float getNormalWeight(vec3 normal0, vec3 normal1, float sigma) {
-    return pow(max0(dot(normal0, normal1)), sigma);
-}
-
-float getDepthWeight(float depth0, float depth1, float sigma) {
-    return exp(-abs(linearizeDepth(depth0) - linearizeDepth(depth1)) * sigma);
-}
-
 //////////////////////////////////////////////////////////
 /*----------------- TEXTURE SAMPLING -------------------*/
 //////////////////////////////////////////////////////////
 
 /*
-    Bicubic sampling provided by swr#1793
+    Bicubic texture filtering
+    SOURCE: provided by swr#1793
 */
 vec4 cubic(float v) {
     vec4 n  = vec4(1.0, 2.0, 3.0, 4.0) - v;
@@ -110,30 +103,19 @@ vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
     vec2 texSize    = textureSize(tex, 0);
     vec2 rcpTexSize = 1.0 / texSize;
 
-    // We're going to sample a a 4x4 grid of texels surrounding the target UV coordinate. We'll do this by rounding
-    // down the sample location to get the exact center of our "starting" texel. The starting texel will be at
-    // location [1, 1] in the grid, where [0, 0] is the top left corner.
     vec2 samplePos = coords * texSize;
     vec2 texPos1   = floor(samplePos - 0.5) + 0.5;
 
-    // Compute the fractional offset from our starting texel to our original sample location, which we'll
-    // feed into the Catmull-Rom spline function to get our filter weights.
     vec2 f = samplePos - texPos1;
 
-    // Compute the Catmull-Rom weights using the fractional offset that we calculated earlier.
-    // These equations are pre-expanded based on our knowledge of where the texels will be located,
-    // which lets us avoid having to evaluate a piece-wise function.
     vec2 w0 = f * (-0.5 + f * (1.0 - 0.5 * f));
     vec2 w1 = 1.0 + f * f * (-2.5 + 1.5 * f);
     vec2 w2 = f * (0.5 + f * (2.0 - 1.5 * f));
     vec2 w3 = f * f * (-0.5 + 0.5 * f);
 
-    // Work out weighting factors and sampling offsets that will let us use bilinear filtering to
-    // simultaneously evaluate the middle 2 samples from the 4x4 grid.
     vec2 w12      = w1 + w2;
     vec2 offset12 = w2 / (w1 + w2);
 
-    // Compute the final UV coordinates we'll use for sampling the texture
     vec2 texPos0  = texPos1 - 1.0;
     vec2 texPos3  = texPos1 + 2.0;
     vec2 texPos12 = texPos1 + offset12;
@@ -154,7 +136,6 @@ vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
     result += texture(tex, vec2(texPos0.x, texPos3.y),  0.0) * w0.x  * w3.y;
     result += texture(tex, vec2(texPos12.x, texPos3.y), 0.0) * w12.x * w3.y;
     result += texture(tex, vec2(texPos3.x, texPos3.y),  0.0) * w3.x  * w3.y;
-
     return result;
 }
 

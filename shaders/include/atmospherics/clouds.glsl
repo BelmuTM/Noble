@@ -33,10 +33,10 @@ struct CloudLayer {
     int octaves;
 };
 
-const vec3 up   = vec3(0.0, 1.0, 0.0);
-float windSpeed = 10.0;
-vec3 windDir    = vec3(sin(-0.785398), 0.0, cos(-0.785398));
-vec3 wind       = windSpeed * frameTimeCounter * windDir;
+const vec3 up         = vec3(0.0, 1.0, 0.0);
+const float windSpeed = 10.0;
+vec3 windDir          = vec3(sin(-0.785398), 0.0, cos(-0.785398));
+vec3 wind             = windSpeed * frameTimeCounter * windDir;
 
 float heightAlter(float altitude, float weatherMap) {
     float stopHeight = clamp01(weatherMap + 0.12);

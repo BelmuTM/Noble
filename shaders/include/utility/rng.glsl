@@ -98,18 +98,6 @@ float noise(vec3 pos) {
                    mix(hash11(n + dot(step, vec3(0.0, 1.0, 1.0))), hash11(n + dot(step, vec3(1.0, 1.0, 1.0))), u.x), u.y), u.z);
 }
 
-vec2 uniformAnimatedNoise(in vec2 seed) {
-    return fract(seed + vec2(GOLDEN_RATIO * frameTimeCounter, (GOLDEN_RATIO + GOLDEN_RATIO) * mod(frameTimeCounter, 100.0)));
-}
-
-vec2 uniformNoise(int i, in vec3 seed) {
-    return vec2(fract(seed.x + GOLDEN_RATIO * i), fract(seed.y + (GOLDEN_RATIO + GOLDEN_RATIO) * i));
-}
-
-float goldNoise(vec2 uv, float seed) {
-    return fract(tan(distance(uv * GOLDEN_RATIO, uv) * seed) * uv.x);
-}
-
 // https://www.shadertoy.com/view/Xd23Dh
 // From Inigo Quilez: http://iquilezles.org/www/articles/voronoise/voronoise.htm
 float voronoise(in vec2 x, int u, int v) {
@@ -153,16 +141,17 @@ float worley(vec3 pos, float frequency) {
     return minDist;
 }
 
+const float fbmLacunarity  = 2.0;
+const float fbmPersistance = 0.5;
+
 float FBM(vec2 uv, int octaves, float frequency) {
     float height      = 0.0;
     float amplitude   = 1.0;
-    float lacunarity  = 2.0;
-    float persistance = 0.5;
 
     for(int i = 0; i < octaves; i++) {
         height    += noise(uv * frequency) * amplitude;
-        frequency *= lacunarity;
-        amplitude *= persistance;
+        frequency *= fbmLacunarity;
+        amplitude *= fbmPersistance;
     }
     return height;
 }
@@ -170,13 +159,11 @@ float FBM(vec2 uv, int octaves, float frequency) {
 float FBM(vec3 pos, int octaves, float frequency) {
     float height      = 0.0;
     float amplitude   = 1.0;
-    float lacunarity  = 2.0;
-    float persistance = 0.5;
 
     for(int i = 0; i < octaves; i++) {
         height    += noise(pos * frequency) * amplitude;
-        frequency *= lacunarity;
-        amplitude *= persistance;
+        frequency *= fbmLacunarity;
+        amplitude *= fbmPersistance;
     }
     return height;
 }

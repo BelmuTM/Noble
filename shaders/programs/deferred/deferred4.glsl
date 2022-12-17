@@ -40,16 +40,14 @@
             weight *= hideGUI;
         #endif
 
-        color = mix(color, prevColor, weight);
-        float luminance = luminance(color);
-
         // Thanks SixthSurge#3922 for the help with moments
         #if GI_FILTER == 1
             vec2 prevMoments = texture(colortex11, prevPos.xy).rg;
-            vec2 currMoments = vec2(luminance, luminance * luminance);
-                 moments.rg  = mix(currMoments, prevMoments, weight);
-                 moments.b   = moments.g - moments.r * moments.r;
+            moments.rg = max0(mix(moments.rg, prevMoments, weight));
+            moments.b  = max0(moments.g - moments.r * moments.r);
         #endif
+
+        color = mix(color, prevColor, weight);
 
         vec3 prevColorDirect   = texture(colortex9,  prevPos.xy).rgb;
         vec3 prevColorIndirect = texture(colortex10, prevPos.xy).rgb;
@@ -95,7 +93,8 @@ void main() {
         #endif
 
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            float depthWeight = getDepthWeight(mat.depth0, exp2(texture(colortex11, prevPos.xy).a), 1.0);
+            float prevDepth   = exp2(texture(colortex11, prevPos.xy).a);
+            float depthWeight = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
         #else
             float depthWeight = 1.0;
         #endif
@@ -130,6 +129,11 @@ void main() {
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_SCALE)) == texCoords) {
             pathTrace(color.rgb, vec3(tempCoords, mat.depth0), historyCol0, historyCol1);
+
+            #if GI_FILTER == 1
+                float luminance  = luminance(color.rgb);
+                      moments.rg = vec2(luminance, luminance * luminance);
+            #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
                 temporalAccumulation(mat, color.rgb, prevColor.rgb, prevPos, historyCol0, historyCol1, moments.rgb, color.a);

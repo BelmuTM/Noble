@@ -11,16 +11,14 @@
 //////////////////////////////////////////////////////////
 /*------------------------ MATH ------------------------*/
 //////////////////////////////////////////////////////////
+
 #define EPS 1e-4
 
-#define QUARTER_PI 0.78539816
-#define HALF_PI    1.57079632
-#define PI         3.14159265
-#define TAU        6.28318530
-#define RCP_PI     0.31830988
-#define RCP_TAU    0.15915494
+#define HALF_PI 1.57079632
+#define PI      3.14159265
+#define TAU     6.28318530
+#define RCP_PI  0.31830988
 
-#define GOLDEN_RATIO 1.61803398
 #define GOLDEN_ANGLE 2.39996322
 
 //////////////////////////////////////////////////////////
@@ -103,6 +101,8 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT      6 // [4 5 6 7 8 9 10]
 #define BINARY_DECREASE 0.5
+
+#define TEMPORAL_DEPTH_WEIGHT_SIGMA 1.0
 
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/
@@ -270,16 +270,18 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE_GROWTH 2.40
 #define EXPOSURE_DECAY  0.25
 
-#define HISTOGRAM_BINS 128
-#define DEBUG_HISTOGRAM  0
+#if EXPOSURE == 2
+	#define HISTOGRAM_BINS 128
+	#define DEBUG_HISTOGRAM  0
 
-// Logarithmic scale
-const float minLuminance      = -8.0;
-const float maxLuminance      =  9.0;
-const float luminanceRange    = maxLuminance - minLuminance;
-const float rcpLuminanceRange = 1.0 / luminanceRange;
+	// Logarithmic scale
+	const float minLuminance      = -8.0;
+	const float maxLuminance      =  9.0;
+	const float luminanceRange    = maxLuminance - minLuminance;
+	const float rcpLuminanceRange = 1.0 / luminanceRange;
 
-const vec2 debugHistogramSize = vec2(320, 192);
+	const vec2 debugHistogramSize = vec2(320, 192);
+#endif
 
 #define FOCAL          24 // [1 2 5 10 14 20 24 28 35 50 70 80 85 100 135 200 300 400 500 600]
 #define APERTURE     16.0 // [1.0 1.2 1.4 2.0 2.8 4.0 5.6 8.0 11.0 16.0 22.0 32.0]
@@ -287,7 +289,7 @@ const vec2 debugHistogramSize = vec2(320, 192);
 #define SHUTTER_SPEED 125 // [4 5 6 8 10 15 20 30 40 50 60 80 100 125 160 200 250 320 400 500 640 800 1000 1250 1600 2000 2500 3200 4000]
 
 //////////////////////////////////////////////////////////
-/*------------------ COLOR CORRECTION ------------------*/
+/*------------------- COLOR GRADING --------------------*/
 //////////////////////////////////////////////////////////
 
 #define TONEMAP   0 // [-1 0 1 2 3 4 5]
@@ -318,7 +320,7 @@ const vec2 debugHistogramSize = vec2(320, 192);
 #define ODT_CINEMA_BLACK (ODT_CINEMA_WHITE / 2400.0)
 
 #define WHITE_POINT 6500.0
-#define WHITE_BALANCE 6900 // [5000 5100 5200 5300 5400 5500 5600 5700 5800 5900 6000 6100 6200 6300 6400 6500 6600 6700 6800 6900 7000 7100 7200 7300 7400 7500 7600 7700 7800 7900 8000 8100 8200 8300 8400 8500 8600 8700 8800 8900 9000 9100 9200 9300 9400 9500 9600 9700 9800 9900 10000]
+#define WHITE_BALANCE 6500 // [5000 5100 5200 5300 5400 5500 5600 5700 5800 5900 6000 6100 6200 6300 6400 6500 6600 6700 6800 6900 7000 7100 7200 7300 7400 7500 7600 7700 7800 7900 8000 8100 8200 8300 8400 8500 8600 8700 8800 8900 9000 9100 9200 9300 9400 9500 9600 9700 9800 9900 10000]
 
 #define VIBRANCE   0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define SATURATION 0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]

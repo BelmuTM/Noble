@@ -81,7 +81,7 @@ vec3 getShadowColor(vec3 samplePos) {
         }
     #endif
 
-    vec3 PCF(vec3 shadowPos, float penumbraSize, inout float ssDepth) {
+    vec3 PCF(vec3 shadowPos, float penumbraSize) {
 	    vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
@@ -90,12 +90,7 @@ vec3 getShadowColor(vec3 samplePos) {
             #endif
 
             vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
-            #if SHADOW_TYPE != 1
-                ssDepth = max0(shadowPos.z - texelFetch(shadowtex0, ivec2(samplePos.xy * shadowMapResolution), 0).r);
-                ssDepth = (ssDepth * -shadowProjectionInverse[2].z) * rcp(SHADOW_DEPTH_STRETCH);
-            #endif
-
-            shadowResult += getShadowColor(samplePos);
+            shadowResult  += getShadowColor(samplePos);
         }
         return shadowResult * rcp(SHADOW_SAMPLES);
     }
@@ -112,6 +107,7 @@ vec3 shadowMap(vec3 scenePos, vec3 geoNormal, out float ssDepth) {
         shadowPos           *= 1.0002;
 
         float penumbraSize = 1.0;
+        ssDepth = 0.0;
 
         #if SHADOW_TYPE == 0
             penumbraSize = NORMAL_SHADOW_BLUR_RADIUS;
@@ -127,7 +123,7 @@ vec3 shadowMap(vec3 scenePos, vec3 geoNormal, out float ssDepth) {
                 penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
         #endif
 
-        return PCF(shadowPos, penumbraSize, ssDepth);
+        return PCF(shadowPos, penumbraSize);
     #else
         return vec3(1.0);
     #endif

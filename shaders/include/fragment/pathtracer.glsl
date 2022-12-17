@@ -83,7 +83,7 @@
             vec3 rayDir = normalize(viewPos);
             Material mat;
 
-            for(int j = 0; j < GI_BOUNCES; j++) {
+            for(int j = 0; j <= GI_BOUNCES; j++) {
                 vec2 noise = vec2(randF(), randF());
 
                 /* Russian Roulette */

@@ -60,9 +60,7 @@
             
             if(!sky) {
                 vec4 tmp = texture(colortex3, texCoords);
-                shadowmap.a    = 0.0;
-                shadowmap.rgb  = shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a);
-                shadowmap.rgb *= tmp.a;
+                shadowmap.rgb = shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a) * tmp.a;
             }
 
             //////////////////////////////////////////////////////////

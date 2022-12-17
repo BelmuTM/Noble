@@ -130,16 +130,16 @@
        					mat.albedo = srgbToAP1Albedo(mat.albedo);
     				#endif
 
-					vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
-					vec3 skyLight  = vec3(0.0);
+					vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
+					vec3 skyIlluminance = vec3(0.0);
 
 					#ifdef WORLD_OVERWORLD
 						shadowmap.rgb = shadowMap(scenePos, TBN[2], shadowmap.a);
 
-						if(mat.lightmap.y > EPS) skyLight = getSkyLight(mat.normal, skyIlluminanceMat);
+						if(mat.lightmap.y > EPS) skyIlluminance = getSkyLight(mat.normal, skyIlluminanceMat);
 					#endif
 
-					sceneColor.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyLight, 1.0);
+					sceneColor.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyIlluminance, 1.0);
 					sceneColor.a   = albedoTex.a;
 				}
 			#endif
