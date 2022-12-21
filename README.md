@@ -21,7 +21,7 @@ being accessible to public no matter what.
 * A Nvidia graphics card (GTX 950 or newer) **OR**  an AMD graphics card (R7 370 or newer)
 * **If you have an AMD card** → make sure your drivers version is **22.5.1** or lower
 * Windows or Linux (MacOS isn't supported)
-* ⚠️ **MAKE SURE UNZIP THE FILE FIRST**
+* ⚠️ **MAKE SURE TO UNZIP THE FILE FIRST**
 
 ## License
 NobleRT is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
