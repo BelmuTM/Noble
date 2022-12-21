@@ -3,12 +3,11 @@
 [![Twitter](https://img.shields.io/twitter/follow/Belmu_?color=dark&label=Follow&logoColor=dark)](https://twitter.com/Belmu_)
 [![GPLv3 License](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
 
-<img src="https://i.imgur.com/dbuzdrx.png" data-canonical-src="https://i.imgur.com/dbuzdrx.png" width="120" height="120" />
+![NobleRT Banner](https://i.imgur.com/f40wZvT.png)
 
-# NobleRT
+## About Noble
 Noble is a Minecraft shaderpack that enhances one's experience with the help of good-looking graphics and light simulations.
 It offers a handful of customizable options to tweak according to your desires. 
-**VERSIONS ABOVE 1.16 ARE HIGHLY RECOMMENDED.**
 
 ## Releases
 The project is in constant evolution. Therefore, you can expect some issues to be fixed,
@@ -17,21 +16,27 @@ open source forever, as I don't want to monetize my learning of GLSL. Exclusive 
 likely to be exclusive to Patreon supporters or close friends, but they will always end up
 being accessible to public no matter what.
 
+## Requirements
+* **Optifine / Iris for 1.16 or newer** (older versions aren't supported)
+* A Nvidia graphics card (GTX 950 or newer) **OR**  an AMD graphics card (R7 370 or newer)
+* **If you have an AMD card** → make sure your drivers version is **22.5.1** or lower
+* Windows or Linux (MacOS isn't supported)
+* ⚠️ **MAKE SURE TO UNZIP THE FILE FIRST**
+
 ## License
 NobleRT is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
 
-## Contact 
-   * **Discord:** Belmu#4066
-   * **Twitter:** [@Belmu_](https://twitter.com/Belmu_)
+## Social Links
+* [Discord Server](https://discord.gg/jjRrhpkH9e "Discord Server")
+* [Twitter](https://twitter.com/Belmu_ "Twitter")
+* [Patreon Page](https://patreon.com/Belmu "Patreon Page")
 
 > I would like to thank the people from ShaderLabs for helping me understand and learn GLSL.
 > Thanks to the beta testers who helped me fix and deal with multiple issues.
 
-Please consider contacting me if needed.
-**Thanks for your attention!**
-
-![Showcase 01](https://i.imgur.com/rnXWe8W.png)
-![Showcase 02](https://i.imgur.com/hGDojcn.png)
-![Showcase 03](https://i.imgur.com/utZG4sO.jpg)
-![Showcase 04](https://i.imgur.com/A9LJIGB.png)
-![Showcase 05](https://i.imgur.com/YUsAgOd.png)
+## Images
+![Showcase 01](https://i.imgur.com/DhkbJMt.png)
+![Showcase 02](https://i.imgur.com/rnXWe8W.png)
+![Showcase 03](https://i.imgur.com/EyxxpKi.png)
+![Showcase 04](https://i.imgur.com/hzjM5m4.png)
+![Showcase 05](https://i.imgur.com/A9LJIGB.png)
