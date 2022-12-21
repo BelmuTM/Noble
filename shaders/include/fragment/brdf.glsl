@@ -217,12 +217,11 @@ vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughM
     return mix(isotropicLobe, mix(forwardsLobe, backwardsLobe, 0.3), 0.6);
 }
 
-vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao) {
+vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLight, vec3 skyIlluminance, float ao, float cloudsShadows) {
     V = -normalize(V);
 
     vec3 diffuse  = hammonDiffuse(mat, V, L);
-         diffuse *= shadowmap.rgb;
-         //diffuse *= texture(colortex0, getCloudsShadowCoords(viewToScene(normalize(getViewPos0(texCoords)))) * cloudsShadowmapRes / viewSize).a;
+         diffuse *= shadowmap.rgb * cloudsShadows;
 
     float isSkyOccluded = float(mat.lightmap.y > EPS);
 
@@ -230,7 +229,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     mat.lightmap.y = getSkyLightFalloff(mat.lightmap.y);
 
     #if SUBSURFACE_SCATTERING == 1
-        diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a);
+        diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * cloudsShadows;
     #endif
 
     #ifdef SUNLIGHT_LEAKING_FIX

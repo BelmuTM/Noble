@@ -36,9 +36,9 @@ vec3 atmosphereRayPos = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 
 /* CLOUDS CONSTANTS */
 
-const float cloudsExtinctionCoeff   = 0.08;
-const float cloudsScatteringCoeff   = 1.0;
-const float cloudsTransmitThreshold = 5e-2;
+const float cloudsExtinctionCoefficient = 0.08;
+const float cloudsScatteringCoefficient = 1.0;
+const float cloudsTransmitThreshold     = 5e-2;
 
 const float cloudsForwardsLobe = 0.35;
 const float cloudsBackardsLobe = 0.35;
@@ -50,9 +50,6 @@ const int   cloudsMultiScatterSteps = 8;
 const float cloudsExtinctionFalloff = 0.60;
 const float cloudsScatteringFalloff = 0.55;
 const float cloudsAnisotropyFalloff = 0.80;
-
-const float cloudsShadowmapRes  = 1024.0;
-const float cloudsShadowmapDist = 600.0;
 
 /* FOG CONSTANTS */
 

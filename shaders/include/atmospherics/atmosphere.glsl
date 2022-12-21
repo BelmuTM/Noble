@@ -32,13 +32,13 @@ vec3 getAtmosphereDensities(float centerDist) {
 }
 
 vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
-    float stepLength = intersectSphere(rayOrigin, lightDir, atmosUpperRad).y * rcp(TRANSMITTANCE_STEPS);
-    vec3 increment   = lightDir * stepLength;
-    vec3 rayPos      = rayOrigin + increment * 0.5;
+    float stepSize = intersectSphere(rayOrigin, lightDir, atmosUpperRad).y * rcp(TRANSMITTANCE_STEPS);
+    vec3 increment = lightDir * stepSize;
+    vec3 rayPos    = rayOrigin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
     for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
-        accumAirmass += getAtmosphereDensities(length(rayPos)) * stepLength;
+        accumAirmass += getAtmosphereDensities(length(rayPos)) * stepSize;
     }
     return exp(-atmosphereExtinctionCoefficients * accumAirmass);
 }
@@ -48,9 +48,9 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         vec2 dists = intersectSphericalShell(atmosphereRayPos, rayDir, atmosLowerRad, atmosUpperRad);
         if(dists.y < 0.0) return vec3(0.0);
 
-        float stepLength = (dists.y - dists.x) * rcp(SCATTERING_STEPS);
-        vec3 increment   = rayDir * stepLength;
-        vec3 rayPos      = atmosphereRayPos + increment * 0.5;
+        float stepSize = (dists.y - dists.x) * rcp(SCATTERING_STEPS);
+        vec3 increment = rayDir * stepSize;
+        vec3 rayPos    = atmosphereRayPos + increment * 0.5;
 
         vec2 VdotL = vec2(dot(rayDir, sunVector), dot(rayDir, moonVector));
         vec4 phase = vec4(
@@ -61,7 +61,7 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         mat2x3 singleScattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
-            vec3 airmass          = getAtmosphereDensities(length(rayPos)) * stepLength;
+            vec3 airmass          = getAtmosphereDensities(length(rayPos)) * stepSize;
             vec3 stepOpticalDepth = atmosphereExtinctionCoefficients * airmass;
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);

@@ -27,11 +27,12 @@ const float rcpMaxVal16 = 0.00001525;
 
 #include "/include/utility/rng.glsl"
 #include "/include/utility/math.glsl"
-#include "/include/utility/transforms.glsl"
 #include "/include/utility/color.glsl"
-#include "/include/utility/phase.glsl"
 
 #include "/include/atmospherics/constants.glsl"
+
+#include "/include/utility/transforms.glsl"
+#include "/include/utility/phase.glsl"
 
 #include "/include/material.glsl"
 

@@ -23,17 +23,22 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,6 */
+    /* RENDERTARGETS: 3,4,6 */
 
     layout (location = 0) out vec4 shadowmap;
-    layout (location = 1) out vec3 skyIlluminance;
-
-    #if defined WORLD_OVERWORLD && defined SHADOWS
-        #include "/include/fragment/shadows.glsl"
-    #endif
+    layout (location = 1) out vec4 cloudsShadows;
+    layout (location = 2) out vec3 skyIlluminance;
 
     in mat3[2] skyIlluminanceMat;
     in vec3 directIlluminance;
+
+    #if defined WORLD_OVERWORLD && SHADOWS == 1
+        #include "/include/fragment/shadows.glsl"
+    #endif
+
+    #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+        #include "/include/atmospherics/clouds.glsl"
+    #endif
 
     void main() {
         vec3 viewPos = getViewPos0(texCoords);
@@ -62,6 +67,10 @@
                 vec4 tmp = texture(colortex3, texCoords);
                 shadowmap.rgb = shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a) * tmp.a;
             }
+
+            #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+                cloudsShadows.a = getCloudsShadows(getCloudsShadowPos(gl_FragCoord.xy), shadowLightVector, layer0, 20);
+            #endif
 
             //////////////////////////////////////////////////////////
             /*------------------ SKY ILLUMINANCE -------------------*/

@@ -9,22 +9,20 @@
 void binarySearch(sampler2D depthTexture, inout vec3 rayPos, vec3 rayDir) {
     for(int i = 0; i < BINARY_COUNT; i++) {
         rayPos += sign(texture(depthTexture, rayPos.xy).r - rayPos.z) * rayDir;
-        rayDir *= BINARY_DECREASE;
+        rayDir *= 0.5;
     }
 }
 
-// The favorite raytracer of your favorite raytracer
 bool raytrace(sampler2D depthTexture, vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec3 rayPos) {
-    // Thanks Bálint#1673 for the clipping fix!
-    if(rayDir.z > -viewPos.z) return false;
+    if(rayDir.z > -viewPos.z) return false; // Thanks Bálint#1673 for the clipping fix!
 
     rayPos  = viewToScreen(viewPos);
     rayDir  = normalize(viewToScreen(viewPos + rayDir) - rayPos);
-    rayDir *= minOf((sign(rayDir) - rayPos) / rayDir) * rcp(stepCount); // Taken from the DDA algorithm
+    rayDir *= minOf((sign(rayDir) - rayPos) / rayDir) * rcp(stepCount);
+    rayPos += rayDir * jitter;
 
     bool intersect = false;
 
-    rayPos += rayDir * jitter;
     for(int i = 0; i <= stepCount && !intersect; i++, rayPos += rayDir) {
         if(clamp01(rayPos.xy) != rayPos.xy) return false;
 

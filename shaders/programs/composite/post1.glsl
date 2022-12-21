@@ -152,11 +152,11 @@
         history.rgb = color.rgb;
 
         #if EXPOSURE == 0
-            float EV100 = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
-            color.a     = EV100ToExposure(EV100);
+            float EV100    = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
+            float exposure = EV100ToExposure(EV100);
         #else
-            color.a   = EV100ToExposure(EV100fromLuminance(avgLuminance));
-            history.a = avgLuminance;
+            float exposure = EV100ToExposure(EV100fromLuminance(avgLuminance));
+            history.a      = avgLuminance;
 
             /*
             #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
@@ -165,7 +165,7 @@
             */
         #endif
 
-        color.a    = clamp(color.a, minExposure, maxExposure);
-        color.rgb *= color.a;
+        exposure = clamp(exposure, minExposure, maxExposure);
+        color    = vec4(color.rgb * exposure, exposure);
     }
 #endif

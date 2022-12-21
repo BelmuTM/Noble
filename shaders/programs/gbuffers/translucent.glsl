@@ -139,7 +139,7 @@
 						if(mat.lightmap.y > EPS) skyIlluminance = getSkyLight(mat.normal, skyIlluminanceMat);
 					#endif
 
-					sceneColor.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyIlluminance, 1.0);
+					sceneColor.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 					sceneColor.a   = albedoTex.a;
 				}
 			#endif

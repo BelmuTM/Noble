@@ -35,9 +35,11 @@ void main() {
 	lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
 	vertexColor = gl_Color;
 
-	vec2 halfSize = abs(texCoords - mc_midTexCoord);
-	texSize       = halfSize * 2.0;
-	botLeft       = mc_midTexCoord - halfSize;
+	#if POM > 0 && defined PROGRAM_TERRAIN
+		vec2 halfSize = abs(texCoords - mc_midTexCoord);
+		texSize       = halfSize * 2.0;
+		botLeft       = mc_midTexCoord - halfSize;
+	#endif
 
 	#ifndef PROGRAM_BASIC 
     	vec3 geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);

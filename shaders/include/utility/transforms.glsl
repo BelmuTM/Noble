@@ -37,6 +37,28 @@ vec3 distortShadowSpace(vec3 position) {
 }
 
 //////////////////////////////////////////////////////////
+/*----------------- CLOUDS SHADOWS ---------------------*/
+//////////////////////////////////////////////////////////
+
+#if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+    vec3 getCloudsShadowPos(vec2 coords) {
+        coords *= rcp(CLOUDS_SHADOWS_RESOLUTION);
+        coords  = coords * 2.0 - 1.0;
+        coords /= 1.0 - length(coords.xy);
+
+        return transform(shadowModelViewInverse, vec3(coords * far, 1.0)) + atmosphereRayPos;
+    }
+
+    float getCloudsShadows(vec3 position) {
+        position     = transform(shadowModelView, position) / far;
+        position.xy /= 1.0 + length(position.xy);
+        position.xy  = position.xy * 0.5 + 0.5;
+
+        return texture(colortex4, position.xy * CLOUDS_SHADOWS_RESOLUTION * pixelSize).a;
+    }
+#endif
+
+//////////////////////////////////////////////////////////
 /*--------------- SPACE CONVERSIONS --------------------*/
 //////////////////////////////////////////////////////////
 

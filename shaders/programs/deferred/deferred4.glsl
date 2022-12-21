@@ -109,11 +109,16 @@ void main() {
         if(mat.F0 * maxVal8 <= 229.5) {
             vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
             vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
+            float cloudsShadows = 1.0;
 
             #ifdef WORLD_OVERWORLD
                 shadowmap         = texture(colortex3, texCoords);
                 skyIlluminance    = texture(colortex6, texCoords).rgb;
                 directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
+
+                #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+                    cloudsShadows = getCloudsShadows(viewToScene(viewPos0));
+                #endif
             #endif
 
             float ao = 1.0;
@@ -121,7 +126,7 @@ void main() {
                 ao = texture(colortex10, texCoords).a;
             #endif
 
-            color.rgb = computeDiffuse(viewPos0, shadowVec, mat, shadowmap, directIlluminance, skyIlluminance, ao);
+            color.rgb = computeDiffuse(viewPos0, shadowVec, mat, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         }
 
         deferredCol = color.rgb;

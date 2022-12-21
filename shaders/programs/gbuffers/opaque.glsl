@@ -126,6 +126,21 @@
     	}
 	#endif
 
+	vec2 computeLightmap(vec3 normal) {
+		if(blockId >= 5 && blockId < 8) return vec2(1.0, lmCoords.y);
+
+		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
+			// Thanks ninjamike1211#5424 for the help
+			vec2 lightmap 	    = lmCoords;
+			vec3 scenePos       = viewToScene(viewPos);
+			vec3 lightmapVector = dFdx(scenePos) * dFdx(lightmap.x) + dFdy(scenePos) * dFdy(lightmap.x);
+
+			lightmap.x *= clamp01(dot(normalize(lightmapVector), normal) * 0.5 + 0.5);
+			return clamp01(lightmap);
+		#endif
+		return clamp01(lmCoords);
+	}
+
 	void main() {
 		#if defined PROGRAM_HAND && DISCARD_HAND == 1
 			discard;
@@ -199,7 +214,7 @@
 					float porosity    = clamp01(specularTex.z * (maxVal8 / 64.0));
 					vec2 puddleCoords = (viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
 
-					float puddle  = quintic(0.0, 1.0, FBM(puddleCoords, 1, 1.3) * 0.5 + 0.5);
+					float puddle  = clamp01(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
 		  	  	  		  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
 	  					  puddle *= (1.0 - porosity);
 			  	  		  puddle *= wetness;
@@ -216,17 +231,7 @@
 		        normal = normalize(normal);
 		vec2 encNormal = encodeUnitVector(normal);
 
-		vec2 lightmapCoords = lmCoords;
-
-		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
-			vec3 scenePos    = viewToScene(viewPos);
-			vec3 dirLmCoords = dFdx(scenePos) * dFdx(lmCoords.x) + dFdy(scenePos) * dFdy(lmCoords.x);
-
-			// Dot product's range shifting from ninjamike1211#5424
-			lightmapCoords.x *= clamp01(dot(normalize(dirLmCoords), normal) + 0.8) * 0.8 + 0.2;
-		#endif
-
-		vec3 labPbrData0 = vec3(roughness, clamp01(lightmapCoords));
+		vec3 labPbrData0 = vec3(roughness, clamp01(computeLightmap(normal)));
 		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
 
 		// I bet you've never seen a cleaner data packing implementation huh?? SAY IT!!!!

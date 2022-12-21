@@ -98,49 +98,6 @@ float noise(vec3 pos) {
                    mix(hash11(n + dot(step, vec3(0.0, 1.0, 1.0))), hash11(n + dot(step, vec3(1.0, 1.0, 1.0))), u.x), u.y), u.z);
 }
 
-// https://www.shadertoy.com/view/Xd23Dh
-// From Inigo Quilez: http://iquilezles.org/www/articles/voronoise/voronoise.htm
-float voronoise(in vec2 x, int u, int v) {
-    vec2 p = floor(x);
-    vec2 f = fract(x);
-
-    float k  = 1.0 + 63.0 * pow(1.0 - v, 4.0);
-    float va = 0.0, wt = 0.0;
-
-    for(int j= -2; j <= 2; j++) {
-        for(int i= -2; i <= 2; i++) {
-            vec2  g = vec2(float(i), float(j));
-            vec3  o = hash32(p + g) * vec3(u, u, 1.0);
-            vec2  r = g - f + o.xy;
-            float d = dot(r,r);
-            float w = pow(1.0 - smoothstep(0.0, 1.414, sqrt(d)), k);
-            va += w * o.z;
-            wt += w;
-        }
-    }
-
-    return va / wt;
-}
-
-float worley(vec3 pos, float frequency) {    
-    vec3 id = floor(pos);
-    vec3 p  = fract(pos);
-    
-    float minDist = 1e6;
-    for(int x = -1; x <= 1; x++) {
-        for(int y = -1; y <= 1; y++) {
-            for(int z = -1; z <= 1; z++) {
-                vec3 offset  = vec3(x, y, z);
-            	vec3 height  = hash33(mod(id + offset, vec3(frequency))) * 0.5 + 0.5;
-    			     height += offset;
-            	vec3 d = p - height;
-           		minDist = min(minDist, dot(d, d));
-            }
-        }
-    }
-    return minDist;
-}
-
 const float fbmLacunarity  = 2.0;
 const float fbmPersistance = 0.5;
 

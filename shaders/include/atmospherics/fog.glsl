@@ -49,26 +49,26 @@ float getFogPhase(float cosTheta) {
 
     /*
     float getFogTransmittance(vec3 rayOrigin, vec3 lightDir) {
-        const float stepLength = 1.0 / VL_TRANSMITTANCE_STEPS;
-        vec3 increment   = lightDir * stepLength;
+        const float stepSize = 1.0 / VL_TRANSMITTANCE_STEPS;
+        vec3 increment   = lightDir * stepSize;
         vec3 rayPos      = rayOrigin + increment * 0.5;
 
         float accumAirmass = 0.0;
         for(int i = 0; i < VL_TRANSMITTANCE_STEPS; i++, rayPos += increment) {
-            accumAirmass += getFogDensity(rayPos) * stepLength;
+            accumAirmass += getFogDensity(rayPos) * stepSize;
         }
         return exp(-fogExtinctionCoefficient * accumAirmass);
     }
     */
 
     void volumetricFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
-        const float stepLength = 1.0 / VL_SCATTERING_STEPS;
-        vec3 increment = (endPos - startPos) * stepLength;
+        const float stepSize = 1.0 / VL_SCATTERING_STEPS;
+        vec3 increment = (endPos - startPos) * stepSize;
         vec3 rayPos    = startPos + increment * dither;
              rayPos   += cameraPosition;
 
         vec3 shadowStartPos  = worldToShadow(startPos);
-        vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepLength;
+        vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepSize;
         vec3 shadowPos       = shadowStartPos + shadowIncrement * dither;
 
         float rayLength = length(increment);
@@ -128,13 +128,13 @@ const int phaseMultiSamples = 8;
 
     // Thanks Jessie#7257 for the help!
     void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
-        const float stepLength = 1.0 / WATER_FOG_STEPS;
-        vec3 increment = (endPos - startPos) * stepLength;
+        const float stepSize = 1.0 / WATER_FOG_STEPS;
+        vec3 increment = (endPos - startPos) * stepSize;
         vec3 rayPos    = startPos + increment * dither;
              rayPos   += cameraPosition;
 
         vec3 shadowStartPos  = worldToShadow(startPos);
-        vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepLength;
+        vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepSize;
         vec3 shadowPos       = shadowStartPos + shadowIncrement * dither;
 
         float rayLength = length(increment);

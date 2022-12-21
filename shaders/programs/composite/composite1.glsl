@@ -75,7 +75,7 @@ void main() {
             /*---------------- FRONT TO BACK FOG -------------------*/
             //////////////////////////////////////////////////////////
 
-            #ifdef WORLD_OVERWORLD
+            #if defined WORLD_OVERWORLD
                 if(isEyeInWater != 1 && mat.blockId == 1) {
                     #if WATER_FOG == 0
                         waterFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight);
@@ -86,7 +86,7 @@ void main() {
                 } else {
                     #if AIR_FOG == 1
                         volumetricFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight);
-                    #else
+                    #elif AIR_FOG == 2
                         fog(color, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
                     #endif
                 }
@@ -102,6 +102,10 @@ void main() {
                 vec3 visibility = texture(colortex3, coords.xy).rgb;
                 #ifdef SUNLIGHT_LEAKING_FIX
                     visibility *= float(mat.lightmap.y > EPS);
+                #endif
+
+                #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+                    visibility *= getCloudsShadows(scenePos0);
                 #endif
 
                 color += computeSpecular(mat.normal, normalize(-viewPos0), shadowVec, mat) * directIlluminance * visibility;
@@ -129,7 +133,7 @@ void main() {
         } else {
             #if AIR_FOG == 1
                 volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight);
-            #else
+            #elif AIR_FOG == 2
                 fog(color, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
             #endif
         }

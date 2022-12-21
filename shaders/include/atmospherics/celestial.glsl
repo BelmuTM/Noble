@@ -42,8 +42,8 @@ vec3 physicalMoon(vec3 sceneDir) {
 
 vec3 computeSky(vec3 viewPos) {
 	#ifdef WORLD_OVERWORLD
-		vec3 sceneDir    = normalize(viewToScene(viewPos));
-    	vec2 coords      = projectSphere(sceneDir);
+		vec3 sceneDir = normalize(viewToScene(viewPos));
+    	vec2 coords   = projectSphere(sceneDir);
 
 		vec3 sky = textureCatmullRom(colortex12, clamp01(coords + randF() * pixelSize)).rgb;
 
