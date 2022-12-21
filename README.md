@@ -21,6 +21,7 @@ being accessible to public no matter what.
 * A Nvidia graphics card (GTX 950 or newer) **OR**  an AMD graphics card (R7 370 or newer)
 * **If you have an AMD card** → make sure your drivers version is **22.5.1** or lower
 * Windows or Linux (MacOS isn't supported)
+* ⚠️ **MAKE SURE UNZIP THE FILE FIRST**
 
 ## License
 NobleRT is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
@@ -33,8 +34,9 @@ NobleRT is licensed under the GPL v3.0 License. Please consider reading the term
 > I would like to thank the people from ShaderLabs for helping me understand and learn GLSL.
 > Thanks to the beta testers who helped me fix and deal with multiple issues.
 
-![Showcase 01](https://i.imgur.com/rnXWe8W.png)
-![Showcase 02](https://i.imgur.com/hGDojcn.png)
-![Showcase 03](https://i.imgur.com/utZG4sO.jpg)
-![Showcase 04](https://i.imgur.com/A9LJIGB.png)
-![Showcase 05](https://i.imgur.com/YUsAgOd.png)
+## Images
+![Showcase 01](https://i.imgur.com/DhkbJMt.png)
+![Showcase 02](https://i.imgur.com/rnXWe8W.png)
+![Showcase 03](https://i.imgur.com/EyxxpKi.png)
+![Showcase 04](https://i.imgur.com/hzjM5m4.png)
+![Showcase 05](https://i.imgur.com/A9LJIGB.png)
