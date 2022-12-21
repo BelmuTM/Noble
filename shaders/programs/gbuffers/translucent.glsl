@@ -66,7 +66,7 @@
 	/* RENDERTARGETS: 1,13 */
 
 	layout (location = 0) out uvec4 data;
-	layout (location = 1) out vec4 sceneColor;
+	layout (location = 1) out vec4 translucents;
 
 	flat in int blockId;
 	in vec2 texCoords;
@@ -139,8 +139,8 @@
 						if(mat.lightmap.y > EPS) skyIlluminance = getSkyLight(mat.normal, skyIlluminanceMat);
 					#endif
 
-					sceneColor.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
-					sceneColor.a   = albedoTex.a;
+					translucents.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+					translucents.a   = albedoTex.a;
 				}
 			#endif
 		}

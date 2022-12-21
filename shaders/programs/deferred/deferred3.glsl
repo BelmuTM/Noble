@@ -63,10 +63,12 @@
             /*----------------- SHADOW MAPPING ---------------------*/
             //////////////////////////////////////////////////////////
             
-            if(!sky) {
-                vec4 tmp = texture(colortex3, texCoords);
-                shadowmap.rgb = shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a) * tmp.a;
-            }
+            #if SHADOWS == 1
+                if(!sky) {
+                    vec4 tmp = texture(colortex3, texCoords);
+                    shadowmap.rgb = shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a) * tmp.a;
+                }
+            #endif
 
             #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
                 cloudsShadows.a = getCloudsShadows(getCloudsShadowPos(gl_FragCoord.xy), shadowLightVector, layer0, 20);
