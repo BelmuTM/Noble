@@ -35,7 +35,6 @@ void main() {
         vec3 indirect = texture(colortex10, scaledUv).rgb;
         
         color = direct + (indirect * color);
-        // color = vec3(texture(colortex11, scaledUv).b);
     #endif
 
     Material mat = getMaterial(texCoords);

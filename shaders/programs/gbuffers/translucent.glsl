@@ -47,15 +47,6 @@
 		skyIlluminanceMat = sampleSkyIlluminanceComplex();
 		directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
 
-		/*
-		#if ACCUMULATION_VELOCITY_WEIGHT == 0
-            vec3 worldPos    = transform(gbufferModelViewInverse, viewPos) + cameraPosition;
-				 worldPos.y -= waterWaves(worldPos.xz, WATER_OCTAVES) * 0.25;
-
-            gl_Position = transform(gbufferModelView, worldPos - cameraPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
-		#endif
-		*/
-
 		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);
     	#endif
@@ -78,7 +69,10 @@
 	in mat3 TBN;
 
 	#include "/include/fragment/brdf.glsl"
-	#include "/include/fragment/shadows.glsl"
+
+	#if SHADOWS == 1
+		#include "/include/fragment/shadows.glsl"
+	#endif
 
 	void main() {
 		#if defined PROGRAM_HAND && DISCARD_HAND == 1
@@ -94,16 +88,13 @@
 		albedoTex *= vertexColor;
 
 		Material mat;
-
-		#if WHITE_WORLD == 1
-	    	mat.albedo = vec3(1.0);
-    	#endif
+		translucents = vec4(0.0);
 
 		// WOTAH
 		if(blockId == 1) { 
-			albedoTex  = vec4(0.0);
-			mat.F0 	   = waterF0;
-			mat.rough  = 0.0;
+			mat.F0 = waterF0, mat.rough = 0.0, mat.ao = 1.0, mat.emission = 0.0, mat.subsurface = 0.0;
+
+    		mat.albedo = vec3(0.0);
 			mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES, 1.0);
 		
 		} else {
@@ -115,6 +106,10 @@
 
     		mat.albedo   = albedoTex.rgb;
 			mat.lightmap = lmCoords.xy;
+
+			#if WHITE_WORLD == 1
+	    		mat.albedo = vec3(1.0);
+    		#endif
 
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				mat.normal.xy = normalTex.xy * 2.0 - 1.0;
@@ -134,7 +129,9 @@
 					vec3 skyIlluminance = vec3(0.0);
 
 					#ifdef WORLD_OVERWORLD
-						shadowmap.rgb = shadowMap(scenePos, TBN[2], shadowmap.a);
+						#if SHADOWS == 1
+							shadowmap.rgb = shadowMap(scenePos, TBN[2], shadowmap.a);
+						#endif
 
 						if(mat.lightmap.y > EPS) skyIlluminance = getSkyLight(mat.normal, skyIlluminanceMat);
 					#endif
@@ -144,16 +141,15 @@
 				}
 			#endif
 		}
-	
-		vec2 encNormal = encodeUnitVector(mat.normal);
 
 		vec3 labPbrData0 = vec3(mat.rough, lmCoords);
 		vec4 labPbrData1 = vec4(mat.ao, mat.emission, mat.F0, mat.subsurface);
+		vec2 encNormal 	 = encodeUnitVector(normalize(mat.normal));
 	
-		uvec4 shiftedData0  = uvec4(round(labPbrData0   * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1   * maxVal8))                              << uvec4(0, 8, 16, 24);
-		uvec3 shiftedAlbedo = uvec3(round(albedoTex.rgb * vec3(2047.0, 1023.0, 2047.0)))         << uvec3(0, 11, 21);
-		uvec2 shiftedNormal = uvec2(round(encNormal     * maxVal16))                             << uvec2(0, 16);
+		uvec4 shiftedData0  = uvec4(round(labPbrData0 * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8))                              << uvec4(0, 8, 16, 24);
+		uvec3 shiftedAlbedo = uvec3(round(mat.albedo  * vec3(2047.0, 1023.0, 2047.0)))         << uvec3(0, 11, 21);
+		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16))                             << uvec2(0, 16);
 
 		data.x = shiftedData0.x  | shiftedData0.y  | shiftedData0.z | shiftedData0.w;
 		data.y = shiftedData1.x  | shiftedData1.y  | shiftedData1.z | shiftedData1.w;

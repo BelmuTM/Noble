@@ -10,9 +10,6 @@
     const bool colortex4MipmapEnabled = true;
 */
 
-const float airIOR  = 1.00029;
-const float waterF0 = 0.02;
-
 // Maximum values for x amount of bits and their inverses (2^x - 1)
 const float maxVal8     = 255.0;
 const float maxVal16    = 65535.0;

@@ -23,6 +23,9 @@ struct Material {
     float depth1;
 };
 
+const float airIOR  = 1.00029;
+const float waterF0 = 0.02;
+
 Material getMaterial(vec2 coords) {
     coords       *= viewSize;
     uvec4 dataTex = texelFetch(colortex1, ivec2(coords), 0);
@@ -57,6 +60,21 @@ Material getMaterial(vec2 coords) {
         mat.albedo = srgbToLinear(mat.albedo);
     #endif
     return mat;
+}
+
+float f0ToIOR(float F0) {
+	F0 = sqrt(F0) * 0.99999;
+	return (1.0 + F0) / (1.0 - F0);
+}
+
+vec3 f0ToIOR(vec3 F0) {
+	F0 = sqrt(F0) * 0.99999;
+	return (1.0 + F0) / (1.0 - F0);
+}
+
+float iorToF0(float ior) {
+	float a = (ior - airIOR) / (ior + airIOR);
+	return a * a;
 }
 
 const mat2x3 hardcodedMetals[] = mat2x3[](

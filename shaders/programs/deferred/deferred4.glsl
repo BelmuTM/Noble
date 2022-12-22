@@ -14,11 +14,10 @@
     layout (location = 2) out vec3 historyCol1;
     layout (location = 3) out vec4 moments;
 #else
-    /* RENDERTARGETS: 5,13,11 */
+    /* RENDERTARGETS: 13,11 */
 
-    layout (location = 0) out vec3 deferredCol;
-    layout (location = 1) out vec4 color;
-    layout (location = 2) out vec4 moments;
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec4 moments;
 #endif
 
 #include "/include/fragment/raytracer.glsl"
@@ -130,8 +129,6 @@ void main() {
 
             color.rgb = computeDiffuse(viewPos0, shadowVec, mat, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         }
-
-        deferredCol = color.rgb;
     #else
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_SCALE)) == texCoords) {

@@ -182,7 +182,7 @@
 
 		#ifdef PROGRAM_ENTITY
 			albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
-
+			
 			ao = all(lessThanEqual(normalTex.rgb, vec3(EPS))) ? 1.0 : ao;
 		#endif
 
@@ -208,31 +208,29 @@
 			}
 		#endif
 
-		#ifdef PROGRAM_TERRAIN
-			#if RAIN_PUDDLES == 1
-				if(wetness > 0.0) {
-					float porosity    = clamp01(specularTex.z * (maxVal8 / 64.0));
-					vec2 puddleCoords = (viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
+		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
+			if(wetness > 0.0) {
+				float porosity    = clamp01(specularTex.z * (maxVal8 / 64.0));
+				vec2 puddleCoords = (viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
 
-					float puddle  = clamp01(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
-		  	  	  		  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
-	  					  puddle *= (1.0 - porosity);
-			  	  		  puddle *= wetness;
-			  	  		  puddle *= quintic(0.89, 0.99, TBN[2].y);
-						  puddle  = clamp01(puddle);
+				float puddle  = clamp01(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
+		  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
+	  				  puddle *= (1.0 - porosity);
+			  	  	  puddle *= wetness;
+			  	  	  puddle *= quintic(0.89, 0.99, TBN[2].y);
+					  puddle  = clamp01(puddle);
 	
-					F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxVal8, float(F0 * maxVal8 <= 229.5)));
-					roughness = mix(roughness, 0.0, puddle);
-					normal    = mix(normal, TBN[2], puddle);
-				}
-			#endif
+				F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxVal8, float(F0 * maxVal8 <= 229.5)));
+				roughness = mix(roughness, 0.0, puddle);
+				normal    = mix(normal, TBN[2], puddle);
+			}
 		#endif
 
-		        normal = normalize(normal);
-		vec2 encNormal = encodeUnitVector(normal);
+		normal = normalize(normal);
 
 		vec3 labPbrData0 = vec3(roughness, clamp01(computeLightmap(normal)));
-		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
+		vec4 labPbrData1 = vec4(ao, emission, clamp01(F0), subsurface);
+		vec2 encNormal   = encodeUnitVector(normal);
 
 		// I bet you've never seen a cleaner data packing implementation huh?? SAY IT!!!!
 		uvec4 shiftedData0  = uvec4(round(labPbrData0   * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);

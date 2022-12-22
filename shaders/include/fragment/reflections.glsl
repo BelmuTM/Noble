@@ -4,9 +4,11 @@
 /*   Please do not claim my work as your own.  */
 /***********************************************/
 
-// Kneemund's Border Attenuation
-float Kneemund_Attenuation(vec2 pos, float edgeFactor) {
-    return 1.0 - quintic(edgeFactor, 0.0, minOf(pos * (1.0 - pos)));
+#define EDGE_ATTENUATION_FACTOR 0.15
+
+// Kneemund's Edge Attenuation
+float KneemundAttenuation(vec2 pos) {
+    return 1.0 - quintic(EDGE_ATTENUATION_FACTOR, 0.0, minOf(pos * (1.0 - pos)));
 }
 
 vec3 getHitColor(in vec3 hitPos) {
@@ -40,13 +42,13 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 
         vec3 rayDir   = reflect(viewDir, mat.normal); vec3 hitPos;
         float hit     = float(raytrace(depthtex0, viewPos, rayDir, SIMPLE_REFLECT_STEPS, randF(), hitPos));
-        float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
+              hit    *= KneemundAttenuation(hitPos.xy);
         vec3 hitColor = getHitColor(hitPos);
 
         #ifdef SKY_FALLBACK
-            vec3 color = mix(getSkyFallback(rayDir, mat), hitColor, factor);
+            vec3 color = mix(getSkyFallback(rayDir, mat), hitColor, hit);
         #else
-            vec3 color = mix(vec3(0.0), hitColor, factor);
+            vec3 color = mix(vec3(0.0), hitColor, hit);
         #endif
 
         float NdotL = abs(dot(mat.normal, rayDir));
@@ -81,18 +83,18 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 
             if(NdotV > 0.0 && NdotL > 0.0) {
                 float hit     = float(raytrace(depthtex0, viewPos, rayDir, ROUGH_REFLECT_STEPS, randF(), hitPos));
-                float factor  = Kneemund_Attenuation(hitPos.xy, ATTENUATION_FACTOR) * hit;
+                      hit    *= KneemundAttenuation(hitPos.xy);
                 vec3 hitColor = getHitColor(hitPos);
 
                 #ifdef SKY_FALLBACK
-                    hitColor = mix(getSkyFallback(rayDir, mat), hitColor, factor);
+                    hitColor = mix(getSkyFallback(rayDir, mat), getHitColor(hitPos), hit);
                 #else
-                    hitColor = mix(vec3(0.0), hitColor, factor);
+                    hitColor = mix(vec3(0.0), getHitColor(hitPos), hit);
                 #endif
 
                 float MdotV = dot(microfacet, -viewDir);
 
-                vec3  F  = isEyeInWater == 1 ? vec3(fresnelDielectric(MdotV, 1.333, airIOR)) : fresnelComplex(MdotV, mat);
+                vec3  F  = isEyeInWater == 1 ? vec3(fresnelDielectric(MdotV, 1.329, airIOR)) : fresnelComplex(MdotV, mat);
                 float G1 = G1SmithGGX(NdotV, mat.rough);
                 float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
 
@@ -118,10 +120,10 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         if(!hit || isHand(hitPos.xy)) { hitPos.xy = texCoords; }
 
         float n1 = airIOR, n2 = ior;
-        if(isEyeInWater == 1) { n1 = 1.333; n2 = airIOR; }
+        if(isEyeInWater == 1) { n1 = 1.329; n2 = airIOR; }
 
         float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), n1, n2);
-        vec3 hitColor = texture(colortex5, hitPos.xy).rgb;
+        vec3 hitColor = texture(colortex13, hitPos.xy).rgb;
 
         float distThroughMedium = clamp(distance(viewToScene(screenToView(hitPos)), scenePos), EPS, 5.0);
         vec3  beer              = mat.blockId == 1 ? vec3(1.0) : exp(-(1.0 - mat.albedo) * distThroughMedium);

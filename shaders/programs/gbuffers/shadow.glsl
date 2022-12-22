@@ -77,6 +77,10 @@
         vec4 albedoTex = texture(colortex0, texCoords) * vertexColor;
         if(albedoTex.a < 0.102) discard;
 
+        #if WHITE_WORLD == 1
+	    	albedoTex.rgb = vec3(1.0);
+        #endif
+
         #if WATER_CAUSTICS == 1
             float caustics = max0(waterCaustics(worldPos, TBN * getWaterNormals(worldPos, 3, 3.0)) * WATER_CAUSTICS_STRENGTH);
             color0         = mix(albedoTex, vec4(vec3(1.0 + caustics), -1.0), float(blockId == 1));

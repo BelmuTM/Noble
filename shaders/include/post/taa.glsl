@@ -38,10 +38,8 @@ vec3 getClosestFragment(vec3 position) {
 	vec3 closestFragment = position;
     vec3 currentFragment;
 
-    const int searchRadius = 1;
-
-    for(int x = -searchRadius; x <= searchRadius; x++) {
-        for(int y = -searchRadius; y <= searchRadius; y++) {
+    for(int x = -1; x <= 1; x++) {
+        for(int y = -1; y <= 1; y++) {
             currentFragment.xy = position.xy + vec2(x, y) * pixelSize;
             currentFragment.z  = texelFetch(depthtex0, ivec2(gl_FragCoord) + ivec2(x, y), 0).r;
             closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
