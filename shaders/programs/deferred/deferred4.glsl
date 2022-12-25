@@ -12,11 +12,11 @@
     layout (location = 0) out vec4 color;
     layout (location = 1) out vec3 directColor;
     layout (location = 2) out vec3 indirectColor;
-    layout (location = 3) out vec4 moments;
+    layout (location = 3) out vec4 colortex11Write;
 #else
     /* RENDERTARGETS: 11,13 */
 
-    layout (location = 0) out vec4 logDepth;
+    layout (location = 0) out vec4 colortex11Write;
     layout (location = 1) out vec4 color;
 #endif
 
@@ -42,8 +42,8 @@
         // Thanks SixthSurge#3922 for the help with moments
         #if GI_FILTER == 1
             vec2 prevMoments = texture(colortex11, prevPos.xy).rg;
-            moments.rg = mix(moments.rg, prevMoments, weight);
-            moments.b  = abs(moments.g - moments.r * moments.r);
+                  moments.rg = mix(moments.rg, prevMoments, weight);
+                  moments.b  = abs(moments.g - moments.r * moments.r);
         #endif
 
         color = mix(color, prevColor, weight);
@@ -95,7 +95,7 @@ void main() {
             float prevDepth   = exp2(texture(colortex11, prevPos.xy).a);
             float depthWeight = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
-            logDepth.a = log2(mat.depth0);
+            colortex11Write.a = log2(mat.depth0);
         #else
             float depthWeight = 1.0;
         #endif
@@ -136,12 +136,12 @@ void main() {
             pathTrace(color.rgb, vec3(tempCoords, mat.depth0), directColor, indirectColor);
 
             #if GI_FILTER == 1
-                float luminance  = luminance(color.rgb);
-                      moments.rg = vec2(luminance, luminance * luminance);
+                float luminance    = luminance(color.rgb);
+                colortex11Write.rg = vec2(luminance, luminance * luminance);
             #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(mat, color.rgb, prevColor.rgb, prevPos, directColor, indirectColor, moments.rgb, color.a);
+                temporalAccumulation(mat, color.rgb, prevColor.rgb, prevPos, directColor, indirectColor, colortex11Write.rgb, color.a);
             #endif
         }
     #endif

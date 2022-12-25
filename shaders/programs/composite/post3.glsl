@@ -110,5 +110,5 @@ void main() {
         color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    color += bayer8(gl_FragCoord.xy) * rcp(maxVal8);
+    color += bayer8(gl_FragCoord.xy) * rcpMaxVal8;
 }
