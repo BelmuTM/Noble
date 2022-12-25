@@ -54,7 +54,7 @@ vec3 distortShadowSpace(vec3 position) {
         position.xy /= 1.0 + length(position.xy);
         position.xy  = position.xy * 0.5 + 0.5;
 
-        return texture(colortex4, position.xy * CLOUDS_SHADOWS_RESOLUTION * pixelSize).a;
+        return texture(colortex6, position.xy * CLOUDS_SHADOWS_RESOLUTION * pixelSize).a;
     }
 #endif
 

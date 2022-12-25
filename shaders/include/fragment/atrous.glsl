@@ -16,6 +16,30 @@
     Jan Dundr:    https://cescg.org/wp-content/uploads/2018/04/Dundr-Progressive-Spatiotemporal-Variance-Guided-Filtering-2.pdf
 */
 
+float spatialVariance(sampler2D tex) {
+    vec2 sum = vec2(0.0); 
+
+    for(int x = -1; x <= 1; x++) {
+        for(int y = -1; y <= 1; y++) {
+            float luminance = luminance(texture(tex, texCoords + vec2(x, y) * pixelSize).rgb);
+            sum            += vec2(luminance, luminance * luminance);
+        }
+    }
+    sum /= 9.0;
+    return abs(sum.x * sum.x - sum.y);
+}
+
+float spatialVariance() {
+    float variance = 0.0;
+
+    for(int x = -1; x <= 1; x++) {
+        for(int y = -1; y <= 1; y++) {
+            variance += texture(colortex11, texCoords + vec2(x, y) * pixelSize).b * gaussianDistrib2D(vec2(x, y), 1.0);
+        }
+    }
+    return variance;
+}
+
 const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
 const float steps[5]  = float[5](
     ATROUS_STEP_SIZE * 0.0625,
@@ -33,8 +57,8 @@ float getATrousDepthWeight(float depth, float sampleDepth, vec2 dgrad, vec2 offs
     return exp(-abs(depth - sampleDepth) / (abs(DEPTH_WEIGHT_SIGMA * dot(dgrad, offset)) + 5e-3));
 }
 
-float getATrousLuminanceWeight(float luminance, float sampleLuminance, float luminancePhi) {
-    return exp(-abs(luminance - sampleLuminance) * luminancePhi);
+float getATrousLuminanceWeight(float luminance, float sampleLuminance, float variance) {
+    return exp(-abs(luminance - sampleLuminance) / (LUMA_WEIGHT_SIGMA * variance + EPS));
 }
 
 void aTrousFilter(inout vec3 irradiance, sampler2D tex, vec2 coords, int passIndex) {
@@ -47,9 +71,8 @@ void aTrousFilter(inout vec3 irradiance, sampler2D tex, vec2 coords, int passInd
     float frames = float(texture(colortex5, coords).a > 4.0);
     vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
 
-    float variance     = texture(colortex11, texCoords).b;
-    float centerLuma   = luminance(irradiance);
-    float luminancePhi = 1.0 / (LUMA_WEIGHT_SIGMA * variance + EPS);
+    float centerLuma = luminance(irradiance);
+    float variance   = spatialVariance();
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
@@ -65,7 +88,7 @@ void aTrousFilter(inout vec3 irradiance, sampler2D tex, vec2 coords, int passInd
 
             float normalWeight = getATrousNormalWeight(mat.normal, sampleMat.normal);
             float depthWeight  = getATrousDepthWeight(mat.depth0, sampleMat.depth0, dgrad, offset);
-            float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleIrradiance), luminancePhi), frames);
+            float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleIrradiance), variance), frames);
 
             float weight = clamp01(normalWeight * depthWeight * lumaWeight) * aTrous[abs(x)] * aTrous[abs(y)];
             irradiance  += sampleIrradiance * weight;

@@ -10,7 +10,7 @@
 
 /* RENDERTARGETS: 10 */
 
-layout (location = 0) out vec4 aoHistory;
+layout (location = 0) out vec4 ao;
     
 #if AO == 1
     #if AO_TYPE == 1
@@ -21,10 +21,10 @@ layout (location = 0) out vec4 aoHistory;
 
 void main() {
     #if AO == 1 && GI == 0
-        aoHistory = vec4(0.0, 0.0, 0.0, 1.0);
+        ao = vec4(0.0, 0.0, 0.0, 1.0);
     #else
         #if GI == 1
-            aoHistory = texture(colortex10, texCoords);
+            ao = texture(colortex10, texCoords);
         #endif
         return;
     #endif
@@ -40,15 +40,15 @@ void main() {
         Material mat = getMaterial(texCoords);
 
         #if AO_TYPE == 0
-            aoHistory.a = SSAO(viewPos, mat.normal);
+            ao.a = SSAO(viewPos, mat.normal);
         #elif AO_TYPE == 1
-            aoHistory.a = RTAO(viewPos, mat.normal, aoHistory.rgb);
+            ao.a = RTAO(viewPos, mat.normal, ao.rgb);
         #elif AO_TYPE == 2
-            aoHistory.a = GTAO(texCoords, viewPos, mat.normal, aoHistory.rgb);
+            ao.a = GTAO(texCoords, viewPos, mat.normal, ao.rgb);
         #endif
 
-        aoHistory.a   = clamp01(aoHistory.a);
-        aoHistory.rgb = max0(aoHistory.rgb);
+        ao.a   = clamp01(ao.a);
+        ao.rgb = max0(ao.rgb);
 
         #if AO_FILTER == 1
             vec3 currPos = vec3(texCoords, mat.depth0);
@@ -56,8 +56,8 @@ void main() {
             vec4 prevAO  = texture(colortex10, prevPos.xy);
             float weight = clamp01(1.0 - (1.0 / max(texture(colortex13, prevPos.xy).a, 1.0)));
 
-            aoHistory.a   = mix(aoHistory.a, prevAO.a, weight);
-            aoHistory.rgb = mix(aoHistory.rgb, prevAO.rgb, weight);
+            ao.a   = mix(ao.a, prevAO.a, weight);
+            ao.rgb = mix(ao.rgb, prevAO.rgb, weight);
         #endif
     #endif
 }

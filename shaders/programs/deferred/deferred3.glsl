@@ -23,11 +23,10 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,4,6 */
+    /* RENDERTARGETS: 3,6 */
 
     layout (location = 0) out vec4 shadowmap;
-    layout (location = 1) out vec4 cloudsShadows;
-    layout (location = 2) out vec3 skyIlluminance;
+    layout (location = 1) out vec4 illuminance;
 
     in mat3[2] skyIlluminanceMat;
     in vec3 directIlluminance;
@@ -53,8 +52,8 @@
 
         #if GI == 0 && AO == 1
             if(!sky) {
-                vec4 aoHistory = texture(colortex10, texCoords);
-                if(any(greaterThan(aoHistory.rgb, vec3(0.0)))) bentNormal = clamp01(aoHistory.rgb);
+                vec4 ao = texture(colortex10, texCoords);
+                if(any(greaterThan(ao.rgb, vec3(0.0)))) bentNormal = clamp01(ao.rgb);
             }
         #endif
 
@@ -71,7 +70,7 @@
             #endif
 
             #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
-                cloudsShadows.a = getCloudsShadows(getCloudsShadowPos(gl_FragCoord.xy), shadowLightVector, layer0, 20);
+                illuminance.a = getCloudsShadows(getCloudsShadowPos(gl_FragCoord.xy), shadowLightVector, layer0, 20);
             #endif
 
             //////////////////////////////////////////////////////////
@@ -79,9 +78,9 @@
             //////////////////////////////////////////////////////////
 
             if(ivec2(gl_FragCoord) != ivec2(0))
-                skyIlluminance = mat.lightmap.y > EPS ? getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat) : vec3(0.0);
+                illuminance.rgb = mat.lightmap.y > EPS ? getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat) : vec3(0.0);
             else
-                skyIlluminance = directIlluminance;
+                illuminance.rgb = directIlluminance;
         #endif
     }
 #endif

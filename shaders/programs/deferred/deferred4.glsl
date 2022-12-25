@@ -10,14 +10,14 @@
     /* RENDERTARGETS: 5,9,10,11 */
 
     layout (location = 0) out vec4 color;
-    layout (location = 1) out vec3 historyCol0;
-    layout (location = 2) out vec3 historyCol1;
+    layout (location = 1) out vec3 directColor;
+    layout (location = 2) out vec3 indirectColor;
     layout (location = 3) out vec4 moments;
 #else
-    /* RENDERTARGETS: 13,11 */
+    /* RENDERTARGETS: 11,13 */
 
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 moments;
+    layout (location = 0) out vec4 logDepth;
+    layout (location = 1) out vec4 color;
 #endif
 
 #include "/include/fragment/raytracer.glsl"
@@ -42,8 +42,8 @@
         // Thanks SixthSurge#3922 for the help with moments
         #if GI_FILTER == 1
             vec2 prevMoments = texture(colortex11, prevPos.xy).rg;
-            moments.rg = max0(mix(moments.rg, prevMoments, weight));
-            moments.b  = max0(moments.g - moments.r * moments.r);
+            moments.rg = mix(moments.rg, prevMoments, weight);
+            moments.b  = abs(moments.g - moments.r * moments.r);
         #endif
 
         color = mix(color, prevColor, weight);
@@ -68,7 +68,7 @@ void main() {
     if(isSky(texCoords)) {
         vec3 sky = computeSky(viewPos0);
         #if GI == 1
-            historyCol0.rgb = sky;
+            directColor.rgb = sky;
         #else
             color.rgb = sky;
         #endif
@@ -94,12 +94,13 @@ void main() {
         #if ACCUMULATION_VELOCITY_WEIGHT == 0
             float prevDepth   = exp2(texture(colortex11, prevPos.xy).a);
             float depthWeight = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
+
+            logDepth.a = log2(mat.depth0);
         #else
             float depthWeight = 1.0;
         #endif
 
-        color.a   = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
-        moments.a = log2(mat.depth0);
+        color.a = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
     #endif
 
     #if GI == 0
@@ -132,7 +133,7 @@ void main() {
     #else
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_SCALE)) == texCoords) {
-            pathTrace(color.rgb, vec3(tempCoords, mat.depth0), historyCol0, historyCol1);
+            pathTrace(color.rgb, vec3(tempCoords, mat.depth0), directColor, indirectColor);
 
             #if GI_FILTER == 1
                 float luminance  = luminance(color.rgb);
@@ -140,7 +141,7 @@ void main() {
             #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(mat, color.rgb, prevColor.rgb, prevPos, historyCol0, historyCol1, moments.rgb, color.a);
+                temporalAccumulation(mat, color.rgb, prevColor.rgb, prevPos, directColor, indirectColor, moments.rgb, color.a);
             #endif
         }
     #endif
