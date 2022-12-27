@@ -23,10 +23,11 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,6 */
+    /* RENDERTARGETS: 3,6,14 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec4 illuminance;
+    layout (location = 2) out float depth;
 
     in mat3[2] skyIlluminanceMat;
     in vec3 directIlluminance;
@@ -39,12 +40,25 @@
         #include "/include/atmospherics/clouds.glsl"
     #endif
 
+    float computeLowerHiZDepthLevels() {
+        float tiles = 0.0;
+
+        for(int i = 1; i <= 3; i++) {
+            int scale   = int(exp2(i)); 
+	        vec2 coords = (texCoords - hiZOffsets[i - 1]) * scale;
+                 tiles += find2x2MinimumDepth(coords, scale);
+        }
+        return tiles;
+    }
+
     void main() {
         vec3 viewPos = getViewPos0(texCoords);
         Material mat = getMaterial(texCoords);
         bool sky     = isSky(texCoords);
 
         vec3 bentNormal = mat.normal;
+
+        depth = computeLowerHiZDepthLevels();
 
         //////////////////////////////////////////////////////////
         /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/

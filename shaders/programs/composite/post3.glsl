@@ -78,6 +78,10 @@ out vec3 color;
     }
 #endif
 
+vec2 getDepthTile(int lod) {
+	return texCoords / exp2(lod) + hiZOffsets[lod - 1];
+}
+
 void main() {
     vec2 distortCoords = texCoords;
 
@@ -111,4 +115,5 @@ void main() {
     #endif
 
     color += bayer8(gl_FragCoord.xy) * rcpMaxVal8;
+    //color = vec3(1.0 / linearizeDepth(texelFetch(colortex14, ivec2((texCoords / exp2(3) + hiZOffsets[2]) * viewSize), 0).r));
 }

@@ -105,7 +105,7 @@ vec2 sincos(float x) {
 }
 
 vec2 signNonZero(vec2 v) {
-	return vec2((v.x >= 0.0) ? 1.0 : -1.0, (v.y >= 0.0) ? 1.0 : -1.0);
+	return vec2(v.x >= 0.0 ? 1.0 : -1.0, v.y >= 0.0 ? 1.0 : -1.0);
 }
 
 float cubeLength(vec2 v) {

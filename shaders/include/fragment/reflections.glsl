@@ -41,7 +41,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         vec3 viewDir = normalize(viewPos);
 
         vec3 rayDir   = reflect(viewDir, mat.normal); vec3 hitPos;
-        float hit     = float(raytrace(depthtex0, viewPos, rayDir, SIMPLE_REFLECT_STEPS, randF(), hitPos));
+        float hit     = float(raytrace(viewPos, rayDir, SIMPLE_REFLECT_STEPS, hitPos));
               hit    *= KneemundAttenuation(hitPos.xy);
         vec3 hitColor = getHitColor(hitPos);
 

@@ -29,6 +29,7 @@ const int colortex10Format = RGBA16F;   // Indirect PT
 const int colortex11Format = RGBA16F;   // Moments
 const int colortex12Format = RGB16F;    // Sky
 const int colortex13Format = RGBA16F;   // Translucents
+const int colortex14Format = R32F;      // Hi-z Depth Buffer
 
 const bool colortex0Clear  = false;
 const bool colortex5Clear  = false;
@@ -38,4 +39,5 @@ const bool colortex10Clear = false;
 const bool colortex11Clear = false;
 const bool colortex12Clear = false;
 const bool colortex13Clear = false;
+const bool colortex14Clear = false;
 */

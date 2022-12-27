@@ -86,7 +86,8 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
     #endif
 
     float rcpWetness = max0(wetness - 0.6);
-    float weatherMap = clamp01(FBM(position.xz * layer.scale, layer.octaves, layer.frequency) * (1.0 - layer.coverage) + layer.coverage) * (1.0 - rcpWetness) + rcpWetness;
+    float weatherMap = (FBM(position.xz * layer.scale, layer.octaves, layer.frequency) * (1.0 - layer.coverage) + layer.coverage) * (1.0 - rcpWetness) + rcpWetness;
+          weatherMap = clamp01(weatherMap - 0.1);
 
     position *= layer.shapeScale;
 

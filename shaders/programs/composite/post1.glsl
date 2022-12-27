@@ -67,22 +67,22 @@
 
         #if EXPOSURE > 0
             #if EXPOSURE == 1
-                float currLuma = pow2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
+                float avgLuma = pow2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
             #else
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
                 int closestBinToMedian    = getClosestBinToMedian(pdf);
 
                 //for(int i = 0; i < HISTOGRAM_BINS; i++) luminanceHistogram[i >> 2][i & 3] = pdf[i];
 
-                float currLuma = getLuminanceFromBin(closestBinToMedian);
+                float avgLuma = getLuminanceFromBin(closestBinToMedian);
             #endif
 
             float prevLuma = texelFetch(colortex8, ivec2(0), 0).a;
-                  prevLuma = prevLuma > 0.0 ? prevLuma : currLuma;
-                  prevLuma = isnan(prevLuma) || isinf(prevLuma) ? currLuma : prevLuma;
+                  prevLuma = prevLuma > 0.0 ? prevLuma : avgLuma;
+                  prevLuma = isnan(prevLuma) || isinf(prevLuma) ? avgLuma : prevLuma;
 
-            float exposureTime = currLuma < prevLuma ? EXPOSURE_GROWTH : EXPOSURE_DECAY;
-                  avgLuminance = mix(currLuma, prevLuma, exp(-exposureTime * frameTime));
+            float exposureTime = avgLuma < prevLuma ? EXPOSURE_GROWTH : EXPOSURE_DECAY;
+                  avgLuminance = mix(avgLuma, prevLuma, exp(-exposureTime * frameTime));
         #endif
     }
 

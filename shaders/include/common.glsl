@@ -42,6 +42,23 @@ vec3 sunPosNorm = vec3(-sin(ang), cos(ang) * sunRotationData);
 bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0;                          }
 bool isHand(vec2 coords) { return linearizeDepth(texture(depthtex0, coords).r) < MC_HAND_DEPTH; }
 
+const vec2 hiZOffsets[] = vec2[](
+	vec2(0.0, 0.0 ),
+	vec2(0.5, 0.0 ),
+    vec2(0.5, 0.25)
+);
+
+float find2x2MinimumDepth(vec2 coords, int scale) {
+    coords *= viewSize;
+
+    return minOf(vec4(
+        texelFetch(depthtex0, ivec2(coords)                      , 0).r,
+        texelFetch(depthtex0, ivec2(coords) + ivec2(1, 0) * scale, 0).r,
+        texelFetch(depthtex0, ivec2(coords) + ivec2(0, 1) * scale, 0).r,
+        texelFetch(depthtex0, ivec2(coords) + ivec2(1, 1) * scale, 0).r
+    ));
+}
+
 //////////////////////////////////////////////////////////
 /*----------------- TEXTURE SAMPLING -------------------*/
 //////////////////////////////////////////////////////////

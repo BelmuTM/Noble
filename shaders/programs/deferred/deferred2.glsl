@@ -66,7 +66,7 @@
                     vec4 prevClouds = textureCatmullRom(colortex0, prevPos);
 
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
-                    float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
+                    float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
 
                     vec2  velocity       = (texCoords - prevPos) * viewSize;
                     float velocityWeight = clamp01(exp(-length(velocity)) * 0.8 + 0.2);
