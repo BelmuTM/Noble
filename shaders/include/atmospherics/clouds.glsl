@@ -78,6 +78,26 @@ float densityAlter(float altitude, float weatherMap) {
     return densityAlter;
 }
 
+#define WORLEY__CELL_COUNT (1.0 / 15.0)
+
+vec2 getCellPoint(ivec2 cell) {
+    return (vec2(cell) * WORLEY__CELL_COUNT) + (0.5 + 1.5 * noise(vec2(cell))) * WORLEY__CELL_COUNT;
+}
+
+float cloudsWorley(vec2 coords) {
+    ivec2 cell = ivec2(coords / WORLEY__CELL_COUNT);
+    float dist = 1.0;
+    
+    for (int x = 0; x < 5; x++) { 
+        for (int y = 0; y < 5; y++) {
+        	vec2 cellPoint = getCellPoint(cell + ivec2(x - 2, y - 2));
+                 dist      = min(dist, distance(cellPoint, coords));
+        }
+    }
+    dist /= length(vec2(WORLEY__CELL_COUNT));
+    return pow3(1.0 - dist);
+}
+
 float getCloudsDensity(vec3 position, CloudLayer layer) {
     float altitude = (position.y - (planetRadius + layer.altitude)) * rcp(layer.thickness);
 
@@ -85,9 +105,15 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
         position += wind;
     #endif
 
-    float rcpWetness = max0(wetness - 0.6);
-    float weatherMap = (FBM(position.xz * layer.scale, layer.octaves, layer.frequency) * (1.0 - layer.coverage) + layer.coverage) * (1.0 - rcpWetness) + rcpWetness;
-          weatherMap = clamp01(weatherMap - 0.1);
+    float wetnessFactor = max0(wetness - 0.6);
+
+    float weatherMap = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
+          weatherMap = layer == layer1 ? weatherMap : (weatherMap - 0.4) + cloudsWorley(position.xz * 4e-5);
+          weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
+          weatherMap = weatherMap * (1.0 - wetnessFactor)  + wetnessFactor;
+          weatherMap = clamp01(weatherMap);
+
+    if(weatherMap < EPS) return 0.0;
 
     position *= layer.shapeScale;
 
@@ -151,8 +177,8 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
         float stepTransmittance = exp(-stepOpticalDepth);
 
-        float directOpticalDepth = getCloudsOpticalDepth(rayPos, shadowLightVector, 6, layer);
-        float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,                4, layer);
+        float directOpticalDepth = getCloudsOpticalDepth(rayPos, shadowLightVector, 5, layer);
+        float skyOpticalDepth    = getCloudsOpticalDepth(rayPos, up,                2, layer);
         float groundOpticalDepth = getCloudsOpticalDepth(rayPos,-up,                2, layer);
 
         // Beer's-Powder effect from "The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn" (see sources above)

@@ -39,58 +39,58 @@ bool raytrace(sampler2D depthTexture, vec3 viewPos, vec3 rayDir, int stepCount, 
     return intersect;
 }
 
-vec3 intersectCellBoundary(vec3 origin, vec3 dir, vec2 cellIdx, vec2 cellCount, vec2 crossStep, vec2 crossOffset) {
-    vec2 nextCellIdx = cellIdx + crossStep;
-    vec2 cellBounds  = (nextCellIdx / cellCount) + crossOffset;
+vec3 intersectCellBoundary(vec3 origin, vec3 dir, vec2 cellIndex, vec2 cellCount, vec2 crossStep, vec2 crossOffset) {
+    vec2 nextCellIndex = cellIndex + crossStep;
+    vec2 cellBounds    = (nextCellIndex / cellCount) + crossOffset;
 
     return origin + dir * minOf((cellBounds - origin.xy) / dir.xy);
 }
 
 float getMinimumDepthFromLod(vec2 coords, int lod) {
     if(lod == 0) return find2x2MinimumDepth(coords, 1);
-	return texelFetch(colortex14, ivec2((coords / exp2(lod) + hiZOffsets[lod - 1]) * viewSize), 0).r;
+	else         return texelFetch(colortex14, ivec2((coords / exp2(lod) + hiZOffsets[lod - 1]) * viewSize), 0).r;
 }
 
 vec2 getCellIndex(vec2 pos, vec2 cellSize) {
     return floor(pos.xy * cellSize);
 }
 
-bool rayTraceHiZ(vec3 viewPos, vec3 rayDir, int stepCount, inout vec3 ray) {
+bool hiZTrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, inout vec3 ray) {
     if(rayDir.z > -viewPos.z) return false;
 
     vec3 rayPos = viewToScreen(viewPos);
          rayDir = normalize(viewToScreen(viewPos + rayDir) - rayPos);
 
-    vec2 crossStep   = signNonZero(rayDir.xy);
-    vec2 crossOffset = clamp01(crossStep * pixelSize * 128.0);
+    vec3 d = rayDir / rayDir.z;
+    vec3 o = rayPos + d * -rayPos.z;
 
-    const int maxMipLevel = 2;
-    const int startLevel = 3, stopLevel = 0;
-    vec2 startCellSize = pixelSize * exp2(startLevel);
+    int level = HIZ_START_LEVEL;
 
-    vec2 rayCellIdx = getCellIndex(rayPos.xy, startCellSize);
-         ray        = intersectCellBoundary(rayPos, rayDir, rayCellIdx, startCellSize, crossStep, crossOffset * 64.0);
+    vec2 crossStep   = signNonZero(d.xy);
+    vec2 crossOffset = clamp01(crossStep * pixelSize * exp2(level + 1));
 
-    int level = startLevel;
+    vec2 startCellSize = viewSize / exp2(level);
+    vec2 rayCellIndex  = getCellIndex(rayPos.xy, startCellSize);
+         ray           = intersectCellBoundary(o, d, rayCellIndex, startCellSize, crossStep, crossOffset);
+
     bool intersect = false;
 
-    for(int i = 0; i <= stepCount && !intersect; i++) {
-        vec2 cellSize   = pixelSize * exp2(level);
-        vec2 oldCellIdx = getCellIndex(ray.xy, cellSize);
+    for(int i = 0; i < stepCount && !intersect; i++) {
+        vec2 cellSize     = viewSize / exp2(level);
+        vec2 oldCellIndex = getCellIndex(ray.xy, cellSize);
 
-        float minZ  = getMinimumDepthFromLod(ray.xy, level);
-        vec3 tmpRay = rayPos + rayDir * max(minZ, rayPos.z);
+        float minZ  = getMinimumDepthFromLod((oldCellIndex + 0.5) / cellSize, level);
+        vec3 tmpRay = o + d * max(ray.z, minZ);
 
-        vec2 newCellIdx = getCellIndex(tmpRay.xy, cellSize);
+        vec2 newCellIndex = getCellIndex(tmpRay.xy, cellSize);
 
-        if(oldCellIdx != newCellIdx) {
-            tmpRay = intersectCellBoundary(rayPos, rayDir, oldCellIdx, cellSize, crossStep, crossOffset);
-            level  = min(maxMipLevel, level + 1);
-        } else {
+        if(any(notEqual(oldCellIndex, newCellIndex))) {
+            tmpRay = intersectCellBoundary(o, d, oldCellIndex, cellSize, crossStep, crossOffset);
             level--;
-        }
+        } else level++;
+
         ray = tmpRay;
-        intersect = level < stopLevel;
+        intersect = level < HIZ_STOP_LEVEL;
     }
     return intersect;
 }

@@ -39,5 +39,4 @@ const bool colortex10Clear = false;
 const bool colortex11Clear = false;
 const bool colortex12Clear = false;
 const bool colortex13Clear = false;
-const bool colortex14Clear = false;
 */

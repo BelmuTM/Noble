@@ -41,7 +41,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         vec3 viewDir = normalize(viewPos);
 
         vec3 rayDir   = reflect(viewDir, mat.normal); vec3 hitPos;
-        float hit     = float(raytrace(viewPos, rayDir, SIMPLE_REFLECT_STEPS, hitPos));
+        float hit     = float(raytrace(depthtex0, viewPos, rayDir, SIMPLE_REFLECT_STEPS, randF(), hitPos));
               hit    *= KneemundAttenuation(hitPos.xy);
         vec3 hitColor = getHitColor(hitPos);
 
@@ -103,31 +103,5 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
             }
 	    }
 	    return max0(color * rcp(samples));
-    }
-#endif
-
-//////////////////////////////////////////////////////////
-/*--------------------- REFRACTIONS --------------------*/
-//////////////////////////////////////////////////////////
-
-#if REFRACTIONS == 1
-    vec3 refractions(vec3 viewPos, vec3 scenePos, Material mat, inout vec3 hitPos) {
-        float ior    = f0ToIOR(mat.F0);
-        vec3 viewDir = normalize(viewPos);
-
-        vec3 refracted = refract(viewDir, mat.normal, airIOR / ior);
-        bool hit       = raytrace(depthtex1, viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
-        if(!hit || isHand(hitPos.xy)) { hitPos.xy = texCoords; }
-
-        float n1 = airIOR, n2 = ior;
-        if(isEyeInWater == 1) { n1 = 1.329; n2 = airIOR; }
-
-        float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), n1, n2);
-        vec3 hitColor = texture(colortex13, hitPos.xy).rgb;
-
-        float distThroughMedium = clamp(distance(viewToScene(screenToView(hitPos)), scenePos), EPS, 5.0);
-        vec3  beer              = mat.blockId == 1 ? vec3(1.0) : exp(-(1.0 - mat.albedo) * distThroughMedium);
-
-        return max0(hitColor * (1.0 - fresnel) * beer);
     }
 #endif

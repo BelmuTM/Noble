@@ -102,15 +102,15 @@ mat2x3 getHardcodedMetal(Material mat) {
 }
 
 vec3 getBlockLightColor(Material mat) {
+    #if GI == 1
+        return mat.albedo * 800.0;
+    #endif
+
     switch(mat.blockId) {
         case 5: return blackbody(1573.0) * BLOCKLIGHT_INTENSITY; // Lava, magma
         case 6: return blackbody(1900.0) * BLOCKLIGHT_INTENSITY; // Flames, fire
 
-        #if GI == 0
-            default: return blackbody(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY;
-        #else
-            default: return mat.albedo * 100.0;
-        #endif
+        default: return blackbody(BLOCKLIGHT_TEMPERATURE) * BLOCKLIGHT_INTENSITY;
     }
     return vec3(0.0);
 }

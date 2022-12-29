@@ -8,9 +8,9 @@
 
 /* RENDERTARGETS: 2 */
 
-layout (location = 0) out vec3 reflections;
-
 #if GI == 0 && REFLECTIONS == 1
+    layout (location = 0) out vec3 reflections;
+
     #include "/include/fragment/brdf.glsl"
     
     #include "/include/atmospherics/celestial.glsl"
@@ -31,5 +31,7 @@ void main() {
         #else
             reflections = roughReflections(viewPos, mat);
         #endif
+    #else
+        discard;
     #endif
 }
