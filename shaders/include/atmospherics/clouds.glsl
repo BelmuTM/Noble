@@ -81,7 +81,7 @@ float densityAlter(float altitude, float weatherMap) {
 #define WORLEY__CELL_COUNT (1.0 / 15.0)
 
 vec2 getCellPoint(ivec2 cell) {
-    return (vec2(cell) * WORLEY__CELL_COUNT) + (0.5 + 1.5 * noise(vec2(cell))) * WORLEY__CELL_COUNT;
+    return (vec2(cell) * WORLEY__CELL_COUNT) + (0.5 + 1.5 * rand(vec2(cell))) * WORLEY__CELL_COUNT;
 }
 
 float cloudsWorley(vec2 coords) {
@@ -108,7 +108,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
     float wetnessFactor = max0(wetness - 0.6);
 
     float weatherMap = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
-          weatherMap = layer == layer1 ? weatherMap : (weatherMap - 0.4) + cloudsWorley(position.xz * 4e-5);
+          weatherMap = layer == layer1 ? weatherMap : ((weatherMap - 0.4) + cloudsWorley(position.xz * 4e-5) * 1.2 - 0.2);
           weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
           weatherMap = weatherMap * (1.0 - wetnessFactor)  + wetnessFactor;
           weatherMap = clamp01(weatherMap);

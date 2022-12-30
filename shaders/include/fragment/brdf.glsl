@@ -181,24 +181,6 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
     return clamp01(NdotH * NdotH / HdotH);
 }
 
-vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
-    float NdotV = dot(N, V);
-    float NdotL = dot(N, L);
-    float VdotL = dot(V, L);
-
-    float NdotH = NdotHSquared(shadowLightAngularRad, NdotL, NdotV, VdotL, NdotV, VdotL);
-    float VdotH = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
-
-    NdotV = maxEps(NdotV);
-    NdotL = clamp01(NdotL);
-    
-    float D  = distributionGGX(NdotH, mat.rough);
-    vec3  F  = fresnelComplex(VdotH, mat);
-    float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
-        
-    return max0(NdotL * ((D * G2) * F / (4.0 * NdotL * NdotV)));
-}
-
 vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughMedium) {
     if(mat.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
@@ -249,4 +231,22 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     diffuse += (blockLight + skyLight + ambient) * mat.ao * ao;
 
     return mat.albedo * (diffuse + emissiveness);
+}
+
+vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
+    float NdotV = dot(N, V);
+    float NdotL = dot(N, L);
+    float VdotL = dot(V, L);
+
+    float NdotH = NdotHSquared(shadowLightAngularRad, NdotL, NdotV, VdotL, NdotV, VdotL);
+    float VdotH = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
+
+    NdotV = maxEps(NdotV);
+    NdotL = clamp01(NdotL);
+    
+    float D  = distributionGGX(NdotH, mat.rough);
+    vec3  F  = fresnelComplex(VdotH, mat);
+    float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
+        
+    return max0(NdotL * ((D * G2) * F / (4.0 * NdotL * NdotV)));
 }

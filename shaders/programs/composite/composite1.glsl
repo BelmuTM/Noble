@@ -33,7 +33,7 @@ layout (location = 0) out vec3 color;
         float n1 = airIOR, n2 = ior;
         if(isEyeInWater == 1) { n1 = 1.329; n2 = airIOR; }
 
-        float fresnel = fresnelDielectric(maxEps(dot(mat.normal, -viewDir)), n1, n2);
+        float fresnel = fresnelDielectric(abs(dot(mat.normal, -viewDir)), n1, n2);
         vec3 hitColor = texture(colortex13, hitPos.xy).rgb;
 
         float distThroughMedium = clamp(distance(viewToScene(screenToView(hitPos)), scenePos), EPS, 5.0);

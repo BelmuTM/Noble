@@ -92,7 +92,7 @@
 
 		// WOTAH
 		if(blockId == 1) { 
-			mat.F0 = waterF0, mat.rough = 0.0, mat.ao = 1.0, mat.emission = 0.0, mat.subsurface = 0.0;
+			mat.F0 = waterF0, mat.rough = 1e-2, mat.ao = 1.0, mat.emission = 0.0, mat.subsurface = 0.0;
 
     		mat.albedo = vec3(0.0);
 			mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES, 1.0);
