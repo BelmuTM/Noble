@@ -55,8 +55,8 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
         float NdotV = dot(mat.normal, -viewDir);
 
         vec3  F  = fresnelComplex(NdotL, mat);
-        float G1 = G1SmithGGX(NdotV, mat.rough);
-        float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
+        float G1 = G1SmithGGX(NdotV, mat.roughness);
+        float G2 = G2SmithGGX(NdotL, NdotV, mat.roughness);
 
         return NdotV > 0.0 && NdotL > 0.0 ? color * F : vec3(0.0);
     }
@@ -77,7 +77,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
 	
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
             vec2 noise      = vec2(randF(), randF());
-            vec3 microfacet = TBN * sampleGGXVNDF(-viewDir * TBN, noise, mat.rough);
+            vec3 microfacet = TBN * sampleGGXVNDF(-viewDir * TBN, noise, mat.roughness);
 		    vec3 rayDir     = reflect(viewDir, microfacet);	
             float NdotL     = abs(dot(mat.normal, rayDir));
 
@@ -95,8 +95,8 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
                 float MdotV = dot(microfacet, -viewDir);
 
                 vec3  F  = isEyeInWater == 1 ? vec3(fresnelDielectric(MdotV, 1.329, airIOR)) : fresnelComplex(MdotV, mat);
-                float G1 = G1SmithGGX(NdotV, mat.rough);
-                float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
+                float G1 = G1SmithGGX(NdotV, mat.roughness);
+                float G2 = G2SmithGGX(NdotL, NdotV, mat.roughness);
 
                 color += hitColor * ((F * G2) / G1);
                 samples++;
