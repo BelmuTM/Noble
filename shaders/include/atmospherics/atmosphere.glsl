@@ -104,15 +104,16 @@ vec3 sampleDirectIlluminance() {
     return directIlluminance;
 }
 
+// Taken from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
 mat3[2] sampleSkyIlluminanceComplex() {
     mat3[2] skyIllum = mat3[2](mat3(0.0), mat3(0.0));
 
     #ifdef WORLD_OVERWORLD
-        const ivec2 samples = ivec2(16, 8);
+        const ivec2 samples = ivec2(64, 32);
 
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
-                vec3 dir        = generateUnitVector((vec2(x, y) + 0.5) / samples); // Uniform hemisphere sampling thanks to SixthSurge#3922
+                vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
                 vec3 atmoSample = texture(colortex12, projectSphere(dir)).rgb;
 
                 skyIllum[0][0] += atmoSample * clamp01( dir.x);
@@ -129,13 +130,21 @@ mat3[2] sampleSkyIlluminanceComplex() {
         skyIllum[1][0] *= sampleWeight;
         skyIllum[1][2] *= sampleWeight;
 
-        skyIllum[0][0] += skyIllum[0][1] * 0.2;
-        skyIllum[0][2] += skyIllum[0][1] * 0.2;
-        skyIllum[1][0] += skyIllum[0][1] * 0.2;
-        skyIllum[1][1] += skyIllum[0][1];
-        skyIllum[1][2] += skyIllum[0][1] * 0.2;
+        skyIllum[0][0] += skyIllum[0][1] * 0.1;
+        skyIllum[0][2] += skyIllum[0][1] * 0.1;
+        skyIllum[1][0] += skyIllum[0][1] * 0.1;
+        skyIllum[1][1] += skyIllum[0][1] * 0.2;
+        skyIllum[1][2] += skyIllum[0][1] * 0.1;
     #endif
     return skyIllum;
+}
+
+vec3 getSkyLight(vec3 normal, mat3[2] skyLight) {
+    vec3 octahedronPoint = normal / dot(abs(normal), vec3(1.0));
+    vec3 positive = clamp01(octahedronPoint), negative = clamp01(-octahedronPoint);
+    
+    return skyLight[0][0] * positive.x + skyLight[0][1] * positive.y + skyLight[0][2] * positive.z
+		 + skyLight[1][0] * negative.x + skyLight[1][1] * negative.y + skyLight[1][2] * negative.z;
 }
 
 vec3 sampleSkyIlluminanceSimple() {
@@ -153,12 +162,4 @@ vec3 sampleSkyIlluminanceSimple() {
         skyIllum *= (TAU / (samples.x * samples.y));
     #endif
     return skyIllum;
-}
-
-vec3 getSkyLight(vec3 normal, mat3[2] skyLight) {
-    vec3 octahedronPoint = normal / dot(abs(normal), vec3(1.0));
-    vec3 positive = clamp01(octahedronPoint), negative = clamp01(-octahedronPoint);
-    
-    return skyLight[0][0] * positive.x + skyLight[0][1] * positive.y + skyLight[0][2] * positive.z
-		 + skyLight[1][0] * negative.x + skyLight[1][1] * negative.y + skyLight[1][2] * negative.z;
 }

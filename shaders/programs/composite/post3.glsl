@@ -115,5 +115,5 @@ void main() {
     #endif
 
     color += bayer8(gl_FragCoord.xy) * rcpMaxVal8;
-    // color = vec3(1.0 / linearizeDepth(texelFetch(colortex14, ivec2(gl_FragCoord.xy), 0).r));
+    color = vec3(1.0 / linearizeDepth(texelFetch(colortex14, ivec2((texCoords / exp2(3) + hiZOffsets[2]) * viewSize), 0).r));
 }

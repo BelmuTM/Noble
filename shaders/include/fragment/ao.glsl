@@ -105,7 +105,7 @@
 			float bentAngle = dot(horizons, vec2(0.5));
 			bentNormal 	   += viewDir * cos(bentAngle) + orthoDir * sin(bentAngle);
 		}
-		bentNormal = normalize(normalize(bentNormal) - viewDir * 0.5);
+		bentNormal = normalize(normalize(bentNormal) - 0.5 * viewDir);
 		return multiBounceApprox(visibility * rcp(GTAO_SLICES));
 	}
 #endif

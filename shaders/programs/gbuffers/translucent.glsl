@@ -92,14 +92,14 @@
 
 		// WOTAH
 		if(blockId == 1) { 
-			mat.F0 = waterF0, mat.rough = 1e-2, mat.ao = 1.0, mat.emission = 0.0, mat.subsurface = 0.0;
+			mat.F0 = waterF0, mat.roughness = 1e-2, mat.ao = 1.0, mat.emission = 0.0, mat.subsurface = 0.0;
 
     		mat.albedo = vec3(0.0);
 			mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES, 1.0);
 		
 		} else {
 			mat.F0         = specularTex.y;
-    		mat.rough      = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
+    		mat.roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
     		mat.ao         = normalTex.z;
 			mat.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     		mat.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
@@ -142,7 +142,7 @@
 			#endif
 		}
 
-		vec3 labPbrData0 = vec3(mat.rough, lmCoords);
+		vec3 labPbrData0 = vec3(mat.roughness, lmCoords);
 		vec4 labPbrData1 = vec4(mat.ao, mat.emission, mat.F0, mat.subsurface);
 		vec2 encNormal 	 = encodeUnitVector(normalize(mat.normal));
 	

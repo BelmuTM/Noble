@@ -8,7 +8,7 @@
 
 struct Material {
     float F0;
-    float rough;
+    float roughness;
     float ao;
     float emission;
     float subsurface;
@@ -32,7 +32,7 @@ Material getMaterial(vec2 coords) {
     vec4 unpacked = unpackUnorm4x8(dataTex.y);
 
     Material mat;
-    mat.rough      = (dataTex.x & 255u)          * rcpMaxVal8;
+    mat.roughness  = (dataTex.x & 255u)          * rcpMaxVal8;
     mat.ao         = (dataTex.y & 255u)          * rcpMaxVal8;
     mat.emission   = ((dataTex.y >> 8u)  & 255u) * rcpMaxVal8;
     mat.F0         = ((dataTex.y >> 16u) & 255u) * rcpMaxVal8;

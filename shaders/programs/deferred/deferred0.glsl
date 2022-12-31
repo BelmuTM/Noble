@@ -40,24 +40,24 @@ void main() {
         Material mat = getMaterial(texCoords);
 
         #if AO_TYPE == 0
-            ao.a = SSAO(viewPos, mat.normal);
+            ao.w = SSAO(viewPos, mat.normal);
         #elif AO_TYPE == 1
-            ao.a = RTAO(viewPos, mat.normal, ao.rgb);
+            ao.w = RTAO(viewPos, mat.normal, ao.xyz);
         #elif AO_TYPE == 2
-            ao.a = GTAO(texCoords, viewPos, mat.normal, ao.rgb);
+            ao.w = GTAO(texCoords, viewPos, mat.normal, ao.xyz);
         #endif
 
-        ao.a   = clamp01(ao.a);
-        ao.rgb = max0(ao.rgb);
+        ao.w = clamp01(ao.w);
 
         #if AO_FILTER == 1
             vec3 currPos = vec3(texCoords, mat.depth0);
             vec3 prevPos = currPos - getVelocity(currPos);
             vec4 prevAO  = texture(colortex10, prevPos.xy);
-            float weight = clamp01(1.0 - (1.0 / max(texture(colortex13, prevPos.xy).a, 1.0)));
+        
+            float weight = clamp01(1.0 - (1.0 / max(texture(colortex13, prevPos.xy).w, 1.0)));
 
-            ao.a   = mix(ao.a, prevAO.a, weight);
-            ao.rgb = mix(ao.rgb, prevAO.rgb, weight);
+            ao.w   = mix(ao.w, prevAO.w, weight);
+            ao.xyz = mix(ao.xyz, prevAO.xyz, weight);
         #endif
     #endif
 }

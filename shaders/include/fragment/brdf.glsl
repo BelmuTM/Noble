@@ -81,6 +81,18 @@ vec3 fresnelDieletricConductor(vec3 eta, vec3 etaK, float cosTheta) {
    return clamp01((Rp + Rs) * 0.5);
 }
 
+vec3 fresnelComplex(float cosTheta, Material mat) {
+    vec3 n = vec3(0.0), k = vec3(0.0);
+
+    if(mat.F0 * maxVal8 > 229.5) {
+        mat2x3 hcm = getHardcodedMetal(mat);
+        n = hcm[0], k = hcm[1];
+    } else {
+        n = vec3(f0ToIOR(mat.F0) * airIOR);
+    }
+    return fresnelDieletricConductor(n, k, cosTheta);
+}
+
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
 vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float roughness) {
     float alpha = pow2(roughness);
@@ -105,46 +117,6 @@ vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float roughness) {
 
 	// Transforming the normal back to the ellipsoid configuration
 	return normalize(vec3(alpha * Nh.xy, Nh.z));	
-}
-
-// HAMMON DIFFUSE
-// https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
-vec3 hammonDiffuse(Material mat, vec3 V, vec3 L) {
-    float alpha = pow2(mat.rough);
-
-    vec3 H      = normalize(V + L);
-    float NdotL = clamp01(dot(mat.normal, L));
-    float NdotV = clamp01(dot(mat.normal, V));
-    float VdotL = dot(V, L);
-    float NdotH = dot(mat.normal, H);
-
-    float facing    = 0.5 + 0.5 * VdotL;
-    float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
-
-    // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
-    float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * rcp(9.0);
-    float ior       = f0ToIOR(mat.F0);
-    float fresnelNL = 1.0 - fresnelDielectric(NdotL, airIOR, ior);
-    float fresnelNV = 1.0 - fresnelDielectric(NdotV, airIOR, ior);
-
-    float smoothSurf = fresnelNL * fresnelNV / energyConservationFactor;
-
-    float single = mix(smoothSurf, roughSurf, alpha) * RCP_PI;
-    float multi  = 0.1159 * alpha;
-
-    return NdotL * (mat.albedo * multi + single);
-}
-
-vec3 fresnelComplex(float cosTheta, Material mat) {
-    vec3 n = vec3(0.0), k = vec3(0.0);
-
-    if(mat.F0 * maxVal8 > 229.5) {
-        mat2x3 hcm = getHardcodedMetal(mat);
-        n = hcm[0], k = hcm[1];
-    } else {
-        n = vec3(f0ToIOR(mat.F0) * airIOR);
-    }
-    return fresnelDieletricConductor(n, k, cosTheta);
 }
 
 // This function helps us consider the light source as a sphere
@@ -179,6 +151,34 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
     float NdotH = NdotV + newNdotL;
     float HdotH = 2.0 * newVdotL + 2.0;
     return clamp01(NdotH * NdotH / HdotH);
+}
+
+// HAMMON DIFFUSE
+// https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
+vec3 hammonDiffuse(Material mat, vec3 V, vec3 L) {
+    float alpha = pow2(mat.roughness);
+
+    vec3 H      = normalize(V + L);
+    float NdotL = clamp01(dot(mat.normal, L));
+    float NdotV = clamp01(dot(mat.normal, V));
+    float VdotL = dot(V, L);
+    float NdotH = dot(mat.normal, H);
+
+    float facing    = 0.5 + 0.5 * VdotL;
+    float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
+
+    // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
+    float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * rcp(9.0);
+    float ior       = f0ToIOR(mat.F0);
+    float fresnelNL = 1.0 - fresnelDielectric(NdotL, airIOR, ior);
+    float fresnelNV = 1.0 - fresnelDielectric(NdotV, airIOR, ior);
+
+    float smoothSurf = fresnelNL * fresnelNV / energyConservationFactor;
+
+    float single = mix(smoothSurf, roughSurf, alpha) * RCP_PI;
+    float multi  = 0.1159 * alpha;
+
+    return NdotL * (mat.albedo * multi + single);
 }
 
 vec3 subsurfaceScatteringApprox(Material mat, vec3 V, vec3 L, float distThroughMedium) {
@@ -244,9 +244,9 @@ vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
     NdotV = maxEps(NdotV);
     NdotL = clamp01(NdotL);
     
-    float D  = distributionGGX(NdotH, mat.rough);
+    float D  = distributionGGX(NdotH, mat.roughness);
     vec3  F  = fresnelComplex(VdotH, mat);
-    float G2 = G2SmithGGX(NdotL, NdotV, mat.rough);
+    float G2 = G2SmithGGX(NdotL, NdotV, mat.roughness);
         
     return max0(NdotL * ((D * G2) * F / (4.0 * NdotL * NdotV)));
 }

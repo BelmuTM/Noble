@@ -113,7 +113,7 @@ const vec3 waterExtinctionCoeff = waterAbsorptionCoeff + waterScatteringCoeff;
 const int phaseMultiSamples = 8;
 
 #if WATER_FOG == 0
-    // Sources: ShaderLabs, Spectrum - Zombye
+
     void waterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
         vec3 transmittance = exp(-waterAbsorptionCoeff * distance(startPos, endPos));
 

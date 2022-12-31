@@ -46,7 +46,7 @@
 
     vec3 indirectBRDF(vec2 noise, Material mat, inout vec3 rayDir) {
         mat3 TBN        = constructViewTBN(mat.normal);
-        vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, mat.rough);
+        vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, mat.roughness);
         vec3 fresnel    = fresnelComplex(dot(microfacet, -rayDir), mat);
 
         // Specular bounce probability from https://www.shadertoy.com/view/ssc3WH
@@ -57,7 +57,7 @@
         vec3 BRDF = vec3(0.0);
         if(specularProb > randF()) {
             vec3 newDir = reflect(rayDir, microfacet);
-            BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.rough) / specularProb;
+            BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.roughness) / specularProb;
             rayDir      = newDir;
         } else {
             float matIOR                   = f0ToIOR(mat.F0);

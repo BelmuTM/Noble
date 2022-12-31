@@ -69,14 +69,14 @@ bool hiZTrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, inout vec3
     vec2 crossStep   = signNonZero(d.xy);
     vec2 crossOffset = clamp01(crossStep * pixelSize * exp2(level + 1));
 
-    vec2 startCellSize = viewSize / exp2(level);
+    vec2 startCellSize = floor(viewSize / exp2(level));
     vec2 rayCellIndex  = getCellIndex(rayPos.xy, startCellSize);
          ray           = intersectCellBoundary(o, d, rayCellIndex, startCellSize, crossStep, crossOffset);
 
     bool intersect = false;
 
     for(int i = 0; i < stepCount && !intersect; i++) {
-        vec2 cellSize     = viewSize / exp2(level);
+        vec2 cellSize     = floor(viewSize / exp2(level));
         vec2 oldCellIndex = getCellIndex(ray.xy, cellSize);
 
         float minZ  = getMinimumDepthFromLod((oldCellIndex + 0.5) / cellSize, level);
@@ -86,11 +86,11 @@ bool hiZTrace(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, inout vec3
 
         if(any(notEqual(oldCellIndex, newCellIndex))) {
             tmpRay = intersectCellBoundary(o, d, oldCellIndex, cellSize, crossStep, crossOffset);
-            level--;
-        } else level++;
+            level++;
+        } else level--;
 
         ray = tmpRay;
-        intersect = level < HIZ_STOP_LEVEL;
+        intersect = level < HIZ_STOP_LEVEL && clamp01(ray.xy) == ray.xy;
     }
     return intersect;
 }
