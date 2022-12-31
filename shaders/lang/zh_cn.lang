@@ -1,0 +1,680 @@
+###############################################
+#        Copyright (C) NobleRT - 2022         #
+#   Belmu | GNU General Public License V3.0   #
+#                                             #
+# By downloading this content you have agreed #
+#     to the license and its terms of use.    #
+###############################################
+
+#shaders/lang/zh_cn.lang
+
+##################### OTHERS #####################
+option.ABOUT = §6Noble
+option.ABOUT.comment = §r§lTwitter: §r§7@Belmu_. §r§lDiscord: §r§7Belmu#4066. §r§lPatreon: §r§6https://www.patreon.com/Belmu. §r§lGithub: §r§6https://www.github.com/BelmuTM.
+value.ABOUT.0 = §rby Belmu
+value.ABOUT.1 = §b§lBoop!
+
+profile.RENDER  = §a§lRENDER
+profile.DEFAULT = §a§lDEFAULT
+profile.comment  = §lDEFAULT§r profile refers to Noble with default settings. §r§lRENDER§r profile transforms Noble into a renderer by boosting certain settings. §c§lDISCLAIMER: RENDER MODE MIGHT HEAVILY AFFECT §c§lTHE PERFORMANCE.
+
+##################### SCREENS #####################
+
+screen.LIGHTING          = 光照
+screen.AMBIENT_OCCLUSION = 环境光遮蔽
+screen.RAYTRACING        = 光线追踪
+screen.FILTER            = 降噪
+screen.ATMOSPHERICS      = 大气
+screen.CLOUDS            = 云
+screen.TERRAIN           = 表面
+screen.WATER             = 水
+screen.WATER_ABSORPTION  = 吸收系数
+screen.WATER_SCATTERING  = 散射
+screen.POST_PROCESSING   = 镜头
+screen.CAMERA_SETTINGS   = 镜头设置
+screen.DEPTH_OF_FIELD    = 景深
+screen.COLOR_GRADING     = 色彩调整
+screen.ANTI_ALIASING     = 抗锯齿
+
+##################### LIGHTING #####################
+
+option.DIRECTIONAL_LIGHTMAP = 方向性光照图
+option.DIRECTIONAL_LIGHTMAP.comment = 使Minecraft的光照图依赖于光源方向 §c可能引起视觉错误
+value.DIRECTIONAL_LIGHTMAP.0 = §c关闭
+value.DIRECTIONAL_LIGHTMAP.1 = §a开启
+
+option.BLOCKLIGHT_TEMPERATURE = 方块光照色温
+option.BLOCKLIGHT_TEMPERATURE.comment = 调整方块方块光照色温 (开尔文)。这会影响光源颜色。
+suffix.BLOCKLIGHT_TEMPERATURE = K
+
+option.SUBSURFACE_SCATTERING = 次表面散射
+option.SUBSURFACE_SCATTERING.comment = 模拟光线如何穿过特定介质 (树叶, 皮肤,...)。§c需要PBR资源包！
+value.SUBSURFACE_SCATTERING.0 = §c关闭
+value.SUBSURFACE_SCATTERING.1 = §a开启
+
+option.MATERIAL_AO = 材质环境光遮蔽
+option.MATERIAL_AO.comment = §b材质环境光遮蔽 §r为材质本身添加模拟阴影。§c需要PBR资源包！
+value.MATERIAL_AO.0 = §c关闭
+value.MATERIAL_AO.1 = §a开启
+
+option.SPECULAR = 高光
+option.SPECULAR.comment = 为方块添加光泽。
+value.SPECULAR.0 = §c关闭
+value.SPECULAR.1 = §a开启
+
+option.SHADOWS = 阴影
+option.SHADOWS.comment = 添加阴影。
+value.SHADOWS.0 = §c关闭
+value.SHADOWS.1 = §a开启
+
+option.SHADOW_TYPE = 阴影类型
+option.SHADOW_TYPE.comment = §a常规§r 阴影会带有模糊的边缘。 §a软阴影§r 阴影离阻挡物越远就越模糊。 §a硬阴影§r 阴影会带有非常尖锐的边缘。
+value.SHADOW_TYPE.0 = §e常规
+value.SHADOW_TYPE.1 = §e软阴影
+value.SHADOW_TYPE.2 = §e硬阴影
+
+option.shadowDistance = 阴影距离
+option.shadowDistance.comment = 调整 §b阴影§r 的最大渲染距离。
+
+option.SHADOW_SAMPLES = 阴影采样次数
+option.SHADOW_SAMPLES.comment = 调整 §b阴影§r 质量。 §c更高的分辨率提供更好的阴影，但会降低§c性能。 §c不适用于硬阴影。
+value.SHADOW_SAMPLES.1 = §b1
+value.SHADOW_SAMPLES.2 = §b2
+value.SHADOW_SAMPLES.3 = §33
+value.SHADOW_SAMPLES.4 = §34
+value.SHADOW_SAMPLES.5 = §25
+value.SHADOW_SAMPLES.6 = §26
+value.SHADOW_SAMPLES.7 = §a7
+value.SHADOW_SAMPLES.8 = §a8
+value.SHADOW_SAMPLES.9 = §e9
+value.SHADOW_SAMPLES.10 = §e10
+value.SHADOW_SAMPLES.11 = §611
+value.SHADOW_SAMPLES.12 = §612
+value.SHADOW_SAMPLES.13 = §c13
+value.SHADOW_SAMPLES.14 = §c14
+value.SHADOW_SAMPLES.15 = §415
+value.SHADOW_SAMPLES.16 = §416
+
+option.shadowMapResolution = 阴影分辨率
+option.shadowMapResolution.comment = 调整 §b阴影§r 分辨率。 §c更高的分辨率给出更清晰的阴影，但会降低§c性能。
+value.shadowMapResolution.512 = §b512
+value.shadowMapResolution.1024 = §31024
+value.shadowMapResolution.2048 = §22048
+value.shadowMapResolution.3072 = §a3072
+value.shadowMapResolution.4096 = §e4096
+value.shadowMapResolution.6144 = §66144
+value.shadowMapResolution.8192 = §c8192
+value.shadowMapResolution.10240 = §410240
+suffix.shadowMapResolution = x
+
+##################### AMBIENT OCCLUSION #####################
+
+option.AO = 环境光遮蔽(AO)
+option.AO.comment = §b环境光遮蔽。§r提供增强场景深度感知的模拟阴影。
+value.AO.0 = §c关闭
+value.AO.1 = §a开启
+
+option.AO_FILTER = 环境光遮蔽过滤
+option.AO_FILTER.comment = 在连续的帧上累积§b环境光遮蔽§r以减少噪声并提供更清晰的结果。
+value.AO_FILTER.0 = §c关闭
+value.AO_FILTER.1 = §a开启
+
+option.AO_TYPE = 环境光遮蔽类型
+option.AO_TYPE.comment = §aRTAO §7-> §r光线追踪环境光遮蔽 §aSSAO §7-> §r屏幕空间环境光遮蔽
+value.AO_TYPE.0 = §e§lSSAO
+value.AO_TYPE.1 = §e§lRTAO
+value.AO_TYPE.2 = §e§lGTAO
+
+option.AO_SCALE = 环境光遮蔽渲染分辨率
+option.AO_SCALE.comment = 调整§b环境光遮蔽§r的渲染分辨率。§c更高的值可以得到更好的效果，但会降低§c性能。
+suffix.AO_SCALE = x
+value.AO_SCALE.10 = 0.10
+value.AO_SCALE.15 = 0.15
+value.AO_SCALE.20 = 0.20
+value.AO_SCALE.25 = 0.25
+value.AO_SCALE.30 = 0.30
+value.AO_SCALE.35 = 0.35
+value.AO_SCALE.40 = 0.40
+value.AO_SCALE.45 = 0.45
+value.AO_SCALE.50 = 0.50
+value.AO_SCALE.55 = 0.55
+value.AO_SCALE.60 = 0.60
+value.AO_SCALE.65 = 0.65
+value.AO_SCALE.70 = 0.70
+value.AO_SCALE.75 = 0.75
+value.AO_SCALE.80 = 0.80
+value.AO_SCALE.85 = 0.85
+value.AO_SCALE.90 = 0.90
+value.AO_SCALE.95 = 0.95
+value.AO_SCALE.100 = 1.00
+
+option.SSAO_SAMPLES = SSAO采样次数
+option.SSAO_SAMPLES.comment = 影响§bSSAO§r的质量。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.SSAO_SAMPLES.4 = §24
+value.SSAO_SAMPLES.8 = §a8
+value.SSAO_SAMPLES.12 = §e12
+value.SSAO_SAMPLES.16 = §616
+value.SSAO_SAMPLES.20 = §c20
+
+option.SSAO_RADIUS = SSAO半径
+option.SSAO_RADIUS.comment = 调整。§bSSAO§r的半径。
+
+option.RTAO_SAMPLES = RTAO采样次数
+option.RTAO_SAMPLES.comment = 影响§bRTAO§r的质量。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.RTAO_SAMPLES.2 = §22
+value.RTAO_SAMPLES.4 = §a4
+value.RTAO_SAMPLES.6 = §e6
+value.RTAO_SAMPLES.8 = §68
+value.RTAO_SAMPLES.10 = §c10
+
+option.RTAO_STEPS = RTAO步数
+option.RTAO_STEPS.comment = 影响§bRTAO§r的精确度。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.RTAO_STEPS.16 = §216
+value.RTAO_STEPS.24 = §a24
+value.RTAO_STEPS.32 = §e32
+value.RTAO_STEPS.40 = §640
+value.RTAO_STEPS.64 = §c64
+
+option.GTAO_SLICES = GTAO切片
+option.GTAO_SLICES.comment = 影响§bGTAO§r的精确度。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.GTAO_SLICES.1 = §21
+value.GTAO_SLICES.2 = §a2
+value.GTAO_SLICES.3 = §e3
+value.GTAO_SLICES.4 = §64
+value.GTAO_SLICES.5 = §c5
+value.GTAO_SLICES.6 = §46
+
+option.GTAO_RADIUS = GTAO半径
+option.GTAO_RADIUS.comment = 调整§bGTAO§r的半径。
+
+##################### RAY TRACING #####################
+
+### REFLECTIONS & REFRACTIONS
+
+option.REFLECTIONS = 屏幕空间反射
+option.REFLECTIONS.comment = §c只能反射显示在你的屏幕上的内容。
+value.REFLECTIONS.0 = §c关闭
+value.REFLECTIONS.1 = §a开启
+
+option.REFRACTIONS = 屏幕空间折射
+option.REFRACTIONS.comment = 允许§b屏幕空间折射§r应用在折射介质 (玻璃，水，冰，...). §c只能折射显示在你的屏幕上的内容。
+value.REFRACTIONS.0 = §cOFF
+value.REFRACTIONS.1 = §aON
+
+option.REFLECTIONS_TYPE = 屏幕空间反射类型
+option.REFLECTIONS_TYPE.comment = §b简单反射§r不考虑材质的粗糙度。 §b粗糙度反射§r考虑材质的粗糙度，§c这能得到更加好的§c的效果但会降低性能。
+value.REFLECTIONS_TYPE.0 = §e简单反射
+value.REFLECTIONS_TYPE.1 = §e粗糙度反射
+
+option.REFLECTIONS_SCALE = 反射渲染分辨率
+option.REFLECTIONS_SCALE.comment = 调整§b反射§r的渲染分辨率。§c更高的值可以得到更好的效果，但会降低§c性能。
+suffix.REFLECTIONS_SCALE = x
+value.REFLECTIONS_SCALE.10 = 0.10
+value.REFLECTIONS_SCALE.15 = 0.15
+value.REFLECTIONS_SCALE.20 = 0.20
+value.REFLECTIONS_SCALE.25 = 0.25
+value.REFLECTIONS_SCALE.30 = 0.30
+value.REFLECTIONS_SCALE.35 = 0.35
+value.REFLECTIONS_SCALE.40 = 0.40
+value.REFLECTIONS_SCALE.45 = 0.45
+value.REFLECTIONS_SCALE.50 = 0.50
+value.REFLECTIONS_SCALE.55 = 0.55
+value.REFLECTIONS_SCALE.60 = 0.60
+value.REFLECTIONS_SCALE.65 = 0.65
+value.REFLECTIONS_SCALE.70 = 0.70
+value.REFLECTIONS_SCALE.75 = 0.75
+value.REFLECTIONS_SCALE.80 = 0.80
+value.REFLECTIONS_SCALE.85 = 0.85
+value.REFLECTIONS_SCALE.90 = 0.90
+value.REFLECTIONS_SCALE.95 = 0.95
+value.REFLECTIONS_SCALE.100 = 1.00
+
+### GLOBAL ILLUMINATION
+
+option.GI = 全局光照
+option.GI.comment = 模拟光线的反射，§7§l§o例如：§7§l§o绿色的墙的颜色会投射到其旁边的物体上。§c只能对屏幕上显示的内容进行采样。
+value.GI.0 = §c关闭
+value.GI.1 = §a开启
+
+option.GI_FILTER = 过滤
+option.GI_FILTER.comment = 为§b全局光照§r降噪。
+value.GI_FILTER.0 = §c关闭
+value.GI_FILTER.1 = §a开启
+
+option.GI_TEMPORAL_ACCUMULATION = 时间性累积
+option.GI_TEMPORAL_ACCUMULATION.comment = 在连续的帧上累积§b全局光照§r以减少噪声并提供更清晰的结果。
+value.GI_TEMPORAL_ACCUMULATION.0 = §c关闭
+value.GI_TEMPORAL_ACCUMULATION.1 = §a开启
+
+option.ATROUS_STEP_SIZE = 模糊大小
+option.ATROUS_STEP_SIZE.comment = A调整用于过滤§全局光照§r的模糊的大小。
+
+option.NORMAL_WEIGHT_SIGMA = 法线权重强度
+option.NORMAL_WEIGHT_SIGMA.comment = 调整用于模糊§b全局光照§r的滤镜的法线权重强度。
+
+option.DEPTH_WEIGHT_SIGMA = 深度权重强度
+option.DEPTH_WEIGHT_SIGMA.comment = 调整用于模糊§b全局光照§r的滤镜的深度权重强度。
+
+option.LUMA_WEIGHT_SIGMA = 亮度权重强度
+option.LUMA_WEIGHT_SIGMA.comment = 调整用于模糊§b全局光照§r的滤镜的亮度权重强度。
+
+option.SKY_CONTRIBUTION = 天空光影响
+option.SKY_CONTRIBUTION.comment = 天空光对§b全局光照§r的影响（在屏幕空间中可能出现问题）。使天空光参与间接光计算。
+value.SKY_CONTRIBUTION.0 = §c关闭
+value.SKY_CONTRIBUTION.1 = §a开启
+
+option.GI_SCALE = 全局光照渲染分辨率
+option.GI_SCALE.comment = 调整§b全局光照§r的渲染分辨率。§c更高的值可以得到更好的效果，但会降低§c性能。
+suffix.GI_SCALE = x
+
+option.GI_SAMPLES = 全局光照采样次数
+option.GI_SAMPLES.comment = 调整计算§b全局光照§r的采样次数。§c更高的值可以得到更好的效果，但会降低§c性能。
+
+option.GI_BOUNCES = 光线反射次数
+option.GI_BOUNCES.comment = 使§b全局光照§r的光线可以反射§aX§r次来聚集光线。§c更高的值可以得到更好的效果，但会降低§c性能。
+
+### RAY TRACING
+
+option.BINARY_REFINEMENT = 二元积分优化
+option.BINARY_REFINEMENT.comment = 调整光线跟踪器的命中位置以使其更准确。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.BINARY_REFINEMENT.0 = §c关闭
+value.BINARY_REFINEMENT.1 = §a开启
+
+option.SSR_REPROJECTION = 屏幕空间反射再反射
+option.SSR_REPROJECTION.comment = 反射最后一帧使光线无限反射。§a这不会影响性能。
+value.SSR_REPROJECTION.0 = §c关闭
+value.SSR_REPROJECTION.1 = §a开启
+
+##################### ATMOSPHERICS #####################
+
+option.sunPathRotation = 天体倾角
+option.sunPathRotation.comment = 调整日月运行轨迹的偏转度数。
+suffix.sunPathRotation = °
+
+option.CELESTIAL_SIZE_MULTIPLIER = 天体大小系数
+option.CELESTIAL_SIZE_MULTIPLIER.comment = 调整日月大小。
+suffix.CELESTIAL_SIZE_MULTIPLIER = x
+
+### ATMOSPHERE
+
+option.ATMOSPHERE_SCALE = 大气渲染分辨率
+option.ATMOSPHERE_SCALE.comment = 调整§b大气§r的渲染分辨率。§c更高的值可以得到更好的效果，但会降低§c性能。
+suffix.ATMOSPHERE_SCALE = x
+value.ATMOSPHERE_SCALE.10 = 0.10
+value.ATMOSPHERE_SCALE.15 = 0.15
+value.ATMOSPHERE_SCALE.20 = 0.20
+value.ATMOSPHERE_SCALE.25 = 0.25
+value.ATMOSPHERE_SCALE.30 = 0.30
+value.ATMOSPHERE_SCALE.35 = 0.35
+value.ATMOSPHERE_SCALE.40 = 0.40
+value.ATMOSPHERE_SCALE.45 = 0.45
+value.ATMOSPHERE_SCALE.50 = 0.50
+value.ATMOSPHERE_SCALE.55 = 0.55
+value.ATMOSPHERE_SCALE.60 = 0.60
+value.ATMOSPHERE_SCALE.65 = 0.65
+value.ATMOSPHERE_SCALE.70 = 0.70
+value.ATMOSPHERE_SCALE.75 = 0.75
+value.ATMOSPHERE_SCALE.80 = 0.80
+value.ATMOSPHERE_SCALE.85 = 0.85
+value.ATMOSPHERE_SCALE.90 = 0.90
+value.ATMOSPHERE_SCALE.95 = 0.95
+value.ATMOSPHERE_SCALE.100 = 1.00
+
+option.SCATTERING_STEPS = 大气散射采样次数
+option.SCATTERING_STEPS.comment = 影响§b大气散射§r的精确度。这会影响§b大气§b散射§r和§b体积§b光。§c最好高于透射采样次数。
+value.SCATTERING_STEPS.8  = §38
+value.SCATTERING_STEPS.12 = §212
+value.SCATTERING_STEPS.16 = §a16
+value.SCATTERING_STEPS.20 = §e20
+value.SCATTERING_STEPS.24 = §624
+value.SCATTERING_STEPS.28 = §c28
+value.SCATTERING_STEPS.32 = §432
+
+option.TRANSMITTANCE_STEPS = 大气透射采样次数
+option.TRANSMITTANCE_STEPS.comment = 影响§b大气散射§r过程中的透射的精确度。§c最好低于散射采样次数。
+value.TRANSMITTANCE_STEPS.8  = §38
+value.TRANSMITTANCE_STEPS.12 = §212
+value.TRANSMITTANCE_STEPS.16 = §a16
+value.TRANSMITTANCE_STEPS.20 = §e20
+value.TRANSMITTANCE_STEPS.24 = §624
+value.TRANSMITTANCE_STEPS.28 = §c28
+value.TRANSMITTANCE_STEPS.32 = §432
+
+### CLOUDS
+
+option.PRIMARY_CLOUDS = 主体云层
+option.PRIMARY_CLOUDS.comment = 地面上方的一层令人舒适的体积云。
+value.PRIMARY_CLOUDS.0 = §c关闭
+value.PRIMARY_CLOUDS.1 = §a开启
+
+option.SECONDARY_CLOUDS = 次级云层
+option.SECONDARY_CLOUDS.comment = 地面上方非常高的第二层体积云。
+value.SECONDARY_CLOUDS.0 = §c关闭
+value.SECONDARY_CLOUDS.1 = §a开启
+
+option.CLOUDS_SCALE = 云渲染分辨率
+option.CLOUDS_SCALE.comment = 调整§b云§r的渲染分辨率。§c更高的值可以得到更好的效果，但会降低§c性能。
+suffix.CLOUDS_SCALE = x
+value.CLOUDS_SCALE.10 = 0.10
+value.CLOUDS_SCALE.15 = 0.15
+value.CLOUDS_SCALE.20 = 0.20
+value.CLOUDS_SCALE.25 = 0.25
+value.CLOUDS_SCALE.30 = 0.30
+value.CLOUDS_SCALE.35 = 0.35
+value.CLOUDS_SCALE.40 = 0.40
+value.CLOUDS_SCALE.45 = 0.45
+value.CLOUDS_SCALE.50 = 0.50
+value.CLOUDS_SCALE.55 = 0.55
+value.CLOUDS_SCALE.60 = 0.60
+value.CLOUDS_SCALE.65 = 0.65
+value.CLOUDS_SCALE.70 = 0.70
+value.CLOUDS_SCALE.75 = 0.75
+value.CLOUDS_SCALE.80 = 0.80
+value.CLOUDS_SCALE.85 = 0.85
+value.CLOUDS_SCALE.90 = 0.90
+value.CLOUDS_SCALE.95 = 0.95
+value.CLOUDS_SCALE.100 = 1.00
+
+option.CLOUDS_SCATTERING_STEPS = 云散射采样次数
+option.CLOUDS_SCATTERING_STEPS.comment = 影响§b云§r内部的光线散射精确度。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.CLOUDS_SCATTERING_STEPS.8  = §38
+value.CLOUDS_SCATTERING_STEPS.12 = §212
+value.CLOUDS_SCATTERING_STEPS.16 = §a16
+value.CLOUDS_SCATTERING_STEPS.20 = §e20
+value.CLOUDS_SCATTERING_STEPS.24 = §624
+value.CLOUDS_SCATTERING_STEPS.28 = §c28
+value.CLOUDS_SCATTERING_STEPS.32 = §432
+
+option.CLOUDS_LAYER0_ALTITUDE = 主体云层高度
+option.CLOUDS_LAYER0_ALTITUDE.comment = 调整§b云§r的高度。
+
+option.CLOUDS_LAYER0_THICKNESS = 主体云层厚度
+option.CLOUDS_LAYER0_THICKNESS.comment = 调整§b云§r的厚度。
+
+option.CLOUDS_LAYER0_COVERAGE = 主体云层覆盖率
+option.CLOUDS_LAYER0_COVERAGE.comment = 调整§b云§r的覆盖率。
+suffix.CLOUDS_LAYER0_COVERAGE = %
+
+option.CLOUDS_LAYER0_SWIRL = 主体云层漩涡率
+option.CLOUDS_LAYER0_SWIRL.comment = 调整§b云§r的漩涡率。
+suffix.CLOUDS_LAYER0_SWIRL = %
+
+option.CLOUDS_SHADOWS = 云影
+option.CLOUDS_SHADOWS.comment = 使主体云层的影子投射到地面。
+value.CLOUDS_SHADOWS.0 = §c关闭
+value.CLOUDS_SHADOWS.1 = §a开启
+
+option.CLOUDS_SHADOWS_RESOLUTION = 云影分辨率
+option.CLOUDS_SHADOWS_RESOLUTION.comment = 调整§b云影§r的分辨率.
+suffix.CLOUDS_SHADOWS_RESOLUTION = x
+
+### FOG
+
+option.AIR_FOG = 雾
+option.AIR_FOG.comment = 模拟复杂粒子中光线发生的散射。§a近似§r雾是一种半精确的计算方法。§a体积§r雾使用光线步进和复杂计算来更精确地计算。
+value.AIR_FOG.0 = §c关闭
+value.AIR_FOG.1 = §e§l体积雾
+value.AIR_FOG.2 = §e§l近似雾
+
+option.VL_SCATTERING_STEPS = 体积雾散射采样步数
+option.VL_SCATTERING_STEPS.comment = 影响§b体积雾§r散射的精确度。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.VL_SCATTERING_STEPS.4  = §b4
+value.VL_SCATTERING_STEPS.8  = §38
+value.VL_SCATTERING_STEPS.12 = §212
+value.VL_SCATTERING_STEPS.16 = §a16
+value.VL_SCATTERING_STEPS.20 = §e20
+value.VL_SCATTERING_STEPS.24 = §624
+value.VL_SCATTERING_STEPS.28 = §c28
+value.VL_SCATTERING_STEPS.32 = §432
+
+option.FOG_ALTITUDE = 雾高度
+option.FOG_ALTITUDE.comment = 调整§b雾§r的高度。
+
+option.FOG_THICKNESS = 雾厚度
+option.FOG_THICKNESS.comment = 调整§b雾§r的厚度。
+
+option.FOG_DENSITY = 雾密度
+option.FOG_DENSITY.comment = 调整§b雾§r的密度。
+
+##################### TERRAIN #####################
+
+option.WHITE_WORLD = 白色世界
+option.WHITE_WORLD.comment = §r将所有方块的颜色都调整为白色。
+value.WHITE_WORLD.0 = §c关闭
+value.WHITE_WORLD.1 = §a开启
+
+option.RAIN_PUDDLES = 雨天水坑
+option.RAIN_PUDDLES.comment = 模拟下雨时地面上的水坑。
+value.RAIN_PUDDLES.0 = §c关闭
+value.RAIN_PUDDLES.1 = §a开启
+
+option.RAIN_PUDDLES_SIZE = 水坑大小
+option.RAIN_PUDDLES_SIZE.comment = 调整§b雨天水坑§r的大小。
+
+option.POM = 视差贴图技术(POM)
+option.POM.comment = §b视差贴图技术。§r通过从高度图创建三维定义为材质提供深度。§a陡峭§rPOM是像素化的。§a柔和§rPOM过滤高度图以使其去像素化。
+value.POM.0 = §c关闭
+value.POM.1 = §e§l陡峭
+value.POM.2 = §e§l柔和
+
+option.POM_LAYERS = POM层数
+option.POM_LAYERS.comment = 调整§bPOM§r的质量，层次越多，细节越丰富。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.POM_LAYERS.32 = §a32
+value.POM_LAYERS.64 = §e64
+value.POM_LAYERS.128 = §6128
+value.POM_LAYERS.256 = §c256
+value.POM_LAYERS.512 = §4512
+
+option.POM_DEPTH = POM深度
+option.POM_DEPTH.comment = 调整§bPOM§r的深度。
+
+### WATER
+
+option.WATER_CAUSTICS = 水体焦散
+option.WATER_CAUSTICS.comment = 水上光线折射引起的焦散在水下发生的投影。
+value.WATER_CAUSTICS.0 = §c关闭
+value.WATER_CAUSTICS.1 = §a开启
+
+option.WATER_CAUSTICS_STRENGTH = 焦散强度
+option.WATER_CAUSTICS_STRENGTH.comment = 调整§b水体焦散§r的强度。
+
+option.WATER_OCTAVES = 水波分型次数
+option.WATER_OCTAVES.comment = 影响§b水波§r的细节。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.WATER_OCTAVES.2 = §32
+value.WATER_OCTAVES.3 = §23
+value.WATER_OCTAVES.4 = §a4
+value.WATER_OCTAVES.5 = §e5
+value.WATER_OCTAVES.6 = §66
+value.WATER_OCTAVES.7 = §c7
+value.WATER_OCTAVES.8 = §48
+
+option.WAVE_STEEPNESS = 水波陡峭度
+option.WAVE_STEEPNESS.comment = 调整水波的陡峭度。即高宽比。
+
+option.WAVE_AMPLITUDE = 水波振幅
+option.WAVE_AMPLITUDE.comment = 调整水波的振幅。
+
+option.WAVE_SPEED = 水波速度
+option.WAVE_SPEED.comment = 调整水波的速度。
+
+option.WATER_FOG = 水雾
+option.WATER_FOG.comment = 模拟光在水中的吸收和散射。§a近似§r水雾是一种半精确的计算方法。§a体积§r水雾使用光线步进和复杂计算来更精确地计算。
+value.WATER_FOG.0 = §e§l模拟水雾
+value.WATER_FOG.1 = §e§l体积水雾
+
+option.WATER_FOG_STEPS = 体积水雾步数
+option.WATER_FOG_STEPS.comment = 影响§b水雾§r的精确度。§c更高的值可以得到更好的效果，但会降低§c性能。
+value.WATER_FOG_STEPS.4 = §24
+value.WATER_FOG_STEPS.8 = §a8
+value.WATER_FOG_STEPS.16 = §e16
+value.WATER_FOG_STEPS.32 = §632
+
+option.WATER_ABSORPTION_R = 吸收系数 §c红
+option.WATER_ABSORPTION_R.comment = 调整水吸收光的方式。更高的值意味着§c红色§r会被吸收更多。
+
+option.WATER_ABSORPTION_G = 吸收系数 §a绿
+option.WATER_ABSORPTION_G.comment = 调整水吸收光的方式。更高的值意味着§a绿色§r会被吸收更多。
+
+option.WATER_ABSORPTION_B = 吸收系数 §9蓝
+option.WATER_ABSORPTION_B.comment = 调整水吸收光的方式。更高的值意味着§9蓝色§r会被吸收更多。
+
+option.WATER_SCATTERING_R = 散射系数 §c红
+option.WATER_SCATTERING_R.comment = 调整面散射光的方式。更高的值意味着§c红色§r会被散射更多。
+
+option.WATER_SCATTERING_G = 散射系数 §a绿
+option.WATER_SCATTERING_G.comment = 调整面散射光的方式。更高的值意味着§a绿色§r会被散射更多。
+
+option.WATER_SCATTERING_B = 散射系数 §9蓝
+option.WATER_SCATTERING_B.comment = 调整面散射光的方式。更高的值意味着§9蓝色§r会被散射更多。
+
+##################### CAMERA & POST-PROCESSING #####################
+
+### CAMERA SETTINGS
+
+option.EXPOSURE = 曝光
+option.EXPOSURE.comment = §a手动§r曝光允许你手动调节相机参数来调整图片。§a平均值§r曝光根据平均屏幕亮度调整相机曝光。§a直方图§r曝光根据屏幕亮度直方图的中值调整相机曝光。
+value.EXPOSURE.0 = §e§l手动
+value.EXPOSURE.1 = §e§l平均值（自动）
+value.EXPOSURE.2 = §e§l直方图（自动）
+
+option.PURKINJE = 浦肯野效应
+option.PURKINJE.comment = 根据进光量调整颜色强度。
+value.PURKINJE.0 = §c关闭
+value.PURKINJE.1 = §a开启
+
+# https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-focal-length.html#:~:text=Focal%20length%2C%20usually%20represented%20in,description%20of%20a%20photographic%20lens.&text=The%20longer%20the%20focal%20length,and%20the%20lower%20the%20magnification.
+option.FOCAL = 焦距
+option.FOCAL.comment = Usually represented in millimeters, the focal length is the basic description of a photographic lens. The longer the focal length, the narrower the angle of view. It influences §bDepth of Field.
+suffix.FOCAL = mm
+
+# https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-maximum-aperture.html#:~:text=What%20is%20aperture%20in%20photography,diaphragm%20through%20which%20light%20passes.&text=Lower%20f%2Fstops%20give%20more,because%20they%20represent%20smaller%20apertures.
+option.APERTURE = 光圈
+option.APERTURE.comment = 打开镜头光圈，光线通过光圈，数值越低，捕获的光线越多。
+prefix.APERTURE = ƒ/
+
+# https://wp-modula.com/what-is-iso-in-photography/
+option.ISO = ISO
+option.ISO.comment = ISO是可以使照片变亮或变暗的选项，提高它的值会使照片更亮，并帮助您在较暗的环境中拍摄出好照片。
+
+# https://imaging.nikon.com/lineup/dslr/basics/04/03.htm#:~:text=Shutter%20speed%20is%20a%20measurement,1%2F%20500%20s%2C%20etc.&text=In%20other%20words%2C%20the%20faster,the%20effects%20of%20camera%20shake.
+option.SHUTTER_SPEED = 快门速度
+option.SHUTTER_SPEED.comment = 相机快门打开时间的测量值，以秒为单位显示。
+prefix.SHUTTER_SPEED = 1/
+suffix.SHUTTER_SPEED = s
+
+### DEPTH OF FIELD
+
+option.DOF = 景深(DOF)
+option.DOF.comment = 模糊焦距以外的物体。受镜头设置中§e光圈§r和§e焦距§r的影响。
+value.DOF.0 = §c关闭
+value.DOF.1 = §a开启
+
+option.DOF_RADIUS = 景深半径
+option.DOF_RADIUS.comment = 调整§b景深§r的深度。
+
+option.DOF_DEPTH = 景深聚焦深度
+option.DOF_DEPTH.comment = 调整§b景深§r聚焦的深度。它以方块为单位进行测量。
+value.DOF_DEPTH.0 = §e自动景深
+
+### COLOR GRADING
+
+option.TONEMAP = 色调曲线
+option.TONEMAP.comment = 使用色彩校正滤镜。
+value.TONEMAP.-1 = §cOFF
+value.TONEMAP.0 = ACES
+value.TONEMAP.1 = Burgess
+value.TONEMAP.2 = Reinhard
+value.TONEMAP.3 = Lottes
+value.TONEMAP.4 = Uchimura
+value.TONEMAP.5 = Uncharted 2
+
+option.LUT = LUT
+option.LUT.comment = 在色彩校正滤镜上应用LUT。这是色彩调整的一部分。
+value.LUT.0  = §cOFF
+value.LUT.1  = §eFuji 250D Fuji 3510
+value.LUT.2  = §eFuji 250D Kodak 2395
+value.LUT.3  = §eKodak 5218 Kodak 2383
+value.LUT.4  = §eFuji f125 Kodak 2393
+value.LUT.5  = §eCandle Light
+value.LUT.6  = §eArabica
+value.LUT.7  = §eLate Sunset
+value.LUT.8  = §eEdgy Amber
+value.LUT.9  = §eCrisp Warm
+value.LUT.10 = §eCrisp Winter
+value.LUT.11 = §eMcKinnon 75
+value.LUT.12 = §eMilo 5
+value.LUT.13 = §eZed 32
+value.LUT.14 = §eFilmstock
+value.LUT.15 = §eValley Mist
+value.LUT.16 = §eNight Colors
+value.LUT.17 = §eBinary Code
+value.LUT.18 = §eBlack and Red
+value.LUT.19 = §e2Strip
+value.LUT.20 = §eFuturistic Bleak
+
+option.WHITE_BALANCE = 白平衡
+option.WHITE_BALANCE.comment = 平衡图像色温。
+suffix.WHITE_BALANCE = K
+
+# http://www.digital-intermediate.co.uk/colour/colourterminology.htm
+option.VIBRANCE = 自然饱和度
+option.VIBRANCE.comment = 使颜色明亮而强烈。为平淡的颜色增加饱和度。
+
+option.SATURATION = 饱和度
+option.SATURATION.comment = 饱和度是指图像中的颜色饱和度或色域信息量。
+
+option.CONTRAST = 对比度
+option.CONTRAST.comment = 图像的亮度或颜色区分度。
+
+option.GAMMA = 伽马值
+option.GAMMA.comment = 权衡亮度和对比度的经验值，通常被称作中间调。
+
+option.GAIN = 白色
+option.GAIN.comment = 调整白色等级（高光），使较亮的颜色变得更暗或更亮-颜色越亮，差异越大。
+
+option.LIFT = 黑色
+option.LIFT.comment = 调整黑色等级（阴影）。
+
+### ANTI-ALIASING
+
+option.TAA = 时间性抗锯齿(TAA)
+option.TAA.comment = §b时间性抗锯齿。§r一种多帧合成的抗锯齿方式。
+value.TAA.0 = §c关闭
+value.TAA.1 = §a开启
+
+option.TAA_OFFCENTER_REJECTION = 偏心权重强度
+option.TAA_OFFCENTER_REJECTION.comment = 调整§bTAA§r的偏心权重强度。这一值越低，运动期间TAA越弱。
+
+### CAMERA EFFECTS
+
+option.BLOOM = 泛光(Bloom)
+option.BLOOM.comment = 允许明亮的部分发光。
+value.BLOOM.0 = §c关闭
+value.BLOOM.1 = §a开启
+
+option.BLOOM_STRENGTH = 泛光强度
+option.BLOOM_STRENGTH.comment = 调整§b泛光§r的强度。
+
+option.VIGNETTE = 晕影
+option.VIGNETTE.comment = 使屏幕边角变暗。
+value.VIGNETTE.0 = §c关闭
+value.VIGNETTE.1 = §a开启
+
+option.VIGNETTE_STRENGTH = 晕影强度
+option.VIGNETTE_STRENGTH.comment = 调整§b晕影§r的强度。
+
+option.FILM_GRAIN = 胶片颗粒
+option.FILM_GRAIN.comment = 移动屏幕上显示的颗粒以模仿老电影。
+value.FILM_GRAIN.0 = §c关闭
+value.FILM_GRAIN.1 = §a开启
+
+option.FILM_GRAIN_STRENGTH = 胶片颗粒强度
+option.FILM_GRAIN_STRENGTH.comment = 调整§b胶片颗粒§r的强度。
+
+option.SHARPEN = 锐化
+option.SHARPEN.comment = 强调颜色使图像看起来更清晰。
+value.SHARPEN.0 = §c关闭
+value.SHARPEN.1 = §a开启
+
+option.SHARPEN_STRENGTH = 锐化强度
+option.SHARPEN_STRENGTH.comment = 调整§b锐化§r的强度。

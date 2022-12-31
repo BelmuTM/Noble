@@ -43,7 +43,7 @@
     float computeLowerHiZDepthLevels() {
         float tiles = 0.0;
 
-        for(int i = 1; i <= HIZ_LOD_COUNT; i++) {
+        for(int i = 1; i < HIZ_LOD_COUNT; i++) {
             int scale   = int(exp2(i)); 
 	        vec2 coords = (texCoords - hiZOffsets[i - 1]) * scale;
                  tiles += find2x2MinimumDepth(coords, scale);

@@ -96,9 +96,9 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 /*-------------------- RAY TRACING ---------------------*/
 //////////////////////////////////////////////////////////
 
-#define HIZ_LOD_COUNT   3
-#define HIZ_START_LEVEL 2
-#define HIZ_STOP_LEVEL  0
+#define HIZ_LOD_COUNT 4
+#define HIZ_START_LOD 3
+#define HIZ_STOP_LOD  0
 
 #define RAY_DEPTH_TOLERANCE 0.5
 
