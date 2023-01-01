@@ -20,13 +20,13 @@ float distributionGGX(float NdotHSq, float alphaSq) {
     return alphaSq / (PI * pow2(1.0 - NdotHSq + NdotHSq * alphaSq));
 }
 
-float lambdaSmith(float cosTheta, float alpha) {
+float lambdaSmith(float cosTheta, float alphaSq) {
     float cosThetaSq = pow2(cosTheta);
-    return (-1.0 + sqrt(1.0 + alpha * (1.0 - cosThetaSq) / cosThetaSq)) * 0.5;
+    return (-1.0 + sqrt(1.0 + alphaSq * (1.0 - cosThetaSq) / cosThetaSq)) * 0.5;
 }
 
-float G1SmithGGX(float cosTheta, float alpha) {
-    return clamp01(1.0 / (1.0 + lambdaSmith(cosTheta, alpha)));
+float G1SmithGGX(float cosTheta, float alphaSq) {
+    return clamp01(1.0 / (1.0 + lambdaSmith(cosTheta, alphaSq)));
 }
 
 float G2SmithGGX(float NdotL, float NdotV, float alphaSq) {
@@ -231,7 +231,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
 }
 
 vec3 computeSpecular(Material mat, vec3 V, vec3 L) {
-    float alphaSq = max(1e-8, mat.roughness * mat.roughness);
+    float alphaSq = maxEps(mat.roughness * mat.roughness);
 
     float NdotL = dot(mat.normal, L);
     if(NdotL <= 0.0) return vec3(0.0);
@@ -248,5 +248,5 @@ vec3 computeSpecular(Material mat, vec3 V, vec3 L) {
     vec3  F  = fresnelComplex(VdotH, mat);
     float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
         
-    return clamp01(NdotL) * F * D * G2 / maxEps(4.0 * NdotL * NdotV);
+    return max0(clamp01(NdotL) * F * D * G2 / maxEps(4.0 * NdotL * NdotV));
 }

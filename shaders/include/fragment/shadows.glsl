@@ -105,9 +105,9 @@ vec3 shadowMap(vec3 scenePos, vec3 geoNormal, out float ssDepth) {
         float NdotL    = dot(geoNormal, shadowLightVector);
 
         // Shadow bias implementation from Emin#7309 and concept from gri573#7741
-        float biasAdjustMult = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.35;
-        shadowPos           += mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPos.xy) * biasAdjustMult;
-        shadowPos           *= 1.0002;
+        float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.35;
+        shadowPos       += mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPos.xy) * biasAdjust;
+        shadowPos       *= 1.0002;
 
         float penumbraSize = 1.0;
         ssDepth = 0.0;
