@@ -116,6 +116,10 @@ float lengthSqr(vec3 x)     { return dot(x, x);              }
 float fastRcpLength(vec3 x) { return inversesqrt(dot(x, x)); }
 float fastLength(vec3 x)    { return sqrt(dot(x, x));        }
 
+float remap(float x, float oldLow, float oldHigh, float newLow, float newHigh) {
+    return newLow + (x - oldLow) * (newHigh - newLow) / (oldHigh - oldLow);
+}
+
 //////////////////////////////////////////////////////////
 /*------------------------ MISC ------------------------*/
 //////////////////////////////////////////////////////////
@@ -143,10 +147,6 @@ vec2 intersectSphericalShell(vec3 rayOrigin, vec3 rayDir, float innerSphereRad, 
     dists.x = innerSphereIntersected && innerSphereDists.x < 0.0 ? innerSphereDists.y : max0(outerSphereDists.x);
     dists.y = innerSphereIntersected && innerSphereDists.x > 0.0 ? innerSphereDists.x : outerSphereDists.y;
     return dists;
-}
-
-float remap(float x, float oldLow, float oldHigh, float newLow, float newHigh) {
-    return newLow + (x - oldLow) * (newHigh - newLow) / (oldHigh - oldLow);
 }
 
 vec2 projectSphere(vec3 direction) {

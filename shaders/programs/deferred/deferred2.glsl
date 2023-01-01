@@ -65,13 +65,15 @@
                     vec2 prevPos    = reprojectClouds(viewPos, distanceToClouds).xy;
                     vec4 prevClouds = textureCatmullRom(colortex0, prevPos);
 
+                    float resolutionScale = CLOUDS_SCALE < 100 ? 1.0 + ((CLOUDS_SCALE * 0.01) * 0.2 + 0.3) : 1.0;
+
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
                     float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.4 + 0.6;
 
                     vec2  velocity       = (texCoords - prevPos) * viewSize;
-                    float velocityWeight = clamp01(exp(-length(velocity)) * 0.8 + 0.2);
+                    float velocityWeight = exp(-length(velocity)) * 0.8 + 0.2;
 
-                    float weight = centerWeight * velocityWeight * float(clamp01(prevPos) == prevPos);
+                    float weight = centerWeight * velocityWeight * resolutionScale * float(clamp01(prevPos) == prevPos);
                           clouds = mix(clouds, prevClouds, clamp01(weight));
                 }
             #endif
