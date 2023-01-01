@@ -78,8 +78,8 @@
             
             #if SHADOWS == 1
                 if(!sky) {
-                    vec4 tmp = texture(colortex3, texCoords);
-                    shadowmap.rgb = shadowMap(viewToScene(viewPos), tmp.rgb, shadowmap.a) * tmp.a;
+                    vec3 geoNormal = texture(colortex3, texCoords).rgb;
+                    shadowmap.rgb  = shadowMap(viewToScene(viewPos), geoNormal, shadowmap.a) * mat.parallaxSelfShadowing;
                 }
             #endif
 

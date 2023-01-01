@@ -142,18 +142,19 @@
 			#endif
 		}
 
-		vec3 labPbrData0 = vec3(pow2(mat.roughness), lmCoords);
+		vec3 labPbrData0 = vec3(0.0, lmCoords);
 		vec4 labPbrData1 = vec4(mat.ao, mat.emission, mat.F0, mat.subsurface);
-		vec2 encNormal 	 = encodeUnitVector(normalize(mat.normal));
+		vec4 labPbrData2 = vec4(mat.albedo, mat.roughness);
+		vec2 encNormal   = encodeUnitVector(normalize(mat.normal));
 	
-		uvec4 shiftedData0  = uvec4(round(labPbrData0 * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8))                              << uvec4(0, 8, 16, 24);
-		uvec3 shiftedAlbedo = uvec3(round(mat.albedo  * vec3(2047.0, 1023.0, 2047.0)))         << uvec3(0, 11, 21);
-		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16))                             << uvec2(0, 16);
+		uvec4 shiftedData0  = uvec4(round(labPbrData0 * vec3(1.0, 8191.0, 4095.0)), blockId) << uvec4(0, 1, 14, 26);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8))                            << uvec4(0, 8, 16, 24);
+		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxVal8))							 << uvec4(0, 8, 16, 24);
+		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16))                           << uvec2(0, 16);
 
-		data.x = shiftedData0.x  | shiftedData0.y  | shiftedData0.z | shiftedData0.w;
-		data.y = shiftedData1.x  | shiftedData1.y  | shiftedData1.z | shiftedData1.w;
-		data.z = shiftedAlbedo.x | shiftedAlbedo.y | shiftedAlbedo.z;
+		data.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
+		data.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;
+		data.z = shiftedData2.x  | shiftedData2.y | shiftedData2.z | shiftedData2.w;
 		data.w = shiftedNormal.x | shiftedNormal.y;
 	}
 #endif

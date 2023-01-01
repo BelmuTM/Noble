@@ -16,6 +16,8 @@ struct Material {
     vec3 albedo;
     vec3 normal;
 
+    float parallaxSelfShadowing;
+
     int blockId;
     vec2 lightmap;
 
@@ -32,20 +34,23 @@ Material getMaterial(vec2 coords) {
     vec4 unpacked = unpackUnorm4x8(dataTex.y);
 
     Material mat;
-    mat.roughness  = (dataTex.x & 255u)          * rcpMaxVal8;
+    mat.roughness  = ((dataTex.z >> 24u) & 255u) * rcpMaxVal8;
+    mat.roughness *= mat.roughness;
     mat.ao         = (dataTex.y & 255u)          * rcpMaxVal8;
     mat.emission   = ((dataTex.y >> 8u)  & 255u) * rcpMaxVal8;
     mat.F0         = ((dataTex.y >> 16u) & 255u) * rcpMaxVal8;
     mat.subsurface = ((dataTex.y >> 24u) & 255u) * rcpMaxVal8;
 
-    mat.albedo.r = (dataTex.z          & 2047u) * rcpMaxVal11;
-	mat.albedo.g = ((dataTex.z >> 11u) & 1023u) * rcpMaxVal10;
-	mat.albedo.b = ((dataTex.z >> 21u) & 2047u) * rcpMaxVal11;
+    mat.albedo.r = (dataTex.z          & 255u) * rcpMaxVal8;
+	mat.albedo.g = ((dataTex.z >> 8u)  & 255u) * rcpMaxVal8;
+	mat.albedo.b = ((dataTex.z >> 16u) & 255u) * rcpMaxVal8;
+
+    mat.parallaxSelfShadowing = dataTex.x & 1u;
 
     mat.normal = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTex.w & 65535u, (dataTex.w >> 16u) & 65535u) * rcpMaxVal16);
 
     mat.blockId  = int((dataTex.x >> 26u) & 63u);
-    mat.lightmap = vec2((dataTex.x >> 8u) & 511u, (dataTex.x >> 17u) & 511u) * rcpMaxVal9;
+    mat.lightmap = vec2((dataTex.x >> 1u) & 8191u, (dataTex.x >> 14u) & 4095u) * vec2(rcpMaxVal13, rcpMaxVal12);
 
     mat.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
     mat.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;

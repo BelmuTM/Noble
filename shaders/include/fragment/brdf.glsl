@@ -248,5 +248,5 @@ vec3 computeSpecular(Material mat, vec3 V, vec3 L) {
     vec3  F  = fresnelComplex(VdotH, mat);
     float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
         
-    return clamp01(NdotL) * F * D * G2 / (4.0 * NdotL * NdotV);
+    return clamp01(NdotL) * F * D * G2 / maxEps(4.0 * NdotL * NdotV);
 }

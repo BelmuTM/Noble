@@ -14,7 +14,7 @@
 	/* RENDERTARGETS: 1,3 */
 
 	layout (location = 0) out uvec4 data0;
-	layout (location = 1) out vec4  data1;
+	layout (location = 1) out vec3  data1;
 
 	flat in int blockId;
 	in vec2 texCoords;
@@ -112,17 +112,17 @@
         	vec2  currCoords     = parallaxCoords;
         	float currFragHeight = 1.0;
 
-			float shadow = 1.0;
+			float disocclusion = 1.0;
 
         	for(int i = 0; i < POM_LAYERS; i++) {
 				if(currLayerHeight >= currFragHeight) {
-					shadow = 0.0; break;
+					disocclusion = 0.0; break;
 				}
             	currCoords      += deltaCoords;
             	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
             	currLayerHeight -= layerHeight;
         	}
- 			return shadow;
+ 			return disocclusion;
     	}
 	#endif
 
@@ -146,7 +146,7 @@
 			discard;
 		#endif
 
-		float pomSelfShadowing = 1.0;
+		float parallaxSelfShadowing = 1.0;
 
 		#if POM > 0 && defined PROGRAM_TERRAIN
 			mat2 texDeriv = mat2(dFdx(texCoords), dFdy(texCoords));
@@ -155,7 +155,7 @@
 
 			vec2 coords = parallaxMapping(viewPos, texDeriv, height, shadowCoords);
 
-			pomSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
+			parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
 			if(clamp01(coords) != coords) discard;
 		#else
 			vec2 coords = texCoords;
@@ -228,22 +228,21 @@
 
 		normal = normalize(normal);
 
-		vec3 labPbrData0 = vec3(pow2(roughness), clamp01(computeLightmap(normal)));
-		vec4 labPbrData1 = vec4(ao, emission, clamp01(F0), subsurface);
+		vec3 labPbrData0 = vec3(parallaxSelfShadowing, computeLightmap(normal));
+		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
+		vec4 labPbrData2 = vec4(albedoTex.rgb, roughness);
 		vec2 encNormal   = encodeUnitVector(normal);
+	
+		uvec4 shiftedData0  = uvec4(round(labPbrData0 * vec3(1.0, 8191.0, 4095.0)), blockId) << uvec4(0, 1, 14, 26);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8))                            << uvec4(0, 8, 16, 24);
+		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxVal8))							 << uvec4(0, 8, 16, 24);
+		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16))                           << uvec2(0, 16);
 
-		// I bet you've never seen a cleaner data packing implementation huh?? SAY IT!!!!
-		uvec4 shiftedData0  = uvec4(round(labPbrData0   * vec3(maxVal8, 511.0, 511.0)), blockId) << uvec4(0, 8, 17, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1   * maxVal8))                              << uvec4(0, 8, 16, 24);
-		uvec3 shiftedAlbedo = uvec3(round(albedoTex.rgb * vec3(2047.0, 1023.0, 2047.0)))         << uvec3(0, 11, 21);
-		uvec2 shiftedNormal = uvec2(round(encNormal     * maxVal16))                             << uvec2(0, 16);
-
-		data0.x = shiftedData0.x  | shiftedData0.y  | shiftedData0.z | shiftedData0.w;
-		data0.y = shiftedData1.x  | shiftedData1.y  | shiftedData1.z | shiftedData1.w;
-		data0.z = shiftedAlbedo.x | shiftedAlbedo.y | shiftedAlbedo.z;
+		data0.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
+		data0.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;
+		data0.z = shiftedData2.x  | shiftedData2.y | shiftedData2.z | shiftedData2.w;
 		data0.w = shiftedNormal.x | shiftedNormal.y;
 
-		data1.xyz = TBN[2];
-		data1.w   = pomSelfShadowing;
+		data1 = TBN[2];
 	}
 #endif
