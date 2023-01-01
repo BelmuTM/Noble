@@ -131,7 +131,7 @@ void main() {
                     visibility *= getCloudsShadows(scenePos0);
                 #endif
 
-                color += max0(computeSpecular(mat.normal, normalize(-viewPos0), shadowVec, mat) * directIlluminance * visibility);
+                color += computeSpecular(mat, -normalize(viewPos0), shadowVec) * directIlluminance * clamp01(visibility);
             #endif
 
             #if REFLECTIONS == 1

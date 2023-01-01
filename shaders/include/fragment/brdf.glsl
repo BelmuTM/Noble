@@ -16,26 +16,23 @@
 */
 
 // http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
-float distributionGGX(float NdotH2, float roughness) {
-    float alpha2 = pow4(roughness);
-    return alpha2 / (PI * pow2(1.0 - NdotH2 + NdotH2 * alpha2));
+float distributionGGX(float NdotHSq, float alphaSq) {
+    return alphaSq / (PI * pow2(1.0 - NdotHSq + NdotHSq * alphaSq));
 }
 
 float lambdaSmith(float cosTheta, float alpha) {
-    float cosTheta2 = pow2(cosTheta);
-    return (-1.0 + sqrt(1.0 + alpha * (1.0 - cosTheta2) / cosTheta2)) * 0.5;
+    float cosThetaSq = pow2(cosTheta);
+    return (-1.0 + sqrt(1.0 + alpha * (1.0 - cosThetaSq) / cosThetaSq)) * 0.5;
 }
 
-float G1SmithGGX(float cosTheta, float roughness) {
-    float alpha = pow2(roughness);
-    return 1.0 / (1.0 + lambdaSmith(cosTheta, alpha));
+float G1SmithGGX(float cosTheta, float alpha) {
+    return clamp01(1.0 / (1.0 + lambdaSmith(cosTheta, alpha)));
 }
 
-float G2SmithGGX(float NdotL, float NdotV, float roughness) {
-    float alpha   = pow2(roughness);
-    float lambdaV = lambdaSmith(NdotV, alpha);
-    float lambdaL = lambdaSmith(NdotL, alpha);
-    return 1.0 / (1.0 + lambdaV + lambdaL);
+float G2SmithGGX(float NdotL, float NdotV, float alphaSq) {
+    float lambdaV = lambdaSmith(NdotV, alphaSq);
+    float lambdaL = lambdaSmith(NdotL, alphaSq);
+    return clamp01(1.0 / (1.0 + lambdaV + lambdaL));
 }
 
 // https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
@@ -62,20 +59,20 @@ vec3 fresnelDielectric(float cosTheta, vec3 n1, vec3 n2) {
 }
 
 vec3 fresnelDieletricConductor(vec3 eta, vec3 etaK, float cosTheta) {  
-   float cosTheta2 = cosTheta * cosTheta;
-   float sinTheta2 = 1.0 - cosTheta2;
+   float cosThetaSq = cosTheta * cosTheta;
+   float sinThetaSq = 1.0 - cosThetaSq;
    vec3 eta2  = eta * eta;
    vec3 etaK2 = etaK * etaK;
 
-   vec3 t0   = eta2 - etaK2 - sinTheta2;
+   vec3 t0   = eta2 - etaK2 - sinThetaSq;
    vec3 a2b2 = sqrt(t0 * t0 + 4.0 * eta2 * etaK2);
-   vec3 t1   = a2b2 + cosTheta2;
+   vec3 t1   = a2b2 + cosThetaSq;
    vec3 a    = sqrt(0.5 * (a2b2 + t0));
    vec3 t2   = 2.0 * a * cosTheta;
    vec3 Rs   = (t1 - t2) / (t1 + t2);
 
-   vec3 t3 = cosTheta2 * a2b2 + sinTheta2 * sinTheta2;
-   vec3 t4 = t2 * sinTheta2;   
+   vec3 t3 = cosThetaSq * a2b2 + sinThetaSq * sinThetaSq;
+   vec3 t4 = t2 * sinThetaSq;   
    vec3 Rp = Rs * (t3 - t4) / (t3 + t4);
 
    return clamp01((Rp + Rs) * 0.5);
@@ -94,9 +91,7 @@ vec3 fresnelComplex(float cosTheta, Material mat) {
 }
 
 // Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
-vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float roughness) {
-    float alpha = pow2(roughness);
-    
+vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
 	// Transforming the view direction to the hemisphere configuration
 	viewDir = normalize(vec3(alpha * viewDir.xy, viewDir.z));
 
@@ -125,7 +120,11 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
     float radiusCos = cos(angularRadius), radiusTan = tan(angularRadius);
         
     float RdotL = 2.0 * NdotL * NdotV - VdotL;
-    if(RdotL >= radiusCos) return 1.0;
+    if(RdotL >= radiusCos) {
+        newNdotL = 2.0 * NdotV - NdotV;
+		newVdotL = 2.0 * NdotV * NdotV - 1.0;
+        return 1.0;
+    }
 
     float rOverLengthT = radiusCos * radiusTan * inversesqrt(1.0 - RdotL * RdotL);
     float NdotTr       = rOverLengthT * (NdotV - RdotL * NdotL);
@@ -156,8 +155,6 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
 // HAMMON DIFFUSE
 // https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
 vec3 hammonDiffuse(Material mat, vec3 V, vec3 L) {
-    float alpha = pow2(mat.roughness);
-
     vec3 H      = normalize(V + L);
     float NdotL = clamp01(dot(mat.normal, L));
     float NdotV = clamp01(dot(mat.normal, V));
@@ -175,8 +172,8 @@ vec3 hammonDiffuse(Material mat, vec3 V, vec3 L) {
 
     float smoothSurf = fresnelNL * fresnelNV / energyConservationFactor;
 
-    float single = mix(smoothSurf, roughSurf, alpha) * RCP_PI;
-    float multi  = 0.1159 * alpha;
+    float single = mix(smoothSurf, roughSurf, mat.roughness) * RCP_PI;
+    float multi  = 0.1159 * mat.roughness;
 
     return NdotL * (mat.albedo * multi + single);
 }
@@ -233,20 +230,23 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
     return mat.albedo * (diffuse + emissiveness);
 }
 
-vec3 computeSpecular(vec3 N, vec3 V, vec3 L, Material mat) {
-    float NdotV = dot(N, V);
-    float NdotL = dot(N, L);
+vec3 computeSpecular(Material mat, vec3 V, vec3 L) {
+    float alphaSq = max(1e-8, mat.roughness * mat.roughness);
+
+    float NdotL = dot(mat.normal, L);
+    if(NdotL <= 0.0) return vec3(0.0);
+
+    float NdotV = dot(mat.normal, V);
     float VdotL = dot(V, L);
 
-    float NdotH = NdotHSquared(shadowLightAngularRad, NdotL, NdotV, VdotL, NdotV, VdotL);
-    float VdotH = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
+    float NdotHSq = NdotHSquared(shadowLightAngularRadius, NdotL, NdotV, VdotL, NdotV, VdotL);
+    float VdotH   = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
 
-    NdotV = maxEps(NdotV);
-    NdotL = clamp01(NdotL);
+    NdotV = abs(NdotV);
     
-    float D  = distributionGGX(NdotH, mat.roughness);
+    float D  = distributionGGX(NdotHSq, alphaSq);
     vec3  F  = fresnelComplex(VdotH, mat);
-    float G2 = G2SmithGGX(NdotL, NdotV, mat.roughness);
+    float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
         
-    return max0(NdotL * ((D * G2) * F / (4.0 * NdotL * NdotV)));
+    return clamp01(NdotL) * F * D * G2 / (4.0 * NdotL * NdotV);
 }

@@ -92,7 +92,7 @@
 
 		// WOTAH
 		if(blockId == 1) { 
-			mat.F0 = waterF0, mat.roughness = 1e-2, mat.ao = 1.0, mat.emission = 0.0, mat.subsurface = 0.0;
+			mat.F0 = waterF0, mat.roughness = 0.0, mat.ao = 1.0, mat.emission = 0.0, mat.subsurface = 0.0;
 
     		mat.albedo = vec3(0.0);
 			mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES, 1.0);
@@ -142,7 +142,7 @@
 			#endif
 		}
 
-		vec3 labPbrData0 = vec3(mat.roughness, lmCoords);
+		vec3 labPbrData0 = vec3(pow2(mat.roughness), lmCoords);
 		vec4 labPbrData1 = vec4(mat.ao, mat.emission, mat.F0, mat.subsurface);
 		vec2 encNormal 	 = encodeUnitVector(normalize(mat.normal));
 	

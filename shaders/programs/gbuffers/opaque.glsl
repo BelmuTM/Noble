@@ -228,7 +228,7 @@
 
 		normal = normalize(normal);
 
-		vec3 labPbrData0 = vec3(roughness, clamp01(computeLightmap(normal)));
+		vec3 labPbrData0 = vec3(pow2(roughness), clamp01(computeLightmap(normal)));
 		vec4 labPbrData1 = vec4(ao, emission, clamp01(F0), subsurface);
 		vec2 encNormal   = encodeUnitVector(normal);
 

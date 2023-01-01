@@ -22,16 +22,16 @@
         return clamp01(1.0 - 0.5 * (T_1 + T_2));
     }
 
-    vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, in float roughness) {
+    vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, float alpha) {
         float NdotV = maxEps(dot(N, V));
         float NdotL = clamp01(dot(N, L));
 
-        return (fresnel * G2SmithGGX(NdotL, NdotV, roughness)) / G1SmithGGX(NdotV, roughness);
+        return (fresnel * G2SmithGGX(NdotL, NdotV, alpha)) / G1SmithGGX(NdotV, alpha);
     }
 
     vec3 directBRDF(vec2 hitPos, vec3 V, vec3 L, Material mat) {
         vec3 diffuse  = hammonDiffuse(mat, V, L);
-        vec3 specular = SPECULAR == 0 ? vec3(0.0) : computeSpecular(mat.normal, V, L, mat);
+        vec3 specular = SPECULAR == 0 ? vec3(0.0) : computeSpecular(mat, V, L);
 
         vec4 shadowmap = texture(colortex3, hitPos.xy);
 

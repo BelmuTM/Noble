@@ -82,4 +82,4 @@ vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRad);
 vec3 moonLuminance   = moonAlbedo * RCP_PI * sunIlluminance;
 vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRad); // The rough amount of light the moon emits that reaches the earth
 
-float shadowLightAngularRad = sunAngle < 0.5 ? sunAngularRad : moonAngularRad;
+float shadowLightAngularRadius = sunAngle < 0.5 ? sunAngularRad : moonAngularRad;
