@@ -25,7 +25,7 @@
     vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, float alpha) {
         float NdotV   = maxEps(dot(N, V));
         float NdotL   = clamp01(dot(N, L));
-        float alphaSq = maxEps(mat.roughness * mat.roughness);
+        float alphaSq = maxEps(alpha * alpha);
 
         return (fresnel * G2SmithGGX(NdotL, NdotV, alphaSq)) / G1SmithGGX(NdotV, alphaSq);
     }
