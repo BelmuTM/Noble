@@ -63,7 +63,7 @@ bool raytraceHiZ(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec
         if(rayPos.z > minLodDepth) level--;
         else {
             level   = min(HIZ_START_LOD, level + 1);
-            rayPos += rayDir * exp2(level);
+            rayPos += rayDir * (rayPos.z / exp2(level));
         }
 
         if(level < HIZ_STOP_LOD) return true;

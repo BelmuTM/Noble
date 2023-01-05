@@ -68,7 +68,7 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color = mix(color, readBloom(), exp2(tmp.a + BLOOM_STRENGTH - 3.0));
+        color += readBloom() * exp2(tmp.a + BLOOM_STRENGTH - 3.0);
     #endif
 
     #if PURKINJE == 1

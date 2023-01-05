@@ -23,6 +23,9 @@
 		vec2(0.1685, 0.3375)
 	);
 
+	const int   blurSize  = 3;
+	const float blurSigma = 1.0;
+
 	vec3 bloomTile(int lod) {
 		float scale   = exp2(lod); 
 		vec2 coords   = (texCoords - bloomOffsets[lod - 2]) * scale;
@@ -32,9 +35,9 @@
 
 		if(any(greaterThanEqual(abs(coords - 0.5), texScale + 0.5))) return bloom;
 
-        for(int x = -BLOOM_STEPS; x <= BLOOM_STEPS; x++) {
-            for(int y = -BLOOM_STEPS; y <= BLOOM_STEPS; y++) {
-                float weight = gaussianDistrib2D(vec2(x, y), BLOOM_SIGMA);
+        for(int x = -blurSize; x <= blurSize; x++) {
+            for(int y = -blurSize; y <= blurSize; y++) {
+                float weight = gaussianDistrib2D(vec2(x, y), blurSigma);
                 bloom  		+= textureLod(colortex4, coords + vec2(x, y) * texScale, lod).rgb * weight;
             }
         }
