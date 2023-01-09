@@ -84,7 +84,9 @@
             vec3 rayDir = normalize(viewPos);
             Material mat;
 
-            for(int j = 0; j <= GI_BOUNCES; j++) {
+            int j = 0;
+
+            while(true) {
                 vec2 noise = vec2(randF(), randF());
 
                 /* Russian Roulette */
@@ -120,6 +122,7 @@
                     #endif
                     break;
                 }
+                j++;
             }
         }
         radiance = max0(radiance) * rcp(GI_SAMPLES);

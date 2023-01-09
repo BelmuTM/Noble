@@ -240,7 +240,7 @@ vec3 plancks(in float t, in vec3 lambda) {
 
 vec3 blackbody(in float t) {
     vec3 rgb = plancks(t, vec3(660.0, 550.0, 440.0));
-         rgb /= max(rgb.x, max(rgb.y, rgb.z)); // Keeping the values below 1.0
+         rgb /= max(rgb.r, max(rgb.g, rgb.b)); // Keeping the values below 1.0
     return rgb;
 }
 
