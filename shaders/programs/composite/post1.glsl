@@ -9,8 +9,11 @@
 #if defined STAGE_VERTEX
 
     flat out float avgLuminance;
-    //flat out vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
-    //flat out int medianBin;
+
+    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+        flat out int medianBin;
+        flat out vec4[HISTOGRAM_BINS / 8] luminanceHistogram;
+    #endif
 
     #if EXPOSURE == 2
         /*
@@ -18,9 +21,8 @@
             Alex Tardif - https://www.alextardif.com/HistogramLuminance.html
         */
 
-        const int tiles = 64;
-        ivec2 gridSize  = ivec2(viewSize / tiles);
-        vec2 tileSize   = 1.0 / gridSize;
+        ivec2 gridSize = ivec2(viewSize / vec2(64, 32));
+        vec2 tileSize  = 1.0 / gridSize;
 
         int getBinFromLuminance(float luminance) {
     	    return luminance < EPS ? 0 : int(clamp((log(luminance) * rcpLuminanceRange - (minLuminance * rcpLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
@@ -39,9 +41,9 @@
             for(int x = 0; x < gridSize.x; x++) {
                 for(int y = 0; y < gridSize.y; y++) {
                     vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
-                    float luminance = luminance(textureLod(colortex4, coords, lod).rgb);
+                    float luminance = pow2(textureLod(colortex4, coords, lod).a);
 
-                    pdf[getBinFromLuminance(luminance)] += 1;
+                    pdf[getBinFromLuminance(luminance)]++;
                 }
             }
             for(int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] *= tileSize.x * tileSize.y;
@@ -72,7 +74,10 @@
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
                 int closestBinToMedian    = getClosestBinToMedian(pdf);
 
-                //for(int i = 0; i < HISTOGRAM_BINS; i++) luminanceHistogram[i >> 2][i & 3] = pdf[i];
+                #if DEBUG_HISTOGRAM == 1
+                    medianBin = closestBinToMedian;
+                    for(int i = 0; i < HISTOGRAM_BINS; i++) luminanceHistogram[i >> 2][i & 3] = pdf[i];
+                #endif
 
                 float avgLuma = getLuminanceFromBin(closestBinToMedian);
             #endif
@@ -106,8 +111,8 @@
     #endif
 
     flat in float avgLuminance;
-    //flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
-    //flat in int medianBin;
+    flat in int medianBin;
+    flat in vec4[HISTOGRAM_BINS / 8] luminanceHistogram;
 
     const float K =  12.5; // Light meter calibration
     const float S = 100.0; // Sensor sensitivity
@@ -129,19 +134,6 @@
         return 1.0 / (1.2 * exp2(EV100));
     }
 
-    /*
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-        void drawHistogram(out vec3 color, int closestBinToMedian) {
-    	    vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
-
-    	    if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
-    		    int index = int(HISTOGRAM_BINS * coords.x);
-                color     = luminanceHistogram[index >> 2][index & 3] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - closestBinToMedian)) : vec3(1.0);
-    	    }
-        }
-    #endif
-    */
-
     void main() {
         color = texture(colortex4, texCoords);
 
@@ -158,11 +150,14 @@
             float exposure = EV100ToExposure(EV100fromLuminance(avgLuminance));
             history.a      = avgLuminance;
 
-            /*
             #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-                drawHistogram(histogram, medianBin);
+    	        vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
+
+    	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
+    		        int index = int(HISTOGRAM_BINS * coords.x);
+                    histogram = luminanceHistogram[index >> 2][index & 3] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+    	        }
             #endif
-            */
         #endif
 
         exposure = clamp(exposure, minExposure, maxExposure);

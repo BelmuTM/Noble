@@ -66,7 +66,7 @@ void main() {
         writeBloom(bloomBuffer);
     #endif
 
-    #if EXPOSURE == 1
+    #if EXPOSURE > 0
         color.a = sqrt(luminance(color.rgb));
     #endif
 }

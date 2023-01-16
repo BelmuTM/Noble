@@ -273,7 +273,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 /*------------------ CAMERA SETTINGS -------------------*/
 //////////////////////////////////////////////////////////
 
-#define EXPOSURE 1 // [0 1 2]
+#define EXPOSURE 2 // [0 1 2]
 #define PURKINJE 1 // [0 1]
 
 #define EXPOSURE_GROWTH 2.40

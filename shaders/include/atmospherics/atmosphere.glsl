@@ -130,11 +130,11 @@ mat3[2] sampleSkyIlluminanceComplex() {
         skyIllum[1][0] *= sampleWeight;
         skyIllum[1][2] *= sampleWeight;
 
-        skyIllum[0][0] += skyIllum[0][1] * 0.1;
-        skyIllum[0][2] += skyIllum[0][1] * 0.1;
-        skyIllum[1][0] += skyIllum[0][1] * 0.1;
-        skyIllum[1][1] += skyIllum[0][1] * 0.2;
-        skyIllum[1][2] += skyIllum[0][1] * 0.1;
+        skyIllum[0][0] += skyIllum[0][1] * 0.6;
+        skyIllum[0][2] += skyIllum[0][1] * 0.6;
+        skyIllum[1][0] += skyIllum[0][1] * 0.6;
+        skyIllum[1][1] += skyIllum[0][1] * 0.5;
+        skyIllum[1][2] += skyIllum[0][1] * 0.6;
     #endif
     return skyIllum;
 }
