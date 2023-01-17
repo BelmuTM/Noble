@@ -111,8 +111,11 @@
     #endif
 
     flat in float avgLuminance;
-    flat in int medianBin;
-    flat in vec4[HISTOGRAM_BINS / 8] luminanceHistogram;
+
+    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+        flat in int medianBin;
+        flat in vec4[HISTOGRAM_BINS / 8] luminanceHistogram;
+    #endif
 
     const float K =  12.5; // Light meter calibration
     const float S = 100.0; // Sensor sensitivity
