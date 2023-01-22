@@ -90,8 +90,10 @@ void main() {
             //////////////////////////////////////////////////////////
 
             #if GI == 0 && REFRACTIONS == 1
-                color     = refractions(viewPos0, scenePos1, mat, coords);
-                scenePos1 = viewToScene(getViewPos1(coords.xy));
+                if(mat.F0 > EPS) {
+                    color     = refractions(viewPos0, scenePos1, mat, coords);
+                    scenePos1 = viewToScene(getViewPos1(coords.xy));
+                }
             #endif
 
             //////////////////////////////////////////////////////////

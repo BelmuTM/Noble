@@ -123,18 +123,18 @@ mat3[2] sampleSkyIlluminanceComplex() {
                 skyIllum[1][2] += atmoSample * clamp01(-dir.z);
             }
         }
-        const float sampleWeight = 2.0 * TAU / (samples.x * samples.y);
+        const float sampleWeight = TAU / (samples.x * samples.y);
         skyIllum[0][0] *= sampleWeight;
         skyIllum[0][1] *= sampleWeight;
         skyIllum[0][2] *= sampleWeight;
         skyIllum[1][0] *= sampleWeight;
         skyIllum[1][2] *= sampleWeight;
 
-        skyIllum[0][0] += skyIllum[0][1] * 0.6;
-        skyIllum[0][2] += skyIllum[0][1] * 0.6;
-        skyIllum[1][0] += skyIllum[0][1] * 0.6;
-        skyIllum[1][1] += skyIllum[0][1] * 0.5;
-        skyIllum[1][2] += skyIllum[0][1] * 0.6;
+        skyIllum[0][0] += skyIllum[0][1] * 0.5;
+        skyIllum[0][2] += skyIllum[0][1] * 0.5;
+        skyIllum[1][0] += skyIllum[0][1] * 0.5;
+        skyIllum[1][1] += skyIllum[0][1] * 0.6;
+        skyIllum[1][2] += skyIllum[0][1] * 0.5;
     #endif
     return skyIllum;
 }

@@ -117,8 +117,14 @@
 				mat.normal    = TBN * mat.normal;
 			}
 
-			#if GI == 0 && REFRACTIONS == 0
-				if(mat.F0 * maxVal8 <= 229.5) {
+			#if GI == 0
+				#if REFRACTIONS == 0
+					bool shadeTranslucents = true;
+				#else
+					bool shadeTranslucents = mat.F0 < EPS;
+				#endif
+
+				if(mat.F0 * maxVal8 <= 229.5 && shadeTranslucents) {
 					vec3 scenePos = viewToScene(viewPos);
 
 					#if TONEMAP == 0

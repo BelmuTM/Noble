@@ -21,29 +21,34 @@ layout (location = 1) out vec3 bloomBuffer;
         return fragDepth < MC_HAND_DEPTH ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
     }
 
-    void depthOfField(inout vec3 color, sampler2D tex, vec2 coords, int quality, float radius, float coc) {
-        vec3 dof   = vec3(0.0);
-        vec2 noise = vec2(randF(), randF());
+    #define SAMPLES 12
+    #define ANGLE_SAMPLES (3 * SAMPLES)
 
-        float distFromCenter = pow2(distance(coords, vec2(0.5)));
-        vec2  caOffset       = vec2(distFromCenter) * coc / pow2(quality);
+    void depthOfField(inout vec3 color, sampler2D tex, float coc) {
+        color = vec3(0.0);
 
-        for(int x = 0; x < quality; x++) {
-            for(int y = 0; y < quality; y++) {
-                vec2 offset = ((vec2(x, y) + noise) - quality * 0.5) * rcp(quality);
-            
-                if(length(offset) < 0.5) {
-                    vec2 sampleCoords = coords + (offset * radius * coc * pixelSize);
+        float weight = pow2(SAMPLES);
+        float totalWeight = 0.0;
 
-                    dof += vec3(
-                        texture(tex, sampleCoords + caOffset).r,
-                        texture(tex, sampleCoords).g,
-                        texture(tex, sampleCoords - caOffset).b
-                    );
-                }
+        float distFromCenter = distance(texCoords, vec2(0.5));
+        vec2  caOffset       = vec2(distFromCenter) * coc / weight;
+
+        for(float angle = 0.0; angle < TAU; angle += TAU / ANGLE_SAMPLES) {
+            for(int i = 0; i < SAMPLES; i++) {
+                vec2 sampleCoords = texCoords + vec2(cos(angle), sin(angle)) * i * coc * pixelSize;
+                if(clamp01(sampleCoords) != sampleCoords) continue;
+
+                vec3 sampleColor  = vec3(
+                    texture(tex, sampleCoords + caOffset).r,
+                    texture(tex, sampleCoords).g,
+                    texture(tex, sampleCoords - caOffset).b
+                );
+
+                color       += sampleColor * weight;
+                totalWeight += weight;
             }
         }
-        color = dof * rcp(pow2(quality));
+        color /= totalWeight;
     }
 #endif
 
@@ -59,7 +64,7 @@ void main() {
             float targetDepth = float(DOF_DEPTH);
         #endif
 
-        depthOfField(color.rgb, colortex4, texCoords, 8, DOF_RADIUS, getCoC(depth0, targetDepth));
+        depthOfField(color.rgb, colortex4, getCoC(depth0, targetDepth));
     #endif
 
     #if BLOOM == 1

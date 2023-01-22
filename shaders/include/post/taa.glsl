@@ -41,7 +41,7 @@ vec3 getClosestFragment(vec3 position) {
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
             currentFragment.xy = position.xy + vec2(x, y) * pixelSize;
-            currentFragment.z  = texelFetch(depthtex0, ivec2(gl_FragCoord) + ivec2(x, y), 0).r;
+            currentFragment.z  = texture(depthtex0, currentFragment.xy).r;
             closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
         }
     }
@@ -49,7 +49,7 @@ vec3 getClosestFragment(vec3 position) {
 }
 
 vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
-    vec3 closestFragment = getClosestFragment(vec3(texCoords, texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r));
+    vec3 closestFragment = getClosestFragment(vec3(texCoords, texture(depthtex0, texCoords).r));
     vec2 prevCoords      = texCoords - getVelocity(closestFragment).xy;
 
     vec3 currColor = SRGB_2_YCoCg_MAT * textureCatmullRom(currTex, texCoords).rgb;
