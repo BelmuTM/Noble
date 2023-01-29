@@ -164,7 +164,7 @@ vec3 hammonDiffuse(Material mat, vec3 V, vec3 L) {
     float facing    = 0.5 + 0.5 * VdotL;
     float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
 
-    // Concept of replacing smooth surface by Lambertian with energy conservation from LVutner#5199
+    // Hammon energy conservation from LVutner#5199
     float energyConservationFactor = 1.0 - (4.0 * sqrt(mat.F0) + 5.0 * mat.F0 * mat.F0) * rcp(9.0);
     float ior       = f0ToIOR(mat.F0);
     float fresnelNL = 1.0 - fresnelDielectric(NdotL, airIOR, ior);

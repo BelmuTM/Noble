@@ -67,7 +67,7 @@
         #if GI == 0 && AO == 1
             if(!sky) {
                 vec4 ao = texture(colortex10, texCoords);
-                if(any(greaterThan(ao.rgb, vec3(0.0)))) bentNormal = clamp01(ao.rgb);
+                if(any(greaterThan(ao.xyz, vec3(0.0)))) bentNormal = clamp01(ao.xyz);
             }
         #endif
 

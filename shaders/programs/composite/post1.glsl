@@ -121,7 +121,7 @@
     const float S = 100.0; // Sensor sensitivity
 
     #if TONEMAP == 0
-        const float exposureBias = 2.4;
+        const float exposureBias = 3.0;
     #else
         const float exposureBias = 1.0;
     #endif
