@@ -1,13 +1,13 @@
 /***********************************************/
-/*        Copyright (C) NobleRT - 2022         */
-/*   Belmu | GNU General Public License V3.0   */
+/*          Copyright (C) 2022 Belmu           */
+/*       GNU General Public License V3.0       */
 /*                                             */
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
 /***********************************************/
 
 /*
-    SOURCES / CREDITS:
+    CREDITS:
     LVutner: Help with understanding BRDFs, providing lambda smith equation and providing GGXVNDF function
              https://github.com/LVutner
     Jessie:  Help with getting the lighting right

@@ -1,6 +1,6 @@
 /***********************************************/
-/*        Copyright (C) NobleRT - 2022         */
-/*   Belmu | GNU General Public License V3.0   */
+/*          Copyright (C) 2022 Belmu           */
+/*       GNU General Public License V3.0       */
 /*                                             */
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
@@ -31,6 +31,10 @@ const float rcpMaxVal16 = 0.00001525;
 #include "/include/utility/phase.glsl"
 
 #include "/include/material.glsl"
+
+//////////////////////////////////////////////////////////
+/*-------------- MISC UTILITY FUNCTIONS ----------------*/
+//////////////////////////////////////////////////////////
 
 const vec2 sunRotationData = vec2(cos(sunPathRotation * 0.01745329251994), -sin(sunPathRotation * 0.01745329251994));
 float tmp = fract(worldTime / 24000.0 - 0.25);

@@ -1,6 +1,6 @@
 /***********************************************/
-/*        Copyright (C) NobleRT - 2022         */
-/*   Belmu | GNU General Public License V3.0   */
+/*          Copyright (C) 2022 Belmu           */
+/*       GNU General Public License V3.0       */
 /*                                             */
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
@@ -59,8 +59,7 @@ out vec3 color;
 #if SHARPEN == 1
     /*
         SOURCES / CREDITS:
-        spolsh:   https://www.shadertoy.com/view/XlSBRW
-        SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
+        spolsh: https://www.shadertoy.com/view/XlSBRW
     */
 
     void sharpeningFilter(inout vec3 color, vec2 coords) {
@@ -115,5 +114,4 @@ void main() {
     #endif
 
     color += bayer8(gl_FragCoord.xy) * rcpMaxVal8;
-    // color = vec3(1.0 / linearizeDepth(texelFetch(colortex14, ivec2((texCoords / exp2(3) + hiZOffsets[2]) * viewSize), 0).r));
 }

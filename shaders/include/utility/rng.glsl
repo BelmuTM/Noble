@@ -1,6 +1,6 @@
 /***********************************************/
-/*        Copyright (C) NobleRT - 2022         */
-/*   Belmu | GNU General Public License V3.0   */
+/*          Copyright (C) 2022 Belmu           */
+/*       GNU General Public License V3.0       */
 /*                                             */
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
@@ -38,14 +38,14 @@ vec2 taaJitter(vec4 pos) {
     return taaOffsets[framemod] * (pos.w * pixelSize);
 }
 
-// Noise distribution: https://www.pcg-random.org/
-void pcg(inout uint seed) {
-    uint state = seed * 747796405u + 2891336453u;
-    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
-    seed = (word >> 22u) ^ word;
-}
+#if defined STAGE_FRAGMENT
+    // Noise distribution: https://www.pcg-random.org/
+    void pcg(inout uint seed) {
+        uint state = seed * 747796405u + 2891336453u;
+        uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+        seed = (word >> 22u) ^ word;
+    }
 
-#ifdef STAGE_FRAGMENT
     uint rngState = 185730u * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewSize.x);
     float randF() { pcg(rngState); return float(rngState) / float(0xffffffffu); }
 #endif

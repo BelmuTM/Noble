@@ -1,6 +1,6 @@
 /***********************************************/
-/*        Copyright (C) NobleRT - 2022         */
-/*   Belmu | GNU General Public License V3.0   */
+/*          Copyright (C) 2022 Belmu           */
+/*       GNU General Public License V3.0       */
 /*                                             */
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
@@ -40,8 +40,8 @@ vec3 physicalMoon(vec3 sceneDir) {
     return sphere.y < 0.0 ? vec3(0.0) : moonMat.albedo * hammonDiffuse(moonMat, -sceneDir, sunVector) * sunIlluminance;
 }
 
-vec3 computeSky(vec3 viewPos) {
-	#ifdef WORLD_OVERWORLD
+vec3 computeAtmosphere(vec3 viewPos) {
+	#if defined WORLD_OVERWORLD
 		vec3 sceneDir = normalize(viewToScene(viewPos));
     	vec2 coords   = projectSphere(sceneDir);
 

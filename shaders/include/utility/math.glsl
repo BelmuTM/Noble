@@ -1,6 +1,6 @@
 /***********************************************/
-/*        Copyright (C) NobleRT - 2022         */
-/*   Belmu | GNU General Public License V3.0   */
+/*          Copyright (C) 2022 Belmu           */
+/*       GNU General Public License V3.0       */
 /*                                             */
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
@@ -134,9 +134,9 @@ vec2 intersectSphere(vec3 rayOrigin, vec3 rayDir, float radius) {
 }
 
 // Intersection method from Jessie#7257
-vec2 intersectSphericalShell(vec3 rayOrigin, vec3 rayDir, float innerSphereRad, float outerSphereRad) {
-    vec2 innerSphereDists = intersectSphere(rayOrigin, rayDir, innerSphereRad);
-    vec2 outerSphereDists = intersectSphere(rayOrigin, rayDir, outerSphereRad);
+vec2 intersectSphericalShell(vec3 origin, vec3 direction, float innerSphereRadius, float outerSphereRadius) {
+    vec2 innerSphereDists = intersectSphere(origin, direction, innerSphereRadius);
+    vec2 outerSphereDists = intersectSphere(origin, direction, outerSphereRadius);
 
     bool innerSphereIntersected = innerSphereDists.y >= 0.0;
     bool outerSphereIntersected = outerSphereDists.y >= 0.0;
@@ -156,9 +156,9 @@ vec2 projectSphere(vec3 direction) {
     return vec2(longitude * rcp(TAU) + 0.5, latitude * RCP_PI);
 }
 
-vec3 unprojectSphere(vec2 coord) {
-    float latitude = coord.y * PI;
-    return vec3(sincos(coord.x * TAU) * sin(latitude), cos(latitude)).xzy;
+vec3 unprojectSphere(vec2 coords) {
+    float latitude = coords.y * PI;
+    return vec3(sincos(coords.x * TAU) * sin(latitude), cos(latitude)).xzy;
 }
 
 vec3 generateUnitVector(vec2 xy) {
@@ -212,22 +212,4 @@ vec3 decodeUnitVector(vec2 enc) {
 	vec3 v = vec3(enc.xy, 1.0 - abs(enc.x) - abs(enc.y));
 	if(v.z < 0.0) v.xy = (1.0 - abs(v.yx)) * signNonZero(v.xy);
 	return normalize(v);
-}
-
-float packUnorm2x4(vec2 xy) {
-	return dot(floor(15.0 * xy + 0.5), vec2(1.0 / maxVal8, 16.0 / maxVal8));
-}
-
-vec2 unpackUnorm2x4(float pack) {
-	vec2 xy; xy.x = modf(pack * maxVal8 / 16.0, xy.y);
-	return xy * vec2(16.0 / 15.0, 1.0 / 15.0);
-}
-
-float packUnorm2x8(vec2 xy) {
-	return dot(floor(maxVal8 * xy + 0.5), vec2(1.0 / maxVal16, 256.0 / maxVal16));
-}
-
-vec2 unpackUnorm2x8(float pack) {
-	vec2 xy; xy.x = modf(pack * maxVal16 / 256.0, xy.y);
-	return xy * vec2(256.0 / maxVal8, 1.0 / maxVal8);
 }

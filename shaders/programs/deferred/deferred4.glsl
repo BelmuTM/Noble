@@ -1,6 +1,6 @@
 /***********************************************/
-/*        Copyright (C) NobleRT - 2022         */
-/*   Belmu | GNU General Public License V3.0   */
+/*          Copyright (C) 2022 Belmu           */
+/*       GNU General Public License V3.0       */
 /*                                             */
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
@@ -24,7 +24,6 @@
 #include "/include/fragment/brdf.glsl"
 
 #include "/include/atmospherics/celestial.glsl"
-#include "/include/atmospherics/atmosphere.glsl"
 
 #if GI == 1
     #include "/include/fragment/pathtracer.glsl"
@@ -66,7 +65,7 @@ void main() {
     #endif
 
     if(isSky(texCoords)) {
-        vec3 sky = computeSky(viewPos0);
+        vec3 sky = computeAtmosphere(viewPos0);
         #if GI == 1
             directColor.rgb = sky;
         #else

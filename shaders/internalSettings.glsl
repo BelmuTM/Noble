@@ -1,6 +1,6 @@
 /***********************************************/
-/*        Copyright (C) NobleRT - 2022         */
-/*   Belmu | GNU General Public License V3.0   */
+/*          Copyright (C) 2022 Belmu           */
+/*       GNU General Public License V3.0       */
 /*                                             */
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
@@ -21,13 +21,13 @@ const int colortex1Format  = RGBA32UI;  // Gbuffers Data
 const int colortex2Format  = RGB16F;    // Reflections
 const int colortex3Format  = RGBA16F;   // Geometric Normals, Shadowmap, Bloom
 const int colortex4Format  = RGBA16F;   // Main Buffer
-const int colortex5Format  = RGBA32F;   // Deferred buffer
+const int colortex5Format  = RGBA32F;   // Deferred Buffer
 const int colortex6Format  = RGBA32F;   // Direct, Indirect Illuminances & Clouds Shadows
 const int colortex8Format  = RGBA16F;   // History Buffer
 const int colortex9Format  = RGBA16F;   // Direct PT
 const int colortex10Format = RGBA16F;   // Indirect PT
 const int colortex11Format = RGBA16F;   // Moments
-const int colortex12Format = RGB16F;    // Sky
+const int colortex12Format = RGB16F;    // Atmosphere
 const int colortex13Format = RGBA16F;   // Translucents
 const int colortex14Format = R32F;      // Hi-z Depth Buffer
 
