@@ -119,3 +119,12 @@ vec3 getVelocity(vec3 currPos) {
 
     return currPos - prevPos;
 }
+
+vec3 reproject(vec2 coords){
+    vec3 position = viewToScene(getViewPos0(coords));
+
+	vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(linearizeDepthFast(texture(depthtex0, coords).r) >= MC_HAND_DEPTH);
+
+    position = transform(gbufferPreviousModelView, cameraOffset + viewToScene(getViewPos0(coords)));
+    return (projectOrtho(gbufferPreviousProjection, position) / -position.z) * 0.5 + 0.5;
+}

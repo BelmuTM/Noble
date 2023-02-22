@@ -61,22 +61,22 @@ const float fogPeakWeight   = 0.25;
 
 /* CELESTIAL CONSTANTS */
 
-const float moonRad       = 1.7374e6;
+const float moonRadius    = 1.7374e6;
 const float moonDist      = 3.8440e8;
 const float moonAlbedo    = 0.136; // The moon reflects approximately 12-13% of the sun's emitted light 
 const float moonRoughness = 0.40;
 
-const float sunRad  = 6.9634e8;
-const float sunDist = 1.496e11;
+const float sunRadius = 6.9634e8;
+const float sunDist   = 1.496e11;
 
-const float sunAngularRad  = CELESTIAL_SIZE_MULTIPLIER * sunRad  / sunDist;
-const float moonAngularRad = CELESTIAL_SIZE_MULTIPLIER * moonRad / moonDist;
+const float sunAngularRadius  = CELESTIAL_SIZE_MULTIPLIER * sunRadius  / sunDist;
+const float moonAngularRadius = CELESTIAL_SIZE_MULTIPLIER * moonRadius / moonDist;
 
 const vec3 sunColor = vec3(1.0, 0.949, 0.937);
 vec3 sunIlluminance = (sunColor / luminance(sunColor)) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
-vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRad);
+vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRadius);
 
 vec3 moonLuminance   = moonAlbedo * RCP_PI * sunIlluminance;
-vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRad); // The rough amount of light the moon emits that reaches the earth
+vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRadius); // The rough amount of light the moon emits that reaches the earth
 
-float shadowLightAngularRadius = sunAngle < 0.5 ? sunAngularRad : moonAngularRad;
+float shadowLightAngularRadius = sunAngle < 0.5 ? sunAngularRadius : moonAngularRadius;

@@ -103,15 +103,15 @@
         layout (location = 1) out vec4 history;
     #endif
 
-    #if TAA == 1
-        #include "/include/post/taa.glsl"
-    #endif
-
     flat in float avgLuminance;
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         flat in int medianBin;
         flat in vec4[HISTOGRAM_BINS / 8] luminanceHistogram;
+    #endif
+
+    #if TAA == 1
+        #include "/include/post/taa.glsl"
     #endif
 
     const float K =  12.5; // Light meter calibration

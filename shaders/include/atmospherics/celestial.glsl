@@ -23,11 +23,11 @@ vec3 computeStarfield(vec3 viewPos) {
 }
 
 vec3 physicalSun(vec3 sceneDir) {
-    return dot(sceneDir, sunVector) < cos(sunAngularRad) ? vec3(0.0) : sunLuminance * RCP_PI;
+    return dot(sceneDir, sunVector) < cos(sunAngularRadius) ? vec3(0.0) : sunLuminance * RCP_PI;
 }
 
 vec3 physicalMoon(vec3 sceneDir) {
-    vec2 sphere = intersectSphere(-moonVector, sceneDir, moonAngularRad);
+    vec2 sphere = intersectSphere(-moonVector, sceneDir, moonAngularRadius);
 
 	Material moonMat;
 	moonMat.normal    = normalize(sceneDir * sphere.x - moonVector);

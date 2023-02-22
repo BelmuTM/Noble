@@ -34,7 +34,7 @@
 
         for(int x = -blurSize; x <= blurSize; x++) {
             for(int y = -blurSize; y <= blurSize; y++) {
-                float weight = gaussianDistrib2D(vec2(x, y), blurSigma);
+                float weight = gaussianDistribution2D(vec2(x, y), blurSigma);
                 bloom  		+= textureLod(colortex4, coords + vec2(x, y) * texScale, lod).rgb * weight;
             }
         }
