@@ -1,10 +1,11 @@
 /***********************************************/
-/*          Copyright (C) 2022 Belmu           */
+/*          Copyright (C) 2023 Belmu           */
 /*       GNU General Public License V3.0       */
 /*                                             */
 /* By downloading this content you have agreed */
 /*     to the license and its terms of use.    */
 /***********************************************/
+
 /*
     I AM NOT THE AUTHOR OF THE TONE MAPPING ALGORITHMS BELOW
     Most sources are: Github, Shadertoy or Discord.
