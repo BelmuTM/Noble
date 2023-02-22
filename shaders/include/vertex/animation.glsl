@@ -1,9 +1,6 @@
 /***********************************************/
 /*          Copyright (C) 2023 Belmu           */
 /*       GNU General Public License V3.0       */
-/*                                             */
-/* By downloading this content you have agreed */
-/*     to the license and its terms of use.    */
 /***********************************************/
 
 vec3 windDir = frameTimeCounter * vec3(-0.2, 0.35, -1.0);

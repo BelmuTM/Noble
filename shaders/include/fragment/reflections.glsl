@@ -1,7 +1,6 @@
 /***********************************************/
-/*              Noble RT - 2021              */
-/*   Belmu | GNU General Public License V3.0   */
-/*   Please do not claim my work as your own.  */
+/*          Copyright (C) 2023 Belmu           */
+/*       GNU General Public License V3.0       */
 /***********************************************/
 
 #define EDGE_ATTENUATION_FACTOR 0.15
