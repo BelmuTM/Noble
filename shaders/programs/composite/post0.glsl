@@ -18,20 +18,17 @@ layout (location = 1) out vec3 bloomBuffer;
         return fragDepth < MC_HAND_DEPTH ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
     }
 
-    #define SAMPLES 12
-    #define ANGLE_SAMPLES (3 * SAMPLES)
-
     void depthOfField(inout vec3 color, sampler2D tex, float coc) {
         color = vec3(0.0);
 
-        float weight = pow2(SAMPLES);
+        float weight = pow2(DOF_SAMPLES);
         float totalWeight = 0.0;
 
         float distFromCenter = distance(texCoords, vec2(0.5));
         vec2  caOffset       = vec2(distFromCenter) * coc / weight;
 
-        for(float angle = 0.0; angle < TAU; angle += TAU / ANGLE_SAMPLES) {
-            for(int i = 0; i < SAMPLES; i++) {
+        for(float angle = 0.0; angle < TAU; angle += TAU / DOF_ANGLE_SAMPLES) {
+            for(int i = 0; i < DOF_SAMPLES; i++) {
                 vec2 sampleCoords = texCoords + vec2(cos(angle), sin(angle)) * i * coc * pixelSize;
                 if(clamp01(sampleCoords) != sampleCoords) continue;
 

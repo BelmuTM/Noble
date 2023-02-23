@@ -5,7 +5,8 @@
 
 #shaders/lang/en_US.lang
 
-##################### OTHERS #####################
+##################### MISC #####################
+
 option.ABOUT = §6Noble
 option.ABOUT.comment = §r§lTwitter: §r§7@Belmu_. §r§lDiscord: §r§7Belmu#4066. §r§lPatreon: §r§6https://www.patreon.com/Belmu. §r§lGithub: §r§6https://www.github.com/BelmuTM.
 value.ABOUT.0 = §rby Belmu
@@ -50,7 +51,7 @@ value.SUBSURFACE_SCATTERING.0 = §cOFF
 value.SUBSURFACE_SCATTERING.1 = §aON
 
 option.MATERIAL_AO = Material AO
-option.MATERIAL_AO.comment = §bMaterial Ambient Occlusion§r. Adds pseudo-shadows from the textures themselves. §cRequires a PBR resource pack!
+option.MATERIAL_AO.comment = §bMaterial Ambient Occlusion§r. Adds pseudo-shadows from the textures themselves. §cRequires a LabPBR resource pack!
 value.MATERIAL_AO.0 = §cOFF
 value.MATERIAL_AO.1 = §aON
 
@@ -244,16 +245,16 @@ value.GI_TEMPORAL_ACCUMULATION.0 = §cOFF
 value.GI_TEMPORAL_ACCUMULATION.1 = §aON
 
 option.ATROUS_STEP_SIZE = Blur Size
-option.ATROUS_STEP_SIZE.comment = Adjusts the size of the blur used to filter §bGlobal Illumination§r.
+option.ATROUS_STEP_SIZE.comment = Adjusts the size of the blur used to denoise.
 
 option.NORMAL_WEIGHT_SIGMA = Normal Weight Strength
-option.NORMAL_WEIGHT_SIGMA.comment = Adjusts the strength of the normal weight used to blur §bGlobal Illumination§r.
+option.NORMAL_WEIGHT_SIGMA.comment = Adjusts the strength of the normal weight used to denoise.
 
 option.DEPTH_WEIGHT_SIGMA = Depth Weight Strength
-option.DEPTH_WEIGHT_SIGMA.comment = Adjusts the strength of the depth weight used to blur §bGlobal Illumination§r.
+option.DEPTH_WEIGHT_SIGMA.comment = Adjusts the strength of the depth weight used to denoise.
 
 option.LUMA_WEIGHT_SIGMA = Luminance Weight Strength
-option.LUMA_WEIGHT_SIGMA.comment = Adjusts the strength of the luminance weight used to blur §bGlobal Illumination§r.
+option.LUMA_WEIGHT_SIGMA.comment = Adjusts the strength of the luminance weight used to denoise.
 
 option.SKY_CONTRIBUTION = Sky Contribution
 option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r (can be problematic in screen space). Lets the sky contribute in indirect lighting.
@@ -565,6 +566,16 @@ option.DOF = Depth of Field (DOF)
 option.DOF.comment = Blurs objects that are out of focus. Influenced by the §eaperture§r and §efocal length§r in the camera settings.
 value.DOF.0 = §cOFF
 value.DOF.1 = §aON
+
+option.DOF_SAMPLES = DOF Samples
+option.DOF_SAMPLES.comment = Adjusts how much time §bDepth of Field§r is sampled. §cHigher value gives better results, but reduces §cperformance.
+value.DOF_SAMPLES.4 = §b4
+value.DOF_SAMPLES.6 = §36
+value.DOF_SAMPLES.8 = §28
+value.DOF_SAMPLES.10 = §a10
+value.DOF_SAMPLES.12 = §e12
+value.DOF_SAMPLES.14 = §614
+value.DOF_SAMPLES.16 = §c16
 
 option.DOF_RADIUS = DOF Radius
 option.DOF_RADIUS.comment = Adjusts §bDepth of Field§r's intensity.
