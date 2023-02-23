@@ -29,26 +29,22 @@
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
 
     void temporalAccumulation(Material mat, inout vec3 color, vec3 prevColor, vec3 prevPos, inout vec3 direct, inout vec3 indirect, inout vec3 moments, float frames) {
-        float weight = clamp01(1.0 - (1.0 / max(frames, 1.0)));
-
-        #if ACCUMULATION_VELOCITY_WEIGHT == 1
-            weight *= hideGUI;
-        #endif
+        float weight = 1.0 / max(frames, 1.0);
 
         // Thanks SixthSurge#3922 for the help with moments
         #if GI_FILTER == 1
             vec2 prevMoments = texture(colortex11, prevPos.xy).rg;
-                  moments.rg = mix(moments.rg, prevMoments, weight);
+                  moments.rg = mix(prevMoments, moments.rg, weight);
                   moments.b  = abs(moments.g - moments.r * moments.r);
         #endif
 
-        color = mix(color, prevColor, weight);
+        color = mix(prevColor, color, weight);
 
         vec3 prevColorDirect   = texture(colortex9,  prevPos.xy).rgb;
         vec3 prevColorIndirect = texture(colortex10, prevPos.xy).rgb;
 
-        direct   = max0(mix(direct,   prevColorDirect,   weight));
-        indirect = max0(mix(indirect, prevColorIndirect, weight));
+        direct   = max0(mix(prevColorDirect  , direct  , weight));
+        indirect = max0(mix(prevColorIndirect, indirect, weight));
     }
 #endif
 
@@ -87,16 +83,16 @@ void main() {
             vec4 prevColor = texture(colortex13, prevPos.xy);
         #endif
 
-        #if ACCUMULATION_VELOCITY_WEIGHT == 0
-            float prevDepth   = exp2(texture(colortex11, prevPos.xy).a);
-            float depthWeight = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
+        #if RENDER_MODE == 0
+            float prevDepth = exp2(texture(colortex11, prevPos.xy).a);
+            float weight    = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
             colortex11Write.a = log2(mat.depth0);
         #else
-            float depthWeight = 1.0;
+            float weight = float(hideGUI);
         #endif
 
-        color.a = (prevColor.a * depthWeight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+        color.a = (prevColor.a * weight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
     #endif
 
     #if GI == 0

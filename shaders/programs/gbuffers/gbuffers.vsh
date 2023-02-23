@@ -49,7 +49,7 @@ void main() {
 	blockId 	  = int((mc_Entity.x - 1000.0) + 0.25);
 	vec3 worldPos = transform(gbufferModelViewInverse, viewPos);
 
-	#if ACCUMULATION_VELOCITY_WEIGHT == 0
+	#if RENDER_MODE == 0
 		#ifdef PROGRAM_TERRAIN
 			animate(worldPos, texCoords.y < mc_midTexCoord.y);
 		#endif

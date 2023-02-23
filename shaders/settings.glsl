@@ -111,9 +111,9 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define GI               0 // [0 1]
 #define SKY_CONTRIBUTION 1 // [0 1]
 
-#define GI_FILTER                    1 // [0 1]
-#define GI_TEMPORAL_ACCUMULATION     1 // [0 1]
-#define ACCUMULATION_VELOCITY_WEIGHT 0 // [0 1]
+#define GI_FILTER                1 // [0 1]
+#define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
+#define RENDER_MODE 			 0 // [0 1]
 
 #define ATROUS_STEP_SIZE     16.0 // [1.0 2.0 4.0 6.0 8.0 10.0 12.0 14.0 16.0 18.0 20.0]
 #define NORMAL_WEIGHT_SIGMA 128.0 // [1.0 2.0 4.0 6.0 8.0 10.0 12.0 14.0 16.0 18.0 20.0 32.0 64.0 128.0]

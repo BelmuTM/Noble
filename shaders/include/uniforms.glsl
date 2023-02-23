@@ -54,6 +54,7 @@ uniform sampler2D colortex14;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
+
 uniform sampler3D depthtex2;
 uniform sampler3D noisetex;
 

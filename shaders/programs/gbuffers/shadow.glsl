@@ -33,7 +33,7 @@
 		    TBN 		   = mat3(tangent, cross(tangent, geoNormal), geoNormal);
         #endif
 
-	    #if ACCUMULATION_VELOCITY_WEIGHT == 0
+	    #if RENDER_MODE == 0
             animate(worldPos, texCoords.y < mc_midTexCoord.y);
             gl_Position = transform(shadowModelView, worldPos).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 	    #else

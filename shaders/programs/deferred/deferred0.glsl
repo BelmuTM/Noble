@@ -51,10 +51,10 @@ void main() {
             vec3 prevPos = currPos - getVelocity(currPos);
             vec4 prevAO  = texture(colortex10, prevPos.xy);
         
-            float weight = clamp01(1.0 - (1.0 / max(texture(colortex13, prevPos.xy).w, 1.0)));
+            float weight = 1.0 / max(texture(colortex13, prevPos.xy).w, 1.0);
 
-            ao.w   = mix(ao.w, prevAO.w, weight);
-            ao.xyz = mix(ao.xyz, prevAO.xyz, weight);
+            ao.w   = mix(prevAO.w  , ao.w  , weight);
+            ao.xyz = mix(prevAO.xyz, ao.xyz, weight);
         #endif
     #endif
 }

@@ -21,7 +21,7 @@ float waterWaves(vec2 pos, int octaves) {
     float amplitude = WAVE_AMPLITUDE;
     float steepness = WAVE_STEEPNESS;
 
-    float speed = ACCUMULATION_VELOCITY_WEIGHT == 0 ? WAVE_SPEED : 0.0;
+    float speed = RENDER_MODE == 0 ? WAVE_SPEED : 0.0;
     pos.x *= 0.75;
     
     float height = 0.0;    
