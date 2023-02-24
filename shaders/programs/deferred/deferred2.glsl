@@ -32,7 +32,7 @@
     in vec3 directIlluminance;
 
     void main() {
-        #ifdef WORLD_OVERWORLD
+        #if defined WORLD_OVERWORLD
             #if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
 
                 vec3 viewPos = getViewPos1(texCoords);

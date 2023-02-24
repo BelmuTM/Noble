@@ -39,29 +39,29 @@ void main() {
 	#endif
 
 	#ifndef PROGRAM_BASIC 
-    	vec3 geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
+    	vec3 geoNormal = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
     		 viewPos   = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
-    	vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
-		TBN			 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
+    	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+		TBN			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
 	#endif
 
 	blockId 	  = int((mc_Entity.x - 1000.0) + 0.25);
 	vec3 worldPos = transform(gbufferModelViewInverse, viewPos);
 
 	#if RENDER_MODE == 0
-		#ifdef PROGRAM_TERRAIN
+		#if defined PROGRAM_TERRAIN
 			animate(worldPos, texCoords.y < mc_midTexCoord.y);
 		#endif
 
-		#ifdef PROGRAM_WEATHER
+		#if defined PROGRAM_WEATHER
 			worldPos.xz += RAIN_DIRECTION * worldPos.y;
 		#endif
 	#endif
 	
 	gl_Position = transform(gbufferModelView, worldPos).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 
-	#ifdef PROGRAM_ENTITY
+	#if defined PROGRAM_ENTITY
 		// Thanks Niemand#1929 for the nametag fix
 		if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
 			gl_Position = vec4(10.0, 10.0, 10.0, 1.0);

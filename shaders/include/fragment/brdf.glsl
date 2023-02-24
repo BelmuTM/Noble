@@ -208,7 +208,7 @@ vec3 computeDiffuse(vec3 V, vec3 L, Material mat, vec4 shadowmap, vec3 directLig
         diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * cloudsShadows;
     #endif
 
-    #ifdef SUNLIGHT_LEAKING_FIX
+    #if defined SUNLIGHT_LEAKING_FIX
         diffuse        *= directLight * isSkyOccluded;
         skyIlluminance *= isSkyOccluded;
     #else

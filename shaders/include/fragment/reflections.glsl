@@ -20,7 +20,7 @@ vec3 getHitColor(in vec3 hitPos) {
 }
 
 vec3 getSkyFallback(vec3 reflected, Material mat) {
-    #ifdef WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD
         vec2 coords = projectSphere(mat3(gbufferModelViewInverse) * reflected);
         vec3 sky    = texture(colortex12, clamp01(coords + randF() * pixelSize)).rgb;
 
@@ -44,7 +44,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
               hit    *= KneemundAttenuation(hitPos.xy);
         vec3 hitColor = getHitColor(hitPos);
 
-        #ifdef SKY_FALLBACK
+        #if defined SKY_FALLBACK
             vec3 color = mix(getSkyFallback(rayDir, mat), hitColor, hit);
         #else
             vec3 color = mix(vec3(0.0), hitColor, hit);
@@ -86,7 +86,7 @@ vec3 getSkyFallback(vec3 reflected, Material mat) {
                       hit    *= KneemundAttenuation(hitPos.xy);
                 vec3 hitColor = getHitColor(hitPos);
 
-                #ifdef SKY_FALLBACK
+                #if defined SKY_FALLBACK
                     hitColor = mix(getSkyFallback(rayDir, mat), getHitColor(hitPos), hit);
                 #else
                     hitColor = mix(vec3(0.0), getHitColor(hitPos), hit);

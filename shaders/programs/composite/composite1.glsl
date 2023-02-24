@@ -70,7 +70,7 @@ void main() {
 
     vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
     
-    #ifdef WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD
         skyIlluminance    = texture(colortex6,  texCoords).rgb * RCP_PI;
         directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
     #endif
@@ -122,7 +122,7 @@ void main() {
         #if GI == 0
             #if SPECULAR == 1
                 vec3 visibility = texture(colortex3, coords.xy).rgb;
-                #ifdef SUNLIGHT_LEAKING_FIX
+                #if defined SUNLIGHT_LEAKING_FIX
                     visibility *= float(mat.lightmap.y > EPS);
                 #endif
 
@@ -145,7 +145,7 @@ void main() {
     /*------------------ EYE TO FRONT FOG ------------------*/
     //////////////////////////////////////////////////////////
 
-    #ifdef WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD
         if(isEyeInWater == 1) {
             #if WATER_FOG == 0
                 waterFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight);

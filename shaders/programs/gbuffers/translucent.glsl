@@ -32,11 +32,11 @@
 		lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor = gl_Color;
 
-    	vec3 geoNormal = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * gl_Normal);
+    	vec3 geoNormal = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
     		 viewPos   = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
-    	vec3 tangent = mat3(gbufferModelViewInverse) * (gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
-		TBN 		 = mat3(tangent, cross(tangent, geoNormal), geoNormal);
+    	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+		TBN			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
 
 		blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
@@ -131,7 +131,7 @@
 					vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
 					vec3 skyIlluminance = vec3(0.0);
 
-					#ifdef WORLD_OVERWORLD
+					#if defined WORLD_OVERWORLD
 						#if SHADOWS == 1
 							shadowmap.rgb = shadowMap(scenePos, TBN[2], shadowmap.a);
 						#endif

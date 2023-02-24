@@ -25,7 +25,7 @@
     in vec3 directIlluminance;
 
     void main() {
-        #ifdef WORLD_OVERWORLD
+        #if defined WORLD_OVERWORLD
             if(ivec2(gl_FragCoord) == ivec2(0)) directIlluminanceOut = directIlluminance;
         #endif
     }

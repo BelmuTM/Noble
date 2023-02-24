@@ -24,7 +24,7 @@
 
 	#include "/include/common.glsl"
 
-	#ifdef PROGRAM_ENTITY
+	#if defined PROGRAM_ENTITY
 		uniform vec4 entityColor;
 	#endif
 
@@ -161,7 +161,7 @@
 		vec4 albedoTex = texture(colortex0, coords);
 		if(albedoTex.a < 0.102) discard;
 
-		vec4 normalTex = texture(normals,  coords);
+		vec4 normalTex = texture(normals, coords);
 
 		#if !defined PROGRAM_TEXTURED
 			vec4 specularTex = texture(specular, coords);
@@ -177,7 +177,7 @@
 		float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
 		float subsurface = clamp01(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
 
-		#ifdef PROGRAM_ENTITY
+		#if defined PROGRAM_ENTITY
 			albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
 			
 			ao = all(lessThanEqual(normalTex.rgb, vec3(EPS))) ? 1.0 : ao;
@@ -187,7 +187,7 @@
 	    	albedoTex.rgb = vec3(1.0);
     	#endif
 
-		#ifdef PROGRAM_BEACONBEAM
+		#if defined PROGRAM_BEACONBEAM
 			if(albedoTex.a <= 1.0 - EPS) discard;
 			emission = 1.0;
 		#endif

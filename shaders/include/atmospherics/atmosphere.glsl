@@ -40,7 +40,7 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     return exp(-atmosphereExtinctionCoefficients * accumAirmass);
 }
 
-#ifdef STAGE_FRAGMENT
+#if defined STAGE_FRAGMENT
     vec3 atmosphericScattering(vec3 rayDir, vec3 skyIlluminance) {
         vec2 dists = intersectSphericalShell(atmosphereRayPos, rayDir, atmosLowerRad, atmosUpperRad);
         if(dists.y < 0.0) return vec3(0.0);
@@ -89,7 +89,7 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 vec3 sampleDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
-    #ifdef WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD
         vec3 sunTransmit  = getAtmosphereTransmittance(atmosphereRayPos, sunPosNorm) * sunIlluminance;
         vec3 moonTransmit = getAtmosphereTransmittance(atmosphereRayPos,-sunPosNorm) * moonIlluminance;
         directIlluminance = sunTransmit + moonTransmit;
@@ -105,7 +105,7 @@ vec3 sampleDirectIlluminance() {
 mat3[2] sampleSkyIlluminanceComplex() {
     mat3[2] skyIllum = mat3[2](mat3(0.0), mat3(0.0));
 
-    #ifdef WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD
         const ivec2 samples = ivec2(64, 32);
 
         for(int x = 0; x < samples.x; x++) {
@@ -147,7 +147,7 @@ vec3 getSkyLight(vec3 normal, mat3[2] skyLight) {
 vec3 sampleSkyIlluminanceSimple() {
     vec3 skyIllum = vec3(0.0);
 
-    #ifdef WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD
         const ivec2 samples = ivec2(16, 8);
 
         for(int x = 0; x < samples.x; x++) {
