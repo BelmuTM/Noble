@@ -144,7 +144,7 @@
         history.rgb = color.rgb;
 
         #if EXPOSURE == 0
-            float EV100    = log2(pow2(APERTURE) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
+            float EV100    = log2(pow2(F_STOPS) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
             float exposure = EV100ToExposure(EV100);
         #else
             float exposure = EV100ToExposure(EV100fromLuminance(avgLuminance));

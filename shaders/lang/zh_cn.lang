@@ -545,9 +545,9 @@ option.FOCAL.comment = Usually represented in millimeters, the focal length is t
 suffix.FOCAL = mm
 
 # https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-maximum-aperture.html#:~:text=What%20is%20aperture%20in%20photography,diaphragm%20through%20which%20light%20passes.&text=Lower%20f%2Fstops%20give%20more,because%20they%20represent%20smaller%20apertures.
-option.APERTURE = 光圈
-option.APERTURE.comment = 打开镜头光圈，光线通过光圈，数值越低，捕获的光线越多。
-prefix.APERTURE = ƒ/
+option.F_STOPS = 光圈
+option.F_STOPS.comment = 打开镜头光圈，光线通过光圈，数值越低，捕获的光线越多。
+prefix.F_STOPS = ƒ/
 
 # https://wp-modula.com/what-is-iso-in-photography/
 option.ISO = ISO

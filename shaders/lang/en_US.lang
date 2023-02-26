@@ -546,9 +546,9 @@ option.FOCAL.comment = Usually represented in millimeters, the focal length is t
 suffix.FOCAL = mm
 
 # https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-maximum-aperture.html#:~:text=What%20is%20aperture%20in%20photography,diaphragm%20through%20which%20light%20passes.&text=Lower%20f%2Fstops%20give%20more,because%20they%20represent%20smaller%20apertures.
-option.APERTURE = Aperture
-option.APERTURE.comment = Opening of a lens's diaphragm through which light passes, lower values capture more light.
-prefix.APERTURE = ƒ/
+option.F_STOPS = Aperture
+option.F_STOPS.comment = Opening of a lens's diaphragm through which light passes, lower values capture more light.
+prefix.F_STOPS = ƒ/
 
 # https://wp-modula.com/what-is-iso-in-photography/
 option.ISO = ISO

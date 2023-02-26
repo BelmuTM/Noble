@@ -15,7 +15,7 @@ layout (location = 1) out vec3 bloomBuffer;
 #if DOF == 1
     // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
     float getCoC(float fragDepth, float targetDepth) {
-        return fragDepth < MC_HAND_DEPTH ? 0.0 : abs((FOCAL / APERTURE) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
+        return fragDepth < MC_HAND_DEPTH ? 0.0 : abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
     }
 
     void depthOfField(inout vec3 color, sampler2D tex, float coc) {
