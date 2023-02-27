@@ -385,9 +385,11 @@ value.CLOUDS_SCATTERING_STEPS.32 = §432
 
 option.CLOUDS_LAYER0_ALTITUDE = Primary Clouds Altitude
 option.CLOUDS_LAYER0_ALTITUDE.comment = Adjusts the altitude of §bClouds§r.
+suffix.CLOUDS_LAYER0_ALTITUDE = m
 
 option.CLOUDS_LAYER0_THICKNESS = Primary Clouds Thickness
 option.CLOUDS_LAYER0_THICKNESS.comment = Adjusts the thickness of §bClouds§r.
+suffix.CLOUDS_LAYER0_THICKNESS = m
 
 option.CLOUDS_LAYER0_COVERAGE = Primary Clouds Coverage
 option.CLOUDS_LAYER0_COVERAGE.comment = Adjusts how much of the sky the §bClouds§r cover.
@@ -529,8 +531,8 @@ option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher val
 
 option.EXPOSURE = Exposure
 option.EXPOSURE.comment = §aManual§r exposure lets you tweak the camera settings manually to adjust the exposure. §aAverage§r exposure tweaks the camera exposure automatically depending on the average screen brightness. §aHistogram§r exposure tweaks the camera exposure automatically depending on the median of an average screen brightness histogram.
-value.EXPOSURE.1 = §e§lAverage (Auto)
-value.EXPOSURE.2 = §e§lHistogram (Auto)
+value.EXPOSURE.1 = §e§lAverage (Auto.)
+value.EXPOSURE.2 = §e§lHistogram (Auto.)
 
 # https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-focal-length.html#:~:text=Focal%20length%2C%20usually%20represented%20in,description%20of%20a%20photographic%20lens.&text=The%20longer%20the%20focal%20length,and%20the%20lower%20the%20magnification.
 option.FOCAL = Focal Length
