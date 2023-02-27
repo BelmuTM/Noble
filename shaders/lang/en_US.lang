@@ -528,8 +528,7 @@ option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher val
 ##################### CAMERA SETTINGS #####################
 
 option.EXPOSURE = Exposure
-option.EXPOSURE.comment = §aManual§r exposure lets you use the manual camera settings to adjust the image. §aAverage§r exposure tweaks the camera exposure depending on the average screen brightness. §aHistogram§r exposure tweaks the camera exposure depending on the median of a screen luminance histogram.
-value.EXPOSURE.0 = §e§lManual
+option.EXPOSURE.comment = §aManual§r exposure lets you tweak the camera settings manually to adjust the exposure. §aAverage§r exposure tweaks the camera exposure automatically depending on the average screen brightness. §aHistogram§r exposure tweaks the camera exposure automatically depending on the median of an average screen brightness histogram.
 value.EXPOSURE.1 = §e§lAverage (Auto)
 value.EXPOSURE.2 = §e§lHistogram (Auto)
 
