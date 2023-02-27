@@ -525,20 +525,13 @@ option.WATER_SCATTERING_G.comment = Adjusts how water scatters light. Higher val
 option.WATER_SCATTERING_B = Water Scattering §9Blue
 option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher value means that §9blue§r will be scattered more.
 
-##################### CAMERA & POST-PROCESSING #####################
-
-### CAMERA SETTINGS
+##################### CAMERA SETTINGS #####################
 
 option.EXPOSURE = Exposure
 option.EXPOSURE.comment = §aManual§r exposure lets you use the manual camera settings to adjust the image. §aAverage§r exposure tweaks the camera exposure depending on the average screen brightness. §aHistogram§r exposure tweaks the camera exposure depending on the median of a screen luminance histogram.
 value.EXPOSURE.0 = §e§lManual
 value.EXPOSURE.1 = §e§lAverage (Auto)
 value.EXPOSURE.2 = §e§lHistogram (Auto)
-
-option.PURKINJE = Purkinje Effect
-option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.
-value.PURKINJE.0 = §cOFF
-value.PURKINJE.1 = §aON
 
 # https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-focal-length.html#:~:text=Focal%20length%2C%20usually%20represented%20in,description%20of%20a%20photographic%20lens.&text=The%20longer%20the%20focal%20length,and%20the%20lower%20the%20magnification.
 option.FOCAL = Focal Length
@@ -560,7 +553,7 @@ option.SHUTTER_SPEED.comment = A measurement of the time the camera's shutter is
 prefix.SHUTTER_SPEED = 1/
 suffix.SHUTTER_SPEED = s
 
-### DEPTH OF FIELD
+##################### DEPTH OF FIELD #####################
 
 option.DOF = Depth of Field (DOF)
 option.DOF.comment = Blurs objects that are out of focus. Influenced by the §eaperture§r and §efocal length§r in the camera settings.
@@ -584,7 +577,7 @@ option.DOF_DEPTH = DOF Focus Depth
 option.DOF_DEPTH.comment = Adjusts §bDepth of Field§r's depth at which it focuses. It is measured in blocks.
 value.DOF_DEPTH.0 = §eAuto-Focus
 
-### COLOR GRADING
+##################### COLOR GRADING #####################
 
 option.TONEMAP = Tone Mapping
 option.TONEMAP.comment = Applies a color correction filter.
@@ -620,6 +613,11 @@ value.LUT.18 = §eBlack and Red
 value.LUT.19 = §e2Strip
 value.LUT.20 = §eFuturistic Bleak
 
+option.PURKINJE = Purkinje Effect
+option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.
+value.PURKINJE.0 = §cOFF
+value.PURKINJE.1 = §aON
+
 option.WHITE_BALANCE = White Balance
 option.WHITE_BALANCE.comment = Balances the color temperature to keep the image neutral.
 suffix.WHITE_BALANCE = K
@@ -643,7 +641,7 @@ option.GAIN.comment = Adjusts the white level (highlights), brighter colors beco
 option.LIFT = Lift
 option.LIFT.comment = Adjusts the image's black level (dark tones or shadows).
 
-### ANTI-ALIASING
+##################### ANTI-ALIASING #####################
 
 option.TAA = TAA
 option.TAA.comment = §bTemporal Anti-Aliasing. §rA form of anti-aliasing which operates over multiple frames.
@@ -653,7 +651,7 @@ value.TAA.1 = §aON
 option.TAA_OFFCENTER_REJECTION = Offcenter Rejection
 option.TAA_OFFCENTER_REJECTION.comment = Adjusts §bTemporal Anti-Aliasing§r's offcenter weight strength. The lower the value is, the weaker TAA is be during movement.
 
-### CAMERA EFFECTS
+##################### POST-PROCESSING #####################
 
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
