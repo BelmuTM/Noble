@@ -55,7 +55,7 @@ vec3 getShadowColor(vec3 samplePos) {
 #if SHADOWS == 1 
     #if SHADOW_TYPE == 1
         float findBlockerDepth(vec3 shadowPos, float phi, out float ssDepth) {
-            float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int blockers;
+            float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int blockers = 0;
 
             for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
                 vec2 offset      = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);

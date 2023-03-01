@@ -76,3 +76,11 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousModelViewInverse;
 uniform mat4 gbufferPreviousProjection;
+
+// Maximum values for x amount of bits and their inverses (2^x - 1)
+const float maxVal8     = 255.0;
+const float maxVal16    = 65535.0;
+const float rcpMaxVal8  = 0.00392156;
+const float rcpMaxVal12 = 0.00024420;
+const float rcpMaxVal13 = 0.00012208;
+const float rcpMaxVal16 = 0.00001525;

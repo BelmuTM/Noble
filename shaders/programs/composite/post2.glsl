@@ -8,6 +8,7 @@
 layout (location = 0) out vec3 color;
 
 #if BLOOM == 1
+    #include "/include/utility/sampling.glsl"
     #include "/include/post/bloom.glsl"
 #endif
 

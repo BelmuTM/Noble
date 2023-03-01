@@ -103,7 +103,7 @@ vec3 sampleDirectIlluminance() {
 
 // Taken from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
 mat3[2] sampleSkyIlluminanceComplex() {
-    mat3[2] skyIllum = mat3[2](mat3(0.0), mat3(0.0));
+    mat3[2] skyIlluminance = mat3[2](mat3(0.0), mat3(0.0));
 
     #if defined WORLD_OVERWORLD
         const ivec2 samples = ivec2(64, 32);
@@ -113,27 +113,27 @@ mat3[2] sampleSkyIlluminanceComplex() {
                 vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
                 vec3 atmoSample = texture(colortex12, projectSphere(dir)).rgb;
 
-                skyIllum[0][0] += atmoSample * clamp01( dir.x);
-                skyIllum[0][1] += atmoSample * clamp01( dir.y);
-                skyIllum[0][2] += atmoSample * clamp01( dir.z);
-                skyIllum[1][0] += atmoSample * clamp01(-dir.x);
-                skyIllum[1][2] += atmoSample * clamp01(-dir.z);
+                skyIlluminance[0][0] += atmoSample * clamp01( dir.x);
+                skyIlluminance[0][1] += atmoSample * clamp01( dir.y);
+                skyIlluminance[0][2] += atmoSample * clamp01( dir.z);
+                skyIlluminance[1][0] += atmoSample * clamp01(-dir.x);
+                skyIlluminance[1][2] += atmoSample * clamp01(-dir.z);
             }
         }
         const float sampleWeight = TAU / (samples.x * samples.y);
-        skyIllum[0][0] *= sampleWeight;
-        skyIllum[0][1] *= sampleWeight;
-        skyIllum[0][2] *= sampleWeight;
-        skyIllum[1][0] *= sampleWeight;
-        skyIllum[1][2] *= sampleWeight;
+        skyIlluminance[0][0] *= sampleWeight;
+        skyIlluminance[0][1] *= sampleWeight;
+        skyIlluminance[0][2] *= sampleWeight;
+        skyIlluminance[1][0] *= sampleWeight;
+        skyIlluminance[1][2] *= sampleWeight;
 
-        skyIllum[0][0] += skyIllum[0][1] * 0.5;
-        skyIllum[0][2] += skyIllum[0][1] * 0.5;
-        skyIllum[1][0] += skyIllum[0][1] * 0.5;
-        skyIllum[1][1] += skyIllum[0][1] * 0.6;
-        skyIllum[1][2] += skyIllum[0][1] * 0.5;
+        skyIlluminance[0][0] += skyIlluminance[0][1] * 0.5;
+        skyIlluminance[0][2] += skyIlluminance[0][1] * 0.5;
+        skyIlluminance[1][0] += skyIlluminance[0][1] * 0.5;
+        skyIlluminance[1][1] += skyIlluminance[0][1] * 0.6;
+        skyIlluminance[1][2] += skyIlluminance[0][1] * 0.5;
     #endif
-    return skyIllum;
+    return skyIlluminance;
 }
 
 vec3 getSkyLight(vec3 normal, mat3[2] skyLight) {
@@ -145,18 +145,18 @@ vec3 getSkyLight(vec3 normal, mat3[2] skyLight) {
 }
 
 vec3 sampleSkyIlluminanceSimple() {
-    vec3 skyIllum = vec3(0.0);
+    vec3 skyIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD
         const ivec2 samples = ivec2(16, 8);
 
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
-                vec3 dir  = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
-                skyIllum += texture(colortex12, projectSphere(dir)).rgb;
+                vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
+                skyIlluminance += texture(colortex12, projectSphere(dir)).rgb;
             }
         }
-        skyIllum *= (TAU / (samples.x * samples.y));
+        skyIlluminance *= (TAU / (samples.x * samples.y));
     #endif
-    return skyIllum;
+    return max0(skyIlluminance);
 }

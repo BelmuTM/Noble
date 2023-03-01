@@ -24,12 +24,14 @@
 
     layout (location = 0) out vec4 clouds;
 
+    in vec3 skyIlluminance;
+    in vec3 directIlluminance;
+
     #if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
         #include "/include/atmospherics/clouds.glsl"
     #endif
 
-    in vec3 skyIlluminance;
-    in vec3 directIlluminance;
+    #include "/include/utility/sampling.glsl"
 
     void main() {
         #if defined WORLD_OVERWORLD

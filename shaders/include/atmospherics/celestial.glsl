@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/utility/sampling.glsl"
+
 // Originally written by Capt Tatsu#7124
 // Modified by Belmu#4066
 vec3 computeStarfield(vec3 viewPos) {

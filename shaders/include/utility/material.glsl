@@ -105,7 +105,7 @@ mat2x3 getHardcodedMetal(Material mat) {
 
 vec3 getBlockLightColor(Material mat) {
     #if GI == 1
-        return mat.albedo * 1000.0;
+        return mat.albedo * 10000.0;
     #endif
 
     switch(mat.blockId) {

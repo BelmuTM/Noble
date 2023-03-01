@@ -6,7 +6,7 @@
 #shaders/lang/zh_cn.lang
 
 ##################### MISC #####################
-option.ABOUT = §6Noble
+option.ABOUT = §6§lNobleRT
 option.ABOUT.comment = §r§lTwitter: §r§7@Belmu_. §r§lDiscord: §r§7Belmu#4066. §r§lPatreon: §r§6https://www.patreon.com/Belmu. §r§lGithub: §r§6https://www.github.com/BelmuTM.
 value.ABOUT.0 = §rby Belmu
 value.ABOUT.1 = §b§lBoop!

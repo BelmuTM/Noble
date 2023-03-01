@@ -111,6 +111,7 @@
     #endif
 
     #if TAA == 1
+        #include "/include/utility/sampling.glsl"
         #include "/include/post/taa.glsl"
     #endif
 

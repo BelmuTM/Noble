@@ -89,7 +89,7 @@
             //////////////////////////////////////////////////////////
 
             if(ivec2(gl_FragCoord) != ivec2(0))
-                illuminance.rgb = mat.lightmap.y > EPS ? getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat) : vec3(0.0);
+                illuminance.rgb = mat.lightmap.y > EPS ? max0(getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat)) : vec3(0.0);
             else
                 illuminance.rgb = directIlluminance;
         #endif
