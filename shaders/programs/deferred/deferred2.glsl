@@ -57,7 +57,7 @@
                 if(distanceToClouds > 1e-6) {
                     vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
                     clouds.rgb     += scattering.r   * directIlluminance;
-                    clouds.rgb     += scattering.g   * skyIlluminance;
+                    clouds.rgb     += scattering.g   * (skyIlluminance * RCP_PI);
                     clouds.a        = cloudLayer0.b  * cloudLayer1.b;
 
                     /* Reprojection */
