@@ -19,7 +19,6 @@ being accessible to public no matter what.
 ## Requirements
 * **Optifine / Iris for 1.16 or newer** (older versions aren't supported)
 * A Nvidia graphics card (GTX 950 or newer) **OR**  an AMD graphics card (R7 370 or newer)
-* **If you have an AMD card** → make sure your drivers version is **22.5.1** or lower
 * Windows or Linux (MacOS isn't supported)
 * ⚠️ **MAKE SURE TO UNZIP THE FILE FIRST**
 
