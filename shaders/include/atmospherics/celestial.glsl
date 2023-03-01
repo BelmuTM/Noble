@@ -35,6 +35,7 @@ vec3 physicalMoon(vec3 sceneDir) {
 	moonMat.normal    = normalize(sceneDir * sphere.x - moonVector);
 	moonMat.albedo    = vec3(moonAlbedo);
 	moonMat.roughness = moonRoughness;
+	moonMat.F0		  = 0.0;
 
     return sphere.y < 0.0 ? vec3(0.0) : moonMat.albedo * hammonDiffuse(moonMat, -sceneDir, sunVector) * sunIlluminance;
 }
