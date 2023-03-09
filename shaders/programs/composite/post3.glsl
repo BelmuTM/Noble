@@ -27,6 +27,8 @@ out vec3 color;
     const float rcpLutTileSize = 1.0 / lutTileSize;
     const vec2  rcpLutTexSize  = 1.0 / lutRes;
 
+    #include "/include/utility/sampling.glsl"
+
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
         color = clamp(color, vec3(0.0), vec3(0.985));
