@@ -29,7 +29,7 @@ vec3 getAtmosphereDensities(float centerDist) {
 }
 
 vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
-    float stepSize = intersectSphere(rayOrigin, lightDir, atmosUpperRad).y * rcp(TRANSMITTANCE_STEPS);
+    float stepSize = intersectSphere(rayOrigin, lightDir, atmosphereUpperRadius).y * rcp(TRANSMITTANCE_STEPS);
     vec3 increment = lightDir * stepSize;
     vec3 rayPos    = rayOrigin + increment * 0.5;
 
@@ -42,12 +42,12 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
 #if defined STAGE_FRAGMENT
     vec3 atmosphericScattering(vec3 rayDir, vec3 skyIlluminance) {
-        vec2 dists = intersectSphericalShell(atmosphereRayPos, rayDir, atmosLowerRad, atmosUpperRad);
+        vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDir, atmosphereLowerRadius, atmosphereUpperRadius);
         if(dists.y < 0.0) return vec3(0.0);
 
         float stepSize = (dists.y - dists.x) * rcp(SCATTERING_STEPS);
         vec3 increment = rayDir * stepSize;
-        vec3 rayPos    = atmosphereRayPos + increment * 0.5;
+        vec3 rayPos    = atmosphereRayPosition + increment * 0.5;
 
         vec2 VdotL = vec2(dot(rayDir, sunVector), dot(rayDir, moonVector));
         vec4 phase = vec4(
@@ -90,8 +90,8 @@ vec3 sampleDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD
-        vec3 sunTransmit  = getAtmosphereTransmittance(atmosphereRayPos, sunPosNorm) * sunIlluminance;
-        vec3 moonTransmit = getAtmosphereTransmittance(atmosphereRayPos,-sunPosNorm) * moonIlluminance;
+        vec3 sunTransmit  = getAtmosphereTransmittance(atmosphereRayPosition, sunPosNorm) * sunIlluminance;
+        vec3 moonTransmit = getAtmosphereTransmittance(atmosphereRayPosition,-sunPosNorm) * moonIlluminance;
         directIlluminance = sunTransmit + moonTransmit;
 
         #if TONEMAP == 0

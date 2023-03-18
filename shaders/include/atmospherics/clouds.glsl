@@ -147,11 +147,11 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
          radius.x = planetRadius + layer.altitude;
          radius.y = radius.x + layer.thickness;
 
-    vec2 dists = intersectSphericalShell(atmosphereRayPos, rayDir, radius.x, radius.y);
+    vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDir, radius.x, radius.y);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e6);
 
     float stepSize = (dists.y - dists.x) * rcp(layer.steps);
-    vec3 rayPos    = atmosphereRayPos + rayDir * (dists.x + stepSize * randF());
+    vec3 rayPos    = atmosphereRayPosition + rayDir * (dists.x + stepSize * randF());
     vec3 increment = rayDir * stepSize;
 
     float VdotL = dot(rayDir, shadowLightVector);
@@ -168,7 +168,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDir) {
         float density = getCloudsDensity(rayPos, layer);
         if(density < EPS) continue;
 
-        sum    += distance(atmosphereRayPos, rayPos) * density; 
+        sum    += distance(atmosphereRayPosition, rayPos) * density; 
         weight += density;
 
         float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;

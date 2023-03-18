@@ -23,18 +23,7 @@ float spatialVariance(sampler2D tex) {
         }
     }
     sum /= 9.0;
-    return abs(sum.x * sum.x - sum.y);
-}
-
-float spatialVariance() {
-    float variance = 0.0;
-
-    for(int x = -1; x <= 1; x++) {
-        for(int y = -1; y <= 1; y++) {
-            variance += texture(colortex11, texCoords + vec2(x, y) * pixelSize).b * gaussianDistribution2D(vec2(x, y), 1.0);
-        }
-    }
-    return variance;
+    return sum.x * sum.x - sum.y;
 }
 
 const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
@@ -69,7 +58,7 @@ void aTrousFilter(inout vec3 irradiance, sampler2D tex, vec2 coords, int passInd
     vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
 
     float centerLuma = luminance(irradiance);
-    float variance   = spatialVariance();
+    float variance   = spatialVariance(tex);
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {

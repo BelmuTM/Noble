@@ -43,7 +43,7 @@ vec3 distortShadowSpace(vec3 position) {
         coords  = coords * 2.0 - 1.0;
         coords /= 1.0 - length(coords.xy);
 
-        return transform(shadowModelViewInverse, vec3(coords * far, 1.0)) + atmosphereRayPos;
+        return transform(shadowModelViewInverse, vec3(coords * far, 1.0)) + atmosphereRayPosition;
     }
 
     float getCloudsShadows(vec3 position) {

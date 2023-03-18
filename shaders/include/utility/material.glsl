@@ -28,7 +28,6 @@ const float waterF0 = 0.02;
 Material getMaterial(vec2 coords) {
     coords       *= viewSize;
     uvec4 dataTex = texelFetch(colortex1, ivec2(coords), 0);
-    vec4 unpacked = unpackUnorm4x8(dataTex.y);
 
     Material mat;
     mat.roughness  = ((dataTex.z >> 24u) & 255u) * rcpMaxVal8;

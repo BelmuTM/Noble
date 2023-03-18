@@ -55,7 +55,6 @@ void main() {
         vec3 indirect = texture(colortex10, scaledUv).rgb;
         
         color = direct + (indirect * color);
-        //color = vec3(spatialVariance());
     #endif
 
     Material mat = getMaterial(texCoords);

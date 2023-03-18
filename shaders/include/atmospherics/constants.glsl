@@ -1,6 +1,6 @@
 /***********************************************/
-/*          Copyright (C) 2023 Belmu           */
-/*       GNU General Public License V3.0       */
+/*           Copyright (C) 2023 Belmu          */
+/*             All Rights Reserved             */
 /***********************************************/
 
 /* ATMOSPHERIC CONSTANTS */
@@ -8,9 +8,9 @@
 const float mieAnisotropyFactor = 0.76;
 const float isotropicPhase      = 0.07957747;
 
-const float planetRadius  = 6371e3;               // Meters
-const float atmosLowerRad = planetRadius - 4e3;   // Meters
-const float atmosUpperRad = planetRadius + 110e3; // Meters
+const float planetRadius          = 6371e3;               // Meters
+const float atmosphereLowerRadius = planetRadius - 4e3;   // Meters
+const float atmosphereUpperRadius = planetRadius + 110e3; // Meters
 
 const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
 
@@ -29,7 +29,7 @@ const float mieAlbedo = 0.9;
 mat2x3 atmosphereScatteringCoefficients = mat2x3(rayleighScatteringCoefficient, mieScatteringCoefficient);
 mat3x3 atmosphereExtinctionCoefficients = mat3x3(rayleighScatteringCoefficient, mieScatteringCoefficient / mieAlbedo, ozoneScatteringCoefficient);
 
-vec3 atmosphereRayPos = vec3(0.0, planetRadius, 0.0) + cameraPosition;
+vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 
 /* CLOUDS CONSTANTS */
 
@@ -62,15 +62,15 @@ const float fogPeakWeight   = 0.25;
 /* CELESTIAL CONSTANTS */
 
 const float moonRadius    = 1.7374e6;
-const float moonDist      = 3.8440e8;
+const float moonDistance  = 3.8440e8;
 const float moonAlbedo    = 0.136; // The moon reflects approximately 12-13% of the sun's emitted light 
 const float moonRoughness = 0.40;
 
-const float sunRadius = 6.9634e8;
-const float sunDist   = 1.496e11;
+const float sunRadius   = 6.9634e8;
+const float sunDistance = 1.496e11;
 
-const float sunAngularRadius  = CELESTIAL_SIZE_MULTIPLIER * sunRadius  / sunDist;
-const float moonAngularRadius = CELESTIAL_SIZE_MULTIPLIER * moonRadius / moonDist;
+const float sunAngularRadius  = CELESTIAL_SIZE_MULTIPLIER * sunRadius  / sunDistance;
+const float moonAngularRadius = CELESTIAL_SIZE_MULTIPLIER * moonRadius / moonDistance;
 
 const vec3 sunColor = vec3(1.0, 0.949, 0.937);
 vec3 sunIlluminance = (sunColor / luminance(sunColor)) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
