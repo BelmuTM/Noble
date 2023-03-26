@@ -72,7 +72,9 @@
                     vec2  velocity       = (texCoords - prevPos) * viewSize;
                     float velocityWeight = exp(-length(velocity)) * 0.8 + 0.2;
 
-                    float weight = centerWeight * velocityWeight * resolutionScale * float(clamp01(prevPos) == prevPos);
+                    float frameWeight = 1.0 / max(texture(colortex13, prevPos).w, 1.0);
+
+                    float weight = centerWeight * velocityWeight * resolutionScale * frameWeight * float(clamp01(prevPos) == prevPos);
                           clouds = mix(clouds, history, clamp01(weight));
                 }
             #endif
