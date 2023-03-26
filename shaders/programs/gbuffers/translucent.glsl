@@ -5,7 +5,6 @@
 
 #include "/include/common.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
-#include "/include/fragment/water.glsl"
 
 #if defined STAGE_VERTEX
 
@@ -92,7 +91,7 @@
 			mat.F0 = waterF0, mat.roughness = 0.0, mat.ao = 1.0, mat.emission = 0.0, mat.subsurface = 0.0;
 
     		mat.albedo = vec3(0.0);
-			mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES, 1.0);
+			mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES);
 		
 		} else {
 			mat.F0         = specularTex.y;

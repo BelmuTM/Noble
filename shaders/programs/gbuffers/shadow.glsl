@@ -57,8 +57,6 @@
     in mat3 TBN;
 
     #if WATER_CAUSTICS == 1
-        #include "/include/fragment/water.glsl"
-
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
         // Thanks jakemichie97#7237 for the help!
         float waterCaustics(vec3 oldPos, vec3 normal) {
@@ -79,7 +77,7 @@
         #endif
 
         #if WATER_CAUSTICS == 1
-            float caustics = max0(waterCaustics(worldPos, TBN * getWaterNormals(worldPos, 3, 3.0)) * WATER_CAUSTICS_STRENGTH);
+            float caustics = max0(waterCaustics(worldPos, TBN * getWaterNormals(worldPos, 3)) * WATER_CAUSTICS_STRENGTH);
             color0         = mix(albedoTex, vec4(vec3(1.0 + caustics), -1.0), float(blockId == 1));
         #else
             color0 = mix(albedoTex, vec4(1.0, 1.0, 1.0, 0.0), float(blockId == 1));

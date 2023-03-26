@@ -99,24 +99,24 @@ float getFogPhase(float cosTheta) {
 #endif
 
 #if TONEMAP == 0
-    const vec3 waterAbsorptionCoeff = (vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01) * SRGB_2_AP1_ALBEDO;
-    const vec3 waterScatteringCoeff = (vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01) * SRGB_2_AP1_ALBEDO;
+    const vec3 waterAbsorptionCoefficients = (vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01) * SRGB_2_AP1_ALBEDO;
+    const vec3 waterScatteringCoefficients = (vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01) * SRGB_2_AP1_ALBEDO;
 #else 
-    const vec3 waterAbsorptionCoeff = vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01;
-    const vec3 waterScatteringCoeff = vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01;
+    const vec3 waterAbsorptionCoefficients = vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01;
+    const vec3 waterScatteringCoefficients = vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01;
 #endif
 
-const vec3 waterExtinctionCoeff = waterAbsorptionCoeff + waterScatteringCoeff;
+const vec3 waterExtinctionCoefficients = waterAbsorptionCoefficients + waterScatteringCoefficients;
 const int phaseMultiSamples = 8;
 
 #if WATER_FOG == 0
 
     void waterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
-        vec3 transmittance = exp(-waterAbsorptionCoeff * distance(startPos, endPos));
+        vec3 transmittance = exp(-waterAbsorptionCoefficients * distance(startPos, endPos));
 
         vec3 scattering  = skyIlluminance    * isotropicPhase                * skyLight;
              scattering += directIlluminance * kleinNishinaPhase(VdotL, 0.5) * skyLight;
-             scattering *= waterScatteringCoeff * ((1.0 - transmittance) / waterExtinctionCoeff);
+             scattering *= waterScatteringCoefficients * ((1.0 - transmittance) / waterExtinctionCoefficients);
 
         color = color * transmittance + scattering;
     }
@@ -136,9 +136,9 @@ const int phaseMultiSamples = 8;
 
         float rayLength = length(increment);
 
-        vec3 opticalDepth       = waterExtinctionCoeff * rayLength;
+        vec3 opticalDepth       = waterExtinctionCoefficients * rayLength;
         vec3 stepTransmittance  = exp(-opticalDepth);
-        vec3 scatteringIntegral = (1.0 - stepTransmittance) / waterExtinctionCoeff;
+        vec3 scatteringIntegral = (1.0 - stepTransmittance) / waterExtinctionCoefficients;
 
         mat2x3 scatteringMat = mat2x3(vec3(0.0), vec3(0.0)); vec3 transmittance = vec3(1.0);
 
@@ -150,8 +150,8 @@ const int phaseMultiSamples = 8;
                 float aN = pow(0.6, n), bN = pow(0.4, n);
 
                 mat2x3 stepScatteringMat = mat2x3(vec3(0.0), vec3(0.0));
-                stepScatteringMat[0] = exp(-opticalDepth * bN) * shadowColor * phase          * waterScatteringCoeff * scatteringIntegral;
-                stepScatteringMat[1] = exp(-opticalDepth * bN) * skyLight    * isotropicPhase * waterScatteringCoeff * scatteringIntegral;
+                stepScatteringMat[0] = exp(-opticalDepth * bN) * shadowColor * phase          * waterScatteringCoefficients * scatteringIntegral;
+                stepScatteringMat[1] = exp(-opticalDepth * bN) * skyLight    * isotropicPhase * waterScatteringCoefficients * scatteringIntegral;
 
                 scatteringMat[0] += stepScatteringMat[0] * transmittance * aN;
                 scatteringMat[1] += stepScatteringMat[1] * transmittance * aN;
@@ -163,8 +163,9 @@ const int phaseMultiSamples = 8;
         scatteringMat[1] *= skyIlluminance;
 
         // Multiple scattering approximation provided by Zombye#7365
+        
         /*
-        vec3 scatteringAlbedo     = clamp01(waterScatteringCoeff / waterExtinctionCoeff);
+        vec3 scatteringAlbedo     = clamp01(waterScatteringCoefficients / waterExtinctionCoefficients);
         vec3 multScatteringFactor = scatteringAlbedo * 0.84;
 
         float phaseMulti = 0.0;
@@ -173,14 +174,13 @@ const int phaseMultiSamples = 8;
         }
         phaseMulti /= phaseMultiSamples;
 
-        vec3 multipleScattering  = directScattering * directIlluminance * phaseMulti;
-             multipleScattering += indirectScattering * isotropicPhase;
+        vec3 multipleScattering  = scatteringMat[0] * phaseMulti;
+             multipleScattering += scatteringMat[1] * isotropicPhase;
              multipleScattering *= multScatteringFactor / (1.0 - multScatteringFactor);
         */
 
-        vec3 scattering = scatteringMat[0] + scatteringMat[1];
-        if(sky) transmittance = vec3(0.0);
+	    if(sky) transmittance = vec3(1.0);
     
-        color = color * transmittance + scattering;
+        color = color * transmittance + scatteringMat[0] + scatteringMat[1];
     }
 #endif

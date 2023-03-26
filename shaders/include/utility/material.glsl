@@ -25,6 +25,52 @@ struct Material {
 const float airIOR  = 1.00029;
 const float waterF0 = 0.02;
 
+float gerstnerWaves(vec2 coords, float time, float steepness, float amplitude, float lambda, vec2 direction) {
+    const float g = 9.81; // Earth's gravity constant
+
+	float k = TAU / lambda;
+    float x = (sqrt(g * k)) * time - k * dot(direction, coords);
+
+    return amplitude * pow(sin(x) * 0.5 + 0.5, steepness);
+}
+
+float calculateWaveHeight(vec2 position, int octaves) {
+    float height = 0.0;
+
+    float time      = RENDER_MODE == 0 ? frameTimeCounter : 1.0;
+    float steepness = WAVE_STEEPNESS;
+    float amplitude = WAVE_AMPLITUDE;
+    float lambda    = WAVE_LENGTH;
+
+    const float angle   = TAU * 0.4;
+	const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+
+    vec2 direction = vec2(sin(angle), cos(angle));
+
+    for(int i = 0; i < octaves; i++) {
+        float noise = FBM(position * inversesqrt(lambda) - (time * direction), 3, 1.0);
+        height     += -gerstnerWaves(position + vec2(noise, -noise) * sqrt(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
+
+        steepness *= 1.1;
+        amplitude *= 0.6;
+        lambda    *= 0.6;
+        direction *= rotation;
+    }
+    return height;
+}
+
+const vec2[2] offset = vec2[2](vec2(0.5, 0.0), vec2(0.0, 0.5));
+
+vec3 getWaterNormals(vec3 worldPos, int octaves) {
+    vec2 position = worldPos.xz;
+
+    float pos0 = calculateWaveHeight(position,             octaves);
+	float pos1 = calculateWaveHeight(position + offset[0], octaves);
+	float pos2 = calculateWaveHeight(position + offset[1], octaves);
+
+    return vec3(pos0 - pos1, pos0 - pos2, 1.0);
+}
+
 Material getMaterial(vec2 coords) {
     coords       *= viewSize;
     uvec4 dataTex = texelFetch(colortex1, ivec2(coords), 0);

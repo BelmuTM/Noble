@@ -132,7 +132,7 @@
 			vec3 scenePos       = viewToScene(viewPos);
 			vec3 lightmapVector = dFdx(scenePos) * dFdx(lightmap.x) + dFdy(scenePos) * dFdy(lightmap.x);
 
-			lightmap.x *= clamp01(dot(normalize(lightmapVector), normal) * 0.5 + 0.5);
+			lightmap.x *= clamp01(dot(normalize(lightmapVector), normalize(normal)) * 0.5 + 0.5);
 			return clamp01(lightmap);
 		#endif
 		return clamp01(lmCoords);
@@ -171,6 +171,8 @@
 
 		albedoTex *= vertexColor;
 
+		vec2 lightmap = lmCoords;
+
 		float F0 		 = specularTex.y;
 		float ao 		 = normalTex.z;
 		float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
@@ -202,6 +204,8 @@
 				normal.xy = normalTex.xy * 2.0 - 1.0;
 				normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
 				normal    = TBN * normal;
+
+				lightmap = computeLightmap(normal);
 			}
 		#endif
 
@@ -223,12 +227,10 @@
 			}
 		#endif
 
-		normal = normalize(normal);
-
-		vec3 labPbrData0 = vec3(parallaxSelfShadowing, computeLightmap(normal));
+		vec3 labPbrData0 = vec3(parallaxSelfShadowing, lightmap);
 		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
 		vec4 labPbrData2 = vec4(albedoTex.rgb, roughness);
-		vec2 encNormal   = encodeUnitVector(normal);
+		vec2 encNormal   = encodeUnitVector(normalize(normal));
 	
 		uvec4 shiftedData0  = uvec4(round(labPbrData0 * vec3(1.0, 8191.0, 4095.0)), blockId) << uvec4(0, 1, 14, 26);
 		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8))                            << uvec4(0, 8, 16, 24);
