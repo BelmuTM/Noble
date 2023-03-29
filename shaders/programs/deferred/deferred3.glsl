@@ -20,11 +20,11 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,6,14 */
+    /* RENDERTARGETS: 3,6 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec4 illuminance;
-    layout (location = 2) out float depth;
+    //layout (location = 2) out float depth;
 
     in mat3[2] skyIlluminanceMat;
     in vec3 directIlluminance;
@@ -55,7 +55,7 @@
 
         vec3 bentNormal = mat.normal;
 
-        depth = computeLowerHiZDepthLevels();
+        //depth = computeLowerHiZDepthLevels();
 
         //////////////////////////////////////////////////////////
         /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
@@ -76,7 +76,9 @@
             #if SHADOWS == 1
                 if(!sky) {
                     vec3 geoNormal = texture(colortex3, texCoords).rgb;
-                    shadowmap.rgb  = shadowMap(viewToScene(viewPos), geoNormal, shadowmap.a) * mat.parallaxSelfShadowing;
+                    shadowmap.rgb  = shadowMap(viewToScene(viewPos), geoNormal, shadowmap.a);
+                    shadowmap.a    = shadowmap.r < 0.0 ? 1.0 : shadowmap.a;
+                    shadowmap.rgb = abs(shadowmap.rgb) * mat.parallaxSelfShadowing;
                 }
             #endif
 

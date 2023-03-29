@@ -64,7 +64,7 @@
                     vec2 prevPos = reprojectClouds(viewPos, distanceToClouds).xy;
                     vec4 history = textureCatmullRom(colortex0, prevPos);
 
-                    float resolutionScale = CLOUDS_SCALE < 100 ? 1.0 + ((CLOUDS_SCALE * 0.01) * 0.2 + 0.3) : 1.0;
+                    float resolutionScale = float(CLOUDS_SCALE < 100) + pow((CLOUDS_SCALE * 0.01) * 0.05 + 0.02, 0.35);
 
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
                     float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.4 + 0.6;

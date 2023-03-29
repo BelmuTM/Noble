@@ -75,8 +75,8 @@ float rgbToSaturation(vec3 rgb) {
 
 float rgbToHue(vec3 rgb) {
     float hue;
-    if(rgb[0] == rgb[1] && rgb[1] == rgb[2]) { hue = 0.0; }
-    else { hue = (180.0 * RCP_PI) * atan(2.0 * rgb[0] - rgb[1] - rgb[2], sqrt(3.0) * (rgb[1] - rgb[2])); }
+    if(rgb[0] == rgb[1] && rgb[1] == rgb[2]) hue = 0.0;
+    else                                     hue = (180.0 * RCP_PI) * atan(2.0 * rgb[0] - rgb[1] - rgb[2], sqrt(3.0) * (rgb[1] - rgb[2]));
     
     return clamp(hue < 0.0 ? hue + 360.0 : hue, 0.0, 360.0);
 }

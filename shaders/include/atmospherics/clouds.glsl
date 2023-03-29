@@ -30,7 +30,7 @@ struct CloudLayer {
     int octaves;
 };
 
-CloudLayer layer0 = CloudLayer(
+const CloudLayer layer0 = CloudLayer(
     CLOUDS_LAYER0_ALTITUDE,
     CLOUDS_LAYER0_THICKNESS,
     CLOUDS_LAYER0_COVERAGE * 0.01,
@@ -43,7 +43,7 @@ CloudLayer layer0 = CloudLayer(
     CLOUDS_LAYER0_OCTAVES
 );
 
-CloudLayer layer1 = CloudLayer(
+const CloudLayer layer1 = CloudLayer(
     CLOUDS_LAYER1_ALTITUDE,
     CLOUDS_LAYER1_THICKNESS,
     CLOUDS_LAYER1_COVERAGE,
@@ -108,9 +108,9 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
           weatherMap = layer == layer1 ? weatherMap : ((weatherMap - 0.4) + cloudsWorley(position.xz * 4e-5) * 1.2 - 0.2);
           weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
           weatherMap = weatherMap * (1.0 - wetnessFactor)  + wetnessFactor;
-          weatherMap = clamp01(weatherMap);
 
     if(weatherMap < EPS) return 0.0;
+    weatherMap = clamp01(weatherMap);
 
     position *= layer.shapeScale;
 

@@ -115,7 +115,7 @@ vec3 shadowMap(vec3 scenePos, vec3 geoNormal, out float ssDepth) {
         #elif SHADOW_TYPE == 1
             vec3 shadowPosDistort = distortShadowSpace(shadowPos) * 0.5 + 0.5;
             float avgBlockerDepth = findBlockerDepth(shadowPosDistort, randF(), ssDepth);
-            if(avgBlockerDepth < 0.0) return vec3(1.0);
+            if(avgBlockerDepth < 0.0) return vec3(-1.0);
 
             if(texture(shadowcolor0, shadowPosDistort.xy).a >= 0.0)
                 penumbraSize = max(0.1, (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth);

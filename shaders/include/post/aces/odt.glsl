@@ -65,21 +65,12 @@ vec3 darkSurroundToDimSurround(vec3 linearCV) {
     return xyYToXYZ(xyY) * XYZ_2_AP1_MAT;
 }
 
-// Gamma curves functions
-
 float moncurve_r(float y, float gamma, float offset) {
     float yb = pow(offset * gamma / (( gamma - 1.0) * (1.0 + offset)), gamma);
     float rs = pow((gamma - 1.0) / offset, gamma - 1.0) * pow((1.0 + offset) / gamma, gamma);
 
-    if(y >= yb) { return (1.0 + offset) * pow(y, 1.0 / gamma) - offset; }
-    else        { return y * rs; }
-}
-
-float bt1886_r(float L, float gamma, float Lw, float Lb) {
-    float a = pow(pow(Lw, 1.0 / gamma) - pow(Lb, 1.0 / gamma), gamma);
-    float b = pow(Lb, 1.0 / gamma) / (pow(Lw, 1.0 / gamma) - pow(Lb, 1.0 / gamma));
-    float V = pow(max(L / a, 0.0), 1.0 / gamma) - b;
-    return V;
+    if(y >= yb) return (1.0 + offset) * pow(y, 1.0 / gamma) - offset;
+    else        return y * rs;
 }
 
 void odt(inout vec3 color) {
@@ -102,6 +93,7 @@ void odt(inout vec3 color) {
     // CIE XYZ to display primaries and handling out-of-gamut values
     color = clamp01(color * XYZ_2_SRGB_MAT);
 
+    // Gamma curve to convert back to monitor RGB
     color.r = moncurve_r(color.r, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
     color.g = moncurve_r(color.g, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);
     color.b = moncurve_r(color.b, ODT_DISPGAMMA, ODT_GAMMA_OFFSET);

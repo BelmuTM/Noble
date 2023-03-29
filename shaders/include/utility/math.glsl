@@ -113,6 +113,17 @@ float lengthSqr(vec3 x)     { return dot(x, x);              }
 float fastRcpLength(vec3 x) { return inversesqrt(dot(x, x)); }
 float fastLength(vec3 x)    { return sqrt(dot(x, x));        }
 
+// Fast square root approximations
+// https://www.shadertoy.com/view/wlyXRt
+float sqrtNewton   (float x, float guess) { return 0.5 * (guess + x / guess);               }
+float invSqrtNewton(float x, float guess) { return guess * (1.5 - 0.5 * x * guess * guess); }
+
+float fastSqrt(float x)   { return uintBitsToFloat((floatBitsToUint(x) >> 1) + 0x1FC00000u); }
+float fastSqrtN1(float x) { return sqrtNewton(x, fastSqrt(x));                               }
+
+float fastInvSqrt(float x)   { return uintBitsToFloat(0x5F400000u - (floatBitsToUint(x) >> 1)); }
+float fastInvSqrtN1(float x) { return invSqrtNewton(x, fastInvSqrt(x));                         }
+
 float remap(float x, float oldLow, float oldHigh, float newLow, float newHigh) {
     return newLow + (x - oldLow) * (newHigh - newLow) / (oldHigh - oldLow);
 }

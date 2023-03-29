@@ -157,7 +157,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define SCATTERING_STEPS   16 // [8 12 16 20 24 28 32]
 #define TRANSMITTANCE_STEPS 8 // [8 12 16 20 24 28 32]
 
-#define PRIMARY_CLOUDS           0 // [0 1]
+#define PRIMARY_CLOUDS           1 // [0 1]
 #define SECONDARY_CLOUDS         1 // [0 1]
 #define CLOUDS_SCALE            50 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_SCATTERING_STEPS 20 // [8 12 16 20 24 28 32]
@@ -172,7 +172,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define CLOUDS_LAYER0_COVERAGE     25 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_LAYER0_SWIRL        10 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_LAYER0_SCALE      6e-4
-#define CLOUDS_LAYER0_SHAPESCALE 9e-4 
+#define CLOUDS_LAYER0_SHAPESCALE 8e-4 
 #define CLOUDS_LAYER0_FREQUENCY  2.00
 #define CLOUDS_LAYER0_DENSITY    1.00
 #define CLOUDS_LAYER0_OCTAVES       1
@@ -242,7 +242,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define TAA                        1 // [0 1]
 #define TAA_OFFCENTER_REJECTION 0.25 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-#define TAA_STRENGTH            0.98
+#define TAA_STRENGTH            0.99
 
 #define DOF           0 // [0 1]
 #define DOF_RADIUS 20.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0]
@@ -306,7 +306,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define ACES_EPS 0.00006103
 
 // Glow module constants
-#define RRT_GLOW_GAIN 0.05
+#define RRT_GLOW_GAIN 0.80
 #define RRT_GLOW_MID  0.08
 
 // Red modifier constants
@@ -320,7 +320,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 
 #define DIM_SURROUND_GAMMA 0.9811
 #define ODT_DISPGAMMA         2.4
-#define ODT_GAMMA_OFFSET    0.055
+#define ODT_GAMMA_OFFSET    0.045
 
 #define ODT_CINEMA_WHITE 48.0
 #define ODT_CINEMA_BLACK (ODT_CINEMA_WHITE / 2400.0)
