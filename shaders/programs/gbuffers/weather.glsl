@@ -20,7 +20,7 @@
 	void main() {
 		if(texture(colortex0, texCoords).a < 0.102) discard;
 
-		color.rgb = vec3(dot(sampleSkyIlluminanceSimple() * 0.35, vec3(1.0 / 3.0)));
+		color.rgb = sampleSkyIlluminanceSimple() * exp(-vec3(0.20, 0.10, 0.04) * 2.0) * 0.05;
 		color.a   = 0.3;
 	}
 #endif

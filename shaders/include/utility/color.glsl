@@ -267,13 +267,17 @@ void whiteBalance(inout vec3 color) {
     #if TONEMAP == 0
         mat3 toXyz   = AP1_2_XYZ_MAT;
         mat3 fromXyz = XYZ_2_AP1_MAT;
+
+        float temperature = WHITE_BALANCE == 6500 ? 7400 : WHITE_BALANCE;
     #else
         mat3 toXyz   = SRGB_2_XYZ_MAT;
         mat3 fromXyz = XYZ_2_SRGB_MAT;
+
+        float temperature = WHITE_BALANCE;
     #endif
 
-    vec3 source           = blackbody(WHITE_BALANCE) * toXyz;
-    vec3 destination      = blackbody(WHITE_POINT)   * toXyz;
+    vec3 source           = blackbody(temperature) * toXyz;
+    vec3 destination      = blackbody(WHITE_POINT) * toXyz;
     mat3 chromaAdaptation = toXyz * chromaticAdaptationMatrix(source, destination) * fromXyz;
 
     color *= chromaAdaptation;

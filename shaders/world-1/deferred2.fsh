@@ -5,10 +5,5 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-in vec2 texCoords;
-
 #define STAGE_FRAGMENT
-#define WORLD_NETHER
-
-#include "/include/common.glsl"
-#include "/programs/deferred/deferred2.glsl"
+#include "/programs/discard.glsl"

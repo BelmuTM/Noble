@@ -57,7 +57,7 @@ const CloudLayer layer1 = CloudLayer(
 );
 
 const vec3 up = vec3(0.0, 1.0, 0.0);
-vec3 windDir  = vec3(sin(-0.785398), 0.0, cos(-0.785398));
+vec3 windDir  = vec3(sincos(-0.785398), 0.0).xzy;
 vec3 wind     = CLOUDS_WIND_SPEED * frameTimeCounter * windDir;
 
 float heightAlter(float altitude, float weatherMap) {
@@ -102,12 +102,12 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
         position += wind;
     #endif
 
-    float wetnessFactor = max0(wetness - 0.6);
+    layer.coverage = mix(layer.coverage, 0.65, wetness);
 
-    float weatherMap = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
-          weatherMap = layer == layer1 ? weatherMap : ((weatherMap - 0.4) + cloudsWorley(position.xz * 4e-5) * 1.2 - 0.2);
-          weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
-          weatherMap = weatherMap * (1.0 - wetnessFactor)  + wetnessFactor;
+    float weatherMap  = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
+          weatherMap  = layer == layer1 ? weatherMap : ((weatherMap - 0.4) + cloudsWorley(position.xz * 4e-5) * 1.2 - 0.2);
+          weatherMap  = weatherMap * (1.0 - layer.coverage) + layer.coverage;
+          //weatherMap  = weatherMap * (1.0 - wetnessFactor)  + wetnessFactor;
 
     if(weatherMap < EPS) return 0.0;
     weatherMap = clamp01(weatherMap);
@@ -119,7 +119,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = clamp01(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - mix(0.7, 0.85, wetness) * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = clamp01(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - mix(0.7, 0.8, wetness) * weatherMap, 1.0, 0.0, 1.0));
 
     return clamp01(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }

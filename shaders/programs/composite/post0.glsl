@@ -69,4 +69,7 @@ void main() {
     #if EXPOSURE > 0
         color.a = sqrt(luminance(color.rgb));
     #endif
+
+    vec4 basic     = texture(colortex14, texCoords);
+         color.rgb = mix(color.rgb, basic.rgb, basic.a);
 }

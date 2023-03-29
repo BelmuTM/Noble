@@ -11,4 +11,9 @@ in vec2 texCoords;
 #define WORLD_OVERWORLD
 
 #include "/include/common.glsl"
-#include "/programs/deferred/deferred2.glsl"
+
+#if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
+    #include "/programs/deferred/deferred2.glsl"
+#else
+    #include "/programs/discard.glsl"
+#endif

@@ -4,11 +4,25 @@
 /***********************************************/
 
 #if defined STAGE_VERTEX
-	#define PROGRAM_BASIC
-	#include "/programs/gbuffers/gbuffers.vsh"
+
+	out vec2 texCoords;
+	out vec4 vertexColor;
+
+	#include "/include/common.glsl"
+
+	void main() {
+		gl_Position = ftransform();
+		texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+		vertexColor = gl_Color;
+
+		#if TAA == 1
+			gl_Position.xy += taaJitter(gl_Position);
+   		#endif
+	}
 
 #elif defined STAGE_FRAGMENT
-	/* RENDERTARGETS: 13 */
+
+	/* RENDERTARGETS: 14 */
 
 	layout (location = 0) out vec4 color;
 
@@ -19,8 +33,8 @@
 
 	void main() {
 		vec4 albedoTex  = texture(colortex0, texCoords);
-		     albedoTex *= vertexColor;
+		if(albedoTex.a < 0.102) discard;
 
-		color = albedoTex;
+		color = albedoTex * vertexColor;
 	}
 #endif

@@ -58,7 +58,7 @@ float getFogPhase(float cosTheta) {
     }
     */
 
-    void volumetricFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
+    void volumetricFog(inout vec3 color, vec3 startPos, vec3 endPos, vec3 viewPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
         const float stepSize = 1.0 / VL_SCATTERING_STEPS;
         vec3 increment = (endPos - startPos) * stepSize;
         vec3 rayPos    = startPos + increment * dither;
@@ -70,6 +70,8 @@ float getFogPhase(float cosTheta) {
 
         float rayLength = length(increment);
         float phase     = getFogPhase(VdotL);
+
+        float perspective = quintic(0.0, 1.0, exp2(-5e-4 * length(viewPos)));
 
         mat2x3 scattering   = mat2x3(vec3(0.0), vec3(0.0)); 
         float transmittance = 1.0;
@@ -89,7 +91,7 @@ float getFogPhase(float cosTheta) {
 
             scattering[0] += stepScatteringDirect * shadowColor;
             scattering[1] += stepScatteringIndirect;
-            transmittance *= stepTransmittance;
+            transmittance *= perspective * stepTransmittance;
         }
         scattering[0] *= directIlluminance;
         scattering[1] *= skyIlluminance * skyLight;

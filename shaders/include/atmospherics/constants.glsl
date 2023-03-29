@@ -33,7 +33,7 @@ vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 
 /* CLOUDS CONSTANTS */
 
-const float cloudsExtinctionCoefficient = 0.15;
+float       cloudsExtinctionCoefficient = mix(0.15, 0.3, wetness);
 const float cloudsScatteringCoefficient = 1.0;
 const float cloudsTransmitThreshold     = 5e-2;
 

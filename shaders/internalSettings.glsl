@@ -26,6 +26,7 @@ const int colortex10Format = RGBA16F;   // Indirect PT
 const int colortex11Format = RGBA16F;   // Moments
 const int colortex12Format = RGB16F;    // Atmosphere
 const int colortex13Format = RGBA16F;   // Translucents
+const int colortex14Format = RGBA8;     // Gbuffers Basic
 
 const bool colortex0Clear  = false;
 const bool colortex5Clear  = false;

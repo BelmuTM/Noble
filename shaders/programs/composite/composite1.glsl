@@ -106,7 +106,7 @@ void main() {
                     #endif
                 } else {
                     #if AIR_FOG == 1
-                        volumetricFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight);
+                        volumetricFog(color, scenePos0, scenePos1, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #elif AIR_FOG == 2
                         fog(color, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
                     #endif
@@ -153,7 +153,7 @@ void main() {
             #endif
         } else {
             #if AIR_FOG == 1
-                volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight);
+                volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePos0, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight);
             #elif AIR_FOG == 2
                 fog(color, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
             #endif
