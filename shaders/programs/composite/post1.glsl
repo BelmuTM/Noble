@@ -9,7 +9,7 @@
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         flat out int medianBin;
-        flat out vec4[HISTOGRAM_BINS / 8] luminanceHistogram;
+        flat out vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
     #endif
 
     #if EXPOSURE == 2
@@ -90,24 +90,16 @@
 
 #elif defined STAGE_FRAGMENT
 
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-        /* RENDERTARGETS: 4,6,8 */
+    /* RENDERTARGETS: 4,8 */
 
-        layout (location = 0) out vec4 color;
-        layout (location = 1) out vec3 histogram;
-        layout (location = 2) out vec4 history;
-    #else
-        /* RENDERTARGETS: 4,8 */
-
-        layout (location = 0) out vec4 color;
-        layout (location = 1) out vec4 history;
-    #endif
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec4 history;
 
     flat in float avgLuminance;
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         flat in int medianBin;
-        flat in vec4[HISTOGRAM_BINS / 8] luminanceHistogram;
+        flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
     #endif
 
     #if TAA == 1
@@ -155,8 +147,10 @@
     	        vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
 
     	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
-    		        int index = int(HISTOGRAM_BINS * coords.x);
-                    histogram = luminanceHistogram[index >> 2][index & 3] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+    		        int  index     = int(HISTOGRAM_BINS * coords.x);
+                    vec3 histogram = luminanceHistogram[index >> 2][index & 3] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+
+                    color.rgb = histogram / exposure;
     	        }
             #endif
         #endif

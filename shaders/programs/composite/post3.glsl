@@ -101,12 +101,6 @@ void main() {
         color += randF() * color * FILM_GRAIN_STRENGTH;
     #endif
 
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-	    if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
-            color = texture(colortex6, texCoords).rgb;
-        }
-    #endif
-
     #if VIGNETTE == 1
         vec2 coords = texCoords * (1.0 - texCoords.yx);
         color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
