@@ -87,28 +87,27 @@ vec3 fresnelComplex(float cosTheta, Material mat) {
     return fresnelDieletricConductor(n, k, cosTheta);
 }
 
-// Provided by LVutner: more to read here: http://jcgt.org/published/0007/04/01/
-vec3 sampleGGXVNDF(vec3 viewDir, vec2 seed, float alpha) {
-	// Transforming the view direction to the hemisphere configuration
+// https://hal.science/hal-01509746
+vec3 sampleGGXVNDF(vec3 viewDir, vec2 xi, float alpha) {
+	// Stretch view
 	viewDir = normalize(vec3(alpha * viewDir.xy, viewDir.z));
 
-	// Orthonormal basis (with special case if cross product is zero)
-	float lensq = dot(viewDir.yx, viewDir.yx);
-	vec3 T1     = vec3(lensq > 0.0 ? vec2(-viewDir.y, viewDir.x) * inversesqrt(lensq) : vec2(1.0, 0.0), 0.0);
-	vec3 T2     = cross(T1, viewDir);
+	// Orthonormal basis
+	vec3 T1 = (viewDir.z < 0.9999) ? normalize(cross(viewDir, vec3(0.0, 0.0, 1.0))) : vec3(1.0, 0.0, 0.0);
+	vec3 T2 = cross(T1, viewDir);
 
-	// Parameterization of the projected area
-	float r   = sqrt(seed.x);
-    float phi = TAU * seed.y;
-	float t1  = r * cos(phi);
-    float tmp = clamp01(1.0 - pow2(t1));
-	float t2  = mix(sqrt(tmp), r * sin(phi), 0.5 + 0.5 * viewDir.z);
+	// Sample point with polar coordinates (r, phi)
+    float a   = 1.0 / (1.0 + viewDir.z);
+    float r   = sqrt(xi.x);
+    float phi = (xi.y < a) ? xi.y / a * PI : PI + (xi.y - a) / (1.0 - a) * PI;
+    float P1  = r * cos(phi);
+    float P2  = r * sin(phi) * ((xi.y < a) ? 1.0 : viewDir.z);
 
-	// Reprojection onto hemisphere
-	vec3 Nh = t1 * T1 + t2 * T2 + sqrt(clamp01(tmp - pow2(t2))) * viewDir;
+	// Compute normal
+	vec3 N = P1 * T1 + P2 * T2 + sqrt(max0(1.0 - P1 * P1 - P2 * P2)) * viewDir;
 
-	// Transforming the normal back to the ellipsoid configuration
-	return normalize(vec3(alpha * Nh.xy, Nh.z));	
+	// Unstretch
+	return normalize(vec3(alpha * N.xy, max0(N.z)));	
 }
 
 // This function helps us consider the light source as a sphere

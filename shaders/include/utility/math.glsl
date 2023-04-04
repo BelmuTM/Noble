@@ -3,6 +3,22 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+/*
+    [Credits]
+        Jessie     - providing shell intersection function and other utility functions (https://github.com/Jessie-LC/open-source-utility-code/blob/main/simple/misc.glsl)
+        sixthsurge - help with encoding functions (https://github.com/sixthsurge)
+
+    [References]:
+        Perlin, K. (2002). Improving Noise. https://mrl.cs.nyu.edu/~perlin/paper445.pdf
+        Fisher et al. (2003). Gaussian Smoothing. https://homepages.inf.ed.ac.uk/rbf/HIPR2/gsmooth.htm
+        Cook, D., J. (2009). Stand-alone error function erf(x). https://www.johndcook.com/blog/2009/01/19/stand-alone-error-function-erf/
+        Giles, M. (2011). Approximating the erfinv function. https://people.maths.ox.ac.uk/gilesm/files/gems_erfinv.pdf
+        Lagarde, S. (2014). Inverse trigonometric functions GPU optimization for AMD GCN architecture. https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
+        Cigolle et al. (2014). Survey of Efficient Representations for Independent Unit Vectors. https://jcgt.org/published/0003/02/01/
+        Wikipedia. (2022). Rodrigues' rotation formula. https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
+*/
+
+
 //////////////////////////////////////////////////////////
 /*--------------------- FAST MATH ----------------------*/
 //////////////////////////////////////////////////////////
@@ -67,19 +83,15 @@ vec2  rcp(vec2 x)  { return 1.0 / x;        }
 vec3  rcp(vec3 x)  { return 1.0 / x;        }
 vec4  rcp(vec4 x)  { return 1.0 / x;        }
 
-// Improved smoothstep function suggested by Ken Perlin
-// https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/improved-perlin-noise
 float quintic(float edge0, float edge1, float x) {
     x = clamp01((x - edge0) / (edge1 - edge0));
     return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
 }
 
-// https://www.shadertoy.com/view/Xt23zV
 float linearStep(float edge0, float edge1, float x) {
     return clamp01((x - edge0) / (edge1 - edge0));
 }
 
-// https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
 // max absolute error 9.0x10^-3
 // Eberly's polynomial degree 1 - respect bounds
 // input [-1, 1] and output [0, PI]
@@ -102,7 +114,7 @@ vec2 sincos(float x) {
 }
 
 vec2 signNonZero(vec2 v) {
-	return vec2(v.x >= 0.0 ? 1.0 : -1.0, v.y >= 0.0 ? 1.0 : -1.0);
+	return vec2((v.x >= 0.0) ? 1.0 : -1.0, (v.y >= 0.0) ? 1.0 : -1.0);
 }
 
 float cubeLength(vec2 v) {
@@ -132,16 +144,15 @@ float remap(float x, float oldLow, float oldHigh, float newLow, float newHigh) {
 /*------------------------ MISC ------------------------*/
 //////////////////////////////////////////////////////////
 
-vec2 intersectSphere(vec3 rayOrigin, vec3 rayDir, float radius) {
-	float b = dot(rayOrigin, rayDir);
-	float c = dot(rayOrigin, rayOrigin) - radius * radius;
+vec2 intersectSphere(vec3 origin, vec3 direction, float radius) {
+	float b = dot(origin, direction);
+	float c = dot(origin, origin) - radius * radius;
 	float d = b * b - c;
 	if(d < 0.0) return vec2(-1.0, -1.0);
 	d = sqrt(d);
 	return vec2(-b - d, -b + d);
 }
 
-// Intersection method from Jessie#7257
 vec2 intersectSphericalShell(vec3 origin, vec3 direction, float innerSphereRadius, float outerSphereRadius) {
     vec2 innerSphereDists = intersectSphere(origin, direction, innerSphereRadius);
     vec2 outerSphereDists = intersectSphere(origin, direction, outerSphereRadius);
@@ -169,6 +180,20 @@ vec3 unprojectSphere(vec2 coords) {
     return vec3(sincos(coords.x * TAU) * sin(latitude), cos(latitude)).xzy;
 }
 
+vec3 rotate(vec3 vector, vec3 axis, float angle) {
+	vec2 sc = sincos(radians(angle));
+	return sc.y * vector + sc.x * cross(axis, vector) + (1.0 - sc.y) * dot(axis, vector) * axis;
+}
+
+vec3 rotate(vec3 vector, vec3 from, vec3 to) {
+	float cosTheta = dot(from, to);
+	if(abs(cosTheta) >= 0.9999) { return cosTheta < 0.0 ? -vector : vector; }
+	vec3 axis = normalize(cross(from, to));
+
+	vec2 sc = vec2(sqrt(1.0 - cosTheta * cosTheta), cosTheta);
+	return sc.y * vector + sc.x * cross(axis, vector) + (1.0 - sc.y) * dot(axis, vector) * axis;
+}
+
 vec3 generateUnitVector(vec2 xy) {
     xy.x *= TAU; xy.y = 2.0 * xy.y - 1.0;
     return vec3(sincos(xy.x) * sqrt(1.0 - xy.y * xy.y), xy.y);
@@ -176,6 +201,14 @@ vec3 generateUnitVector(vec2 xy) {
 
 vec3 generateCosineVector(vec3 vector, vec2 xy) {
     return normalize(vector + generateUnitVector(xy));
+}
+
+vec3 generateConeVector(vec3 vector, vec2 xy, float angle) {
+    xy.x *= TAU;
+    float cosAngle = cos(angle);
+    xy.y = xy.y * (1.0 - cosAngle) + cosAngle;
+    vec3 sphereCap = vec3(vec2(cos(xy.x), sin(xy.x)) * sqrt(1.0 - xy.y * xy.y), xy.y);
+    return rotate(sphereCap, vec3(0.0, 0.0, 1.0), vector);
 }
 
 float coneAngleToSolidAngle(float x) { return TAU * (1.0 - cos(x));      }
@@ -192,7 +225,6 @@ vec2 diskSampling(float i, float n, float phi) {
     return sincos(theta * TAU * n * GOLDEN_ANGLE) * theta;
 }
 
-// https://homepages.inf.ed.ac.uk/rbf/HIPR2/gsmooth.htm
 float gaussianDistribution1D(float x, float sigma) {
     return (1.0 / (sqrt(TAU) * sigma)) * exp(-pow2(x) / (2.0 * pow2(sigma)));
 }
@@ -204,9 +236,6 @@ float gaussianDistribution2D(vec2 xy, float sigma) {
 //////////////////////////////////////////////////////////
 /*---------------------- ENCODING ----------------------*/
 //////////////////////////////////////////////////////////
-
-// Thanks to SixthSurge#3922 for redirecting me to those encoding functions
-// http://jcgt.org/published/0003/02/01/
 
 vec2 encodeUnitVector(vec3 v) {
 	vec2 enc = v.xy / (abs(v.x) + abs(v.y) + abs(v.z));

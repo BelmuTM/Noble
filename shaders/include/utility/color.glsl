@@ -12,7 +12,7 @@
 */
 
 //////////////////////////////////////////////////////////
-/*------------------ COLOR MATRICES --------------------*/
+/*------------- COLOR CONVERSION MATRICES --------------*/
 //////////////////////////////////////////////////////////
 
 const mat3 SRGB_2_XYZ_MAT = mat3(
@@ -137,14 +137,31 @@ vec3 srgbToAP1Albedo(vec3 color) {
     return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
 }
 
+// Black body radiation from https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl
+vec3 plancks(in float t, in vec3 lambda) {
+    const float h = 6.63e-16; // Planck's constant
+    const float c = 3.0e17;   // Speed of light in vacuum
+    const float k = 1.38e-5;  // Boltzmann's constant
+
+    vec3 p1 = (2.0 * h * pow(c, 2.0)) / pow(lambda, vec3(5.0));
+    vec3 p2 = exp(h * c / (lambda * k * t)) - vec3(1.0);
+    return (p1 / p2) * pow(1e9, 2.0);
+}
+
+vec3 blackbody(in float t) {
+    vec3 rgb = plancks(t, vec3(660.0, 550.0, 440.0));
+         rgb /= max(rgb.r, max(rgb.g, rgb.b)); // Keeping the values below 1.0
+    return rgb;
+}
+
 //////////////////////////////////////////////////////////
 /*---------------------- TONEMAPS ----------------------*/
 //////////////////////////////////////////////////////////
 
 void whitePreservingReinhard(inout vec3 color, float white) {
-	float luminance      = luminance(color);
-	float toneMappedLuma = luminance * (1.0 + luminance / (white * white)) / (1.0 + luminance);
-	color               *= toneMappedLuma / luminance;
+	float luminance           = luminance(color);
+	float toneMappedLuminance = luminance * (1.0 + luminance / (white * white)) / (1.0 + luminance);
+	      color              *= toneMappedLuminance / luminance;
 }
 
 void reinhardJodie(inout vec3 color) {
@@ -223,24 +240,8 @@ void burgess(inout vec3 color) {
 }
 
 //////////////////////////////////////////////////////////
-/*------------------ COLOR CORRECTION ------------------*/
+/*-------------------- COLOR GRADING -------------------*/
 //////////////////////////////////////////////////////////
-
-// Black body radiation from https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl
-vec3 plancks(in float t, in vec3 lambda) {
-    const float h = 6.63e-16; // Planck's constant
-    const float c = 3.0e17;   // Speed of light
-    const float k = 1.38e-5;  // Boltzmann's constant
-    vec3 p1 = (2.0 * h * pow(c, 2.0)) / pow(lambda, vec3(5.0));
-    vec3 p2 = exp(h * c / (lambda * k * t)) - vec3(1.0);
-    return (p1 / p2) * pow(1e9, 2.0);
-}
-
-vec3 blackbody(in float t) {
-    vec3 rgb = plancks(t, vec3(660.0, 550.0, 440.0));
-         rgb /= max(rgb.r, max(rgb.g, rgb.b)); // Keeping the values below 1.0
-    return rgb;
-}
 
 /*
     Sources for White Balance:
