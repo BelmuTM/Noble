@@ -25,15 +25,15 @@ being accessible to public no matter what.
 ## License
 NobleRT is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
 
-## Social Links
-* [Discord Server](https://discord.gg/jjRrhpkH9e "Discord Server")
-* [Twitter](https://twitter.com/Belmu_ "Twitter")
-* [Patreon Page](https://patreon.com/Belmu "Patreon Page")
+## Socials (Click the banners)
+[![Discord](https://i.imgur.com/3shUTJu.png)](https://discord.gg/jjRrhpkH9e)
+[![Twitter](https://i.imgur.com/z0Nqa6n.png)](https://twitter.com/Belmu_)
+[![Support me on Patreon](https://i.imgur.com/ZTO3EGk.png)](https://patreon.com/Belmu)
 
 > I would like to thank the people from ShaderLabs for helping me understand and learn GLSL.
 > Thanks to the beta testers who helped me fix and deal with multiple issues.
 
-## Images
+## Showcases
 ![Showcase 01](https://i.imgur.com/DhkbJMt.png)
 ![Showcase 02](https://i.imgur.com/rnXWe8W.png)
 ![Showcase 03](https://i.imgur.com/EyxxpKi.png)
