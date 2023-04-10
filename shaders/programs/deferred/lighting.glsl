@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/common.glsl"
+
 #if GI == 1
     /* RENDERTARGETS: 5,9,10,11 */
 
@@ -16,8 +18,6 @@
     layout (location = 0) out vec4 colortex11Write;
     layout (location = 1) out vec4 color;
 #endif
-
-#include "/include/common.glsl"
 
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/brdf.glsl"
