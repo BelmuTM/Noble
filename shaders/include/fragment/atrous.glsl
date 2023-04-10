@@ -15,17 +15,16 @@
         Dundr, J. (2018). Progressive Spatiotemporal Variance-Guided Filtering. https://cescg.org/wp-content/uploads/2018/04/Dundr-Progressive-Spatiotemporal-Variance-Guided-Filtering-2.pdf
 */
 
-float spatialVariance(sampler2D tex) {
-    vec2 sum = vec2(0.0); 
+float gaussianVariance() {
+    float variance = 0.0;
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
-            float luminance = luminance(texture(tex, texCoords + vec2(x, y) * pixelSize).rgb);
-            sum            += vec2(luminance, luminance * luminance);
+            float weight = gaussianDistribution2D(vec2(x, y), 1.0);
+            variance    += texture(colortex11, texCoords + vec2(x, y) * pixelSize).z * weight;
         }
     }
-    sum /= 9.0;
-    return sum.x * sum.x - sum.y;
+    return variance;
 }
 
 const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
@@ -46,28 +45,30 @@ float getATrousDepthWeight(float depth, float sampleDepth, vec2 dgrad, vec2 offs
 }
 
 float getATrousLuminanceWeight(float luminance, float sampleLuminance, float variance) {
-    return exp(-abs(luminance - sampleLuminance) / (LUMA_WEIGHT_SIGMA * variance + EPS));
+    return exp(-abs(luminance - sampleLuminance) / (LUMA_WEIGHT_SIGMA * variance + 1e-6));
 }
 
-void aTrousFilter(inout vec3 irradiance, sampler2D tex, vec2 coords, int passIndex) {
-    Material material = getMaterial(coords);
+void aTrousFilter(inout vec3 irradiance, inout vec4 moments, sampler2D tex, int passIndex) {
+    Material material = getMaterial(texCoords);
     if(material.depth0 == 1.0) return;
 
-    float totalWeight = 1.0;
+    float totalWeight = 1.0, totalWeightSq = 1.0;
     vec2 stepSize     = steps[passIndex] * pixelSize;
 
-    float frames = float(texture(colortex5, coords).a > 4.0);
+    float frames = float(texture(colortex5, texCoords).a > 4.0);
     vec2 dgrad   = vec2(dFdx(material.depth0), dFdy(material.depth0));
 
     float centerLuma = luminance(irradiance);
-    float variance   = spatialVariance(tex);
+    float variance   = gaussianVariance();
+
+    moments = texture(colortex11, texCoords);
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
             if(all(equal(ivec2(x,y), ivec2(0)))) continue;
 
             vec2 offset       = vec2(x, y) * stepSize;
-            vec2 sampleCoords = coords + offset;
+            vec2 sampleCoords = texCoords + offset;
 
             if(clamp01(sampleCoords) != sampleCoords) continue;
 
@@ -78,10 +79,12 @@ void aTrousFilter(inout vec3 irradiance, sampler2D tex, vec2 coords, int passInd
             float depthWeight  = getATrousDepthWeight(material.depth0, sampleMaterial.depth0, dgrad, offset);
             float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleIrradiance), variance), frames);
 
-            float weight = clamp01(normalWeight * depthWeight * lumaWeight) * aTrous[abs(x)] * aTrous[abs(y)];
-            irradiance  += sampleIrradiance * weight;
-            totalWeight += weight;
+            float weight   = clamp01(normalWeight * depthWeight * lumaWeight) * aTrous[abs(x)] * aTrous[abs(y)];
+            irradiance    += sampleIrradiance * weight;
+            totalWeight   += weight;
+            totalWeightSq += weight * weight;
         }
     }
     irradiance /= totalWeight;
+    moments.z  *= totalWeightSq;
 }

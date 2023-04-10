@@ -11,9 +11,10 @@
 
     #elif defined STAGE_FRAGMENT
 
-        /* RENDERTARGETS: 5 */
+        /* RENDERTARGETS: 5,11 */
 
         layout (location = 0) out vec4 color;
+        layout (location = 1) out vec4 temporalData;
 
         #if GI_FILTER == 1
             #include "/include/fragment/atrous.glsl"
@@ -23,7 +24,7 @@
             color = texture(colortex5, texCoords);
 
             #if GI_FILTER == 1
-                aTrousFilter(color.rgb, colortex5, texCoords, ATROUS_PASS_INDEX);
+                aTrousFilter(color.rgb, temporalData, colortex5, ATROUS_PASS_INDEX);
             #endif
         }
     #endif

@@ -102,7 +102,7 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT      6
 
-#define TEMPORAL_DEPTH_WEIGHT_SIGMA 1.0
+#define TEMPORAL_DEPTH_WEIGHT_SIGMA 2.0
 
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/

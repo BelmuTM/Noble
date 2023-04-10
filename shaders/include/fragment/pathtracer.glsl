@@ -57,7 +57,7 @@
         return brdf;
     }
 
-    void pathTrace(inout vec3 radiance, in vec3 screenPosition, inout vec3 outColorDirect, inout vec3 outColorIndirect) {
+    void pathtrace(inout vec3 radiance, in vec3 screenPosition, inout vec3 outColorDirect, inout vec3 outColorIndirect) {
         vec3 viewPosition = screenToView(screenPosition);
 
         vec3 directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;

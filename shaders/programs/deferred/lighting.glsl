@@ -9,13 +9,13 @@
     /* RENDERTARGETS: 5,9,10,11 */
 
     layout (location = 0) out vec4 color;
-    layout (location = 1) out vec3 directColor;
-    layout (location = 2) out vec3 indirectColor;
-    layout (location = 3) out vec4 colortex11Write;
+    layout (location = 1) out vec3 direct;
+    layout (location = 2) out vec3 indirect;
+    layout (location = 3) out vec4 temporalData;
 #else
     /* RENDERTARGETS: 11,13 */
 
-    layout (location = 0) out vec4 colortex11Write;
+    layout (location = 0) out vec4 temporalData;
     layout (location = 1) out vec4 color;
 #endif
 
@@ -26,28 +26,6 @@
 
 #if GI == 1
     #include "/include/fragment/pathtracer.glsl"
-#endif
-
-#if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
-
-    void temporalAccumulation(Material material, inout vec3 color, vec3 prevColor, vec3 prevPos, inout vec3 direct, inout vec3 indirect, inout vec3 moments, float frames) {
-        float weight = 1.0 / max(frames, 1.0);
-
-        // Thanks SixthSurge#3922 for the help with moments
-        #if GI_FILTER == 1
-            vec2 prevMoments = texture(colortex11, prevPos.xy).rg;
-                  moments.rg = mix(prevMoments, moments.rg, weight);
-                  moments.b  = abs(moments.g - moments.r * moments.r);
-        #endif
-
-        color = mix(prevColor, color, weight);
-
-        vec3 prevColorDirect   = texture(colortex9,  prevPos.xy).rgb;
-        vec3 prevColorIndirect = texture(colortex10, prevPos.xy).rgb;
-
-        direct   = max0(mix(prevColorDirect  , direct  , weight));
-        indirect = max0(mix(prevColorIndirect, indirect, weight));
-    }
 #endif
 
 void main() {
@@ -62,7 +40,7 @@ void main() {
     if(isSky(texCoords)) {
         vec3 sky = computeAtmosphere(viewPos0);
         #if GI == 1
-            directColor.rgb = sky;
+            direct = sky;
         #else
             color.rgb = sky;
         #endif
@@ -89,7 +67,7 @@ void main() {
             float prevDepth = exp2(texture(colortex11, prevPos.xy).a);
             float weight    = pow(exp(-abs(linearizeDepth(material.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
-            colortex11Write.a = log2(material.depth0);
+            temporalData.a = log2(material.depth0);
         #else
             float weight = float(hideGUI);
         #endif
@@ -127,15 +105,28 @@ void main() {
     #else
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_SCALE)) == texCoords) {
-            pathTrace(color.rgb, vec3(tempCoords, material.depth0), directColor, indirectColor);
 
-            #if GI_FILTER == 1
-                float luminance    = luminance(color.rgb);
-                colortex11Write.rg = vec2(luminance, luminance * luminance);
-            #endif
+            pathtrace(color.rgb, vec3(tempCoords, material.depth0), direct, indirect);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(material, color.rgb, prevColor.rgb, prevPos, directColor, indirectColor, colortex11Write.rgb, color.a);
+                float frameWeight = 1.0 / max(color.a * float(linearizeDepth(material.depth0) >= MC_HAND_DEPTH), 1.0);
+
+                color.rgb = mix(prevColor.rgb, color.rgb, frameWeight);
+
+                vec3 prevDirect   = texture(colortex9,  prevPos.xy).rgb;
+                vec3 prevIndirect = texture(colortex10, prevPos.xy).rgb;
+
+                direct   = max0(mix(prevDirect  , direct  , frameWeight));
+                indirect = max0(mix(prevIndirect, indirect, frameWeight));
+
+                #if GI_FILTER == 1
+                    float luminance = luminance(color.rgb);
+                    temporalData.rg = vec2(luminance, luminance * luminance);
+
+                    vec2 prevMoments     = texture(colortex11, prevPos.xy).rg;
+                         temporalData.rg = mix(prevMoments, temporalData.rg, frameWeight);
+                         temporalData.b  = sqrt(abs(temporalData.g - temporalData.r * temporalData.r));
+                #endif
             #endif
         }
     #endif
