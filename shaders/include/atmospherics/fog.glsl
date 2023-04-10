@@ -100,7 +100,7 @@ float getFogPhase(float cosTheta) {
     }
 #endif
 
-#if TONEMAP == 0
+#if TONEMAP == ACES
     const vec3 waterAbsorptionCoefficients = (vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01) * SRGB_2_AP1_ALBEDO;
     const vec3 waterScatteringCoefficients = (vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01) * SRGB_2_AP1_ALBEDO;
 #else 

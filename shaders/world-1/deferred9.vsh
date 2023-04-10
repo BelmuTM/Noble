@@ -8,5 +8,4 @@
 #define STAGE_VERTEX
 #define WORLD_NETHER
 
-#include "/include/common.glsl"
 #include "/programs/deferred/atrous_pass.glsl"

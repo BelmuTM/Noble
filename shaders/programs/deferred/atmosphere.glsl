@@ -4,6 +4,7 @@
 /***********************************************/
 
 #if defined WORLD_OVERWORLD
+    #include "/include/common.glsl"
     #include "/include/atmospherics/atmosphere.glsl"
 #endif
 

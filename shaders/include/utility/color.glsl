@@ -4,11 +4,20 @@
 /***********************************************/
 
 /*
-    I AM NOT THE AUTHOR OF THE TONE MAPPING ALGORITHMS BELOW
-    Most sources are: Github, Shadertoy or Discord.
+    [Credits]:
+        Jessie - providing blackbody radiation and Planck's law functions (https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl)
 
-    Main source for tonemaps:
-    https://github.com/dmnsgn/glsl-tone-map
+    [References]:
+        Uchimura, H. (2017). HDR Theory and practice. https://www.slideshare.net/nikuque/hdr-theory-and-practicce-jp
+        Uchimura, H. (2017). GT Tonemap. https://www.desmos.com/calculator/gslcdxvipg?lang=fr
+        Hable, J. (2017). Minimal Color Grading Tools. http://filmicworlds.com/blog/minimal-color-grading-tools/
+        Taylor, M. (2019). Tone Mapping. https://64.github.io/tonemapping/
+        Wikipedia. (2022). YCoCg. https://en.wikipedia.org/wiki/YCoCg
+        Wikipedia. (2023). Von Kries coefficient law. https://en.wikipedia.org/wiki/Von_Kries_coefficient_law
+        Wikipedia. (2023). LMS color space. https://en.wikipedia.org/wiki/LMS_color_space
+        Wikipedia. (2023). Academy Color Encoding System. https://en.wikipedia.org/wiki/Academy_Color_Encoding_System
+        Wikipedia. (2023). Luma (video). https://en.wikipedia.org/wiki/Luma_(video)
+        Wikipedia. (2023). sRGB. https://en.wikipedia.org/wiki/SRGB
 */
 
 //////////////////////////////////////////////////////////
@@ -92,37 +101,35 @@ const vec3 AP1_RGB2Y = vec3(0.2722287168, 0.6740817658, 0.0536895174); // Desatu
 const mat3 SRGB_2_AP1        = SRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP1_MAT;
 const mat3 SRGB_2_AP1_ALBEDO = SRGB_2_XYZ_MAT * XYZ_2_AP1_MAT;
 
-// https://www.shadertoy.com/view/ltjBWG
-const mat3 SRGB_2_YCoCg_MAT = mat3(0.25, 0.5,-0.25, 0.5, 0.0, 0.5, 0.25, -0.5,-0.25);
-const mat3 YCoCg_2_SRGB_MAT = mat3(1.0,  1.0,  1.0, 1.0, 0.0,-1.0, -1.0,  1.0, -1.0);
+const mat3 SRGB_2_YCoCg_MAT = mat3(0.25, 0.5, -0.25, 0.5, 0.0,  0.5,  0.25, -0.5, -0.25);
+const mat3 YCoCg_2_SRGB_MAT = mat3(1.00, 1.0,  1.00, 1.0, 0.0, -1.0, -1.00,  1.0, -1.00);
 
 //////////////////////////////////////////////////////////
 /*----------------- COLOR CONVERSIONS ------------------*/
 //////////////////////////////////////////////////////////
 
-#if TONEMAP == 0
-    // AP1 color space -> https://en.wikipedia.org/wiki/Academy_Color_Encoding_System
-    float luminance(vec3 color) {
-        return dot(color, AP1_2_XYZ_MAT[1]);
-    }
-#else
-    // REC. 709 -> https://en.wikipedia.org/wiki/Luma_(video)
-    float luminance(vec3 color) {
-        return dot(color, SRGB_2_XYZ_MAT[1]);
-    }
-#endif
+float luminance(vec3 color) {
+    #if TONEMAP == ACES
+        vec3 luminanceCoefficients = AP1_2_XYZ_MAT[1];
+    #else
+        vec3 luminanceCoefficients = SRGB_2_XYZ_MAT[1];
+    #endif
 
-// https://www.titanwolf.org/Network/q/bb468365-7407-4d26-8441-730aaf8582b5/x
+    return dot(color, luminanceCoefficients);
+}
+
+const float SRGB_ALPHA = 0.055;
+
 vec3 linearToSrgb(vec3 linear) {
-    vec3 higher = (pow(abs(linear), vec3(0.41666666)) * 1.055) - 0.055;
+    vec3 higher = (pow(abs(linear), vec3(0.41666666)) * (1.0 + SRGB_ALPHA)) - SRGB_ALPHA;
     vec3 lower  = linear * 12.92;
     return mix(higher, lower, step(linear, vec3(0.0031308)));
 }
 
-vec3 srgbToLinear(vec3 sRGB) {
-    vec3 higher = pow((sRGB + 0.055) * 0.94786729, vec3(2.4));
-    vec3 lower  = sRGB * 0.07739938;
-    return mix(higher, lower, step(sRGB, vec3(0.04045)));
+vec3 srgbToLinear(vec3 srgb) {
+    vec3 higher = pow((srgb + SRGB_ALPHA) * 0.94786729, vec3(2.4));
+    vec3 lower  = srgb * 0.07739938;
+    return mix(higher, lower, step(srgb, vec3(0.04045)));
 }
 
 vec3 linearToAP1(vec3 color) {
@@ -137,7 +144,6 @@ vec3 srgbToAP1Albedo(vec3 color) {
     return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
 }
 
-// Black body radiation from https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl
 vec3 plancks(in float t, in vec3 lambda) {
     const float h = 6.63e-16; // Planck's constant
     const float c = 3.0e17;   // Speed of light in vacuum
@@ -232,23 +238,14 @@ void uncharted2(inout vec3 color) {
 	color      /= white;
 }
 
-// Originally made by Richard Burgess-Dawson
-// Modified by https://github.com/TechDevOnGitHub
 void burgess(inout vec3 color) {
-    vec3 maxColor = color * min(vec3(1.0), 1.0 - exp(-1.0 / 0.004 * color)) * 0.8;
-            color = (maxColor * (6.2 * maxColor + 0.5)) / (maxColor * (6.2 * maxColor + 1.7) + 0.06);
+    vec3 maxColor = max(vec3(0.0), color - 0.004);
+            color = (maxColor * (6.2 * maxColor + 0.05)) / (maxColor * (6.2 * maxColor + 2.3) + 0.06);
 }
 
 //////////////////////////////////////////////////////////
 /*-------------------- COLOR GRADING -------------------*/
 //////////////////////////////////////////////////////////
-
-/*
-    Sources for White Balance:
-    https://en.wikipedia.org/wiki/LMS_color_space
-    https://en.wikipedia.org/wiki/Von_Kries_coefficient_law
-    https://github.com/zombye/spectrum
-*/
 
 mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
 	vec3 sourceLMS      = source * CONE_RESP_CAT02;
@@ -265,20 +262,16 @@ mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
 }
 
 void whiteBalance(inout vec3 color) {
-    #if TONEMAP == 0
+    #if TONEMAP == ACES
         mat3 toXyz   = AP1_2_XYZ_MAT;
         mat3 fromXyz = XYZ_2_AP1_MAT;
-
-        float temperature = WHITE_BALANCE == 6500 ? 7400 : WHITE_BALANCE;
     #else
         mat3 toXyz   = SRGB_2_XYZ_MAT;
         mat3 fromXyz = XYZ_2_SRGB_MAT;
-
-        float temperature = WHITE_BALANCE;
     #endif
 
-    vec3 source           = blackbody(temperature) * toXyz;
-    vec3 destination      = blackbody(WHITE_POINT) * toXyz;
+    vec3 source           = blackbody(WHITE_BALANCE) * toXyz;
+    vec3 destination      = blackbody(WHITE_POINT)   * toXyz;
     mat3 chromaAdaptation = toXyz * chromaticAdaptationMatrix(source, destination) * fromXyz;
 
     color *= chromaAdaptation;
@@ -304,7 +297,6 @@ void contrast(inout vec3 color, float contrast) {
     color = (color - 0.5) * contrast + 0.5;
 }
 
-// http://filmicworlds.com/blog/minimal-color-grading-tools/
 void liftGammaGain(inout vec3 color, float lift, float gamma, float gain) {
     vec3 lerpV = pow(color, vec3(gamma));
     color = gain * lerpV + lift * (1.0 - lerpV);

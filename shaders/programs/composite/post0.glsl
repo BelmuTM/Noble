@@ -8,6 +8,8 @@
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec3 bloomBuffer;
 
+#include "/include/common.glsl"
+
 #if BLOOM == 1
     #include "/include/utility/sampling.glsl"
     #include "/include/post/bloom.glsl"
@@ -70,6 +72,6 @@ void main() {
         color.a = sqrt(luminance(color.rgb));
     #endif
 
-    vec4 basic     = texture(colortex14, texCoords);
+    vec4 basic     = texture(colortex15, texCoords);
          color.rgb = mix(color.rgb, basic.rgb, basic.a);
 }

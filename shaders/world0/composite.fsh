@@ -10,5 +10,4 @@ in vec2 texCoords;
 #define STAGE_FRAGMENT
 #define WORLD_OVERWORLD
 
-#include "/include/common.glsl"
 #include "/programs/composite/composite0.glsl"

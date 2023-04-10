@@ -11,6 +11,4 @@ in vec2 texCoords;
 #define WORLD_OVERWORLD
 
 #define ATROUS_PASS_INDEX 2
-
-#include "/include/common.glsl"
 #include "/programs/deferred/atrous_pass.glsl"

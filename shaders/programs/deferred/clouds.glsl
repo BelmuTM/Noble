@@ -3,6 +3,12 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/common.glsl"
+
+#if PRIMARY_CLOUDS == 0 && SECONDARY_CLOUDS == 0
+    #include "/programs/discard.glsl"
+#endif
+
 #if defined STAGE_VERTEX
 
     #include "/include/atmospherics/atmosphere.glsl"
@@ -20,7 +26,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 0 */
+    /* RENDERTARGETS: 14 */
 
     layout (location = 0) out vec4 clouds;
 
@@ -52,12 +58,12 @@
         if(distanceToClouds > 1e-6) {
             vec2 scattering = cloudLayer1.rg * cloudLayer0.z + cloudLayer0.rg;
             clouds.rgb     += scattering.r   * directIlluminance;
-            clouds.rgb     += scattering.g   * (skyIlluminance * RCP_PI);
+            clouds.rgb     += scattering.g   * skyIlluminance;
             clouds.a        = cloudLayer0.b  * cloudLayer1.b;
 
             /* Reprojection */
             vec2 prevPos = reprojectClouds(viewPos, distanceToClouds).xy;
-            vec4 history = textureCatmullRom(colortex0, prevPos);
+            vec4 history = textureCatmullRom(colortex14, prevPos);
 
             float resolutionScale = float(CLOUDS_SCALE < 100) + pow((CLOUDS_SCALE * 0.01) * 0.05 + 0.02, 0.35);
 
@@ -71,7 +77,7 @@
 
             float weight = resolutionScale * centerWeight * velocityWeight * frameWeight * float(clamp01(prevPos) == prevPos);
 
-            clouds = mix(clouds, history, clamp01(weight));
+            clouds = clamp16(mix(clouds, history, clamp01(weight)));
         }
     }
 #endif

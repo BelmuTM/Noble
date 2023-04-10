@@ -3,6 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/common.glsl"
 #include "/include/atmospherics/atmosphere.glsl"
 
 #if defined STAGE_VERTEX
@@ -50,10 +51,10 @@
 
     void main() {
         vec3 viewPos = getViewPos0(texCoords);
-        Material mat = getMaterial(texCoords);
+        Material material = getMaterial(texCoords);
         bool sky     = isSky(texCoords);
 
-        vec3 bentNormal = mat.normal;
+        vec3 bentNormal = material.normal;
 
         //depth = computeLowerHiZDepthLevels();
 
@@ -78,7 +79,7 @@
                     vec3 geoNormal = texture(colortex3, texCoords).rgb;
                     shadowmap.rgb  = shadowMap(viewToScene(viewPos), geoNormal, shadowmap.a);
                     shadowmap.a    = shadowmap.r < 0.0 ? 1.0 : shadowmap.a;
-                    shadowmap.rgb = abs(shadowmap.rgb) * mat.parallaxSelfShadowing;
+                    shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
                 }
             #endif
 
@@ -91,7 +92,7 @@
             //////////////////////////////////////////////////////////
 
             if(ivec2(gl_FragCoord) != ivec2(0))
-                illuminance.rgb = mat.lightmap.y > EPS ? max0(getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat)) : vec3(0.0);
+                illuminance.rgb = material.lightmap.y > EPS ? max0(getSkyLight(viewToWorld(bentNormal), skyIlluminanceMat)) : vec3(0.0);
             else
                 illuminance.rgb = directIlluminance;
         #endif

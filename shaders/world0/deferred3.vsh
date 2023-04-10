@@ -10,5 +10,4 @@ out vec2 texCoords;
 #define STAGE_VERTEX
 #define WORLD_OVERWORLD
 
-#include "/include/common.glsl"
-#include "/programs/deferred/deferred3.glsl"
+#include "/programs/deferred/lightingData.glsl"

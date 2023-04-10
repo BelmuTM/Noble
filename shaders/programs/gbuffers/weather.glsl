@@ -18,7 +18,7 @@
 	#include "/include/atmospherics/atmosphere.glsl"
 
 	void main() {
-		if(texture(colortex0, texCoords).a < 0.102) discard;
+		if(texture(tex, texCoords).a < 0.102) discard;
 
 		color.rgb = sampleSkyIlluminanceSimple() * exp(-vec3(0.20, 0.10, 0.04) * 2.0) * 0.05;
 		color.a   = 0.3;

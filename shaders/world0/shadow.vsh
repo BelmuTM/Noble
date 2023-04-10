@@ -6,5 +6,4 @@
 /***********************************************/
 
 #define STAGE_VERTEX
-
 #include "/programs/gbuffers/shadow.glsl"

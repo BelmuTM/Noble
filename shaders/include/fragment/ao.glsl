@@ -3,18 +3,23 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+/*
+    [References]:
+        LearnOpenGL. (2015). SSAO. https://learnopengl.com/Advanced-Lighting/SSAO
+		Jimenez et al. (2016). Practical Real-Time Strategies for Accurate Indirect Occlusion. https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
+		Jimenez et al. (2016). Practical Realtime Strategies for Accurate Indirect Occlusion. https://blog.selfshadow.com/publications/s2016-shading-course/activision/s2016_pbs_activision_occlusion.pdf
+*/
+
 #if AO_TYPE == 0
 
 	float SSAO(vec3 viewPos, vec3 normal) {
 		float occlusion = 0.0;
 
 		for(int i = 0; i < SSAO_SAMPLES; i++) {
-			vec2 noise     = vec2(randF(), randF());
-			vec3 rayDir    = generateCosineVector(normal, noise);
+			vec3 rayDir    = generateCosineVector(normal, rand2F());
 			vec3 rayPos    = viewPos + rayDir * SSAO_RADIUS;
 			float rayDepth = getViewPos0(viewToScreen(rayPos).xy).z;
 
-			// https://learnopengl.com/Advanced-Lighting/SSAO
 			float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPos.z - rayDepth));
         	occlusion 		+= (rayDepth >= rayPos.z + EPS ? 1.0 : 0.0) * rangeCheck;
 		}
@@ -28,7 +33,7 @@
 		float occlusion = 1.0; vec3 hitPos;
 
 		for(int i = 0; i < RTAO_SAMPLES; i++) {
-			vec3 rayDir = generateCosineVector(normal, vec2(randF(), randF()));
+			vec3 rayDir = generateCosineVector(normal, rand2F());
 
 			if(!raytrace(depthtex1, rayPos, rayDir, RTAO_STEPS, randF(), hitPos)) {
 				bentNormal += rayDir;
@@ -41,12 +46,6 @@
 	}
 #else
 
-/* 
-    SOURCES / CREDITS:
-    Activision:  https://blog.selfshadow.com/publications/s2016-shading-course/activision/s2016_pbs_activision_occlusion.pdf
-				 https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
-*/
-
 	float multiBounceApprox(float visibility) { 
     	const float albedo = 0.2; 
     	return visibility / (albedo * visibility + (1.0 - albedo)); 
@@ -57,7 +56,7 @@
 
 		vec2 stepSize  = radius * rcp(GTAO_HORIZON_STEPS);
 		vec2 increment = sliceDir.xy * stepSize;
-		vec2 screenPos = coords + vec2(randF(), randF()) * increment;
+		vec2 screenPos = coords + rand2F() * increment;
 
 		for(int i = 0; i < GTAO_HORIZON_STEPS; i++, screenPos += increment) {
 			float depth = texelFetch(depthtex0, ivec2(screenPos * viewSize), 0).r;

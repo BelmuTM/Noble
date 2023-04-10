@@ -267,8 +267,8 @@ suffix.GI_SCALE = x
 option.GI_SAMPLES = 全局光照采样次数
 option.GI_SAMPLES.comment = 调整计算§b全局光照§r的采样次数。§c更高的值可以得到更好的效果，但会降低§c性能。
 
-option.GI_BOUNCES = 光线反射次数
-option.GI_BOUNCES.comment = 使§b全局光照§r的光线可以反射§aX§r次来聚集光线。§c更高的值可以得到更好的效果，但会降低§c性能。
+option.MAX_GI_BOUNCES = 光线反射次数
+option.MAX_GI_BOUNCES.comment = 使§b全局光照§r的光线可以反射§aX§r次来聚集光线。§c更高的值可以得到更好的效果，但会降低§c性能。
 
 ### RAY TRACING
 

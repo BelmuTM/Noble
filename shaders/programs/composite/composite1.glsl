@@ -7,6 +7,8 @@
 
 layout (location = 0) out vec3 color;
 
+#include "/include/common.glsl"
+
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/shadows.glsl"
@@ -19,22 +21,22 @@ layout (location = 0) out vec3 color;
 //////////////////////////////////////////////////////////
 
 #if REFRACTIONS == 1
-    vec3 refractions(vec3 viewPos, vec3 scenePos, Material mat, inout vec3 hitPos) {
-        float ior    = f0ToIOR(mat.F0);
+    vec3 refractions(vec3 viewPos, vec3 scenePos, Material material, inout vec3 hitPos) {
+        float ior    = f0ToIOR(material.F0);
         vec3 viewDir = normalize(viewPos);
 
-        vec3 refracted = refract(viewDir, mat.normal, airIOR / ior);
+        vec3 refracted = refract(viewDir, material.normal, airIOR / ior);
         bool hit       = raytrace(depthtex1, viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
         if(!hit || isHand(hitPos.xy)) { hitPos.xy = texCoords; }
 
         float n1 = airIOR, n2 = ior;
         if(isEyeInWater == 1) { n1 = 1.333; n2 = airIOR; }
 
-        float fresnel = fresnelDielectric(abs(dot(mat.normal, -viewDir)), n1, n2);
+        float fresnel = fresnelDielectric(abs(dot(material.normal, -viewDir)), n1, n2);
         vec3 hitColor = texture(colortex13, hitPos.xy).rgb;
 
         float distThroughMedium = clamp(distance(viewToScene(screenToView(hitPos)), scenePos), EPS, 5.0);
-        vec3  beer              = mat.blockId == 1 ? vec3(1.0) : exp(-(1.0 - mat.albedo) * distThroughMedium);
+        vec3  beer              = material.blockId == 1 ? vec3(1.0) : exp(-(1.0 - material.albedo) * distThroughMedium);
 
         return max0(hitColor * (1.0 - fresnel) * beer);
     }
@@ -57,8 +59,9 @@ void main() {
         color = direct + (indirect * color);
     #endif
 
-    Material mat = getMaterial(texCoords);
-    vec3 coords  = vec3(texCoords, 0.0);
+    Material material = getMaterial(texCoords);
+
+    vec3 coords = vec3(texCoords, 0.0);
 
     vec3 viewPos0  = getViewPos0(texCoords);
     vec3 viewPos1  = getViewPos1(texCoords);
@@ -78,7 +81,7 @@ void main() {
     float skyLight = 0.0;
 
     if(!sky) {
-        skyLight = getSkyLightFalloff(mat.lightmap.y);
+        skyLight = getSkyLightFalloff(material.lightmap.y);
 
         if(viewPos0.z != viewPos1.z) {
             //////////////////////////////////////////////////////////
@@ -86,8 +89,8 @@ void main() {
             //////////////////////////////////////////////////////////
 
             #if GI == 0 && REFRACTIONS == 1
-                if(mat.F0 > EPS) {
-                    color     = refractions(viewPos0, scenePos1, mat, coords);
+                if(material.F0 > EPS) {
+                    color     = refractions(viewPos0, scenePos1, material, coords);
                     scenePos1 = viewToScene(getViewPos1(coords.xy));
                 }
             #endif
@@ -97,7 +100,7 @@ void main() {
             //////////////////////////////////////////////////////////
 
             #if defined WORLD_OVERWORLD
-                if(isEyeInWater != 1 && mat.blockId == 1) {
+                if(isEyeInWater != 1 && material.blockId == 1) {
                     #if WATER_FOG == 0
                         waterFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #else
@@ -122,14 +125,14 @@ void main() {
             #if SPECULAR == 1
                 vec3 visibility = texture(colortex3, coords.xy).rgb;
                 #if defined SUNLIGHT_LEAKING_FIX
-                    visibility *= float(mat.lightmap.y > EPS);
+                    visibility *= float(material.lightmap.y > EPS);
                 #endif
 
                 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
                     visibility *= getCloudsShadows(scenePos0);
                 #endif
 
-                color += computeSpecular(mat, -normalize(viewPos0), shadowVec) * directIlluminance * clamp01(visibility);
+                color += computeSpecular(material, -normalize(viewPos0), shadowVec) * directIlluminance * clamp01(visibility);
             #endif
 
             #if REFLECTIONS == 1

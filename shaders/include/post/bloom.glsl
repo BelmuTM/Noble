@@ -4,9 +4,9 @@
 /***********************************************/
 
 /*
-	SOURCES / CREDITS:
-	Capt Tatsu: https://www.curseforge.com/minecraft/customization/bsl-shaders
-	SixSeven:   https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
+    [Credits]:
+        SixSeven   - help with bloom tiles (https://github.com/6ix7even)
+        Capt Tatsu - inspiration for bloom (https://github.com/CaptTatsu)
 */
 
 #if BLOOM == 1

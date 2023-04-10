@@ -4,8 +4,11 @@
 /***********************************************/
 
 /*
-    AABB Clipping from "Temporal Reprojection Anti-Aliasing in INSIDE"
-    http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
+    [Credits]:
+        Zombye - providing the off-center rejection weight (https://github.com/zombye)
+
+    [References]:
+        Lasse Jon Fuglsang Pedersen Pedersen, L. J. F. (2016). Temporal Reprojection Anti-Aliasing in INSIDE. http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
 */
 
 vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
@@ -55,7 +58,6 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
 
     float weight = float(clamp01(prevCoords) == prevCoords) * TAA_STRENGTH;
 
-    // Offcenter rejection from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
          weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
 

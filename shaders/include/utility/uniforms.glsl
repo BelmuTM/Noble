@@ -34,6 +34,7 @@ uniform float wetness;
 uniform float sunAngle;
 uniform int worldTime;
 
+uniform sampler2D tex;
 uniform sampler2D normals;
 uniform sampler2D specular;
 uniform sampler2D colortex0;
@@ -51,6 +52,7 @@ uniform sampler2D colortex11;
 uniform sampler2D colortex12;
 uniform sampler2D colortex13;
 uniform sampler2D colortex14;
+uniform sampler2D colortex15;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;

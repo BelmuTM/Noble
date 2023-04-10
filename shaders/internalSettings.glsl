@@ -13,8 +13,7 @@
 const int shadowcolor0Format = RGBA16F;
 const int shadowcolor1Format = RGBA8;
 
-const int colortex0Format  = RGBA16F;   // Clouds
-const int colortex1Format  = RGBA32UI;  // Gbuffers Data
+const int colortex1Format  = RGBA32UI;  // Gbuffer data
 const int colortex2Format  = RGB16F;    // Reflections
 const int colortex3Format  = RGBA16F;   // Geometric Normals, Shadowmap, Bloom
 const int colortex4Format  = RGBA16F;   // Main Buffer
@@ -26,9 +25,9 @@ const int colortex10Format = RGBA16F;   // Indirect PT
 const int colortex11Format = RGBA16F;   // Moments
 const int colortex12Format = RGB16F;    // Atmosphere
 const int colortex13Format = RGBA16F;   // Translucents
-const int colortex14Format = RGBA8;     // Gbuffers Basic
+const int colortex14Format = RGBA16F;   // Clouds
+const int colortex15Format = RGBA8;     // Gbuffer data
 
-const bool colortex0Clear  = false;
 const bool colortex5Clear  = false;
 const bool colortex8Clear  = false;
 const bool colortex9Clear  = false;
@@ -36,4 +35,5 @@ const bool colortex10Clear = false;
 const bool colortex11Clear = false;
 const bool colortex12Clear = false;
 const bool colortex13Clear = false;
+const bool colortex14Clear = false;
 */

@@ -16,7 +16,7 @@ const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
 
 const float mieAlbedo = 0.9;
 
-#if TONEMAP == 0
+#if TONEMAP == ACES
     const vec3 rayleighScatteringCoefficient = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5)                                     * SRGB_2_AP1_ALBEDO;
     const vec3 mieScatteringCoefficient      = vec3(0.00000925288)                                                                  * SRGB_2_AP1_ALBEDO;
     const vec3 ozoneScatteringCoefficient    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14 * SRGB_2_AP1_ALBEDO;

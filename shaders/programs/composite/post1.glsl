@@ -3,159 +3,110 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#if defined STAGE_VERTEX
+out vec3 color;
 
-    flat out float avgLuminance;
+#include "/include/common.glsl"
 
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-        flat out int medianBin;
-        flat out vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
-    #endif
+#if UNDERWATER_DISTORTION == 1
+    void underwaterDistortion(inout vec2 coords) {
+        float speed   = frameTimeCounter * WATER_DISTORTION_SPEED;
+        float offsetX = coords.x * 25.0 + speed;
+        float offsetY = coords.y * 25.0 + speed;
 
-    #if EXPOSURE == 2
-        /*
-            SOURCE:
-            Alex Tardif - https://www.alextardif.com/HistogramLuminance.html
-        */
-
-        ivec2 gridSize = ivec2(viewSize / vec2(64, 32));
-        vec2 tileSize  = 1.0 / gridSize;
-
-        int getBinFromLuminance(float luminance) {
-    	    return luminance < EPS ? 0 : int(clamp((log(luminance) * rcpLuminanceRange - (minLuminance * rcpLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
-        }
-
-        float getLuminanceFromBin(int bin) {
-            return exp((bin * rcp(HISTOGRAM_BINS)) * luminanceRange + minLuminance);
-        }
-
-        float[HISTOGRAM_BINS] buildLuminanceHistogram() {
-            float lod = ceil(log2(maxOf(viewSize * tileSize)));
-
-            float[HISTOGRAM_BINS] pdf;
-            for(int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] = 0.0;
-
-            for(int x = 0; x < gridSize.x; x++) {
-                for(int y = 0; y < gridSize.y; y++) {
-                    vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
-                    float luminance = pow2(textureLod(colortex4, coords, lod).a);
-
-                    pdf[getBinFromLuminance(luminance)]++;
-                }
-            }
-            for(int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] *= tileSize.x * tileSize.y;
-            return pdf;
-        }
-
-        int getClosestBinToMedian(float[HISTOGRAM_BINS] pdf) {
-            float cumulativeDensity = 0.0;
-            vec2 closestBinToMedian = vec2(0.0, 1.0); // vec2(bin, dist)
-
-            // Binary search to find the closest bin to the median (CDF = 0.5)
-            for(int i = 0; i < HISTOGRAM_BINS; i++, cumulativeDensity += pdf[i]) {
-                float distToMedian = distance(cumulativeDensity, 0.5);
-                closestBinToMedian = distToMedian < closestBinToMedian.y ? vec2(i, distToMedian) : closestBinToMedian;
-            }
-            return int(closestBinToMedian.x);
-        }
-    #endif
-
-    void main() {
-        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-        texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-
-        #if EXPOSURE > 0
-            #if EXPOSURE == 1
-                float avgLuma = pow2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
-            #else
-                float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
-                int closestBinToMedian    = getClosestBinToMedian(pdf);
-
-                #if DEBUG_HISTOGRAM == 1
-                    medianBin = closestBinToMedian;
-                    for(int i = 0; i < HISTOGRAM_BINS; i++) luminanceHistogram[i >> 2][i & 3] = pdf[i];
-                #endif
-
-                float avgLuma = getLuminanceFromBin(closestBinToMedian);
-            #endif
-
-            float prevLuma = texelFetch(colortex8, ivec2(0), 0).a;
-                  prevLuma = prevLuma > 0.0 ? prevLuma : avgLuma;
-                  prevLuma = isnan(prevLuma) || isinf(prevLuma) ? avgLuma : prevLuma;
-
-            float exposureTime = avgLuma < prevLuma ? EXPOSURE_GROWTH : EXPOSURE_DECAY;
-                  avgLuminance = mix(avgLuma, prevLuma, exp(-exposureTime * frameTime));
-        #endif
-    }
-
-#elif defined STAGE_FRAGMENT
-
-    /* RENDERTARGETS: 4,8 */
-
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 history;
-
-    flat in float avgLuminance;
-
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-        flat in int medianBin;
-        flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
-    #endif
-
-    #if TAA == 1
-        #include "/include/utility/sampling.glsl"
-        #include "/include/post/taa.glsl"
-    #endif
-
-    const float K =  12.5; // Light meter calibration
-    const float S = 100.0; // Sensor sensitivity
-
-    #if TONEMAP == 0
-        const float exposureBias = 2.0;
-    #else
-        const float exposureBias = 1.0;
-    #endif
-
-    float minExposure = PI  * exposureBias / luminance(sunIlluminance);
-    float maxExposure = 0.3 * exposureBias / luminance(moonIlluminance);
-
-    float EV100fromLuminance(float luminance) {
-        return log2(luminance * S * exposureBias / K);
-    }
-
-    float EV100ToExposure(float EV100) {
-        return 1.0 / (1.2 * exp2(EV100));
-    }
-
-    void main() {
-        color = texture(colortex4, texCoords);
-
-        #if TAA == 1
-            color.rgb = temporalAntiAliasing(colortex4, colortex8);
-        #endif
-
-        history.rgb = color.rgb;
-
-        #if EXPOSURE == 0
-            float EV100    = log2(pow2(F_STOPS) / (1.0 / SHUTTER_SPEED) * 100.0 / ISO);
-            float exposure = EV100ToExposure(EV100);
-        #else
-            float exposure = EV100ToExposure(EV100fromLuminance(avgLuminance));
-            history.a      = avgLuminance;
-
-            #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-    	        vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
-
-    	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
-    		        int  index     = int(HISTOGRAM_BINS * coords.x);
-                    vec3 histogram = luminanceHistogram[index >> 2][index & 3] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
-
-                    color.rgb = histogram / exposure;
-    	        }
-            #endif
-        #endif
-
-        exposure = clamp(exposure, minExposure, maxExposure);
-        color    = vec4(color.rgb * exposure, exposure);
+        vec2 distorted = coords + vec2(
+            WATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
+            WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
+        );
+        coords = clamp01(distorted) != distorted ? coords : distorted;
     }
 #endif
+
+#if LUT > 0
+    const int lutTileSize = 8;
+    const int lutSize     = lutTileSize  * lutTileSize;
+    const vec2 lutRes     = vec2(lutSize * lutTileSize);
+
+    const float rcpLutTileSize = 1.0 / lutTileSize;
+    const vec2  rcpLutTexSize  = 1.0 / lutRes;
+
+    #include "/include/utility/sampling.glsl"
+
+    // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
+    void applyLUT(sampler2D lookupTable, inout vec3 color) {
+        color = clamp(color, vec3(0.0), vec3(0.985));
+
+        #if DEBUG_LUT == 1
+            if(all(lessThan(gl_FragCoord.xy, ivec2(256)))) {
+                color = texture(lookupTable, gl_FragCoord.xy * rcpLutTexSize * 2.0).rgb;
+                return;
+            }
+        #endif
+
+        color.b *= (lutSize - 1.0);
+        int bL   = int(color.b);
+        int bH   = bL + 1;
+
+        vec2 offLo = vec2(bL % lutTileSize, bL / lutTileSize) * rcpLutTileSize;
+        vec2 offHi = vec2(bH % lutTileSize, bH / lutTileSize) * rcpLutTileSize;
+
+        color = mix(
+            textureLodLinearRGB(lookupTable, offLo + color.rg * rcpLutTileSize, lutRes, 0).rgb,
+            textureLodLinearRGB(lookupTable, offHi + color.rg * rcpLutTileSize, lutRes, 0).rgb,
+            color.b - bL
+        );
+    }
+#endif
+
+#if SHARPEN == 1
+    /*
+        SOURCES / CREDITS:
+        spolsh: https://www.shadertoy.com/view/XlSBRW
+    */
+
+    void sharpeningFilter(inout vec3 color, vec2 coords) {
+        float avgLuma = 0.0, weight = 0.0;
+
+        for(int x = -1; x <= 1; x++) {
+            for(int y = -1; y <= 1; y++, weight++) {
+                avgLuma += luminance(texture(colortex4, coords + vec2(x, y) * pixelSize).rgb);
+            }
+        }
+        avgLuma /= weight;
+
+        float centerLuma = luminance(color);
+        color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / centerLuma;
+    }
+#endif
+
+vec2 getDepthTile(int lod) {
+	return texCoords / exp2(lod) + hiZOffsets[lod - 1];
+}
+
+void main() {
+    vec2 distortCoords = texCoords;
+
+    #if UNDERWATER_DISTORTION == 1
+        if(isEyeInWater == 1) underwaterDistortion(distortCoords);
+    #endif
+
+    color = texture(colortex4, distortCoords).rgb;
+
+    #if SHARPEN == 1
+        sharpeningFilter(color, distortCoords);
+    #endif
+
+    #if LUT > 0
+        applyLUT(colortex7, color);
+    #endif
+
+    #if FILM_GRAIN == 1
+        color += randF() * color * FILM_GRAIN_STRENGTH;
+    #endif
+
+    #if VIGNETTE == 1
+        vec2 coords = texCoords * (1.0 - texCoords.yx);
+        color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
+    #endif
+
+    color += bayer8(gl_FragCoord.xy) * rcpMaxVal8;
+}

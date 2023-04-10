@@ -31,13 +31,13 @@ vec3 physicalSun(vec3 sceneDir) {
 vec3 physicalMoon(vec3 sceneDir) {
     vec2 sphere = intersectSphere(-moonVector, sceneDir, moonAngularRadius);
 
-	Material moonMat;
-	moonMat.normal    = normalize(sceneDir * sphere.x - moonVector);
-	moonMat.albedo    = vec3(moonAlbedo);
-	moonMat.roughness = moonRoughness;
-	moonMat.F0		  = 0.0;
+	Material moonMaterial;
+	moonMaterial.normal    = normalize(sceneDir * sphere.x - moonVector);
+	moonMaterial.albedo    = vec3(moonAlbedo);
+	moonMaterial.roughness = moonRoughness;
+	moonMaterial.F0		   = 0.0;
 
-    return sphere.y < 0.0 ? vec3(0.0) : moonMat.albedo * hammonDiffuse(moonMat, -sceneDir, sunVector) * sunIlluminance;
+    return sphere.y < 0.0 ? vec3(0.0) : moonMaterial.albedo * hammonDiffuse(moonMaterial, -sceneDir, sunVector) * sunIlluminance;
 }
 
 vec3 computeAtmosphere(vec3 viewPos) {
@@ -49,7 +49,7 @@ vec3 computeAtmosphere(vec3 viewPos) {
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
-			clouds = textureCatmullRom(colortex0, texCoords);
+			clouds = textureCatmullRom(colortex14, texCoords);
 		#endif
 
 		sky += physicalSun(sceneDir);

@@ -17,6 +17,8 @@
     layout (location = 1) out vec4 color;
 #endif
 
+#include "/include/common.glsl"
+
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/brdf.glsl"
 
@@ -28,7 +30,7 @@
 
 #if GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
 
-    void temporalAccumulation(Material mat, inout vec3 color, vec3 prevColor, vec3 prevPos, inout vec3 direct, inout vec3 indirect, inout vec3 moments, float frames) {
+    void temporalAccumulation(Material material, inout vec3 color, vec3 prevColor, vec3 prevPos, inout vec3 direct, inout vec3 indirect, inout vec3 moments, float frames) {
         float weight = 1.0 / max(frames, 1.0);
 
         // Thanks SixthSurge#3922 for the help with moments
@@ -67,14 +69,14 @@ void main() {
         return;
     }
 
-    Material mat = getMaterial(tempCoords);
+    Material material = getMaterial(tempCoords);
 
     #if HARDCODED_SSS == 1
-        if(mat.blockId >= 8 && mat.blockId < 13 && mat.subsurface <= EPS) mat.subsurface = HARDCODED_SSS_VAL;
+        if(material.blockId >= 8 && material.blockId < 13 && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
     #endif
 
     #if AO_FILTER == 1 && GI == 0 || GI == 1
-        vec3 currPos   = vec3(texCoords, mat.depth0);
+        vec3 currPos   = vec3(texCoords, material.depth0);
         vec3 prevPos   = currPos - getVelocity(currPos);
 
         #if GI == 1
@@ -85,9 +87,9 @@ void main() {
 
         #if RENDER_MODE == 0
             float prevDepth = exp2(texture(colortex11, prevPos.xy).a);
-            float weight    = pow(exp(-abs(linearizeDepth(mat.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
+            float weight    = pow(exp(-abs(linearizeDepth(material.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
-            colortex11Write.a = log2(mat.depth0);
+            colortex11Write.a = log2(material.depth0);
         #else
             float weight = float(hideGUI);
         #endif
@@ -98,7 +100,7 @@ void main() {
     #if GI == 0
         color.rgb = vec3(0.0);
 
-        if(mat.F0 * maxVal8 <= 229.5) {
+        if(material.F0 * maxVal8 <= 229.5) {
             vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
             float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
@@ -120,12 +122,12 @@ void main() {
                 ao = texture(colortex10, texCoords).a;
             #endif
 
-            color.rgb = computeDiffuse(viewPos0, shadowVec, mat, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
+            color.rgb = max0(computeDiffuse(viewPos0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows));
         }
     #else
 
         if(clamp(texCoords, vec2(0.0), vec2(GI_SCALE)) == texCoords) {
-            pathTrace(color.rgb, vec3(tempCoords, mat.depth0), directColor, indirectColor);
+            pathTrace(color.rgb, vec3(tempCoords, material.depth0), directColor, indirectColor);
 
             #if GI_FILTER == 1
                 float luminance    = luminance(color.rgb);
@@ -133,7 +135,7 @@ void main() {
             #endif
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                temporalAccumulation(mat, color.rgb, prevColor.rgb, prevPos, directColor, indirectColor, colortex11Write.rgb, color.a);
+                temporalAccumulation(material, color.rgb, prevColor.rgb, prevPos, directColor, indirectColor, colortex11Write.rgb, color.a);
             #endif
         }
     #endif

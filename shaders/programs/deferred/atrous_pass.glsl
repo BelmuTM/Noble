@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/common.glsl"
+
 #if GI == 1
     #if defined STAGE_VERTEX
         #include "/programs/vertex_simple.glsl"

@@ -158,7 +158,7 @@
 			vec2 coords = texCoords;
 		#endif
 
-		vec4 albedoTex = texture(colortex0, coords);
+		vec4 albedoTex = texture(tex, coords);
 		if(albedoTex.a < 0.102) discard;
 
 		vec4 normalTex = texture(normals, coords);
@@ -202,7 +202,7 @@
 		#ifndef PROGRAM_BLOCK
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				normal.xy = normalTex.xy * 2.0 - 1.0;
-				normal.z  = sqrt(1.0 - dot(normal.xy, normal.xy));
+				normal.z  = sqrt(1.0 - clamp01(dot(normal.xy, normal.xy)));
 				normal    = TBN * normal;
 
 				lightmap = computeLightmap(normal);

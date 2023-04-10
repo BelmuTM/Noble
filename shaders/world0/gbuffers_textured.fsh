@@ -5,7 +5,5 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define PROGRAM_TEXTURED
 #define STAGE_FRAGMENT
-
-#include "/programs/gbuffers/opaque.glsl"
+#include "/programs/gbuffers/basic.glsl"

@@ -8,7 +8,12 @@
 	out vec2 texCoords;
 	out vec4 vertexColor;
 
-	#include "/include/common.glsl"
+	#if TAA == 1
+		#include "/settings.glsl"
+		#include "/include/utility/uniforms.glsl"
+
+		#include "/include/utility/rng.glsl"
+	#endif
 
 	void main() {
 		gl_Position = ftransform();
@@ -22,17 +27,17 @@
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 14 */
+	/* RENDERTARGETS: 15 */
 
 	layout (location = 0) out vec4 color;
 
 	in vec2 texCoords;
 	in vec4 vertexColor;
 
-	uniform sampler2D colortex0;
+	uniform sampler2D tex;
 
 	void main() {
-		vec4 albedoTex  = texture(colortex0, texCoords);
+		vec4 albedoTex = texture(tex, texCoords);
 		if(albedoTex.a < 0.102) discard;
 
 		color = albedoTex * vertexColor;

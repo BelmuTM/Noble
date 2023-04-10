@@ -5,6 +5,7 @@
 
 #if defined STAGE_VERTEX
 
+    #include "/include/common.glsl"
     #include "/include/atmospherics/atmosphere.glsl"
 
     out vec3 directIlluminance;

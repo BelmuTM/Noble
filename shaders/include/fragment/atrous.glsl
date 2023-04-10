@@ -3,14 +3,16 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-/* 
-    SOURCES / CREDITS:
-    Jakemichie97:                               - jakemichie97#7237
-    Samuel:       https://github.com/swr06      - swr#1793
-    L4mbads:                                    - L4mbads#6227
-    SixthSurge:   https://github.com/sixthsurge - SixthSurge#3922
-    Alain Galvan: https://alain.xyz/blog/ray-tracing-denoising
-    Jan Dundr:    https://cescg.org/wp-content/uploads/2018/04/Dundr-Progressive-Spatiotemporal-Variance-Guided-Filtering-2.pdf
+/*
+    [Credits]:
+        Jakemichie97 (https://twitter.com/jakemichie97?lang=en)
+        Samuel (https://github.com/swr06)
+        L4mbads (L4mbads#6227)
+        SixthSurge (https://github.com/sixthsurge)
+        
+    [References]:
+        Galvan, A. (2020). Ray Tracing Denoising. https://alain.xyz/blog/ray-tracing-denoising
+        Dundr, J. (2018). Progressive Spatiotemporal Variance-Guided Filtering. https://cescg.org/wp-content/uploads/2018/04/Dundr-Progressive-Spatiotemporal-Variance-Guided-Filtering-2.pdf
 */
 
 float spatialVariance(sampler2D tex) {
@@ -48,14 +50,14 @@ float getATrousLuminanceWeight(float luminance, float sampleLuminance, float var
 }
 
 void aTrousFilter(inout vec3 irradiance, sampler2D tex, vec2 coords, int passIndex) {
-    Material mat = getMaterial(coords);
-    if(mat.depth0 == 1.0) return;
+    Material material = getMaterial(coords);
+    if(material.depth0 == 1.0) return;
 
     float totalWeight = 1.0;
     vec2 stepSize     = steps[passIndex] * pixelSize;
 
     float frames = float(texture(colortex5, coords).a > 4.0);
-    vec2 dgrad   = vec2(dFdx(mat.depth0), dFdy(mat.depth0));
+    vec2 dgrad   = vec2(dFdx(material.depth0), dFdy(material.depth0));
 
     float centerLuma = luminance(irradiance);
     float variance   = spatialVariance(tex);
@@ -72,8 +74,8 @@ void aTrousFilter(inout vec3 irradiance, sampler2D tex, vec2 coords, int passInd
             Material sampleMat    = getMaterial(sampleCoords);
             vec3 sampleIrradiance = texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb;
 
-            float normalWeight = getATrousNormalWeight(mat.normal, sampleMat.normal);
-            float depthWeight  = getATrousDepthWeight(mat.depth0, sampleMat.depth0, dgrad, offset);
+            float normalWeight = getATrousNormalWeight(material.normal, samplematerial.normal);
+            float depthWeight  = getATrousDepthWeight(material.depth0, samplematerial.depth0, dgrad, offset);
             float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleIrradiance), variance), frames);
 
             float weight = clamp01(normalWeight * depthWeight * lumaWeight) * aTrous[abs(x)] * aTrous[abs(y)];

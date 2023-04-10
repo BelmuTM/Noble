@@ -4,14 +4,13 @@
 /***********************************************/
 
 /*
-    SOURCES / CREDITS:
-    Thanks LVutner#5199 and Jessie#7257 for the help!
-
-    ScratchaPixel:   https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/simulating-sky/simulating-colors-of-the-sky
-    Wikipedia:       https://fr.wikipedia.org/wiki/Th%C3%A9orie_de_Mie
-    Sebastian Lague: https://www.youtube.com/watch?v=DxfEbulyFcY
-    LVutner:         https://github.com/LVutner
-    gltracy:         https://www.shadertoy.com/view/lslXDr
+    [Credits]:
+        Jessie - help with atmospheric scattering and providing ozone cross section approximation (https://github.com/Jessie-LC)
+        Zombye - sky illuminance sampling approximation (https://github.com/zombye)
+        
+    [References]:
+        Nishita, T. (1993). Display of the earth taking into account atmospheric scattering. http://nishitalab.org/user/nis/cdrom/sig93_nis.pdf
+        Elek, O. (2009). Rendering Parametrizable Planetary Atmospheres with Multiple Scattering in Real-Time. https://old.cescg.org/CESCG-2009/papers/PragueCUNI-Elek-Oskar09.pdf
 */
 
 vec3 getAtmosphereDensities(float centerDist) {
@@ -55,7 +54,7 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, mieAnisotropyFactor))
         );
 
-        mat2x3 singleScattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
+        mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
             vec3 airmass          = getAtmosphereDensities(length(rayPos)) * stepSize;
@@ -66,8 +65,8 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec3 sunStepScattering  = atmosphereScatteringCoefficients * (airmass.xy * phase.xy) * visibleScattering;
             vec3 moonStepScattering = atmosphereScatteringCoefficients * (airmass.xy * phase.zw) * visibleScattering;
 
-            singleScattering[0] += sunStepScattering  * getAtmosphereTransmittance(rayPos, sunPosNorm);
-            singleScattering[1] += moonStepScattering * getAtmosphereTransmittance(rayPos,-sunPosNorm);
+            scattering[0] += sunStepScattering  * getAtmosphereTransmittance(rayPos, sunPosNorm);
+            scattering[1] += moonStepScattering * getAtmosphereTransmittance(rayPos,-sunPosNorm);
 
             vec3 stepScattering    = atmosphereScatteringCoefficients * airmass.xy;
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
@@ -78,11 +77,11 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
 
             transmittance *= stepTransmittance;
         }
-        multipleScattering  *= (skyIlluminance * RCP_PI) * isotropicPhase;
-        singleScattering[0] *= sunIlluminance;
-        singleScattering[1] *= moonIlluminance;
+        multipleScattering *= skyIlluminance * isotropicPhase;
+        scattering[0]      *= sunIlluminance;
+        scattering[1]      *= moonIlluminance;
     
-        return singleScattering[0] + singleScattering[1] + multipleScattering;
+        return scattering[0] + scattering[1] + multipleScattering;
     }
 #endif
 
@@ -94,14 +93,13 @@ vec3 sampleDirectIlluminance() {
         vec3 moonTransmit = getAtmosphereTransmittance(atmosphereRayPosition,-sunPosNorm) * moonIlluminance;
         directIlluminance = sunTransmit + moonTransmit;
 
-        #if TONEMAP == 0
+        #if TONEMAP == ACES
             directIlluminance *= SRGB_2_AP1_ALBEDO;
         #endif
     #endif
     return directIlluminance;
 }
 
-// Taken from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
 mat3[2] sampleSkyIlluminanceComplex() {
     mat3[2] skyIlluminance = mat3[2](mat3(0.0), mat3(0.0));
 
@@ -156,7 +154,7 @@ vec3 sampleSkyIlluminanceSimple() {
                 skyIlluminance += texture(colortex12, projectSphere(dir)).rgb;
             }
         }
-        skyIlluminance *= (TAU / (samples.x * samples.y));
+        skyIlluminance *= PI / (samples.x * samples.y);
     #endif
     return max0(skyIlluminance);
 }

@@ -268,8 +268,9 @@ suffix.GI_SCALE = x
 option.GI_SAMPLES = GI Samples
 option.GI_SAMPLES.comment = Adjusts the amount of samples taken to calculate §bGlobal Illumination§r. §cHigher value gives better results, but reduces §cperformance.
 
-option.GI_BOUNCES = GI Bounces
-option.GI_BOUNCES.comment = Makes §bGlobal Illumination§r bounce §aX§r times to gather light. §cHigher value gives better results, but reduces §cperformance.
+option.MAX_GI_BOUNCES = GI Bounces
+option.MAX_GI_BOUNCES.comment = Makes §bGlobal Illumination§r bounce §aX§r times to gather light. §cHigher value gives better results, but reduces §cperformance.
+value.MAX_GI_BOUNCES.9999 = §cInfinite
 
 ### RAY TRACING
 
@@ -532,6 +533,7 @@ option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher val
 
 option.EXPOSURE = Exposure
 option.EXPOSURE.comment = §aManual§r exposure lets you tweak the camera settings manually to adjust the exposure. §aAverage§r exposure tweaks the camera exposure automatically depending on the average screen brightness. §aHistogram§r exposure tweaks the camera exposure automatically depending on the median of an average screen brightness histogram.
+value.EXPOSURE.0 = §e§lManual
 value.EXPOSURE.1 = §e§lAverage (Auto.)
 value.EXPOSURE.2 = §e§lHistogram (Auto.)
 
@@ -615,8 +617,8 @@ value.LUT.18 = §eBlack and Red
 value.LUT.19 = §e2Strip
 value.LUT.20 = §eFuturistic Bleak
 
-option.PURKINJE = Purkinje Effect
-option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light.
+option.PURKINJE = Lowlight Desaturation
+option.PURKINJE.comment = Adjusts the color intensity depending on the amount of light. It is usually called the Purkinje Effect.
 value.PURKINJE.0 = §cOFF
 value.PURKINJE.1 = §aON
 

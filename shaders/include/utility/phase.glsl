@@ -3,6 +3,17 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+/*
+    [Credits]:
+        Jessie - providing the Klein-Nishina and biLambertianPlate phase functions (https://github.com/Jessie-LC)
+
+    [References]:
+        Nishita, T. (1993). Display of the earth taking into account atmospheric scattering. http://nishitalab.org/user/nis/cdrom/sig93_nis.pdf
+
+    [Notes]:
+        Phase functions represent the angular distribution of scattered radiation.
+*/
+
 float rayleighPhase(float cosTheta) {
     const float rayleigh = 3.0 / (16.0 * PI);
     return rayleigh * (1.0 + pow2(cosTheta));
@@ -21,7 +32,6 @@ float henyeyGreensteinPhase(float cosTheta, float g) {
     return (1.0 - pow2(g)) / pow(1.0 + pow2(g) - 2.0 * g * cosTheta, 1.5) / (2.0 * TAU);
 }
 
-// Provided by Jessie#7257
 float kleinNishinaPhase(float cosTheta, float g) {
     float e = 1.0;
     for(int i = 0; i < 8; i++) {
@@ -33,9 +43,8 @@ float kleinNishinaPhase(float cosTheta, float g) {
     return e / (TAU * (e * (1.0 - cosTheta) + 1.0) * log(2.0 * e + 1.0));
 }
 
-// Provided by Jessie#7257
 // Phase function specifically designed for leaves
-float biLambertianPlatePhaseFunction(in float kd, in float cosTheta) {
+float biLambertianPlatePhase(in float kd, in float cosTheta) {
     float phase = 2.0 * (-PI * kd * cosTheta + sqrt(1.0 - pow2(cosTheta)) + cosTheta * acos(-cosTheta));
     return phase / (3.0 * pow2(PI));
 }

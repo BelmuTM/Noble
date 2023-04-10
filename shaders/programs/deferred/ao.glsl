@@ -3,6 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/common.glsl"
 #include "/internalSettings.glsl"
 
 /* RENDERTARGETS: 10 */
@@ -28,26 +29,22 @@ void main() {
 
     if(isSky(texCoords) || isHand(texCoords)) return;
 
-    //////////////////////////////////////////////////////////
-    /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
-    //////////////////////////////////////////////////////////
-
     #if AO == 1
         vec3 viewPos = getViewPos0(texCoords);
-        Material mat = getMaterial(texCoords);
+        Material material = getMaterial(texCoords);
 
         #if AO_TYPE == 0
-            ao.w = SSAO(viewPos, mat.normal);
+            ao.w = SSAO(viewPos, material.normal);
         #elif AO_TYPE == 1
-            ao.w = RTAO(viewPos, mat.normal, ao.xyz);
+            ao.w = RTAO(viewPos, material.normal, ao.xyz);
         #elif AO_TYPE == 2
-            ao.w = GTAO(texCoords, viewPos, mat.normal, ao.xyz);
+            ao.w = GTAO(texCoords, viewPos, material.normal, ao.xyz);
         #endif
 
         ao.w = clamp01(ao.w);
 
         #if AO_FILTER == 1
-            vec3 currPos = vec3(texCoords, mat.depth0);
+            vec3 currPos = vec3(texCoords, material.depth0);
             vec3 prevPos = currPos - getVelocity(currPos);
             vec4 prevAO  = texture(colortex10, prevPos.xy);
         

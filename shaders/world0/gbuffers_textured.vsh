@@ -5,5 +5,5 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define PROGRAM_TEXTURED
-#include "/programs/gbuffers/gbuffers.vsh"
+#define STAGE_VERTEX
+#include "/programs/gbuffers/basic.glsl"

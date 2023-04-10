@@ -3,7 +3,13 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-// MOST FUNCTIONS HERE ARE NOT MY PROPERTY
+/*
+    [References]:
+        ajgryc. (2013). Improvements to the canonical one-liner GLSL rand() for OpenGL ES 2.0. http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
+        O'Neill, M. (2018). PCG, A Family of Better Random Number Generators. https://www.pcg-random.org/
+    [Notes]:
+        Functions that generate pseudo-random numbers with various distribution techniques.
+*/
 
 // Jodie's dithering
 float bayer2(vec2 a) {
@@ -36,7 +42,6 @@ vec2 taaJitter(vec4 pos) {
 }
 
 #if defined STAGE_FRAGMENT
-    // Noise distribution: https://www.pcg-random.org/
     void pcg(inout uint seed) {
         uint state = seed * 747796405u + 2891336453u;
         uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
@@ -44,10 +49,11 @@ vec2 taaJitter(vec4 pos) {
     }
 
     uint rngState = 185730u * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewSize.x);
-    float randF() { pcg(rngState); return float(rngState) / float(0xffffffffu); }
+
+    float randF()  { pcg(rngState); return float(rngState) / float(0xffffffffu); }
+    vec2  rand2F() { return vec2(randF(), randF());                              }
 #endif
 
-// http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float rand(vec2 uv) {
     float dt = dot(uv.xy, vec2(12.9898, 78.233));
     return fract(sin(mod(dt, PI)) * 43758.5453);

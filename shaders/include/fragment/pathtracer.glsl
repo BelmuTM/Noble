@@ -9,119 +9,106 @@
 */
 
 #if GI == 1
-    // Provided by Jessie#7257
-    float hemisphericalAlbedo(in float n) {
-        float n2  = pow2(n);
-        float T_1 = (4.0 * (2.0 * n + 1.0)) / (3.0 * pow2(n + 1.0));
-        float T_2 = ((4.0 * pow3(n) * (n2 + 2.0 * n - 1.0)) / (pow2(n2 + 1.0) * (n2 - 1.0))) - 
-                ((2.0 * n2 * (n2 + 1.0) * log(n)) / pow2(n2 - 1.0)) +
-                ((2.0 * n2 * pow2(n2 - 1.0) * log((n * (n + 1.0)) / (n-  1.0))) / pow3(n2 + 1.0));
-        return clamp01(1.0 - 0.5 * (T_1 + T_2));
-    }
-
-    vec3 specularBRDF(vec3 N, vec3 V, vec3 L, vec3 fresnel, float alpha) {
-        float NdotV   = maxEps(dot(N, V));
-        float NdotL   = clamp01(dot(N, L));
-        float alphaSq = maxEps(alpha * alpha);
-
-        return (fresnel * G2SmithGGX(NdotL, NdotV, alphaSq)) / G1SmithGGX(NdotV, alphaSq);
-    }
-
-    vec3 directBRDF(vec2 hitPos, vec3 V, vec3 L, Material mat) {
-        vec3 diffuse  = hammonDiffuse(mat, V, L);
-        vec3 specular = SPECULAR == 0 ? vec3(0.0) : computeSpecular(mat, V, L);
-
+    vec3 evaluateMicrosurfaceBRDF(vec2 hitPos, vec3 wi, vec3 wo, Material material) {
         vec4 shadowmap = texture(colortex3, hitPos.xy);
 
-        #if SUBSURFACE_SCATTERING == 1
-            diffuse += subsurfaceScatteringApprox(mat, V, L, shadowmap.a) * float(mat.lightmap.y > EPS);
+        #if SPECULAR == 1
+            vec3 specular = computeSpecular(material, wi, wo);
+        #else
+            vec3 specular = vec3(0.0);
         #endif
 
-        vec3 direct  = mat.albedo * diffuse + specular;
-             direct *= shadowmap.rgb * texelFetch(colortex6, ivec2(0), 0).rgb;
-        return direct;
-    }
-
-    vec3 indirectBRDF(vec2 noise, Material mat, inout vec3 rayDir) {
-        mat3 TBN        = constructViewTBN(mat.normal);
-        vec3 microfacet = TBN * sampleGGXVNDF(-rayDir * TBN, noise, mat.roughness);
-        vec3 fresnel    = fresnelComplex(dot(microfacet, -rayDir), mat);
-
-        // Specular bounce probability from https://www.shadertoy.com/view/ssc3WH
-        float specular     = clamp01(luminance(fresnel));
-        float diffuse      = luminance(mat.albedo) * (1.0 - float(mat.F0 * maxVal8 > 229.5)) * (1.0 - specular);
-        float specularProb = specular / maxEps(specular + diffuse);
- 
-        vec3 BRDF = vec3(0.0);
-        if(specularProb > randF()) {
-            vec3 newDir = reflect(rayDir, microfacet);
-            BRDF        = specularBRDF(microfacet, -rayDir, newDir, fresnel, mat.roughness) / specularProb;
-            rayDir      = newDir;
-        } else {
-            float matIOR                   = f0ToIOR(mat.F0);
-            float energyConservationFactor = 1.0 - hemisphericalAlbedo(matIOR * rcp(airIOR));
-
-            rayDir = generateCosineVector(mat.normal, noise);
-            BRDF   = (1.0 - fresnel) / (1.0 - specularProb);
-            BRDF  /= energyConservationFactor;
-            BRDF  *= (1.0 - fresnelDielectric(dot(mat.normal, rayDir), airIOR, matIOR));
-            BRDF  *= mat.albedo * mat.ao;
+        if(material.F0 * maxVal8 > 229.5) {
+            return specular * shadowmap.rgb;
         }
-        return BRDF;
+
+        vec3 diffuse = material.albedo * hammonDiffuse(material, wi, wo);
+
+        #if SUBSURFACE_SCATTERING == 1
+            diffuse += subsurfaceScatteringApprox(material, wi, wo, shadowmap.a) * float(material.lightmap.y > EPS);
+        #endif
+
+        return (diffuse + specular) * shadowmap.rgb;
     }
 
-    void pathTrace(inout vec3 radiance, in vec3 screenPos, inout vec3 outColorDirect, inout vec3 outColorIndirect) {
-        vec3 viewPos   = screenToView(screenPos);
-        vec3 skyRayDir = unprojectSphere(texCoords);
+    vec3 sampleMicrosurfaceBRDFPhase(inout vec3 wr, Material material) {
+        mat3 TBN        = constructViewTBN(material.normal);
+        vec3 microfacet = TBN * sampleGGXVNDF(-wr * TBN, rand2F(), material.roughness);
+        vec3 fresnel    = fresnelDielectricConductor(dot(microfacet, -wr), material.N, material.K);
+
+        float fresnelLuminance          = luminance(fresnel);
+        float albedoLuminance           = luminance(material.albedo);
+        float specularBounceProbability = fresnelLuminance / (albedoLuminance * (1.0 - fresnelLuminance) + fresnelLuminance);
+ 
+        vec3 brdf = vec3(0.0);
+
+        if(specularBounceProbability > randF()) {
+            wr   = reflect(wr, microfacet);
+            brdf = fresnel / specularBounceProbability;
+        } else {
+            vec3 energyConservationFactor = 1.0 - hemisphericalAlbedo(material.N / vec3(airIOR));
+
+            wr    = generateCosineVector(microfacet, rand2F());
+            brdf  = (1.0 - fresnel) / (1.0 - specularBounceProbability);
+            brdf /= energyConservationFactor;
+            brdf *= (1.0 - fresnelDielectricConductor(dot(microfacet, wr), material.N, material.K));
+            brdf *= material.albedo * material.ao;
+        }
+        return brdf;
+    }
+
+    void pathTrace(inout vec3 radiance, in vec3 screenPosition, inout vec3 outColorDirect, inout vec3 outColorIndirect) {
+        vec3 viewPosition = screenToView(screenPosition);
+
+        vec3 directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
 
         for(int i = 0; i < GI_SAMPLES; i++) {
-            vec3 throughput = vec3(1.0);
 
-            vec3 hitPos = screenPos; 
-            vec3 rayDir = normalize(viewPos);
-            Material mat;
+            vec3 rayPosition  = screenPosition; 
+            vec3 rayDirection = normalize(viewPosition);
+            Material material;
 
-            int j = 0;
+            vec3 samplethroughput = vec3(1.0);
+            vec3 sampleRadiance   = vec3(0.0);
 
-            while(true) {
-                vec2 noise = vec2(randF(), randF());
+            for(int j = 0; j < MAX_GI_BOUNCES; j++) {
 
                 /* Russian Roulette */
-                if(j > ROULETTE_MIN_BOUNCES) {
-                    float roulette = clamp01(maxOf(throughput));
-                    if(roulette < randF()) { throughput = vec3(0.0); break; }
-                    throughput /= roulette;
+                if(j > MIN_ROULETTE_BOUNCES) {
+                    float roulette = clamp01(maxOf(samplethroughput));
+                    if(roulette < randF()) { samplethroughput = vec3(0.0); break; }
+                    samplethroughput /= roulette;
                 }
                 
-                mat = getMaterial(hitPos.xy);
+                material = getMaterial(rayPosition.xy);
 
-                vec3 directLighting  = directBRDF(hitPos.xy, -rayDir, shadowVec, mat);
-                     directLighting += getBlockLightColor(mat) * mat.emission;
-                vec3 indirectBounce  = indirectBRDF(noise, mat, rayDir);
+                vec3 estimate = evaluateMicrosurfaceBRDF(rayPosition.xy, -rayDirection, shadowVec, material) * directIlluminance;
+                vec3 phase    = sampleMicrosurfaceBRDFPhase(rayDirection, material);
+
+                estimate += material.albedo * EMISSIVE_INTENSITY * material.emission;
              
-                if(dot(mat.normal, rayDir) < 0.0) continue;
-                bool hit = raytrace(depthtex0, screenToView(hitPos), rayDir, GI_STEPS, randF(), hitPos);
+                if(dot(material.normal, rayDirection) <= 0.0) continue;
+                bool hit = raytrace(depthtex0, screenToView(rayPosition), rayDirection, MAX_GI_STEPS, randF(), rayPosition);
 
                 if(j == 0) {
-                    outColorDirect   = directLighting;
-                    outColorIndirect = indirectBounce;
+                    outColorDirect   = estimate;
+                    outColorIndirect = phase;
                 } else {
-                    radiance   += throughput * directLighting; 
-                    throughput *= indirectBounce;
+                    sampleRadiance   += samplethroughput * estimate; 
+                    samplethroughput *= phase;
                 }
 
                 if(!hit) {
                     #if SKY_CONTRIBUTION == 1
-                        // vec2 coords = projectSphere(normalize(viewToScene(rayDir)));
+                        // vec2 coords = projectSphere(normalize(viewToScene(rayDirection)));
 		                // vec3 sky    = texture(colortex12, clamp01(coords + randF() * pixelSize)).rgb;
 
-                        radiance += throughput * texture(colortex6, hitPos.xy).rgb * RCP_PI * getSkyLightFalloff(mat.lightmap.y);
+                        sampleRadiance += samplethroughput * texture(colortex6, rayPosition.xy).rgb * RCP_PI * getSkyLightFalloff(material.lightmap.y);
                     #endif
                     break;
                 }
-                j++;
             }
+            radiance += max0(sampleRadiance) * rcp(GI_SAMPLES);
         }
-        radiance = max0(radiance) * rcp(GI_SAMPLES);
     }
 #endif

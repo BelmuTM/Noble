@@ -75,7 +75,7 @@
 			discard;
 		#endif
 
-		vec4 albedoTex = texture(colortex0, texCoords);
+		vec4 albedoTex = texture(tex, texCoords);
 		if(albedoTex.a < 0.102) discard;
 
 		vec4 normalTex   = texture(normals,  texCoords);
@@ -83,71 +83,79 @@
 
 		albedoTex *= vertexColor;
 
-		Material mat;
+		Material material;
 		translucents = vec4(0.0);
 
 		// WOTAH
 		if(blockId == 1) { 
-			mat.F0 = waterF0, mat.roughness = 0.0, mat.ao = 1.0, mat.emission = 0.0, mat.subsurface = 0.0;
+			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
 
-    		mat.albedo = vec3(0.0);
-			mat.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES);
+    		material.albedo = vec3(0.0);
+			material.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES);
 		
 		} else {
-			mat.F0         = specularTex.y;
-    		mat.roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
-    		mat.ao         = normalTex.z;
-			mat.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
-    		mat.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
+			material.F0         = specularTex.y;
+    		material.roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
+    		material.ao         = normalTex.z;
+			material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
+    		material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
 
-    		mat.albedo   = albedoTex.rgb;
-			mat.lightmap = lmCoords.xy;
+    		material.albedo   = albedoTex.rgb;
+			material.lightmap = lmCoords.xy;
 
 			#if WHITE_WORLD == 1
-	    		mat.albedo = vec3(1.0);
+	    		material.albedo = vec3(1.0);
     		#endif
 
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
-				mat.normal.xy = normalTex.xy * 2.0 - 1.0;
-				mat.normal.z  = sqrt(1.0 - dot(mat.normal.xy, mat.normal.xy));
-				mat.normal    = TBN * mat.normal;
+				material.normal.xy = normalTex.xy * 2.0 - 1.0;
+				material.normal.z  = sqrt(1.0 - clamp01(dot(material.normal.xy, material.normal.xy)));
+				material.normal    = TBN * material.normal;
 			}
 
 			#if GI == 0
 				#if REFRACTIONS == 0
 					bool shadeTranslucents = true;
 				#else
-					bool shadeTranslucents = mat.F0 < EPS;
+					bool shadeTranslucents = material.F0 < EPS;
 				#endif
 
-				if(mat.F0 * maxVal8 <= 229.5 && shadeTranslucents) {
+				if(material.F0 * maxVal8 <= 229.5 && shadeTranslucents) {
 					vec3 scenePos = viewToScene(viewPos);
 
-					#if TONEMAP == 0
-       					mat.albedo = srgbToAP1Albedo(mat.albedo);
+					#if TONEMAP == ACES
+       					material.albedo = srgbToAP1Albedo(material.albedo);
     				#endif
+
+					if(material.F0 * maxVal8 > 229.5) {
+        				mat2x3 hcm = getHardcodedMetal(material);
+        				material.N = hcm[0], material.K = hcm[1];
+    				} else {
+        				material.N = vec3(f0ToIOR(material.F0));
+        				material.K = vec3(0.0);
+    				}
 
 					vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
 					vec3 skyIlluminance = vec3(0.0);
 
 					#if defined WORLD_OVERWORLD
 						#if SHADOWS == 1
-							shadowmap.rgb = shadowMap(scenePos, TBN[2], shadowmap.a);
+							shadowmap.rgb = abs(shadowMap(scenePos, TBN[2], shadowmap.a));
 						#endif
 
-						if(mat.lightmap.y > EPS) skyIlluminance = getSkyLight(mat.normal, skyIlluminanceMat);
+						if(material.lightmap.y > EPS) skyIlluminance = getSkyLight(material.normal, skyIlluminanceMat);
 					#endif
 
-					translucents.rgb = computeDiffuse(scenePos, shadowLightVector, mat, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+					translucents.rgb = computeDiffuse(scenePos, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 					translucents.a   = albedoTex.a;
 				}
 			#endif
 		}
 
 		vec3 labPbrData0 = vec3(0.0, lmCoords);
-		vec4 labPbrData1 = vec4(mat.ao, mat.emission, mat.F0, mat.subsurface);
-		vec4 labPbrData2 = vec4(mat.albedo, mat.roughness);
-		vec2 encNormal   = encodeUnitVector(normalize(mat.normal));
+		vec4 labPbrData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
+		vec4 labPbrData2 = vec4(material.albedo, material.roughness);
+		vec2 encNormal   = encodeUnitVector(normalize(material.normal));
 	
 		uvec4 shiftedData0  = uvec4(round(labPbrData0 * vec3(1.0, 8191.0, 4095.0)), blockId) << uvec4(0, 1, 14, 26);
 		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8))                            << uvec4(0, 8, 16, 24);
