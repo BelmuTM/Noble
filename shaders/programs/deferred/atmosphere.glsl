@@ -23,7 +23,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 12 */
+    /* RENDERTARGETS: 6 */
 
     layout (location = 0) out vec4 sky;
 

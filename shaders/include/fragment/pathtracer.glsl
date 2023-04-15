@@ -10,7 +10,7 @@
 
 #if GI == 1
     vec3 evaluateMicrosurfaceBRDF(vec2 hitPos, vec3 wi, vec3 wo, Material material) {
-        vec4 shadowmap = texture(colortex3, hitPos.xy);
+        vec4 shadowmap = texture(SHADOWMAP_BUFFER, hitPos.xy);
 
         #if SPECULAR == 1
             vec3 specular = computeSpecular(material, wi, wo);
@@ -60,7 +60,7 @@
     void pathtrace(inout vec3 radiance, in vec3 screenPosition, inout vec3 outColorDirect, inout vec3 outColorIndirect) {
         vec3 viewPosition = screenToView(screenPosition);
 
-        vec3 directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
+        vec3 directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
 
         for(int i = 0; i < GI_SAMPLES; i++) {
 
@@ -101,9 +101,9 @@
                 if(!hit) {
                     #if SKY_CONTRIBUTION == 1
                         // vec2 coords = projectSphere(normalize(viewToScene(rayDirection)));
-		                // vec3 sky    = texture(colortex12, clamp01(coords + randF() * pixelSize)).rgb;
+		                // vec3 sky    = texture(ATMOSPHERE_BUFFER, clamp01(coords + randF() * pixelSize)).rgb;
 
-                        sampleRadiance += samplethroughput * texture(colortex6, rayPosition.xy).rgb * RCP_PI * getSkyLightFalloff(material.lightmap.y);
+                        sampleRadiance += samplethroughput * texture(ILLUMINANCE_BUFFER, rayPosition.xy).rgb * RCP_PI * getSkyLightFalloff(material.lightmap.y);
                     #endif
                     break;
                 }

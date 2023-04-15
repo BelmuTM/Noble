@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-/* RENDERTARGETS: 4,3 */
+/* RENDERTARGETS: 0,3 */
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out vec3 bloomBuffer;
@@ -50,7 +50,7 @@ layout (location = 1) out vec3 bloomBuffer;
 #endif
 
 void main() {
-    color = texture(colortex4, texCoords);
+    color = texture(MAIN_BUFFER, texCoords);
     
     #if DOF == 1
         float depth0 = linearizeDepthFast(texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r);
@@ -61,7 +61,7 @@ void main() {
             float targetDepth = float(DOF_DEPTH);
         #endif
 
-        depthOfField(color.rgb, colortex4, getCoC(depth0, targetDepth));
+        depthOfField(color.rgb, MAIN_BUFFER, getCoC(depth0, targetDepth));
     #endif
 
     #if BLOOM == 1
@@ -72,6 +72,6 @@ void main() {
         color.a = sqrt(luminance(color.rgb));
     #endif
 
-    vec4 basic     = texture(colortex15, texCoords);
+    vec4 basic     = texture(RASTER_BUFFER, texCoords);
          color.rgb = mix(color.rgb, basic.rgb, basic.a);
 }

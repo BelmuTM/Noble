@@ -40,7 +40,7 @@
             for(int x = 0; x < gridSize.x; x++) {
                 for(int y = 0; y < gridSize.y; y++) {
                     vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
-                    float luminance = pow2(textureLod(colortex4, coords, lod).a);
+                    float luminance = pow2(textureLod(MAIN_BUFFER, coords, lod).a);
 
                     pdf[getBinFromLuminance(luminance)]++;
                 }
@@ -68,7 +68,7 @@
 
         #if EXPOSURE > 0
             #if EXPOSURE == 1
-                float avgLuma = pow2(textureLod(colortex4, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
+                float avgLuma = pow2(textureLod(MAIN_BUFFER, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
             #else
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
                 int closestBinToMedian    = getClosestBinToMedian(pdf);
@@ -81,7 +81,7 @@
                 float avgLuma = getLuminanceFromBin(closestBinToMedian);
             #endif
 
-            float prevLuma = texelFetch(colortex8, ivec2(0), 0).a;
+            float prevLuma = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
                   prevLuma = prevLuma > 0.0 ? prevLuma : avgLuma;
                   prevLuma = isnan(prevLuma) || isinf(prevLuma) ? avgLuma : prevLuma;
 
@@ -92,7 +92,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 4,8 */
+    /* RENDERTARGETS: 0,8 */
 
     layout (location = 0) out vec4 color;
     layout (location = 1) out vec4 history;
@@ -110,10 +110,10 @@
     #endif
 
     void main() {
-        color = texture(colortex4, texCoords);
+        color = texture(MAIN_BUFFER, texCoords);
 
         #if TAA == 1
-            color.rgb = temporalAntiAliasing(colortex4, colortex8);
+            color.rgb = temporalAntiAliasing(MAIN_BUFFER, HISTORY_BUFFER);
         #endif
 
         history.rgb = color.rgb;

@@ -19,7 +19,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 6 */
+    /* RENDERTARGETS: 5 */
 
     layout (location = 0) out vec3 directIlluminanceOut;
 

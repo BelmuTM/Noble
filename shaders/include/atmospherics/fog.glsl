@@ -108,24 +108,22 @@ float getFogPhase(float cosTheta) {
     const vec3 waterScatteringCoefficients = vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01;
 #endif
 
-const vec3 waterExtinctionCoefficients = waterAbsorptionCoefficients + waterScatteringCoefficients;
-const int phaseMultiSamples = 8;
+vec3 waterExtinctionCoefficients = clamp01(waterScatteringCoefficients + waterAbsorptionCoefficients);
 
 #if WATER_FOG == 0
 
     void waterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
         vec3 transmittance = exp(-waterAbsorptionCoefficients * distance(startPos, endPos));
 
-        vec3 scattering  = skyIlluminance    * isotropicPhase                * skyLight;
-             scattering += directIlluminance * kleinNishinaPhase(VdotL, 0.5) * skyLight;
-             scattering *= waterScatteringCoefficients * ((1.0 - transmittance) / waterExtinctionCoefficients);
+        vec3 scattering  = skyIlluminance    * isotropicPhase * skyLight;
+             scattering += directIlluminance * kleinNishinaPhase(VdotL, 0.5);
+             scattering *= waterScatteringCoefficients * (1.0 - transmittance) / waterAbsorptionCoefficients;
 
         color = color * transmittance + scattering;
     }
-    
 #else
 
-    // Thanks Jessie#7257 for the help!
+    // Thanks Jessie for the help!
     void volumetricWaterFog(inout vec3 color, vec3 startPos, vec3 endPos, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
         const float stepSize = 1.0 / WATER_FOG_STEPS;
         vec3 increment = (endPos - startPos) * stepSize;
@@ -136,53 +134,46 @@ const int phaseMultiSamples = 8;
         vec3 shadowIncrement = (worldToShadow(endPos) - shadowStartPos) * stepSize;
         vec3 shadowPos       = shadowStartPos + shadowIncrement * dither;
 
-        float rayLength = length(increment);
+        vec3 stepTransmittance  = exp(-waterExtinctionCoefficients * length(increment));
+        vec3 scatteringIntegral = waterScatteringCoefficients * (1.0 - stepTransmittance) / waterExtinctionCoefficients;
 
-        vec3 opticalDepth       = waterExtinctionCoefficients * rayLength;
-        vec3 stepTransmittance  = exp(-opticalDepth);
-        vec3 scatteringIntegral = (1.0 - stepTransmittance) / waterExtinctionCoefficients;
-
-        mat2x3 scatteringMat = mat2x3(vec3(0.0), vec3(0.0)); vec3 transmittance = vec3(1.0);
+        mat2x3 scattering  = mat2x3(vec3(0.0), vec3(0.0)); 
+        vec3 transmittance = vec3(1.0);
 
         for(int i = 0; i < WATER_FOG_STEPS; i++, rayPos += increment, shadowPos += shadowIncrement) {
             vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPos) * 0.5 + 0.5);
 
-            for(int n = 0; n < 3; n++) {
-                float phase = mix(kleinNishinaPhase(VdotL, 0.6), isotropicPhase, float(n) * rcp(3.0));
-                float aN = pow(0.6, n), bN = pow(0.4, n);
+            mat2x3 stepScattering = mat2x3(vec3(0.0), vec3(0.0));
 
-                mat2x3 stepScatteringMat = mat2x3(vec3(0.0), vec3(0.0));
-                stepScatteringMat[0] = exp(-opticalDepth * bN) * shadowColor * phase          * waterScatteringCoefficients * scatteringIntegral;
-                stepScatteringMat[1] = exp(-opticalDepth * bN) * skyLight    * isotropicPhase * waterScatteringCoefficients * scatteringIntegral;
+            stepScattering[0] = stepTransmittance * shadowColor;
+            stepScattering[1] = stepTransmittance * isotropicPhase;
 
-                scatteringMat[0] += stepScatteringMat[0] * transmittance * aN;
-                scatteringMat[1] += stepScatteringMat[1] * transmittance * aN;
-            }
+            scattering[0] += stepScattering[0] * scatteringIntegral * transmittance;
+            scattering[1] += stepScattering[1] * scatteringIntegral * transmittance;
+            
             transmittance *= stepTransmittance;
         }
+        scattering[0] *= directIlluminance;
+        scattering[1] *= skyIlluminance;
 
-        scatteringMat[0] *= directIlluminance;
-        scatteringMat[1] *= skyIlluminance;
+        // Multiple scattering approximation provided by Jessie
+        vec3 scatteringAlbedo         = clamp01(waterScatteringCoefficients / waterExtinctionCoefficients);
+        vec3 multipleScatteringFactor = scatteringAlbedo * 0.84;
 
-        // Multiple scattering approximation provided by Zombye#7365
-        
-        /*
-        vec3 scatteringAlbedo     = clamp01(waterScatteringCoefficients / waterExtinctionCoefficients);
-        vec3 multScatteringFactor = scatteringAlbedo * 0.84;
+        int phaseSampleCount = 32;
+        float phaseMultiple  = 0.0;
 
-        float phaseMulti = 0.0;
-        for(int i = 0; i < phaseMultiSamples; i++) {
-            phaseMulti += cornetteShanksPhase(VdotL, 0.6 * pow(0.5, phaseMultiSamples));
+        for(int i = 0; i < phaseSampleCount; i++) {
+            phaseMultiple += cornetteShanksPhase(VdotL, 0.6 * pow(0.5, phaseSampleCount));
         }
-        phaseMulti /= phaseMultiSamples;
+        phaseMultiple /= phaseSampleCount;
 
-        vec3 multipleScattering  = scatteringMat[0] * phaseMulti;
-             multipleScattering += scatteringMat[1] * isotropicPhase;
-             multipleScattering *= multScatteringFactor / (1.0 - multScatteringFactor);
-        */
+        vec3 scatteringMultiple  = scattering[0] * phaseMultiple;
+             scatteringMultiple += scattering[1] * phaseMultiple;
+             scatteringMultiple *= multipleScatteringFactor / (1.0 - multipleScatteringFactor);
 
 	    if(sky) transmittance = vec3(1.0);
     
-        color = color * transmittance + scatteringMat[0] + scatteringMat[1];
+        color = color * transmittance + scatteringMultiple;
     }
 #endif

@@ -68,7 +68,7 @@ out vec3 color;
 
         for(int x = -1; x <= 1; x++) {
             for(int y = -1; y <= 1; y++, weight++) {
-                avgLuma += luminance(texture(colortex4, coords + vec2(x, y) * pixelSize).rgb);
+                avgLuma += luminance(texture(MAIN_BUFFER, coords + vec2(x, y) * pixelSize).rgb);
             }
         }
         avgLuma /= weight;
@@ -89,14 +89,14 @@ void main() {
         if(isEyeInWater == 1) underwaterDistortion(distortCoords);
     #endif
 
-    color = texture(colortex4, distortCoords).rgb;
+    color = texture(MAIN_BUFFER, distortCoords).rgb;
 
     #if SHARPEN == 1
         sharpeningFilter(color, distortCoords);
     #endif
 
     #if LUT > 0
-        applyLUT(colortex7, color);
+        applyLUT(LUT_BUFFER, color);
     #endif
 
     #if FILM_GRAIN == 1

@@ -109,7 +109,7 @@ mat3[2] sampleSkyIlluminanceComplex() {
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
                 vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
-                vec3 atmoSample = texture(colortex12, projectSphere(dir)).rgb;
+                vec3 atmoSample = texture(ATMOSPHERE_BUFFER, projectSphere(dir)).rgb;
 
                 skyIlluminance[0][0] += atmoSample * clamp01( dir.x);
                 skyIlluminance[0][1] += atmoSample * clamp01( dir.y);
@@ -151,7 +151,7 @@ vec3 sampleSkyIlluminanceSimple() {
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
                 vec3 dir        = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy; // Uniform hemisphere sampling thanks to SixthSurge#3922
-                skyIlluminance += texture(colortex12, projectSphere(dir)).rgb;
+                skyIlluminance += texture(ATMOSPHERE_BUFFER, projectSphere(dir)).rgb;
             }
         }
         skyIlluminance *= PI / (samples.x * samples.y);

@@ -16,12 +16,12 @@
         texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
         skyIlluminanceMat = sampleSkyIlluminanceComplex();
-        directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
+        directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
     }
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,6 */
+    /* RENDERTARGETS: 3,5 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec4 illuminance;
@@ -64,7 +64,7 @@
 
         #if GI == 0 && AO == 1
             if(!sky) {
-                vec4 ao = texture(colortex10, texCoords);
+                vec4 ao = texture(INDIRECT_BUFFER, texCoords);
                 if(any(greaterThan(ao.xyz, vec3(0.0)))) bentNormal = clamp01(ao.xyz);
             }
         #endif
@@ -76,9 +76,8 @@
             
             #if SHADOWS == 1
                 if(!sky) {
-                    vec3 geoNormal = texture(colortex3, texCoords).rgb;
+                    vec3 geoNormal = texture(SHADOWMAP_BUFFER, texCoords).rgb;
                     shadowmap.rgb  = shadowMap(viewToScene(viewPos), geoNormal, shadowmap.a);
-                    shadowmap.a    = shadowmap.r < 0.0 ? 1.0 : shadowmap.a;
                     shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
                 }
             #endif

@@ -6,6 +6,7 @@
 #include "/include/common.glsl"
 
 #if GI == 0 && REFLECTIONS == 1
+
     /* RENDERTARGETS: 2 */
     
     layout (location = 0) out vec3 reflections;

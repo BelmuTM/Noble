@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-/* RENDERTARGETS: 4 */
+/* RENDERTARGETS: 0 */
 
 layout (location = 0) out vec3 color;
 
@@ -22,18 +22,17 @@ layout (location = 0) out vec3 color;
 
 #if REFRACTIONS == 1
     vec3 refractions(vec3 viewPos, vec3 scenePos, Material material, inout vec3 hitPos) {
-        float ior    = f0ToIOR(material.F0);
         vec3 viewDir = normalize(viewPos);
 
-        vec3 refracted = refract(viewDir, material.normal, airIOR / ior);
+        vec3 n1 = vec3(airIOR), n2 = material.N;
+        if(isEyeInWater == 1) { n1 = vec3(1.333); n2 = vec3(airIOR); }
+
+        vec3 refracted = refract(viewDir, material.normal, n1.r / n2.r);
         bool hit       = raytrace(depthtex1, viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
         if(!hit || isHand(hitPos.xy)) { hitPos.xy = texCoords; }
 
-        float n1 = airIOR, n2 = ior;
-        if(isEyeInWater == 1) { n1 = 1.333; n2 = airIOR; }
-
-        float fresnel = fresnelDielectric(abs(dot(material.normal, -viewDir)), n1, n2);
-        vec3 hitColor = texture(colortex13, hitPos.xy).rgb;
+        vec3 fresnel  = fresnelDielectric(dot(material.normal, -viewDir), n1, n2);
+        vec3 hitColor = texture(DEFERRED_BUFFER, hitPos.xy).rgb;
 
         float distThroughMedium = clamp(distance(viewToScene(screenToView(hitPos)), scenePos), EPS, 5.0);
         vec3  beer              = material.blockId == 1 ? vec3(1.0) : exp(-(1.0 - material.albedo) * distThroughMedium);
@@ -43,20 +42,21 @@ layout (location = 0) out vec3 color;
 #endif
 
 void main() {
-    color = texture(colortex13, texCoords).rgb;
-
-    //////////////////////////////////////////////////////////
-    /*---------------- GLOBAL ILLUMINATION -----------------*/
-    //////////////////////////////////////////////////////////
 
     #if GI == 1
-        vec2 scaledUv = texCoords * GI_SCALE;
-        color = texture(colortex5, scaledUv).rgb;
+        //////////////////////////////////////////////////////////
+        /*---------------- GLOBAL ILLUMINATION -----------------*/
+        //////////////////////////////////////////////////////////
 
-        vec3 direct   = texture(colortex9,  scaledUv).rgb;
-        vec3 indirect = texture(colortex10, scaledUv).rgb;
+        vec2 scaledUv = texCoords * GI_SCALE;
+        color = texture(DEFERRED_BUFFER, scaledUv).rgb;
+
+        vec3 direct   = texture(DIRECT_BUFFER,  scaledUv).rgb;
+        vec3 indirect = texture(INDIRECT_BUFFER, scaledUv).rgb;
         
         color = direct + (indirect * color);
+    #else
+        color = texture(DEFERRED_BUFFER, texCoords).rgb;
     #endif
 
     Material material = getMaterial(texCoords);
@@ -73,8 +73,8 @@ void main() {
     vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
     
     #if defined WORLD_OVERWORLD
-        skyIlluminance    = texture(colortex6,  texCoords).rgb * RCP_PI;
-        directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
+        skyIlluminance    = texture(ILLUMINANCE_BUFFER,  texCoords).rgb * RCP_PI;
+        directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
     #endif
 
     bool  sky      = isSky(texCoords);
@@ -123,7 +123,7 @@ void main() {
 
         #if GI == 0
             #if SPECULAR == 1
-                vec3 visibility = texture(colortex3, coords.xy).rgb;
+                vec3 visibility = texture(SHADOWMAP_BUFFER, coords.xy).rgb;
                 #if defined SUNLIGHT_LEAKING_FIX
                     visibility *= float(material.lightmap.y > EPS);
                 #endif
@@ -136,7 +136,7 @@ void main() {
             #endif
 
             #if REFLECTIONS == 1
-                color += texture(colortex2, texCoords).rgb;
+                color += texture(REFLECTIONS_BUFFER, texCoords).rgb;
             #endif
         #endif
     } else {

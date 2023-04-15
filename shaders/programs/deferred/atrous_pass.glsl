@@ -21,10 +21,10 @@
         #endif
 
         void main() {
-            color = texture(colortex5, texCoords);
+            color = texture(DEFERRED_BUFFER, texCoords);
 
             #if GI_FILTER == 1
-                aTrousFilter(color.rgb, temporalData, colortex5, ATROUS_PASS_INDEX);
+                aTrousFilter(color.rgb, temporalData, DEFERRED_BUFFER, ATROUS_PASS_INDEX);
             #endif
         }
     #endif

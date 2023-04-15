@@ -37,9 +37,10 @@ bool raytrace(sampler2D depthTexture, vec3 viewPos, vec3 rayDir, int stepCount, 
     return intersect;
 }
 
+/*
 float getMinimumDepthFromLod(vec2 coords, int lod) {
     if(lod == 0) return find2x2MinimumDepth(coords, 1);
-	else         return texelFetch(colortex14, ivec2((coords / exp2(lod) + hiZOffsets[lod - 1]) * viewSize), 0).r;
+	else         return texelFetch(colortex13, ivec2((coords / exp2(lod) + hiZOffsets[lod - 1]) * viewSize), 0).r;
 }
 
 bool raytraceHiZ(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec3 rayPos) {
@@ -67,3 +68,4 @@ bool raytraceHiZ(vec3 viewPos, vec3 rayDir, int stepCount, float jitter, out vec
     }
     return false;
 }
+*/

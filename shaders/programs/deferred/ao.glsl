@@ -22,7 +22,7 @@ void main() {
         ao = vec4(0.0, 0.0, 0.0, 1.0);
     #else
         #if GI == 1
-            ao = texture(colortex10, texCoords);
+            ao = texture(INDIRECT_BUFFER, texCoords);
         #endif
         return;
     #endif
@@ -46,9 +46,9 @@ void main() {
         #if AO_FILTER == 1
             vec3 currPos = vec3(texCoords, material.depth0);
             vec3 prevPos = currPos - getVelocity(currPos);
-            vec4 prevAO  = texture(colortex10, prevPos.xy);
+            vec4 prevAO  = texture(INDIRECT_BUFFER, prevPos.xy);
         
-            float weight = 1.0 / max(texture(colortex13, prevPos.xy).w, 1.0);
+            float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevPos.xy).w, 1.0);
 
             ao.w   = mix(prevAO.w  , ao.w  , weight);
             ao.xyz = mix(prevAO.xyz, ao.xyz, weight);

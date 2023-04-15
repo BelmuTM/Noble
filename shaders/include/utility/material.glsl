@@ -56,10 +56,10 @@ float gerstnerWaves(vec2 coords, float time, float steepness, float amplitude, f
     return amplitude * pow(sin(x) * 0.5 + 0.5, steepness);
 }
 
-float calculateWaveHeight(vec2 position, int octaves) {
+float calculateWaveHeightGerstner(vec2 position, int octaves) {
     float height = 0.0;
 
-    float time      = RENDER_MODE == 0 ? frameTimeCounter : 1.0;
+    float time      = RENDER_MODE == 0 ? frameTimeCounter * 1.5 : 1.0;
     float steepness = WAVE_STEEPNESS;
     float amplitude = WAVE_AMPLITUDE;
     float lambda    = WAVE_LENGTH;
@@ -70,24 +70,24 @@ float calculateWaveHeight(vec2 position, int octaves) {
     vec2 direction = vec2(0.786, 0.352);
 
     for(int i = 0; i < octaves; i++) {
-        height -= gerstnerWaves(position + (FBM(position, 2, 0.3) * 2.0 - 1.0) * pow(lambda, 0.333), time, steepness, amplitude, lambda, direction);
+        height -= gerstnerWaves(position + (FBM(position, 1, 0.3) * 2.0 - 1.0) * pow(lambda, 0.333), time, steepness, amplitude, lambda, direction);
 
-        steepness *= 1.1;
-        amplitude *= 0.6;
-        lambda    *= 0.6;
+        steepness *= 1.02;
+        amplitude *= 0.83;
+        lambda    *= 0.83;
         direction *= rotation;
     }
     return height;
 }
 
-const vec2[2] offset = vec2[2](vec2(0.5, 0.0), vec2(0.0, 0.5));
+const vec2[2] offset = vec2[2](vec2(0.1, 0.0), vec2(0.0, 0.1));
 
 vec3 getWaterNormals(vec3 worldPos, int octaves) {
     vec2 position = worldPos.xz;
 
-    float pos0 = calculateWaveHeight(position,             octaves);
-	float pos1 = calculateWaveHeight(position + offset[0], octaves);
-	float pos2 = calculateWaveHeight(position + offset[1], octaves);
+    float pos0 = calculateWaveHeightGerstner(position,             WATER_OCTAVES);
+	float pos1 = calculateWaveHeightGerstner(position + offset[0], WATER_OCTAVES);
+	float pos2 = calculateWaveHeightGerstner(position + offset[1], WATER_OCTAVES);
 
     return vec3(pos0 - pos1, pos0 - pos2, 1.0);
 }
@@ -114,7 +114,7 @@ mat2x3 getHardcodedMetal(Material material) {
 
 Material getMaterial(vec2 coords) {
     coords       *= viewSize;
-    uvec4 dataTex = texelFetch(colortex1, ivec2(coords), 0);
+    uvec4 dataTex = texelFetch(GBUFFERS_DATA, ivec2(coords), 0);
 
     Material material;
     material.roughness  = ((dataTex.z >> 24u) & 255u) * rcpMaxVal8;

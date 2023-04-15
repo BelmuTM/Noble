@@ -13,16 +13,16 @@ float KneemundAttenuation(vec2 pos) {
 vec3 getHitColor(in vec3 hitPos) {
     #if SSR_REPROJECTION == 1
         hitPos -= getVelocity(hitPos);
-        return texture(colortex8, hitPos.xy).rgb;
+        return texture(HISTORY_BUFFER, hitPos.xy).rgb;
     #else
-        return texture(colortex4, hitPos.xy).rgb;
+        return texture(DEFERRED_BUFFER, hitPos.xy).rgb;
     #endif
 }
 
 vec3 getSkyFallback(vec3 reflected, Material material) {
     #if defined WORLD_OVERWORLD
         vec2 coords = projectSphere(mat3(gbufferModelViewInverse) * reflected);
-        vec3 sky    = texture(colortex12, clamp01(coords + randF() * pixelSize)).rgb;
+        vec3 sky    = texture(ATMOSPHERE_BUFFER, clamp01(coords + randF() * pixelSize)).rgb;
 
         return sky * getSkyLightFalloff(material.lightmap.y);
     #else

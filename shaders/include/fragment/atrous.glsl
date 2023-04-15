@@ -21,7 +21,7 @@ float gaussianVariance() {
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
             float weight = gaussianDistribution2D(vec2(x, y), 1.0);
-            variance    += texture(colortex11, texCoords + vec2(x, y) * pixelSize).z * weight;
+            variance    += texture(MOMENTS_BUFFER, texCoords + vec2(x, y) * pixelSize).z * weight;
         }
     }
     return variance;
@@ -55,13 +55,13 @@ void aTrousFilter(inout vec3 irradiance, inout vec4 moments, sampler2D tex, int 
     float totalWeight = 1.0, totalWeightSq = 1.0;
     vec2 stepSize     = steps[passIndex] * pixelSize;
 
-    float frames = float(texture(colortex5, texCoords).a > 4.0);
+    float frames = float(texture(DEFERRED_BUFFER, texCoords).a > 4.0);
     vec2 dgrad   = vec2(dFdx(material.depth0), dFdy(material.depth0));
 
     float centerLuma = luminance(irradiance);
     float variance   = gaussianVariance();
 
-    moments = texture(colortex11, texCoords);
+    moments = texture(MOMENTS_BUFFER, texCoords);
 
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {

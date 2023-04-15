@@ -35,14 +35,14 @@
         for(int x = -blurSize; x <= blurSize; x++) {
             for(int y = -blurSize; y <= blurSize; y++) {
                 float weight = gaussianDistribution2D(vec2(x, y), blurSigma);
-                bloom  		+= textureLod(colortex4, coords + vec2(x, y) * texScale, lod).rgb * weight;
+                bloom  		+= textureLod(MAIN_BUFFER, coords + vec2(x, y) * texScale, lod).rgb * weight;
             }
         }
 		return bloom;
 	}
 
 	vec3 getBloomTile(int lod) {
-		return textureBicubic(colortex3, texCoords / exp2(lod) + bloomOffsets[lod - 2]).rgb;
+		return textureBicubic(SHADOWMAP_BUFFER, texCoords / exp2(lod) + bloomOffsets[lod - 2]).rgb;
 	}
 
 	void writeBloom(inout vec3 bloom) {

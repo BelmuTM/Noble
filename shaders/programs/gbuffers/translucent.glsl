@@ -41,7 +41,7 @@
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
 		skyIlluminanceMat = sampleSkyIlluminanceComplex();
-		directIlluminance = texelFetch(colortex6, ivec2(0), 0).rgb;
+		directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
 
 		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);
@@ -50,7 +50,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 1,13 */
+	/* RENDERTARGETS: 1,4 */
 
 	layout (location = 0) out uvec4 data;
 	layout (location = 1) out vec4 translucents;

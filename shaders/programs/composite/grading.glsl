@@ -12,7 +12,7 @@
         Lagarde, S. (2014). Moving Frostbite to Physically Based Rendering 3.0. https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
 */
 
-/* RENDERTARGETS: 4 */
+/* RENDERTARGETS: 0 */
 
 layout (location = 0) out vec3 color;
 
@@ -80,7 +80,7 @@ float computeExposure(float averageLuminance) {
 }
 
 void main() {
-    vec4 tmp = texture(colortex4, texCoords);
+    vec4 tmp = texture(MAIN_BUFFER, texCoords);
     color    = tmp.rgb;
 
     float exposure = computeExposure(tmp.a);
