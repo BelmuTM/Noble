@@ -118,7 +118,7 @@ mat3[2] sampleSkyIlluminanceComplex() {
                 skyIlluminance[1][2] += atmoSample * clamp01(-dir.z);
             }
         }
-        const float sampleWeight = TAU / (samples.x * samples.y);
+        const float sampleWeight = PI / (samples.x * samples.y);
         skyIlluminance[0][0] *= sampleWeight;
         skyIlluminance[0][1] *= sampleWeight;
         skyIlluminance[0][2] *= sampleWeight;

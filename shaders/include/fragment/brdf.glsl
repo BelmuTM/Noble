@@ -105,7 +105,6 @@ vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     float facing    = 0.5 + 0.5 * VdotL;
     float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
 
-    // Hammon energy conservation from LVutner#5199
     float energyConservationFactor = 1.0 - (4.0 * sqrt(material.F0) + 5.0 * material.F0 * material.F0) * rcp(9.0);
     vec3  fresnelL = 1.0 - fresnelDielectric(NdotL, vec3(airIOR), material.N);
     vec3  fresnelV = 1.0 - fresnelDielectric(NdotV, vec3(airIOR), material.N);
@@ -170,8 +169,8 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     vec3 blockLightColor = getBlockLightColor(material);
     vec3 emissiveness    = material.emission * blockLightColor;
 
-    vec3 blockLight = blockLightColor          * material.lightmap.x;
-    vec3 skyLight   = skyIlluminance  * RCP_PI * material.lightmap.y;
+    vec3 blockLight = blockLightColor * material.lightmap.x;
+    vec3 skyLight   = skyIlluminance  * material.lightmap.y;
     vec3 ambient    = vec3(0.04);
 
     diffuse += (blockLight + skyLight + ambient) * material.ao * ao;

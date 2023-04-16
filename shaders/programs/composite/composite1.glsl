@@ -73,7 +73,7 @@ void main() {
     vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
     
     #if defined WORLD_OVERWORLD
-        skyIlluminance    = texture(ILLUMINANCE_BUFFER,  texCoords).rgb * RCP_PI;
+        skyIlluminance    = texture(ILLUMINANCE_BUFFER,  texCoords).rgb;
         directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
     #endif
 

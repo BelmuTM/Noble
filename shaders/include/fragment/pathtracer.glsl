@@ -103,7 +103,7 @@
                         // vec2 coords = projectSphere(normalize(viewToScene(rayDirection)));
 		                // vec3 sky    = texture(ATMOSPHERE_BUFFER, clamp01(coords + randF() * pixelSize)).rgb;
 
-                        sampleRadiance += samplethroughput * texture(ILLUMINANCE_BUFFER, rayPosition.xy).rgb * RCP_PI * getSkyLightFalloff(material.lightmap.y);
+                        sampleRadiance += samplethroughput * texture(ILLUMINANCE_BUFFER, rayPosition.xy).rgb * getSkyLightFalloff(material.lightmap.y);
                     #endif
                     break;
                 }
