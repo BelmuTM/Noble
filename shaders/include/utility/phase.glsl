@@ -14,6 +14,8 @@
         Phase functions represent the angular distribution of scattered radiation.
 */
 
+const float isotropicPhase = 0.25 / PI;
+
 float rayleighPhase(float cosTheta) {
     const float rayleigh = 3.0 / (16.0 * PI);
     return rayleigh * (1.0 + pow2(cosTheta));

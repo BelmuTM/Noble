@@ -5,29 +5,27 @@
 
 /* ATMOSPHERIC CONSTANTS */
 
-const float mieAnisotropyFactor = 0.76;
-const float isotropicPhase      = 0.07957747;
-
 const float planetRadius          = 6371e3;               // Meters
 const float atmosphereLowerRadius = planetRadius - 4e3;   // Meters
 const float atmosphereUpperRadius = planetRadius + 110e3; // Meters
 
 const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
 
-const float mieAlbedo = 0.9;
+const float mieScatteringAlbedo = 0.9;
+const float mieAnisotropyFactor = 0.76;
 
 #if TONEMAP == ACES
-    const vec3 rayleighScatteringCoefficient = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5)                                     * SRGB_2_AP1_ALBEDO;
-    const vec3 mieScatteringCoefficient      = vec3(0.00000925288)                                                                  * SRGB_2_AP1_ALBEDO;
-    const vec3 ozoneScatteringCoefficient    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14 * SRGB_2_AP1_ALBEDO;
+    const vec3 rayleighScatteringCoefficients = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5)                                     * SRGB_2_AP1_ALBEDO;
+    const vec3 mieScatteringCoefficients      = vec3(0.00000925288)                                                                  * SRGB_2_AP1_ALBEDO;
+    const vec3 ozoneExtinctionCoefficients    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14 * SRGB_2_AP1_ALBEDO;
 #else
-    const vec3 rayleighScatteringCoefficient = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
-    const vec3 mieScatteringCoefficient      = vec3(0.00000925288);
-    const vec3 ozoneScatteringCoefficient    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14;
+    const vec3 rayleighScatteringCoefficients = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
+    const vec3 mieScatteringCoefficients      = vec3(0.00000925288);
+    const vec3 ozoneExtinctionCoefficients    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14;
 #endif
 
-mat2x3 atmosphereScatteringCoefficients = mat2x3(rayleighScatteringCoefficient, mieScatteringCoefficient);
-mat3x3 atmosphereExtinctionCoefficients = mat3x3(rayleighScatteringCoefficient, mieScatteringCoefficient / mieAlbedo, ozoneScatteringCoefficient);
+mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients, mieScatteringCoefficients);
+mat3x3 atmosphereAttenuationCoefficients = mat3x3(rayleighScatteringCoefficients, mieScatteringCoefficients / mieScatteringAlbedo, ozoneExtinctionCoefficients);
 
 vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 
@@ -73,7 +71,7 @@ const float sunAngularRadius  = CELESTIAL_SIZE_MULTIPLIER * sunRadius  / sunDist
 const float moonAngularRadius = CELESTIAL_SIZE_MULTIPLIER * moonRadius / moonDistance;
 
 const vec3 sunColor = vec3(1.0, 0.949, 0.937);
-vec3 sunIlluminance = (sunColor / luminance(sunColor)) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
+vec3 sunIlluminance = sunColor * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
 vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRadius);
 
 vec3 moonLuminance   = moonAlbedo * RCP_PI * sunIlluminance;

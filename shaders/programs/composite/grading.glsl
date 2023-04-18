@@ -56,8 +56,8 @@ layout (location = 0) out vec3 color;
     const float exposureBias = 1.0;
 #endif
 
-float minExposure = TAU * exposureBias / luminance(sunIlluminance);
-float maxExposure = 0.6 * exposureBias / luminance(moonIlluminance);
+float minExposure = 1.0 * exposureBias / luminance(sunIlluminance);
+float maxExposure = 0.3 * exposureBias / luminance(moonIlluminance);
 
 float computeEV100fromLuminance(float luminance) {
     return log2(luminance * sensorSensitivity * exposureBias / calibration);

@@ -66,22 +66,22 @@
 		#endif
 
     	vec2 parallaxMapping(vec3 viewPos, mat2 texDeriv, inout float height, out vec2 shadowCoords) {
-			vec3 tangentDir       = normalize(viewToScene(viewPos)) * TBN;
+			vec3 tangentDirection = normalize(viewToScene(viewPos)) * TBN;
         	float currLayerHeight = 0.0;
 
-        	vec2 P           = (tangentDir.xy / tangentDir.z) * POM_DEPTH * texSize;
-        	vec2 deltaCoords = P * layerHeight;
+        	vec2 scaledVector = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize;
+        	vec2 offset       = scaledVector * layerHeight;
 
         	vec2  currCoords     = texCoords;
         	float currFragHeight = sampleHeightMap(currCoords, texDeriv);
 
         	for(int i = 0; i < POM_LAYERS && currLayerHeight < currFragHeight; i++) {
-            	currCoords      -= deltaCoords;
+            	currCoords      -= offset;
             	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
             	currLayerHeight += layerHeight;
         	}
 
-			vec2 prevCoords = currCoords + deltaCoords;
+			vec2 prevCoords = currCoords + offset;
 			   shadowCoords = prevCoords;
 
 			#if POM == 1
@@ -103,8 +103,8 @@
 			vec3 tangentDir       = shadowLightVector * TBN;
         	float currLayerHeight = height;
 
-        	vec2 P           = (tangentDir.xy / tangentDir.z) * POM_DEPTH * texSize;
-        	vec2 deltaCoords = P * layerHeight;
+        	vec2 scaledVector = (tangentDir.xy / tangentDir.z) * POM_DEPTH * texSize;
+        	vec2 offset 	  = scaledVector * layerHeight;
 
         	vec2  currCoords     = parallaxCoords;
         	float currFragHeight = 1.0;
@@ -115,7 +115,7 @@
 				if(currLayerHeight >= currFragHeight) {
 					disocclusion = 0.0; break;
 				}
-            	currCoords      += deltaCoords;
+            	currCoords      += offset;
             	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
             	currLayerHeight -= layerHeight;
         	}

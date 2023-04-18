@@ -36,7 +36,7 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPos += increment) {
         accumAirmass += getAtmosphereDensities(length(rayPos)) * stepSize;
     }
-    return exp(-atmosphereExtinctionCoefficients * accumAirmass);
+    return exp(-atmosphereAttenuationCoefficients * accumAirmass);
 }
 
 #if defined STAGE_FRAGMENT
@@ -58,7 +58,7 @@ vec3 getAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPos += increment) {
             vec3 airmass          = getAtmosphereDensities(length(rayPos)) * stepSize;
-            vec3 stepOpticalDepth = atmosphereExtinctionCoefficients * airmass;
+            vec3 stepOpticalDepth = atmosphereAttenuationCoefficients * airmass;
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
             vec3 visibleScattering  = transmittance                    * clamp01((stepTransmittance - 1.0) / -stepOpticalDepth);

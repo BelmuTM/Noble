@@ -187,7 +187,7 @@ vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection)
     float NdotV = dot(material.normal, viewDirection);
     float VdotL = dot(viewDirection,   lightDirection);
 
-    float NdotHSq = NdotHSquared(shadowLightAngularRadius, NdotL, NdotV, VdotL, NdotV, VdotL);
+    float NdotHSq = NdotHSquared(shadowLightAngularRadius, NdotL, NdotV, VdotL, NdotL, VdotL);
     float VdotH   = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
 
     NdotV = abs(NdotV);
@@ -196,5 +196,5 @@ vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection)
     vec3  F  = fresnelDielectricConductor(VdotH, material.N, material.K);
     float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
         
-    return max0(clamp01(NdotL) * F * D * G2 / maxEps(4.0 * NdotL * NdotV));
+    return max0(clamp01(NdotL) * F * D * G2 / (4.0 * NdotL * NdotV));
 }

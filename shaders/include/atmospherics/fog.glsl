@@ -37,7 +37,7 @@ float getFogPhase(float cosTheta) {
             CREDITS (density function):
             SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
         */
-        float shapeNoise  = FBM(position * 0.02, 3, 4.0);
+        float shapeNoise  = FBM(position * 0.03, 3, 2.0);
               shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
               shapeNoise *= exp(-max0(position.y - FOG_ALTITUDE) * 0.2);
         
