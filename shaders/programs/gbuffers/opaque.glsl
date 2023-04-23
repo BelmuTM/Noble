@@ -50,6 +50,8 @@
 				return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
 			}
 		#else
+			#include "/include/utility/sampling.glsl"
+
 			float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
 				wrapCoordinates(coords);
 
