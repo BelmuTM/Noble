@@ -15,6 +15,7 @@
 
 	in vec2 texCoords;
 
+	#include "/include/common.glsl"
 	#include "/include/atmospherics/atmosphere.glsl"
 
 	void main() {

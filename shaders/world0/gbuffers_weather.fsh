@@ -8,5 +8,4 @@
 #define STAGE_FRAGMENT
 #define WORLD_OVERWORLD
 
-#include "/include/common.glsl"
 #include "/programs/gbuffers/weather.glsl"
