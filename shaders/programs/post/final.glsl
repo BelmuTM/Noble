@@ -17,7 +17,7 @@ out vec3 color;
             WATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
             WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
         );
-        coords = clamp01(distorted) != distorted ? coords : distorted;
+        coords = saturate(distorted) != distorted ? coords : distorted;
     }
 #endif
 
@@ -77,10 +77,6 @@ out vec3 color;
         color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / centerLuma;
     }
 #endif
-
-vec2 getDepthTile(int lod) {
-	return texCoords / exp2(lod) + hiZOffsets[lod - 1];
-}
 
 void main() {
     vec2 distortCoords = texCoords;

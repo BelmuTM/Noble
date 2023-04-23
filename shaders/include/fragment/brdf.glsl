@@ -36,23 +36,23 @@ float G2SmithGGX(float NdotL, float NdotV, float alphaSq) {
 }
 
 
-vec3 sampleGGXVNDF(vec3 viewDir, vec2 xi, float alpha) {
+vec3 sampleGGXVNDF(vec3 viewDirection, vec2 xi, float alpha) {
 	// Stretch view
-	viewDir = normalize(vec3(alpha * viewDir.xy, viewDir.z));
+	viewDirection = normalize(vec3(alpha * viewDirection.xy, viewDirection.z));
 
 	// Orthonormal basis
-	vec3 T1 = (viewDir.z < 0.9999) ? normalize(cross(viewDir, vec3(0.0, 0.0, 1.0))) : vec3(1.0, 0.0, 0.0);
-	vec3 T2 = cross(T1, viewDir);
+	vec3 T1 = (viewDirection.z < 0.9999) ? normalize(cross(viewDirection, vec3(0.0, 0.0, 1.0))) : vec3(1.0, 0.0, 0.0);
+	vec3 T2 = cross(T1, viewDirection);
 
 	// Sample point with polar coordinates (r, phi)
-    float a   = 1.0 / (1.0 + viewDir.z);
+    float a   = 1.0 / (1.0 + viewDirection.z);
     float r   = sqrt(xi.x);
     float phi = (xi.y < a) ? xi.y / a * PI : PI + (xi.y - a) / (1.0 - a) * PI;
     float P1  = r * cos(phi);
-    float P2  = r * sin(phi) * ((xi.y < a) ? 1.0 : viewDir.z);
+    float P2  = r * sin(phi) * ((xi.y < a) ? 1.0 : viewDirection.z);
 
 	// Compute normal
-	vec3 N = P1 * T1 + P2 * T2 + sqrt(max0(1.0 - P1 * P1 - P2 * P2)) * viewDir;
+	vec3 N = P1 * T1 + P2 * T2 + sqrt(max0(1.0 - P1 * P1 - P2 * P2)) * viewDirection;
 
 	// Unstretch
 	return normalize(vec3(alpha * N.xy, max0(N.z)));	
@@ -73,7 +73,7 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
     float NdotTr       = rOverLengthT * (NdotV - RdotL * NdotL);
     float VdotTr       = rOverLengthT * (2.0 * NdotV * NdotV - 1.0 - RdotL * VdotL);
 
-    float triple = sqrt(clamp01(1.0 - NdotL * NdotL - NdotV * NdotV - VdotL * VdotL + 2.0 * NdotL * NdotV * VdotL));
+    float triple = sqrt(saturate(1.0 - NdotL * NdotL - NdotV * NdotV - VdotL * VdotL + 2.0 * NdotL * NdotV * VdotL));
         
     float NdotBr   = rOverLengthT * triple, VdotBr = rOverLengthT * (2.0 * triple * NdotV);
     float NdotLVTr = NdotL * radiusCos + NdotV + NdotTr, VdotLVTr = VdotL * radiusCos + 1.0 + VdotTr;
@@ -92,13 +92,13 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
 
     float NdotH = NdotV + newNdotL;
     float HdotH = 2.0 * newVdotL + 2.0;
-    return clamp01(NdotH * NdotH / HdotH);
+    return saturate(NdotH * NdotH / HdotH);
 }
 
 vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     vec3 halfway = normalize(viewDirection + lightDirection);
-    float NdotL  = clamp01(dot(material.normal, lightDirection));
-    float NdotV  = clamp01(dot(material.normal, viewDirection));
+    float NdotL  = saturate(dot(material.normal, lightDirection));
+    float NdotV  = saturate(dot(material.normal, viewDirection));
     float VdotL  = dot(viewDirection, lightDirection);
     float NdotH  = dot(material.normal, halfway);
 
@@ -123,7 +123,7 @@ vec3 hemisphericalAlbedo(vec3 n) {
     vec3 T_2 = ((4.0 * pow3(n) * (n2 + 2.0 * n - 1.0)) / (pow2(n2 + 1.0) * (n2 - 1.0))) - 
                 ((2.0 * n2 * (n2 + 1.0) * log(n)) / pow2(n2 - 1.0)) +
                 ((2.0 * n2 * pow2(n2 - 1.0) * log((n * (n + 1.0)) / (n-  1.0))) / pow3(n2 + 1.0));
-    return clamp01(1.0 - 0.5 * (T_1 + T_2));
+    return saturate(1.0 - 0.5 * (T_1 + T_2));
 }
 
 vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 lightDirection, float distThroughMedium) {
@@ -196,5 +196,5 @@ vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection)
     vec3  F  = fresnelDielectricConductor(VdotH, material.N, material.K);
     float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
         
-    return max0(clamp01(NdotL) * F * D * G2 / (4.0 * NdotL * NdotV));
+    return max0(saturate(NdotL) * F * D * G2 / (4.0 * NdotL * NdotV));
 }

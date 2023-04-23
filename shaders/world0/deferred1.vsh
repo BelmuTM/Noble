@@ -10,4 +10,4 @@ out vec2 texCoords;
 #define STAGE_VERTEX
 #define WORLD_OVERWORLD
 
-#include "/programs/deferred/atmosphere.glsl"
+#include "/programs/deferred/atmosphere_pass.glsl"

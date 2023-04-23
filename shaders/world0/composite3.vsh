@@ -8,4 +8,4 @@
 out vec2 texCoords;
 
 #define STAGE_VERTEX
-#include "/programs/composite/temporal.glsl"
+#include "/programs/post/temporal.glsl"

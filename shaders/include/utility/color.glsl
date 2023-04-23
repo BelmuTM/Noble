@@ -5,7 +5,7 @@
 
 /*
     [Credits]:
-        Jessie - providing blackbody radiation and Planck's law functions (https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl)
+        Jessie - providing blackbody radiation function (https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl)
 
     [References]:
         Uchimura, H. (2017). HDR Theory and practice. https://www.slideshare.net/nikuque/hdr-theory-and-practicce-jp
@@ -144,160 +144,50 @@ vec3 srgbToAP1Albedo(vec3 color) {
     return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
 }
 
-vec3 plancks(in float t, in vec3 lambda) {
-    const float h = 6.63e-16; // Planck's constant
-    const float c = 3.0e17;   // Speed of light in vacuum
-    const float k = 1.38e-5;  // Boltzmann's constant
-
-    vec3 p1 = (2.0 * h * pow(c, 2.0)) / pow(lambda, vec3(5.0));
-    vec3 p2 = exp(h * c / (lambda * k * t)) - vec3(1.0);
-    return (p1 / p2) * pow(1e9, 2.0);
-}
-
-vec3 blackbody(in float t) {
-    vec3 rgb = plancks(t, vec3(660.0, 550.0, 440.0));
-         rgb /= max(rgb.r, max(rgb.g, rgb.b)); // Keeping the values below 1.0
-    return rgb;
-}
-
-//////////////////////////////////////////////////////////
-/*---------------------- TONEMAPS ----------------------*/
-//////////////////////////////////////////////////////////
-
-void whitePreservingReinhard(inout vec3 color, float white) {
-	float luminance           = luminance(color);
-	float toneMappedLuminance = luminance * (1.0 + luminance / (white * white)) / (1.0 + luminance);
-	      color              *= toneMappedLuminance / luminance;
-}
-
-void reinhardJodie(inout vec3 color) {
-    float luminance = luminance(color);
-    vec3 tv         = color / (1.0 + color);
-    color           = mix(color / (1.0 + luminance), tv, tv);
-}
-
-void lottes(inout vec3 color) {
-    const vec3 a      = vec3(1.6);
-    const vec3 d      = vec3(0.977);
-    const vec3 hdrMax = vec3(8.0);
-    const vec3 midIn  = vec3(0.18);
-    const vec3 midOut = vec3(0.267);
-
-    const vec3 b =
-        (-pow(midIn, a) + pow(hdrMax, a) * midOut) /
-        ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
-    const vec3 c =
-        (pow(hdrMax, a * d) * pow(midIn, a) - pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
-        ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
-
-    color = pow(color, a) / (pow(color, a * d) * b + c);
-}
-
-vec3 uchimura(vec3 x, float P, float a, float m, float l, float c, float b) {
-    float l0 = ((P - m) * l) / a;
-    float L0 = m - m / a;
-    float L1 = m + (1.0 - m) / a;
-    float S0 = m + l0;
-    float S1 = m + a * l0;
-    float C2 = (a * P) / (P - S1);
-    float CP = -C2 / P;
-
-    vec3 w0 = vec3(1.0 - smoothstep(0.0, m, x));
-    vec3 w2 = vec3(step(m + l0, x));
-    vec3 w1 = vec3(1.0 - w0 - w2);
-
-    vec3 T = vec3(m * pow(x / m, vec3(c)) + b);
-    vec3 S = vec3(P - (P - S1) * exp(CP * (x - S0)));
-    vec3 L = vec3(m + a * (x - m));
-
-    return T * w0 + L * w1 + S * w2;
-}
-
-void uchimura(inout vec3 color) {
-    const float P = 1.0;  // max display brightness
-    const float a = 1.0;  // contrast
-    const float m = 0.22; // linear section start
-    const float l = 0.4;  // linear section length
-    const float c = 1.33; // black
-    const float b = 0.0;  // pedestal
-
-    color = uchimura(color, P, a, m, l, c, b);
-}
-
-void uncharted2(inout vec3 color) {
-	const float A = 0.15;
-	const float B = 0.50;
-	const float C = 0.10;
-	const float D = 0.20;
-	const float E = 0.02;
-	const float F = 0.30;
-	const float W = 11.2;
-
-	color       = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
-	float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
-	color      /= white;
-}
-
-void burgess(inout vec3 color) {
-    vec3 maxColor = max(vec3(0.0), color - 0.004);
-            color = (maxColor * (6.2 * maxColor + 0.05)) / (maxColor * (6.2 * maxColor + 2.3) + 0.06);
-}
-
-//////////////////////////////////////////////////////////
-/*-------------------- COLOR GRADING -------------------*/
-//////////////////////////////////////////////////////////
-
-mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
-	vec3 sourceLMS      = source * CONE_RESP_CAT02;
-	vec3 destinationLMS = destination * CONE_RESP_CAT02;
-	vec3 tmp            = destinationLMS / sourceLMS;
-
-	mat3 vonKries = mat3(
-		tmp.x, 0.0, 0.0,
-		0.0, tmp.y, 0.0,
-		0.0, 0.0, tmp.z
-	);
-
-	return (CONE_RESP_CAT02 * vonKries) * inverse(CONE_RESP_CAT02);
-}
-
-void whiteBalance(inout vec3 color) {
+vec3 fromXyz(vec3 color) {
     #if TONEMAP == ACES
-        mat3 toXyz   = AP1_2_XYZ_MAT;
-        mat3 fromXyz = XYZ_2_AP1_MAT;
+        return color * XYZ_2_AP1_MAT;
     #else
-        mat3 toXyz   = SRGB_2_XYZ_MAT;
-        mat3 fromXyz = XYZ_2_SRGB_MAT;
+        return color * XYZ_2_SRGB_MAT;
     #endif
-
-    vec3 source           = blackbody(WHITE_BALANCE) * toXyz;
-    vec3 destination      = blackbody(WHITE_POINT)   * toXyz;
-    mat3 chromaAdaptation = toXyz * chromaticAdaptationMatrix(source, destination) * fromXyz;
-
-    color *= chromaAdaptation;
 }
 
-void vibrance(inout vec3 color, float intensity) {
-    float mn       = minOf(color);
-    float mx       = maxOf(color);
-    float sat      = (1.0 - clamp01(mx - mn)) * clamp01(1.0 - mx) * luminance(color) * 5.0;
-    vec3 lightness = vec3((mn + mx) * 0.5);
-
-    // Vibrance
-    color = mix(color, mix(lightness, color, intensity), sat);
-    // Negative vibrance
-    color = mix(color, lightness, (1.0 - lightness) * (1.0 - intensity) * 0.5 * abs(intensity));
+vec3 toXyz(vec3 color) {
+    #if TONEMAP == ACES
+        return color * AP1_2_XYZ_MAT;
+    #else
+        return color * SRGB_2_XYZ_MAT;
+    #endif
 }
 
-void saturation(inout vec3 color, float intensity) {
-    color = mix(vec3(luminance(color)), color, intensity);
+mat3 fromXyz(mat3 mat) {
+    #if TONEMAP == ACES
+        return mat * XYZ_2_AP1_MAT;
+    #else
+        return mat * XYZ_2_SRGB_MAT;
+    #endif
 }
 
-void contrast(inout vec3 color, float contrast) {
-    color = (color - 0.5) * contrast + 0.5;
+mat3 toXyz(mat3 mat) {
+    #if TONEMAP == ACES
+        return mat * AP1_2_XYZ_MAT;
+    #else
+        return mat * SRGB_2_XYZ_MAT;
+    #endif
 }
 
-void liftGammaGain(inout vec3 color, float lift, float gamma, float gain) {
-    vec3 lerpV = pow(color, vec3(gamma));
-    color = gain * lerpV + lift * (1.0 - lerpV);
+vec3 plancks(float temperature, vec3 lambda) {
+    const float h = 6.62607015e-16; // Planck's constant
+    const float c = 2.997925e17;    // Speed of light in a vacuum
+    const float k = 1.381e-5;       // Boltzmann's constant
+
+    float numerator   = 2.0 * h * pow2(c);
+    vec3  denominator = (exp(h * c / (lambda * k * temperature)) - vec3(1.0)) * pow5(lambda);
+    return (numerator / denominator) * pow2(1e9);
+}
+
+vec3 blackbody(float temperature) {
+    vec3 rgb  = plancks(temperature, vec3(660.0, 550.0, 440.0));
+         rgb /= maxOf(rgb); // Keeping the values below 1.0
+    return rgb;
 }

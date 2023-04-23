@@ -70,7 +70,7 @@ void aTrousFilter(inout vec3 irradiance, inout vec4 moments, sampler2D tex, int 
             vec2 offset       = vec2(x, y) * stepSize;
             vec2 sampleCoords = texCoords + offset;
 
-            if(clamp01(sampleCoords) != sampleCoords) continue;
+            if(saturate(sampleCoords) != sampleCoords) continue;
 
             Material sampleMaterial = getMaterial(sampleCoords);
             vec3 sampleIrradiance   = texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb;
@@ -79,7 +79,7 @@ void aTrousFilter(inout vec3 irradiance, inout vec4 moments, sampler2D tex, int 
             float depthWeight  = getATrousDepthWeight(material.depth0, sampleMaterial.depth0, dgrad, offset);
             float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleIrradiance), variance), frames);
 
-            float weight   = clamp01(normalWeight * depthWeight * lumaWeight) * aTrous[abs(x)] * aTrous[abs(y)];
+            float weight   = saturate(normalWeight * depthWeight * lumaWeight) * aTrous[abs(x)] * aTrous[abs(y)];
             irradiance    += sampleIrradiance * weight;
             totalWeight   += weight;
             totalWeightSq += weight * weight;

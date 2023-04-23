@@ -21,6 +21,7 @@
 #define DIRECT_BUFFER		colortex9
 #define INDIRECT_BUFFER		colortex10
 #define MOMENTS_BUFFER		colortex11
+#define HI_Z_BUFFER			colortex12
 #define LUT_BUFFER			colortex14
 #define RASTER_BUFFER		colortex15
 
@@ -113,7 +114,7 @@ const float shadowDistance      = 128.0; // [64.0 128.0 256.0 512.0 1024.0]
 //////////////////////////////////////////////////////////
 
 #define HIZ_LOD_COUNT 4
-#define HIZ_START_LOD 3
+#define HIZ_START_LOD 4
 #define HIZ_STOP_LOD  0
 
 #define RAY_DEPTH_TOLERANCE 0.5
@@ -191,19 +192,19 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define CLOUDS_LAYER0_COVERAGE     25 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_LAYER0_SWIRL        10 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_LAYER0_SCALE      6e-4
-#define CLOUDS_LAYER0_SHAPESCALE 8e-4 
+#define CLOUDS_LAYER0_SHAPESCALE 7e-4 
 #define CLOUDS_LAYER0_FREQUENCY  2.00
 #define CLOUDS_LAYER0_DENSITY    1.00
 #define CLOUDS_LAYER0_OCTAVES       1
 
 #define CLOUDS_LAYER1_ALTITUDE 7000.0
-#define CLOUDS_LAYER1_THICKNESS 400.0
+#define CLOUDS_LAYER1_THICKNESS 200.0
 #define CLOUDS_LAYER1_COVERAGE   0.60
 #define CLOUDS_LAYER1_SWIRL      0.50
 #define CLOUDS_LAYER1_SCALE      5e-5
 #define CLOUDS_LAYER1_SHAPESCALE 5e-5
 #define CLOUDS_LAYER1_FREQUENCY  1.40
-#define CLOUDS_LAYER1_DENSITY    0.05
+#define CLOUDS_LAYER1_DENSITY    0.20
 #define CLOUDS_LAYER1_OCTAVES       1
 
 #define AIR_FOG              1 // [0 1 2]

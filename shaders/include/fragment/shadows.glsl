@@ -3,28 +3,28 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-vec3 worldToShadow(vec3 worldPos) {
-	return projectOrtho(shadowProjection, transform(shadowModelView, worldPos));
+vec3 worldToShadow(vec3 worldPosition) {
+	return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
 }
 
 /*
-float contactShadow(vec3 viewPos, vec3 rayDir, int stepCount, float jitter) {
-    vec3 rayPos = viewToScreen(viewPos);
-         rayDir = normalize(viewToScreen(viewPos + rayDir) - rayPos);
+float contactShadow(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter) {
+    vec3 rayPosition  = viewToScreen(viewPosition);
+         rayDirection = normalize(viewToScreen(viewPosition + rayDirection) - rayPosition);
 
     const float contactShadowDepthLenience = 0.2;
 
-    vec3 increment = rayDir * (contactShadowDepthLenience * rcp(stepCount));
-         rayPos   += increment * (1.0 + jitter);
+    vec3 increment    = rayDirection * (contactShadowDepthLenience * rcp(stepCount));
+         rayPosition += increment * (1.0 + jitter);
 
-    for(int i = 0; i <= stepCount; i++, rayPos += increment) {
-        if(clamp01(rayPos.xy) != rayPos.xy) return 1.0;
+    for(int i = 0; i <= stepCount; i++, rayPosition += increment) {
+        if(saturate(rayPosition.xy) != rayPosition.xy) return 1.0;
 
-        float depth = texelFetch(depthtex1, ivec2(rayPos.xy * viewSize), 0).r;
-        if(depth >= rayPos.z) return 1.0;
+        float depth = texelFetch(depthtex1, ivec2(rayPosition.xy * viewSize), 0).r;
+        if(depth >= rayPosition.z) return 1.0;
 
                  depth = linearizeDepth(depth);
-        float rayDepth = linearizeDepth(rayPos.z);
+        float rayDepth = linearizeDepth(rayPosition.z);
 
         if(abs(depth - rayDepth) / depth < contactShadowDepthLenience) return 0.0;
     }
@@ -37,7 +37,7 @@ float visibility(sampler2D tex, vec3 samplePos) {
 }
 
 vec3 getShadowColor(vec3 samplePos) {
-    if(clamp01(samplePos) != samplePos) return vec3(1.0);
+    if(saturate(samplePos) != samplePos) return vec3(1.0);
 
     float shadowDepth0 = visibility(shadowtex0, samplePos);
     float shadowDepth1 = visibility(shadowtex1, samplePos);
@@ -49,7 +49,7 @@ vec3 getShadowColor(vec3 samplePos) {
         shadowCol.rgb = srgbToLinear(shadowCol.rgb);
     #endif
 
-    return mix(vec3(shadowDepth0), shadowCol.rgb * (1.0 - shadowCol.a), clamp01(shadowDepth1 - shadowDepth0));
+    return mix(vec3(shadowDepth0), shadowCol.rgb * (1.0 - shadowCol.a), saturate(shadowDepth1 - shadowDepth0));
 }
 
 #if SHADOWS == 1 
@@ -60,7 +60,7 @@ vec3 getShadowColor(vec3 samplePos) {
             for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
                 vec2 offset      = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);
                 vec2 localCoords = shadowPos.xy + offset;
-                if(clamp01(localCoords) != localCoords) return -1.0;
+                if(saturate(localCoords) != localCoords) return -1.0;
 
                 ivec2 shadowCoords = ivec2(localCoords * shadowMapResolution);
 
@@ -96,9 +96,9 @@ vec3 getShadowColor(vec3 samplePos) {
     }
 #endif
 
-vec3 shadowMap(vec3 scenePos, vec3 geoNormal, out float ssDepth) {
+vec3 shadowMap(vec3 scenePosition, vec3 geoNormal, out float ssDepth) {
     #if SHADOWS == 1 
-        vec3 shadowPos = worldToShadow(scenePos);
+        vec3 shadowPos = worldToShadow(scenePosition);
         float NdotL    = dot(geoNormal, shadowLightVector);
 
         // Shadow bias implementation from Emin#7309 and concept from gri573#7741

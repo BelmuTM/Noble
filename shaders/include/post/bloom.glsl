@@ -64,6 +64,6 @@
 	    bloom += getBloomTile(6);
 	    bloom += getBloomTile(7);
 	    bloom += getBloomTile(8);
-    	return bloom * rcp(7.0);
+    	return max0(bloom / 7.0);
 	}
 #endif

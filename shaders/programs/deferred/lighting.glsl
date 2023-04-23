@@ -29,7 +29,7 @@
 #endif
 
 void main() {
-    vec3 viewPos0 = getViewPos0(texCoords);
+    vec3 viewPosition0 = getViewPosition0(texCoords);
 
     #if GI == 1
         vec2 tempCoords = texCoords * rcp(GI_SCALE);
@@ -38,7 +38,7 @@ void main() {
     #endif
 
     if(isSky(texCoords)) {
-        vec3 sky = computeAtmosphere(viewPos0);
+        vec3 sky = computeAtmosphere(viewPosition0);
         #if GI == 1
             direct = sky;
         #else
@@ -54,12 +54,12 @@ void main() {
     #endif
 
     #if AO_FILTER == 1 && GI == 0 || GI == 1
-        vec3 currPos = vec3(texCoords, material.depth0);
-        vec3 prevPos = currPos - getVelocity(currPos);
-        vec4 history = texture(DEFERRED_BUFFER, prevPos.xy);
+        vec3 currPosition = vec3(texCoords, material.depth0);
+        vec3 prevPosition = currPosition - getVelocity(currPosition);
+        vec4 history      = texture(DEFERRED_BUFFER, prevPosition.xy);
 
         #if RENDER_MODE == 0
-            float prevDepth = exp2(texture(MOMENTS_BUFFER, prevPos.xy).a);
+            float prevDepth = exp2(texture(MOMENTS_BUFFER, prevPosition.xy).a);
             float weight    = pow(exp(-abs(linearizeDepth(material.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
             temporalData.a = log2(material.depth0);
@@ -67,7 +67,7 @@ void main() {
             float weight = float(hideGUI);
         #endif
 
-        color.a = (history.a * weight * float(clamp01(prevPos.xy) == prevPos.xy)) + 1.0;
+        color.a = (history.a * weight * float(saturate(prevPosition.xy) == prevPosition.xy)) + 1.0;
     #endif
 
     #if GI == 0
@@ -82,7 +82,7 @@ void main() {
                 directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
 
                 #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
-                    cloudsShadows = getCloudsShadows(viewToScene(viewPos0));
+                    cloudsShadows = getCloudsShadows(viewToScene(viewPosition0));
                 #endif
 
                 #if SHADOWS == 1
@@ -95,7 +95,7 @@ void main() {
                 ao = texture(INDIRECT_BUFFER, texCoords).a;
             #endif
 
-            color.rgb = max0(computeDiffuse(viewPos0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows));
+            color.rgb = max0(computeDiffuse(viewPosition0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows));
         }
     #else
 
@@ -108,8 +108,8 @@ void main() {
 
                 color.rgb = mix(history.rgb, color.rgb, frameWeight);
 
-                vec3 prevDirect   = texture(DIRECT_BUFFER,   prevPos.xy).rgb;
-                vec3 prevIndirect = texture(INDIRECT_BUFFER, prevPos.xy).rgb;
+                vec3 prevDirect   = texture(DIRECT_BUFFER,   prevPosition.xy).rgb;
+                vec3 prevIndirect = texture(INDIRECT_BUFFER, prevPosition.xy).rgb;
 
                 direct   = max0(mix(prevDirect  , direct  , frameWeight));
                 indirect = max0(mix(prevIndirect, indirect, frameWeight));
@@ -118,7 +118,7 @@ void main() {
                     float luminance = luminance(color.rgb);
                     temporalData.rg = vec2(luminance, luminance * luminance);
 
-                    vec2 prevMoments     = texture(MOMENTS_BUFFER, prevPos.xy).rg;
+                    vec2 prevMoments     = texture(MOMENTS_BUFFER, prevPosition.xy).rg;
                          temporalData.rg = mix(prevMoments, temporalData.rg, frameWeight);
                          temporalData.b  = sqrt(abs(temporalData.g - temporalData.r * temporalData.r));
                 #endif

@@ -31,40 +31,40 @@ layout (location = 0) out vec3 color;
     #include "/include/post/aces/odt.glsl"
 #endif
 
+#include "/include/post/grading.glsl"
+
 #if PURKINJE == 1
     vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
 
     void purkinje(inout vec3 color) {
         #if TONEMAP == ACES
-            mat3 toXYZ = SRGB_2_XYZ_MAT, fromXYZ = XYZ_2_SRGB_MAT;
-        #else
-            rodResponse *= SRGB_2_AP1_ALBEDO;
-            mat3 toXYZ   = AP1_2_XYZ_MAT, fromXYZ = XYZ_2_AP1_MAT;
+			rodResponse *= SRGB_2_AP1_ALBEDO;
         #endif
-        vec3 xyzColor = color * toXYZ;
 
-        vec3 scotopicLum = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
-        float purkinje   = dot(rodResponse, scotopicLum * fromXYZ);
+        vec3 xyzColor = toXyz(color);
+
+        vec3  scotopicLuminance = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
+        float purkinje   		= dot(rodResponse, fromXyz(scotopicLuminance));
 
         color = mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0));
     }
 #endif
 
 #if TONEMAP == ACES
-    const float exposureBias = 1.4;
+    const float exposureBias = 2.2;
 #else
     const float exposureBias = 1.0;
 #endif
 
-float minExposure = 1.0 * exposureBias / luminance(sunIlluminance);
-float maxExposure = 0.3 * exposureBias / luminance(moonIlluminance);
+float minExposure = 1.0 * exposureBias / luminance(sunIrradiance);
+float maxExposure = 0.3 * exposureBias / luminance(moonIrradiance);
 
 float computeEV100fromLuminance(float luminance) {
     return log2(luminance * sensorSensitivity * exposureBias / calibration);
 }
 
 float computeExposureFromEV100(float ev100) {
-    return 1.0 / (1.2 * exp2(ev100));
+    return 1.0 / (1.2 / exposureBias * exp2(ev100));
 }
 
 float computeExposure(float averageLuminance) {
@@ -121,5 +121,6 @@ void main() {
     #if TONEMAP != ACES
         color = linearToSrgb(color);
     #endif
-    color = clamp01(color);
+
+    color = saturate(color);
 }

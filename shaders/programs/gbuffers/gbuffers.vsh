@@ -13,7 +13,7 @@ out vec2 texCoords;
 out vec2 lmCoords;
 out vec2 texSize;
 out vec2 botLeft;
-out vec3 viewPos;
+out vec3 viewPosition;
 out vec4 vertexColor;
 out mat3 TBN;
 
@@ -39,27 +39,28 @@ void main() {
 	#endif
 
 	#ifndef PROGRAM_BASIC 
-    	vec3 geoNormal = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
-    		 viewPos   = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
+    	vec3 geoNormal    = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+    		 viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
 		TBN			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
 	#endif
 
-	blockId 	  = int((mc_Entity.x - 1000.0) + 0.25);
-	vec3 worldPos = transform(gbufferModelViewInverse, viewPos);
+	blockId = int((mc_Entity.x - 1000.0) + 0.25);
+	
+	vec3 worldPosition = transform(gbufferModelViewInverse, viewPosition);
 
 	#if RENDER_MODE == 0
 		#if defined PROGRAM_TERRAIN
-			animate(worldPos, texCoords.y < mc_midTexCoord.y);
+			animate(worldPosition, texCoords.y < mc_midTexCoord.y);
 		#endif
 
 		#if defined PROGRAM_WEATHER
-			worldPos.xz += RAIN_DIRECTION * worldPos.y;
+			worldPosition.xz += RAIN_DIRECTION * worldPosition.y;
 		#endif
 	#endif
 	
-	gl_Position = transform(gbufferModelView, worldPos).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+	gl_Position = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 
 	#if defined PROGRAM_ENTITY
 		// Thanks Niemand#1929 for the nametag fix

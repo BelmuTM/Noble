@@ -1,0 +1,152 @@
+/***********************************************/
+/*           Copyright (C) 2023 Belmu          */
+/*             All Rights Reserved             */
+/***********************************************/
+
+/*
+    [References]:
+        Uchimura, H. (2017). HDR Theory and practice. https://www.slideshare.net/nikuque/hdr-theory-and-practicce-jp
+        Uchimura, H. (2017). GT Tonemap. https://www.desmos.com/calculator/gslcdxvipg?lang=fr
+        Hable, J. (2017). Minimal Color Grading Tools. http://filmicworlds.com/blog/minimal-color-grading-tools/
+        Taylor, M. (2019). Tone Mapping. https://64.github.io/tonemapping/
+        Wikipedia. (2023). Von Kries coefficient law. https://en.wikipedia.org/wiki/Von_Kries_coefficient_law
+        Wikipedia. (2023). LMS color space. https://en.wikipedia.org/wiki/LMS_color_space
+*/
+
+//////////////////////////////////////////////////////////
+/*--------------- TONEMAPPING OPERATORS ----------------*/
+//////////////////////////////////////////////////////////
+
+void whitePreservingReinhard(inout vec3 color, float white) {
+	float luminance           = luminance(color);
+	float toneMappedLuminance = luminance * (1.0 + luminance / (white * white)) / (1.0 + luminance);
+
+	color *= toneMappedLuminance / luminance;
+}
+
+void reinhardJodie(inout vec3 color) {
+    float luminance = luminance(color);
+    vec3 tv         = color / (1.0 + color);
+
+    color = mix(color / (1.0 + luminance), tv, tv);
+}
+
+void lottes(inout vec3 color) {
+    const vec3 a      = vec3(1.6);
+    const vec3 d      = vec3(0.977);
+    const vec3 hdrMax = vec3(8.0);
+    const vec3 midIn  = vec3(0.18);
+    const vec3 midOut = vec3(0.267);
+
+    const vec3 b =
+        (-pow(midIn, a) + pow(hdrMax, a) * midOut) /
+        ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+    const vec3 c =
+        (pow(hdrMax, a * d) * pow(midIn, a) - pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
+        ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+
+    color = pow(color, a) / (pow(color, a * d) * b + c);
+}
+
+vec3 uchimura(vec3 x, float P, float a, float m, float l, float c, float b) {
+    float l0 = ((P - m) * l) / a;
+    float L0 = m - m / a;
+    float L1 = m + (1.0 - m) / a;
+    float S0 = m + l0;
+    float S1 = m + a * l0;
+    float C2 = (a * P) / (P - S1);
+    float CP = -C2 / P;
+
+    vec3 w0 = vec3(1.0 - smoothstep(0.0, m, x));
+    vec3 w2 = vec3(step(m + l0, x));
+    vec3 w1 = vec3(1.0 - w0 - w2);
+
+    vec3 T = vec3(m * pow(x / m, vec3(c)) + b);
+    vec3 S = vec3(P - (P - S1) * exp(CP * (x - S0)));
+    vec3 L = vec3(m + a * (x - m));
+
+    return T * w0 + L * w1 + S * w2;
+}
+
+void uchimura(inout vec3 color) {
+    const float P = 1.0;  // max display brightness
+    const float a = 1.0;  // contrast
+    const float m = 0.22; // linear section start
+    const float l = 0.4;  // linear section length
+    const float c = 1.33; // black
+    const float b = 0.0;  // pedestal
+
+    color = uchimura(color, P, a, m, l, c, b);
+}
+
+void uncharted2(inout vec3 color) {
+	const float A = 0.15;
+	const float B = 0.50;
+	const float C = 0.10;
+	const float D = 0.20;
+	const float E = 0.02;
+	const float F = 0.30;
+	const float W = 11.2;
+
+    float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
+
+	color  = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
+	color /= white;
+}
+
+void burgess(inout vec3 color) {
+    vec3 maxColor = max(vec3(0.0), color - 0.004);
+    
+    color = (maxColor * (6.2 * maxColor + 0.05)) / (maxColor * (6.2 * maxColor + 2.3) + 0.06);
+}
+
+//////////////////////////////////////////////////////////
+/*-------------------- GRADING -------------------*/
+//////////////////////////////////////////////////////////
+
+mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
+	vec3 sourceLMS      = source * CONE_RESP_CAT02;
+	vec3 destinationLMS = destination * CONE_RESP_CAT02;
+	vec3 tmp            = destinationLMS / sourceLMS;
+
+	mat3 vonKries = mat3(
+		tmp.x, 0.0, 0.0,
+		0.0, tmp.y, 0.0,
+		0.0, 0.0, tmp.z
+	);
+
+	return (CONE_RESP_CAT02 * vonKries) * inverse(CONE_RESP_CAT02);
+}
+
+void whiteBalance(inout vec3 color) {
+    vec3 source           = toXyz(blackbody(WHITE_BALANCE));
+    vec3 destination      = toXyz(blackbody(WHITE_POINT  ));
+    mat3 chromaAdaptation = fromXyz(toXyz(chromaticAdaptationMatrix(source, destination)));
+
+    color *= chromaAdaptation;
+}
+
+void vibrance(inout vec3 color, float intensity) {
+    float minimum    = minOf(color);
+    float maximum    = maxOf(color);
+    float saturation = (1.0 - saturate(maximum - minimum)) * saturate(1.0 - maximum) * luminance(color) * 5.0;
+    vec3  lightness  = vec3((minimum + maximum) * 0.5);
+
+    // Vibrance
+    color = mix(color, mix(lightness, color, intensity), saturation);
+    // Negative vibrance
+    color = mix(color, lightness, (1.0 - lightness) * (1.0 - intensity) * 0.5 * abs(intensity));
+}
+
+void saturation(inout vec3 color, float intensity) {
+    color = mix(vec3(luminance(color)), color, intensity);
+}
+
+void contrast(inout vec3 color, float contrast) {
+    color = (color - 0.5) * contrast + 0.5;
+}
+
+void liftGammaGain(inout vec3 color, float lift, float gamma, float gain) {
+    vec3 lerpV = pow(color, vec3(gamma));
+    color = gain * lerpV + lift * (1.0 - lerpV);
+}

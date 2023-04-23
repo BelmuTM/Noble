@@ -33,7 +33,7 @@ layout (location = 1) out vec3 bloomBuffer;
         for(float angle = 0.0; angle < TAU; angle += TAU / DOF_ANGLE_SAMPLES) {
             for(int i = 0; i < DOF_SAMPLES; i++) {
                 vec2 sampleCoords = texCoords + vec2(cos(angle), sin(angle)) * i * coc * pixelSize;
-                if(clamp01(sampleCoords) != sampleCoords) continue;
+                if(saturate(sampleCoords) != sampleCoords) continue;
 
                 vec3 sampleColor  = vec3(
                     texture(tex, sampleCoords + caOffset).r,

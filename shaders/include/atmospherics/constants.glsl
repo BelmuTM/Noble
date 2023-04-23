@@ -6,7 +6,7 @@
 /* ATMOSPHERIC CONSTANTS */
 
 const float planetRadius          = 6371e3;               // Meters
-const float atmosphereLowerRadius = planetRadius - 4e3;   // Meters
+const float atmosphereLowerRadius = planetRadius - 1e3;   // Meters
 const float atmosphereUpperRadius = planetRadius + 110e3; // Meters
 
 const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
@@ -70,12 +70,10 @@ const float sunDistance = 1.496e11;
 const float sunAngularRadius  = CELESTIAL_SIZE_MULTIPLIER * sunRadius  / sunDistance;
 const float moonAngularRadius = CELESTIAL_SIZE_MULTIPLIER * moonRadius / moonDistance;
 
-const vec3 sunColor = vec3(1.0, 0.949, 0.937);
-vec3 sunIlluminance = sunColor * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
-vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRadius);
+const vec3 sunIrradiance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
+      vec3 sunRadiance   = sunIrradiance / coneAngleToSolidAngle(sunAngularRadius);
 
-vec3 moonLuminance   = moonAlbedo * RCP_PI * sunIlluminance;
-vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRadius); // The rough amount of light the moon emits that reaches the earth
+vec3 moonRadiance   = moonAlbedo * RCP_PI * sunIrradiance;
+vec3 moonIrradiance = moonRadiance * coneAngleToSolidAngle(moonAngularRadius); // The rough amount of light the moon emits that reaches the earth
 
 float shadowLightAngularRadius = sunAngle < 0.5 ? sunAngularRadius : moonAngularRadius;
-vec3  shadowLightIlluminance   = sunAngle < 0.5 ? sunIlluminance   : moonIlluminance;

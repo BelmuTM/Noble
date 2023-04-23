@@ -10,4 +10,4 @@ in vec2 texCoords;
 #define STAGE_FRAGMENT
 #define WORLD_OVERWORLD
 
-#include "/programs/deferred/ao.glsl"
+#include "/programs/deferred/ao_pass.glsl"

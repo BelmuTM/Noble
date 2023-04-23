@@ -13,7 +13,7 @@
 
     flat out int blockId;
     out vec2 texCoords;
-    out vec3 worldPos;
+    out vec3 worldPosition;
     out vec4 vertexColor;
     out mat3 TBN;
 
@@ -25,7 +25,7 @@
         blockId     = int((mc_Entity.x - 1000.0) + 0.25);
 
         vec3 viewShadowPos = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
-        worldPos           = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
+             worldPosition = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
 
         #if WATER_CAUSTICS == 1
             vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
@@ -34,13 +34,13 @@
         #endif
 
 	    #if RENDER_MODE == 0
-            animate(worldPos, texCoords.y < mc_midTexCoord.y);
-            gl_Position = transform(shadowModelView, worldPos).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+            animate(worldPosition, texCoords.y < mc_midTexCoord.y);
+            gl_Position = transform(shadowModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 	    #else
             gl_Position = ftransform();
         #endif
 
-        worldPos       += cameraPosition;
+        worldPosition  += cameraPosition;
         gl_Position.xyz = distortShadowSpace(gl_Position.xyz);
     }
     
@@ -52,7 +52,7 @@
 
     flat in int blockId;
     in vec2 texCoords;
-    in vec3 worldPos;
+    in vec3 worldPosition;
     in vec4 vertexColor;
     in mat3 TBN;
 
@@ -77,7 +77,7 @@
         #endif
 
         #if WATER_CAUSTICS == 1
-            float caustics = waterCaustics(worldPos, TBN * getWaterNormals(worldPos, 2));
+            float caustics = waterCaustics(worldPosition, TBN * getWaterNormals(worldPosition, 2));
             color0         = mix(albedoTex, vec4(vec3(caustics), -1.0), float(blockId == 1));
         #else
             color0 = mix(albedoTex, vec4(1.0, 1.0, 1.0, 0.0), float(blockId == 1));

@@ -10,4 +10,4 @@ in vec2 texCoords;
 #define STAGE_FRAGMENT
 #define WORLD_NETHER
 
-#include "/programs/deferred/lightingData.glsl"
+#include "/programs/deferred/pre_lighting.glsl"

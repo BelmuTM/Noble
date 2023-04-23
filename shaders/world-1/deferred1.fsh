@@ -10,4 +10,4 @@ in vec2 texCoords;
 #define STAGE_FRAGMENT
 #define WORLD_NETHER
 
-#include "/programs/deferred/atmosphere.glsl"
+#include "/programs/deferred/atmosphere_pass.glsl"

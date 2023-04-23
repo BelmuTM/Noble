@@ -17,7 +17,7 @@ float fresnelDielectric(float cosTheta, float n1, float n2) {
     float sPolar = (n2 * cosTheta - n1 * cosThetaT) / (n2 * cosTheta + n1 * cosThetaT);
     float pPolar = (n2 * cosThetaT - n1 * cosTheta) / (n2 * cosThetaT + n1 * cosTheta);
 
-    return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
+    return saturate((pow2(sPolar) + pow2(pPolar)) * 0.5);
 }
 
 vec3 fresnelDielectric(float cosTheta, vec3 n1, vec3 n2) {
@@ -27,7 +27,7 @@ vec3 fresnelDielectric(float cosTheta, vec3 n1, vec3 n2) {
     vec3 sPolar = (n2 * cosTheta - n1 * cosThetaT) / (n2 * cosTheta + n1 * cosThetaT);
     vec3 pPolar = (n2 * cosThetaT - n1 * cosTheta) / (n2 * cosThetaT + n1 * cosTheta);
 
-    return clamp01((pow2(sPolar) + pow2(pPolar)) * 0.5);
+    return saturate((pow2(sPolar) + pow2(pPolar)) * 0.5);
 }
 
 vec3 fresnelDielectricConductor(float cosTheta, vec3 eta, vec3 etaK) {  
@@ -47,5 +47,5 @@ vec3 fresnelDielectricConductor(float cosTheta, vec3 eta, vec3 etaK) {
    vec3 t4 = t2 * sinThetaSq;   
    vec3 Rp = Rs * (t3 - t4) / (t3 + t4);
 
-   return clamp01((Rp + Rs) * 0.5);
+   return saturate((Rp + Rs) * 0.5);
 }

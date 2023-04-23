@@ -23,13 +23,13 @@ void main() {
     #if GI == 0 && REFLECTIONS == 1
         if(isSky(texCoords)) discard;
 
-        vec3 viewPos      = getViewPos0(texCoords);
+        vec3 viewPosition = getViewPosition0(texCoords);
         Material material = getMaterial(texCoords);
                     
         #if REFLECTIONS_TYPE == 0
-            reflections = simpleReflections(viewPos, material);
+            reflections = simpleReflections(viewPosition, material);
         #else
-            reflections = roughReflections(viewPos, material);
+            reflections = roughReflections(viewPosition, material);
         #endif
     #else
         discard;

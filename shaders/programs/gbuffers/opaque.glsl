@@ -18,7 +18,7 @@
 	in vec2 lmCoords;
 	in vec2 texSize;
 	in vec2 botLeft;
-	in vec3 viewPos;
+	in vec3 viewPosition;
 	in vec4 vertexColor;
 	in mat3 TBN;
 
@@ -65,8 +65,8 @@
 			}
 		#endif
 
-    	vec2 parallaxMapping(vec3 viewPos, mat2 texDeriv, inout float height, out vec2 shadowCoords) {
-			vec3 tangentDirection = normalize(viewToScene(viewPos)) * TBN;
+    	vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out vec2 shadowCoords) {
+			vec3 tangentDirection = normalize(viewToScene(viewPosition)) * TBN;
         	float currLayerHeight = 0.0;
 
         	vec2 scaledVector = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize;
@@ -129,13 +129,13 @@
 		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
 			// Thanks ninjamike1211#5424 for the help
 			vec2 lightmap 	    = lmCoords;
-			vec3 scenePos       = viewToScene(viewPos);
-			vec3 lightmapVector = dFdx(scenePos) * dFdx(lightmap.x) + dFdy(scenePos) * dFdy(lightmap.x);
+			vec3 scenePosition  = viewToScene(viewPosition);
+			vec3 lightmapVector = dFdx(scenePosition) * dFdx(lightmap.x) + dFdy(scenePosition) * dFdy(lightmap.x);
 
-			lightmap.x *= clamp01(dot(normalize(lightmapVector), normalize(normal)) * 0.5 + 0.5);
-			return clamp01(lightmap);
+			lightmap.x *= saturate(dot(normalize(lightmapVector), normalize(normal)) * 0.5 + 0.5);
+			return saturate(lightmap);
 		#endif
-		return clamp01(lmCoords);
+		return saturate(lmCoords);
 	}
 
 	void main() {
@@ -150,10 +150,10 @@
 			float height  = 1.0;
 			vec2 shadowCoords;
 
-			vec2 coords = parallaxMapping(viewPos, texDeriv, height, shadowCoords);
+			vec2 coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords);
 
 			parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
-			if(clamp01(coords) != coords) discard;
+			if(saturate(coords) != coords) discard;
 		#else
 			vec2 coords = texCoords;
 		#endif
@@ -175,9 +175,9 @@
 
 		float F0 		 = specularTex.y;
 		float ao 		 = normalTex.z;
-		float roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
+		float roughness  = saturate(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
 		float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
-		float subsurface = clamp01(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
+		float subsurface = saturate(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
 
 		#if defined PROGRAM_ENTITY
 			albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
@@ -202,7 +202,7 @@
 		#ifndef PROGRAM_BLOCK
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				normal.xy = normalTex.xy * 2.0 - 1.0;
-				normal.z  = sqrt(1.0 - clamp01(dot(normal.xy, normal.xy)));
+				normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
 				normal    = TBN * normal;
 
 				lightmap = computeLightmap(normal);
@@ -211,21 +211,33 @@
 
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
 			if(wetness > 0.0) {
-				float porosity    = clamp01(specularTex.z * (maxVal8 / 64.0));
-				vec2 puddleCoords = (viewToWorld(viewPos).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
+				float porosity    = saturate(specularTex.z * (maxVal8 / 64.0));
+				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
 
-				float puddle  = clamp01(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
+				float puddle  = saturate(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
 		  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
 	  				  puddle *= (1.0 - porosity);
 			  	  	  puddle *= wetness;
 			  	  	  puddle *= quintic(0.89, 0.99, TBN[2].y);
-					  puddle  = clamp01(puddle);
+					  puddle  = saturate(puddle);
 	
 				F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxVal8, float(F0 * maxVal8 <= 229.5)));
 				roughness = mix(roughness, 0.0, puddle);
 				normal    = mix(normal, TBN[2], puddle);
 			}
 		#endif
+
+		/*
+		if(blockId == 13) {
+        	F0 = 1.0;
+        	roughness = EPS;
+        	albedoTex.rgb = vec3(1.0);
+        	ao = 1.0;
+        	emission = 0.0;
+        	subsurface = 0.0;
+			normal = TBN[2];
+    	}
+		*/
 
 		vec3 labPbrData0 = vec3(parallaxSelfShadowing, lightmap);
 		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);

@@ -3,6 +3,12 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+/*
+    [Credits]:
+        sixthsurge - help with the blocklight falloff function (https://github.com/sixthsurge)
+        Zombye     - skylight falloff function (https://github.com/zombye)
+*/
+
 struct Material {
     float F0;
     float roughness;
@@ -71,7 +77,7 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
     vec2 direction = vec2(0.786, 0.352);
 
     for(int i = 0; i < octaves; i++) {
-        float noise   = FBM(position * inversesqrt(lambda) - (speed * direction), 3, 0.3);
+        float noise   = FBM(position * inversesqrt(lambda) - (speed * direction), 1, 0.3);
               height -= gerstnerWaves(position +  vec2(noise, -noise) * sqrt(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
 
         steepness *= 1.02;
@@ -84,8 +90,8 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
 
 const vec2 offset = vec2(0.05, 0.0);
 
-vec3 getWaterNormals(vec3 worldPos, int octaves) {
-    vec2 position = worldPos.xz;
+vec3 getWaterNormals(vec3 worldPosition, int octaves) {
+    vec2 position = worldPosition.xz;
 
     float pos0 = calculateWaveHeightGerstner(position,             WATER_OCTAVES);
 	float pos1 = calculateWaveHeightGerstner(position + offset.xy, WATER_OCTAVES);
@@ -96,16 +102,16 @@ vec3 getWaterNormals(vec3 worldPos, int octaves) {
 
 float f0ToIOR(float F0) {
 	F0 = sqrt(F0) * 0.99999;
-	return (1.0 + F0) / (1.0 - F0);
+	return airIOR * ((1.0 + F0) / (1.0 - F0));
 }
 
 vec3 f0ToIOR(vec3 F0) {
 	F0 = sqrt(F0) * 0.99999;
-	return (1.0 + F0) / (1.0 - F0);
+	return airIOR * ((1.0 + F0) / (1.0 - F0));
 }
 
 float iorToF0(float ior) {
-	float a = (ior - 1.0) / (ior + 1.0);
+	float a = (ior - airIOR) / (ior + airIOR);
 	return a * a;
 }
 
@@ -130,9 +136,7 @@ Material getMaterial(vec2 coords) {
         material.ao = 1.0;
     #endif
 
-    material.albedo.r = (dataTex.z          & 255u) * rcpMaxVal8;
-	material.albedo.g = ((dataTex.z >> 8u)  & 255u) * rcpMaxVal8;
-	material.albedo.b = ((dataTex.z >> 16u) & 255u) * rcpMaxVal8;
+    material.albedo = ((uvec3(dataTex.z) >> uvec3(0, 8, 16)) & 255u) * rcpMaxVal8;
 
     #if TONEMAP == ACES
         material.albedo = srgbToAP1Albedo(material.albedo);
@@ -163,8 +167,8 @@ Material getMaterial(vec2 coords) {
 
 vec3 getBlockLightColor(Material material) {
     switch(material.blockId) {
-        case 5: return blackbody(1573.0) * EMISSIVE_INTENSITY; // Lava, magma
-        case 6: return blackbody(1900.0) * EMISSIVE_INTENSITY; // Flames, fire
+        case 5: return blackbody(1523.15) * EMISSIVE_INTENSITY; // Lava, magma
+        case 6: return blackbody(1900.0 ) * EMISSIVE_INTENSITY; // Fire
 
         default: return blackbody(BLOCKLIGHT_TEMPERATURE) * EMISSIVE_INTENSITY;
     }
@@ -172,12 +176,10 @@ vec3 getBlockLightColor(Material material) {
 }
 
 float getBlockLightFalloff(float lightmapX) {
-    // Square distance law, thanks to SixthSurge#3922 for the help!
     return linearStep(0.00390625, 1.0, 1.0 / pow2(16.0 - 15.0 * lightmapX));
 }
 
 
 float getSkyLightFalloff(float lightmapY) {
-    // Taken from Zombye#7365 (Spectrum - https://github.com/zombye/spectrum)
     return lightmapY * exp(6.0 * (lightmapY - 1.0));
 }

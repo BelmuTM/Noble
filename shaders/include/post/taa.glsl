@@ -56,10 +56,10 @@ vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
     vec3 prevColor = SRGB_2_YCoCg_MAT * textureCatmullRom(prevTex, prevCoords).rgb;
          prevColor = neighbourhoodClipping(currTex, prevColor);
 
-    float weight = float(clamp01(prevCoords) == prevCoords) * TAA_STRENGTH;
+    float weight = float(saturate(prevCoords) == prevCoords) * TAA_STRENGTH;
 
     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
          weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
 
-    return YCoCg_2_SRGB_MAT * mix(currColor, prevColor, clamp01(weight)); 
+    return YCoCg_2_SRGB_MAT * mix(currColor, prevColor, saturate(weight)); 
 }

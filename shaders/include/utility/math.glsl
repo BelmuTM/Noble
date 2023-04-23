@@ -18,7 +18,6 @@
         Wikipedia. (2022). Rodrigues' rotation formula. https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
 */
 
-
 //////////////////////////////////////////////////////////
 /*--------------------- FAST MATH ----------------------*/
 //////////////////////////////////////////////////////////
@@ -29,10 +28,10 @@ vec2  max0(vec2 x)    { return max(vec2(0.0), x); }
 vec3  max0(vec3 x)    { return max(vec3(0.0), x); }
 vec4  max0(vec4 x)    { return max(vec4(0.0), x); }
 
-float clamp01(float x) { return clamp(x, 0.0, 1.0);             }
-vec2  clamp01(vec2 x)  { return clamp(x, vec2(0.0), vec2(1.0)); }
-vec3  clamp01(vec3 x)  { return clamp(x, vec3(0.0), vec3(1.0)); }
-vec4  clamp01(vec4 x)  { return clamp(x, vec4(0.0), vec4(1.0)); }
+float saturate(float x) { return clamp(x, 0.0, 1.0);             }
+vec2  saturate(vec2 x)  { return clamp(x, vec2(0.0), vec2(1.0)); }
+vec3  saturate(vec3 x)  { return clamp(x, vec3(0.0), vec3(1.0)); }
+vec4  saturate(vec4 x)  { return clamp(x, vec4(0.0), vec4(1.0)); }
 
 float clamp16(float x) { return clamp(x, 0.0, maxVal16);             }
 vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(maxVal16)); }
@@ -84,12 +83,12 @@ vec3  rcp(vec3 x)  { return 1.0 / x;        }
 vec4  rcp(vec4 x)  { return 1.0 / x;        }
 
 float quintic(float edge0, float edge1, float x) {
-    x = clamp01((x - edge0) / (edge1 - edge0));
+    x = saturate((x - edge0) / (edge1 - edge0));
     return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
 }
 
 float linearStep(float edge0, float edge1, float x) {
-    return clamp01((x - edge0) / (edge1 - edge0));
+    return saturate((x - edge0) / (edge1 - edge0));
 }
 
 // max absolute error 9.0x10^-3
@@ -140,56 +139,8 @@ float remap(float x, float oldLow, float oldHigh, float newLow, float newHigh) {
     return newLow + (x - oldLow) * (newHigh - newLow) / (oldHigh - oldLow);
 }
 
-float erf(float x) {
-    float a1 =  0.254829592;
-    float a2 = -0.284496736;
-    float a3 =  1.421413741;
-    float a4 = -1.453152027;
-    float a5 =  1.061405429;
-    float p  =  0.3275911;
-
-    int signX = x < 0.0 ? -1 : 1;
-    x = abs(x);
-
-    float t = 1.0 / (1.0 + p * x);
-    float y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * exp(-x * x);
-
-    return signX * y;
-}
-
-float erfInv(float x) {
-    float p = 0.0;
-    float w = -log((1.0 - x) * (1.0 + x));
-
-    if(w < 5.0) {
-        w -=  2.5;
-        p  =  2.81022636e-08;
-        p  =  3.43273939e-07 + p * w;
-        p  = -3.5233877e-06  + p * w;
-        p  = -4.39150654e-06 + p * w;
-        p  =  0.00021858087  + p * w;
-        p  = -0.00125372503  + p * w;
-        p  = -0.00417768164  + p * w;
-        p  =  0.246640727    + p * w;
-        p  =  1.50140941     + p * w;
-
-    } else {
-        w = sqrt(w) - 3.0;
-        p = -0.000200214257;
-        p =  0.000100950558 + p * w;
-        p =  0.00134934322  + p * w;
-        p = -0.00367342844  + p * w;
-        p =  0.00573950773  + p * w;
-        p = -0.0076224613   + p * w;
-        p =  0.00943887047  + p * w;
-        p =  1.00167406     + p * w;
-        p =  2.83297682     + p * w;
-    }
-    return p * x;
-}
-
 //////////////////////////////////////////////////////////
-/*------------------------ MISC ------------------------*/
+/*------------------- INTERSECTIONS --------------------*/
 //////////////////////////////////////////////////////////
 
 vec2 intersectSphere(vec3 origin, vec3 direction, float radius) {
@@ -216,6 +167,10 @@ vec2 intersectSphericalShell(vec3 origin, vec3 direction, float innerSphereRadiu
     return dists;
 }
 
+//////////////////////////////////////////////////////////
+/*---------------- SPHERICAL PROJECTION ----------------*/
+//////////////////////////////////////////////////////////
+
 vec2 projectSphere(vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
     float latitude  = fastAcos(direction.y);
@@ -227,6 +182,10 @@ vec3 unprojectSphere(vec2 coords) {
     float latitude = coords.y * PI;
     return vec3(sincos(coords.x * TAU) * sin(latitude), cos(latitude)).xzy;
 }
+
+//////////////////////////////////////////////////////////
+/*--------------------- ROTATIONS ----------------------*/
+//////////////////////////////////////////////////////////
 
 vec3 rotate(vec3 vector, vec3 axis, float angle) {
 	vec2 sc = sincos(radians(angle));
@@ -241,6 +200,10 @@ vec3 rotate(vec3 vector, vec3 from, vec3 to) {
 	vec2 sc = vec2(sqrt(1.0 - cosTheta * cosTheta), cosTheta);
 	return sc.y * vector + sc.x * cross(axis, vector) + (1.0 - sc.y) * dot(axis, vector) * axis;
 }
+
+//////////////////////////////////////////////////////////
+/*---------------- VECTOR MANIPULATION -----------------*/
+//////////////////////////////////////////////////////////
 
 vec3 generateUnitVector(vec2 xy) {
     xy.x *= TAU; xy.y = 2.0 * xy.y - 1.0;
@@ -261,6 +224,10 @@ vec3 generateConeVector(vec3 vector, vec2 xy, float angle) {
 
 float coneAngleToSolidAngle(float x) { return TAU * (1.0 - cos(x));      }
 float solidAngleToConeAngle(float x) { return fastAcos(1.0 - (x) / TAU); }
+
+//////////////////////////////////////////////////////////
+/*-------------------- DISTRIBUTION --------------------*/
+//////////////////////////////////////////////////////////
 
 vec2 vogelDisk(float i, float n, float phi) {
     float r     = sqrt(i + phi) / n;

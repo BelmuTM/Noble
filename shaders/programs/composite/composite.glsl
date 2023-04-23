@@ -21,23 +21,29 @@ layout (location = 0) out vec3 color;
 //////////////////////////////////////////////////////////
 
 #if REFRACTIONS == 1
-    vec3 refractions(vec3 viewPos, vec3 scenePos, Material material, inout vec3 hitPos) {
-        vec3 viewDir = normalize(viewPos);
+    vec3 refractions(vec3 viewPosition, vec3 scenePosition, Material material, inout vec3 hitPosition) {
+        vec3 viewDirection = normalize(viewPosition);
 
         vec3 n1 = vec3(airIOR), n2 = material.N;
-        if(isEyeInWater == 1) { n1 = vec3(1.333); n2 = vec3(airIOR); }
+        if(isEyeInWater == 1) {
+            n1 = vec3(1.333);
+            n2 = vec3(airIOR);
+        }
 
-        vec3 refracted = refract(viewDir, material.normal, n1.r / n2.r);
-        bool hit       = raytrace(depthtex1, viewPos, refracted, REFRACT_STEPS, randF(), hitPos);
-        if(!hit || isHand(hitPos.xy)) { hitPos.xy = texCoords; }
+        vec3 refracted = refract(viewDirection, material.normal, n1.r / n2.r);
+        bool hit       = raytrace(depthtex1, viewPosition, refracted, REFRACT_STEPS, randF(), hitPosition);
+        
+        if(saturate(hitPosition.xy) != hitPosition.xy || !hit && texture(depthtex1, hitPosition.xy).r < 1.0 || isHand(hitPosition.xy)) {
+            hitPosition.xy = texCoords;
+        }
 
-        vec3 fresnel  = fresnelDielectric(dot(material.normal, -viewDir), n1, n2);
-        vec3 hitColor = texture(DEFERRED_BUFFER, hitPos.xy).rgb;
+        vec3 fresnel  = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
+        vec3 hitColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
 
-        float distThroughMedium = clamp(distance(viewToScene(screenToView(hitPos)), scenePos), EPS, 5.0);
+        float distThroughMedium = clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
         vec3  beer              = material.blockId == 1 ? vec3(1.0) : exp(-(1.0 - material.albedo) * distThroughMedium);
 
-        return max0(hitColor * (1.0 - fresnel) * beer);
+        return hitColor * (1.0 - fresnel) * beer;
     }
 #endif
 
@@ -63,12 +69,12 @@ void main() {
 
     vec3 coords = vec3(texCoords, 0.0);
 
-    vec3 viewPos0  = getViewPos0(texCoords);
-    vec3 viewPos1  = getViewPos1(texCoords);
-    vec3 scenePos0 = viewToScene(viewPos0);
-    vec3 scenePos1 = viewToScene(viewPos1);
+    vec3 viewPosition0  = getViewPosition0(texCoords);
+    vec3 viewPosition1  = getViewPosition1(texCoords);
+    vec3 scenePosition0 = viewToScene(viewPosition0);
+    vec3 scenePosition1 = viewToScene(viewPosition1);
 
-    float VdotL = dot(normalize(scenePos0), shadowLightVector);
+    float VdotL = dot(normalize(scenePosition0), shadowLightVector);
 
     vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
     
@@ -83,15 +89,15 @@ void main() {
     if(!sky) {
         skyLight = getSkyLightFalloff(material.lightmap.y);
 
-        if(viewPos0.z != viewPos1.z) {
+        if(viewPosition0.z != viewPosition1.z) {
             //////////////////////////////////////////////////////////
             /*-------------------- REFRACTIONS ---------------------*/
             //////////////////////////////////////////////////////////
 
             #if GI == 0 && REFRACTIONS == 1
                 if(material.F0 > EPS) {
-                    color     = refractions(viewPos0, scenePos1, material, coords);
-                    scenePos1 = viewToScene(getViewPos1(coords.xy));
+                    color          = refractions(viewPosition0, scenePosition1, material, coords);
+                    scenePosition1 = viewToScene(getViewPosition1(coords.xy));
                 }
             #endif
 
@@ -102,16 +108,16 @@ void main() {
             #if defined WORLD_OVERWORLD
                 if(isEyeInWater != 1 && material.blockId == 1) {
                     #if WATER_FOG == 0
-                        waterFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight);
+                        waterFog(color, scenePosition0, scenePosition1, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #else
                         bool skyTranslucents = texture(depthtex1, coords.xy).r == 1.0;
-                        volumetricWaterFog(color, scenePos0, scenePos1, VdotL, directIlluminance, skyIlluminance, skyLight, skyTranslucents);
+                        volumetricWaterFog(color, scenePosition0, scenePosition1, VdotL, directIlluminance, skyIlluminance, skyLight, skyTranslucents);
                     #endif
                 } else {
                     #if AIR_FOG == 1
-                        volumetricFog(color, scenePos0, scenePos1, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight);
+                        volumetricFog(color, scenePosition0, scenePosition1, viewPosition0, VdotL, directIlluminance, skyIlluminance, skyLight);
                     #elif AIR_FOG == 2
-                        fog(color, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
+                        fog(color, viewPosition0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
                     #endif
                 }
             #endif
@@ -129,10 +135,10 @@ void main() {
                 #endif
 
                 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
-                    visibility *= getCloudsShadows(scenePos0);
+                    visibility *= getCloudsShadows(scenePosition0);
                 #endif
 
-                color += computeSpecular(material, -normalize(viewPos0), shadowVec) * directIlluminance * clamp01(visibility);
+                color += computeSpecular(material, -normalize(viewPosition0), shadowVec) * directIlluminance * saturate(visibility);
             #endif
 
             #if REFLECTIONS == 1
@@ -150,15 +156,15 @@ void main() {
     #if defined WORLD_OVERWORLD
         if(isEyeInWater == 1) {
             #if WATER_FOG == 0
-                waterFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight);
+                waterFog(color, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminance, skyIlluminance, skyLight);
             #else
-                volumetricWaterFog(color, gbufferModelViewInverse[3].xyz, scenePos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
+                volumetricWaterFog(color, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
             #endif
         } else {
             #if AIR_FOG == 1
-                volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePos0, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight);
+                volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, VdotL, directIlluminance, skyIlluminance, skyLight);
             #elif AIR_FOG == 2
-                fog(color, viewPos0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
+                fog(color, viewPosition0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
             #endif
         }
     #endif

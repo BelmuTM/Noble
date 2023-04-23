@@ -39,9 +39,9 @@
         void main() {
             clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
-            vec3 viewPos = getViewPos1(texCoords);
+            vec3 viewPosition = getViewPosition1(texCoords);
 
-            vec3 cloudsRay   = mat3(gbufferModelViewInverse) * normalize(viewPos);
+            vec3 cloudsRay   = mat3(gbufferModelViewInverse) * normalize(viewPosition);
             vec4 cloudLayer0 = vec4(0.0, 0.0, 1.0, 1e6);
             vec4 cloudLayer1 = vec4(0.0, 0.0, 1.0, 1e6);
 
@@ -62,22 +62,22 @@
                 clouds.a        = cloudLayer0.b  * cloudLayer1.b;
 
                 /* Reprojection */
-                vec2 prevPos = reprojectClouds(viewPos, distanceToClouds).xy;
-                vec4 history = textureCatmullRom(CLOUDS_BUFFER, prevPos);
+                vec2 prevPosition = reprojectClouds(viewPosition, distanceToClouds).xy;
+                vec4 history      = textureCatmullRom(CLOUDS_BUFFER, prevPosition);
 
                 float resolutionScale = float(CLOUDS_SCALE < 100) + pow((CLOUDS_SCALE * 0.01) * 0.05 + 0.02, 0.35);
 
-                vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPos * viewSize) - 1.0);
+                vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.4 + 0.6;
 
-                vec2  velocity       = (texCoords - prevPos) * viewSize;
+                vec2  velocity       = (texCoords - prevPosition) * viewSize;
                 float velocityWeight = exp(-length(velocity)) * 0.8 + 0.2;
 
-                float frameWeight = 1.0 / max(texture(DEFERRED_BUFFER, prevPos).w, 1.0);
+                float frameWeight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition).w, 1.0);
 
-                float weight = resolutionScale * centerWeight * velocityWeight * frameWeight * float(clamp01(prevPos) == prevPos);
+                float weight = resolutionScale * centerWeight * velocityWeight * frameWeight * float(saturate(prevPosition) == prevPosition);
 
-                clouds = clamp16(mix(clouds, history, clamp01(weight)));
+                clouds = clamp16(mix(clouds, history, saturate(weight)));
             }
         }
     #endif

@@ -15,7 +15,7 @@
 	flat out int blockId;
 	out vec2 texCoords;
 	out vec2 lmCoords;
-	out vec3 viewPos;
+	out vec3 viewPosition;
 	out mat3[2] skyIlluminanceMat;
 	out vec3 directIlluminance;
 	out vec4 vertexColor;
@@ -31,8 +31,8 @@
 		lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor = gl_Color;
 
-    	vec3 geoNormal = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
-    		 viewPos   = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
+    	vec3 geoNormal    = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+    		 viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
 		TBN			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
@@ -58,7 +58,7 @@
 	flat in int blockId;
 	in vec2 texCoords;
 	in vec2 lmCoords;
-	in vec3 viewPos;
+	in vec3 viewPosition;
 	in mat3[2] skyIlluminanceMat;
 	in vec3 directIlluminance;
 	in vec4 vertexColor;
@@ -91,11 +91,11 @@
 			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
 
     		material.albedo = vec3(0.0);
-			material.normal = TBN * getWaterNormals(viewToWorld(viewPos), WATER_OCTAVES);
+			material.normal = TBN * getWaterNormals(viewToWorld(viewPosition), WATER_OCTAVES);
 		
 		} else {
 			material.F0         = specularTex.y;
-    		material.roughness  = clamp01(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
+    		material.roughness  = saturate(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
     		material.ao         = normalTex.z;
 			material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     		material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
@@ -109,7 +109,7 @@
 
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				material.normal.xy = normalTex.xy * 2.0 - 1.0;
-				material.normal.z  = sqrt(1.0 - clamp01(dot(material.normal.xy, material.normal.xy)));
+				material.normal.z  = sqrt(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
 				material.normal    = TBN * material.normal;
 			}
 
@@ -121,7 +121,7 @@
 				#endif
 
 				if(material.F0 * maxVal8 <= 229.5 && shadeTranslucents) {
-					vec3 scenePos = viewToScene(viewPos);
+					vec3 scenePosition = viewToScene(viewPosition);
 
 					#if TONEMAP == ACES
        					material.albedo = srgbToAP1Albedo(material.albedo);
@@ -140,13 +140,13 @@
 
 					#if defined WORLD_OVERWORLD
 						#if SHADOWS == 1
-							shadowmap.rgb = abs(shadowMap(scenePos, TBN[2], shadowmap.a));
+							shadowmap.rgb = abs(shadowMap(scenePosition, TBN[2], shadowmap.a));
 						#endif
 
 						if(material.lightmap.y > EPS) skyIlluminance = getSkyLight(material.normal, skyIlluminanceMat);
 					#endif
 
-					translucents.rgb = computeDiffuse(scenePos, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+					translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 					translucents.a   = albedoTex.a;
 				}
 			#endif

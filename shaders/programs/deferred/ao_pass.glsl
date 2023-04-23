@@ -30,25 +30,25 @@ void main() {
     if(isSky(texCoords) || isHand(texCoords)) return;
 
     #if AO == 1
-        vec3 viewPos = getViewPos0(texCoords);
+        vec3 viewPosition = getViewPosition0(texCoords);
         Material material = getMaterial(texCoords);
 
         #if AO_TYPE == 0
-            ao.w = SSAO(viewPos, material.normal);
+            ao.w = SSAO(viewPosition, material.normal);
         #elif AO_TYPE == 1
-            ao.w = RTAO(viewPos, material.normal, ao.xyz);
+            ao.w = RTAO(viewPosition, material.normal, ao.xyz);
         #elif AO_TYPE == 2
-            ao.w = GTAO(texCoords, viewPos, material.normal, ao.xyz);
+            ao.w = GTAO(texCoords, viewPosition, material.normal, ao.xyz);
         #endif
 
-        ao.w = clamp01(ao.w);
+        ao.w = saturate(ao.w);
 
         #if AO_FILTER == 1
-            vec3 currPos = vec3(texCoords, material.depth0);
-            vec3 prevPos = currPos - getVelocity(currPos);
-            vec4 prevAO  = texture(INDIRECT_BUFFER, prevPos.xy);
+            vec3 currPosition = vec3(texCoords, material.depth0);
+            vec3 prevPosition = currPosition - getVelocity(currPosition);
+            vec4 prevAO       = texture(INDIRECT_BUFFER, prevPosition.xy);
         
-            float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevPos.xy).w, 1.0);
+            float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition.xy).w, 1.0);
 
             ao.w   = mix(prevAO.w  , ao.w  , weight);
             ao.xyz = mix(prevAO.xyz, ao.xyz, weight);

@@ -9,8 +9,8 @@
 */
 
 #if GI == 1
-    vec3 evaluateMicrosurfaceBRDF(vec2 hitPos, vec3 wi, vec3 wo, Material material) {
-        vec4 shadowmap = texture(SHADOWMAP_BUFFER, hitPos.xy);
+    vec3 evaluateMicrosurfaceBRDF(vec2 hitPosition, vec3 wi, vec3 wo, Material material) {
+        vec4 shadowmap = texture(SHADOWMAP_BUFFER, hitPosition.xy);
 
         #if SPECULAR == 1
             vec3 specular = computeSpecular(material, wi, wo);
@@ -75,7 +75,7 @@
 
                 /* Russian Roulette */
                 if(j > MIN_ROULETTE_BOUNCES) {
-                    float roulette = clamp01(maxOf(samplethroughput));
+                    float roulette = saturate(maxOf(samplethroughput));
                     if(roulette < randF()) { samplethroughput = vec3(0.0); break; }
                     samplethroughput /= roulette;
                 }
@@ -101,7 +101,7 @@
                 if(!hit) {
                     #if SKY_CONTRIBUTION == 1
                         // vec2 coords = projectSphere(normalize(viewToScene(rayDirection)));
-		                // vec3 sky    = texture(ATMOSPHERE_BUFFER, clamp01(coords + randF() * pixelSize)).rgb;
+		                // vec3 sky    = texture(ATMOSPHERE_BUFFER, saturate(coords + randF() * pixelSize)).rgb;
 
                         sampleRadiance += samplethroughput * texture(ILLUMINANCE_BUFFER, rayPosition.xy).rgb * getSkyLightFalloff(material.lightmap.y);
                     #endif

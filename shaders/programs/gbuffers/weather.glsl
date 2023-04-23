@@ -20,7 +20,11 @@
 	void main() {
 		if(texture(tex, texCoords).a < 0.102) discard;
 
-		color.rgb = sampleSkyIlluminanceSimple() * exp(-vec3(0.20, 0.10, 0.04) * 2.0) * 0.05;
+		const float scatteringCoefficient   = 0.05;
+		const vec3  attenuationCoefficients = vec3(0.20, 0.10, 0.04);
+		const float density 				= 2.0;
+
+		color.rgb = sampleSkyIlluminanceSimple() * exp(-attenuationCoefficients * density) * scatteringCoefficient;
 		color.a   = 0.3;
 	}
 #endif
