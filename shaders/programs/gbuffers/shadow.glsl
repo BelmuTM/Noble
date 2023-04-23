@@ -25,12 +25,12 @@
         blockId     = int((mc_Entity.x - 1000.0) + 0.25);
 
         vec3 viewShadowPos = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
-             worldPosition = (shadowModelViewInverse * vec4(viewShadowPos, 1.0)).xyz;
+             worldPosition = transform(shadowModelViewInverse, viewShadowPos);
 
         #if WATER_CAUSTICS == 1
-            vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
-    	    vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-		    TBN			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
+            vec3 geoNormal = mat3(shadowModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+    	    vec3 tangent   = mat3(shadowModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+		    TBN			   = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
         #endif
 
 	    #if RENDER_MODE == 0
@@ -60,7 +60,7 @@
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
         // Thanks jakemichie97#7237 for the help!
         float waterCaustics(vec3 oldPos, vec3 normal) {
-	        vec3 newPos = oldPos + refract(shadowLightVector, normal, 0.75) * 3.00;
+	        vec3 newPos = oldPos + refract(shadowLightVector, normal, 0.75) * 3.0;
 
             float oldArea = fastInvSqrtN1(lengthSqr(dFdx(oldPos)) * lengthSqr(dFdy(oldPos)));
             float newArea =    fastSqrtN1(lengthSqr(dFdx(newPos)) * lengthSqr(dFdy(newPos)));
@@ -77,8 +77,8 @@
         #endif
 
         #if WATER_CAUSTICS == 1
-            float caustics = waterCaustics(worldPosition, TBN * getWaterNormals(worldPosition, 2));
-            color0         = mix(albedoTex, vec4(vec3(caustics), -1.0), float(blockId == 1));
+            float caustics = waterCaustics(worldPosition, TBN * getWaterNormals(worldPosition, 8));
+            color0         = mix(albedoTex, vec4(caustics, caustics, caustics, 0.0), float(blockId == 1));
         #else
             color0 = mix(albedoTex, vec4(1.0, 1.0, 1.0, 0.0), float(blockId == 1));
         #endif

@@ -9,7 +9,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 15 */
+	/* RENDERTARGETS: 4 */
 
 	layout (location = 0) out vec4 color;
 
@@ -22,9 +22,8 @@
 
 		const float scatteringCoefficient   = 0.05;
 		const vec3  attenuationCoefficients = vec3(0.20, 0.10, 0.04);
-		const float density 				= 2.0;
 
-		color.rgb = sampleSkyIlluminanceSimple() * exp(-attenuationCoefficients * density) * scatteringCoefficient;
-		color.a   = 0.3;
+		color.rgb = sampleSkyIlluminanceSimple() * exp(-attenuationCoefficients) * scatteringCoefficient;
+		color.a   = 0.5;
 	}
 #endif

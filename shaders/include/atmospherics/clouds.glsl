@@ -101,12 +101,13 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
         position += wind;
     #endif
 
-    float wetnessFactor = 0.2 * max0(1.0 - wetness);
+    bool  isUpperCloudLayer = layer == layer1;
+    float wetnessFactor     = isUpperCloudLayer ? 0.0 : 0.2 * max0(1.0 - wetness);
 
     layer.coverage += (0.26 * wetness);
 
     float weatherMap  = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
-          weatherMap  = layer == layer1 ? weatherMap : ((weatherMap - (2.0 * wetnessFactor)) + cloudsWorley(position.xz * 4e-5) * (1.0 + wetnessFactor) - wetnessFactor);
+          weatherMap  = isUpperCloudLayer ? weatherMap : ((weatherMap - (2.0 * wetnessFactor)) + cloudsWorley(position.xz * 4e-5) * (1.0 + wetnessFactor) - wetnessFactor);
           weatherMap  = weatherMap * (1.0 - layer.coverage) + layer.coverage;
 
     if(weatherMap < EPS) return 0.0;
@@ -119,7 +120,7 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = saturate(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - mix(0.7, 0.8, wetness) * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = saturate(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - mix(0.7, 0.8, wetness * float(!isUpperCloudLayer)) * weatherMap, 1.0, 0.0, 1.0));
 
     return saturate(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }

@@ -42,7 +42,7 @@ vec3 getShadowColor(vec3 samplePos) {
     float shadowDepth0 = visibility(shadowtex0, samplePos);
     float shadowDepth1 = visibility(shadowtex1, samplePos);
     vec4 shadowCol     = texelFetch(shadowcolor0, ivec2(samplePos.xy * shadowMapResolution), 0);
-
+    
     #if TONEMAP == ACES
         shadowCol.rgb = srgbToAP1Albedo(shadowCol.rgb);
     #else
@@ -117,7 +117,7 @@ vec3 shadowMap(vec3 scenePosition, vec3 geoNormal, out float ssDepth) {
             float avgBlockerDepth = findBlockerDepth(shadowPosDistort, randF(), ssDepth);
             if(avgBlockerDepth < 0.0) return vec3(-1.0);
 
-            if(texture(shadowcolor0, shadowPosDistort.xy).a >= 0.0)
+            if(texture(shadowcolor0, shadowPosDistort.xy).a > 0.0)
                 penumbraSize = max(0.1, (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth);
             else
                 penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
