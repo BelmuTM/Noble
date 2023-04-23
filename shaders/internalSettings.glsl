@@ -26,7 +26,7 @@ const int colortex9Format  = RGBA16;    // Direct GI
 const int colortex10Format = RGBA16F;   // Indirect GI
 const int colortex11Format = RGBA16F;   // Moments
 const int colortex12Format = R32F;      // Hi-z Depth
-const int colortex15Format = RGBA8;     // Gbuffer Data
+const int colortex15Format = RGBA16F;   // Gbuffer Data
 
 const bool colortex0Clear  = false;
 const bool colortex4Clear  = false;

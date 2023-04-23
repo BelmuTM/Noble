@@ -54,12 +54,12 @@ vec3 getShadowColor(vec3 samplePos) {
 
 #if SHADOWS == 1 
     #if SHADOW_TYPE == 1
-        float findBlockerDepth(vec3 shadowPos, float phi, out float ssDepth) {
+        float findBlockerDepth(vec3 shadowPosition, float phi, out float ssDepth) {
             float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int blockers = 0;
 
             for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
                 vec2 offset      = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);
-                vec2 localCoords = shadowPos.xy + offset;
+                vec2 localCoords = shadowPosition.xy + offset;
                 if(saturate(localCoords) != localCoords) return -1.0;
 
                 ivec2 shadowCoords = ivec2(localCoords * shadowMapResolution);
@@ -67,9 +67,9 @@ vec3 getShadowColor(vec3 samplePos) {
                 float depth0 = texelFetch(shadowtex0, shadowCoords, 0).r;
                 float depth1 = texelFetch(shadowtex1, shadowCoords, 0).r;
 
-                if(shadowPos.z > depth0) {
+                if(shadowPosition.z > depth0) {
                     avgBlockerDepth += depth0;
-                    totalSSDepth    += max0(shadowPos.z - depth1);
+                    totalSSDepth    += max0(shadowPosition.z - depth1);
                     blockers++;
                 }
             }
@@ -81,7 +81,7 @@ vec3 getShadowColor(vec3 samplePos) {
         }
     #endif
 
-    vec3 PCF(vec3 shadowPos, float penumbraSize) {
+    vec3 PCF(vec3 shadowPosition, float penumbraSize) {
 	    vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
@@ -89,7 +89,7 @@ vec3 getShadowColor(vec3 samplePos) {
                 offset = (diskSampling(i, SHADOW_SAMPLES, randF() * TAU) * penumbraSize) * rcp(shadowMapResolution);
             #endif
 
-            vec3 samplePos = distortShadowSpace(shadowPos + vec3(offset, 0.0)) * 0.5 + 0.5;
+            vec3 samplePos = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;
             shadowResult  += getShadowColor(samplePos);
         }
         return shadowResult * rcp(SHADOW_SAMPLES);
@@ -98,13 +98,13 @@ vec3 getShadowColor(vec3 samplePos) {
 
 vec3 shadowMap(vec3 scenePosition, vec3 geoNormal, out float ssDepth) {
     #if SHADOWS == 1 
-        vec3 shadowPos = worldToShadow(scenePosition);
-        float NdotL    = dot(geoNormal, shadowLightVector);
+        vec3  shadowPosition = worldToShadow(scenePosition);
+        float NdotL          = dot(geoNormal, shadowLightVector);
 
         // Shadow bias implementation from Emin#7309 and concept from gri573#7741
         float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.35;
-        shadowPos       += mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPos.xy) * biasAdjust;
-        shadowPos       *= 1.0002;
+        shadowPosition  += mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
+        shadowPosition  *= 1.0002;
 
         float penumbraSize = 1.0;
         ssDepth = 0.0;
@@ -113,7 +113,7 @@ vec3 shadowMap(vec3 scenePosition, vec3 geoNormal, out float ssDepth) {
             penumbraSize = NORMAL_SHADOW_BLUR_RADIUS;
 
         #elif SHADOW_TYPE == 1
-            vec3 shadowPosDistort = distortShadowSpace(shadowPos) * 0.5 + 0.5;
+            vec3 shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
             float avgBlockerDepth = findBlockerDepth(shadowPosDistort, randF(), ssDepth);
             if(avgBlockerDepth < 0.0) return vec3(-1.0);
 
@@ -123,7 +123,7 @@ vec3 shadowMap(vec3 scenePosition, vec3 geoNormal, out float ssDepth) {
                 penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
         #endif
 
-        return PCF(shadowPos, penumbraSize);
+        return PCF(shadowPosition, penumbraSize);
     #else
         return vec3(1.0);
     #endif

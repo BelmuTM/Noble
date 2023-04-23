@@ -52,7 +52,7 @@ vec3 computeAtmosphere(vec3 viewPosition) {
 			clouds = textureCatmullRom(CLOUDS_BUFFER, texCoords);
 		#endif
 
-		sky += physicalSun(sceneDir);
+		sky += clamp16(physicalSun(sceneDir));
 		sky += physicalMoon(sceneDir);
 		sky += computeStarfield(viewPosition);
 

@@ -101,12 +101,13 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
         position += wind;
     #endif
 
-    layer.coverage = mix(layer.coverage, 0.65, wetness);
+    float wetnessFactor = 0.2 * max0(1.0 - wetness);
+
+    layer.coverage += (0.26 * wetness);
 
     float weatherMap  = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
-          weatherMap  = layer == layer1 ? weatherMap : ((weatherMap - 0.4) + cloudsWorley(position.xz * 4e-5) * 1.2 - 0.2);
+          weatherMap  = layer == layer1 ? weatherMap : ((weatherMap - (2.0 * wetnessFactor)) + cloudsWorley(position.xz * 4e-5) * (1.0 + wetnessFactor) - wetnessFactor);
           weatherMap  = weatherMap * (1.0 - layer.coverage) + layer.coverage;
-          //weatherMap  = weatherMap * (1.0 - wetnessFactor)  + wetnessFactor;
 
     if(weatherMap < EPS) return 0.0;
     weatherMap = saturate(weatherMap);
@@ -210,16 +211,16 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDirection) {
     return result;
 }
 
-float getCloudsShadows(vec3 shadowPos, vec3 rayDirection, CloudLayer layer, int stepCount) {
+float getCloudsShadows(vec3 shadowPosition, vec3 rayDirection, CloudLayer layer, int stepCount) {
     vec2 radius;
          radius.x = planetRadius + layer.altitude;
          radius.y = radius.x + layer.thickness;
 
-    vec2 dists = intersectSphericalShell(shadowPos, rayDirection, radius.x, radius.y);
+    vec2 dists = intersectSphericalShell(shadowPosition, rayDirection, radius.x, radius.y);
 
     float stepSize   = (dists.y - dists.x) * rcp(stepCount);
     vec3 increment   = rayDirection * stepSize;
-    vec3 rayPosition = shadowPos + rayDirection * (dists.x + stepSize * 0.5);
+    vec3 rayPosition = shadowPosition + rayDirection * (dists.x + stepSize * 0.5);
 
     float opticalDepth = 0.0;
 
