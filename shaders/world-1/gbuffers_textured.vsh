@@ -6,4 +6,4 @@
 /***********************************************/
 
 #define PROGRAM_TEXTURED
-#include "/programs/gbuffers/gbuffers.vsh"
+#include "/programs/gbuffers/forward.glsl"

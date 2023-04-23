@@ -6,4 +6,4 @@
 /***********************************************/
 
 #define STAGE_FRAGMENT
-#include "/programs/gbuffers/basic.glsl"
+#include "/programs/gbuffers/forward.glsl"

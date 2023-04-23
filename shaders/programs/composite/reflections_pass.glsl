@@ -31,6 +31,16 @@ void main() {
         #else
             reflections = roughReflections(viewPosition, material);
         #endif
+
+        if(isHand(texCoords)) return;
+
+        vec3 currPosition = vec3(texCoords, material.depth0);
+        vec3 prevPosition = currPosition - getVelocity(currPosition);
+        vec3 prevColor    = texture(REFLECTIONS_BUFFER, prevPosition.xy).rgb;
+
+        float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition.xy).w * 0.5, 1.0);
+
+        reflections = mix(prevColor, reflections, weight);
     #else
         discard;
     #endif

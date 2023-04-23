@@ -8,8 +8,6 @@
         gl_Position = vec4(1.0);
     }
 #elif defined STAGE_FRAGMENT
-    /* RENDERTARGETS: 2 */
-
     void main() {
 	    discard;
     }

@@ -9,4 +9,4 @@
 #define STAGE_VERTEX
 #define WORLD_NETHER
 
-#include "/programs/gbuffers/translucent.glsl"
+#include "/programs/gbuffers/forward.glsl"

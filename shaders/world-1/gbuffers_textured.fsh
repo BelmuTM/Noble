@@ -8,4 +8,4 @@
 #define PROGRAM_TEXTURED
 #define STAGE_FRAGMENT
 
-#include "/programs/gbuffers/opaque.glsl"
+#include "/programs/gbuffers/forward.glsl"

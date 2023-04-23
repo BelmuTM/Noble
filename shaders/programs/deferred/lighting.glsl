@@ -67,7 +67,7 @@ void main() {
             float weight = float(hideGUI);
         #endif
 
-        color.a = (history.a * weight * float(saturate(prevPosition.xy) == prevPosition.xy)) + 1.0;
+        color.a = (history.a * weight * float(saturate(prevPosition.xy) == prevPosition.xy) * float(!isHand(texCoords))) + 1.0;
     #endif
 
     #if GI == 0
