@@ -57,7 +57,7 @@ void main() {
         vec2 scaledUv = texCoords * GI_SCALE;
         color = texture(DEFERRED_BUFFER, scaledUv).rgb;
 
-        vec3 direct   = texture(DIRECT_BUFFER,  scaledUv).rgb;
+        vec3 direct   = texture(DIRECT_BUFFER  , scaledUv).rgb;
         vec3 indirect = texture(INDIRECT_BUFFER, scaledUv).rgb;
         
         color = direct + (indirect * color);
