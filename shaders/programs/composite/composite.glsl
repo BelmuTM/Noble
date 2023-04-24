@@ -43,7 +43,7 @@ layout (location = 0) out vec3 color;
         float distThroughMedium = clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
         vec3  beer              = material.blockId == 1 ? vec3(1.0) : exp(-(1.0 - material.albedo) * distThroughMedium);
 
-        return max0(hitColor * (1.0 - fresnel) * beer);
+        return hitColor * (1.0 - fresnel) * beer;
     }
 #endif
 
@@ -168,6 +168,4 @@ void main() {
             #endif
         }
     #endif
-
-    color = max0(color);
 }

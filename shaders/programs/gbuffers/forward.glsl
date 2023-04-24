@@ -81,7 +81,7 @@
 		vec4 normalTex   = vec4(0.0);
 		vec4 specularTex = vec4(0.0);
 
-		#ifndef PROGRAM_TEXTURED
+		#if !defined PROGRAM_TEXTURED
 			normalTex   = texture(normals,  texCoords);
 			specularTex = texture(specular, texCoords);
 		#endif
@@ -105,16 +105,19 @@
     			material.ao         = 1.0;
 				material.emission   = 0.0;
     			material.subsurface = 0.0;
+
+				material.lightmap = vec2(1.0);
 			#else
 				material.F0         = specularTex.y;
     			material.roughness  = saturate(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
     			material.ao         = normalTex.z;
 				material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     			material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
+
+				material.lightmap = lmCoords.xy;
 			#endif
 
-    		material.albedo   = albedoTex.rgb;
-			material.lightmap = lmCoords.xy;
+    		material.albedo = albedoTex.rgb;
 
 			#if WHITE_WORLD == 1
 	    		material.albedo = vec3(1.0);

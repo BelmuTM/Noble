@@ -92,10 +92,6 @@ vec3 sampleDirectIlluminance() {
         vec3 sunTransmit  = getAtmosphereTransmittance(atmosphereRayPosition, sunPosNorm) * sunIrradiance;
         vec3 moonTransmit = getAtmosphereTransmittance(atmosphereRayPosition,-sunPosNorm) * moonIrradiance;
         directIlluminance = sunTransmit + moonTransmit;
-
-        #if TONEMAP == ACES
-            directIlluminance *= SRGB_2_AP1_ALBEDO;
-        #endif
     #endif
     return directIlluminance;
 }
