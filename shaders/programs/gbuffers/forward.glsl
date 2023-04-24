@@ -78,8 +78,13 @@
 		vec4 albedoTex = texture(tex, texCoords);
 		if(albedoTex.a < 0.102) discard;
 
-		vec4 normalTex   = texture(normals,  texCoords);
-		vec4 specularTex = texture(specular, texCoords);
+		vec4 normalTex   = vec4(0.0);
+		vec4 specularTex = vec4(0.0);
+
+		#ifndef PROGRAM_TEXTURED
+			normalTex   = texture(normals,  texCoords);
+			specularTex = texture(specular, texCoords);
+		#endif
 
 		albedoTex *= vertexColor;
 
@@ -94,11 +99,19 @@
 			material.normal = TBN * getWaterNormals(viewToWorld(viewPosition), WATER_OCTAVES);
 		
 		} else {
-			material.F0         = specularTex.y;
-    		material.roughness  = saturate(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
-    		material.ao         = normalTex.z;
-			material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
-    		material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
+			#ifdef PROGRAM_TEXTURED
+				material.F0         = 0.0;
+    			material.roughness  = 0.0;
+    			material.ao         = 1.0;
+				material.emission   = 0.0;
+    			material.subsurface = 0.0;
+			#else
+				material.F0         = specularTex.y;
+    			material.roughness  = saturate(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
+    			material.ao         = normalTex.z;
+				material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
+    			material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
+			#endif
 
     		material.albedo   = albedoTex.rgb;
 			material.lightmap = lmCoords.xy;
