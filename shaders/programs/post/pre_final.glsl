@@ -72,7 +72,7 @@ float computeExposure(float averageLuminance) {
 		float ev100    = log2(pow2(F_STOPS) / (1.0 / SHUTTER_SPEED) * sensorSensitivity / ISO);
         float exposure = computeExposureFromEV100(ev100);
 	#else
-		float ev100	   = computeEV100fromLuminance(averageLuminance);
+		float ev100	   = computeEV100fromLuminance(max0(averageLuminance));
 		float exposure = computeExposureFromEV100(ev100);
 	#endif
 

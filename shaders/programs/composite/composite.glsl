@@ -168,4 +168,6 @@ void main() {
             #endif
         }
     #endif
+
+    color = max0(color);
 }
