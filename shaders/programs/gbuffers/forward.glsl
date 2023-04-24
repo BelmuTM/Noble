@@ -101,7 +101,7 @@
 		} else {
 			#ifdef PROGRAM_TEXTURED
 				material.F0         = 0.0;
-    			material.roughness  = 0.0;
+    			material.roughness  = 1.0;
     			material.ao         = 1.0;
 				material.emission   = 0.0;
     			material.subsurface = 0.0;
@@ -120,6 +120,7 @@
 	    		material.albedo = vec3(1.0);
     		#endif
 
+			material.normal = TBN[2];
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				material.normal.xy = normalTex.xy * 2.0 - 1.0;
 				material.normal.z  = sqrt(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
