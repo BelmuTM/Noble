@@ -40,7 +40,9 @@ void main() {
 
         float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition.xy).w * 0.5, 1.0);
 
-        reflections = mix(prevColor, reflections, weight);
+        if(any(isnan(prevColor))) prevColor = reflections;
+
+        reflections = max0(mix(prevColor, reflections, weight));
     #else
         discard;
     #endif
