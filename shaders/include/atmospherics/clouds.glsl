@@ -45,8 +45,8 @@ const CloudLayer cloudLayer0 = CloudLayer(
 const CloudLayer cloudLayer1 = CloudLayer(
     CLOUDS_LAYER1_ALTITUDE,
     CLOUDS_LAYER1_THICKNESS,
-    CLOUDS_LAYER1_COVERAGE * 0.01,
-    CLOUDS_LAYER1_SWIRL    * 0.01,
+    CLOUDS_LAYER1_COVERAGE,
+    CLOUDS_LAYER1_SWIRL,
     CLOUDS_LAYER1_SCALE,
     CLOUDS_LAYER1_SHAPESCALE,
     CLOUDS_LAYER1_FREQUENCY,
@@ -56,7 +56,7 @@ const CloudLayer cloudLayer1 = CloudLayer(
 );
 
 const vec3 up = vec3(0.0, 1.0, 0.0);
-vec3 windDir  = vec3(sin(-0.785398), 0.0, cos(-0.785398));
+vec3 windDir  = vec3(sincos(-0.785398), 0.0).xzy;
 vec3 wind     = CLOUDS_WIND_SPEED * frameTimeCounter * windDir;
 
 float heightAlter(float altitude, float weatherMap) {
