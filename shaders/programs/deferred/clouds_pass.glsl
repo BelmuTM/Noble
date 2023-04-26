@@ -53,13 +53,12 @@
             #endif
 
             float distanceToClouds = min(layer0.a, layer1.a);
+            if(distanceToClouds <= 1e-6) return;
 
-            if(distanceToClouds > 1e-6) {
-                vec2 scattering = layer1.rg    * layer0.z + layer0.rg;
-                clouds.rgb     += scattering.r * directIlluminance;
-                clouds.rgb     += scattering.g * skyIlluminance;
-                clouds.a        = layer0.b     * layer1.b;
-            }
+            vec2 scattering = layer1.rg    * layer0.z + layer0.rg;
+            clouds.rgb     += scattering.r * directIlluminance;
+            clouds.rgb     += scattering.g * skyIlluminance;
+            clouds.a        = layer0.b     * layer1.b;
 
             /* Reprojection */
             vec2 prevPosition = reprojectClouds(viewPosition, distanceToClouds).xy;
