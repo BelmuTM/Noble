@@ -208,7 +208,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
     transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
     vec4 result   = vec4(scattering, transmittance, sum / weight);
 
-    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, max(1e-8, exp2(-5e-5 * result.a)));
+    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, max0(exp2(-5e-5 * result.a)));
     return result;
 }
 
