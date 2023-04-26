@@ -42,7 +42,7 @@
             vec3 viewPosition       = getViewPosition1(texCoords);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
-            vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e6)
+            vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e6);
             vec4 layer1 = vec4(0.0, 0.0, 1.0, 1e6);
 
             #if PRIMARY_CLOUDS == 1
