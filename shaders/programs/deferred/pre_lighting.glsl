@@ -84,7 +84,7 @@
             #endif
 
             #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
-                illuminance.a = getCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy), shadowLightVector, layer0, 20);
+                illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy), shadowLightVector, cloudLayer0, 20);
             #endif
 
             //////////////////////////////////////////////////////////

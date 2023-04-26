@@ -29,7 +29,7 @@ struct CloudLayer {
     int octaves;
 };
 
-const CloudLayer layer0 = CloudLayer(
+const CloudLayer cloudLayer0 = CloudLayer(
     CLOUDS_LAYER0_ALTITUDE,
     CLOUDS_LAYER0_THICKNESS,
     CLOUDS_LAYER0_COVERAGE * 0.01,
@@ -42,21 +42,21 @@ const CloudLayer layer0 = CloudLayer(
     CLOUDS_LAYER0_OCTAVES
 );
 
-const CloudLayer layer1 = CloudLayer(
+const CloudLayer cloudLayer1 = CloudLayer(
     CLOUDS_LAYER1_ALTITUDE,
     CLOUDS_LAYER1_THICKNESS,
-    CLOUDS_LAYER1_COVERAGE,
-    CLOUDS_LAYER1_SWIRL,
+    CLOUDS_LAYER1_COVERAGE * 0.01,
+    CLOUDS_LAYER1_SWIRL    * 0.01,
     CLOUDS_LAYER1_SCALE,
     CLOUDS_LAYER1_SHAPESCALE,
     CLOUDS_LAYER1_FREQUENCY,
     CLOUDS_LAYER1_DENSITY,
-    CLOUDS_SCATTERING_STEPS,
+    10,
     CLOUDS_LAYER1_OCTAVES
 );
 
 const vec3 up = vec3(0.0, 1.0, 0.0);
-vec3 windDir  = vec3(sincos(-0.785398), 0.0).xzy;
+vec3 windDir  = vec3(sin(-0.785398), 0.0, cos(-0.785398));
 vec3 wind     = CLOUDS_WIND_SPEED * frameTimeCounter * windDir;
 
 float heightAlter(float altitude, float weatherMap) {
@@ -94,14 +94,14 @@ float cloudsWorley(vec2 coords) {
     return pow3(1.0 - dist);
 }
 
-float getCloudsDensity(vec3 position, CloudLayer layer) {
+float calculateCloudsDensity(vec3 position, CloudLayer layer) {
     float altitude = (position.y - (planetRadius + layer.altitude)) * rcp(layer.thickness);
 
     #if RENDER_MODE == 0
         position += wind;
     #endif
 
-    bool  isUpperCloudLayer = layer == layer1;
+    bool  isUpperCloudLayer = layer == cloudLayer1;
     float wetnessFactor     = isUpperCloudLayer ? 0.0 : 0.2 * max0(1.0 - wetness);
 
     layer.coverage += (0.26 * wetness);
@@ -125,35 +125,34 @@ float getCloudsDensity(vec3 position, CloudLayer layer) {
     return saturate(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }
 
-float getCloudsOpticalDepth(vec3 rayPosition, vec3 lightDir, int stepCount, CloudLayer layer) {
+float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int stepCount, CloudLayer layer) {
     float stepSize = 23.0, opticalDepth = 0.0;
 
-    for(int i = 0; i < stepCount; i++, rayPosition += lightDir * stepSize) {
-        opticalDepth += getCloudsDensity(rayPosition + lightDir * stepSize * randF(), layer) * stepSize;
+    for(int i = 0; i < stepCount; i++, rayPosition += lightDirection * stepSize) {
+        opticalDepth += calculateCloudsDensity(rayPosition + lightDirection * stepSize * randF(), layer) * stepSize;
         stepSize     *= 2.0;
     }
     return opticalDepth;
 }
 
-float getCloudsPhase(float cosTheta, vec3 mieAnisotropyFactors) {
-    float forwardsLobe  = henyeyGreensteinPhase(cosTheta, mieAnisotropyFactors.x);
-    float backwardsLobe = henyeyGreensteinPhase(cosTheta,-mieAnisotropyFactors.y);
-    float forwardsPeak  = henyeyGreensteinPhase(cosTheta, mieAnisotropyFactors.z);
+float calculateCloudsPhase(float cosTheta, vec3 mieAnisotropyFactors) {
+    float forwardsLobe  = henyeyGreensteinPhase(cosTheta,  mieAnisotropyFactors.x);
+    float backwardsLobe = henyeyGreensteinPhase(cosTheta, -mieAnisotropyFactors.y);
+    float forwardsPeak  = henyeyGreensteinPhase(cosTheta,  mieAnisotropyFactors.z);
 
     return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeakWeight);
 }
 
-vec4 cloudsScattering(CloudLayer layer, vec3 rayDirection) {
-    vec2 radius;
-         radius.x = planetRadius + layer.altitude;
-         radius.y = radius.x + layer.thickness;
+vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
+    float cloudsLowerBound = planetRadius     + layer.altitude;
+    float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
-    vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, radius.x, radius.y);
+    vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e6);
 
     float stepSize   = (dists.y - dists.x) * rcp(layer.steps);
-    vec3 increment   = rayDirection * stepSize;
     vec3 rayPosition = atmosphereRayPosition + rayDirection * (dists.x + stepSize * randF());
+    vec3 increment   = rayDirection * stepSize;
 
     float VdotL = dot(rayDirection, shadowLightVector);
     float VdotU = dot(rayDirection, up);
@@ -166,7 +165,7 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDirection) {
     for(int i = 0; i < layer.steps; i++, rayPosition += increment) {
         if(transmittance <= cloudsTransmitThreshold) break;
 
-        float density = getCloudsDensity(rayPosition, layer);
+        float density = calculateCloudsDensity(rayPosition, layer);
         if(density < EPS) continue;
 
         sum    += distance(atmosphereRayPosition, rayPosition) * density; 
@@ -175,11 +174,10 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDirection) {
         float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
         float stepTransmittance = exp(-stepOpticalDepth);
 
-        float directOpticalDepth = getCloudsOpticalDepth(rayPosition, shadowLightVector, 5, layer);
-        float skyOpticalDepth    = getCloudsOpticalDepth(rayPosition, up,                2, layer);
-        float groundOpticalDepth = getCloudsOpticalDepth(rayPosition,-up,                2, layer);
+        float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition, shadowLightVector, 5, layer);
+        float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition, up,                2, layer);
+        float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition,-up,                2, layer);
 
-        // Beer's-Powder effect from "The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn" (see sources above)
 	    float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
 	    float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
         float powderSky = mix(powder, 1.0, VdotU * 0.5 + 0.5);
@@ -191,9 +189,11 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDirection) {
         vec2 stepScattering = vec2(0.0);
         
         for(int j = 0; j < cloudsMultiScatterSteps; j++) {
-            stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * directOpticalDepth) * getCloudsPhase(VdotL, mieAnisotropyFactors) * powderSun;
-            stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * groundOpticalDepth) * bouncedLight                             * powder;
-            stepScattering.y += scatteringCoefficient * exp(-extinctionCoefficient * skyOpticalDepth)    * isotropicPhase                           * powderSky;
+            float cloudsPhase = calculateCloudsPhase(VdotL, mieAnisotropyFactors);
+
+            stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * directOpticalDepth) * cloudsPhase    * powderSun;
+            stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * groundOpticalDepth) * bouncedLight   * powder;
+            stepScattering.y += scatteringCoefficient * exp(-extinctionCoefficient * skyOpticalDepth)    * isotropicPhase * powderSky;
 
             extinctionCoefficient *= cloudsExtinctionFalloff;
             scatteringCoefficient *= cloudsScatteringFalloff;
@@ -212,12 +212,11 @@ vec4 cloudsScattering(CloudLayer layer, vec3 rayDirection) {
     return result;
 }
 
-float getCloudsShadows(vec3 shadowPosition, vec3 rayDirection, CloudLayer layer, int stepCount) {
-    vec2 radius;
-         radius.x = planetRadius + layer.altitude;
-         radius.y = radius.x + layer.thickness;
+float calculateCloudsShadows(vec3 shadowPosition, vec3 rayDirection, CloudLayer layer, int stepCount) {
+    float cloudsLowerBound = planetRadius     + layer.altitude;
+    float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
-    vec2 dists = intersectSphericalShell(shadowPosition, rayDirection, radius.x, radius.y);
+    vec2 dists = intersectSphericalShell(shadowPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
 
     float stepSize   = (dists.y - dists.x) * rcp(stepCount);
     vec3 increment   = rayDirection * stepSize;
@@ -226,7 +225,7 @@ float getCloudsShadows(vec3 shadowPosition, vec3 rayDirection, CloudLayer layer,
     float opticalDepth = 0.0;
 
     for(int i = 0; i < stepCount; i++, rayPosition += increment) {
-        opticalDepth += getCloudsDensity(rayPosition, layer);
+        opticalDepth += calculateCloudsDensity(rayPosition, layer);
     }
     return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);
 }
