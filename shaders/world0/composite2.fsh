@@ -8,4 +8,4 @@
 in vec2 texCoords;
 
 #define STAGE_FRAGMENT
-#include "/programs/post/pre_temporal.glsl"
+#include "/programs/post/dof.glsl"

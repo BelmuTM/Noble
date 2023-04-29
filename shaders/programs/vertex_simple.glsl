@@ -7,5 +7,5 @@ out vec2 texCoords;
 
 void main() {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    texCoords   = gl_MultiTexCoord0.xy;
 }

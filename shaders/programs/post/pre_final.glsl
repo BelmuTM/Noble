@@ -33,23 +33,6 @@ layout (location = 0) out vec3 color;
 
 #include "/include/post/grading.glsl"
 
-#if PURKINJE == 1
-    vec3 rodResponse = vec3(7.15e-5, 4.81e-1, 3.28e-1);
-
-    void purkinje(inout vec3 color) {
-        #if TONEMAP == ACES
-			rodResponse *= SRGB_2_AP1_ALBEDO;
-        #endif
-
-        vec3 xyzColor = toXyz(color);
-
-        vec3  scotopicLuminance = xyzColor * (1.33 * (1.0 + (xyzColor.y + xyzColor.z) / xyzColor.x) - 1.68);
-        float purkinje   		= dot(rodResponse, fromXyz(scotopicLuminance));
-
-        color = mix(color, purkinje * vec3(0.56, 0.67, 1.0), exp2(-purkinje * 20.0));
-    }
-#endif
-
 #if TONEMAP == ACES
     const float exposureBias = 2.2;
 #else
@@ -87,11 +70,13 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 8.0);
+        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 3.0);
     #endif
 
+    //color = texture(SHADOWMAP_BUFFER, texCoords).rgb;
+
     #if PURKINJE == 1
-        purkinje(color);
+        scotopicVisionApproximation(color);
     #endif
 
     color *= exposure;

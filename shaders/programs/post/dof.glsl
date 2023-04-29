@@ -3,17 +3,11 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-/* RENDERTARGETS: 0,3 */
+/* RENDERTARGETS: 0 */
 
 layout (location = 0) out vec4 color;
-layout (location = 1) out vec3 bloomBuffer;
 
 #include "/include/common.glsl"
-
-#if BLOOM == 1
-    #include "/include/utility/sampling.glsl"
-    #include "/include/post/bloom.glsl"
-#endif
 
 #if DOF == 1
     // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
@@ -62,10 +56,6 @@ void main() {
         #endif
 
         depthOfField(color.rgb, MAIN_BUFFER, getCoC(depth0, targetDepth));
-    #endif
-
-    #if BLOOM == 1
-        writeBloom(bloomBuffer);
     #endif
 
     #if EXPOSURE > 0

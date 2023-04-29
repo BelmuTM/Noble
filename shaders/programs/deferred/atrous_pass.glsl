@@ -5,7 +5,10 @@
 
 #include "/include/common.glsl"
 
-#if GI == 1
+#if GI == 0
+    #include "/programs/discard.glsl"
+#else
+
     #if defined STAGE_VERTEX
         #include "/programs/vertex_simple.glsl"
 
@@ -28,6 +31,4 @@
             #endif
         }
     #endif
-#else
-    #include "/programs/discard.glsl"
 #endif
