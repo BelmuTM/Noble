@@ -109,7 +109,7 @@ vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     vec3  fresnelL = 1.0 - fresnelDielectric(NdotL, vec3(airIOR), material.N);
     vec3  fresnelV = 1.0 - fresnelDielectric(NdotV, vec3(airIOR), material.N);
 
-    vec3 smoothSurf = (fresnelL * fresnelV) / energyConservationFactor;
+    vec3 smoothSurf = fresnelL * fresnelV / energyConservationFactor;
 
     vec3  single = mix(smoothSurf, vec3(roughSurf), material.roughness) * RCP_PI;
     float multi  = 0.1159 * material.roughness;
@@ -150,14 +150,14 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     vec3 diffuse  = hammonDiffuse(material, viewDirection, lightDirection);
          diffuse *= shadowmap.rgb * cloudsShadows;
 
+    #if SUBSURFACE_SCATTERING == 1
+        diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows;
+    #endif
+
     float isSkyOccluded = float(material.lightmap.y > EPS);
 
     material.lightmap.x = getBlockLightFalloff(material.lightmap.x);
     material.lightmap.y = getSkyLightFalloff(material.lightmap.y);
-
-    #if SUBSURFACE_SCATTERING == 1
-        diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows;
-    #endif
 
     #if defined SUNLIGHT_LEAKING_FIX
         diffuse        *= directIlluminance * isSkyOccluded;
@@ -175,7 +175,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
 
     diffuse += (blockLight + skyLight + ambient) * material.ao * ao;
 
-    return material.albedo * (diffuse + emissiveness);
+    return max0(material.albedo * (diffuse + emissiveness));
 }
 
 vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection) {
