@@ -11,7 +11,7 @@
 
     #elif defined STAGE_FRAGMENT
 
-        /* RENDERTARGETS: 5,11 */
+        /* RENDERTARGETS: 4,11 */
 
         layout (location = 0) out vec4 color;
         layout (location = 1) out vec4 temporalData;
