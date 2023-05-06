@@ -6,7 +6,7 @@
 #define EDGE_ATTENUATION_FACTOR 0.15
 
 // Kneemund's Edge Attenuation
-float KneemundAttenuation(vec2 pos) {
+float kneemundAttenuation(vec2 pos) {
     return 1.0 - quintic(EDGE_ATTENUATION_FACTOR, 0.0, minOf(pos * (1.0 - pos)));
 }
 
@@ -38,11 +38,11 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
 }
 
 //////////////////////////////////////////////////////////
-/*------------------ SIMPLE REFLECTIONS ----------------*/
+/*------------------ SMOOTH REFLECTIONS ----------------*/
 //////////////////////////////////////////////////////////
 
 #if REFLECTIONS_TYPE == 0
-    vec3 simpleReflections(vec3 viewPosition, Material material) {
+    vec3 computeSmoothReflections(vec3 viewPosition, Material material) {
         viewPosition += material.normal * 1e-2;
 
         vec3 viewDirection = normalize(viewPosition);
@@ -50,7 +50,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
         vec3 hitPosition   = vec3(0.0);
 
         float hit     = float(raytrace(depthtex0, viewPosition, rayDirection, SIMPLE_REFLECT_STEPS, randF(), hitPosition));
-              hit    *= KneemundAttenuation(hitPosition.xy);
+              hit    *= kneemundAttenuation(hitPosition.xy);
         vec3 hitColor = getHitColor(hitPosition);
 
         #if defined SKY_FALLBACK
@@ -75,18 +75,18 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
 /*------------------ ROUGH REFLECTIONS -----------------*/
 //////////////////////////////////////////////////////////
 
-    vec3 roughReflections(vec3 viewPosition, Material material) {
+    vec3 computeRoughReflections(vec3 viewPosition, Material material) {
 	    vec3 color = vec3(0.0);
         int samples = 0;
 
         viewPosition += material.normal * 1e-2;
 
         vec3  viewDirection = normalize(viewPosition);
-        mat3  TBN           = constructViewTBN(material.normal);
+        mat3  tbn           = constructViewTBN(material.normal);
         float NdotV         = dot(material.normal, -viewDirection);
 	
         for(int i = 0; i < ROUGH_SAMPLES; i++) {
-            vec3 microfacet   = TBN * sampleGGXVNDF(-viewDirection * TBN, rand2F(), material.roughness);
+            vec3 microfacet   = tbn * sampleGGXVNDF(-viewDirection * tbn, rand2F(), material.roughness);
 		    vec3 rayDirection = reflect(viewDirection, microfacet);	
             float NdotL       = dot(material.normal, rayDirection);
 
@@ -94,7 +94,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
                 vec3 hitPosition = vec3(0.0);
                 
                 float hit     = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECT_STEPS, randF(), hitPosition));
-                      hit    *= KneemundAttenuation(hitPosition.xy);
+                      hit    *= kneemundAttenuation(hitPosition.xy);
                 vec3 hitColor = getHitColor(hitPosition);
 
                 #if defined SKY_FALLBACK

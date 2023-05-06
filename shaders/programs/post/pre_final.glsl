@@ -63,7 +63,7 @@ float computeExposure(float averageLuminance) {
 }
 
 void main() {
-    vec4 tmp = texture(MAIN_BUFFER, texCoords);
+    vec4 tmp = texture(MAIN_BUFFER, textureCoords);
     color    = tmp.rgb;
 
     float exposure = computeExposure(tmp.a);
@@ -73,7 +73,7 @@ void main() {
         color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 3.0);
     #endif
 
-    //color = texture(SHADOWMAP_BUFFER, texCoords).rgb;
+    //color = texture(SHADOWMAP_BUFFER, textureCoords).rgb;
 
     #if PURKINJE == 1
         scotopicVisionApproximation(color);

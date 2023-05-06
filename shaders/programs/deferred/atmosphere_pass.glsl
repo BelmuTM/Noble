@@ -13,11 +13,11 @@
     out vec3 skyIlluminance;
 
     void main() {
-        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-        texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+        gl_Position   = gl_ModelViewProjectionMatrix * gl_Vertex;
+        textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
         #if defined WORLD_OVERWORLD
-            skyIlluminance = sampleSkyIlluminanceSimple();
+            skyIlluminance = evaluateUniformSkyIrradianceApproximation();
         #endif
     }
 
@@ -31,8 +31,8 @@
 
     void main() {
         #if defined WORLD_OVERWORLD
-            vec3 skyRay  = normalize(unprojectSphere(texCoords));
-                 sky.rgb = atmosphericScattering(skyRay, skyIlluminance);
+            vec3 skyRay  = normalize(unprojectSphere(textureCoords));
+                 sky.rgb = evaluateAtmosphericScattering(skyRay, skyIlluminance);
         #endif
     }
 #endif

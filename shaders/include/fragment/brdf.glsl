@@ -170,10 +170,10 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     vec3 emissiveness    = material.emission * blockLightColor;
 
     vec3 blockLight = blockLightColor * material.lightmap.x;
-    vec3 skyLight   = skyIlluminance  * material.lightmap.y;
+    vec3 skylight   = skyIlluminance  * material.lightmap.y;
     vec3 ambient    = vec3(0.04);
 
-    diffuse += (blockLight + skyLight + ambient) * material.ao * ao;
+    diffuse += (blockLight + skylight + ambient) * material.ao * ao;
 
     return max0(material.albedo * (diffuse + emissiveness));
 }

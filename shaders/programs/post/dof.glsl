@@ -21,12 +21,12 @@ layout (location = 0) out vec4 color;
         float weight = pow2(DOF_SAMPLES);
         float totalWeight = 0.0;
 
-        float distFromCenter = distance(texCoords, vec2(0.5));
+        float distFromCenter = distance(textureCoords, vec2(0.5));
         vec2  caOffset       = vec2(distFromCenter) * coc / weight;
 
         for(float angle = 0.0; angle < TAU; angle += TAU / DOF_ANGLE_SAMPLES) {
             for(int i = 0; i < DOF_SAMPLES; i++) {
-                vec2 sampleCoords = texCoords + vec2(cos(angle), sin(angle)) * i * coc * pixelSize;
+                vec2 sampleCoords = textureCoords + vec2(cos(angle), sin(angle)) * i * coc * pixelSize;
                 if(saturate(sampleCoords) != sampleCoords) continue;
 
                 vec3 sampleColor  = vec3(
@@ -44,7 +44,7 @@ layout (location = 0) out vec4 color;
 #endif
 
 void main() {
-    color = texture(MAIN_BUFFER, texCoords);
+    color = texture(MAIN_BUFFER, textureCoords);
     
     #if DOF == 1
         float depth0 = linearizeDepthFast(texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r);
@@ -62,6 +62,6 @@ void main() {
         color.a = sqrt(luminance(color.rgb));
     #endif
 
-    vec4 basic     = texture(RASTER_BUFFER, texCoords);
+    vec4 basic     = texture(RASTER_BUFFER, textureCoords);
          color.rgb = mix(color.rgb, basic.rgb, basic.a);
 }

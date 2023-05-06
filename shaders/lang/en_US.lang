@@ -200,8 +200,8 @@ value.REFRACTIONS.0 = §cOFF
 value.REFRACTIONS.1 = §aON
 
 option.REFLECTIONS_TYPE = SSR Type
-option.REFLECTIONS_TYPE.comment = §bSimple reflections §rdo not consider a material's roughness. §bRough reflections §rdo consider it, §cthey give a better §cresult but reduce performance.
-value.REFLECTIONS_TYPE.0 = §eSimple Reflections
+option.REFLECTIONS_TYPE.comment = §bSmooth reflections §rdo not consider a material's roughness. §bRough reflections §rdo consider it, §cthey give a better §cresult but reduce performance.
+value.REFLECTIONS_TYPE.0 = §eSmooth Reflections
 value.REFLECTIONS_TYPE.1 = §eRough Reflections
 
 option.REFLECTIONS_SCALE = Reflections Render Scale

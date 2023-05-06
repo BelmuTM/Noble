@@ -24,7 +24,7 @@
         #endif
 
         void main() {
-            color = texture(DEFERRED_BUFFER, texCoords);
+            color = texture(DEFERRED_BUFFER, textureCoords);
 
             #if GI_FILTER == 1
                 aTrousFilter(color.rgb, temporalData, DEFERRED_BUFFER, ATROUS_PASS_INDEX);

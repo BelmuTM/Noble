@@ -29,15 +29,15 @@
 #endif
 
 void main() {
-    vec3 viewPosition0 = getViewPosition0(texCoords);
+    vec3 viewPosition0 = getViewPosition0(textureCoords);
 
     #if GI == 1
-        vec2 tempCoords = texCoords * rcp(GI_SCALE);
+        vec2 tempCoords = textureCoords * rcp(GI_SCALE);
     #else
-        vec2 tempCoords = texCoords;
+        vec2 tempCoords = textureCoords;
     #endif
 
-    if(isSky(texCoords)) {
+    if(isSky(textureCoords)) {
         vec3 sky = computeAtmosphere(viewPosition0);
         #if GI == 1
             direct = sky;
@@ -54,7 +54,7 @@ void main() {
     #endif
 
     #if AO_FILTER == 1 && GI == 0 || GI == 1
-        vec3 currPosition = vec3(texCoords, material.depth0);
+        vec3 currPosition = vec3(textureCoords, material.depth0);
         vec3 prevPosition = currPosition - getVelocity(currPosition);
         vec4 history      = texture(DEFERRED_BUFFER, prevPosition.xy);
 
@@ -67,7 +67,7 @@ void main() {
             float weight = float(hideGUI);
         #endif
 
-        color.a = (history.a * weight * float(saturate(prevPosition.xy) == prevPosition.xy) * float(!isHand(texCoords))) + 1.0;
+        color.a = (history.a * weight * float(saturate(prevPosition.xy) == prevPosition.xy) * float(!isHand(textureCoords))) + 1.0;
     #endif
 
     #if GI == 0
@@ -78,28 +78,28 @@ void main() {
             float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
             #if defined WORLD_OVERWORLD
-                skyIlluminance    = texture(ILLUMINANCE_BUFFER, texCoords).rgb;
                 directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+                skyIlluminance    = texture(ILLUMINANCE_BUFFER, textureCoords).rgb;
 
                 #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
                     cloudsShadows = getCloudsShadows(viewToScene(viewPosition0));
                 #endif
 
                 #if SHADOWS == 1
-                    shadowmap = texture(SHADOWMAP_BUFFER, texCoords);
+                    shadowmap = texture(SHADOWMAP_BUFFER, textureCoords);
                 #endif
             #endif
 
             float ao = 1.0;
             #if AO == 1
-                ao = texture(INDIRECT_BUFFER, texCoords).a;
+                ao = texture(INDIRECT_BUFFER, textureCoords).a;
             #endif
 
             color.rgb = max0(computeDiffuse(viewPosition0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows));
         }
     #else
 
-        if(clamp(texCoords, vec2(0.0), vec2(GI_SCALE)) == texCoords) {
+        if(clamp(textureCoords, vec2(0.0), vec2(GI_SCALE)) == textureCoords) {
 
             pathtrace(color.rgb, vec3(tempCoords, material.depth0), direct, indirect);
 

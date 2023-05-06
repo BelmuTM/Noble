@@ -16,12 +16,12 @@ float getFogPhase(float cosTheta) {
 }
 
 #if AIR_FOG == 0
-    void fog(inout vec3 color, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
+    void fog(inout vec3 color, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight, bool sky) {
         float airmass       = length(viewPosition) * 0.01 * (FOG_DENSITY * 10.0);
         float transmittance = exp(-fogExtinctionCoefficient * airmass);
 
-        vec3 scattering  = skyIlluminance    * isotropicPhase     * skyLight;
-             scattering += directIlluminance * getFogPhase(VdotL) * skyLight;
+        vec3 scattering  = skyIlluminance    * isotropicPhase     * skylight;
+             scattering += directIlluminance * getFogPhase(VdotL) * skylight;
              scattering *= fogScatteringCoefficient * ((1.0 - transmittance) / fogExtinctionCoefficient);
 
         color = color * transmittance + scattering;
@@ -58,7 +58,7 @@ float getFogPhase(float cosTheta) {
     }
     */
 
-    void volumetricFog(inout vec3 color, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
+    void volumetricFog(inout vec3 color, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
         const float stepSize = 1.0 / VL_SCATTERING_STEPS;
         vec3 increment    = (endPosition - startPosition) * stepSize;
         vec3 rayPosition  = startPosition + increment * dither;
@@ -98,7 +98,7 @@ float getFogPhase(float cosTheta) {
             transmittance *= perspective * stepTransmittance;
         }
         scattering[0] *= directIlluminance;
-        scattering[1] *= skyIlluminance * skyLight;
+        scattering[1] *= skyIlluminance * skylight;
 
         color += scattering[0] + scattering[1];
     }
@@ -116,10 +116,10 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
 
 #if WATER_FOG == 0
 
-    void waterFog(inout vec3 color, vec3 startPosition, vec3 endPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight) {
+    void waterFog(inout vec3 color, vec3 startPosition, vec3 endPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
         vec3 transmittance = exp(-waterAbsorptionCoefficients * distance(startPosition, endPosition));
 
-        vec3 scattering  = skyIlluminance    * isotropicPhase * skyLight;
+        vec3 scattering  = skyIlluminance    * isotropicPhase * skylight;
              scattering += directIlluminance * kleinNishinaPhase(VdotL, 0.5);
              scattering *= waterScatteringCoefficients * (1.0 - transmittance) / waterAbsorptionCoefficients;
 
@@ -128,7 +128,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
 #else
 
     // Thanks Jessie for the help!
-    void volumetricWaterFog(inout vec3 color, vec3 startPosition, vec3 endPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skyLight, bool sky) {
+    void computeVolumetricWaterFog(inout vec3 color, vec3 startPosition, vec3 endPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight, bool sky) {
         const float stepSize = 1.0 / WATER_FOG_STEPS;
         vec3 increment    = (endPosition - startPosition) * stepSize;
         vec3 rayPosition  = startPosition + increment * dither;
@@ -154,7 +154,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
             mat2x3 stepScattering = mat2x3(vec3(0.0), vec3(0.0));
 
             stepScattering[0] = stepTransmittance * shadowColor;
-            stepScattering[1] = stepTransmittance * isotropicPhase;
+            stepScattering[1] = stepTransmittance * isotropicPhase * skylight;
 
             scattering[0] += stepScattering[0] * scatteringIntegral * transmittance;
             scattering[1] += stepScattering[1] * scatteringIntegral * transmittance;
@@ -176,8 +176,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         }
         phaseMultiple /= phaseSampleCount;
 
-        vec3 scatteringMultiple  = scattering[0] * phaseMultiple;
-             scatteringMultiple += scattering[1] * phaseMultiple;
+        vec3 scatteringMultiple  = (scattering[0] + scattering[1]) * phaseMultiple;
              scatteringMultiple *= multipleScatteringFactor / (1.0 - multipleScatteringFactor);
 
 	    if(sky) transmittance = vec3(1.0);

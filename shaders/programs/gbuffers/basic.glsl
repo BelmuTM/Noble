@@ -8,7 +8,7 @@
 
 #if defined STAGE_VERTEX
 
-	out vec2 texCoords;
+	out vec2 textureCoords;
 	out vec3 geoNormal;
 	out vec3 directIlluminance;
 	out vec4 vertexColor;
@@ -18,9 +18,9 @@
 	#endif
 
 	void main() {
-		gl_Position = ftransform();
-		texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-		vertexColor = gl_Color;
+		gl_Position   = ftransform();
+		textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+		vertexColor   = gl_Color;
 
 		geoNormal = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
 
@@ -37,7 +37,7 @@
 
 	layout (location = 0) out vec4 color;
 
-	in vec2 texCoords;
+	in vec2 textureCoords;
 	in vec3 geoNormal;
 	in vec3 directIlluminance;
 	in vec4 vertexColor;
@@ -45,7 +45,7 @@
 	#include "/include/utility/math.glsl"
 
 	void main() {
-		vec4 albedoTex = texture(tex, texCoords);
+		vec4 albedoTex = texture(tex, textureCoords);
 		if(albedoTex.a < 0.102) discard;
 
 		color 	  = albedoTex * vertexColor;

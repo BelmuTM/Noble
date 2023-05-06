@@ -6,18 +6,18 @@
 #if BLOOM == 1
 	const vec2 bloomOffsets[] = vec2[](
 		vec2(0.000, 0.000),
-		vec2(0.501, 0.000),
-    	vec2(0.501, 0.253),
-    	vec2(0.501, 0.380),
-		vec2(0.501, 0.445),
-		vec2(0.501, 0.478)
+		vec2(0.502, 0.000),
+    	vec2(0.502, 0.254),
+    	vec2(0.502, 0.382),
+		vec2(0.502, 0.447),
+		vec2(0.502, 0.481)
 	);
 
 	const int filterSize = 3;
 
 	vec3 sampleBloomTile(int lod) {
 		float scale = exp2(lod + 1); 
-		vec2 coords = (texCoords - bloomOffsets[lod]) * scale;
+		vec2 coords = (textureCoords - bloomOffsets[lod]) * scale;
 
 		vec2 texelScale = pixelSize * scale;
 
@@ -34,7 +34,7 @@
 	}
 
 	vec3 getBloomTile(int lod) {
-		return textureBicubic(SHADOWMAP_BUFFER, texCoords / exp2(lod + 1) + bloomOffsets[lod]).rgb;
+		return textureBicubic(SHADOWMAP_BUFFER, textureCoords / exp2(lod + 1) + bloomOffsets[lod]).rgb;
 	}
 
 	void writeBloom(inout vec3 bloom) {

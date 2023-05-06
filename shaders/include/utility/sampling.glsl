@@ -17,19 +17,19 @@ vec4 cubic(float v) {
     return vec4(x, y, z, w) * rcp(6.0);
 }
  
-vec4 textureBicubic(sampler2D tex, vec2 texCoords) {
+vec4 textureBicubic(sampler2D tex, vec2 textureCoords) {
     vec2 texSize    = textureSize(tex, 0);
     vec2 invTexSize = 1.0 / texSize;
  
-    texCoords = texCoords * texSize - 0.5;
+    textureCoords = textureCoords * texSize - 0.5;
  
-    vec2 fxy   = fract(texCoords);
-    texCoords -= fxy;
+    vec2 fxy   = fract(textureCoords);
+    textureCoords -= fxy;
  
     vec4 xcubic = cubic(fxy.x);
     vec4 ycubic = cubic(fxy.y);
  
-    vec4 c = texCoords.xxyy + vec2(-0.5, 1.5).xyxy;
+    vec4 c = textureCoords.xxyy + vec2(-0.5, 1.5).xyxy;
  
     vec4 s      = vec4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
     vec4 offset = c + vec4(xcubic.yw, ycubic.yw) / s;

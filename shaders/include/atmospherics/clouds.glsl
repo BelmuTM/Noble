@@ -115,12 +115,12 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
 
     position *= layer.shapeScale;
 
-    vec3 curlTex  = texture(noisetex, position * 0.4).rgb * 2.0 - 1.0;
-        position += curlTex * layer.swirl;
+    vec3 curlTex   = texture(noisetex, position * 0.4).rgb * 2.0 - 1.0;
+         position += curlTex * layer.swirl;
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = saturate(remap(shapeNoise * heightAlter(altitude,  weatherMap), 1.0 - mix(0.7, 0.8, wetness * float(!isUpperCloudLayer)) * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = saturate(remap(shapeNoise * heightAlter(altitude, weatherMap), 1.0 - mix(0.7, 0.8, wetness * float(!isUpperCloudLayer)) * weatherMap, 1.0, 0.0, 1.0));
 
     return saturate(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }

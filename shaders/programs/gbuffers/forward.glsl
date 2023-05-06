@@ -13,13 +13,13 @@
 	attribute vec3 mc_Entity;
 
 	flat out int blockId;
-	out vec2 texCoords;
-	out vec2 lmCoords;
+	out vec2 textureCoords;
+	out vec2 lightmapCoords;
 	out vec3 viewPosition;
 	out mat3[2] skyIlluminanceMat;
 	out vec3 directIlluminance;
 	out vec4 vertexColor;
-	out mat3 TBN;
+	out mat3 tbn;
 
 	void main() {
 		#if defined PROGRAM_HAND && DISCARD_HAND == 1
@@ -27,20 +27,20 @@
 			return;
 		#endif
 
-		texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-		lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
-		vertexColor = gl_Color;
+		textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+		lightmapCoords = gl_MultiTexCoord1.xy * rcp(240.0);
+		vertexColor    = gl_Color;
 
     	vec3 geoNormal    = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
     		 viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-		TBN			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
+		tbn			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
 
 		blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-		skyIlluminanceMat = sampleSkyIlluminanceComplex();
+		skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 		directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
 
 		#if TAA == 1
@@ -56,13 +56,13 @@
 	layout (location = 1) out vec4 translucents;
 
 	flat in int blockId;
-	in vec2 texCoords;
-	in vec2 lmCoords;
+	in vec2 textureCoords;
+	in vec2 lightmapCoords;
 	in vec3 viewPosition;
 	in mat3[2] skyIlluminanceMat;
 	in vec3 directIlluminance;
 	in vec4 vertexColor;
-	in mat3 TBN;
+	in mat3 tbn;
 
 	#include "/include/fragment/brdf.glsl"
 
@@ -75,15 +75,15 @@
 			discard;
 		#endif
 
-		vec4 albedoTex = texture(tex, texCoords);
+		vec4 albedoTex = texture(tex, textureCoords);
 		if(albedoTex.a < 0.102) discard;
 
 		vec4 normalTex   = vec4(0.0);
 		vec4 specularTex = vec4(0.0);
 
 		#if !defined PROGRAM_TEXTURED
-			normalTex   = texture(normals,  texCoords);
-			specularTex = texture(specular, texCoords);
+			normalTex   = texture(normals,  textureCoords);
+			specularTex = texture(specular, textureCoords);
 		#endif
 
 		albedoTex *= vertexColor;
@@ -96,38 +96,35 @@
 			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
 
     		material.albedo = vec3(0.0);
-			material.normal = TBN * getWaterNormals(viewToWorld(viewPosition), WATER_OCTAVES);
+			material.normal = tbn * getWaterNormals(viewToWorld(viewPosition), WATER_OCTAVES);
 		
 		} else {
-			#ifdef PROGRAM_TEXTURED
+			#if defined PROGRAM_TEXTURED
 				material.F0         = 0.0;
     			material.roughness  = 1.0;
     			material.ao         = 1.0;
 				material.emission   = 0.0;
     			material.subsurface = 0.0;
-
-				material.lightmap = vec2(1.0);
 			#else
 				material.F0         = specularTex.y;
     			material.roughness  = saturate(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
     			material.ao         = normalTex.z;
 				material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     			material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
-
-				material.lightmap = lmCoords.xy;
 			#endif
 
-    		material.albedo = albedoTex.rgb;
+    		material.albedo   = albedoTex.rgb;
+			material.lightmap = lightmapCoords;
 
 			#if WHITE_WORLD == 1
 	    		material.albedo = vec3(1.0);
     		#endif
 
-			material.normal = TBN[2];
+			material.normal = tbn[2];
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				material.normal.xy = normalTex.xy * 2.0 - 1.0;
 				material.normal.z  = sqrt(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
-				material.normal    = TBN * material.normal;
+				material.normal    = tbn * material.normal;
 			}
 
 			#if GI == 0
@@ -157,10 +154,10 @@
 
 					#if defined WORLD_OVERWORLD
 						#if SHADOWS == 1
-							shadowmap.rgb = abs(shadowMap(scenePosition, TBN[2], shadowmap.a));
+							shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], shadowmap.a));
 						#endif
 
-						if(material.lightmap.y > EPS) skyIlluminance = getSkyLight(material.normal, skyIlluminanceMat);
+						if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
 					#endif
 
 					translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
@@ -169,7 +166,7 @@
 			#endif
 		}
 
-		vec3 labPbrData0 = vec3(0.0, lmCoords);
+		vec3 labPbrData0 = vec3(0.0, lightmapCoords);
 		vec4 labPbrData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
 		vec4 labPbrData2 = vec4(material.albedo, material.roughness);
 		vec2 encNormal   = encodeUnitVector(normalize(material.normal));

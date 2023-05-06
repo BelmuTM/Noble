@@ -12,17 +12,17 @@
     attribute vec2 mc_midTexCoord;
 
     flat out int blockId;
-    out vec2 texCoords;
+    out vec2 textureCoords;
     out vec3 worldPosition;
     out vec4 vertexColor;
-    out mat3 TBN;
+    out mat3 tbn;
 
     #include "/include/vertex/animation.glsl"
 
     void main() {
-        texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-        vertexColor = gl_Color;
-        blockId     = int((mc_Entity.x - 1000.0) + 0.25);
+        textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+        vertexColor   = gl_Color;
+        blockId       = int((mc_Entity.x - 1000.0) + 0.25);
 
         vec3 viewShadowPos = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
              worldPosition = transform(shadowModelViewInverse, viewShadowPos);
@@ -30,11 +30,11 @@
         #if WATER_CAUSTICS == 1
             vec3 geoNormal = mat3(shadowModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
     	    vec3 tangent   = mat3(shadowModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-		    TBN			   = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
+		    tbn			   = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
         #endif
 
 	    #if RENDER_MODE == 0
-            animate(worldPosition, texCoords.y < mc_midTexCoord.y);
+            animate(worldPosition, textureCoords.y < mc_midTexCoord.y);
             gl_Position = transform(shadowModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 	    #else
             gl_Position = ftransform();
@@ -51,10 +51,10 @@
     layout (location = 0) out vec4 color0;
 
     flat in int blockId;
-    in vec2 texCoords;
+    in vec2 textureCoords;
     in vec3 worldPosition;
     in vec4 vertexColor;
-    in mat3 TBN;
+    in mat3 tbn;
 
     #if WATER_CAUSTICS == 1
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
@@ -69,7 +69,7 @@
     #endif
 
     void main() {
-        vec4 albedoTex = texture(tex, texCoords) * vertexColor;
+        vec4 albedoTex = texture(tex, textureCoords) * vertexColor;
         if(albedoTex.a < 0.102) discard;
 
         #if WHITE_WORLD == 1
@@ -77,7 +77,7 @@
         #endif
 
         #if WATER_CAUSTICS == 1
-            float caustics = 1.0 + 2.0 * saturate(1.0 - waterCaustics(worldPosition, TBN * getWaterNormals(worldPosition, int(WATER_OCTAVES * 0.5))));
+            float caustics = 1.0 + 2.0 * saturate(1.0 - waterCaustics(worldPosition, tbn * getWaterNormals(worldPosition, int(WATER_OCTAVES * 0.5))));
             color0         = mix(albedoTex, vec4(caustics, caustics, caustics, 0.0), float(blockId == 1));
         #else
             color0 = mix(albedoTex, vec4(1.0, 1.0, 1.0, 0.0), float(blockId == 1));

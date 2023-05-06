@@ -96,7 +96,7 @@ vec3 getShadowColor(vec3 samplePos) {
     }
 #endif
 
-vec3 shadowMap(vec3 scenePosition, vec3 geoNormal, out float ssDepth) {
+vec3 calculateShadowMapping(vec3 scenePosition, vec3 geoNormal, out float ssDepth) {
     #if SHADOWS == 1 
         vec3  shadowPosition = worldToShadow(scenePosition);
         float NdotL          = dot(geoNormal, shadowLightVector);

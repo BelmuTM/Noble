@@ -18,7 +18,7 @@
 		for(int i = 0; i < SSAO_SAMPLES; i++) {
 			vec3 rayDirection = generateCosineVector(normal, rand2F());
 			vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
-			float rayDepth    = getViewPosition0(viewToScreen(rayPosition).xy).z;
+			float rayDepth    = getViewPosition1(viewToScreen(rayPosition).xy).z;
 
 			float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
         	occlusion 		+= (rayDepth >= rayPosition.z + EPS ? 1.0 : 0.0) * rangeCheck;
@@ -95,7 +95,7 @@
 			vec2 horizons;
 			horizons.x = -findMaximumHorizon(coords, viewPosition, viewDirection, normal,-sliceDir, radius);
 			horizons.y =  findMaximumHorizon(coords, viewPosition, viewDirection, normal, sliceDir, radius);
-			horizons   = gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
+			horizons   =  gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
 			
 			vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
 			visibility += dot(arc, vec2(0.25)) * normLen;

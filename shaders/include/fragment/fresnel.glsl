@@ -12,7 +12,7 @@ float fresnelDielectric(float cosTheta, float n1, float n2) {
     float sinThetaT = (n1 / n2) * max0(1.0 - pow2(cosTheta));
     float cosThetaT = 1.0 - pow2(sinThetaT);
 
-    if(sinThetaT >= 1.0) { return 1.0; }
+    if(sinThetaT >= 1.0) return 1.0;
 
     float sPolar = (n2 * cosTheta - n1 * cosThetaT) / (n2 * cosTheta + n1 * cosThetaT);
     float pPolar = (n2 * cosThetaT - n1 * cosTheta) / (n2 * cosThetaT + n1 * cosTheta);

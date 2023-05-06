@@ -14,13 +14,13 @@
 	layout (location = 1) out vec3  data1;
 
 	flat in int blockId;
-	in vec2 texCoords;
-	in vec2 lmCoords;
+	in vec2 textureCoords;
+	in vec2 lightmapCoords;
 	in vec2 texSize;
 	in vec2 botLeft;
 	in vec3 viewPosition;
 	in vec4 vertexColor;
-	in mat3 TBN;
+	in mat3 tbn;
 
 	#include "/include/common.glsl"
 
@@ -68,13 +68,13 @@
 		#endif
 
     	vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out vec2 shadowCoords) {
-			vec3 tangentDirection = normalize(viewToScene(viewPosition)) * TBN;
+			vec3 tangentDirection = normalize(viewToScene(viewPosition)) * tbn;
         	float currLayerHeight = 0.0;
 
         	vec2 scaledVector = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize;
         	vec2 offset       = scaledVector * layerHeight;
 
-        	vec2  currCoords     = texCoords;
+        	vec2  currCoords     = textureCoords;
         	float currFragHeight = sampleHeightMap(currCoords, texDeriv);
 
         	for(int i = 0; i < POM_LAYERS && currLayerHeight < currFragHeight; i++) {
@@ -102,7 +102,7 @@
     	}
 
 		float parallaxShadowing(vec2 parallaxCoords, float height, mat2 texDeriv) {
-			vec3 tangentDir       = shadowLightVector * TBN;
+			vec3 tangentDir       = shadowLightVector * tbn;
         	float currLayerHeight = height;
 
         	vec2 scaledVector = (tangentDir.xy / tangentDir.z) * POM_DEPTH * texSize;
@@ -126,18 +126,18 @@
 	#endif
 
 	vec2 computeLightmap(vec3 normal) {
-		if(blockId >= 5 && blockId < 8) return vec2(1.0, lmCoords.y);
+		if(blockId >= 5 && blockId < 8) return vec2(1.0, lightmapCoords.y);
 
 		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
-			// Thanks ninjamike1211#5424 for the help
-			vec2 lightmap 	    = lmCoords;
+			// Thanks ninjamike1211 for the help
+			vec2 lightmap 	    = lightmapCoords;
 			vec3 scenePosition  = viewToScene(viewPosition);
 			vec3 lightmapVector = dFdx(scenePosition) * dFdx(lightmap.x) + dFdy(scenePosition) * dFdy(lightmap.x);
 
-			lightmap.x *= saturate(dot(normalize(lightmapVector), normalize(normal)) * 0.5 + 0.5);
+			lightmap.x *= saturate(dot(normalize(lightmapVector), normal) + 0.8) * 0.8 + 0.2;
 			return saturate(lightmap);
 		#endif
-		return saturate(lmCoords);
+		return saturate(lightmapCoords);
 	}
 
 	void main() {
@@ -148,16 +148,20 @@
 		float parallaxSelfShadowing = 1.0;
 
 		#if POM > 0 && defined PROGRAM_TERRAIN
-			mat2 texDeriv = mat2(dFdx(texCoords), dFdy(texCoords));
-			float height  = 1.0;
-			vec2 shadowCoords;
+			vec2 coords = textureCoords;
 
-			vec2 coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords);
+			if(texture(normals, textureCoords).a < 1.0 - EPS) {
+				mat2 texDeriv = mat2(dFdx(textureCoords), dFdy(textureCoords));
+				float height  = 1.0;
+				vec2 shadowCoords;
 
-			parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
+				coords 				  = parallaxMapping(viewPosition, texDeriv, height, shadowCoords);
+				parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
+			}
+
 			if(saturate(coords) != coords) discard;
 		#else
-			vec2 coords = texCoords;
+			vec2 coords = textureCoords;
 		#endif
 
 		vec4 albedoTex = texture(tex, coords);
@@ -173,7 +177,7 @@
 
 		albedoTex *= vertexColor;
 
-		vec2 lightmap = lmCoords;
+		vec2 lightmap = lightmapCoords;
 
 		float F0 		 = specularTex.y;
 		float ao 		 = normalTex.z;
@@ -200,15 +204,19 @@
 			if(blockId >= 5 && blockId < 8 && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
 		#endif
 
-		vec3 normal = TBN[2];
-		#ifndef PROGRAM_BLOCK
+		vec3 normal = tbn[2];
+		#if !defined PROGRAM_BLOCK
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				normal.xy = normalTex.xy * 2.0 - 1.0;
 				normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
-				normal    = TBN * normal;
+				normal    = tbn * normal;
 
 				lightmap = computeLightmap(normal);
 			}
+		#endif
+
+		#if defined PROGRAM_SPIDEREYES
+			lightmap = vec2(lightmapCoords.x, 0.0);
 		#endif
 
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
@@ -217,15 +225,15 @@
 				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
 
 				float puddle  = saturate(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
-		  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lmCoords.y));
+		  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lightmapCoords.y));
 	  				  puddle *= (1.0 - porosity);
 			  	  	  puddle *= wetness;
-			  	  	  puddle *= quintic(0.89, 0.99, TBN[2].y);
+			  	  	  puddle *= quintic(0.89, 0.99, tbn[2].y);
 					  puddle  = saturate(puddle);
 	
 				F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxVal8, float(F0 * maxVal8 <= 229.5)));
 				roughness = mix(roughness, 0.0, puddle);
-				normal    = mix(normal, TBN[2], puddle);
+				normal    = mix(normal, tbn[2], puddle);
 			}
 		#endif
 
@@ -237,7 +245,7 @@
         	ao = 1.0;
         	emission = 0.0;
         	subsurface = 0.0;
-			normal = TBN[2];
+			normal = tbn[2];
     	}
 		*/
 
@@ -256,6 +264,6 @@
 		data0.z = shiftedData2.x  | shiftedData2.y | shiftedData2.z | shiftedData2.w;
 		data0.w = shiftedNormal.x | shiftedNormal.y;
 
-		data1 = TBN[2];
+		data1 = tbn[2];
 	}
 #endif

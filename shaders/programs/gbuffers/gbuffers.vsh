@@ -9,13 +9,13 @@ attribute vec3 mc_Entity;
 attribute vec2 mc_midTexCoord;
 
 flat out int blockId;
-out vec2 texCoords;
-out vec2 lmCoords;
+out vec2 textureCoords;
+out vec2 lightmapCoords;
 out vec2 texSize;
 out vec2 botLeft;
 out vec3 viewPosition;
 out vec4 vertexColor;
-out mat3 TBN;
+out mat3 tbn;
 
 #define STAGE_VERTEX
 
@@ -28,12 +28,12 @@ void main() {
 		return;
 	#endif
 
-	texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmCoords    = gl_MultiTexCoord1.xy * rcp(240.0);
-	vertexColor = gl_Color;
+	textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	lightmapCoords = gl_MultiTexCoord1.xy * rcp(240.0);
+	vertexColor    = gl_Color;
 
 	#if POM > 0 && defined PROGRAM_TERRAIN
-		vec2 halfSize = abs(texCoords - mc_midTexCoord);
+		vec2 halfSize = abs(textureCoords - mc_midTexCoord);
 		texSize       = halfSize * 2.0;
 		botLeft       = mc_midTexCoord - halfSize;
 	#endif
@@ -43,7 +43,7 @@ void main() {
     		 viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
     	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-		TBN			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
+		tbn			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
 	#endif
 
 	blockId = int((mc_Entity.x - 1000.0) + 0.25);
@@ -52,7 +52,7 @@ void main() {
 
 	#if RENDER_MODE == 0
 		#if defined PROGRAM_TERRAIN
-			animate(worldPosition, texCoords.y < mc_midTexCoord.y);
+			animate(worldPosition, textureCoords.y < mc_midTexCoord.y);
 		#endif
 
 		#if defined PROGRAM_WEATHER

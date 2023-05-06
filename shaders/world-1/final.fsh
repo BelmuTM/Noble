@@ -5,7 +5,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-in vec2 texCoords;
+in vec2 textureCoords;
 
 #define STAGE_FRAGMENT
 #include "/programs/post/final.glsl"

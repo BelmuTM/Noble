@@ -32,8 +32,8 @@
     }
 
     vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
-        mat3 TBN        = constructViewTBN(material.normal);
-        vec3 microfacet = TBN * sampleGGXVNDF(-wr * TBN, rand2F(), material.roughness);
+        mat3 tbn        = constructViewTBN(material.normal);
+        vec3 microfacet = tbn * sampleGGXVNDF(-wr * tbn, rand2F(), material.roughness);
         vec3 fresnel    = fresnelDielectricConductor(dot(microfacet, -wr), material.N, material.K);
 
         float fresnelLuminance          = luminance(fresnel);

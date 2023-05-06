@@ -63,8 +63,8 @@
     #endif
 
     void main() {
-        gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-        texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+        gl_Position   = gl_ModelViewProjectionMatrix * gl_Vertex;
+        textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
         #if EXPOSURE > 0
             #if EXPOSURE == 1
@@ -110,7 +110,7 @@
     #endif
 
     void main() {
-        color = texture(MAIN_BUFFER, texCoords);
+        color = texture(MAIN_BUFFER, textureCoords);
 
         #if TAA == 1
             color.rgb = temporalAntiAliasing(MAIN_BUFFER, HISTORY_BUFFER);

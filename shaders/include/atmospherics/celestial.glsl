@@ -49,7 +49,7 @@ vec3 computeAtmosphere(vec3 viewPosition) {
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
-			clouds = textureCatmullRom(CLOUDS_BUFFER, texCoords);
+			clouds = textureCatmullRom(CLOUDS_BUFFER, textureCoords);
 		#endif
 
 		sky += clamp16(physicalSun(sceneDir));

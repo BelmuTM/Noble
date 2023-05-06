@@ -21,7 +21,7 @@ layout (location = 0) out vec3 color;
 //////////////////////////////////////////////////////////
 
 #if REFRACTIONS == 1
-    vec3 refractions(vec3 viewPosition, vec3 scenePosition, Material material, inout vec3 hitPosition) {
+    vec3 computeRefractions(vec3 viewPosition, vec3 scenePosition, Material material, inout vec3 hitPosition) {
         vec3 viewDirection = normalize(viewPosition);
 
         vec3 n1 = vec3(airIOR), n2 = material.N;
@@ -33,17 +33,17 @@ layout (location = 0) out vec3 color;
         vec3 refracted = refract(viewDirection, material.normal, n1.r / n2.r);
         bool hit       = raytrace(depthtex1, viewPosition, refracted, REFRACT_STEPS, randF(), hitPosition);
         
-        if(saturate(hitPosition.xy) != hitPosition.xy || !hit && texture(depthtex1, hitPosition.xy).r < 1.0 || isHand(hitPosition.xy)) {
-            hitPosition.xy = texCoords;
+        if(saturate(hitPosition.xy) != hitPosition.xy || !hit && texture(depthtex1, hitPosition.xy).r != 1.0 || isHand(hitPosition.xy)) {
+            hitPosition.xy = textureCoords;
         }
 
-        vec3 fresnel  = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
+        vec3 fresnel  = fresnelDielectricConductor(dot(material.normal, -viewDirection), material.N, material.K);
         vec3 hitColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
 
-        float distThroughMedium = clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
-        vec3  beer              = material.blockId == 1 ? vec3(1.0) : exp(-(1.0 - material.albedo) * distThroughMedium);
+        float density     = clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
+        vec3  attenuation = material.blockId == 1 ? vec3(1.0) : exp(-(1.0 - material.albedo) * density);
 
-        return hitColor * (1.0 - fresnel) * beer;
+        return hitColor * (1.0 - fresnel) * attenuation;
     }
 #endif
 
@@ -54,7 +54,7 @@ void main() {
         /*---------------- GLOBAL ILLUMINATION -----------------*/
         //////////////////////////////////////////////////////////
 
-        vec2 scaledUv = texCoords * GI_SCALE;
+        vec2 scaledUv = textureCoords * GI_SCALE;
         color = texture(DEFERRED_BUFFER, scaledUv).rgb;
 
         vec3 direct   = texture(DIRECT_BUFFER  , scaledUv).rgb;
@@ -62,15 +62,15 @@ void main() {
         
         color = direct + (indirect * color);
     #else
-        color = texture(DEFERRED_BUFFER, texCoords).rgb;
+        color = texture(DEFERRED_BUFFER, textureCoords).rgb;
     #endif
 
-    Material material = getMaterial(texCoords);
+    Material material = getMaterial(textureCoords);
 
-    vec3 coords = vec3(texCoords, 0.0);
+    vec3 coords = vec3(textureCoords, 0.0);
 
-    vec3 viewPosition0  = getViewPosition0(texCoords);
-    vec3 viewPosition1  = getViewPosition1(texCoords);
+    vec3 viewPosition0  = getViewPosition0(textureCoords);
+    vec3 viewPosition1  = getViewPosition1(textureCoords);
     vec3 scenePosition0 = viewToScene(viewPosition0);
     vec3 scenePosition1 = viewToScene(viewPosition1);
 
@@ -79,15 +79,19 @@ void main() {
     vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
     
     #if defined WORLD_OVERWORLD
-        skyIlluminance    = texture(ILLUMINANCE_BUFFER, texCoords).rgb;
         directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+        skyIlluminance    = texture(ILLUMINANCE_BUFFER, textureCoords).rgb;
+
+        #if defined SUNLIGHT_LEAKING_FIX
+            directIlluminance *= float(material.lightmap.y > EPS);
+        #endif
     #endif
 
-    bool  sky      = isSky(texCoords);
-    float skyLight = 0.0;
+    bool  sky      = isSky(textureCoords);
+    float skylight = 0.0;
 
     if(!sky) {
-        skyLight = getSkyLightFalloff(material.lightmap.y);
+        skylight = getSkyLightFalloff(material.lightmap.y);
 
         if(viewPosition0.z != viewPosition1.z) {
             //////////////////////////////////////////////////////////
@@ -96,7 +100,7 @@ void main() {
 
             #if GI == 0 && REFRACTIONS == 1
                 if(material.F0 > EPS) {
-                    color          = refractions(viewPosition0, scenePosition1, material, coords);
+                    color          = computeRefractions(viewPosition0, scenePosition1, material, coords);
                     scenePosition1 = viewToScene(getViewPosition1(coords.xy));
                 }
             #endif
@@ -108,16 +112,16 @@ void main() {
             #if defined WORLD_OVERWORLD
                 if(isEyeInWater != 1 && material.blockId == 1) {
                     #if WATER_FOG == 0
-                        waterFog(color, scenePosition0, scenePosition1, VdotL, directIlluminance, skyIlluminance, skyLight);
+                        waterFog(color, scenePosition0, scenePosition1, VdotL, directIlluminance, skyIlluminance, skylight);
                     #else
                         bool skyTranslucents = texture(depthtex1, coords.xy).r == 1.0;
-                        volumetricWaterFog(color, scenePosition0, scenePosition1, VdotL, directIlluminance, skyIlluminance, skyLight, skyTranslucents);
+                        computeVolumetricWaterFog(color, scenePosition0, scenePosition1, VdotL, directIlluminance, skyIlluminance, skylight, skyTranslucents);
                     #endif
                 } else {
                     #if AIR_FOG == 1
-                        volumetricFog(color, scenePosition0, scenePosition1, viewPosition0, VdotL, directIlluminance, skyIlluminance, skyLight);
+                        volumetricFog(color, scenePosition0, scenePosition1, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
                     #elif AIR_FOG == 2
-                        fog(color, viewPosition0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
+                        fog(color, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight, sky);
                     #endif
                 }
             #endif
@@ -130,9 +134,6 @@ void main() {
         #if GI == 0
             #if SPECULAR == 1
                 vec3 visibility = texture(SHADOWMAP_BUFFER, coords.xy).rgb;
-                #if defined SUNLIGHT_LEAKING_FIX
-                    visibility *= float(material.lightmap.y > EPS);
-                #endif
 
                 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
                     visibility *= getCloudsShadows(scenePosition0);
@@ -142,11 +143,11 @@ void main() {
             #endif
 
             #if REFLECTIONS == 1
-                color += texture(REFLECTIONS_BUFFER, texCoords).rgb;
+                color += texture(REFLECTIONS_BUFFER, textureCoords).rgb;
             #endif
         #endif
     } else {
-        skyLight = 1.0;
+        skylight = 1.0;
     }
 
     //////////////////////////////////////////////////////////
@@ -156,15 +157,15 @@ void main() {
     #if defined WORLD_OVERWORLD
         if(isEyeInWater == 1) {
             #if WATER_FOG == 0
-                waterFog(color, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminance, skyIlluminance, skyLight);
+                waterFog(color, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminance, skyIlluminance, skylight);
             #else
-                volumetricWaterFog(color, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
+                computeVolumetricWaterFog(color, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminance, skyIlluminance, skylight, sky);
             #endif
         } else {
             #if AIR_FOG == 1
-                volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, VdotL, directIlluminance, skyIlluminance, skyLight);
+                volumetricFog(color, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
             #elif AIR_FOG == 2
-                fog(color, viewPosition0, VdotL, directIlluminance, skyIlluminance, skyLight, sky);
+                fog(color, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight, sky);
             #endif
         }
     #endif

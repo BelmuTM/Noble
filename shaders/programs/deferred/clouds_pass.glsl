@@ -17,10 +17,10 @@
         out vec3 directIlluminance;
 
         void main() {
-            gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-            texCoords   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+            gl_Position   = gl_ModelViewProjectionMatrix * gl_Vertex;
+            textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-            skyIlluminance    = sampleSkyIlluminanceSimple();
+            skyIlluminance    = evaluateUniformSkyIrradianceApproximation();
             directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
         }
 
@@ -39,7 +39,7 @@
         void main() {
             clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
-            vec3 viewPosition       = getViewPosition1(texCoords);
+            vec3 viewPosition       = getViewPosition1(textureCoords);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
             vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e6);
@@ -70,7 +70,7 @@
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.4 + 0.6;
 
-                vec2  velocity       = (texCoords - prevPosition) * viewSize;
+                vec2  velocity       = (textureCoords - prevPosition) * viewSize;
                 float velocityWeight = exp(-length(velocity)) * 0.8 + 0.2;
 
                 float frameWeight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition).w, 1.0);

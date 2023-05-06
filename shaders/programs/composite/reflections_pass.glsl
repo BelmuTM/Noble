@@ -21,20 +21,20 @@
 
 void main() {
     #if GI == 0 && REFLECTIONS == 1
-        if(isSky(texCoords)) discard;
+        if(isSky(textureCoords)) discard;
 
-        vec3 viewPosition = getViewPosition0(texCoords);
-        Material material = getMaterial(texCoords);
+        vec3 viewPosition = getViewPosition0(textureCoords);
+        Material material = getMaterial(textureCoords);
                     
         #if REFLECTIONS_TYPE == 0
-            reflections = simpleReflections(viewPosition, material);
+            reflections = computeSmoothReflections(viewPosition, material);
         #else
-            reflections = roughReflections(viewPosition, material);
+            reflections = computeRoughReflections(viewPosition, material);
         #endif
 
-        if(isHand(texCoords)) return;
+        if(isHand(textureCoords)) return;
 
-        vec3 currPosition = vec3(texCoords, material.depth0);
+        vec3 currPosition = vec3(textureCoords, material.depth0);
         vec3 prevPosition = currPosition - getVelocity(currPosition);
         vec3 prevColor    = texture(REFLECTIONS_BUFFER, prevPosition.xy).rgb;
 

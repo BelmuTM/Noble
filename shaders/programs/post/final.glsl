@@ -79,7 +79,7 @@ out vec3 color;
 #endif
 
 void main() {
-    vec2 distortCoords = texCoords;
+    vec2 distortCoords = textureCoords;
 
     #if UNDERWATER_DISTORTION == 1
         if(isEyeInWater == 1) underwaterDistortion(distortCoords);
@@ -100,7 +100,7 @@ void main() {
     #endif
 
     #if VIGNETTE == 1
-        vec2 coords = texCoords * (1.0 - texCoords.yx);
+        vec2 coords = textureCoords * (1.0 - textureCoords.yx);
         color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 

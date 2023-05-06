@@ -22,29 +22,29 @@ void main() {
         ao = vec4(0.0, 0.0, 0.0, 1.0);
     #else
         #if GI == 1
-            ao = texture(INDIRECT_BUFFER, texCoords);
+            ao = texture(INDIRECT_BUFFER, textureCoords);
         #endif
         return;
     #endif
 
-    if(isSky(texCoords) || isHand(texCoords)) return;
+    if(isSky(textureCoords) || isHand(textureCoords)) return;
 
     #if AO == 1
-        vec3 viewPosition = getViewPosition0(texCoords);
-        Material material = getMaterial(texCoords);
+        vec3 viewPosition = getViewPosition0(textureCoords);
+        Material material = getMaterial(textureCoords);
 
         #if AO_TYPE == 0
             ao.w = SSAO(viewPosition, material.normal);
         #elif AO_TYPE == 1
             ao.w = RTAO(viewPosition, material.normal, ao.xyz);
         #elif AO_TYPE == 2
-            ao.w = GTAO(texCoords, viewPosition, material.normal, ao.xyz);
+            ao.w = GTAO(textureCoords, viewPosition, material.normal, ao.xyz);
         #endif
 
         ao.w = saturate(ao.w);
 
         #if AO_FILTER == 1
-            vec3 currPosition = vec3(texCoords, material.depth0);
+            vec3 currPosition = vec3(textureCoords, material.depth0);
             vec3 prevPosition = currPosition - getVelocity(currPosition);
             vec4 prevAO       = texture(INDIRECT_BUFFER, prevPosition.xy);
         
