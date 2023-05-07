@@ -52,7 +52,7 @@ void main() {
 
 	#if RENDER_MODE == 0
 		#if defined PROGRAM_TERRAIN
-			animate(worldPosition, textureCoords.y < mc_midTexCoord.y, lightmapCoords.y);
+			animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkyLightFalloff(lightmapCoords.y));
 		#endif
 
 		#if defined PROGRAM_WEATHER
