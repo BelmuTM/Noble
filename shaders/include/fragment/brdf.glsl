@@ -114,7 +114,7 @@ vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     vec3  single = mix(smoothSurf, vec3(roughSurf), material.roughness) * RCP_PI;
     float multi  = 0.1159 * material.roughness;
 
-    return NdotL * (material.albedo * multi + single);
+    return max(vec3(EPS), NdotL * (material.albedo * multi + single));
 }
 
 vec3 hemisphericalAlbedo(vec3 n) {
