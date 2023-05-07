@@ -34,7 +34,7 @@
         #endif
 
 	    #if RENDER_MODE == 0
-            animate(worldPosition, textureCoords.y < mc_midTexCoord.y);
+            animate(worldPosition, textureCoords.y < mc_midTexCoord.y, gl_MultiTexCoord1.y * rcp(240.0));
             gl_Position = transform(shadowModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 	    #else
             gl_Position = ftransform();
