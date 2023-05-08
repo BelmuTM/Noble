@@ -82,7 +82,7 @@
                 
                 material = getMaterial(rayPosition.xy);
 
-                vec3 brdf  = evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material);
+                vec3 brdf  = evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material) * directIlluminance;
                 vec3 phase = sampleMicrosurfaceOpaquePhase(rayDirection, material);
 
                 brdf += material.albedo * EMISSIVE_INTENSITY * material.emission;
@@ -93,10 +93,10 @@
                 float NdotL = dot(material.normal, rayDirection);
 
                 if(j == 0) {
-                    outColorDirect   = brdf * directIlluminance * NdotL;
+                    outColorDirect   = brdf * NdotL;
                     outColorIndirect = phase;
                 } else {
-                    estimate   += throughput * brdf * directIlluminance * NdotL; 
+                    estimate   += throughput * brdf * NdotL; 
                     throughput *= phase;
                 }
 
