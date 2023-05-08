@@ -8,4 +8,4 @@
 in vec2 textureCoords;
 
 #define STAGE_FRAGMENT
-#include "/programs/post/dof.glsl"
+#include "/programs/post/pre_final.glsl"

@@ -63,12 +63,10 @@ vec3 getShadowColor(vec3 samplePos) {
                 if(saturate(localCoords) != localCoords) return -1.0;
 
                 ivec2 shadowCoords = ivec2(localCoords * shadowMapResolution);
+                float depth1       = texelFetch(shadowtex1, shadowCoords, 0).r;
 
-                float depth0 = texelFetch(shadowtex0, shadowCoords, 0).r;
-                float depth1 = texelFetch(shadowtex1, shadowCoords, 0).r;
-
-                if(shadowPosition.z > depth0) {
-                    avgBlockerDepth += depth0;
+                if(shadowPosition.z > depth1) {
+                    avgBlockerDepth += depth1;
                     totalSSDepth    += max0(shadowPosition.z - depth1);
                     blockers++;
                 }

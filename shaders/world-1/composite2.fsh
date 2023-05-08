@@ -8,4 +8,6 @@
 in vec2 textureCoords;
 
 #define STAGE_FRAGMENT
-#include "/programs/post/dof.glsl"
+#define WORLD_NETHER
+
+#include "/programs/composite/specular_pass.glsl"

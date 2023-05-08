@@ -69,8 +69,8 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             vec3 sunStepScattering  = atmosphereScatteringCoefficients * (airmass.xy * phase.xy) * visibleScattering;
             vec3 moonStepScattering = atmosphereScatteringCoefficients * (airmass.xy * phase.zw) * visibleScattering;
 
-            scattering[0] += sunStepScattering  * evaluateAtmosphereTransmittance(rayPosition, sunPosNorm);
-            scattering[1] += moonStepScattering * evaluateAtmosphereTransmittance(rayPosition,-sunPosNorm);
+            scattering[0] += sunStepScattering  * evaluateAtmosphereTransmittance(rayPosition, sunVector );
+            scattering[1] += moonStepScattering * evaluateAtmosphereTransmittance(rayPosition, moonVector);
 
             vec3 stepScattering    = atmosphereScatteringCoefficients * airmass.xy;
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
@@ -93,8 +93,8 @@ vec3 evaluateDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD
-        vec3 sunTransmit  = evaluateAtmosphereTransmittance(atmosphereRayPosition, sunPosNorm) * sunIrradiance;
-        vec3 moonTransmit = evaluateAtmosphereTransmittance(atmosphereRayPosition,-sunPosNorm) * moonIrradiance;
+        vec3 sunTransmit  = evaluateAtmosphereTransmittance(atmosphereRayPosition, sunVector ) * sunIrradiance;
+        vec3 moonTransmit = evaluateAtmosphereTransmittance(atmosphereRayPosition, moonVector) * moonIrradiance;
         directIlluminance = sunTransmit + moonTransmit;
     #endif
     return max0(directIlluminance);

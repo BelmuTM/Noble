@@ -10,4 +10,4 @@ in vec2 textureCoords;
 #define STAGE_FRAGMENT
 #define WORLD_OVERWORLD
 
-#include "/programs/composite/composite.glsl"
+#include "/programs/composite/fog_pass.glsl"

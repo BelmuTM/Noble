@@ -226,7 +226,7 @@
 		#endif
 
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
-			if(wetness > 0.0) {
+			if(wetness > 0.0 && isEyeInWater == 0) {
 				float porosity    = saturate(specularTex.z * (maxVal8 / 64.0));
 				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
 

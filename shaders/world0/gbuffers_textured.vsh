@@ -5,5 +5,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#define PROGRAM_TEXTURED
 #define STAGE_VERTEX
+#define WORLD_OVERWORLD
+
 #include "/programs/gbuffers/forward.glsl"

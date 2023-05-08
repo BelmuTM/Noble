@@ -5,4 +5,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#include "/programs/vertex_simple.glsl"
+out vec2 textureCoords;
+
+#define STAGE_VERTEX
+#include "/programs/post/temporal.glsl"
