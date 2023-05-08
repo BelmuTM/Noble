@@ -130,11 +130,22 @@
 
 		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
 			// Thanks ninjamike1211 for the help
-			vec2 lightmap 	    = lightmapCoords;
-			vec3 scenePosition  = viewToScene(viewPosition);
-			vec3 lightmapVector = dFdx(scenePosition) * dFdx(lightmap.x) + dFdy(scenePosition) * dFdy(lightmap.x);
+			vec2 lightmap 	   = lightmapCoords;
+			vec3 scenePosition = viewToScene(viewPosition);
 
-			lightmap.x *= saturate(dot(normalize(lightmapVector), normal) + 0.8) * 0.8 + 0.2;
+			vec2 blocklightDeriv = vec2(dFdx(lightmap.x), dFdy(lightmap.x));
+			vec2 skylightDeriv   = vec2(dFdx(lightmap.y), dFdy(lightmap.y));
+
+			vec3 lightmapVectorX = dFdx(scenePosition) * blocklightDeriv.x + dFdy(scenePosition) * blocklightDeriv.y;
+				 lightmap.x     *= saturate(dot(normalize(lightmapVectorX), normal) + 0.8) * 0.8 + 0.2;
+
+			vec3 lightmapVectorY = dFdx(scenePosition) * skylightDeriv.x + dFdy(scenePosition) * skylightDeriv.y;
+			if(length(skylightDeriv) > 1e-6) {
+    			lightmap.y *= saturate(dot(normalize(lightmapVectorY), normal) + 0.8) * 0.8 + 0.2;
+			} else {
+    			lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), normal) + 0.8) * 0.2 + 0.8;
+			}
+
 			return saturate(lightmap);
 		#endif
 		return saturate(lightmapCoords);

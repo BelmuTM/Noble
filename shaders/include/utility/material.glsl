@@ -175,11 +175,11 @@ vec3 getBlockLightColor(Material material) {
     return vec3(0.0);
 }
 
-float getBlockLightFalloff(float lightmapX) {
+float getBlocklightFalloff(float lightmapX) {
     return linearStep(0.00390625, 1.0, 1.0 / pow2(16.0 - 15.0 * lightmapX));
 }
 
 
-float getSkyLightFalloff(float lightmapY) {
+float getSkylightFalloff(float lightmapY) {
     return lightmapY * exp(6.0 * (lightmapY - 1.0));
 }

@@ -31,7 +31,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
             }
 		#endif
 
-        return (sky * clouds.a + clouds.rgb) * getSkyLightFalloff(material.lightmap.y);
+        return (sky * clouds.a + clouds.rgb) * getSkylightFalloff(material.lightmap.y);
     #else
         return vec3(0.0);
     #endif

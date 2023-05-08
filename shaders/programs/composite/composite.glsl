@@ -91,7 +91,7 @@ void main() {
     float skylight = 0.0;
 
     if(!sky) {
-        skylight = getSkyLightFalloff(material.lightmap.y);
+        skylight = getSkylightFalloff(material.lightmap.y);
 
         if(viewPosition0.z != viewPosition1.z) {
             //////////////////////////////////////////////////////////

@@ -74,7 +74,7 @@
             if(ivec2(gl_FragCoord) == ivec2(0))
                 illuminance.rgb = directIlluminance;
             else
-                illuminance.rgb = material.lightmap.y > EPS ? evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w) : vec3(0.0);
+                illuminance.rgb = material.lightmap.y > EPS ? max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w)) : vec3(0.0);
                 
             //////////////////////////////////////////////////////////
             /*----------------- SHADOW MAPPING ---------------------*/

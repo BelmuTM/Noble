@@ -97,7 +97,7 @@ vec3 evaluateDirectIlluminance() {
         vec3 moonTransmit = evaluateAtmosphereTransmittance(atmosphereRayPosition,-sunPosNorm) * moonIrradiance;
         directIlluminance = sunTransmit + moonTransmit;
     #endif
-    return directIlluminance;
+    return max0(directIlluminance);
 }
 
 mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
@@ -182,7 +182,7 @@ vec3[9] evaluateUniformSkyIrradiance() {
     for(int n = 0; n < irradiance.length(); n++) irradiance[n] = vec3(0.0);
 
     #if defined WORLD_OVERWORLD
-        const ivec2 samples = ivec2(64);
+        const ivec2 samples = ivec2(256);
 
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {

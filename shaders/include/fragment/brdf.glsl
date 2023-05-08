@@ -156,8 +156,8 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
 
     float isSkyOccluded = float(material.lightmap.y > EPS);
 
-    material.lightmap.x = getBlockLightFalloff(material.lightmap.x);
-    material.lightmap.y = getSkyLightFalloff(material.lightmap.y);
+    material.lightmap.x = getBlocklightFalloff(material.lightmap.x);
+    material.lightmap.y = getSkylightFalloff(material.lightmap.y);
 
     #if defined SUNLIGHT_LEAKING_FIX
         diffuse        *= directIlluminance * isSkyOccluded;
@@ -166,14 +166,14 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
         diffuse *= directIlluminance;
     #endif
 
-    vec3 blockLightColor = getBlockLightColor(material);
-    vec3 emissiveness    = material.emission * blockLightColor;
+    vec3 blocklightColor = getBlockLightColor(material);
+    vec3 emissiveness    = material.emission * blocklightColor;
 
-    vec3 blockLight = blockLightColor * material.lightmap.x;
+    vec3 blocklight = blocklightColor * material.lightmap.x;
     vec3 skylight   = skyIlluminance  * material.lightmap.y;
     vec3 ambient    = vec3(0.04);
 
-    diffuse += (blockLight + skylight + ambient) * material.ao * ao;
+    diffuse += (blocklight + skylight + ambient) * material.ao * ao;
 
     return max0(material.albedo * (diffuse + emissiveness));
 }
