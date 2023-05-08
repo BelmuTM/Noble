@@ -100,8 +100,8 @@ void main() {
 
             #if GI == 0 && REFRACTIONS == 1
                 if(material.F0 > EPS) {
-                    color          = computeRefractions(viewPosition0, scenePosition1, material, coords);
-                    scenePosition1 = viewToScene(getViewPosition1(coords.xy));
+                    color = computeRefractions(viewPosition0, scenePosition1, material, coords);
+                    if(saturate(coords.xy) == coords.xy) viewToScene(getViewPosition1(coords.xy));
                 }
             #endif
 
@@ -133,7 +133,11 @@ void main() {
 
         #if GI == 0
             #if SPECULAR == 1
-                vec3 visibility = texture(SHADOWMAP_BUFFER, coords.xy).rgb;
+                vec3  shadowPosition = distortShadowSpace(worldToShadow(scenePosition0)) * 0.5 + 0.5;
+                float shadowDepth0   = texture(shadowtex0, shadowPosition.xy).r;
+                float shadowDepth1   = texture(shadowtex1, shadowPosition.xy).r;
+
+                vec3 visibility = shadowDepth0 == shadowDepth1 ? texture(SHADOWMAP_BUFFER, coords.xy).rgb : vec3(1.0);
 
                 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
                     visibility *= getCloudsShadows(scenePosition0);

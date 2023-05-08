@@ -16,8 +16,8 @@
 	out vec2 textureCoords;
 	out vec2 lightmapCoords;
 	out vec3 viewPosition;
-	out mat3[2] skyIlluminanceMat;
 	out vec3 directIlluminance;
+	out mat3[2] skyIlluminanceMat;
 	out vec4 vertexColor;
 	out mat3 tbn;
 
@@ -40,8 +40,8 @@
 		blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-		skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 		directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+		skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 
 		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);
@@ -59,8 +59,8 @@
 	in vec2 textureCoords;
 	in vec2 lightmapCoords;
 	in vec3 viewPosition;
-	in mat3[2] skyIlluminanceMat;
 	in vec3 directIlluminance;
+	in mat3[2] skyIlluminanceMat;
 	in vec4 vertexColor;
 	in mat3 tbn;
 

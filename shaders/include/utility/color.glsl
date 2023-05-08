@@ -178,8 +178,8 @@ mat3 toXyz(mat3 mat) {
 
 vec3 plancks(float temperature, vec3 lambda) {
     const float h = 6.62607015e-16; // Planck's constant
-    const float c = 2.997925e17;    // Speed of light in a vacuum
-    const float k = 1.381e-5;       // Boltzmann's constant
+    const float c = 2.99792458e17;  // Speed of light in a vacuum
+    const float k = 1.38064852e-5;  // Boltzmann's constant
 
     float numerator   = 2.0 * h * pow2(c);
     vec3  denominator = (exp(h * c / (lambda * k * temperature)) - vec3(1.0)) * pow5(lambda);

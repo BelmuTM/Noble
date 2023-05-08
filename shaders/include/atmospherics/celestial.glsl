@@ -5,8 +5,8 @@
 
 #include "/include/utility/sampling.glsl"
 
-// Originally written by Capt Tatsu#7124
-// Modified by Belmu#4066
+// Originally written by Capt Tatsu
+// Modified it myself
 vec3 computeStarfield(vec3 viewPosition) {
 	vec3 scenePosition = viewToScene(viewPosition);
 	vec3 planeCoords   = scenePosition / (scenePosition.y + length(scenePosition.xz));
