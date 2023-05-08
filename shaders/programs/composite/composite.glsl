@@ -133,11 +133,7 @@ void main() {
 
         #if GI == 0
             #if SPECULAR == 1
-                vec3  shadowPosition = distortShadowSpace(worldToShadow(scenePosition0)) * 0.5 + 0.5;
-                float shadowDepth0   = texture(shadowtex0, shadowPosition.xy).r;
-                float shadowDepth1   = texture(shadowtex1, shadowPosition.xy).r;
-
-                vec3 visibility = shadowDepth0 == shadowDepth1 ? texture(SHADOWMAP_BUFFER, coords.xy).rgb : vec3(1.0);
+                vec3 visibility = viewPosition0.z == viewPosition1.z ? texture(SHADOWMAP_BUFFER, coords.xy).rgb : vec3(1.0);
 
                 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
                     visibility *= getCloudsShadows(scenePosition0);

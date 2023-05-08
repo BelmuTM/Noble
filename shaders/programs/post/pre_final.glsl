@@ -34,7 +34,7 @@ layout (location = 0) out vec3 color;
 #include "/include/post/grading.glsl"
 
 #if TONEMAP == ACES
-    const float exposureBias = 2.2;
+    const float exposureBias = 1.0;
 #else
     const float exposureBias = 1.0;
 #endif
