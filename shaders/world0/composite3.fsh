@@ -8,4 +8,4 @@
 in vec2 textureCoords;
 
 #define STAGE_FRAGMENT
-#include "/programs/post/bloom_pass.glsl"
+#include "/programs/post/temporal.glsl"

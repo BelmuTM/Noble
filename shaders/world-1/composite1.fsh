@@ -8,6 +8,6 @@
 in vec2 textureCoords;
 
 #define STAGE_FRAGMENT
-#define WORLD_NETHER
+#define WORLD_OVERWORLD
 
 #include "/programs/composite/composite.glsl"
