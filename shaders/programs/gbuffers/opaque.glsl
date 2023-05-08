@@ -139,13 +139,8 @@
 			vec3 lightmapVectorX = dFdx(scenePosition) * blocklightDeriv.x + dFdy(scenePosition) * blocklightDeriv.y;
 				 lightmap.x     *= saturate(dot(normalize(lightmapVectorX), normal) + 0.8) * 0.8 + 0.2;
 
-			vec3 lightmapVectorY = dFdx(scenePosition) * skylightDeriv.x + dFdy(scenePosition) * skylightDeriv.y;
-			if(length(skylightDeriv) > 1e-6) {
-    			lightmap.y *= saturate(dot(normalize(lightmapVectorY), normal) + 0.8) * 0.8 + 0.2;
-			} else {
-    			lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), normal) + 0.8) * 0.2 + 0.8;
-			}
-
+    		lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), normal) + 0.8) * 0.2 + 0.8;
+		
 			return saturate(lightmap);
 		#endif
 		return saturate(lightmapCoords);
