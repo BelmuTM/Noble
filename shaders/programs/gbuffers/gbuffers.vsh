@@ -51,8 +51,10 @@ void main() {
 	vec3 worldPosition = transform(gbufferModelViewInverse, viewPosition);
 
 	#if RENDER_MODE == 0
-		#if defined PROGRAM_TERRAIN
-			animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
+		#if WAVING_PLANTS == 1
+			#if defined PROGRAM_TERRAIN
+				animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
+			#endif
 		#endif
 
 		#if defined PROGRAM_WEATHER

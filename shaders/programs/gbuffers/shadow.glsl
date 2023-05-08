@@ -33,7 +33,7 @@
 		    tbn			   = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
         #endif
 
-	    #if RENDER_MODE == 0
+	    #if RENDER_MODE == 0 && WAVING_PLANTS == 1
             animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(gl_MultiTexCoord1.y * rcp(240.0)));
             gl_Position = transform(shadowModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 	    #else

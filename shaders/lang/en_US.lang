@@ -440,9 +440,14 @@ option.FOG_DENSITY.comment = Adjusts §bFog§r's density.
 ##################### TERRAIN #####################
 
 option.WHITE_WORLD = White World
-option.WHITE_WORLD.comment = §rSets all block colors to white.
+option.WHITE_WORLD.comment = Makes the environment entirely white.
 value.WHITE_WORLD.0 = §cOFF
 value.WHITE_WORLD.1 = §aON
+
+option.WAVING_PLANTS = Waving Plants
+option.WAVING_PLANTS.comment = Makes plants like leaves and flowers wave to the wind.
+value.WAVING_PLANTS.0 = §cOFF
+value.WAVING_PLANTS.1 = §aON
 
 option.RAIN_PUDDLES = Rain Puddles
 option.RAIN_PUDDLES.comment = Simulates the apparition of puddles on the ground during the rain.
