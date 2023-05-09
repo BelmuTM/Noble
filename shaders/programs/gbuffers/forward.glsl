@@ -99,12 +99,18 @@
 			material.normal = tbn * getWaterNormals(viewToWorld(viewPosition), WATER_OCTAVES);
 		
 		} else {
-			#if defined PROGRAM_TEXTURED
+			material.lightmap = lightmapCoords;
+
+			#if defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT
 				material.F0         = 0.0;
     			material.roughness  = 1.0;
     			material.ao         = 1.0;
 				material.emission   = 0.0;
     			material.subsurface = 0.0;
+
+				#if defined PROGRAM_TEXTURED_LIT
+					material.lightmap = vec2(material.lightmap.x, 0.0);
+				#endif
 			#else
 				material.F0         = specularTex.y;
     			material.roughness  = saturate(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
@@ -113,8 +119,7 @@
     			material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
 			#endif
 
-    		material.albedo   = albedoTex.rgb;
-			material.lightmap = lightmapCoords;
+			material.albedo = albedoTex.rgb;
 
 			#if WHITE_WORLD == 1
 	    		material.albedo = vec3(1.0);
@@ -160,7 +165,15 @@
 						if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
 					#endif
 
-					translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+					vec3 directIlluminanceTmp = directIlluminance;
+
+					float isSkyOccluded = float(getSkylightFalloff(material.lightmap.y) > EPS || isEyeInWater == 1);
+    				#if defined SUNLIGHT_LEAKING_FIX
+        				directIlluminanceTmp *= isSkyOccluded;
+        				skyIlluminance       *= isSkyOccluded;
+    				#endif
+
+					translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminanceTmp, skyIlluminance, 1.0, 1.0);
 					translucents.a   = albedoTex.a;
 				}
 			#endif

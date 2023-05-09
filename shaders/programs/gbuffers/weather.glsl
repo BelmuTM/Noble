@@ -38,10 +38,10 @@
 	void main() {
 		if(texture(tex, textureCoords).a < 0.102) discard;
 
-		const float density					= 4.0;
-		const float scatteringCoefficient   = 0.2;
+		const float density					= 2.0;
+		const float scatteringCoefficient   = 0.3;
 		const vec3  attenuationCoefficients = vec3(0.338675, 0.0493852, 0.00218174); // Provided by Jessie
-		const float alpha					= 0.4;
+		const float alpha					= 0.2;
 
 		color.rgb = skyIlluminance * exp(-attenuationCoefficients * density) * scatteringCoefficient;
 		color.a   = alpha;

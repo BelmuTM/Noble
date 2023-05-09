@@ -104,7 +104,7 @@ void main() {
                 vec3 visibility = viewPosition0.z == viewPosition1.z ? texture(SHADOWMAP_BUFFER, coords.xy).rgb : vec3(1.0);
 
                 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
-                    visibility *= getCloudsShadows(scenePosition0);
+                    visibility *= getCloudsShadows(viewToScene(viewPosition0));
                 #endif
 
                 sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowVec) * directIlluminance * saturate(visibility);
