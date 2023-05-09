@@ -20,16 +20,18 @@ vec3 getHitColor(in vec3 hitPosition) {
 }
 
 vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
-    #if defined WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD || defined WORLD_END
         vec2 coords = projectSphere(mat3(gbufferModelViewInverse) * reflected);
         vec3 sky    = texture(ATMOSPHERE_BUFFER, saturate(coords + randF() * pixelSize)).rgb;
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
-		#if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
-            if(saturate(hitCoords) == hitCoords) {
-			    clouds = texture(CLOUDS_BUFFER, hitCoords);
-            }
-		#endif
+        #if defined WORLD_OVERWORLD
+		    #if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
+                if(saturate(hitCoords) == hitCoords) {
+			        clouds = texture(CLOUDS_BUFFER, hitCoords);
+                }
+		    #endif
+        #endif
 
         return (sky * clouds.a + clouds.rgb) * getSkylightFalloff(material.lightmap.y);
     #else

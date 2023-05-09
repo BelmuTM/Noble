@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#if defined WORLD_OVERWORLD
+#if defined WORLD_OVERWORLD || defined WORLD_END
     #include "/include/common.glsl"
     #include "/include/atmospherics/atmosphere.glsl"
 #endif
@@ -16,7 +16,7 @@
         gl_Position   = gl_ModelViewProjectionMatrix * gl_Vertex;
         textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-        #if defined WORLD_OVERWORLD
+        #if defined WORLD_OVERWORLD || defined WORLD_END
             skyIlluminance = evaluateUniformSkyIrradianceApproximation();
         #endif
     }
@@ -30,7 +30,7 @@
     in vec3 skyIlluminance;
 
     void main() {
-        #if defined WORLD_OVERWORLD
+        #if defined WORLD_OVERWORLD || defined WORLD_END
             vec3 skyRay  = normalize(unprojectSphere(textureCoords));
                  sky.rgb = evaluateAtmosphericScattering(skyRay, skyIlluminance);
         #endif

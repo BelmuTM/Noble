@@ -38,7 +38,7 @@ void main() {
     #endif
 
     if(isSky(textureCoords)) {
-        vec3 sky = computeAtmosphere(viewPosition0);
+        vec3 sky = renderAtmosphere(viewPosition0);
         #if GI == 1
             direct = sky;
         #else
@@ -77,13 +77,14 @@ void main() {
             vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
             float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
-            #if defined WORLD_OVERWORLD
+            #if defined WORLD_OVERWORLD || defined WORLD_END
                 directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
-                skyIlluminance    = texture(ILLUMINANCE_BUFFER, textureCoords).rgb;
 
-                #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+                #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
                     cloudsShadows = getCloudsShadows(viewToScene(viewPosition0));
                 #endif
+
+                skyIlluminance = texture(ILLUMINANCE_BUFFER, textureCoords).rgb;
 
                 #if SHADOWS == 1
                     shadowmap = texture(SHADOWMAP_BUFFER, textureCoords);
@@ -95,7 +96,7 @@ void main() {
                 ao = texture(INDIRECT_BUFFER, textureCoords).a;
             #endif
 
-            color.rgb = max0(computeDiffuse(viewPosition0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows));
+            color.rgb = computeDiffuse(viewPosition0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         }
     #else
 

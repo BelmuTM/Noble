@@ -29,7 +29,7 @@
     in vec3[9] skyIlluminance;
 
     void main() {
-        #if defined WORLD_OVERWORLD
+        #if defined WORLD_OVERWORLD || defined WORLD_END
             if(ivec2(gl_FragCoord) == ivec2(0)) {
                 illuminanceOut = directIlluminance; return;
             } else {

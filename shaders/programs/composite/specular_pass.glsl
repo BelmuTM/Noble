@@ -38,10 +38,13 @@ layout (location = 0) out vec3 color;
         vec3 fresnel  = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
         vec3 hitColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
 
-        float density     = clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
-        vec3  attenuation = material.blockId == 1 ? vec3(1.0) : exp(-(1.0 - material.albedo) * density);
+        float density     = material.blockId == NETHER_PORTAL_ID ? 3.0 : clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
+        vec3  attenuation = material.blockId == WATER_ID         ? vec3(1.0) : exp(-(1.0 - material.albedo) * density);
 
-        return hitColor * (1.0 - fresnel) * attenuation;
+        vec3 blocklightColor = getBlockLightColor(material);
+        vec3 emissiveness    = material.emission * blocklightColor;
+
+        return (hitColor * (1.0 - fresnel) * attenuation) + (emissiveness * material.albedo);
     }
 #endif
 
@@ -76,10 +79,10 @@ void main() {
 
             vec3 directIlluminance = vec3(0.0);
     
-            #if defined WORLD_OVERWORLD
+            #if defined WORLD_OVERWORLD || defined WORLD_END
                 directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
 
-                #if defined SUNLIGHT_LEAKING_FIX
+                #if defined WORLD_OVERWORLD && defined SUNLIGHT_LEAKING_FIX
                     directIlluminance *= float(material.lightmap.y > EPS || isEyeInWater == 1);
                 #endif
             #endif
@@ -116,24 +119,19 @@ void main() {
         }
     #endif
 
-    #if defined WORLD_OVERWORLD
-        vec3 scattering    = vec3(0.0);
-        vec3 transmittance = vec3(0.0);
+    vec3 scattering    = vec3(0.0);
+    vec3 transmittance = vec3(0.0);
 
-        const int filterSize = 2;
+    const int filterSize = 2;
 
-        for(int x = -filterSize; x <= filterSize; x++) {
-            for(int y = -filterSize; y <= filterSize; y++) {
-                float weight = gaussianDistribution2D(vec2(x, y), 3.0);
+    for(int x = -filterSize; x <= filterSize; x++) {
+        for(int y = -filterSize; y <= filterSize; y++) {
+            float weight = gaussianDistribution2D(vec2(x, y), 3.0);
             
-                scattering    += texture(colortex12, coords.xy + vec2(x, y) * pixelSize).rgb * weight;
-                transmittance += texture(colortex13, coords.xy + vec2(x, y) * pixelSize).rgb * weight;
-            }
+            scattering    += texture(colortex12, coords.xy + vec2(x, y) * pixelSize).rgb * weight;
+            transmittance += texture(colortex13, coords.xy + vec2(x, y) * pixelSize).rgb * weight;
         }
-    #else
-        vec3 scattering    = texture(colortex12, coords.xy).rgb;
-        vec3 transmittance = texture(colortex13, coords.xy).rgb;
-    #endif
+    }
 
     color += sunSpecular;
     color  = color * transmittance + scattering;

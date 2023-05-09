@@ -78,9 +78,9 @@
 
         #if WATER_CAUSTICS == 1
             float caustics = 1.0 + saturate(1.0 - waterCaustics(worldPosition, tbn * getWaterNormals(worldPosition, int(WATER_OCTAVES * 0.5))));
-            color0         = mix(albedoTex, vec4(caustics, caustics, caustics, 0.0), float(blockId == 1));
+            color0         = mix(albedoTex, vec4(caustics, caustics, caustics, 0.0), float(blockId == WATER_ID));
         #else
-            color0 = mix(albedoTex, vec4(1.0, 1.0, 1.0, 0.0), float(blockId == 1));
+            color0 = mix(albedoTex, vec4(1.0, 1.0, 1.0, 0.0), float(blockId == WATER_ID));
         #endif
     }
 #endif

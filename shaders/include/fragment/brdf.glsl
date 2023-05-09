@@ -133,7 +133,7 @@ vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 ligh
     float cosTheta = dot(normalize(viewDirection + lightDirection), viewDirection);
 
     // Phase function specifically made for leaves
-    if(material.blockId == 9) {
+    if(material.blockId == LEAVES_ID) {
         return max0(beer * biLambertianPlatePhase(0.3, cosTheta));
     }
 
@@ -157,25 +157,37 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     float isSkyOccluded = float(material.lightmap.y > EPS || isEyeInWater == 1);
 
     material.lightmap.x = getBlocklightFalloff(material.lightmap.x);
-    material.lightmap.y = getSkylightFalloff  (material.lightmap.y);
 
-    #if defined SUNLIGHT_LEAKING_FIX
-        diffuse        *= directIlluminance * isSkyOccluded;
-        skyIlluminance *= isSkyOccluded;
+    #if defined WORLD_OVERWORLD
+        material.lightmap.y = getSkylightFalloff(material.lightmap.y);
+
+        #if defined SUNLIGHT_LEAKING_FIX
+            diffuse        *= directIlluminance * isSkyOccluded;
+            skyIlluminance *= isSkyOccluded;
+        #else
+            diffuse *= directIlluminance;
+        #endif
+
+        vec3 skylight = skyIlluminance * material.lightmap.y;
     #else
         diffuse *= directIlluminance;
+
+        vec3 skylight = skyIlluminance;
     #endif
 
     vec3 blocklightColor = getBlockLightColor(material);
+    vec3 blocklight      = blocklightColor * material.lightmap.x;
     vec3 emissiveness    = material.emission * blocklightColor;
 
-    vec3 blocklight = blocklightColor * material.lightmap.x;
-    vec3 skylight   = skyIlluminance  * material.lightmap.y;
-    vec3 ambient    = vec3(0.04);
+    #if defined WORLD_OVERWORLD || defined WORLD_END
+        vec3 ambient = vec3(0.1);
+    #else
+        vec3 ambient = vec3(0.5);
+    #endif
 
     diffuse += (blocklight + skylight + ambient) * material.ao * ao;
 
-    return max0(material.albedo * (diffuse + emissiveness));
+    return material.albedo * (diffuse + emissiveness);
 }
 
 vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection) {

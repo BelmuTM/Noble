@@ -33,8 +33,9 @@
         in vec3 skyIlluminance;
         in vec3 directIlluminance;
 
-        #include "/include/atmospherics/clouds.glsl"
         #include "/include/utility/sampling.glsl"
+
+        #include "/include/atmospherics/clouds.glsl"
 
         void main() {
             clouds = vec4(0.0, 0.0, 0.0, 1.0);

@@ -4,7 +4,10 @@
 /***********************************************/
 
 #include "/include/common.glsl"
-#include "/include/atmospherics/atmosphere.glsl"
+
+#if defined WORLD_OVERWORLD || defined WORLD_END
+	#include "/include/atmospherics/atmosphere.glsl"
+#endif
 
 #if defined STAGE_VERTEX
 
@@ -15,8 +18,10 @@
         gl_Position   = gl_ModelViewProjectionMatrix * gl_Vertex;
         textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-        directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
-        skyIrradiance     = sampleUniformSkyIrradiance();
+		#if defined WORLD_OVERWORLD || defined WORLD_END
+			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+			skyIrradiance     = sampleUniformSkyIrradiance();
+		#endif
     }
 
 #elif defined STAGE_FRAGMENT
@@ -66,22 +71,32 @@
             if(any(greaterThan(ao, vec4(0.0)))) ao = saturate(ao);
         #endif
 
-        #if defined WORLD_OVERWORLD
-            //////////////////////////////////////////////////////////
-            /*--------------------- IRRADIANCE ---------------------*/
-            //////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////
+        /*--------------------- IRRADIANCE ---------------------*/
+        //////////////////////////////////////////////////////////
 
-            if(ivec2(gl_FragCoord) == ivec2(0))
-                illuminance.rgb = directIlluminance;
-            else
-                illuminance.rgb = material.lightmap.y > EPS ? max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w)) : vec3(0.0);
+        vec3 skyIlluminance = vec3(0.0);
+
+        #if defined WORLD_OVERWORLD || defined WORLD_END
+            bool receivesSkylight = true;
+
+            #if defined WORLD_OVERWORLD
+                receivesSkylight = material.lightmap.y > EPS;
+            #endif
+
+            if(receivesSkylight) skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
+        #endif
+
+        if(ivec2(gl_FragCoord) == ivec2(0)) illuminance.rgb = directIlluminance;
+        else                                illuminance.rgb = skyIlluminance;
                 
-            //////////////////////////////////////////////////////////
-            /*----------------- SHADOW MAPPING ---------------------*/
-            //////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////
+        /*----------------- SHADOW MAPPING ---------------------*/
+        //////////////////////////////////////////////////////////
 
-            if(isSky(textureCoords)) return;
+        if(isSky(textureCoords)) return;
             
+        #if defined WORLD_OVERWORLD
             #if SHADOWS == 1
                 vec3 geoNormal = texture(SHADOWMAP_BUFFER, textureCoords).rgb;
                 shadowmap.rgb  = calculateShadowMapping(viewToScene(viewPosition), geoNormal, shadowmap.a);

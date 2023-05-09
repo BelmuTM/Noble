@@ -14,12 +14,12 @@
 #include "/include/utility/math.glsl"
 #include "/include/utility/color.glsl"
 
-#include "/include/atmospherics/constants.glsl"
-
 #include "/include/utility/transforms.glsl"
 #include "/include/utility/phase.glsl"
 
 #include "/include/utility/material.glsl"
+
+#include "/include/atmospherics/constants.glsl"
 
 //////////////////////////////////////////////////////////
 /*-------------- MISC UTILITY FUNCTIONS ----------------*/

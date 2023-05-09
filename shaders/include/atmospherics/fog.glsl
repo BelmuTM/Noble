@@ -16,9 +16,12 @@ float calculateFogPhase(float cosTheta) {
 #if defined WORLD_OVERWORLD
     vec3 fogAttenuationCoefficients = vec3(fogExtinctionCoefficient);
     vec3 fogScatteringCoefficients  = vec3(fogScatteringCoefficient);
-#else
+#elif defined WORLD_NETHER
     const vec3 fogAttenuationCoefficients = vec3(0.6, 0.4, 0.05);
     const vec3 fogScatteringCoefficients  = vec3(1.0, 0.3, 0.0);
+#elif defined WORLD_END
+    const vec3 fogAttenuationCoefficients = vec3(0.7, 0.5, 0.75);
+    const vec3 fogScatteringCoefficients  = vec3(0.7, 0.3, 0.8);
 #endif
 
 #if AIR_FOG == 0
@@ -35,13 +38,20 @@ float calculateFogPhase(float cosTheta) {
 
     float getFogDensity(vec3 position) {
         #if defined WORLD_OVERWORLD
-            float fogAltitude   = FOG_ALTITUDE;
-            float fogThickness  = FOG_THICKNESS;
-            float densityFactor = wetness;
-        #else
-            float fogAltitude   = FOG_ALTITUDE - 34.0;
-            float fogThickness  = FOG_THICKNESS;
-            float densityFactor = 1.0;
+            const float fogAltitude   = FOG_ALTITUDE;
+            const float fogThickness  = FOG_THICKNESS;
+                  float densityFactor = wetness;
+            const float densityMult   = 1.0;
+        #elif defined WORLD_NETHER
+            const float fogAltitude   = FOG_ALTITUDE - 34.0;
+            const float fogThickness  = FOG_THICKNESS * 1.8;
+            const float densityFactor = 1.0;
+            const float densityMult   = 1.0;
+        #elif defined WORLD_END
+            const float fogAltitude   = FOG_ALTITUDE - 10.0;
+            const float fogThickness  = (FOG_THICKNESS + 40.0) * 1.3;
+            const float densityFactor = 1.0;
+            const float densityMult   = 2.0;
         #endif
 
         float altitude   = (position.y - fogAltitude) * rcp(fogThickness);
@@ -55,7 +65,7 @@ float calculateFogPhase(float cosTheta) {
               shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
               shapeNoise *= exp(-max0(position.y - fogAltitude) * 0.2);
         
-        return saturate(shapeNoise) * mix(FOG_DENSITY, 1.0, wetness);
+        return saturate(shapeNoise) * mix(FOG_DENSITY, 1.0, densityFactor) * densityMult;
     }
 
     /*
@@ -102,18 +112,29 @@ float calculateFogPhase(float cosTheta) {
             vec3 stepScatteringDirect   = fogScatteringCoefficients * airmass * phase          * visibleScattering;
             vec3 stepScatteringIndirect = fogScatteringCoefficients * airmass * isotropicPhase * visibleScattering;
 
-            vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
+            #if defined WORLD_OVERWORLD
+                vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
 
-            #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
-                shadowColor *= getCloudsShadows(rayPosition);
+                #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+                    shadowColor *= getCloudsShadows(rayPosition);
+                #endif
+
+                scattering[0] += stepScatteringDirect * shadowColor;
+            #else
+                scattering[0] += stepScatteringDirect;
             #endif
 
-            scattering[0] += stepScatteringDirect * shadowColor;
             scattering[1] += stepScatteringIndirect;
             transmittance *= perspective * stepTransmittance;
         }
-        scattering[0] *= directIlluminance;
-        scattering[1] *= skyIlluminance * skylight;
+
+        #if defined WORLD_OVERWORLD
+            scattering[0] *= directIlluminance;
+            scattering[1] *= skyIlluminance * skylight;
+        #else
+            scattering[0] *= directIlluminance;
+            scattering[1] *= skyIlluminance;
+        #endif
 
         scatteringOut    = scattering[0] + scattering[1];
         transmittanceOut = vec3(1.0);

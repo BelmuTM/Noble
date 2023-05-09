@@ -126,7 +126,6 @@
 	#endif
 
 	vec2 computeLightmap(vec3 normal) {
-		if(blockId >= 5 && blockId < 8) return vec2(1.0, lightmapCoords.y);
 
 		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
 			// Thanks ninjamike1211 for the help
@@ -207,7 +206,7 @@
 		#endif
 
 		#if HARDCODED_EMISSION == 1
-			if(blockId >= 5 && blockId < 8 && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
+			if(blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
 		#endif
 
 		vec3 normal = tbn[2];

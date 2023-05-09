@@ -31,7 +31,7 @@ vec3 getAtmosphereDensities(float centerDist) {
 	return vec3(rayleighMie, ozone);
 }
 
-vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
+vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 attenuationCoefficients) {
     float stepSize   = intersectSphere(rayOrigin, lightDir, atmosphereUpperRadius).y * rcp(TRANSMITTANCE_STEPS);
     vec3 increment   = lightDir * stepSize;
     vec3 rayPosition = rayOrigin + increment * 0.5;
@@ -40,7 +40,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
     for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
         accumAirmass += getAtmosphereDensities(length(rayPosition)) * stepSize;
     }
-    return exp(-atmosphereAttenuationCoefficients * accumAirmass);
+    return exp(-attenuationCoefficients * accumAirmass);
 }
 
 #if defined STAGE_FRAGMENT
@@ -52,27 +52,52 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
         vec3 increment   = rayDirection * stepSize;
         vec3 rayPosition = atmosphereRayPosition + increment * 0.5;
 
-        vec2 VdotL = vec2(dot(rayDirection, sunVector), dot(rayDirection, moonVector));
-        vec4 phase = vec4(
-            vec2(rayleighPhase(VdotL.x), kleinNishinaPhase(VdotL.x, mieAnisotropyFactor)), 
-            vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, mieAnisotropyFactor))
-        );
+        #if defined WORLD_OVERWORLD
+            vec2 VdotL = vec2(dot(rayDirection, sunVector), dot(rayDirection, moonVector));
+            vec4 phase = vec4(
+                vec2(rayleighPhase(VdotL.x), kleinNishinaPhase(VdotL.x, mieAnisotropyFactor)), 
+                vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, mieAnisotropyFactor))
+            );
+
+            mat2x3 scatteringCoefficients  = atmosphereScatteringCoefficients;
+            mat3x3 attenuationCoefficients = atmosphereAttenuationCoefficients;
+        #elif defined WORLD_END
+            float VdotL = dot(rayDirection, starVector);
+            vec2  phase = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
+
+            mat2x3 scatteringCoefficients  = atmosphereScatteringCoefficientsEnd;
+            mat3x3 attenuationCoefficients = atmosphereAttenuationCoefficientsEnd;
+        #endif
 
         mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
     
         for(int i = 0; i < SCATTERING_STEPS; i++, rayPosition += increment) {
-            vec3 airmass          = getAtmosphereDensities(length(rayPosition)) * stepSize;
-            vec3 stepOpticalDepth = atmosphereAttenuationCoefficients * airmass;
+
+            #if defined WORLD_OVERWORLD
+                vec3 airmass          = getAtmosphereDensities(length(rayPosition)) * stepSize;
+                vec3 stepOpticalDepth = atmosphereAttenuationCoefficients * airmass;
+            #elif defined WORLD_END
+            	float altitudeKm       = (length(rayPosition) - planetRadius) * 1e-3;
+	            vec3  airmass          = exp(altitudeKm / -(vec3(scaleHeights, 5e3) * 1e-3)) * stepSize;
+                vec3  stepOpticalDepth = atmosphereAttenuationCoefficientsEnd * airmass;
+            #endif
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
-            vec3 visibleScattering  = transmittance                    * saturate((stepTransmittance - 1.0) / -stepOpticalDepth);
-            vec3 sunStepScattering  = atmosphereScatteringCoefficients * (airmass.xy * phase.xy) * visibleScattering;
-            vec3 moonStepScattering = atmosphereScatteringCoefficients * (airmass.xy * phase.zw) * visibleScattering;
+            vec3 visibleScattering  = transmittance * saturate((stepTransmittance - 1.0) / -stepOpticalDepth);
 
-            scattering[0] += sunStepScattering  * evaluateAtmosphereTransmittance(rayPosition, sunVector );
-            scattering[1] += moonStepScattering * evaluateAtmosphereTransmittance(rayPosition, moonVector);
+            #if defined WORLD_OVERWORLD
+                vec3 sunStepScattering  = scatteringCoefficients * (airmass.xy * phase.xy) * visibleScattering;
+                vec3 moonStepScattering = scatteringCoefficients * (airmass.xy * phase.zw) * visibleScattering;
 
-            vec3 stepScattering    = atmosphereScatteringCoefficients * airmass.xy;
+                scattering[0] += sunStepScattering  * evaluateAtmosphereTransmittance(rayPosition, sunVector , attenuationCoefficients);
+                scattering[1] += moonStepScattering * evaluateAtmosphereTransmittance(rayPosition, moonVector, attenuationCoefficients);
+            #elif defined WORLD_END
+                vec3 starStepScattering = scatteringCoefficients * (airmass.xy * phase) * visibleScattering;
+                
+                scattering[0] += starStepScattering * evaluateAtmosphereTransmittance(rayPosition, starVector, attenuationCoefficients);
+            #endif
+
+            vec3 stepScattering    = scatteringCoefficients * airmass.xy;
             vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
 
             vec3 multScatteringFactor = stepScatterAlbedo * 0.84;
@@ -82,8 +107,13 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir) {
             transmittance *= stepTransmittance;
         }
         multipleScattering *= skyIlluminance * isotropicPhase;
-        scattering[0]      *= sunIrradiance;
-        scattering[1]      *= moonIrradiance;
+
+        #if defined WORLD_OVERWORLD
+            scattering[0] *= sunIrradiance;
+            scattering[1] *= moonIrradiance;
+        #elif defined WORLD_END
+            scattering[0] *= starIrradiance;
+        #endif
     
         return scattering[0] + scattering[1] + multipleScattering;
     }
@@ -93,9 +123,11 @@ vec3 evaluateDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD
-        vec3 sunTransmit  = evaluateAtmosphereTransmittance(atmosphereRayPosition, sunVector ) * sunIrradiance;
-        vec3 moonTransmit = evaluateAtmosphereTransmittance(atmosphereRayPosition, moonVector) * moonIrradiance;
+        vec3 sunTransmit  = evaluateAtmosphereTransmittance(atmosphereRayPosition, sunVector , atmosphereAttenuationCoefficients) * sunIrradiance;
+        vec3 moonTransmit = evaluateAtmosphereTransmittance(atmosphereRayPosition, moonVector, atmosphereAttenuationCoefficients) * moonIrradiance;
         directIlluminance = sunTransmit + moonTransmit;
+    #elif defined WORLD_END
+        directIlluminance = evaluateAtmosphereTransmittance(atmosphereRayPosition, starVector, atmosphereAttenuationCoefficientsEnd) * starIrradiance;
     #endif
     return max0(directIlluminance);
 }
@@ -103,7 +135,7 @@ vec3 evaluateDirectIlluminance() {
 mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
     mat3[2] skyIlluminance = mat3[2](mat3(0.0), mat3(0.0));
 
-    #if defined WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD || defined WORLD_END
         const ivec2 samples = ivec2(64, 32);
 
         for(int x = 0; x < samples.x; x++) {
@@ -145,7 +177,7 @@ vec3 evaluateSkylight(vec3 normal, mat3[2] skylight) {
 vec3 evaluateUniformSkyIrradianceApproximation() {
     vec3 skyIlluminance = vec3(0.0);
 
-    #if defined WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD || defined WORLD_END
         const ivec2 samples = ivec2(16, 8);
 
         for(int x = 0; x < samples.x; x++) {
@@ -181,7 +213,7 @@ vec3[9] evaluateUniformSkyIrradiance() {
     vec3[9] irradiance;
     for(int n = 0; n < irradiance.length(); n++) irradiance[n] = vec3(0.0);
 
-    #if defined WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD || defined WORLD_END
         const ivec2 samples = ivec2(32);
 
         for(int x = 0; x < samples.x; x++) {

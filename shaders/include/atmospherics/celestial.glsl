@@ -21,7 +21,7 @@ vec3 computeStarfield(vec3 viewPosition) {
 		star *= rand( coords.xy);
 		star *= rand(-coords.xy + 0.1);
 	}
-	return max0(saturate(star - (1.0 - STARS_AMOUNT)) * factor * STARS_BRIGHTNESS * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords))));
+	return max0(saturate(star - (1.0 - STARS_AMOUNT)) * factor * STARS_LUMINOSITY * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords))));
 }
 
 vec3 physicalSun(vec3 sceneDir) {
@@ -40,20 +40,29 @@ vec3 physicalMoon(vec3 sceneDir) {
     return sphere.y < 0.0 ? vec3(0.0) : moonMaterial.albedo * hammonDiffuse(moonMaterial, -sceneDir, sunVector) * sunIrradiance;
 }
 
-vec3 computeAtmosphere(vec3 viewPosition) {
-	#if defined WORLD_OVERWORLD
+vec3 physicalStar(vec3 sceneDir) {
+    return dot(sceneDir, starVector) < cos(starAngularRadius) ? vec3(0.0) : starRadiance * RCP_PI;
+}
+
+vec3 renderAtmosphere(vec3 viewPosition) {
+	#if defined WORLD_OVERWORLD || defined WORLD_END
 		vec3 sceneDir = normalize(viewToScene(viewPosition));
     	vec2 coords   = projectSphere(sceneDir);
 
 		vec3 sky = textureCatmullRom(ATMOSPHERE_BUFFER, saturate(coords + randF() * pixelSize)).rgb;
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
-		#if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
-			clouds = textureCatmullRom(CLOUDS_BUFFER, textureCoords);
+		#if defined WORLD_OVERWORLD
+			#if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
+				clouds = textureCatmullRom(CLOUDS_BUFFER, textureCoords);
+			#endif
+
+			sky += clamp16(physicalSun(sceneDir));
+			sky += physicalMoon(sceneDir);
+		#elif defined WORLD_END
+			sky += clamp16(physicalStar(sceneDir));
 		#endif
 
-		sky += clamp16(physicalSun(sceneDir));
-		sky += physicalMoon(sceneDir);
 		sky += computeStarfield(viewPosition);
 
 		return sky * clouds.a + clouds.rgb;

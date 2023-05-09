@@ -215,7 +215,7 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define FOG_DENSITY   0.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define STARS_AMOUNT      0.10
-#define STARS_BRIGHTNESS   2.0
+#define STARS_LUMINOSITY  60.0
 #define STARS_MIN_TEMP  2500.0
 #define STARS_MAX_TEMP 50000.0
 
@@ -226,6 +226,16 @@ const float hardCodedRoughness = 0.0; // 0.0 = OFF
 #define WHITE_WORLD 0 // [0 1]
 
 #define WAVING_PLANTS 1 // [0 1]
+
+#define WATER_ID                1
+#define LAVA_ID                 5
+#define FIRE_ID                 6
+#define NETHER_PORTAL_ID        9
+#define SSS_ID                 10
+#define LEAVES_ID              11
+#define DOUBLE_PLANTS_LOWER_ID 12
+#define DOUBLE_PLANTS_UPPER_ID 13
+#define PLANTS_ID              14
 
 #define RAIN_PUDDLES         1 // [0 1]
 #define RAIN_PUDDLES_SIZE 0.35 // [0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95]

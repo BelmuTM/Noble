@@ -10,7 +10,9 @@ layout (location = 1) out vec3 transmittance;
 
 #include "/include/common.glsl"
 
-#include "/include/atmospherics/atmosphere.glsl"
+#if defined WORLD_OVERWORLD || defined WORLD_END
+	#include "/include/atmospherics/atmosphere.glsl"
+#endif
 
 #include "/include/fragment/shadows.glsl"
 #include "/include/atmospherics/fog.glsl"
@@ -22,15 +24,21 @@ void main() {
     vec3 viewPosition1  = getViewPosition1(textureCoords);
     vec3 scenePosition0 = viewToScene(viewPosition0);
 
-    float VdotL = dot(normalize(scenePosition0), shadowLightVector);
-
     vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
     
-    #if defined WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD || defined WORLD_END
         directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
         skyIlluminance    = texture(ILLUMINANCE_BUFFER, textureCoords).rgb;
+
+        #if defined WORLD_OVERWORLD
+            float VdotL = dot(normalize(scenePosition0), shadowLightVector);
+        #else
+            float VdotL = dot(normalize(scenePosition0), starVector);
+        #endif
     #else
         directIlluminance = getBlockLightColor(material) * saturate(material.lightmap.x + 0.3);
+        
+        float VdotL = 0.0;
     #endif
 
     bool  sky      = isSky(textureCoords);
@@ -55,9 +63,9 @@ void main() {
 
             vec3 scenePosition1 = viewToScene(viewPosition1);
 
-            if(isEyeInWater != 1 && material.blockId == 1) {
-                #if defined WORLD_OVERWORLD
-                    #if defined SUNLIGHT_LEAKING_FIX
+            if(isEyeInWater != 1 && material.blockId == WATER_ID) {
+                #if defined WORLD_OVERWORLD || defined WORLD_END
+                    #if defined WORLD_OVERWORLD && defined SUNLIGHT_LEAKING_FIX
                         directIlluminance *= float(material.lightmap.y != 0.0);
                     #endif
 
@@ -85,7 +93,7 @@ void main() {
     //////////////////////////////////////////////////////////
 
     if(isEyeInWater == 1) {
-        #if defined WORLD_OVERWORLD
+        #if defined WORLD_OVERWORLD || defined WORLD_END
             #if WATER_FOG == 0
                 computeWaterFogApproximation(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminance, skyIlluminance, skylight);
             #else

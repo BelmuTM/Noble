@@ -4,7 +4,10 @@
 /***********************************************/
 
 #include "/include/common.glsl"
-#include "/include/atmospherics/atmosphere.glsl"
+
+#if defined WORLD_OVERWORLD || defined WORLD_END
+	#include "/include/atmospherics/atmosphere.glsl"
+#endif
 
 #if defined STAGE_VERTEX
 
@@ -40,8 +43,10 @@
 		blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 
-		directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
-		skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
+		#if defined WORLD_OVERWORLD || defined WORLD_END
+			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+			skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
+		#endif
 
 		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);
@@ -92,7 +97,7 @@
 		translucents = vec4(0.0);
 
 		// WOTAH
-		if(blockId == 1) { 
+		if(blockId == WATER_ID) { 
 			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
 
     		material.albedo = vec3(0.0);
@@ -118,6 +123,8 @@
 				material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     			material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
 			#endif
+
+			if(blockId == NETHER_PORTAL_ID) material.emission = 1.0;
 
 			material.albedo = albedoTex.rgb;
 
@@ -157,8 +164,8 @@
 					vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
 					vec3 skyIlluminance = vec3(0.0);
 
-					#if defined WORLD_OVERWORLD
-						#if SHADOWS == 1
+					#if defined WORLD_OVERWORLD || defined WORLD_END
+						#if defined WORLD_OVERWORLD && SHADOWS == 1
 							shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], shadowmap.a));
 						#endif
 

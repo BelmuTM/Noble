@@ -167,8 +167,8 @@ Material getMaterial(vec2 coords) {
 
 vec3 getBlockLightColor(Material material) {
     switch(material.blockId) {
-        case 5: return blackbody(1523.15) * EMISSIVE_INTENSITY; // Lava, magma
-        case 6: return blackbody(1900.0 ) * EMISSIVE_INTENSITY; // Fire
+        case LAVA_ID: return blackbody(1523.15) * EMISSIVE_INTENSITY; // Lava, magma
+        case FIRE_ID: return blackbody(1900.0 ) * EMISSIVE_INTENSITY; // Fire
 
         default: return blackbody(BLOCKLIGHT_TEMPERATURE) * EMISSIVE_INTENSITY;
     }
