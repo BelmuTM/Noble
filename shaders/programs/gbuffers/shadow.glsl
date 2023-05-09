@@ -28,9 +28,9 @@
              worldPosition = transform(shadowModelViewInverse, viewShadowPos);
 
         #if WATER_CAUSTICS == 1
-            vec3 geoNormal = mat3(shadowModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
-    	    vec3 tangent   = mat3(shadowModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-		    tbn			   = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
+    	    tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+    	    tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+		    tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
         #endif
 
 	    #if RENDER_MODE == 0 && WAVING_PLANTS == 1

@@ -8,7 +8,7 @@
         Zombye - providing the off-center rejection weight (https://github.com/zombye)
 
     [References]:
-        Lasse Jon Fuglsang Pedersen Pedersen, L. J. F. (2016). Temporal Reprojection Anti-Aliasing in INSIDE. http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
+        Pedersen, L. J. F. (2016). Temporal Reprojection Anti-Aliasing in INSIDE. http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
 */
 
 vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
@@ -41,7 +41,7 @@ vec3 getClosestFragment(vec3 position) {
     for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
             currentFragment.xy = position.xy + vec2(x, y) * pixelSize;
-            currentFragment.z  = texture(depthtex0, currentFragment.xy).r;
+            currentFragment.z  = texture(depthtex1, currentFragment.xy).r;
             closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
         }
     }
@@ -49,7 +49,7 @@ vec3 getClosestFragment(vec3 position) {
 }
 
 vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
-    vec3 closestFragment = getClosestFragment(vec3(textureCoords, texture(depthtex0, textureCoords).r));
+    vec3 closestFragment = getClosestFragment(vec3(textureCoords, texture(depthtex1, textureCoords).r));
     vec2 prevCoords      = textureCoords - getVelocity(closestFragment).xy;
 
     vec3 currColor = SRGB_2_YCoCg_MAT * textureCatmullRom(currTex, textureCoords).rgb;

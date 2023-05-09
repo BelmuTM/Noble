@@ -38,12 +38,12 @@ void main() {
 		botLeft       = mc_midTexCoord - halfSize;
 	#endif
 
-	#ifndef PROGRAM_BASIC 
-    	vec3 geoNormal    = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
-    		 viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
+	#if !defined PROGRAM_BASIC 
+    	viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
-    	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-		tbn			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
+    	tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+    	tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+		tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
 	#endif
 
 	blockId = int((mc_Entity.x - 1000.0) + 0.25);

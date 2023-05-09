@@ -30,12 +30,12 @@
 		textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 		lightmapCoords = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor    = gl_Color;
+		
+    	viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
-    	vec3 geoNormal    = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
-    		 viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
-
-    	vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-		tbn			 = mat3(tangent, cross(tangent, geoNormal) * sign(at_tangent.w), geoNormal);
+    	tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+    	tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+		tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
 
 		blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
 		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
