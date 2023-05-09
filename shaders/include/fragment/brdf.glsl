@@ -187,7 +187,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
 
     diffuse += (blocklight + skylight + ambient) * material.ao * ao;
 
-    return material.albedo * (diffuse + emissiveness);
+    return material.albedo * max0(diffuse + emissiveness);
 }
 
 vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection) {
