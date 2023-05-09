@@ -5,7 +5,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define STAGE_FRAGMENT
-#define BLOOM_PASS_INDEX 0
+#define STAGE_VERTEX
+#define BLOOM_PASS_INDEX 5
 
 #include "/programs/post/bloom_pass.glsl"

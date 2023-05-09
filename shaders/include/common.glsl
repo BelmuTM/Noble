@@ -4,7 +4,7 @@
 /***********************************************/
 
 /*
-    const bool colortex4MipmapEnabled = true;
+    const bool colortex0MipmapEnabled = true;
 */
 
 #include "/settings.glsl"

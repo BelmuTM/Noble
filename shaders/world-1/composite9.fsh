@@ -6,6 +6,6 @@
 /***********************************************/
 
 #define STAGE_FRAGMENT
-#define BLOOM_PASS_INDEX 0
+#define BLOOM_PASS_INDEX 4
 
 #include "/programs/post/bloom_pass.glsl"

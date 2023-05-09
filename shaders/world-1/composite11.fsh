@@ -5,7 +5,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define STAGE_FRAGMENT
-#define BLOOM_PASS_INDEX 0
+in vec2 textureCoords;
 
-#include "/programs/post/bloom_pass.glsl"
+#define STAGE_FRAGMENT
+#include "/programs/post/pre_final.glsl"

@@ -15,35 +15,24 @@
 
 	const int filterSize = 3;
 
-	vec3 sampleBloomTile(int lod) {
+	void writeBloomTile(out vec3 tile, int lod) {
 		float scale = exp2(lod + 1); 
 		vec2 coords = (textureCoords - bloomOffsets[lod]) * scale;
 
 		vec2 texelScale = pixelSize * scale;
 
-		if(any(greaterThanEqual(abs(coords - 0.5), texelScale + 0.5))) return vec3(0.0);
+		if(any(greaterThanEqual(abs(coords - 0.5), texelScale + 0.5))) return;
 
-		vec3 bloom = vec3(0.0);
         for(int x = -filterSize; x <= filterSize; x++) {
             for(int y = -filterSize; y <= filterSize; y++) {
                 float weight = gaussianDistribution2D(vec2(x, y), 1.0);
-                bloom  		+= textureLod(MAIN_BUFFER, coords + vec2(x, y) * texelScale, 0).rgb * weight;
+                      tile  += textureLod(MAIN_BUFFER, coords + vec2(x, y) * texelScale, lod + 1).rgb * weight;
             }
         }
-		return bloom;
 	}
 
 	vec3 getBloomTile(int lod) {
 		return textureBicubic(SHADOWMAP_BUFFER, textureCoords / exp2(lod + 1) + bloomOffsets[lod]).rgb;
-	}
-
-	void writeBloom(inout vec3 bloom) {
-		bloom  = sampleBloomTile(0);
-		bloom += sampleBloomTile(1);
-		bloom += sampleBloomTile(2);
-		bloom += sampleBloomTile(3);
-		bloom += sampleBloomTile(4);
-		bloom += sampleBloomTile(5);
 	}
 
 	vec3 readBloom() {
