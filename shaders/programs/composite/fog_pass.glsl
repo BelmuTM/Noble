@@ -80,7 +80,7 @@ void main() {
                 #if AIR_FOG == 1
                     computeVolumetricAirFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
                 #elif AIR_FOG == 2
-                    computeFogApproximation(scatteringLayer0, transmittanceLayer0, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight, sky);
+                    computeAirFogApproximation(scatteringLayer0, transmittanceLayer0, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
                 #endif
             }
         }
@@ -104,7 +104,7 @@ void main() {
         #if AIR_FOG == 1
             computeVolumetricAirFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
         #elif AIR_FOG == 2
-            computeFogApproximation(scatteringLayer1, transmittanceLayer1, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight, sky);
+            computeAirFogApproximation(scatteringLayer1, transmittanceLayer1, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
         #endif
     }
 

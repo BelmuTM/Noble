@@ -5,38 +5,38 @@
 
 float dither = fract(frameTimeCounter + bayer256(gl_FragCoord.xy));
 
-float calculateFogPhase(float cosTheta) {
-    float forwardsLobe  = henyeyGreensteinPhase(cosTheta, fogForwardsLobe);
-    float backwardsLobe = henyeyGreensteinPhase(cosTheta,-fogBackardsLobe);
-    float forwardsPeak  = henyeyGreensteinPhase(cosTheta, fogForwardsPeak);
+float calculateAirFogPhase(float cosTheta) {
+    float forwardsLobe  = henyeyGreensteinPhase(cosTheta, airFogForwardsLobe);
+    float backwardsLobe = henyeyGreensteinPhase(cosTheta,-airFogBackardsLobe);
+    float forwardsPeak  = henyeyGreensteinPhase(cosTheta, airFogForwardsPeak);
 
-    return mix(mix(forwardsLobe, backwardsLobe, fogBackScatter), forwardsPeak, fogPeakWeight);
+    return mix(mix(forwardsLobe, backwardsLobe, airFogBackScatter), forwardsPeak, airFogPeakWeight);
 }
 
 #if defined WORLD_OVERWORLD
-    vec3 fogAttenuationCoefficients = vec3(fogExtinctionCoefficient);
-    vec3 fogScatteringCoefficients  = vec3(fogScatteringCoefficient);
+    vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
+    vec3 airFogScatteringCoefficients  = vec3(airFogScatteringCoefficient);
 #elif defined WORLD_NETHER
-    const vec3 fogAttenuationCoefficients = vec3(0.6, 0.4, 0.05);
-    const vec3 fogScatteringCoefficients  = vec3(1.0, 0.3, 0.0);
+    const vec3 airFogAttenuationCoefficients = vec3(0.6, 0.4, 0.05);
+    const vec3 airFogScatteringCoefficients  = vec3(1.0, 0.3, 0.0);
 #elif defined WORLD_END
-    const vec3 fogAttenuationCoefficients = vec3(0.7, 0.5, 0.75);
-    const vec3 fogScatteringCoefficients  = vec3(0.7, 0.3, 0.8);
+    const vec3 airFogAttenuationCoefficients = vec3(0.7, 0.5, 0.75);
+    const vec3 airFogScatteringCoefficients  = vec3(0.7, 0.3, 0.8);
 #endif
 
-#if AIR_FOG == 0
-    void computeFogApproximation(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight, bool sky) {
+#if AIR_FOG == 2
+    void computeAirFogApproximation(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
         float airmass    = length(viewPosition) * 0.01 * (FOG_DENSITY * 10.0);
-        transmittanceOut = exp(-fogAttenuationCoefficients * airmass);
+        transmittanceOut = exp(-airFogAttenuationCoefficients * airmass);
 
-        scatteringOut  = skyIlluminance    * isotropicPhase     * skylight;
-        scatteringOut += directIlluminance * calculateFogPhase(VdotL) * skylight;
-        scatteringOut *= fogScatteringCoefficients * ((1.0 - transmittanceOut) / fogAttenuationCoefficients);
+        scatteringOut  = skyIlluminance    * isotropicPhase           * skylight;
+        scatteringOut += directIlluminance * calculateAirFogPhase(VdotL) * skylight;
+        scatteringOut *= airFogScatteringCoefficients * ((1.0 - transmittanceOut) / airFogAttenuationCoefficients);
     }
 
-#else
+#elif AIR_FOG == 1
 
-    float getFogDensity(vec3 position) {
+    float getAirFogDensity(vec3 position) {
         #if defined WORLD_OVERWORLD
             const float fogAltitude   = FOG_ALTITUDE;
             const float fogThickness  = FOG_THICKNESS;
@@ -76,9 +76,9 @@ float calculateFogPhase(float cosTheta) {
 
         float accumAirmass = 0.0;
         for(int i = 0; i < VL_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
-            accumAirmass += getFogDensity(rayPosition) * stepSize;
+            accumAirmass += getAirFogDensity(rayPosition) * stepSize;
         }
-        return exp(-fogExtinctionCoefficient * accumAirmass);
+        return exp(-airFogExtinctionCoefficient * accumAirmass);
     }
     */
 
@@ -94,7 +94,7 @@ float calculateFogPhase(float cosTheta) {
         vec3 shadowPosition      = shadowStartPosition + shadowIncrement * dither;
 
         float rayLength = length(increment);
-        float phase     = calculateFogPhase(VdotL);
+        float phase     = calculateAirFogPhase(VdotL);
 
         float perspective = quintic(0.0, 1.0, exp2(-5e-4 * length(viewPosition)));
 
@@ -102,15 +102,15 @@ float calculateFogPhase(float cosTheta) {
         vec3   transmittance = vec3(1.0);
 
         for(int i = 0; i < VL_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
-            float density      = getFogDensity(rayPosition);
+            float density      = getAirFogDensity(rayPosition);
             float airmass      = density * rayLength;
-            vec3  opticalDepth = fogAttenuationCoefficients * airmass;
+            vec3  opticalDepth = airFogAttenuationCoefficients * airmass;
 
             vec3 stepTransmittance = exp(-opticalDepth);
             vec3 visibleScattering = transmittance * saturate((stepTransmittance - 1.0) / -opticalDepth);
 
-            vec3 stepScatteringDirect   = fogScatteringCoefficients * airmass * phase          * visibleScattering;
-            vec3 stepScatteringIndirect = fogScatteringCoefficients * airmass * isotropicPhase * visibleScattering;
+            vec3 stepScatteringDirect   = airFogScatteringCoefficients * airmass * phase          * visibleScattering;
+            vec3 stepScatteringIndirect = airFogScatteringCoefficients * airmass * isotropicPhase * visibleScattering;
 
             #if defined WORLD_OVERWORLD
                 vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);

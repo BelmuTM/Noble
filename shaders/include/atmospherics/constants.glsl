@@ -57,14 +57,14 @@ const float cloudsAnisotropyFalloff = 0.80;
 
 /* FOG CONSTANTS */
 
-const float fogExtinctionCoefficient = 0.06;
-const float fogScatteringCoefficient = 0.3;
+const float airFogExtinctionCoefficient = 0.06;
+const float airFogScatteringCoefficient = 0.3;
 
-const float fogForwardsLobe = 0.45;
-const float fogBackardsLobe = 0.45;
-const float fogForwardsPeak = 0.90;
-const float fogBackScatter  = 0.15;
-const float fogPeakWeight   = 0.25;
+const float airFogForwardsLobe = 0.45;
+const float airFogBackardsLobe = 0.45;
+const float airFogForwardsPeak = 0.90;
+const float airFogBackScatter  = 0.15;
+const float airFogPeakWeight   = 0.25;
 
 /* CELESTIAL CONSTANTS */
 
