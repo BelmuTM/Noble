@@ -40,7 +40,7 @@ bool raytrace(sampler2D depthTexture, vec3 viewPosition, vec3 rayDirection, int 
 
 float getMinimumDepthFromLod(vec2 coords, int lod) {
     if(lod == 0) return find2x2MinimumDepth(coords, 1);
-	else         return texelFetch(HI_Z_BUFFER, ivec2(getDepthTile(coords, lod) * viewSize), 0).r;
+	else         return texelFetch(SCATTERING_BUFFER, ivec2(getDepthTile(coords, lod) * viewSize), 0).a;
 }
 
 vec2 getCellCount(int level) {

@@ -31,13 +31,12 @@ void main() {
         skyIlluminance    = texture(ILLUMINANCE_BUFFER, textureCoords).rgb;
 
         #if defined WORLD_OVERWORLD
-            float VdotL = dot(normalize(scenePosition0), shadowLightVector);
+            float VdotL = dot(normalize(scenePosition0 - gbufferModelViewInverse[3].xyz), shadowLightVector);
         #else
-            float VdotL = dot(normalize(scenePosition0), starVector);
+            float VdotL = dot(normalize(scenePosition0 - gbufferModelViewInverse[3].xyz), starVector);
         #endif
     #else
         directIlluminance = getBlockLightColor(material) * saturate(material.lightmap.x + 0.3);
-        
         float VdotL = 0.0;
     #endif
 

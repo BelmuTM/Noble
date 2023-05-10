@@ -36,7 +36,7 @@ layout (location = 0) out vec3 color;
         }
 
         vec3 fresnel  = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
-        vec3 hitColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
+        vec3 sampledColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
 
         float density     = material.blockId == NETHER_PORTAL_ID ? 3.0 : clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
         vec3  attenuation = material.blockId == WATER_ID         ? vec3(1.0) : exp(-(1.0 - material.albedo) * density);
@@ -44,7 +44,7 @@ layout (location = 0) out vec3 color;
         vec3 blocklightColor = getBlockLightColor(material);
         vec3 emissiveness    = material.emission * blocklightColor;
 
-        return (hitColor * (1.0 - fresnel) * attenuation) + (emissiveness * material.albedo);
+        return (sampledColor * (1.0 - fresnel) * attenuation) + (emissiveness * material.albedo);
     }
 #endif
 
@@ -66,7 +66,7 @@ void main() {
 
     vec3 coords = vec3(textureCoords, 0.0);
 
-    vec3 sunSpecular = vec3(0.0), specular = vec3(0.0);
+    vec3 sunSpecular = vec3(0.0), envSpecular = vec3(0.0);
 
     #if GI == 0
         color = texture(DEFERRED_BUFFER, textureCoords).rgb;
@@ -114,7 +114,7 @@ void main() {
             #endif
 
             #if REFLECTIONS == 1
-                specular = texture(REFLECTIONS_BUFFER, textureCoords).rgb;
+                envSpecular = texture(REFLECTIONS_BUFFER, textureCoords).rgb;
             #endif
         }
     #endif
@@ -128,12 +128,18 @@ void main() {
         for(int y = -filterSize; y <= filterSize; y++) {
             float weight = gaussianDistribution2D(vec2(x, y), 3.0);
             
-            scattering    += texture(colortex12, coords.xy + vec2(x, y) * pixelSize).rgb * weight;
-            transmittance += texture(colortex13, coords.xy + vec2(x, y) * pixelSize).rgb * weight;
+            scattering    += texture(SCATTERING_BUFFER,    coords.xy + vec2(x, y) * pixelSize).rgb * weight;
+            transmittance += texture(TRANSMITTANCE_BUFFER, coords.xy + vec2(x, y) * pixelSize).rgb * weight;
         }
     }
-
-    color += sunSpecular;
-    color  = color * transmittance + scattering;
-    color += specular;
+    
+    if(isEyeInWater == 1) {
+        color += sunSpecular;
+        color  = color * transmittance + scattering;
+    } else {
+        color  = color * transmittance + scattering;
+        color += sunSpecular;
+    }
+    
+    color += envSpecular;
 }

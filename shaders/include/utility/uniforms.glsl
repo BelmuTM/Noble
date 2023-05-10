@@ -20,6 +20,7 @@ uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform ivec2 atlasSize;
 
+uniform int worldTime;
 uniform int framemod;
 uniform int frameCounter;
 uniform float frameTime;
@@ -32,7 +33,7 @@ uniform int hideGUI;
 uniform float rainStrength;
 uniform float wetness;
 uniform float sunAngle;
-uniform int worldTime;
+uniform ivec2 eyeBrightness;
 
 uniform sampler2D tex;
 uniform sampler2D normals;

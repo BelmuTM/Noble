@@ -51,14 +51,13 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
         vec3 rayDirection  = reflect(viewDirection, material.normal); 
         vec3 hitPosition   = vec3(0.0);
 
-        float hit     = float(raytrace(depthtex0, viewPosition, rayDirection, SIMPLE_REFLECT_STEPS, randF(), hitPosition));
-              hit    *= kneemundAttenuation(hitPosition.xy);
-        vec3 hitColor = getHitColor(hitPosition);
+        float hit  = float(raytrace(depthtex0, viewPosition, rayDirection, SIMPLE_REFLECT_STEPS, randF(), hitPosition));
+              hit *= kneemundAttenuation(hitPosition.xy);
 
         #if defined SKY_FALLBACK
-            vec3 color = mix(getSkyFallback(hitPosition.xy, rayDirection, material), hitColor, hit);
+            vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition), hit);
         #else
-            vec3 color = mix(vec3(0.0), hitColor, hit);
+            vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition), hit);
         #endif
 
         float NdotL   = abs(dot(material.normal, rayDirection));
@@ -69,7 +68,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
         float G1 = G1SmithGGX(NdotV, alphaSq);
         float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
 
-        return NdotV > 0.0 && NdotL > 0.0 ? color * ((F * G2) / G1) : vec3(0.0);
+        return NdotV > 0.0 && NdotL > 0.0 ? sampledColor * ((F * G2) / G1) : vec3(0.0);
     }
 #else
 
@@ -95,14 +94,13 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
             if(NdotV > 0.0 && NdotL > 0.0) {
                 vec3 hitPosition = vec3(0.0);
                 
-                float hit     = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECT_STEPS, randF(), hitPosition));
-                      hit    *= kneemundAttenuation(hitPosition.xy);
-                vec3 hitColor = getHitColor(hitPosition);
+                float hit  = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECT_STEPS, randF(), hitPosition));
+                      hit *= kneemundAttenuation(hitPosition.xy);
 
                 #if defined SKY_FALLBACK
-                    hitColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition), hit);
+                    vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition), hit);
                 #else
-                    hitColor = mix(vec3(0.0), getHitColor(hitPosition), hit);
+                    vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition), hit);
                 #endif
 
                 float MdotV   = dot(microfacet, -viewDirection);
@@ -112,7 +110,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
                 float G1 = G1SmithGGX(NdotV, alphaSq);
                 float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
 
-                color += hitColor * ((F * G2) / G1);
+                color += sampledColor * ((F * G2) / G1);
                 samples++;
             }
 	    }

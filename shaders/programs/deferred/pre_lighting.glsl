@@ -30,7 +30,7 @@
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec4 illuminance;
-    layout (location = 2) out float depth;
+    layout (location = 2) out vec4 depth;
 
     in vec3 directIlluminance;
     in vec3[9] skyIrradiance;
@@ -58,7 +58,7 @@
         vec3 viewPosition = getViewPosition0(textureCoords);
         Material material = getMaterial(textureCoords);
 
-        //depth = computeLowerHiZDepthLevels();
+        //depth.a = computeLowerHiZDepthLevels();
 
         //////////////////////////////////////////////////////////
         /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
