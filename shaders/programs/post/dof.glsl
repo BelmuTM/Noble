@@ -61,7 +61,4 @@ void main() {
     #if EXPOSURE > 0
         color.a = sqrt(luminance(color.rgb));
     #endif
-
-    vec4 basic     = texture(RASTER_BUFFER, textureCoords);
-         color.rgb = mix(color.rgb, basic.rgb, basic.a);
 }

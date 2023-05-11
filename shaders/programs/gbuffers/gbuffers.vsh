@@ -73,5 +73,5 @@ void main() {
 
 	#if TAA == 1
 		gl_Position.xy += taaJitter(gl_Position);
-    #endif
+	#endif
 }

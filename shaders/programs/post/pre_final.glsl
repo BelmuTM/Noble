@@ -107,5 +107,8 @@ void main() {
         color = linearToSrgb(color);
     #endif
 
+    vec4 basic     = texture(RASTER_BUFFER, textureCoords);
+         color.rgb = mix(color.rgb, basic.rgb, basic.a);
+
     color = saturate(color);
 }

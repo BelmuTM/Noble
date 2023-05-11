@@ -87,8 +87,10 @@
             if(receivesSkylight) skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
         #endif
 
-        if(ivec2(gl_FragCoord) == ivec2(0)) illuminance.rgb = directIlluminance;
-        else                                illuminance.rgb = skyIlluminance;
+        if(ivec2(gl_FragCoord) == ivec2(0))
+            illuminance.rgb = directIlluminance;
+        else
+            illuminance.rgb = skyIlluminance;
                 
         //////////////////////////////////////////////////////////
         /*----------------- SHADOW MAPPING ---------------------*/

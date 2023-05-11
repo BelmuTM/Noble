@@ -5,12 +5,12 @@
 
 #include "/settings.glsl"
 #include "/include/utility/uniforms.glsl"
+#include "/include/utility/math.glsl"
+#include "/include/utility/transforms.glsl"
 
 #if defined STAGE_VERTEX
 
 	out vec2 textureCoords;
-	out vec3 geoNormal;
-	out vec3 directIlluminance;
 	out vec4 vertexColor;
 
 	#if TAA == 1
@@ -18,17 +18,20 @@
 	#endif
 
 	void main() {
-		gl_Position   = ftransform();
 		textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 		vertexColor   = gl_Color;
 
-		geoNormal = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+		#if defined PROGRAM_ARMOR_GLINT
+			vec3 viewPosition  = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
+			vec3 worldPosition = transform(gbufferModelViewInverse, viewPosition);
+			gl_Position        = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+		#else
+			gl_Position = ftransform();
+		#endif
 
 		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);
-   		#endif
-
-		directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+		#endif
 	}
 
 #elif defined STAGE_FRAGMENT
@@ -38,17 +41,12 @@
 	layout (location = 0) out vec4 color;
 
 	in vec2 textureCoords;
-	in vec3 geoNormal;
-	in vec3 directIlluminance;
 	in vec4 vertexColor;
 
-	#include "/include/utility/math.glsl"
-
 	void main() {
-		vec4 albedoTex = texture(tex, textureCoords);
+		vec4 albedoTex = texture(tex, textureCoords) * vertexColor;
 		if(albedoTex.a < 0.102) discard;
 
-		color 	  = albedoTex * vertexColor;
-		color.rgb = color.rgb * RCP_PI * saturate(dot(geoNormal, shadowLightVector)) * directIlluminance;
+		color = albedoTex;
 	}
 #endif
