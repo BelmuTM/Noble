@@ -254,7 +254,7 @@
     	}
 		*/
 
-		vec3 labPbrData0 = vec3(parallaxSelfShadowing, lightmap);
+		vec3 labPbrData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
 		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
 		vec4 labPbrData2 = vec4(albedoTex.rgb, roughness);
 		vec2 encNormal   = encodeUnitVector(normalize(normal));

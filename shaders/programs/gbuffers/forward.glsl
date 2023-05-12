@@ -186,7 +186,7 @@
 			#endif
 		}
 
-		vec3 labPbrData0 = vec3(0.0, lightmapCoords);
+		vec3 labPbrData0 = vec3(0.0, saturate(lightmapCoords));
 		vec4 labPbrData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
 		vec4 labPbrData2 = vec4(material.albedo, material.roughness);
 		vec2 encNormal   = encodeUnitVector(normalize(material.normal));
