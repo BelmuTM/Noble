@@ -29,7 +29,7 @@ float calculateAirFogPhase(float cosTheta) {
         float airmass    = length(viewPosition) * 0.01 * (FOG_DENSITY * 10.0);
         transmittanceOut = exp(-airFogAttenuationCoefficients * airmass);
 
-        scatteringOut  = skyIlluminance    * isotropicPhase           * skylight;
+        scatteringOut  = skyIlluminance    * isotropicPhase              * skylight;
         scatteringOut += directIlluminance * calculateAirFogPhase(VdotL) * skylight;
         scatteringOut *= airFogScatteringCoefficients * ((1.0 - transmittanceOut) / airFogAttenuationCoefficients);
     }
@@ -83,7 +83,7 @@ float calculateAirFogPhase(float cosTheta) {
     */
 
     void computeVolumetricAirFog(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
-        const float stepSize = 1.0 / VL_SCATTERING_STEPS;
+        const float stepSize = 1.0 / AIR_FOG_SCATTERING_STEPS;
         
         vec3 increment    = (endPosition - startPosition) * stepSize;
         vec3 rayPosition  = startPosition + increment * dither;
@@ -101,7 +101,7 @@ float calculateAirFogPhase(float cosTheta) {
         mat2x3 scattering    = mat2x3(vec3(0.0), vec3(0.0)); 
         vec3   transmittance = vec3(1.0);
 
-        for(int i = 0; i < VL_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
+        for(int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
             float density      = getAirFogDensity(rayPosition);
             float airmass      = density * rayLength;
             vec3  opticalDepth = airFogAttenuationCoefficients * airmass;
@@ -115,7 +115,7 @@ float calculateAirFogPhase(float cosTheta) {
             #if defined WORLD_OVERWORLD
                 vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
 
-                #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+                #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                     shadowColor *= getCloudsShadows(rayPosition);
                 #endif
 
@@ -182,7 +182,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         for(int i = 0; i < WATER_FOG_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
             vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
 
-            #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+            #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                 shadowColor *= getCloudsShadows(rayPosition);
             #endif
 

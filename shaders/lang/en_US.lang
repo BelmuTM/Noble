@@ -23,11 +23,17 @@ screen.AMBIENT_OCCLUSION = Ambient Occlusion
 screen.RAYTRACING        = Ray Tracing
 screen.FILTER            = Denoiser
 screen.ATMOSPHERICS      = Atmospherics
+screen.ATMOSPHERE        = Atmosphere
 screen.CLOUDS            = Clouds
+screen.CLOUDS_LAYER0     = First Layer
+screen.CLOUDS_LAYER1     = Second Layer
+screen.FOG               = Air Fog
+screen.STARS             = Stars
 screen.TERRAIN           = Terrain
 screen.WATER             = Water
 screen.WATER_ABSORPTION  = Absorption
 screen.WATER_SCATTERING  = Scattering
+screen.POM               = POM
 screen.POST_PROCESSING   = Camera
 screen.CAMERA_SETTINGS   = Camera Settings
 screen.DEPTH_OF_FIELD    = Depth of Field
@@ -296,7 +302,7 @@ suffix.CELESTIAL_SIZE_MULTIPLIER = x
 
 ### ATMOSPHERE
 
-option.ATMOSPHERE_SCALE = Atmosphere Render Scale
+option.ATMOSPHERE_SCALE = Render Scale
 option.ATMOSPHERE_SCALE.comment = Adjusts the §bAtmosphere§r's rendering scale. §cHigher value gives better results, but reduces §cperformance.
 suffix.ATMOSPHERE_SCALE = x
 value.ATMOSPHERE_SCALE.10 = 0.10
@@ -319,37 +325,32 @@ value.ATMOSPHERE_SCALE.90 = 0.90
 value.ATMOSPHERE_SCALE.95 = 0.95
 value.ATMOSPHERE_SCALE.100 = 1.00
 
-option.SCATTERING_STEPS = Atmos. Scattering Samples
-option.SCATTERING_STEPS.comment = Influences how accurately light scatters. This influences §bAtmospheric §bScattering§r and §bVolumetric §bLighting. §cWould preferably be higher than transmittance samples.
-value.SCATTERING_STEPS.8  = §38
-value.SCATTERING_STEPS.12 = §212
-value.SCATTERING_STEPS.16 = §a16
-value.SCATTERING_STEPS.20 = §e20
-value.SCATTERING_STEPS.24 = §624
-value.SCATTERING_STEPS.28 = §c28
-value.SCATTERING_STEPS.32 = §432
+option.ATMOSPHERE_SCATTERING_STEPS = Scattering Samples
+option.ATMOSPHERE_SCATTERING_STEPS.comment = Influences how accurately light scatters in the atmosphere. §cHigher value gives better results, but reduces §cperformance.
+value.ATMOSPHERE_SCATTERING_STEPS.8  = §38
+value.ATMOSPHERE_SCATTERING_STEPS.12 = §212
+value.ATMOSPHERE_SCATTERING_STEPS.16 = §a16
+value.ATMOSPHERE_SCATTERING_STEPS.20 = §e20
+value.ATMOSPHERE_SCATTERING_STEPS.24 = §624
+value.ATMOSPHERE_SCATTERING_STEPS.28 = §c28
+value.ATMOSPHERE_SCATTERING_STEPS.32 = §432
 
-option.TRANSMITTANCE_STEPS = Atmos. Transmittance Samples
-option.TRANSMITTANCE_STEPS.comment = Influences how accurately light transmits in §bAtmospheric §bScattering. §cWould preferably be lower than scattering samples.
-value.TRANSMITTANCE_STEPS.8  = §38
-value.TRANSMITTANCE_STEPS.12 = §212
-value.TRANSMITTANCE_STEPS.16 = §a16
-value.TRANSMITTANCE_STEPS.20 = §e20
-value.TRANSMITTANCE_STEPS.24 = §624
-value.TRANSMITTANCE_STEPS.28 = §c28
-value.TRANSMITTANCE_STEPS.32 = §432
+option.ATMOSPHERE_TRANSMITTANCE_STEPS = Transmittance Samples
+option.ATMOSPHERE_TRANSMITTANCE_STEPS.comment = Influences how accurately light transmits in the atmosphere. §cHigher value gives better results, but reduces §cperformance.
+value.ATMOSPHERE_TRANSMITTANCE_STEPS.8  = §38
+value.ATMOSPHERE_TRANSMITTANCE_STEPS.12 = §212
+value.ATMOSPHERE_TRANSMITTANCE_STEPS.16 = §a16
+value.ATMOSPHERE_TRANSMITTANCE_STEPS.20 = §e20
+value.ATMOSPHERE_TRANSMITTANCE_STEPS.24 = §624
+value.ATMOSPHERE_TRANSMITTANCE_STEPS.28 = §c28
+value.ATMOSPHERE_TRANSMITTANCE_STEPS.32 = §432
 
 ### CLOUDS
 
-option.PRIMARY_CLOUDS = Primary Cloud Layer
-option.PRIMARY_CLOUDS.comment = Features a primary layer of voluptuous volumetric clouds above the ground.
-value.PRIMARY_CLOUDS.0 = §cOFF
-value.PRIMARY_CLOUDS.1 = §aON
-
-option.SECONDARY_CLOUDS = Secondary Cloud Layer
-option.SECONDARY_CLOUDS.comment = Features a secondary layer of volumetric clouds very high above the ground.
-value.SECONDARY_CLOUDS.0 = §cOFF
-value.SECONDARY_CLOUDS.1 = §aON
+option.CLOUDS_LAYER1_ENABLED = Secondary Cloud Layer
+option.CLOUDS_LAYER1_ENABLED.comment = Features a secondary layer of volumetric clouds very high above the ground.
+value.CLOUDS_LAYER1_ENABLED.0 = §cOFF
+value.CLOUDS_LAYER1_ENABLED.1 = §aON
 
 option.CLOUDS_SCALE = Clouds Render Scale
 option.CLOUDS_SCALE.comment = Adjusts the §bClouds§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
@@ -374,31 +375,9 @@ value.CLOUDS_SCALE.90 = 0.90
 value.CLOUDS_SCALE.95 = 0.95
 value.CLOUDS_SCALE.100 = 1.00
 
-option.CLOUDS_SCATTERING_STEPS = Clouds Scattering Samples
-option.CLOUDS_SCATTERING_STEPS.comment = Influences how accurately light scatters inside of §bClouds§r. §cHigher value gives better results, but reduces §cperformance.
-value.CLOUDS_SCATTERING_STEPS.8  = §38
-value.CLOUDS_SCATTERING_STEPS.12 = §212
-value.CLOUDS_SCATTERING_STEPS.16 = §a16
-value.CLOUDS_SCATTERING_STEPS.20 = §e20
-value.CLOUDS_SCATTERING_STEPS.24 = §624
-value.CLOUDS_SCATTERING_STEPS.28 = §c28
-value.CLOUDS_SCATTERING_STEPS.32 = §432
-
-option.CLOUDS_LAYER0_ALTITUDE = Primary Clouds Altitude
-option.CLOUDS_LAYER0_ALTITUDE.comment = Adjusts the altitude of §bClouds§r.
-suffix.CLOUDS_LAYER0_ALTITUDE = m
-
-option.CLOUDS_LAYER0_THICKNESS = Primary Clouds Thickness
-option.CLOUDS_LAYER0_THICKNESS.comment = Adjusts the thickness of §bClouds§r.
-suffix.CLOUDS_LAYER0_THICKNESS = m
-
-option.CLOUDS_LAYER0_COVERAGE = Primary Clouds Coverage
-option.CLOUDS_LAYER0_COVERAGE.comment = Adjusts how much of the sky the §bClouds§r cover.
-suffix.CLOUDS_LAYER0_COVERAGE = %
-
-option.CLOUDS_LAYER0_SWIRL = Primary Clouds Swirliness
-option.CLOUDS_LAYER0_SWIRL.comment = Adjusts the swirliness of §bClouds§r.
-suffix.CLOUDS_LAYER0_SWIRL = %
+option.CLOUDS_WIND_SPEED = Clouds Wind Speed
+option.CLOUDS_WIND_SPEED.comment = Adjusts the speed of the wind affecting the clouds.
+suffix.CLOUDS_WIND_SPEED = km/h
 
 option.CLOUDS_SHADOWS = Clouds Shadows
 option.CLOUDS_SHADOWS.comment = Makes primary clouds cast shadows to the ground.
@@ -409,6 +388,120 @@ option.CLOUDS_SHADOWS_RESOLUTION = Clouds Shadows Resolution
 option.CLOUDS_SHADOWS_RESOLUTION.comment = Adjusts the resolution of §bClouds Shadows§r.
 suffix.CLOUDS_SHADOWS_RESOLUTION = x
 
+### CLOUDS LAYER 0
+
+option.CLOUDS_LAYER0_ENABLED  = Layer
+value.CLOUDS_LAYER0_ENABLED.0 = §cOFF
+value.CLOUDS_LAYER0_ENABLED.1 = §aON
+
+option.CLOUDS_LAYER0_SCATTERING_STEPS = Scattering Samples
+option.CLOUDS_LAYER0_SCATTERING_STEPS.comment = Influences how accurately light scatters inside of this cloud layer. §cHigher value gives better results, but reduces §cperformance.
+value.CLOUDS_LAYER0_SCATTERING_STEPS.8  = §38
+value.CLOUDS_LAYER0_SCATTERING_STEPS.12 = §212
+value.CLOUDS_LAYER0_SCATTERING_STEPS.16 = §a16
+value.CLOUDS_LAYER0_SCATTERING_STEPS.20 = §e20
+value.CLOUDS_LAYER0_SCATTERING_STEPS.24 = §624
+value.CLOUDS_LAYER0_SCATTERING_STEPS.28 = §c28
+value.CLOUDS_LAYER0_SCATTERING_STEPS.32 = §432
+
+option.CLOUDS_LAYER0_OCTAVES = Shape Octaves
+option.CLOUDS_LAYER0_OCTAVES.comment = How much layers of noise are generated to produce the cloud shapes. §cHigher value gives better results, but reduces §cperformance.
+value.CLOUDS_LAYER0_OCTAVES.1 = §21
+value.CLOUDS_LAYER0_OCTAVES.2 = §a2
+value.CLOUDS_LAYER0_OCTAVES.3 = §e3
+value.CLOUDS_LAYER0_OCTAVES.4 = §64
+value.CLOUDS_LAYER0_OCTAVES.5 = §c5
+value.CLOUDS_LAYER0_OCTAVES.6 = §46
+
+option.CLOUDS_LAYER0_SCALE = Shape Scale
+option.CLOUDS_LAYER0_SCALE.comment = Adjusts the scale of cloud shapes.
+suffix.CLOUDS_LAYER0_SCALE = %
+
+option.CLOUDS_LAYER0_DETAILSCALE = Details Scale
+option.CLOUDS_LAYER0_DETAILSCALE.comment = Adjusts the scale of cloud details.
+suffix.CLOUDS_LAYER0_DETAILSCALE = %
+
+option.CLOUDS_LAYER0_FREQUENCY = Shape Frequency
+option.CLOUDS_LAYER0_FREQUENCY.comment = Adjusts the frequency of cloud shapes.
+suffix.CLOUDS_LAYER0_FREQUENCY = x
+
+option.CLOUDS_LAYER0_DENSITY = Density
+option.CLOUDS_LAYER0_DENSITY.comment = Adjusts the density of clouds.
+suffix.CLOUDS_LAYER0_DENSITY = %
+
+option.CLOUDS_LAYER0_ALTITUDE = Altitude
+option.CLOUDS_LAYER0_ALTITUDE.comment = Adjusts the altitude of clouds.
+suffix.CLOUDS_LAYER0_ALTITUDE = m
+
+option.CLOUDS_LAYER0_THICKNESS = Thickness
+option.CLOUDS_LAYER0_THICKNESS.comment = Adjusts the thickness of clouds.
+suffix.CLOUDS_LAYER0_THICKNESS = m
+
+option.CLOUDS_LAYER0_COVERAGE = Coverage
+option.CLOUDS_LAYER0_COVERAGE.comment = Adjusts how much of the sky the clouds cover.
+suffix.CLOUDS_LAYER0_COVERAGE = %
+
+option.CLOUDS_LAYER0_SWIRL = Swirliness
+option.CLOUDS_LAYER0_SWIRL.comment = Adjusts the swirliness of clouds.
+suffix.CLOUDS_LAYER0_SWIRL = %
+
+### CLOUDS LAYER 1
+
+option.CLOUDS_LAYER1_ENABLED  = Layer
+value.CLOUDS_LAYER1_ENABLED.0 = §cOFF
+value.CLOUDS_LAYER1_ENABLED.1 = §aON
+
+option.CLOUDS_LAYER1_SCATTERING_STEPS = Scattering Samples
+option.CLOUDS_LAYER1_SCATTERING_STEPS.comment = Influences how accurately light scatters inside of this cloud layer. §cHigher value gives better results, but reduces §cperformance.
+value.CLOUDS_LAYER1_SCATTERING_STEPS.8  = §38
+value.CLOUDS_LAYER1_SCATTERING_STEPS.12 = §212
+value.CLOUDS_LAYER1_SCATTERING_STEPS.16 = §a16
+value.CLOUDS_LAYER1_SCATTERING_STEPS.20 = §e20
+value.CLOUDS_LAYER1_SCATTERING_STEPS.24 = §624
+value.CLOUDS_LAYER1_SCATTERING_STEPS.28 = §c28
+value.CLOUDS_LAYER1_SCATTERING_STEPS.32 = §432
+
+option.CLOUDS_LAYER1_OCTAVES = Shape Octaves
+option.CLOUDS_LAYER1_OCTAVES.comment = How much layers of noise are generated to produce the cloud shapes. §cHigher value gives better results, but reduces §cperformance.
+value.CLOUDS_LAYER1_OCTAVES.1 = §21
+value.CLOUDS_LAYER1_OCTAVES.2 = §a2
+value.CLOUDS_LAYER1_OCTAVES.3 = §e3
+value.CLOUDS_LAYER1_OCTAVES.4 = §64
+value.CLOUDS_LAYER1_OCTAVES.5 = §c5
+value.CLOUDS_LAYER1_OCTAVES.6 = §46
+
+option.CLOUDS_LAYER1_SCALE = Shape Scale
+option.CLOUDS_LAYER1_SCALE.comment = Adjusts the scale of cloud shapes.
+suffix.CLOUDS_LAYER1_SCALE = %
+
+option.CLOUDS_LAYER1_DETAILSCALE = Details Scale
+option.CLOUDS_LAYER1_DETAILSCALE.comment = Adjusts the scale of cloud details.
+suffix.CLOUDS_LAYER1_DETAILSCALE = %
+
+option.CLOUDS_LAYER1_FREQUENCY = Shape Frequency
+option.CLOUDS_LAYER1_FREQUENCY.comment = Adjusts the frequency of cloud shapes.
+suffix.CLOUDS_LAYER1_FREQUENCY = x
+
+option.CLOUDS_LAYER1_DENSITY = Density
+option.CLOUDS_LAYER1_DENSITY.comment = Adjusts the density of clouds.
+suffix.CLOUDS_LAYER1_DENSITY = %
+
+option.CLOUDS_LAYER1_ALTITUDE = Altitude
+option.CLOUDS_LAYER1_ALTITUDE.comment = Adjusts the altitude of clouds.
+suffix.CLOUDS_LAYER1_ALTITUDE = m
+
+option.CLOUDS_LAYER1_THICKNESS = Thickness
+option.CLOUDS_LAYER1_THICKNESS.comment = Adjusts the thickness of clouds.
+suffix.CLOUDS_LAYER1_THICKNESS = m
+
+option.CLOUDS_LAYER1_COVERAGE = Coverage
+option.CLOUDS_LAYER1_COVERAGE.comment = Adjusts how much of the sky the clouds cover.
+suffix.CLOUDS_LAYER1_COVERAGE = %
+
+option.CLOUDS_LAYER1_SWIRL = Swirliness
+option.CLOUDS_LAYER1_SWIRL.comment = Adjusts the swirliness of clouds.
+suffix.CLOUDS_LAYER1_SWIRL = %
+
 ### FOG
 
 option.AIR_FOG = Fog
@@ -417,62 +510,36 @@ value.AIR_FOG.0 = §cOFF
 value.AIR_FOG.1 = §e§lVolumetric (VF)
 value.AIR_FOG.2 = §e§lApproximation
 
-option.VL_SCATTERING_STEPS = VF Scattering Steps
-option.VL_SCATTERING_STEPS.comment = Influences §bVolumetric Fog§r's scattering accuracy. §cHigher value gives better results, but reduces §cperformance.
-value.VL_SCATTERING_STEPS.4  = §b4
-value.VL_SCATTERING_STEPS.8  = §38
-value.VL_SCATTERING_STEPS.12 = §212
-value.VL_SCATTERING_STEPS.16 = §a16
-value.VL_SCATTERING_STEPS.20 = §e20
-value.VL_SCATTERING_STEPS.24 = §624
-value.VL_SCATTERING_STEPS.28 = §c28
-value.VL_SCATTERING_STEPS.32 = §432
+option.AIR_FOG_SCATTERING_STEPS = VF Scattering Steps
+option.AIR_FOG_SCATTERING_STEPS.comment = Influences §bVolumetric Fog§r's scattering accuracy. §cHigher value gives better results, but reduces §cperformance.
+value.AIR_FOG_SCATTERING_STEPS.4  = §b4
+value.AIR_FOG_SCATTERING_STEPS.8  = §38
+value.AIR_FOG_SCATTERING_STEPS.12 = §212
+value.AIR_FOG_SCATTERING_STEPS.16 = §a16
+value.AIR_FOG_SCATTERING_STEPS.20 = §e20
+value.AIR_FOG_SCATTERING_STEPS.24 = §624
+value.AIR_FOG_SCATTERING_STEPS.28 = §c28
+value.AIR_FOG_SCATTERING_STEPS.32 = §432
 
-option.FOG_ALTITUDE = Fog Altitude
-option.FOG_ALTITUDE.comment = Adjusts §bFog§r's altitude.
+option.FOG_ALTITUDE = Altitude
+option.FOG_ALTITUDE.comment = Adjusts the fog altitude.
 
-option.FOG_THICKNESS = Fog Thickness
-option.FOG_THICKNESS.comment = Adjusts §bFog§r's thickness.
+option.FOG_THICKNESS = Thickness
+option.FOG_THICKNESS.comment = Adjusts the fog thickness.
 
-option.FOG_DENSITY = Fog Density
-option.FOG_DENSITY.comment = Adjusts §bFog§r's density.
+option.FOG_DENSITY = Density
+option.FOG_DENSITY.comment = Adjusts the fog density.
+
+### STARS
+
+option.STARS_AMOUNT = Amount
+option.STARS_AMOUNT.comment = Adjusts the amount of stars in the sky.
+suffix.STARS_AMOUNT = %
+
+option.STARS_LUMINOSITY = Luminosity
+option.STARS_LUMINOSITY.comment = Adjusts the luminosity of stars in the sky.
 
 ##################### TERRAIN #####################
-
-option.WHITE_WORLD = White World
-option.WHITE_WORLD.comment = Makes the environment entirely white.
-value.WHITE_WORLD.0 = §cOFF
-value.WHITE_WORLD.1 = §aON
-
-option.WAVING_PLANTS = Waving Plants
-option.WAVING_PLANTS.comment = Makes plants like leaves and flowers wave to the wind.
-value.WAVING_PLANTS.0 = §cOFF
-value.WAVING_PLANTS.1 = §aON
-
-option.RAIN_PUDDLES = Rain Puddles
-option.RAIN_PUDDLES.comment = Simulates the apparition of puddles on the ground during the rain.
-value.RAIN_PUDDLES.0 = §cOFF
-value.RAIN_PUDDLES.1 = §aON
-
-option.RAIN_PUDDLES_SIZE = Rain Puddles Size
-option.RAIN_PUDDLES_SIZE.comment = Adjusts §bRain Puddles§r' size.
-
-option.POM = POM
-option.POM.comment = §bParallax Occlusion Mapping. §rGives depth to a material by creating 3D definition from its heightmap. §aSteep§r POM is pixelated. §aSmooth§r POM filters the heightmap to de-pixelate it.
-value.POM.0 = §cOFF
-value.POM.1 = §e§lSteep
-value.POM.2 = §e§lSmooth
-
-option.POM_LAYERS = POM layers
-option.POM_LAYERS.comment = Adjusts §bPOM§r's quality, the more layers there are, the more detailed it will be. §cHigher value gives better results, but reduces §cperformance.
-value.POM_LAYERS.32 = §a32
-value.POM_LAYERS.64 = §e64
-value.POM_LAYERS.128 = §6128
-value.POM_LAYERS.256 = §c256
-value.POM_LAYERS.512 = §4512
-
-option.POM_DEPTH = POM Depth
-option.POM_DEPTH.comment = Adjusts §bPOM§r's depth.
 
 ### WATER
 
@@ -533,6 +600,46 @@ option.WATER_SCATTERING_G.comment = Adjusts how water scatters light. Higher val
 
 option.WATER_SCATTERING_B = Water Scattering §9Blue
 option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher value means that §9blue§r will be scattered more.
+
+### POM
+
+option.POM = POM
+option.POM.comment = §bParallax Occlusion Mapping. §rGives depth to a material by creating 3D definition from its heightmap. §aSteep§r POM is pixelated. §aSmooth§r POM filters the heightmap to de-pixelate it.
+value.POM.0 = §cOFF
+value.POM.1 = §e§lSteep
+value.POM.2 = §e§lSmooth
+
+option.POM_LAYERS = POM layers
+option.POM_LAYERS.comment = Adjusts §bPOM§r's quality, the more layers there are, the more detailed it will be. §cHigher value gives better results, but reduces §cperformance.
+value.POM_LAYERS.32 = §a32
+value.POM_LAYERS.64 = §e64
+value.POM_LAYERS.128 = §6128
+value.POM_LAYERS.256 = §c256
+value.POM_LAYERS.512 = §4512
+
+option.POM_DEPTH = POM Depth
+option.POM_DEPTH.comment = Adjusts §bPOM§r's depth.
+
+### TERRAIN
+
+option.WHITE_WORLD = White World
+option.WHITE_WORLD.comment = Makes the environment entirely white.
+value.WHITE_WORLD.0 = §cOFF
+value.WHITE_WORLD.1 = §aON
+
+option.WAVING_PLANTS = Waving Plants
+option.WAVING_PLANTS.comment = Makes plants like leaves and flowers wave to the wind.
+value.WAVING_PLANTS.0 = §cOFF
+value.WAVING_PLANTS.1 = §aON
+
+option.RAIN_PUDDLES = Rain Puddles
+option.RAIN_PUDDLES.comment = Simulates the apparition of puddles on the ground during the rain.
+value.RAIN_PUDDLES.0 = §cOFF
+value.RAIN_PUDDLES.1 = §aON
+
+option.RAIN_PUDDLES_SIZE = Rain Puddles Size
+option.RAIN_PUDDLES_SIZE.comment = Adjusts §bRain Puddles§r' size.
+suffix.RAIN_PUDDLES_SIZE = %
 
 ##################### CAMERA SETTINGS #####################
 

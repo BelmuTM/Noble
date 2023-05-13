@@ -15,8 +15,8 @@
     out vec3[9] skyIrradiance;
 
     void main() {
-        gl_Position   = gl_ModelViewProjectionMatrix * gl_Vertex;
-        textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+        gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
+        textureCoords = gl_MultiTexCoord0.xy;
 
 		#if defined WORLD_OVERWORLD || defined WORLD_END
 			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
@@ -39,7 +39,7 @@
         #include "/include/fragment/shadows.glsl"
     #endif
 
-    #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+    #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
         #include "/include/atmospherics/clouds.glsl"
     #endif
 
@@ -105,7 +105,7 @@
                 shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
             #endif
 
-            #if CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+            #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                 illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy), shadowLightVector, cloudLayer0, 20);
             #endif
         #endif

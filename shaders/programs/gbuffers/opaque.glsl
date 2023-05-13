@@ -186,7 +186,7 @@
 
 		float F0 		 = specularTex.y;
 		float ao 		 = normalTex.z;
-		float roughness  = saturate(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
+		float roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
 		float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
 		float subsurface = saturate(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
 
@@ -216,7 +216,7 @@
 				normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
 				normal    = tbn * normal;
 
-				lightmap = computeLightmap(normal);
+				lightmap = computeLightmap(normalize(normal));
 			}
 		#endif
 
@@ -227,7 +227,7 @@
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
 			if(wetness > 0.0 && isEyeInWater == 0) {
 				float porosity    = saturate(specularTex.z * (maxVal8 / 64.0));
-				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE);
+				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE * 0.01);
 
 				float puddle  = saturate(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
 		  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lightmapCoords.y));

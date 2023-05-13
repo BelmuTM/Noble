@@ -32,12 +32,12 @@ vec3 getAtmosphereDensities(float centerDist) {
 }
 
 vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 attenuationCoefficients) {
-    float stepSize   = intersectSphere(rayOrigin, lightDir, atmosphereUpperRadius).y * rcp(TRANSMITTANCE_STEPS);
+    float stepSize   = intersectSphere(rayOrigin, lightDir, atmosphereUpperRadius).y * rcp(ATMOSPHERE_TRANSMITTANCE_STEPS);
     vec3 increment   = lightDir * stepSize;
     vec3 rayPosition = rayOrigin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
-    for(int i = 0; i < TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
+    for(int i = 0; i < ATMOSPHERE_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
         accumAirmass += getAtmosphereDensities(length(rayPosition)) * stepSize;
     }
     return exp(-attenuationCoefficients * accumAirmass);
@@ -48,7 +48,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
         vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, atmosphereLowerRadius, atmosphereUpperRadius);
         if(dists.y < 0.0) return vec3(0.0);
 
-        float stepSize   = (dists.y - dists.x) * rcp(SCATTERING_STEPS);
+        float stepSize   = (dists.y - dists.x) * rcp(ATMOSPHERE_SCATTERING_STEPS);
         vec3 increment   = rayDirection * stepSize;
         vec3 rayPosition = atmosphereRayPosition + increment * 0.5;
 
@@ -71,7 +71,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
 
         mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
     
-        for(int i = 0; i < SCATTERING_STEPS; i++, rayPosition += increment) {
+        for(int i = 0; i < ATMOSPHERE_SCATTERING_STEPS; i++, rayPosition += increment) {
 
             #if defined WORLD_OVERWORLD
                 vec3 airmass          = getAtmosphereDensities(length(rayPosition)) * stepSize;

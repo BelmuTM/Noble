@@ -5,4 +5,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#include "/programs/vertex_simple.glsl"
+#define STAGE_VERTEX
+#define WORLD_OVERWORLD
+
+#include "/programs/composite/reflections_pass.glsl"

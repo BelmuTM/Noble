@@ -26,7 +26,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
         #if defined WORLD_OVERWORLD
-		    #if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
+		    #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
                 if(saturate(hitCoords) == hitCoords) {
 			        clouds = texture(CLOUDS_BUFFER, hitCoords);
                 }
@@ -51,7 +51,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
         vec3 rayDirection  = reflect(viewDirection, material.normal); 
         vec3 hitPosition   = vec3(0.0);
 
-        float hit  = float(raytrace(depthtex0, viewPosition, rayDirection, SIMPLE_REFLECT_STEPS, randF(), hitPosition));
+        float hit  = float(raytrace(depthtex0, viewPosition, rayDirection, SMOOTH_REFLECTIONS_STEPS, randF(), hitPosition));
               hit *= kneemundAttenuation(hitPosition.xy);
 
         #if defined SKY_FALLBACK
@@ -86,7 +86,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
         mat3  tbn           = constructViewTBN(material.normal);
         float NdotV         = dot(material.normal, -viewDirection);
 	
-        for(int i = 0; i < ROUGH_SAMPLES; i++) {
+        for(int i = 0; i < ROUGH_REFLECTIONS_SAMPLES; i++) {
             vec3 microfacet   = tbn * sampleGGXVNDF(-viewDirection * tbn, rand2F(), material.roughness);
 		    vec3 rayDirection = reflect(viewDirection, microfacet);	
             float NdotL       = dot(material.normal, rayDirection);
@@ -94,7 +94,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
             if(NdotV > 0.0 && NdotL > 0.0) {
                 vec3 hitPosition = vec3(0.0);
                 
-                float hit  = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECT_STEPS, randF(), hitPosition));
+                float hit  = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECTIONS_STEPS, randF(), hitPosition));
                       hit *= kneemundAttenuation(hitPosition.xy);
 
                 #if defined SKY_FALLBACK

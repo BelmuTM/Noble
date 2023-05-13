@@ -21,7 +21,7 @@ vec3 computeStarfield(vec3 viewPosition) {
 		star *= rand( coords.xy);
 		star *= rand(-coords.xy + 0.1);
 	}
-	return max0(saturate(star - (1.0 - STARS_AMOUNT)) * factor * STARS_LUMINOSITY * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords))));
+	return max0(saturate(star - (1.0 - STARS_AMOUNT * 2e-3)) * factor * STARS_LUMINOSITY * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords))));
 }
 
 vec3 physicalSun(vec3 sceneDir) {
@@ -53,8 +53,8 @@ vec3 renderAtmosphere(vec3 viewPosition) {
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD
-			#if PRIMARY_CLOUDS == 1 || SECONDARY_CLOUDS == 1
-				clouds = textureCatmullRom(CLOUDS_BUFFER, textureCoords);
+			#if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
+				clouds = textureCatmullRom(CLOUDS_BUFFER, saturate(textureCoords + randF() * pixelSize));
 			#endif
 
 			sky += clamp16(physicalSun(sceneDir));

@@ -5,8 +5,6 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-in vec2 textureCoords;
-
 #define STAGE_FRAGMENT
 #define WORLD_OVERWORLD
 

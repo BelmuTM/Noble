@@ -5,7 +5,7 @@
 
 #include "/include/common.glsl"
 
-#if PRIMARY_CLOUDS == 0 && SECONDARY_CLOUDS == 0
+#if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0
     #include "/programs/discard.glsl"
 #else
 
@@ -17,8 +17,8 @@
         out vec3 directIlluminance;
 
         void main() {
-            gl_Position   = gl_ModelViewProjectionMatrix * gl_Vertex;
-            textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+            gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
+            textureCoords = gl_MultiTexCoord0.xy;
 
             skyIlluminance    = evaluateUniformSkyIrradianceApproximation();
             directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
@@ -46,11 +46,11 @@
             vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e6);
             vec4 layer1 = vec4(0.0, 0.0, 1.0, 1e6);
 
-            #if PRIMARY_CLOUDS == 1
+            #if CLOUDS_LAYER0_ENABLED == 1
                 layer0 = estimateCloudsScattering(cloudLayer0, cloudsRayDirection);
             #endif
 
-            #if SECONDARY_CLOUDS == 1
+            #if CLOUDS_LAYER1_ENABLED == 1
                 layer1 = estimateCloudsScattering(cloudLayer1, cloudsRayDirection);
             #endif
 
@@ -64,19 +64,14 @@
 
                 /* Reprojection */
                 vec2 prevPosition = reprojectClouds(viewPosition, distanceToClouds).xy;
-                vec4 history      = textureCatmullRom(CLOUDS_BUFFER, prevPosition);
-
-                float resolutionScale = float(CLOUDS_SCALE < 100) + pow((CLOUDS_SCALE * 0.01) * 0.05 + 0.02, 0.35);
+                vec4 history      = texture(CLOUDS_BUFFER, prevPosition);
 
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);
-                float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.4 + 0.6;
-
-                vec2  velocity       = (textureCoords - prevPosition) * viewSize;
-                float velocityWeight = exp(-length(velocity)) * 0.8 + 0.2;
+                float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
 
                 float frameWeight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition).w, 1.0);
 
-                float weight = resolutionScale * centerWeight * velocityWeight * frameWeight * float(saturate(prevPosition) == prevPosition);
+                float weight = centerWeight * frameWeight * float(saturate(prevPosition) == prevPosition);
 
                 clouds = clamp16(mix(clouds, history, saturate(weight)));
             }

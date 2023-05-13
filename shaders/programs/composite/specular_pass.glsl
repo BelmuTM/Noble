@@ -29,7 +29,7 @@ layout (location = 0) out vec3 color;
 
         vec3 viewDirection = normalize(viewPosition);
         vec3 refracted     = refract(viewDirection, material.normal, n1.r / n2.r);
-        bool hit           = raytrace(depthtex1, viewPosition, refracted, REFRACT_STEPS, randF(), hitPosition);
+        bool hit           = raytrace(depthtex1, viewPosition, refracted, REFRACTIONS_STEPS, randF(), hitPosition);
         
         if(saturate(hitPosition.xy) != hitPosition.xy || !hit && texture(depthtex1, hitPosition.xy).r != 1.0 || isHand(hitPosition.xy)) {
             hitPosition.xy = textureCoords;
@@ -106,7 +106,7 @@ void main() {
             #if SPECULAR == 1
                 vec3 visibility = viewPosition0.z == viewPosition1.z ? texture(SHADOWMAP_BUFFER, coords.xy).rgb : vec3(1.0);
 
-                #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+                #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                     visibility *= getCloudsShadows(viewToScene(viewPosition0));
                 #endif
 

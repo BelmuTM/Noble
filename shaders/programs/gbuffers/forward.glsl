@@ -118,7 +118,7 @@
 				#endif
 			#else
 				material.F0         = specularTex.y;
-    			material.roughness  = saturate(hardCodedRoughness != 0.0 ? hardCodedRoughness : 1.0 - specularTex.x);
+    			material.roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
     			material.ao         = normalTex.z;
 				material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
     			material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;

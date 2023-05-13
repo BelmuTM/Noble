@@ -62,6 +62,9 @@ void main() {
             float prevDepth = exp2(texture(MOMENTS_BUFFER, prevPosition.xy).a);
             float weight    = pow(exp(-abs(linearizeDepth(material.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
+            vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
+                 weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
+
             temporalData.a = log2(material.depth0);
         #else
             float weight = float(hideGUI);
@@ -80,7 +83,7 @@ void main() {
             #if defined WORLD_OVERWORLD || defined WORLD_END
                 directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
 
-                #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && PRIMARY_CLOUDS == 1
+                #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                     cloudsShadows = getCloudsShadows(viewToScene(viewPosition0));
                 #endif
 

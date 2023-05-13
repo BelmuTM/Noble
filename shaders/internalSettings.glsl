@@ -25,7 +25,7 @@ const int colortex8Format  = RGBA16F;   // History
 const int colortex9Format  = RGB16F;    // Direct GI
 const int colortex10Format = RGBA16F;   // Indirect GI
 const int colortex11Format = RGBA16F;   // Moments
-const int colortex12Format = RGB16F;    // Fog scattering
+const int colortex12Format = RGBA16F;   // Fog scattering
 const int colortex13Format = RGB16F;    // Fog transmittance
 const int colortex15Format = RGBA16F;   // Gbuffer Data
 

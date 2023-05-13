@@ -16,43 +16,45 @@
 */
 
 struct CloudLayer {
+    int steps;
+    int octaves;
+
+    float scale;
+    float detailScale;
+    float frequency;
+
+    float density;
+
     float altitude;
     float thickness;
     float coverage;
     float swirl;
-    float scale;
-    float shapeScale;
-    float frequency;
-    float density;
-
-    int steps;
-    int octaves;
 };
 
 const CloudLayer cloudLayer0 = CloudLayer(
+    CLOUDS_LAYER0_SCATTERING_STEPS,
+    CLOUDS_LAYER0_OCTAVES,
+    1e-5 + CLOUDS_LAYER0_SCALE       * 9.9e-6,
+    1e-5 + CLOUDS_LAYER0_DETAILSCALE * 9.9e-6,
+    CLOUDS_LAYER0_FREQUENCY,
+    CLOUDS_LAYER0_DENSITY            * 0.01,
     CLOUDS_LAYER0_ALTITUDE,
     CLOUDS_LAYER0_THICKNESS,
-    CLOUDS_LAYER0_COVERAGE * 0.01,
-    CLOUDS_LAYER0_SWIRL    * 0.01,
-    CLOUDS_LAYER0_SCALE,
-    CLOUDS_LAYER0_SHAPESCALE,
-    CLOUDS_LAYER0_FREQUENCY,
-    CLOUDS_LAYER0_DENSITY,
-    CLOUDS_SCATTERING_STEPS,
-    CLOUDS_LAYER0_OCTAVES
+    CLOUDS_LAYER0_COVERAGE           * 0.01,
+    CLOUDS_LAYER0_SWIRL              * 0.01
 );
 
 const CloudLayer cloudLayer1 = CloudLayer(
+    CLOUDS_LAYER1_SCATTERING_STEPS,
+    CLOUDS_LAYER1_OCTAVES,
+    1e-5 + CLOUDS_LAYER0_SCALE       * 9.9e-6,
+    1e-5 + CLOUDS_LAYER1_DETAILSCALE * 9.9e-6,
+    CLOUDS_LAYER1_FREQUENCY,
+    CLOUDS_LAYER1_DENSITY            * 0.01,
     CLOUDS_LAYER1_ALTITUDE,
     CLOUDS_LAYER1_THICKNESS,
-    CLOUDS_LAYER1_COVERAGE,
-    CLOUDS_LAYER1_SWIRL,
-    CLOUDS_LAYER1_SCALE,
-    CLOUDS_LAYER1_SHAPESCALE,
-    CLOUDS_LAYER1_FREQUENCY,
-    CLOUDS_LAYER1_DENSITY,
-    10,
-    CLOUDS_LAYER1_OCTAVES
+    CLOUDS_LAYER1_COVERAGE           * 0.01,
+    CLOUDS_LAYER1_SWIRL              * 0.01
 );
 
 const vec3 up = vec3(0.0, 1.0, 0.0);
@@ -113,7 +115,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
     if(weatherMap < EPS) return 0.0;
     weatherMap = saturate(weatherMap);
 
-    position *= layer.shapeScale;
+    position *= layer.detailScale;
 
     vec3 curlTex   = texture(noisetex, position * 0.4).rgb * 2.0 - 1.0;
          position += curlTex * layer.swirl;
