@@ -195,18 +195,18 @@ option.GTAO_RADIUS.comment = Adjusts §bGTAO§r's radius.
 
 ### REFLECTIONS & REFRACTIONS
 
-option.REFLECTIONS = Screen Space Reflections (SSR)
+option.REFLECTIONS = Reflections
 option.REFLECTIONS.comment = §cCan only reflect what's being displayed §con your screen.
 value.REFLECTIONS.0 = §cOFF
 value.REFLECTIONS.1 = §aON
 
-option.REFRACTIONS = Screen Space Refractions
-option.REFRACTIONS.comment = Applies §bScreen Space Refractions §rto refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen.
+option.REFRACTIONS = Refractions
+option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen.
 value.REFRACTIONS.0 = §cOFF
 value.REFRACTIONS.1 = §aON
 
-option.REFLECTIONS_TYPE = SSR Type
-option.REFLECTIONS_TYPE.comment = §bSmooth reflections §rdo not consider a material's roughness. §bRough reflections §rdo consider it, §cthey give a better §cresult but reduce performance.
+option.REFLECTIONS_TYPE = Reflections Type
+option.REFLECTIONS_TYPE.comment = §bSmooth reflections§r do not consider a material's roughness. §bRough reflections§r do consider it, §cthey give a better §cresult but reduce performance.
 value.REFLECTIONS_TYPE.0 = §eSmooth Reflections
 value.REFLECTIONS_TYPE.1 = §eRough Reflections
 
@@ -347,12 +347,7 @@ value.ATMOSPHERE_TRANSMITTANCE_STEPS.32 = §432
 
 ### CLOUDS
 
-option.CLOUDS_LAYER1_ENABLED = Secondary Cloud Layer
-option.CLOUDS_LAYER1_ENABLED.comment = Features a secondary layer of volumetric clouds very high above the ground.
-value.CLOUDS_LAYER1_ENABLED.0 = §cOFF
-value.CLOUDS_LAYER1_ENABLED.1 = §aON
-
-option.CLOUDS_SCALE = Clouds Render Scale
+option.CLOUDS_SCALE = Render Scale
 option.CLOUDS_SCALE.comment = Adjusts the §bClouds§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
 suffix.CLOUDS_SCALE = x
 value.CLOUDS_SCALE.10 = 0.10
@@ -375,7 +370,7 @@ value.CLOUDS_SCALE.90 = 0.90
 value.CLOUDS_SCALE.95 = 0.95
 value.CLOUDS_SCALE.100 = 1.00
 
-option.CLOUDS_WIND_SPEED = Clouds Wind Speed
+option.CLOUDS_WIND_SPEED = Wind Speed
 option.CLOUDS_WIND_SPEED.comment = Adjusts the speed of the wind affecting the clouds.
 suffix.CLOUDS_WIND_SPEED = km/h
 

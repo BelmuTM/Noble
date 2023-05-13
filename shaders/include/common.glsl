@@ -26,7 +26,7 @@
 //////////////////////////////////////////////////////////
 
 bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0;                          }
-bool isHand(vec2 coords) { return linearizeDepth(texture(depthtex0, coords).r) < MC_HAND_DEPTH; }
+bool isHand(vec2 coords) { return linearizeDepthFast(texture(depthtex0, coords).r) < MC_HAND_DEPTH; }
 
 const vec2 hiZOffsets[] = vec2[](
 	vec2(0.0, 0.0  ),

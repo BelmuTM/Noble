@@ -41,7 +41,7 @@ vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 /* CLOUDS CONSTANTS */
 
 float       cloudsExtinctionCoefficient = 0.1;
-const float cloudsScatteringCoefficient = 1.0;
+const float cloudsScatteringCoefficient = 0.99;
 const float cloudsTransmitThreshold     = 5e-2;
 
 const float cloudsForwardsLobe = 0.35;
@@ -60,8 +60,8 @@ const float cloudsAnisotropyFalloff = 0.80;
 const float airFogExtinctionCoefficient = 0.06;
 const float airFogScatteringCoefficient = 0.3;
 
-const float airFogForwardsLobe = 0.45;
-const float airFogBackardsLobe = 0.45;
+const float airFogForwardsLobe = 0.35;
+const float airFogBackardsLobe = 0.35;
 const float airFogForwardsPeak = 0.90;
 const float airFogBackScatter  = 0.15;
 const float airFogPeakWeight   = 0.25;

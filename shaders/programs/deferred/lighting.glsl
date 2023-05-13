@@ -60,7 +60,7 @@ void main() {
 
         #if RENDER_MODE == 0
             float prevDepth = exp2(texture(MOMENTS_BUFFER, prevPosition.xy).a);
-            float weight    = pow(exp(-abs(linearizeDepth(material.depth0) - linearizeDepth(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
+            float weight    = pow(exp(-abs(linearizeDepthFast(material.depth0) - linearizeDepthFast(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
             vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
                  weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
@@ -108,7 +108,7 @@ void main() {
             pathtrace(color.rgb, vec3(tempCoords, material.depth0), direct, indirect);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
-                float frameWeight = 1.0 / max(color.a * float(linearizeDepth(material.depth0) >= MC_HAND_DEPTH), 1.0);
+                float frameWeight = 1.0 / max(color.a * float(linearizeDepthFast(material.depth0) >= MC_HAND_DEPTH), 1.0);
 
                 color.rgb = mix(history.rgb, color.rgb, frameWeight);
 
