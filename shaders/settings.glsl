@@ -34,7 +34,7 @@ const float EPS = 1e-6;
 
 const float HALF_PI = 1.57079632;
 const float PI      = 3.14159265;
-const float RCP_PI  = 0.31830988;
+const float RCP_PI  = 1.0 / PI;
 const float TAU     = 6.28318530;
 
 const float GOLDEN_ANGLE = 2.39996322;

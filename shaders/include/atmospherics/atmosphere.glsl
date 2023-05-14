@@ -123,11 +123,10 @@ vec3 evaluateDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD
-        vec3 sunTransmit  = evaluateAtmosphereTransmittance(atmosphereRayPosition, sunVector , atmosphereAttenuationCoefficients) * sunIrradiance;
-        vec3 moonTransmit = evaluateAtmosphereTransmittance(atmosphereRayPosition, moonVector, atmosphereAttenuationCoefficients) * moonIrradiance;
-        directIlluminance = sunTransmit + moonTransmit;
+        directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, sunVector , atmosphereAttenuationCoefficients) * sunIrradiance;
+        directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, moonVector, atmosphereAttenuationCoefficients) * moonIrradiance;
     #elif defined WORLD_END
-        directIlluminance = evaluateAtmosphereTransmittance(atmosphereRayPosition, starVector, atmosphereAttenuationCoefficientsEnd) * starIrradiance;
+        directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, starVector, atmosphereAttenuationCoefficientsEnd) * starIrradiance;
     #endif
     return max0(directIlluminance);
 }

@@ -293,11 +293,11 @@ value.SSR_REPROJECTION.1 = §aON
 ##################### ATMOSPHERICS #####################
 
 option.sunPathRotation = Celestial Path Rotation
-option.sunPathRotation.comment = Adjusts Sun's/Moon's path rotation.
+option.sunPathRotation.comment = Adjusts the sun's / the moon's path rotation.
 suffix.sunPathRotation = °
 
 option.CELESTIAL_SIZE_MULTIPLIER = Celestial Size Multiplier
-option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the Sun/Moon.
+option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the sun / the moon.
 suffix.CELESTIAL_SIZE_MULTIPLIER = x
 
 ### ATMOSPHERE
