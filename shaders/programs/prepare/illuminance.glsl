@@ -12,8 +12,7 @@
     out vec3[9] skyIlluminance;
 
     void main() {
-        gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
-        textureCoords = gl_MultiTexCoord0.xy;
+        gl_Position = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
 
         directIlluminance = evaluateDirectIlluminance();
         skyIlluminance    = evaluateUniformSkyIrradiance();

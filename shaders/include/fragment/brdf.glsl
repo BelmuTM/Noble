@@ -35,7 +35,6 @@ float G2SmithGGX(float NdotL, float NdotV, float alphaSq) {
     return 1.0 / (1.0 + lambdaV + lambdaL);
 }
 
-
 vec3 sampleGGXVNDF(vec3 viewDirection, vec2 xi, float alpha) {
 	// Stretch view
 	viewDirection = normalize(vec3(alpha * viewDirection.xy, viewDirection.z));
