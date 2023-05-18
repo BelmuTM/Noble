@@ -6,7 +6,7 @@
 ![Noble](https://i.imgur.com/iVN9uCE.png)
 
 ## About Noble
-Noble is a Minecraft shaderpack that enhances one's experience with the help of good-looking graphics and light simulations.
+Noble is a Minecraft shaderpack that enhances one's experience with customizable settings and good-looking light simulations.
 It offers a handful of customizable options to tweak according to your desires. 
 
 ## Releases
