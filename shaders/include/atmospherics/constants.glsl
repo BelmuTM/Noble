@@ -50,7 +50,7 @@ const float cloudsForwardsPeak = 0.90;
 const float cloudsBackScatter  = 0.20;
 const float cloudsPeakWeight   = 0.15;
 
-const int   cloudsMultiScatterSteps = 8;
+const int   cloudsMultiScatterSteps = 4;
 const float cloudsExtinctionFalloff = 0.60;
 const float cloudsScatteringFalloff = 0.55;
 const float cloudsAnisotropyFalloff = 0.80;

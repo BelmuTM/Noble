@@ -50,7 +50,7 @@ void main() {
     Material material = getMaterial(tempCoords);
 
     #if HARDCODED_SSS == 1
-        if(material.blockId >= 8 && material.blockId < 13 && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
+        if(material.blockId > NETHER_PORTAL_ID && material.blockId <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
     #endif
 
     #if AO_FILTER == 1 && GI == 0 || GI == 1
