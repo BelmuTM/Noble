@@ -26,7 +26,7 @@
         for(int x = -filterSize; x <= filterSize; x++) {
             for(int y = -filterSize; y <= filterSize; y++) {
                 float weight = gaussianDistribution2D(vec2(x, y), 1.0);
-                      tile  += textureLod(MAIN_BUFFER, coords + vec2(x, y) * texelScale, lod + 1).rgb * weight;
+                      tile  += textureLod(MAIN_BUFFER, coords + vec2(x, y) * texelScale, 0).rgb * weight;
             }
         }
 	}
