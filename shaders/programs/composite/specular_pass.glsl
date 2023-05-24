@@ -114,7 +114,7 @@ void main() {
             #endif
 
             #if REFLECTIONS == 1
-                envSpecular = texture(REFLECTIONS_BUFFER, textureCoords).rgb;
+                envSpecular = logLuvDecode(texture(REFLECTIONS_BUFFER, textureCoords));
             #endif
         }
     #endif
@@ -128,8 +128,8 @@ void main() {
         for(int y = -filterSize; y <= filterSize; y++) {
             float weight = gaussianDistribution2D(vec2(x, y), 3.0);
             
-            scattering    += texture(SCATTERING_BUFFER,    coords.xy + vec2(x, y) * pixelSize).rgb * weight;
-            transmittance += texture(TRANSMITTANCE_BUFFER, coords.xy + vec2(x, y) * pixelSize).rgb * weight;
+            scattering    += logLuvDecode(texture(SCATTERING_BUFFER,    coords.xy + vec2(x, y) * pixelSize)) * weight;
+            transmittance += logLuvDecode(texture(TRANSMITTANCE_BUFFER, coords.xy + vec2(x, y) * pixelSize)) * weight;
         }
     }
     

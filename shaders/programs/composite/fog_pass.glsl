@@ -5,8 +5,8 @@
 
 /* RENDERTARGETS: 12,13 */
 
-layout (location = 0) out vec3 scattering;
-layout (location = 1) out vec3 transmittance;
+layout (location = 0) out vec4 scattering;
+layout (location = 1) out vec4 transmittance;
 
 #include "/include/common.glsl"
 
@@ -43,14 +43,14 @@ void main() {
     bool  sky      = isSky(textureCoords);
     float skylight = 0.0;
 
-    scattering    = vec3(0.0);
-    transmittance = vec3(1.0);
+    scattering.rgb    = vec3(0.0);
+    transmittance.rgb = vec3(1.0);
 
-    vec3 scatteringLayer0    = scattering;
-    vec3 transmittanceLayer0 = transmittance;
+    vec3 scatteringLayer0    = scattering.rgb;
+    vec3 transmittanceLayer0 = transmittance.rgb;
 
-    vec3 scatteringLayer1    = scattering;
-    vec3 transmittanceLayer1 = transmittance;
+    vec3 scatteringLayer1    = scattering.rgb;
+    vec3 transmittanceLayer1 = transmittance.rgb;
 
     if(!sky) {
         skylight = getSkylightFalloff(material.lightmap.y);
@@ -107,6 +107,6 @@ void main() {
         #endif
     }
 
-    scattering    = scatteringLayer0    * transmittanceLayer1 + scatteringLayer1;
-    transmittance = transmittanceLayer0 * transmittanceLayer1;
+    scattering    = logLuvEncode(scatteringLayer0    * transmittanceLayer1 + scatteringLayer1);
+    transmittance = logLuvEncode(transmittanceLayer0 * transmittanceLayer1);
 }

@@ -49,7 +49,7 @@ vec3 renderAtmosphere(vec3 viewPosition) {
 		vec3 sceneDir = normalize(viewToScene(viewPosition));
     	vec2 coords   = projectSphere(sceneDir);
 
-		vec3 sky = textureCatmullRom(ATMOSPHERE_BUFFER, saturate(coords + randF() * pixelSize)).rgb;
+		vec3 sky = logLuvDecode(textureCatmullRom(ATMOSPHERE_BUFFER, saturate(coords + randF() * pixelSize)));
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD

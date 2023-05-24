@@ -252,16 +252,47 @@ float gaussianDistribution2D(vec2 xy, float sigma) {
 /*---------------------- ENCODING ----------------------*/
 //////////////////////////////////////////////////////////
 
-vec2 encodeUnitVector(vec3 v) {
-	vec2 enc = v.xy / (abs(v.x) + abs(v.y) + abs(v.z));
-	enc      = (v.z <= 0.0) ? ((1.0 - abs(enc.yx)) * signNonZero(enc)) : enc;
-    
-	return 0.5 * enc + 0.5;
+const mat3x3 encodingMatrix = mat3x3(
+    0.2209, 0.3390, 0.4184,
+    0.1138, 0.6780, 0.7319,
+    0.0102, 0.1130, 0.2969
+);
+
+const mat3x3 decodingMatrix = mat3x3(
+     6.0013,-2.7000,-1.7995,
+    -1.3320, 3.1029,-5.7720,
+     0.3007,-1.0880, 5.6268
+);
+
+vec4 logLuvEncode(in vec3 value) {
+    vec4 encoded;
+    vec3 Xp_Y_XYZp = max(encodingMatrix * value, vec3(1e-6));
+    encoded.xy = Xp_Y_XYZp.xy / Xp_Y_XYZp.z;
+    float Le = 2.0 * log2(Xp_Y_XYZp.y) + 127.0;
+    encoded.w = fract(Le);
+    encoded.z = (Le - (floor(encoded.w * 255.0)) / 255.0) / 255.0;
+    return encoded;
 }
 
-vec3 decodeUnitVector(vec2 enc) {
-	enc    = 2.0 * enc - 1.0;
-	vec3 v = vec3(enc.xy, 1.0 - abs(enc.x) - abs(enc.y));
+vec3 logLuvDecode(in vec4 encoded) {
+    float Le = encoded.z * 255.0 + encoded.w;
+    vec3 Xp_Y_XYZp;
+    Xp_Y_XYZp.y = exp2((Le - 127.0) * 0.5);
+    Xp_Y_XYZp.z = Xp_Y_XYZp.y / encoded.y;
+    Xp_Y_XYZp.x = encoded.x * Xp_Y_XYZp.z;
+    return max0(decodingMatrix * Xp_Y_XYZp);
+}
+
+vec2 encodeUnitVector(vec3 v) {
+	vec2 encoded = v.xy / (abs(v.x) + abs(v.y) + abs(v.z));
+	     encoded = (v.z <= 0.0) ? ((1.0 - abs(encoded.yx)) * signNonZero(encoded)) : encoded;
+    
+	return 0.5 * encoded + 0.5;
+}
+
+vec3 decodeUnitVector(vec2 encoded) {
+	encoded = 2.0 * encoded - 1.0;
+	vec3 v  = vec3(encoded.xy, 1.0 - abs(encoded.x) - abs(encoded.y));
 	if(v.z < 0.0) v.xy = (1.0 - abs(v.yx)) * signNonZero(v.xy);
 	return normalize(v);
 }

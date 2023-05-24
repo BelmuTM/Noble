@@ -15,7 +15,7 @@
 
         /* RENDERTARGETS: 2 */
     
-        layout (location = 0) out vec3 reflections;
+        layout (location = 0) out vec4 reflections;
 
         in vec2 textureCoords;
 
@@ -33,21 +33,24 @@
             Material material = getMaterial(textureCoords);
                     
             #if REFLECTIONS_TYPE == 0
-                reflections = computeSmoothReflections(viewPosition, material);
+                reflections.rgb = computeSmoothReflections(viewPosition, material);
             #else
-                reflections = computeRoughReflections(viewPosition, material);
+                reflections.rgb = computeRoughReflections(viewPosition, material);
             #endif
 
-            if(isHand(textureCoords)) return;
+            if(isHand(textureCoords)) {
+                reflections = logLuvEncode(reflections.rgb);
+                return;
+            }
 
             vec3 currPosition = vec3(textureCoords, material.depth0);
             vec3 prevPosition = currPosition - getVelocity(currPosition);
-            vec3 prevColor    = texture(REFLECTIONS_BUFFER, prevPosition.xy).rgb;
+            vec3 prevColor    = logLuvDecode(texture(REFLECTIONS_BUFFER, prevPosition.xy));
 
-            if(any(isnan(prevColor))) prevColor = reflections;
+            if(any(isnan(prevColor))) prevColor = reflections.rgb;
 
             float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition.xy).w, 1.0);
-            reflections  = max0(mix(prevColor, reflections, weight));
+            reflections  = logLuvEncode(max0(mix(prevColor, reflections.rgb, weight)));
         }
     #endif
 #endif

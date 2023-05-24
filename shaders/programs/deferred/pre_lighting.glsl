@@ -100,7 +100,7 @@
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS == 1
-                vec3 geoNormal = texture(SHADOWMAP_BUFFER, textureCoords).rgb;
+                vec3 geoNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, textureCoords).rg);
                 shadowmap.rgb  = calculateShadowMapping(viewToScene(viewPosition), geoNormal, shadowmap.a);
                 shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
             #endif

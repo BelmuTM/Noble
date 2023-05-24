@@ -11,7 +11,7 @@
 	/* RENDERTARGETS: 1,3 */
 
 	layout (location = 0) out uvec4 data0;
-	layout (location = 1) out vec3  data1;
+	layout (location = 1) out vec2  data1;
 
 	flat in int blockId;
 	in vec2 textureCoords;
@@ -260,15 +260,15 @@
 		vec2 encNormal   = encodeUnitVector(normalize(normal));
 	
 		uvec4 shiftedData0  = uvec4(round(labPbrData0 * vec3(1.0, 8191.0, 4095.0)), blockId) << uvec4(0, 1, 14, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8))                            << uvec4(0, 8, 16, 24);
-		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxVal8))							 << uvec4(0, 8, 16, 24);
-		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16))                           << uvec2(0, 16);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8                           )) << uvec4(0, 8, 16, 24);
+		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxVal8                           )) << uvec4(0, 8, 16, 24);
+		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16                          )) << uvec2(0, 16);
 
 		data0.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
 		data0.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;
 		data0.z = shiftedData2.x  | shiftedData2.y | shiftedData2.z | shiftedData2.w;
 		data0.w = shiftedNormal.x | shiftedNormal.y;
 
-		data1 = tbn[2];
+		data1 = encodeUnitVector(normalize(tbn[2]));
 	}
 #endif

@@ -31,8 +31,8 @@
 
     void main() {
         #if defined WORLD_OVERWORLD || defined WORLD_END
-            vec3 skyRay  = normalize(unprojectSphere(textureCoords));
-                 sky.rgb = evaluateAtmosphericScattering(skyRay, skyIlluminance);
+            vec3 skyRay = normalize(unprojectSphere(textureCoords));
+                 sky    = logLuvEncode(evaluateAtmosphericScattering(skyRay, skyIlluminance));
         #endif
     }
 #endif
