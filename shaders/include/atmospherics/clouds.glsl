@@ -104,7 +104,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
     #endif
 
     bool  isUpperCloudLayer = layer == cloudLayer1;
-    float wetnessFactor     = isUpperCloudLayer ? 0.0 : 0.2 * max0(1.0 - wetness);
+    float wetnessFactor     = isUpperCloudLayer ? 0.0 : 0.1 * max0(1.0 - wetness);
 
     layer.coverage += (0.26 * wetness);
 
