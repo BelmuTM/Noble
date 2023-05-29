@@ -19,8 +19,6 @@
 
 #include "/include/utility/material.glsl"
 
-#include "/include/atmospherics/constants.glsl"
-
 //////////////////////////////////////////////////////////
 /*-------------- MISC UTILITY FUNCTIONS ----------------*/
 //////////////////////////////////////////////////////////

@@ -17,6 +17,7 @@
 layout (location = 0) out vec3 color;
 
 #include "/include/common.glsl"
+#include "/include/atmospherics/constants.glsl"
 
 #if BLOOM == 1
     #include "/include/utility/sampling.glsl"

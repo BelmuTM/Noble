@@ -9,6 +9,7 @@ layout (location = 0) out vec4 scattering;
 layout (location = 1) out vec4 transmittance;
 
 #include "/include/common.glsl"
+#include "/include/atmospherics/constants.glsl"
 
 #if defined WORLD_OVERWORLD || defined WORLD_END
 	#include "/include/atmospherics/atmosphere.glsl"

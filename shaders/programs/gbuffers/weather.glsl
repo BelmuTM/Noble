@@ -10,6 +10,7 @@
 	out vec2 textureCoords;
 	out vec3 skyIlluminance;
 	
+	#include "/include/atmospherics/constants.glsl"
 	#include "/include/atmospherics/atmosphere.glsl"
 
 	void main() {

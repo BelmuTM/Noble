@@ -4,6 +4,7 @@
 /***********************************************/
 
 #include "/include/common.glsl"
+#include "/include/atmospherics/constants.glsl"
 
 #if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0
     #include "/programs/discard.glsl"

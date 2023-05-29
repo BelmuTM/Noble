@@ -9,6 +9,8 @@ layout (location = 0) out vec3 color;
 
 #include "/include/common.glsl"
 
+#include "/include/atmospherics/constants.glsl"
+
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/shadows.glsl"

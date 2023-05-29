@@ -19,6 +19,8 @@
 
         in vec2 textureCoords;
 
+        #include "/include/atmospherics/constants.glsl"
+
         #include "/include/fragment/brdf.glsl"
     
         #include "/include/atmospherics/celestial.glsl"

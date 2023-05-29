@@ -47,7 +47,7 @@ const CloudLayer cloudLayer0 = CloudLayer(
 const CloudLayer cloudLayer1 = CloudLayer(
     CLOUDS_LAYER1_SCATTERING_STEPS,
     CLOUDS_LAYER1_OCTAVES,
-    1e-5 + CLOUDS_LAYER0_SCALE       * 9.9e-6,
+    1e-5 + CLOUDS_LAYER1_SCALE       * 9.9e-6,
     1e-5 + CLOUDS_LAYER1_DETAILSCALE * 9.9e-6,
     CLOUDS_LAYER1_FREQUENCY,
     CLOUDS_LAYER1_DENSITY            * 0.01,
@@ -86,10 +86,9 @@ float cloudsWorley(vec2 coords) {
     ivec2 cell = ivec2(coords / WORLEY__CELL_COUNT);
     float dist = 1.0;
     
-    for (int x = 0; x < 5; x++) { 
-        for (int y = 0; y < 5; y++) {
-        	vec2 cellPoint = getCellPoint(cell + ivec2(x - 2, y - 2));
-                 dist      = min(dist, distance(cellPoint, coords));
+    for (int x = 0; x < 2; x++) { 
+        for (int y = 0; y < 2; y++) {
+            dist = min(dist, distance(getCellPoint(cell + ivec2(x - 2, y - 2)), coords));
         }
     }
     dist /= length(vec2(WORLEY__CELL_COUNT));
@@ -109,7 +108,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
     layer.coverage += (0.26 * wetness);
 
     float weatherMap  = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
-          weatherMap  = isUpperCloudLayer ? weatherMap : ((weatherMap - (2.0 * wetnessFactor)) + cloudsWorley(position.xz * 4e-5) * (1.0 + wetnessFactor) - wetnessFactor);
+          weatherMap  = isUpperCloudLayer ? weatherMap : ((weatherMap - (2.0 * wetnessFactor)) + cloudsWorley(abs(position.xz * 4e-5)) * (1.0 + wetnessFactor) - wetnessFactor);
           weatherMap  = weatherMap * (1.0 - layer.coverage) + layer.coverage;
 
     if(weatherMap < EPS) return 0.0;
