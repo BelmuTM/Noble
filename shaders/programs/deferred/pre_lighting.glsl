@@ -21,7 +21,10 @@
 
 		#if defined WORLD_OVERWORLD || defined WORLD_END
 			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
-			skyIrradiance     = sampleUniformSkyIrradiance();
+
+            #if GI == 0
+			    skyIrradiance = sampleUniformSkyIrradiance();
+            #endif
 		#endif
     }
 
@@ -85,7 +88,13 @@
                 receivesSkylight = material.lightmap.y > EPS;
             #endif
 
-            if(receivesSkylight) skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
+            if(receivesSkylight) {
+                #if GI == 0
+                    skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
+                #else
+                    skyIlluminance = evaluateUniformSkyIrradianceApproximation();
+                #endif
+            }
         #endif
 
         if(ivec2(gl_FragCoord) == ivec2(0))
