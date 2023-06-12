@@ -19,7 +19,7 @@
 
         void main() {
             gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
-            textureCoords = gl_MultiTexCoord0.xy;
+            textureCoords = gl_Vertex.xy;
 
             skyIlluminance    = evaluateUniformSkyIrradianceApproximation();
             directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;

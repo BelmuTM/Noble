@@ -64,7 +64,7 @@
 
     void main() {
         gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
-        textureCoords = gl_MultiTexCoord0.xy;
+        textureCoords = gl_Vertex.xy;
 
         #if EXPOSURE > 0
             #if EXPOSURE == 1

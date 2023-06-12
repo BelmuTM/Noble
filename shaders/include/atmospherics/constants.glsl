@@ -6,7 +6,7 @@
 /* ATMOSPHERIC CONSTANTS */
 
 const float planetRadius          = 6371e3;               // Meters
-const float atmosphereLowerRadius = planetRadius - 1e3;   // Meters
+const float atmosphereLowerRadius = planetRadius - 3e3;   // Meters
 const float atmosphereUpperRadius = planetRadius + 110e3; // Meters
 
 const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters

@@ -17,7 +17,7 @@
 
     void main() {
         gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
-        textureCoords = gl_MultiTexCoord0.xy;
+        textureCoords = gl_Vertex.xy;
 
 		#if defined WORLD_OVERWORLD || defined WORLD_END
 			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;

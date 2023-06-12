@@ -9,7 +9,7 @@
 */
 
 #if GI == 1
-    vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material material) {
+    vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material material, vec3 directIlluminance) {
         vec4 shadowmap = texture(SHADOWMAP_BUFFER, hitPosition.xy);
 
         #if SPECULAR == 1
@@ -28,7 +28,7 @@
             diffuse += subsurfaceScatteringApprox(material, wi, wo, shadowmap.a) * float(material.lightmap.y > EPS);
         #endif
 
-        return (diffuse + specular) * shadowmap.rgb;
+        return (diffuse + specular) * shadowmap.rgb * directIlluminance;
     }
 
     vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
@@ -82,15 +82,15 @@
                 
                 material = getMaterial(rayPosition.xy);
 
-                vec3 brdf  = evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material) * directIlluminance;
+                vec3 brdf  = evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material, directIlluminance);
                 vec3 phase = sampleMicrosurfaceOpaquePhase(rayDirection, material);
 
                 brdf += material.albedo * EMISSIVE_INTENSITY * material.emission;
              
-                if(dot(material.normal, rayDirection) <= 0.0) continue;
                 bool hit = raytrace(depthtex0, screenToView(rayPosition), rayDirection, MAX_GI_STEPS, randF(), rayPosition);
 
                 float NdotL = dot(material.normal, rayDirection);
+                if(NdotL <= 0.0) continue;
 
                 if(j == 0) {
                     outColorDirect   = brdf * NdotL;
@@ -102,10 +102,7 @@
 
                 if(!hit) {
                     #if SKY_CONTRIBUTION == 1
-                        // vec2 coords = projectSphere(normalize(viewToScene(rayDirection)));
-		                // vec3 sky    = texture(ATMOSPHERE_BUFFER, saturate(coords + randF() * pixelSize)).rgb;
-
-                        estimate += throughput * texture(ILLUMINANCE_BUFFER, rayPosition.xy).rgb * getSkylightFalloff(material.lightmap.y);
+                        estimate += throughput * texture(ILLUMINANCE_BUFFER, rayPosition.xy).rgb * RCP_PI * getSkylightFalloff(material.lightmap.y);
                     #endif
                     break;
                 }
