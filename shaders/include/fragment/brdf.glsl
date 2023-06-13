@@ -10,8 +10,8 @@
     [References]:
         Karis, B. (2013). Specular BRDF Reference. http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
         de Carpentier, G., & Ishiyama, K. (2017). DECIMA ENGINE: ADVANCES IN LIGHTING AND AA. https://www.guerrilla-games.com/media/News/Files/DecimaSiggraph2017.pdf
-        Heitz, E. (2017). A Simpler and Exact Sampling Routine for the GGX Distribution of Visible Normals. https://hal.science/hal-01509746/document
         Hammon, A., Jr. (2017). PBR Diffuse Lighting for GGX+Smith Microsurfaces. https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
+        Dupuy, J., & Benyoub, A. (2023). Sampling Visible GGX Normals with Spherical Caps. https://arxiv.org/pdf/2306.05044.pdf
 */
 
 #include "/include/fragment/fresnel.glsl"
@@ -36,25 +36,15 @@ float G2SmithGGX(float NdotL, float NdotV, float alphaSq) {
 }
 
 vec3 sampleGGXVNDF(vec3 viewDirection, vec2 xi, float alpha) {
-	// Stretch view
-	viewDirection = normalize(vec3(alpha * viewDirection.xy, viewDirection.z));
+    viewDirection = normalize(vec3(alpha * viewDirection.xy, viewDirection.z));
 
-	// Orthonormal basis
-	vec3 T1 = (viewDirection.z < 0.9999) ? normalize(cross(viewDirection, vec3(0.0, 0.0, 1.0))) : vec3(1.0, 0.0, 0.0);
-	vec3 T2 = cross(T1, viewDirection);
+    float cosTheta  = (1.0 - xi.y) * (1.0 + viewDirection.z) - viewDirection.z;
+    float sinTheta  = sqrt(saturate(1.0 - cosTheta * cosTheta));
+    vec3  reflected = vec3(sincos(TAU * xi.x).yx * sinTheta, cosTheta);
 
-	// Sample point with polar coordinates (r, phi)
-    float a   = 1.0 / (1.0 + viewDirection.z);
-    float r   = sqrt(xi.x);
-    float phi = (xi.y < a) ? xi.y / a * PI : PI + (xi.y - a) / (1.0 - a) * PI;
-    float P1  = r * cos(phi);
-    float P2  = r * sin(phi) * ((xi.y < a) ? 1.0 : viewDirection.z);
+    vec3 halfway = reflected + viewDirection;
 
-	// Compute normal
-	vec3 N = P1 * T1 + P2 * T2 + sqrt(max0(1.0 - P1 * P1 - P2 * P2)) * viewDirection;
-
-	// Unstretch
-	return normalize(vec3(alpha * N.xy, max0(N.z)));	
+    return normalize(vec3(alpha * halfway.xy, halfway.z));
 }
 
 // This function assumes the light source is a sphere

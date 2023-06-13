@@ -102,7 +102,7 @@
     	}
 
 		float parallaxShadowing(vec2 parallaxCoords, float height, mat2 texDeriv) {
-			vec3 tangentDir       = shadowLightVector * tbn;
+			vec3  tangentDir      = shadowLightVector * tbn;
         	float currLayerHeight = height;
 
         	vec2 scaledVector = (tangentDir.xy / tangentDir.z) * POM_DEPTH * texSize;
