@@ -19,6 +19,8 @@
     layout (location = 1) out vec4 temporalData;
 #endif
 
+in vec2 textureCoords;
+
 #include "/include/atmospherics/constants.glsl"
 
 #include "/include/fragment/raytracer.glsl"

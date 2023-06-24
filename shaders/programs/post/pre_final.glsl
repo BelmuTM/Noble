@@ -16,6 +16,8 @@
 
 layout (location = 0) out vec3 color;
 
+in vec2 textureCoords;
+
 #include "/include/common.glsl"
 #include "/include/atmospherics/constants.glsl"
 
@@ -71,7 +73,7 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 3.0);
+        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 5.0);
     #endif
 
     //color = texture(SHADOWMAP_BUFFER, textureCoords).rgb;

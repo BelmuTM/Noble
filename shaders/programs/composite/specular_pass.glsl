@@ -7,6 +7,8 @@
 
 layout (location = 0) out vec3 color;
 
+in vec2 textureCoords;
+
 #include "/include/common.glsl"
 
 #include "/include/atmospherics/constants.glsl"

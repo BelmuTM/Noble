@@ -9,6 +9,8 @@
 /* RENDERTARGETS: 10 */
 
 layout (location = 0) out vec4 ao;
+
+in vec2 textureCoords;
     
 #if AO == 1
     #if AO_TYPE == 1

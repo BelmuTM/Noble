@@ -8,6 +8,7 @@
 #if defined STAGE_VERTEX
 
     flat out float avgLuminance;
+    out vec2 textureCoords;
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         flat out int medianBin;
@@ -98,6 +99,7 @@
     layout (location = 1) out vec4 history;
 
     flat in float avgLuminance;
+    in vec2 textureCoords;
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         flat in int medianBin;

@@ -7,6 +7,8 @@
 
 layout (location = 0) out vec4 color;
 
+in vec2 textureCoords;
+
 #include "/include/common.glsl"
 
 #if DOF == 1

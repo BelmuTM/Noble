@@ -19,6 +19,8 @@
         layout (location = 0) out vec4 color;
         layout (location = 1) out vec4 temporalData;
 
+        in vec2 textureCoords;
+
         #if GI_FILTER == 1
             #include "/include/fragment/atrous.glsl"
         #endif

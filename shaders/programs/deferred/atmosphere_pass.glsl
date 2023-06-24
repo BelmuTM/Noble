@@ -11,6 +11,7 @@
 
 #if defined STAGE_VERTEX
 
+    out vec2 textureCoords;
     out vec3 skyIlluminance;
 
     void main() {
@@ -28,6 +29,7 @@
 
     layout (location = 0) out vec4 sky;
 
+    in vec2 textureCoords;
     in vec3 skyIlluminance;
 
     void main() {

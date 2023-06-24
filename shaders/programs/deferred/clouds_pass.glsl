@@ -14,6 +14,7 @@
 
         #include "/include/atmospherics/atmosphere.glsl"
 
+        out vec2 textureCoords;
         out vec3 skyIlluminance;
         out vec3 directIlluminance;
 
@@ -31,6 +32,7 @@
 
         layout (location = 0) out vec4 clouds;
 
+        in vec2 textureCoords;
         in vec3 skyIlluminance;
         in vec3 directIlluminance;
 

@@ -12,6 +12,7 @@
 
 #if defined STAGE_VERTEX
 
+    out vec2 textureCoords;
     out vec3 directIlluminance;
     out vec3[9] skyIrradiance;
 
@@ -36,6 +37,7 @@
     layout (location = 1) out vec4 illuminance;
     layout (location = 2) out vec4 depth;
 
+    in vec2 textureCoords;
     in vec3 directIlluminance;
     in vec3[9] skyIrradiance;
 

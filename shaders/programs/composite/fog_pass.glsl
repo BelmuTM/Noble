@@ -8,6 +8,8 @@
 layout (location = 0) out vec4 scattering;
 layout (location = 1) out vec4 transmittance;
 
+in vec2 textureCoords;
+
 #include "/include/common.glsl"
 #include "/include/atmospherics/constants.glsl"
 
