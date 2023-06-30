@@ -44,17 +44,15 @@ vec3 physicalStar(vec3 sceneDir) {
     return dot(sceneDir, starVector) < cos(starAngularRadius) ? vec3(0.0) : starRadiance * RCP_PI;
 }
 
-vec3 renderAtmosphere(vec3 viewPosition) {
+vec3 renderAtmosphere(vec2 coords, vec3 viewPosition) {
 	#if defined WORLD_OVERWORLD || defined WORLD_END
 		vec3 sceneDir = normalize(viewToScene(viewPosition));
-    	vec2 coords   = projectSphere(sceneDir);
-
-		vec3 sky = logLuvDecode(texture(ATMOSPHERE_BUFFER, saturate(coords + randF() * pixelSize)));
+		vec3 sky      = logLuvDecode(texture(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDir) + randF() * pixelSize)));
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD
 			#if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-				clouds = texture(CLOUDS_BUFFER, saturate(textureCoords + randF() * pixelSize));
+				clouds = texture(CLOUDS_BUFFER, saturate(coords + randF() * pixelSize));
 			#endif
 
 			sky += clamp16(physicalSun(sceneDir));

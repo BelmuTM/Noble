@@ -9,15 +9,18 @@
     #include "/programs/discard.glsl"
 #else
     #if defined STAGE_VERTEX
-        #include "/programs/vertex_simple.glsl"
+        #include "/programs/vertex_taau.glsl"
 
     #elif defined STAGE_FRAGMENT
+
+        #define RENDER_SCALE 0.5
 
         /* RENDERTARGETS: 2 */
     
         layout (location = 0) out vec4 reflections;
 
         in vec2 textureCoords;
+        in vec2 vertexCoords;
 
         #include "/include/atmospherics/constants.glsl"
 
@@ -29,10 +32,13 @@
         #include "/include/fragment/reflections.glsl"
 
         void main() {
-            if(isSky(textureCoords)) discard;
+            vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+	        if(saturate(fragCoords) != fragCoords) discard;
 
-            vec3 viewPosition = getViewPosition0(textureCoords);
-            Material material = getMaterial(textureCoords);
+            //if(isSky(vertexCoords)) discard;
+
+            vec3 viewPosition = screenToView(vec3(vertexCoords, texture(depthtex0, vertexCoords).r));
+            Material material = getMaterial(vertexCoords);
                     
             #if REFLECTIONS_TYPE == 0
                 reflections.rgb = computeSmoothReflections(viewPosition, material);
@@ -40,19 +46,14 @@
                 reflections.rgb = computeRoughReflections(viewPosition, material);
             #endif
 
-            if(isHand(textureCoords)) {
-                reflections = logLuvEncode(reflections.rgb);
-                return;
-            }
+            vec3 currPosition = vec3(textureCoords, texture(depthtex0, vertexCoords).r);
+            vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
+            vec3 prevColor    = logLuvDecode(texture(REFLECTIONS_BUFFER, prevCoords));
 
-            vec3 currPosition = vec3(textureCoords, material.depth0);
-            vec3 prevPosition = currPosition - getVelocity(currPosition);
-            vec3 prevColor    = logLuvDecode(texture(REFLECTIONS_BUFFER, prevPosition.xy));
+            //if(any(isnan(prevColor))) prevColor = reflections.rgb;
 
-            if(any(isnan(prevColor))) prevColor = reflections.rgb;
-
-            float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition.xy).w, 1.0);
-            reflections  = logLuvEncode(max0(mix(prevColor, reflections.rgb, weight)));
+            float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevCoords).w, 1.0);
+            //reflections  = logLuvEncode(max0(mix(prevColor, reflections.rgb, weight)));
         }
     #endif
 #endif

@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#define RENDER_SCALE 0.5
+
 #include "/include/common.glsl"
 #include "/include/atmospherics/constants.glsl"
 
@@ -49,6 +51,8 @@
 			skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 		#endif
 
+		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
+
 		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);
 		#endif
@@ -77,6 +81,9 @@
 	#endif
 
 	void main() {
+		vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+		if(saturate(fragCoords) != fragCoords) discard;
+
 		#if defined PROGRAM_HAND && DISCARD_HAND == 1
 			discard;
 		#endif

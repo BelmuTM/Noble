@@ -10,7 +10,7 @@
 #else
 
     #if defined STAGE_VERTEX
-        #include "/programs/vertex_simple.glsl"
+        #include "/programs/vertex_taau.glsl"
 
     #elif defined STAGE_FRAGMENT
 

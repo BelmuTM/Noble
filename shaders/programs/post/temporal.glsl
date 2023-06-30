@@ -115,7 +115,7 @@
         color = texture(MAIN_BUFFER, textureCoords);
 
         #if TAA == 1
-            color.rgb = temporalAntiAliasing(MAIN_BUFFER, HISTORY_BUFFER);
+            color.rgb = temporalAntiAliasing(textureCoords, MAIN_BUFFER, HISTORY_BUFFER);
         #endif
 
         history.rgb = color.rgb;

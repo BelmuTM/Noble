@@ -48,11 +48,11 @@ vec3 getClosestFragment(vec3 position) {
     return closestFragment;
 }
 
-vec3 temporalAntiAliasing(sampler2D currTex, sampler2D prevTex) {
-    vec3 closestFragment = getClosestFragment(vec3(textureCoords, texture(depthtex1, textureCoords).r));
-    vec2 prevCoords      = textureCoords - getVelocity(closestFragment).xy;
+vec3 temporalAntiAliasing(vec2 coords, sampler2D currTex, sampler2D prevTex) {
+    vec3 closestFragment = getClosestFragment(vec3(coords, texture(depthtex1, coords).r));
+    vec2 prevCoords      = coords - getVelocity(closestFragment).xy;
 
-    vec3 currColor = SRGB_2_YCoCg_MAT * textureCatmullRom(currTex, textureCoords).rgb;
+    vec3 currColor = SRGB_2_YCoCg_MAT * textureCatmullRom(currTex, coords).rgb;
     vec3 prevColor = SRGB_2_YCoCg_MAT * textureCatmullRom(prevTex, prevCoords).rgb;
          prevColor = neighbourhoodClipping(currTex, prevColor);
 

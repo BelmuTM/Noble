@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#define RENDER_SCALE 0.5
+
 #include "/include/common.glsl"
 
 #if GI == 1
@@ -20,6 +22,7 @@
 #endif
 
 in vec2 textureCoords;
+in vec2 vertexCoords;
 
 #include "/include/atmospherics/constants.glsl"
 
@@ -33,16 +36,20 @@ in vec2 textureCoords;
 #endif
 
 void main() {
-    vec3 viewPosition0 = getViewPosition0(textureCoords);
+    vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+	if(saturate(fragCoords) != fragCoords) discard;
+
+    float depth         = texture(depthtex0, vertexCoords).r;
+    vec3  viewPosition0 = screenToView(vec3(textureCoords, depth));
 
     #if GI == 1
-        vec2 tempCoords = textureCoords * rcp(GI_SCALE);
+        vec2 tempCoords = vertexCoords * rcp(GI_SCALE);
     #else
-        vec2 tempCoords = textureCoords;
+        vec2 tempCoords = vertexCoords;
     #endif
 
-    if(isSky(textureCoords)) {
-        vec3 sky = renderAtmosphere(viewPosition0);
+    if(depth == 1.0) {
+        vec3 sky = renderAtmosphere(vertexCoords, viewPosition0);
         #if GI == 1
             direct = sky;
         #else
@@ -58,23 +65,23 @@ void main() {
     #endif
 
     #if AO_FILTER == 1 && GI == 0 || GI == 1
-        vec3 currPosition = vec3(textureCoords, material.depth0);
-        vec3 prevPosition = currPosition - getVelocity(currPosition);
-        vec4 history      = texture(DEFERRED_BUFFER, prevPosition.xy);
+        vec3  currPosition = vec3(textureCoords, depth);
+        vec2  prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
+        vec4  history      = texture(DEFERRED_BUFFER, prevCoords);
 
         #if RENDER_MODE == 0
-            float prevDepth = exp2(texture(MOMENTS_BUFFER, prevPosition.xy).a);
-            float weight    = pow(exp(-abs(linearizeDepthFast(material.depth0) - linearizeDepthFast(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
+            float prevDepth = exp2(texture(MOMENTS_BUFFER, prevCoords).a);
+            float weight    = pow(exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
-            vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
+            vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
                  weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
 
-            temporalData.a = log2(material.depth0);
+            temporalData.a = log2(depth);
         #else
             float weight = float(hideGUI);
         #endif
 
-        color.a = (history.a * weight * float(saturate(prevPosition.xy) == prevPosition.xy) * float(!isHand(textureCoords))) + 1.0;
+        color.a = (history.a * weight * float(saturate(prevCoords) == prevCoords) * float(!isHand(textureCoords))) + 1.0;
     #endif
 
     #if GI == 0
@@ -91,16 +98,16 @@ void main() {
                     cloudsShadows = getCloudsShadows(viewToScene(viewPosition0));
                 #endif
 
-                skyIlluminance = texture(ILLUMINANCE_BUFFER, textureCoords).rgb;
+                skyIlluminance = texture(ILLUMINANCE_BUFFER, vertexCoords).rgb;
 
                 #if SHADOWS == 1
-                    shadowmap = texture(SHADOWMAP_BUFFER, textureCoords);
+                    shadowmap = texture(SHADOWMAP_BUFFER, vertexCoords);
                 #endif
             #endif
 
             float ao = 1.0;
             #if AO == 1
-                ao = texture(INDIRECT_BUFFER, textureCoords).a;
+                ao = texture(INDIRECT_BUFFER, vertexCoords).a;
             #endif
 
             color.rgb = computeDiffuse(viewPosition0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
@@ -116,8 +123,8 @@ void main() {
 
                 color.rgb = mix(history.rgb, color.rgb, frameWeight);
 
-                vec3 prevDirect   = texture(DIRECT_BUFFER,   prevPosition.xy).rgb;
-                vec3 prevIndirect = texture(INDIRECT_BUFFER, prevPosition.xy).rgb;
+                vec3 prevDirect   = texture(DIRECT_BUFFER,   prevCoords).rgb;
+                vec3 prevIndirect = texture(INDIRECT_BUFFER, prevCoords).rgb;
 
                 direct   = max0(mix(prevDirect  , direct  , frameWeight));
                 indirect = max0(mix(prevIndirect, indirect, frameWeight));
@@ -126,7 +133,7 @@ void main() {
                     float luminance = luminance(color.rgb);
                     temporalData.rg = vec2(luminance, luminance * luminance);
 
-                    vec2 prevMoments     = texture(MOMENTS_BUFFER, prevPosition.xy).rg;
+                    vec2 prevMoments     = texture(MOMENTS_BUFFER, prevCoords).rg;
                          temporalData.rg = mix(prevMoments, temporalData.rg, frameWeight);
                          temporalData.b  = sqrt(abs(temporalData.g - temporalData.r * temporalData.r));
                 #endif

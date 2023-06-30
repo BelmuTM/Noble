@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#define RENDER_SCALE 0.5
+
 #include "/include/common.glsl"
 #include "/include/atmospherics/constants.glsl"
 
@@ -19,8 +21,9 @@
         out vec3 directIlluminance;
 
         void main() {
-            gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
-            textureCoords = gl_Vertex.xy;
+            gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
+            gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0);
+            textureCoords  = gl_Vertex.xy;
 
             skyIlluminance    = evaluateUniformSkyIrradianceApproximation();
             directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
@@ -41,6 +44,9 @@
         #include "/include/atmospherics/clouds.glsl"
 
         void main() {
+            vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+	        if(saturate(fragCoords) != fragCoords) discard;
+
             clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
             vec3 viewPosition       = getViewPosition1(textureCoords);
@@ -66,7 +72,7 @@
                 clouds.a        = layer0.b     * layer1.b;
 
                 /* Reprojection */
-                vec2 prevPosition = reprojectClouds(viewPosition, distanceToClouds).xy;
+                vec2 prevPosition = reprojectClouds(viewPosition, distanceToClouds).xy * RENDER_SCALE;
                 vec4 history      = texture(CLOUDS_BUFFER, prevPosition);
 
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);

@@ -8,6 +8,7 @@
 layout (location = 0) out vec3 color;
 
 in vec2 textureCoords;
+in vec2 vertexCoords;
 
 #include "/include/common.glsl"
 
@@ -73,7 +74,7 @@ void main() {
     vec3 sunSpecular = vec3(0.0), envSpecular = vec3(0.0);
 
     #if GI == 0
-        color = texture(DEFERRED_BUFFER, textureCoords).rgb;
+        color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
 
         if(!isSky(textureCoords)) {
             Material material = getMaterial(textureCoords);
@@ -118,7 +119,7 @@ void main() {
             #endif
 
             #if REFLECTIONS == 1
-                envSpecular = logLuvDecode(texture(REFLECTIONS_BUFFER, textureCoords));
+                envSpecular = logLuvDecode(texture(REFLECTIONS_BUFFER, vertexCoords));
             #endif
         }
     #endif
@@ -146,4 +147,6 @@ void main() {
     }
     
     color += envSpecular;
+
+    color = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
 }

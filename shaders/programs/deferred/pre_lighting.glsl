@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#define RENDER_SCALE 0.5
+
 #include "/include/common.glsl"
 #include "/include/atmospherics/constants.glsl"
 
@@ -13,12 +15,15 @@
 #if defined STAGE_VERTEX
 
     out vec2 textureCoords;
+    out vec2 vertexCoords;
     out vec3 directIlluminance;
     out vec3[9] skyIrradiance;
 
     void main() {
-        gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
-        textureCoords = gl_Vertex.xy;
+        gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
+        gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0);
+        textureCoords  = gl_Vertex.xy;
+        vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
 		#if defined WORLD_OVERWORLD || defined WORLD_END
 			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
@@ -31,13 +36,14 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,5,12 */
+    /* RENDERTARGETS: 3,5 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec4 illuminance;
-    layout (location = 2) out vec4 depth;
+    //layout (location = 2) out vec4 depth;
 
     in vec2 textureCoords;
+    in vec2 vertexCoords;
     in vec3 directIlluminance;
     in vec3[9] skyIrradiance;
 
@@ -49,6 +55,7 @@
         #include "/include/atmospherics/clouds.glsl"
     #endif
 
+    /*
     float computeLowerHiZDepthLevels() {
         float tiles = 0.0;
 
@@ -59,10 +66,13 @@
         }
         return tiles;
     }
+    */
 
     void main() {
-        vec3 viewPosition = getViewPosition0(textureCoords);
-        Material material = getMaterial(textureCoords);
+        vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+	    if(saturate(fragCoords) != fragCoords) discard;
+
+        Material material = getMaterial(vertexCoords);
 
         //depth.a = computeLowerHiZDepthLevels();
 
@@ -73,7 +83,7 @@
         vec4 ao = vec4(0.0);
 
         #if GI == 0 && AO == 1
-            ao = texture(INDIRECT_BUFFER, textureCoords);
+            ao = texture(INDIRECT_BUFFER, vertexCoords);
             if(any(greaterThan(ao, vec4(0.0)))) ao = saturate(ao);
         #endif
 
@@ -108,12 +118,13 @@
         /*----------------- SHADOW MAPPING ---------------------*/
         //////////////////////////////////////////////////////////
 
-        if(isSky(textureCoords)) return;
+        if(isSky(vertexCoords)) return;
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS == 1
-                vec3 geoNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, textureCoords).rg);
-                shadowmap.rgb  = calculateShadowMapping(viewToScene(viewPosition), geoNormal, shadowmap.a);
+                vec3 geoNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
+                vec3 scenePos  = viewToScene(screenToView(vec3(textureCoords, texture(depthtex0, vertexCoords).r)));
+                shadowmap.rgb  = calculateShadowMapping(scenePos, geoNormal, shadowmap.a);
                 shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
             #endif
 

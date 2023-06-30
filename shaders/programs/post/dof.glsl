@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#define RENDER_SCALE 0.5
+
 /* RENDERTARGETS: 0 */
 
 layout (location = 0) out vec4 color;
@@ -17,18 +19,18 @@ in vec2 textureCoords;
         return fragDepth < MC_HAND_DEPTH ? 0.0 : abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
     }
 
-    void depthOfField(inout vec3 color, sampler2D tex, float coc) {
+    void depthOfField(inout vec3 color, sampler2D tex, vec2 coords, float coc) {
         color = vec3(0.0);
 
         float weight = pow2(DOF_SAMPLES);
         float totalWeight = 0.0;
 
-        float distFromCenter = distance(textureCoords, vec2(0.5));
+        float distFromCenter = distance(coords, vec2(0.5));
         vec2  caOffset       = vec2(distFromCenter) * coc / weight;
 
         for(float angle = 0.0; angle < TAU; angle += TAU / DOF_ANGLE_SAMPLES) {
             for(int i = 0; i < DOF_SAMPLES; i++) {
-                vec2 sampleCoords = textureCoords + vec2(cos(angle), sin(angle)) * i * coc * pixelSize;
+                vec2 sampleCoords = coords + vec2(cos(angle), sin(angle)) * i * coc * pixelSize;
                 if(saturate(sampleCoords) != sampleCoords) continue;
 
                 vec3 sampleColor  = vec3(
@@ -46,7 +48,9 @@ in vec2 textureCoords;
 #endif
 
 void main() {
-    color = texture(MAIN_BUFFER, textureCoords);
+    vec2 coords = textureCoords * RENDER_SCALE;
+
+    color = texture(MAIN_BUFFER, coords);
     
     #if DOF == 1
         float depth0 = linearizeDepthFast(texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r);
