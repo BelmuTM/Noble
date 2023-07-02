@@ -1,6 +1,6 @@
 #version 400 compatibility
 
 #define STAGE_FRAGMENT
-#define BLOOM_PASS_INDEX 1
+#define BLOOM_PASS_INDEX 0
 
 #include "/programs/post/bloom_pass.glsl"

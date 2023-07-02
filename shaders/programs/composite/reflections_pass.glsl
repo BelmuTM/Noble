@@ -3,6 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
 
 #if REFLECTIONS == 0 || GI == 1
@@ -12,8 +13,6 @@
         #include "/programs/vertex_taau.glsl"
 
     #elif defined STAGE_FRAGMENT
-
-        #define RENDER_SCALE 0.5
 
         /* RENDERTARGETS: 2 */
     
@@ -35,10 +34,11 @@
             vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
 	        if(saturate(fragCoords) != fragCoords) discard;
 
-            //if(isSky(vertexCoords)) discard;
+            if(isSky(vertexCoords)) discard;
 
-            vec3 viewPosition = screenToView(vec3(vertexCoords, texture(depthtex0, vertexCoords).r));
-            Material material = getMaterial(vertexCoords);
+            Material material  = getMaterial(vertexCoords);
+            float depth        = texture(depthtex0, vertexCoords).r;
+            vec3  viewPosition = screenToView(vec3(textureCoords, depth));
                     
             #if REFLECTIONS_TYPE == 0
                 reflections.rgb = computeSmoothReflections(viewPosition, material);
@@ -50,10 +50,10 @@
             vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
             vec3 prevColor    = logLuvDecode(texture(REFLECTIONS_BUFFER, prevCoords));
 
-            //if(any(isnan(prevColor))) prevColor = reflections.rgb;
+            if(any(isnan(prevColor))) prevColor = reflections.rgb;
 
             float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevCoords).w, 1.0);
-            //reflections  = logLuvEncode(max0(mix(prevColor, reflections.rgb, weight)));
+            reflections  = logLuvEncode(max0(mix(prevColor, reflections.rgb, weight)));
         }
     #endif
 #endif

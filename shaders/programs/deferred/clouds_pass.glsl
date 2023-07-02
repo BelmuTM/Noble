@@ -3,12 +3,12 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define RENDER_SCALE 0.5
-
+#include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
+
 #include "/include/atmospherics/constants.glsl"
 
-#if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0
+#if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0 && defined WORLD_OVERWORLD
     #include "/programs/discard.glsl"
 #else
 
@@ -17,13 +17,15 @@
         #include "/include/atmospherics/atmosphere.glsl"
 
         out vec2 textureCoords;
+        out vec2 vertexCoords;
         out vec3 skyIlluminance;
         out vec3 directIlluminance;
 
         void main() {
             gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
-            gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0);
+            gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w; + (RENDER_SCALE - 1.0);
             textureCoords  = gl_Vertex.xy;
+            vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
             skyIlluminance    = evaluateUniformSkyIrradianceApproximation();
             directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
@@ -36,6 +38,7 @@
         layout (location = 0) out vec4 clouds;
 
         in vec2 textureCoords;
+        in vec2 vertexCoords;
         in vec3 skyIlluminance;
         in vec3 directIlluminance;
 
@@ -49,7 +52,7 @@
 
             clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
-            vec3 viewPosition       = getViewPosition1(textureCoords);
+            vec3 viewPosition       = screenToView(vec3(textureCoords, texture(depthtex1, vertexCoords).r));
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
             vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e6);
@@ -80,7 +83,7 @@
 
                 float frameWeight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition).w, 1.0);
 
-                float weight = centerWeight * frameWeight * float(saturate(prevPosition) == prevPosition);
+                float weight = centerWeight * frameWeight * float(clamp(prevPosition, 0.0, RENDER_SCALE - 1e-3) == prevPosition);
 
                 clouds = clamp16(mix(clouds, history, saturate(weight)));
             }

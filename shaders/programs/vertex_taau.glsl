@@ -3,8 +3,6 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define RENDER_SCALE 0.5
-
 out vec2 textureCoords;
 out vec2 vertexCoords;
 

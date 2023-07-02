@@ -9,8 +9,11 @@ layout (location = 0) out vec4 scattering;
 layout (location = 1) out vec4 transmittance;
 
 in vec2 textureCoords;
+in vec2 vertexCoords;
 
+#include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
+
 #include "/include/atmospherics/constants.glsl"
 
 #if defined WORLD_OVERWORLD || defined WORLD_END
@@ -21,10 +24,16 @@ in vec2 textureCoords;
 #include "/include/atmospherics/fog.glsl"
 
 void main() {
-    Material material = getMaterial(textureCoords);
+    vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+	if(saturate(fragCoords) != fragCoords) discard;
 
-    vec3 viewPosition0  = getViewPosition0(textureCoords);
-    vec3 viewPosition1  = getViewPosition1(textureCoords);
+    Material material = getMaterial(vertexCoords);
+
+    float depth0        = texture(depthtex0, vertexCoords).r;
+    vec3  viewPosition0 = screenToView(vec3(textureCoords, depth0));
+
+    float depth1        = texture(depthtex1, vertexCoords).r;
+    vec3  viewPosition1 = screenToView(vec3(textureCoords, depth1));
     vec3 scenePosition0 = viewToScene(viewPosition0);
 
     vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
@@ -43,7 +52,7 @@ void main() {
         float VdotL = 0.0;
     #endif
 
-    bool  sky      = isSky(textureCoords);
+    bool  sky      = isSky(vertexCoords);
     float skylight = 0.0;
 
     scattering.rgb    = vec3(0.0);
@@ -74,7 +83,7 @@ void main() {
                     #if WATER_FOG == 0
                         computeWaterFogApproximation(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminance, skyIlluminance, skylight);
                     #else
-                        bool skyTranslucents = texture(depthtex1, textureCoords).r == 1.0;
+                        bool skyTranslucents = texture(depthtex1, vertexCoords).r == 1.0;
                         computeVolumetricWaterFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminance, skyIlluminance, skylight, skyTranslucents);
                     #endif
                 #endif

@@ -3,9 +3,9 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define RENDER_SCALE 0.5
-
+#include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
+
 #include "/include/atmospherics/constants.glsl"
 
 #if defined WORLD_OVERWORLD || defined WORLD_END
@@ -21,7 +21,7 @@
 
     void main() {
         gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
-        gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0);
+        gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
         textureCoords  = gl_Vertex.xy;
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
@@ -80,7 +80,7 @@
         /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
         //////////////////////////////////////////////////////////
 
-        vec4 ao = vec4(0.0);
+        vec4 ao = vec4(0.0, 0.0, 0.0, 1.0);
 
         #if GI == 0 && AO == 1
             ao = texture(INDIRECT_BUFFER, vertexCoords);

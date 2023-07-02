@@ -3,6 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
 
 #if GI == 0
@@ -20,16 +21,17 @@
         layout (location = 1) out vec4 temporalData;
 
         in vec2 textureCoords;
+        in vec2 vertexCoords;
 
         #if GI_FILTER == 1
             #include "/include/fragment/atrous.glsl"
         #endif
 
         void main() {
-            color = texture(DEFERRED_BUFFER, textureCoords);
+            color = texture(DEFERRED_BUFFER, vertexCoords);
 
             #if GI_FILTER == 1
-                aTrousFilter(color.rgb, temporalData, DEFERRED_BUFFER, ATROUS_PASS_INDEX);
+                aTrousFilter(color.rgb, temporalData, DEFERRED_BUFFER, vertexCoords, ATROUS_PASS_INDEX);
             #endif
         }
     #endif

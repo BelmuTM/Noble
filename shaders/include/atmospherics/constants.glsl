@@ -18,9 +18,9 @@ const vec3 rayleighScatteringCoefficients = vec3(6.42905682e-6, 1.08663713e-5, 2
 const vec3 mieScatteringCoefficients      = vec3(0.00000925288);
 const vec3 ozoneExtinctionCoefficients    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14;
 
-const vec3 rayleighScatteringCoefficientsEnd = vec3(3e-7, 1e-6, 3e-6);
-const vec3 mieScatteringCoefficientsEnd      = vec3(0.00013);
-const vec3 gasExtinctionCoefficientsEnd      = vec3(4e-21, 3e-21, 1e-22) * 3e16;
+const vec3 rayleighScatteringCoefficientsEnd = vec3(7e-2, 4e-6, 1e-10);
+const vec3 mieScatteringCoefficientsEnd      = vec3(1.3e-3);
+const vec3 gasExtinctionCoefficientsEnd      = vec3(8e-5, 3e-8, 1e-15) * 3.5e3;
 
 #if TONEMAP == ACES
     const mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO,  mieScatteringCoefficients * SRGB_2_AP1_ALBEDO);

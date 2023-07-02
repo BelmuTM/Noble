@@ -125,7 +125,7 @@ const int EMISSIVE_INTENSITY = 200;
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT      6
 
-#define TEMPORAL_DEPTH_WEIGHT_SIGMA 2.0
+#define TEMPORAL_DEPTH_WEIGHT_SIGMA 1.0
 
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/

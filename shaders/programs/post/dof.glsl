@@ -3,13 +3,14 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define RENDER_SCALE 0.5
+
 
 /* RENDERTARGETS: 0 */
 
-layout (location = 0) out vec4 color;
+layout (location = 0) out vec3 color;
 
 in vec2 textureCoords;
+in vec2 vertexCoords;
 
 #include "/include/common.glsl"
 
@@ -48,12 +49,10 @@ in vec2 textureCoords;
 #endif
 
 void main() {
-    vec2 coords = textureCoords * RENDER_SCALE;
-
-    color = texture(MAIN_BUFFER, coords);
+    color = texture(MAIN_BUFFER, vertexCoords).rgb;
     
     #if DOF == 1
-        float depth0 = linearizeDepthFast(texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r);
+        float depth0 = linearizeDepthFast(texelFetch(depthtex0, ivec2(gl_FragCoord.xy * RENDER_SCALE), 0).r);
 
         #if DOF_DEPTH == 0
             float targetDepth = linearizeDepthFast(centerDepthSmooth);
@@ -61,10 +60,6 @@ void main() {
             float targetDepth = float(DOF_DEPTH);
         #endif
 
-        depthOfField(color.rgb, MAIN_BUFFER, getCoC(depth0, targetDepth));
-    #endif
-
-    #if EXPOSURE > 0
-        color.a = sqrt(luminance(color.rgb));
+        depthOfField(color, MAIN_BUFFER, vertexCoords, getCoC(depth0, targetDepth));
     #endif
 }

@@ -3,19 +3,18 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define EDGE_ATTENUATION_FACTOR 0.15
+#define EDGE_ATTENUATION_FACTOR (0.15 * RENDER_SCALE)
 
 // Kneemund's Edge Attenuation
 float kneemundAttenuation(vec2 pos) {
     return 1.0 - quintic(EDGE_ATTENUATION_FACTOR, 0.0, minOf(pos * (1.0 - pos)));
 }
 
-vec3 getHitColor(in vec3 hitPosition) {
+vec3 getHitColor(vec2 hitCoords) {
     #if SSR_REPROJECTION == 1
-        hitPosition -= getVelocity(hitPosition);
-        return texture(HISTORY_BUFFER, hitPosition.xy).rgb;
+        return texture(HISTORY_BUFFER, hitCoords).rgb;
     #else
-        return texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
+        return texture(DEFERRED_BUFFER, hitCoords).rgb;
     #endif
 }
 
@@ -28,7 +27,7 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
         #if defined WORLD_OVERWORLD
 		    #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
                 if(saturate(hitCoords) == hitCoords) {
-			        clouds = texture(CLOUDS_BUFFER, hitCoords);
+			        clouds = texture(CLOUDS_BUFFER, hitCoords * RENDER_SCALE);
                 }
 		    #endif
         #endif
@@ -55,9 +54,9 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
               hit *= kneemundAttenuation(hitPosition.xy);
 
         #if defined SKY_FALLBACK
-            vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition), hit);
+            vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition.xy), hit);
         #else
-            vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition), hit);
+            vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition.xy), hit);
         #endif
 
         float NdotL   = abs(dot(material.normal, rayDirection));
@@ -98,9 +97,9 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
                       hit *= kneemundAttenuation(hitPosition.xy);
 
                 #if defined SKY_FALLBACK
-                    vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition), hit);
+                    vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition.xy), hit);
                 #else
-                    vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition), hit);
+                    vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition.xy), hit);
                 #endif
 
                 float MdotV   = dot(microfacet, -viewDirection);

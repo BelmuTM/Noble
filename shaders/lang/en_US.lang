@@ -16,6 +16,10 @@ profile.RENDER  = §a§lRENDER
 profile.DEFAULT = §a§lDEFAULT
 profile.comment  = §lDEFAULT§r profile refers to Noble with default settings. §r§lRENDER§r profile transforms Noble into a renderer by boosting certain settings. §c§lDISCLAIMER: RENDER MODE MIGHT HEAVILY AFFECT §c§lTHE PERFORMANCE.
 
+option.RENDER_SCALE = Render Scale
+option.RENDER_SCALE.comment = Adjusts the overall rendering scale of Noble. §cHigher value gives better results, but reduces §cperformance.
+suffix.RENDER_SCALE = x
+
 ##################### SCREENS #####################
 
 screen.LIGHTING          = Lighting

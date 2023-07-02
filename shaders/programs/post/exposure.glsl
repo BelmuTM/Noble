@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+
+
 #include "/include/common.glsl"
 
 #if defined STAGE_VERTEX
@@ -106,17 +108,8 @@
         flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
     #endif
 
-    #if TAA == 1
-        #include "/include/utility/sampling.glsl"
-        #include "/include/post/taa.glsl"
-    #endif
-
     void main() {
-        color = texture(MAIN_BUFFER, textureCoords);
-
-        #if TAA == 1
-            color.rgb = temporalAntiAliasing(textureCoords, MAIN_BUFFER, HISTORY_BUFFER);
-        #endif
+        color.rgb = texture(MAIN_BUFFER, textureCoords).rgb;
 
         history.rgb = color.rgb;
 

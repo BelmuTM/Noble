@@ -18,7 +18,9 @@ layout (location = 0) out vec3 color;
 
 in vec2 textureCoords;
 
+#include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
+
 #include "/include/atmospherics/constants.glsl"
 
 #if BLOOM == 1
@@ -110,7 +112,7 @@ void main() {
         color = linearToSrgb(color);
     #endif
 
-    vec4 basic     = texture(RASTER_BUFFER, textureCoords);
+    vec4 basic     = texture(RASTER_BUFFER, textureCoords * RENDER_SCALE);
          color.rgb = mix(color.rgb, basic.rgb, basic.a);
 
     color = saturate(color);

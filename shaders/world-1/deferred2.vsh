@@ -1,4 +1,6 @@
 #version 400 compatibility
 
 #define STAGE_VERTEX
-#include "/programs/discard.glsl"
+#define WORLD_NETHER
+
+#include "/programs/deferred/clouds_pass.glsl"

@@ -10,6 +10,7 @@ layout (location = 0) out vec3 color;
 in vec2 textureCoords;
 in vec2 vertexCoords;
 
+#include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
 
 #include "/include/atmospherics/constants.glsl"
@@ -36,11 +37,13 @@ in vec2 vertexCoords;
         vec3 refracted     = refract(viewDirection, material.normal, n1.r / n2.r);
         bool hit           = raytrace(depthtex1, viewPosition, refracted, REFRACTIONS_STEPS, randF(), hitPosition);
         
-        if(saturate(hitPosition.xy) != hitPosition.xy || !hit && texture(depthtex1, hitPosition.xy).r != 1.0 || isHand(hitPosition.xy)) {
+        if(saturate(hitPosition.xy) != hitPosition.xy || !hit && texture(depthtex1, hitPosition.xy).r != 1.0 || isHand(hitPosition.xy * RENDER_SCALE)) {
             hitPosition.xy = textureCoords;
         }
 
-        vec3 fresnel  = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
+        hitPosition.xy *= RENDER_SCALE;
+
+        vec3 fresnel      = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
         vec3 sampledColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
 
         float density     = material.blockId == NETHER_PORTAL_ID ? 3.0 : clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
@@ -60,7 +63,7 @@ void main() {
         /*---------------- GLOBAL ILLUMINATION -----------------*/
         //////////////////////////////////////////////////////////
 
-        vec2 scaledUv = textureCoords * GI_SCALE;
+        vec2 scaledUv = vertexCoords * GI_SCALE;
         color = texture(DEFERRED_BUFFER, scaledUv).rgb;
 
         vec3 direct   = texture(DIRECT_BUFFER  , scaledUv).rgb;
@@ -69,18 +72,21 @@ void main() {
         color = direct + (indirect * color);
     #endif
 
-    vec3 coords = vec3(textureCoords, 0.0);
+    vec3 coords = vec3(vertexCoords, 0.0);
 
     vec3 sunSpecular = vec3(0.0), envSpecular = vec3(0.0);
 
     #if GI == 0
         color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
 
-        if(!isSky(textureCoords)) {
-            Material material = getMaterial(textureCoords);
+        if(!isSky(vertexCoords)) {
+            Material material = getMaterial(vertexCoords);
 
-            vec3 viewPosition0 = getViewPosition0(textureCoords);
-            vec3 viewPosition1 = getViewPosition1(textureCoords);
+            float depth0        = texture(depthtex0, vertexCoords).r;
+            vec3  viewPosition0 = screenToView(vec3(textureCoords, depth0));
+
+            float depth1        = texture(depthtex1, vertexCoords).r;
+            vec3  viewPosition1 = screenToView(vec3(textureCoords, depth1));
 
             vec3 directIlluminance = vec3(0.0);
     
@@ -147,6 +153,4 @@ void main() {
     }
     
     color += envSpecular;
-
-    color = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
 }

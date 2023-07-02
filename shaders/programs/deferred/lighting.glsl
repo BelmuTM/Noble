@@ -3,8 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define RENDER_SCALE 0.5
-
+#include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
 
 #if GI == 1
@@ -43,7 +42,7 @@ void main() {
     vec3  viewPosition0 = screenToView(vec3(textureCoords, depth));
 
     #if GI == 1
-        vec2 tempCoords = vertexCoords * rcp(GI_SCALE);
+        vec2 tempCoords = vertexCoords / GI_SCALE;
     #else
         vec2 tempCoords = vertexCoords;
     #endif
@@ -81,7 +80,7 @@ void main() {
             float weight = float(hideGUI);
         #endif
 
-        color.a = (history.a * weight * float(saturate(prevCoords) == prevCoords) * float(!isHand(textureCoords))) + 1.0;
+        color.a = (history.a * weight * float(clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords) * float(!isHand(vertexCoords))) + 1.0;
     #endif
 
     #if GI == 0

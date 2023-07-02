@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#define RENDER_SCALE 0.5
+#include "/include/taau_scale.glsl"
 
 #if defined STAGE_VERTEX
 	#define attribute in

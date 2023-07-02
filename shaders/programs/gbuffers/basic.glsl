@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/taau_scale.glsl"
+
 #include "/settings.glsl"
 #include "/include/utility/uniforms.glsl"
 #include "/include/utility/math.glsl"
@@ -29,6 +31,8 @@
 			gl_Position = ftransform();
 		#endif
 
+		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
+
 		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);
 		#endif
@@ -44,6 +48,9 @@
 	in vec4 vertexColor;
 
 	void main() {
+		vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+		if(saturate(fragCoords) != fragCoords) discard;
+
 		vec4 albedoTex = texture(tex, textureCoords) * vertexColor;
 		if(albedoTex.a < 0.102) discard;
 

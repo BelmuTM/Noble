@@ -3,6 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
 
 #if defined STAGE_VERTEX
@@ -22,7 +23,8 @@
 			worldPosition.xz += RAIN_DIRECTION * worldPosition.y;
 		#endif
 
-		gl_Position = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
 		skyIlluminance = evaluateUniformSkyIrradianceApproximation();
 	}
@@ -37,6 +39,9 @@
 	in vec3 skyIlluminance;
 
 	void main() {
+		vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+		if(saturate(fragCoords) != fragCoords) discard;
+
 		if(texture(tex, textureCoords).a < 0.102) discard;
 
 		const float density					= 2.0;

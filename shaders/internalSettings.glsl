@@ -30,6 +30,7 @@ const int colortex13Format = RGBA8F;    // Fog transmittance
 const int colortex15Format = RGBA16F;   // Gbuffer Data
 
 const bool colortex0Clear  = false;
+const bool colortex2Clear  = false;
 const bool colortex4Clear  = false;
 const bool colortex6Clear  = false;
 const bool colortex7Clear  = false;
