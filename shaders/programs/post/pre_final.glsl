@@ -39,7 +39,7 @@ in vec2 textureCoords;
 #include "/include/post/grading.glsl"
 
 #if TONEMAP == ACES
-    const float exposureBias = 2.0;
+    const float exposureBias = 2.2;
 #else
     const float exposureBias = 1.0;
 #endif

@@ -73,7 +73,7 @@ void uchimura(inout vec3 color) {
     const float a = 1.0;  // contrast
     const float m = 0.22; // linear section start
     const float l = 0.4;  // linear section length
-    const float c = 1.33; // black
+    const float c = 1.25; // black
     const float b = 0.0;  // pedestal
 
     color = uchimura(color, P, a, m, l, c, b);

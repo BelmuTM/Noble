@@ -35,7 +35,7 @@ in vec2 vertexCoords;
 
         vec3 viewDirection = normalize(viewPosition);
         vec3 refracted     = refract(viewDirection, material.normal, n1.r / n2.r);
-        bool hit           = raytrace(depthtex1, viewPosition, refracted, REFRACTIONS_STEPS, randF(), hitPosition);
+        bool hit           = raytrace(depthtex1, viewPosition, refracted, 256, randF(), hitPosition);
         
         if(saturate(hitPosition.xy) != hitPosition.xy || !hit && texture(depthtex1, hitPosition.xy).r != 1.0 || isHand(hitPosition.xy * RENDER_SCALE)) {
             hitPosition.xy = textureCoords;
