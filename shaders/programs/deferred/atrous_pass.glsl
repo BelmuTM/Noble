@@ -9,13 +9,12 @@
 #if GI == 0
     #include "/programs/discard.glsl"
 #else
-
     #if defined STAGE_VERTEX
         #include "/programs/vertex_taau.glsl"
 
     #elif defined STAGE_FRAGMENT
 
-        /* RENDERTARGETS: 4,11 */
+        /* RENDERTARGETS: 4,10 */
 
         layout (location = 0) out vec4 color;
         layout (location = 1) out vec4 temporalData;

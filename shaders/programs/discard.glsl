@@ -11,6 +11,6 @@
     /* RENDERTARGETS: 13 */
 
     void main() {
-	    discard;
+	    discard; return;
     }
 #endif

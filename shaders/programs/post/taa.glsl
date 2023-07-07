@@ -49,9 +49,10 @@
 
         vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
             vec3 minColor = vec3(1e10), maxColor = vec3(-1e10);
+            const int size = 1;
 
-            for(int x = -1; x <= 1; x++) {
-                for(int y = -1; y <= 1; y++) {
+            for(int x = -size; x <= size; x++) {
+                for(int y = -size; y <= size; y++) {
                     vec3 color = SRGB_2_YCoCg_MAT * texelFetch(currTex, ivec2(gl_FragCoord.xy * RENDER_SCALE) + ivec2(x, y), 0).rgb;
                     minColor = min(minColor, color); 
                     maxColor = max(maxColor, color); 

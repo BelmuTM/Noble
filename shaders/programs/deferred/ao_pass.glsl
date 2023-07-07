@@ -14,154 +14,155 @@
 #include "/include/common.glsl"
 #include "/internalSettings.glsl"
 
-/* RENDERTARGETS: 10 */
+#if AO == 0 || GI == 1
+    #include "/programs/discard.glsl"
+#else
+    #if defined STAGE_VERTEX
+        #include "/programs/vertex_taau.glsl"
 
-layout (location = 0) out vec4 ao;
+    #elif defined STAGE_FRAGMENT
 
-in vec2 textureCoords;
-in vec2 vertexCoords;
+		/* RENDERTARGETS: 12 */
+
+		layout (location = 0) out vec4 ao;
+
+		in vec2 textureCoords;
+		in vec2 vertexCoords;
     
-#if AO == 1
-    #if AO_TYPE == 0
+    	#if AO_TYPE == 0
 
-	    float SSAO(vec3 viewPosition, vec3 normal) {
-		    float occlusion = 0.0;
+	    	float SSAO(vec3 viewPosition, vec3 normal) {
+		    	float occlusion = 0.0;
 
-		    for(int i = 0; i < SSAO_SAMPLES; i++) {
-			    vec3 rayDirection = generateCosineVector(normal, rand2F());
-			    vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
-			    float rayDepth    = getViewPosition1(viewToScreen(rayPosition).xy).z;
+		    	for(int i = 0; i < SSAO_SAMPLES; i++) {
+			    	vec3 rayDirection = generateCosineVector(normal, rand2F());
+			    	vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
+			    	float rayDepth    = getViewPosition1(viewToScreen(rayPosition).xy).z;
 
-			    float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
-        	    occlusion 		+= (rayDepth >= rayPosition.z + EPS ? 1.0 : 0.0) * rangeCheck;
-		    }
-		    return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
-	    }
+			    	float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
+        	    	occlusion 		+= (rayDepth >= rayPosition.z + EPS ? 1.0 : 0.0) * rangeCheck;
+		    	}
+		    	return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
+	    	}
 
-    #elif AO_TYPE == 1
+    	#elif AO_TYPE == 1
 
-        #include "/include/fragment/raytracer.glsl"
+        	#include "/include/fragment/raytracer.glsl"
 
-	    float RTAO(vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
-		    vec3 rayPosition = viewPosition + normal * 1e-2;
-		    float occlusion  = 1.0;
+	    	float RTAO(vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+		    	vec3 rayPosition = viewPosition + normal * 1e-2;
+		    	float occlusion  = 1.0;
 
-		    vec3 hitPosition = vec3(0.0);
+		    	vec3 hitPosition = vec3(0.0);
 
-		    for(int i = 0; i < RTAO_SAMPLES; i++) {
-			    vec3 rayDirection = generateCosineVector(normal, rand2F());
+		    	for(int i = 0; i < RTAO_SAMPLES; i++) {
+			    	vec3 rayDirection = generateCosineVector(normal, rand2F());
 
-			    if(!raytrace(depthtex1, rayPosition, rayDirection, RTAO_STEPS, randF(), hitPosition)) {
-				    bentNormal += rayDirection;
-				    continue;
-			    }
-			    occlusion -= rcp(RTAO_SAMPLES);
-		    }
-		    bentNormal = normalize(bentNormal);
-		    return occlusion;
-	    }
-    #else
+			    	if(!raytrace(depthtex1, rayPosition, rayDirection, RTAO_STEPS, randF(), hitPosition)) {
+				    	bentNormal += rayDirection;
+				    	continue;
+			    	}
+			    	occlusion -= rcp(RTAO_SAMPLES);
+		    	}
+		    	bentNormal = normalize(bentNormal);
+		    	return occlusion;
+	    	}
 
-	    float multiBounceApprox(float visibility) { 
-    	    const float albedo = 0.2; 
-    	    return visibility / (albedo * visibility + (1.0 - albedo)); 
- 	    }
+    	#else
 
-	    float findMaximumHorizon(vec2 coords, vec3 viewPosition, vec3 viewDirection, vec3 normal, vec3 sliceDir, vec2 radius) {
-		    float horizonCos = -1.0;
+	    	float multiBounceApprox(float visibility) { 
+    	    	const float albedo = 0.2; 
+    	    	return visibility / (albedo * visibility + (1.0 - albedo)); 
+ 	    	}
 
-		    vec2 stepSize    = radius * rcp(GTAO_HORIZON_STEPS);
-		    vec2 increment   = sliceDir.xy * stepSize;
-		    vec2 rayPosition = coords + rand2F() * increment;
+	    	float findMaximumHorizon(vec2 coords, vec3 viewPosition, vec3 viewDirection, vec3 normal, vec3 sliceDir, vec2 radius) {
+		    	float horizonCos = -1.0;
 
-		    for(int i = 0; i < GTAO_HORIZON_STEPS; i++, rayPosition += increment) {
-			    float depth = texelFetch(depthtex1, ivec2(saturate(rayPosition) * viewSize), 0).r;
-			    if(saturate(rayPosition) != rayPosition || depth == 1.0 || isHand(rayPosition)) continue;
+		    	vec2 stepSize    = radius * rcp(GTAO_HORIZON_STEPS);
+		    	vec2 increment   = sliceDir.xy * stepSize;
+		    	vec2 rayPosition = coords + rand2F() * increment;
 
-			    vec3 horizonVec = screenToView(vec3(rayPosition, depth)) - viewPosition;
-			    float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(2.0, 3.0, lengthSqr(horizonVec)));
+		    	for(int i = 0; i < GTAO_HORIZON_STEPS; i++, rayPosition += increment) {
+			    	float depth = texelFetch(depthtex1, ivec2(saturate(rayPosition) * viewSize), 0).r;
+			    	if(saturate(rayPosition) != rayPosition || depth == 1.0 || isHand(rayPosition)) continue;
+
+			    	vec3 horizonVec = screenToView(vec3(rayPosition, depth)) - viewPosition;
+			    	float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(2.0, 3.0, lengthSqr(horizonVec)));
 		
-			    horizonCos = max(horizonCos, cosTheta);
-		    }
-		    return fastAcos(horizonCos);
-	    }
+			    	horizonCos = max(horizonCos, cosTheta);
+		    	}
+		    	return fastAcos(horizonCos);
+	    	}
 
-	    float GTAO(vec2 coords, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
-		    float visibility = 0.0;
+	    	float GTAO(vec2 coords, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+		    	float visibility = 0.0;
 
-		    float rcpViewLength = fastRcpLength(viewPosition);
-		    vec2 radius  		= GTAO_RADIUS * rcpViewLength * rcp(vec2(1.0, aspectRatio));
-		    vec3 viewDirection  = viewPosition * -rcpViewLength;
+		    	float rcpViewLength = fastRcpLength(viewPosition);
+		    	vec2 radius  		= GTAO_RADIUS * rcpViewLength * rcp(vec2(1.0, aspectRatio));
+		    	vec3 viewDirection  = viewPosition * -rcpViewLength;
 
-		    for(int i = 0; i < GTAO_SLICES; i++) {
-			    float sliceAngle = (PI * rcp(GTAO_SLICES)) * (i + randF());
-			    vec3  sliceDir   = vec3(cos(sliceAngle), sin(sliceAngle), 0.0);
+		    	for(int i = 0; i < GTAO_SLICES; i++) {
+			    	float sliceAngle = (PI * rcp(GTAO_SLICES)) * (i + randF());
+			    	vec3  sliceDir   = vec3(cos(sliceAngle), sin(sliceAngle), 0.0);
 
-			    vec3 orthoDir   = sliceDir - dot(sliceDir, viewDirection) * viewDirection;
-			    vec3 axis       = cross(sliceDir, viewDirection);
-			    vec3 projNormal = normal - axis * dot(normal, axis);
+			    	vec3 orthoDir   = sliceDir - dot(sliceDir, viewDirection) * viewDirection;
+			    	vec3 axis       = cross(sliceDir, viewDirection);
+			    	vec3 projNormal = normal - axis * dot(normal, axis);
 
-			    float sgnGamma = sign(dot(projNormal, orthoDir));
-			    float normLen  = fastRcpLength(projNormal);
-			    float cosGamma = saturate(dot(projNormal, viewDirection) * normLen);
-			    float gamma    = sgnGamma * fastAcos(cosGamma);
+			    	float sgnGamma = sign(dot(projNormal, orthoDir));
+			    	float normLen  = fastRcpLength(projNormal);
+			    	float cosGamma = saturate(dot(projNormal, viewDirection) * normLen);
+			    	float gamma    = sgnGamma * fastAcos(cosGamma);
 
-			    vec2 horizons;
-			    horizons.x = -findMaximumHorizon(coords, viewPosition, viewDirection, normal,-sliceDir, radius);
-			    horizons.y =  findMaximumHorizon(coords, viewPosition, viewDirection, normal, sliceDir, radius);
-			    horizons   =  gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
+			    	vec2 horizons;
+			    	horizons.x = -findMaximumHorizon(coords, viewPosition, viewDirection, normal,-sliceDir, radius);
+			    	horizons.y =  findMaximumHorizon(coords, viewPosition, viewDirection, normal, sliceDir, radius);
+			    	horizons   =  gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
 			
-			    vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
-			    visibility += dot(arc, vec2(0.25)) * normLen;
+			    	vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
+			    	visibility += dot(arc, vec2(0.25)) * normLen;
 
-			    float bentAngle = dot(horizons, vec2(0.5));
-			    bentNormal 	   += viewDirection * cos(bentAngle) + orthoDir * sin(bentAngle);
-		    }
-		    bentNormal = normalize(normalize(bentNormal) - 0.5 * viewDirection);
-		    return multiBounceApprox(visibility * rcp(GTAO_SLICES));
-	    }
-    #endif
-#endif
+			    	float bentAngle = dot(horizons, vec2(0.5));
+			    	bentNormal 	   += viewDirection * cos(bentAngle) + orthoDir * sin(bentAngle);
+		    	}
+		    	bentNormal = normalize(normalize(bentNormal) - 0.5 * viewDirection);
+		    	return multiBounceApprox(visibility * rcp(GTAO_SLICES));
+	    	}
 
-void main() {
-    vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
-	if(saturate(fragCoords) != fragCoords) discard;
+    	#endif
 
-    #if AO == 1 && GI == 0
-        ao = vec4(0.0, 0.0, 0.0, 1.0);
-    #else
-        #if GI == 1
-            ao = texture(INDIRECT_BUFFER, vertexCoords);
-        #endif
-        return;
-    #endif
+		void main() {
+			ao = vec4(0.0, 0.0, 0.0, 1.0);
 
-    if(isSky(vertexCoords) || isHand(vertexCoords)) return;
+    		vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+			if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-    #if AO == 1
-        Material material = getMaterial(vertexCoords);
+    		if(isSky(vertexCoords) || isHand(vertexCoords)) return;
 
-        #if AO_TYPE == 0
-            ao.w = SSAO(getViewPosition1(vertexCoords), material.normal);
-        #elif AO_TYPE == 1
-            vec3 viewPosition = screenToView(vec3(textureCoords, texture(depthtex1, vertexCoords).r));
-            ao.w = RTAO(viewPosition, material.normal, ao.xyz);
-        #elif AO_TYPE == 2
-            ao.w = GTAO(vertexCoords, getViewPosition1(vertexCoords), material.normal, ao.xyz);
-        #endif
+        	Material material = getMaterial(vertexCoords);
 
-        ao.w = saturate(ao.w);
+        	#if AO_TYPE == 0
+            	ao.w = SSAO(getViewPosition1(vertexCoords), material.normal);
+        	#elif AO_TYPE == 1
+            	vec3 viewPosition = screenToView(vec3(textureCoords, texture(depthtex1, vertexCoords).r));
+            	ao.w = RTAO(viewPosition, material.normal, ao.xyz);
+        	#elif AO_TYPE == 2
+            	ao.w = GTAO(vertexCoords, getViewPosition1(vertexCoords), material.normal, ao.xyz);
+        	#endif
 
-        #if AO_FILTER == 1
-            vec3 currPosition = vec3(textureCoords, texture(depthtex1, vertexCoords).r);
-            vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
-            vec4 prevAO       = texture(INDIRECT_BUFFER, prevCoords);
+        	ao.w = saturate(ao.w);
+
+        	#if AO_FILTER == 1
+            	vec3 currPosition = vec3(textureCoords, texture(depthtex1, vertexCoords).r);
+            	vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
+            	vec4 prevAO       = texture(AO_BUFFER, prevCoords);
         
-            float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevCoords).w, 1.0);
+            	float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevCoords).w, 1.0);
 
-            ao.w   = mix(prevAO.w  , ao.w  , weight);
-            ao.xyz = mix(prevAO.xyz, ao.xyz, weight);
-        #endif
-    #endif
-}
+            	ao.w   = mix(prevAO.w  , ao.w  , weight);
+            	ao.xyz = mix(prevAO.xyz, ao.xyz, weight);
+        	#endif
+		}
+	#endif
+#endif
     

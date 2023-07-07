@@ -7,14 +7,13 @@
 #include "/include/common.glsl"
 
 #if GI == 1
-    /* RENDERTARGETS: 4,9,10,11 */
+    /* RENDERTARGETS: 4,9,10 */
 
     layout (location = 0) out vec4 color;
-    layout (location = 1) out vec3 direct;
-    layout (location = 2) out vec3 indirect;
-    layout (location = 3) out vec4 temporalData;
+    layout (location = 1) out uvec2 firstBounceData;
+    layout (location = 2) out vec4 temporalData;
 #else
-    /* RENDERTARGETS: 4,11 */
+    /* RENDERTARGETS: 4,10 */
 
     layout (location = 0) out vec4 color;
     layout (location = 1) out vec4 temporalData;
@@ -38,26 +37,28 @@ void main() {
     vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) discard;
 
-    float depth         = texture(depthtex0, vertexCoords).r;
-    vec3  viewPosition0 = screenToView(vec3(textureCoords, depth));
-
     #if GI == 1
-        vec2 tempCoords = vertexCoords / GI_SCALE;
+        vec2 tmpTextureCoords = textureCoords / GI_SCALE;
+        vec2 tmpVertexCoords  = vertexCoords / GI_SCALE;
     #else
-        vec2 tempCoords = vertexCoords;
+        vec2 tmpTextureCoords = textureCoords;
+        vec2 tmpVertexCoords  = vertexCoords;
     #endif
 
+    float depth         = texture(depthtex0, tmpVertexCoords).r;
+    vec3  viewPosition0 = screenToView(vec3(tmpTextureCoords, depth));
+
     if(depth == 1.0) {
-        vec3 sky = renderAtmosphere(vertexCoords, viewPosition0);
+        vec3 sky = renderAtmosphere(tmpVertexCoords, viewPosition0);
         #if GI == 1
-            direct = sky;
+            firstBounceData.x = packUnormArb(logLuvEncode(sky), uvec4(8));
         #else
             color.rgb = sky;
         #endif
         return;
     }
 
-    Material material = getMaterial(tempCoords);
+    Material material = getMaterial(tmpVertexCoords);
 
     #if HARDCODED_SSS == 1
         if(material.blockId > NETHER_PORTAL_ID && material.blockId <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
@@ -106,27 +107,28 @@ void main() {
 
             float ao = 1.0;
             #if AO == 1
-                ao = texture(INDIRECT_BUFFER, vertexCoords).a;
+                ao = texture(AO_BUFFER, vertexCoords).a;
             #endif
 
             color.rgb = computeDiffuse(viewPosition0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         }
     #else
+        vec3 direct   = vec3(0.0);
+        vec3 indirect = vec3(1.0);
 
-        if(clamp(textureCoords, vec2(0.0), vec2(GI_SCALE)) == textureCoords) {
+        if(clamp(vertexCoords, vec2(0.0), vec2(GI_SCALE)) == vertexCoords) {
 
-            pathtrace(color.rgb, vec3(tempCoords, material.depth0), direct, indirect);
+            pathtrace(color.rgb, vec3(vertexCoords, depth), direct, indirect);
 
             #if GI_TEMPORAL_ACCUMULATION == 1
                 float frameWeight = 1.0 / max(color.a * float(linearizeDepthFast(material.depth0) >= MC_HAND_DEPTH), 1.0);
 
                 color.rgb = mix(history.rgb, color.rgb, frameWeight);
 
-                vec3 prevDirect   = texture(DIRECT_BUFFER,   prevCoords).rgb;
-                vec3 prevIndirect = texture(INDIRECT_BUFFER, prevCoords).rgb;
+                uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, prevCoords).rg;
 
-                direct   = max0(mix(prevDirect  , direct  , frameWeight));
-                indirect = max0(mix(prevIndirect, indirect, frameWeight));
+                direct   = max0(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8))), direct  , frameWeight));
+                indirect = max0(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8))), indirect, frameWeight));
 
                 #if GI_FILTER == 1
                     float luminance = luminance(color.rgb);
@@ -138,5 +140,8 @@ void main() {
                 #endif
             #endif
         }
+
+        firstBounceData.x = packUnormArb(logLuvEncode(direct  ), uvec4(8));
+        firstBounceData.y = packUnormArb(logLuvEncode(indirect), uvec4(8));
     #endif
 }

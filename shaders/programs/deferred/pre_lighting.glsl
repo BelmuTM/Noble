@@ -83,7 +83,7 @@
         vec4 ao = vec4(0.0, 0.0, 0.0, 1.0);
 
         #if GI == 0 && AO == 1
-            ao = texture(INDIRECT_BUFFER, vertexCoords);
+            ao = texture(AO_BUFFER, vertexCoords);
             if(any(greaterThan(ao, vec4(0.0)))) ao = saturate(ao);
         #endif
 
@@ -117,19 +117,19 @@
         //////////////////////////////////////////////////////////
         /*----------------- SHADOW MAPPING ---------------------*/
         //////////////////////////////////////////////////////////
-
-        if(isSky(vertexCoords)) return;
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS == 1
-                vec3 geoNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
-                vec3 scenePos  = viewToScene(screenToView(vec3(textureCoords, texture(depthtex0, vertexCoords).r)));
-                shadowmap.rgb  = calculateShadowMapping(scenePos, geoNormal, shadowmap.a);
-                shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
+                if(!isSky(vertexCoords)) {
+                    vec3 geoNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
+                    vec3 scenePos  = viewToScene(screenToView(vec3(textureCoords, texture(depthtex0, vertexCoords).r)));
+                    shadowmap.rgb  = calculateShadowMapping(scenePos, geoNormal, shadowmap.a);
+                    shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
+                }
             #endif
 
             #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy), shadowLightVector, cloudLayer0, 20);
+                illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), shadowLightVector, cloudLayer0, 20);
             #endif
         #endif
     }

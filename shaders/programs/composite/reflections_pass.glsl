@@ -32,9 +32,9 @@
 
         void main() {
             vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
-	        if(saturate(fragCoords) != fragCoords) discard;
+	        if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-            if(isSky(vertexCoords)) discard;
+            if(isSky(vertexCoords)) return;
 
             Material material  = getMaterial(vertexCoords);
             float depth        = texture(depthtex0, vertexCoords).r;

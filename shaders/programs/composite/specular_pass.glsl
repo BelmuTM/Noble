@@ -46,8 +46,12 @@ in vec2 vertexCoords;
         vec3 fresnel      = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
         vec3 sampledColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
 
+        if(material.blockId == WATER_ID) {
+            return sampledColor * (1.0 - fresnel);
+        }
+
         float density     = material.blockId == NETHER_PORTAL_ID ? 3.0 : clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
-        vec3  attenuation = material.blockId == WATER_ID         ? vec3(1.0) : exp(-(1.0 - material.albedo) * density);
+        vec3  attenuation = exp(-(1.0 - material.albedo) * density);
 
         vec3 blocklightColor = getBlockLightColor(material);
         vec3 emissiveness    = material.emission * blocklightColor;
@@ -66,8 +70,10 @@ void main() {
         vec2 scaledUv = vertexCoords * GI_SCALE;
         color = texture(DEFERRED_BUFFER, scaledUv).rgb;
 
-        vec3 direct   = texture(DIRECT_BUFFER  , scaledUv).rgb;
-        vec3 indirect = texture(INDIRECT_BUFFER, scaledUv).rgb;
+        uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, scaledUv).rg;
+
+        vec3 direct   = logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8)));
+        vec3 indirect = logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8)));
         
         color = direct + (indirect * color);
     #endif
@@ -133,14 +139,16 @@ void main() {
     vec3 scattering    = vec3(0.0);
     vec3 transmittance = vec3(0.0);
 
-    const int filterSize = 2;
+    const int filterSize = 1;
 
     for(int x = -filterSize; x <= filterSize; x++) {
         for(int y = -filterSize; y <= filterSize; y++) {
-            float weight = gaussianDistribution2D(vec2(x, y), 3.0);
+            float weight = gaussianDistribution2D(vec2(x, y), 1.0);
+
+            uvec2 packedFog = texture(FOG_BUFFER, coords.xy + vec2(x, y) * pixelSize).rg;
             
-            scattering    += logLuvDecode(texture(SCATTERING_BUFFER,    coords.xy + vec2(x, y) * pixelSize)) * weight;
-            transmittance += logLuvDecode(texture(TRANSMITTANCE_BUFFER, coords.xy + vec2(x, y) * pixelSize)) * weight;
+            scattering    += logLuvDecode(unpackUnormArb(packedFog[0], uvec4(8))) * weight;
+            transmittance += logLuvDecode(unpackUnormArb(packedFog[1], uvec4(8))) * weight;
         }
     }
     

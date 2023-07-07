@@ -283,6 +283,24 @@ vec3 logLuvDecode(in vec4 encoded) {
     return max0(decodingMatrix * Xp_Y_XYZp);
 }
 
+uint packUnormArb(vec4 data, const uvec4 bits) {
+    vec4 mul = exp2(vec4(bits)) - 1.0;
+
+    uvec4 shift   = uvec4(0, bits.x, bits.x + bits.y, bits.x + bits.y + bits.z);
+    uvec4 shifted = uvec4(data * mul + 0.5) << shift;
+
+    return shifted.x | shifted.y | shifted.z | shifted.w;
+}
+
+vec4 unpackUnormArb(uint pack, const uvec4 bits) {
+    uvec4 maxValue  = uvec4(exp2(bits) - 1);
+    uvec4 shift     = uvec4(0, bits.x, bits.x + bits.y, bits.x + bits.y + bits.z);
+    uvec4 unshifted = uvec4(pack) >> shift;
+          unshifted = unshifted & maxValue;
+
+    return vec4(unshifted) * 1.0 / vec4(maxValue);
+}
+
 vec2 encodeUnitVector(vec3 v) {
 	vec2 encoded = v.xy / (abs(v.x) + abs(v.y) + abs(v.z));
 	     encoded = (v.z <= 0.0) ? ((1.0 - abs(encoded.yx)) * signNonZero(encoded)) : encoded;

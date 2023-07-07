@@ -11,7 +11,6 @@
 #if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0 && defined WORLD_OVERWORLD
     #include "/programs/discard.glsl"
 #else
-
     #if defined STAGE_VERTEX
 
         #include "/include/atmospherics/atmosphere.glsl"
@@ -48,7 +47,7 @@
 
         void main() {
             vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
-	        if(saturate(fragCoords) != fragCoords) discard;
+	        if(saturate(fragCoords) != fragCoords) { discard; return; }
 
             clouds = vec4(0.0, 0.0, 0.0, 1.0);
 

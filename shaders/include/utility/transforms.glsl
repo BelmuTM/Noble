@@ -38,12 +38,12 @@ vec3 distortShadowSpace(vec3 position) {
 //////////////////////////////////////////////////////////
 
 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-    vec3 getCloudsShadowPosition(vec2 coords) {
+    vec3 getCloudsShadowPosition(vec2 coords, vec3 rayPosition) {
         coords *= rcp(CLOUDS_SHADOWS_RESOLUTION);
         coords  = coords * 2.0 - 1.0;
         coords /= 1.0 - length(coords.xy);
 
-        return transform(shadowModelViewInverse, vec3(coords * far, 1.0)) + atmosphereRayPosition;
+        return transform(shadowModelViewInverse, vec3(coords * far, 1.0)) + rayPosition;
     }
 
     float getCloudsShadows(vec3 position) {

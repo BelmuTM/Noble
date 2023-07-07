@@ -18,11 +18,10 @@
 #define ATMOSPHERE_BUFFER		colortex6
 #define CLOUDS_BUFFER			colortex7
 #define HISTORY_BUFFER			colortex8
-#define DIRECT_BUFFER			colortex9
-#define INDIRECT_BUFFER			colortex10
-#define MOMENTS_BUFFER			colortex11
-#define SCATTERING_BUFFER		colortex12
-#define TRANSMITTANCE_BUFFER	colortex13
+#define GI_DATA_BUFFER			colortex9
+#define MOMENTS_BUFFER			colortex10
+#define FOG_BUFFER				colortex11
+#define AO_BUFFER				colortex12
 #define LUT_BUFFER				colortex14
 #define RASTER_BUFFER			colortex15
 

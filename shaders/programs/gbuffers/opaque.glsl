@@ -213,9 +213,9 @@
 
     		lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), normal) + 0.8) * 0.2 + 0.8;
 		
-			return saturate(lightmap);
+			return lightmap;
 		#endif
-		return saturate(lightmapCoords);
+		return lightmapCoords;
 	}
 
 	void main() {
@@ -292,7 +292,7 @@
 				normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
 				normal    = tbn * normal;
 
-				lightmap = computeLightmap(normalize(normal));
+				if(any(greaterThan(normalTex.xy, vec2(1e-3)))) lightmap = computeLightmap(normalize(normal));
 			}
 		#endif
 

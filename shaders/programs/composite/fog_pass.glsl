@@ -3,10 +3,9 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-/* RENDERTARGETS: 12,13 */
+/* RENDERTARGETS: 11 */
 
-layout (location = 0) out vec4 scattering;
-layout (location = 1) out vec4 transmittance;
+layout (location = 0) out uvec2 fog;
 
 in vec2 textureCoords;
 in vec2 vertexCoords;
@@ -40,7 +39,7 @@ void main() {
     
     #if defined WORLD_OVERWORLD || defined WORLD_END
         directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
-        skyIlluminance    = texture(ILLUMINANCE_BUFFER, textureCoords).rgb;
+        skyIlluminance    = texture(ILLUMINANCE_BUFFER, vertexCoords).rgb;
 
         #if defined WORLD_OVERWORLD
             float VdotL = dot(normalize(scenePosition0 - gbufferModelViewInverse[3].xyz), shadowLightVector);
@@ -55,14 +54,11 @@ void main() {
     bool  sky      = isSky(vertexCoords);
     float skylight = 0.0;
 
-    scattering.rgb    = vec3(0.0);
-    transmittance.rgb = vec3(1.0);
+    vec3 scatteringLayer0    = vec3(0.0);
+    vec3 transmittanceLayer0 = vec3(1.0);
 
-    vec3 scatteringLayer0    = scattering.rgb;
-    vec3 transmittanceLayer0 = transmittance.rgb;
-
-    vec3 scatteringLayer1    = scattering.rgb;
-    vec3 transmittanceLayer1 = transmittance.rgb;
+    vec3 scatteringLayer1    = vec3(0.0);
+    vec3 transmittanceLayer1 = vec3(1.0);
 
     if(!sky) {
         skylight = getSkylightFalloff(material.lightmap.y);
@@ -119,6 +115,6 @@ void main() {
         #endif
     }
 
-    scattering    = logLuvEncode(scatteringLayer0    * transmittanceLayer1 + scatteringLayer1);
-    transmittance = logLuvEncode(transmittanceLayer0 * transmittanceLayer1);
+    fog.x = packUnormArb(logLuvEncode(scatteringLayer0    * transmittanceLayer1 + scatteringLayer1), uvec4(8));
+    fog.y = packUnormArb(logLuvEncode(transmittanceLayer0 * transmittanceLayer1                   ), uvec4(8));
 }
