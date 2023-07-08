@@ -1,4 +1,4 @@
 #version 400 compatibility
 
 #define STAGE_FRAGMENT
-#include "/programs/post/dof.glsl"
+#include "/programs/post/depth_of_field.glsl"

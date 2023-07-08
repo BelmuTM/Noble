@@ -43,6 +43,7 @@ screen.CAMERA_SETTINGS   = Camera Settings
 screen.DEPTH_OF_FIELD    = Depth of Field
 screen.COLOR_GRADING     = Color Grading
 screen.ANTI_ALIASING     = Anti-Aliasing
+screen.DEBUG             = Debug
 
 ##################### LIGHTING #####################
 
@@ -799,3 +800,13 @@ value.SHARPEN.1 = §aON
 
 option.SHARPEN_STRENGTH = Sharpen Strength
 option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§r's intensity.
+
+##################### DEBUG #####################
+
+option.DEBUG_HISTOGRAM = Display Histogram
+value.DEBUG_HISTOGRAM.0 = §cOFF
+value.DEBUG_HISTOGRAM.1 = §aON
+
+option.DEBUG_LUT = Display LUT
+value.DEBUG_LUT.0 = §cOFF
+value.DEBUG_LUT.1 = §aON

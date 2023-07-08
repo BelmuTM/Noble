@@ -25,7 +25,7 @@ const int colortex8Format  = RGBA16F;   // History
 const int colortex9Format  = RG32UI;    // First bounce indirect & direct
 const int colortex10Format = RGBA16F;   // Moments
 const int colortex11Format = RG32UI;    // Fog
-const int colortex12Format = RGBA16F;   // Ambient occlusion
+const int colortex12Format = RGBA32F;   // Ambient occlusion
 const int colortex15Format = RGBA16F;   // Gbuffer data
 
 const bool colortex0Clear  = false;
@@ -36,6 +36,5 @@ const bool colortex7Clear  = false;
 const bool colortex8Clear  = false;
 const bool colortex9Clear  = false;
 const bool colortex10Clear = false;
-const bool colortex11Clear = false;
 const bool colortex12Clear = false;
 */

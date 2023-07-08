@@ -38,6 +38,7 @@ bool raytrace(sampler2D depthTexture, vec3 viewPosition, vec3 rayDirection, int 
     return intersect;
 }
 
+/*
 float getMinimumDepthFromLod(vec2 coords, int lod) {
     if(lod == 0) return find2x2MinimumDepth(coords, 1);
 	else         return texelFetch(SHADOWMAP_BUFFER, ivec2(getDepthTile(coords, lod) * viewSize), 0).b;
@@ -98,3 +99,4 @@ bool raytraceHiZ(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitt
     }
     return false;
 }
+*/

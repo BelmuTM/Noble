@@ -15,10 +15,6 @@
 	out vec2 textureCoords;
 	out vec4 vertexColor;
 
-	#if TAA == 1
-		#include "/include/utility/rng.glsl"
-	#endif
-
 	void main() {
 		textureCoords = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 		vertexColor   = gl_Color;
@@ -32,10 +28,6 @@
 		#endif
 
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
-
-		#if TAA == 1
-			gl_Position.xy += taaJitter(gl_Position);
-		#endif
 	}
 
 #elif defined STAGE_FRAGMENT

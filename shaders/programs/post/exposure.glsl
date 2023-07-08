@@ -3,8 +3,6 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-
-
 #include "/include/common.glsl"
 
 #if defined STAGE_VERTEX
@@ -118,11 +116,10 @@
             color.a   = avgLuminance;
 
             #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-    	        vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
-
     	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
-    		        int index = int(HISTOGRAM_BINS * coords.x);
-                    color.rgb = luminanceHistogram[index >> 2][index & 3] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+                    vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
+    		        int index   = int(HISTOGRAM_BINS * coords.x);
+                    color.rgb   = luminanceHistogram[index >> 2][index & 3] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
     	        }
             #endif
         #endif

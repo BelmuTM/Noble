@@ -24,7 +24,7 @@
 	#include "/include/vertex/animation.glsl"
 
 	void main() {
-		#if defined PROGRAM_HAND && DISCARD_HAND == 1
+		#if defined PROGRAM_HAND && RENDER_MODE == 1
 			gl_Position = vec4(1.0);
 			return;
 		#endif
@@ -54,7 +54,7 @@
 		#if RENDER_MODE == 0
 			#if WAVING_PLANTS == 1
 				#if defined PROGRAM_TERRAIN
-					animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
+					//animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
 				#endif
 			#endif
 
@@ -62,16 +62,16 @@
 				worldPosition.xz += RAIN_DIRECTION * worldPosition.y;
 			#endif
 		#endif
-	
-		gl_Position = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 
 		#if defined PROGRAM_ENTITY
 			// Thanks Niemand#1929 for the nametag fix
 			if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
 				gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
+				return;
 			}
 		#endif
-		
+	
+		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
 		#if TAA == 1
@@ -222,7 +222,7 @@
 		vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
 		if(saturate(fragCoords) != fragCoords) discard;
 
-		#if defined PROGRAM_HAND && DISCARD_HAND == 1
+		#if defined PROGRAM_HAND && RENDER_MODE == 1
 			discard;
 		#endif
 
@@ -301,7 +301,7 @@
 		#endif
 
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
-			if(wetness > 0.0 && isEyeInWater == 0) {
+			if(false) {
 				float porosity    = saturate(specularTex.z * (maxVal8 / 64.0));
 				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE * 0.01);
 

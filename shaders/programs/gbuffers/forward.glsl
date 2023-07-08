@@ -43,14 +43,14 @@
     	tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
 		tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
 
-		blockId 	= int((mc_Entity.x - 1000.0) + 0.25);
-		gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		blockId = int((mc_Entity.x - 1000.0) + 0.25);
 
 		#if defined WORLD_OVERWORLD || defined WORLD_END
 			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
 			skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 		#endif
 
+		gl_Position    = transform(gbufferModelView, transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz))).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
 		#if TAA == 1
@@ -120,16 +120,12 @@
     			material.ao         = 1.0;
 				material.emission   = 0.0;
     			material.subsurface = 0.0;
-
-				#if defined PROGRAM_TEXTURED_LIT
-					material.lightmap = vec2(material.lightmap.x, 0.0);
-				#endif
 			#else
 				material.F0         = specularTex.y;
     			material.roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
     			material.ao         = normalTex.z;
 				material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
-    			material.subsurface = (specularTex.z * maxVal8) < 65.0 ? 0.0 : specularTex.z;
+    			material.subsurface = saturate(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
 			#endif
 
 			if(blockId == NETHER_PORTAL_ID) material.emission = 1.0;
@@ -157,8 +153,10 @@
 				if(material.F0 * maxVal8 <= 229.5 && shadeTranslucents) {
 					vec3 scenePosition = viewToScene(viewPosition);
 
-					#if TONEMAP == ACES
-       					material.albedo = srgbToAP1Albedo(material.albedo);
+    				#if TONEMAP == ACES
+        				material.albedo = srgbToAP1Albedo(material.albedo);
+    				#else
+        				material.albedo = srgbToLinear(material.albedo);
     				#endif
 
 					if(material.F0 * maxVal8 > 229.5) {
@@ -196,7 +194,7 @@
 
 		vec3 labPbrData0 = vec3(0.0, saturate(lightmapCoords));
 		vec4 labPbrData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
-		vec4 labPbrData2 = vec4(material.albedo, material.roughness);
+		vec4 labPbrData2 = vec4(albedoTex.rgb, material.roughness);
 		vec2 encNormal   = encodeUnitVector(normalize(material.normal));
 	
 		uvec4 shiftedData0  = uvec4(round(labPbrData0 * vec3(1.0, 8191.0, 4095.0)), blockId) << uvec4(0, 1, 14, 26);

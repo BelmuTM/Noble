@@ -55,8 +55,8 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition) {
 				clouds = texture(CLOUDS_BUFFER, saturate(coords + randF() * pixelSize));
 			#endif
 
-			sky += clamp16(physicalSun(sceneDir));
-			sky += physicalMoon(sceneDir);
+			sky += clamp16(physicalSun (sceneDir));
+			sky += clamp16(physicalMoon(sceneDir));
 		#elif defined WORLD_END
 			sky += clamp16(physicalStar(sceneDir));
 		#endif

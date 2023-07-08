@@ -5,6 +5,7 @@
 
 /*
     const bool colortex0MipmapEnabled = true;
+    const bool colortex3MipmapEnabled = true;
 */
 
 #include "/settings.glsl"
@@ -23,9 +24,10 @@
 /*-------------- MISC UTILITY FUNCTIONS ----------------*/
 //////////////////////////////////////////////////////////
 
-bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0;                          }
+bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0;                              }
 bool isHand(vec2 coords) { return linearizeDepthFast(texture(depthtex0, coords).r) < MC_HAND_DEPTH; }
 
+/*
 const vec2 hiZOffsets[] = vec2[](
 	vec2(0.0, 0.0  ),
 	vec2(0.5, 0.0  ),
@@ -47,3 +49,4 @@ float find2x2MinimumDepth(vec2 coords, int scale) {
 vec2 getDepthTile(vec2 coords, int lod) {
 	return coords / exp2(lod) + hiZOffsets[lod - 1];
 }
+*/

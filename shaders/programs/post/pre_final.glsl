@@ -38,14 +38,10 @@ in vec2 textureCoords;
 
 #include "/include/post/grading.glsl"
 
-#if TONEMAP == ACES
-    const float exposureBias = 2.2;
-#else
-    const float exposureBias = 1.0;
-#endif
+const float exposureBias = 1.0;
 
 float minExposure = 1.0 * exposureBias / luminance(sunIrradiance);
-float maxExposure = 0.3 * exposureBias / luminance(moonIrradiance);
+float maxExposure = 0.1 * exposureBias / luminance(moonIrradiance);
 
 float computeEV100fromLuminance(float luminance) {
     return log2(luminance * sensorSensitivity * exposureBias / calibration);
@@ -71,14 +67,16 @@ void main() {
     vec4 tmp = texture(MAIN_BUFFER, textureCoords);
     color    = tmp.rgb;
 
+    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+    	if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) return;
+	#endif
+
     float exposure = computeExposure(tmp.a);
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 5.0);
+        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 3.0);
     #endif
-
-    //color = texture(SHADOWMAP_BUFFER, textureCoords).rgb;
 
     #if PURKINJE == 1
         scotopicVisionApproximation(color);

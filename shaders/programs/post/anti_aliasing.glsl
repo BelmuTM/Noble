@@ -64,9 +64,10 @@
         vec3 getClosestFragment(vec3 position) {
 	        vec3 closestFragment = position;
             vec3 currentFragment;
+            const int size = 1;
 
-            for(int x = -1; x <= 1; x++) {
-                for(int y = -1; y <= 1; y++) {
+            for(int x = -size; x <= size; x++) {
+                for(int y = -size; y <= size; y++) {
                     currentFragment.xy = position.xy + vec2(x, y) * pixelSize;
                     currentFragment.z  = texture(depthtex0, currentFragment.xy * RENDER_SCALE).r;
                     closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
@@ -96,7 +97,7 @@
         #endif
 
         #if EXPOSURE > 0
-            color.a = sqrt(luminance(color.rgb));
+            color.a = sqrt(luminance(max(color.rgb, vec3(EPS))));
         #endif
     }
 #endif
