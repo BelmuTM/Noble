@@ -4,6 +4,7 @@
 /***********************************************/
 
 #include "/include/taau_scale.glsl"
+#include "/include/common.glsl"
 
 #if defined STAGE_VERTEX
 	#define attribute in
@@ -20,7 +21,6 @@
 	out vec4 vertexColor;
 	out mat3 tbn;
 
-	#include "/include/common.glsl"
 	#include "/include/vertex/animation.glsl"
 
 	void main() {
@@ -32,6 +32,14 @@
 		textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 		lightmapCoords = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor    = gl_Color;
+
+		#if defined PROGRAM_ENTITY
+			// Thanks Niemand#1929 for the nametag fix
+			if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
+				gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
+				return;
+			}
+		#endif
 
 		#if POM > 0 && defined PROGRAM_TERRAIN
 			vec2 halfSize = abs(textureCoords - mc_midTexCoord);
@@ -52,23 +60,13 @@
 		vec3 worldPosition = transform(gbufferModelViewInverse, viewPosition);
 
 		#if RENDER_MODE == 0
-			#if WAVING_PLANTS == 1
-				#if defined PROGRAM_TERRAIN
-					animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
-				#endif
+			#if defined PROGRAM_TERRAIN && WAVING_PLANTS == 1
+				animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
 			#endif
 
 			#if defined PROGRAM_WEATHER
 				worldPosition.xz += RAIN_DIRECTION * worldPosition.y;
 			#endif
-		#endif
-
-		#if defined PROGRAM_ENTITY
-			// Thanks Niemand#1929 for the nametag fix
-			if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
-				gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
-				return;
-			}
 		#endif
 	
 		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
@@ -94,8 +92,6 @@
 	in vec3 viewPosition;
 	in vec4 vertexColor;
 	in mat3 tbn;
-
-	#include "/include/common.glsl"
 
 	#if defined PROGRAM_ENTITY
 		uniform vec4 entityColor;
@@ -301,7 +297,7 @@
 		#endif
 
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
-			if(false) {
+			if(wetness > 0.0 && isEyeInWater == 0) {
 				float porosity    = saturate(specularTex.z * (maxVal8 / 64.0));
 				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE * 0.01);
 

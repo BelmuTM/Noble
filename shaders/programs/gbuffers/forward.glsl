@@ -13,7 +13,6 @@
 #endif
 
 #if defined STAGE_VERTEX
-
 	#define attribute in
 	attribute vec4 at_tangent;
 	attribute vec3 mc_Entity;
@@ -50,7 +49,9 @@
 			skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 		#endif
 
-		gl_Position    = transform(gbufferModelView, transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz))).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+		vec3 worldPosition = transform(gbufferModelViewInverse, viewPosition);
+		
+		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
 		#if TAA == 1
