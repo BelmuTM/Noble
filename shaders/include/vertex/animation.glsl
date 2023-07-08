@@ -8,7 +8,7 @@ vec3  windDir   = windSpeed * frameTimeCounter * vec3(-0.2, 0.35, -1.0);
 
 void wavingLeaves(inout vec3 worldPosition, float skyFalloff) {
 	worldPosition += cameraPosition;
-    worldPosition += (sin(worldPosition * (1.0 + FBM(worldPosition * 0.7, 1, 1.0)) + windDir * 1.5) * vec3(0.2, 0.3, 0.2)) * 0.2 * skyFalloff;
+    worldPosition += (sin(worldPosition * (1.0 + FBM(worldPosition.xz * 0.7, 1, 1.0)) + windDir * 1.5) * vec3(0.2, 0.3, 0.2)) * 0.2 * skyFalloff;
 	worldPosition -= cameraPosition;
 }
 

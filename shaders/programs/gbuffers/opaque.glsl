@@ -54,7 +54,7 @@
 		#if RENDER_MODE == 0
 			#if WAVING_PLANTS == 1
 				#if defined PROGRAM_TERRAIN
-					//animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
+					animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
 				#endif
 			#endif
 
