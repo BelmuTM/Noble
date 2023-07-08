@@ -54,7 +54,7 @@
         }
 
         void main() {
-            float depth0 = linearizeDepthFast(texelFetch(depthtex0, ivec2(gl_FragCoord.xy * RENDER_SCALE), 0).r);
+            float depth0 = linearizeDepthFast(texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r);
 
             #if DOF_DEPTH == 0
                 float targetDepth = linearizeDepthFast(texture(depthtex0, vec2(RENDER_SCALE * 0.5)).r);
