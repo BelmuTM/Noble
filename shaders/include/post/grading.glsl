@@ -143,7 +143,7 @@ void saturation(inout vec3 color, float intensity) {
 }
 
 void contrast(inout vec3 color, float contrast) {
-    color = (color - 0.5) * contrast + 0.5;
+    color = max0((color - 0.5) * contrast + 0.5);
 }
 
 void liftGammaGain(inout vec3 color, float lift, float gamma, float gain) {
