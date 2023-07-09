@@ -760,9 +760,12 @@ option.LIFT.comment = Adjusts the image's black level (dark tones or shadows).
 ##################### ANTI-ALIASING #####################
 
 option.TAA = TAA
-option.TAA.comment = §bTemporal Anti-Aliasing. §rA form of anti-aliasing which operates over multiple frames.
+option.TAA.comment = §bTemporal Anti-Aliasing. §rA form of anti-aliasing which blends previous frames to reduce the aliasing.
 value.TAA.0 = §cOFF
 value.TAA.1 = §aON
+
+option.TAA_STRENGTH = Strength
+option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§r's strength.
 
 option.TAA_OFFCENTER_REJECTION = Offcenter Rejection
 option.TAA_OFFCENTER_REJECTION.comment = Adjusts §bTemporal Anti-Aliasing§r's offcenter weight strength. The lower the value is, the weaker TAA is be during movement.
