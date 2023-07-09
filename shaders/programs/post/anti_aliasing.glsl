@@ -84,8 +84,8 @@
             vec3 closestFragment = getClosestFragment(vec3(textureCoords, texture(depthtex0, vertexCoords).r));
             vec2 prevCoords      = textureCoords + getVelocity(closestFragment).xy;
 
-            vec3 currColor = SRGB_2_YCoCg_MAT * textureCatmullRom(MAIN_BUFFER   , vertexCoords).rgb;
-            vec3 prevColor = SRGB_2_YCoCg_MAT * textureCatmullRom(HISTORY_BUFFER, prevCoords  ).rgb;
+            vec3 currColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(MAIN_BUFFER   , vertexCoords).rgb);
+            vec3 prevColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(HISTORY_BUFFER, prevCoords  ).rgb);
                  prevColor = neighbourhoodClipping(MAIN_BUFFER, prevColor);
 
             float weight = float(saturate(prevCoords) == prevCoords) * TAA_STRENGTH;

@@ -80,17 +80,17 @@ vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
     texPos12 *= rcpTexSize;
 
     vec4 result = vec4(0.0);
-    result += texture(tex, vec2(texPos0.x, texPos0.y))  * w0.x  * w0.y;
+    result += texture(tex, vec2(texPos0.x , texPos0.y)) * w0.x  * w0.y;
     result += texture(tex, vec2(texPos12.x, texPos0.y)) * w12.x * w0.y;
-    result += texture(tex, vec2(texPos3.x, texPos0.y))  * w3.x  * w0.y;
+    result += texture(tex, vec2(texPos3.x , texPos0.y)) * w3.x  * w0.y;
 
-    result += texture(tex, vec2(texPos0.x, texPos12.y))  * w0.x  * w12.y;
+    result += texture(tex, vec2(texPos0.x , texPos12.y)) * w0.x  * w12.y;
     result += texture(tex, vec2(texPos12.x, texPos12.y)) * w12.x * w12.y;
-    result += texture(tex, vec2(texPos3.x, texPos12.y))  * w3.x  * w12.y;
+    result += texture(tex, vec2(texPos3.x , texPos12.y)) * w3.x  * w12.y;
 
-    result += texture(tex, vec2(texPos0.x, texPos3.y))  * w0.x  * w3.y;
+    result += texture(tex, vec2(texPos0.x , texPos3.y)) * w0.x  * w3.y;
     result += texture(tex, vec2(texPos12.x, texPos3.y)) * w12.x * w3.y;
-    result += texture(tex, vec2(texPos3.x, texPos3.y))  * w3.x  * w3.y;
+    result += texture(tex, vec2(texPos3.x , texPos3.y)) * w3.x  * w3.y;
     return result;
 }
 

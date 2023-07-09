@@ -104,19 +104,16 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geoNormal, out float ssDept
         shadowPosition  += mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
         shadowPosition  *= 1.0002;
 
-        float penumbraSize = 1.0;
+        float penumbraSize = NORMAL_SHADOW_PENUMBRA;
         ssDepth = 0.0;
 
-        #if SHADOW_TYPE == 0
-            penumbraSize = NORMAL_SHADOW_BLUR_RADIUS;
-
-        #elif SHADOW_TYPE == 1
+        #if SHADOW_TYPE == 1
             vec3 shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
             float avgBlockerDepth = findBlockerDepth(shadowPosDistort, randF(), ssDepth);
             if(avgBlockerDepth < 0.0) return vec3(-1.0);
 
             if(texture(shadowcolor0, shadowPosDistort.xy).a > 0.0)
-                penumbraSize = max(0.1, (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth);
+                penumbraSize = max(MIN_SHADOW_PENUMBRA, (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth);
             else
                 penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
         #endif

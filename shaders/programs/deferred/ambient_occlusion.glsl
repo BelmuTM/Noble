@@ -37,7 +37,7 @@
 		    	for(int i = 0; i < SSAO_SAMPLES; i++) {
 			    	vec3 rayDirection = generateCosineVector(normal, rand2F());
 			    	vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
-			    	float rayDepth    = getViewPosition1(viewToScreen(rayPosition).xy).z;
+			    	float rayDepth    = getViewPosition0(viewToScreen(rayPosition).xy).z;
 
 			    	float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
         	    	occlusion 		+= (rayDepth >= rayPosition.z + EPS ? 1.0 : 0.0) * rangeCheck;
@@ -58,7 +58,7 @@
 		    	for(int i = 0; i < RTAO_SAMPLES; i++) {
 			    	vec3 rayDirection = generateCosineVector(normal, rand2F());
 
-			    	if(!raytrace(depthtex1, rayPosition, rayDirection, RTAO_STEPS, randF(), hitPosition)) {
+			    	if(!raytrace(depthtex0, rayPosition, rayDirection, RTAO_STEPS, randF(), hitPosition)) {
 				    	bentNormal += rayDirection;
 				    	continue;
 			    	}
@@ -83,7 +83,7 @@
 		    	vec2 rayPosition = coords + rand2F() * increment;
 
 		    	for(int i = 0; i < GTAO_HORIZON_STEPS; i++, rayPosition += increment) {
-			    	float depth = texelFetch(depthtex1, ivec2(saturate(rayPosition) * viewSize), 0).r;
+			    	float depth = texelFetch(depthtex0, ivec2(saturate(rayPosition) * viewSize), 0).r;
 			    	if(saturate(rayPosition) != rayPosition || depth == 1.0 || isHand(rayPosition)) continue;
 
 			    	vec3 horizonVec = screenToView(vec3(rayPosition, depth)) - viewPosition;
@@ -142,18 +142,18 @@
         	Material material = getMaterial(vertexCoords);
 
         	#if AO_TYPE == 0
-            	ao.w = SSAO(getViewPosition1(vertexCoords), material.normal);
+            	ao.w = SSAO(getViewPosition0(vertexCoords), material.normal);
         	#elif AO_TYPE == 1
-            	vec3 viewPosition = screenToView(vec3(textureCoords, texture(depthtex1, vertexCoords).r));
+            	vec3 viewPosition = screenToView(vec3(textureCoords, texture(depthtex0, vertexCoords).r));
             	ao.w = RTAO(viewPosition, material.normal, ao.xyz);
         	#elif AO_TYPE == 2
-            	ao.w = GTAO(vertexCoords, getViewPosition1(vertexCoords), material.normal, ao.xyz);
+            	ao.w = GTAO(vertexCoords, getViewPosition0(vertexCoords), material.normal, ao.xyz);
         	#endif
 
         	ao.w = saturate(ao.w);
 
         	#if AO_FILTER == 1
-            	vec3 currPosition = vec3(textureCoords, texture(depthtex1, vertexCoords).r);
+            	vec3 currPosition = vec3(textureCoords, texture(depthtex0, vertexCoords).r);
             	vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
             	vec4 prevAO       = texture(AO_BUFFER, prevCoords);
         
