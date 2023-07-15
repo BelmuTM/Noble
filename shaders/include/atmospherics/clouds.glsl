@@ -127,7 +127,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
 }
 
 float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int stepCount, CloudLayer layer) {
-    float stepSize = 23.0, opticalDepth = 0.0;
+    float stepSize = 50.0, opticalDepth = 0.0;
 
     for(int i = 0; i < stepCount; i++, rayPosition += lightDirection * stepSize) {
         opticalDepth += calculateCloudsDensity(rayPosition + lightDirection * stepSize * randF(), layer) * stepSize;
@@ -151,17 +151,20 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
     vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e6);
 
-    float stepSize   = (dists.y - dists.x) * rcp(layer.steps);
-    vec3 rayPosition = atmosphereRayPosition + rayDirection * (dists.x + stepSize * randF());
-    vec3 increment   = rayDirection * stepSize;
+    float jitter      = randF();
+    float stepSize    = (dists.y - dists.x) / layer.steps;
+    vec3  rayPosition = atmosphereRayPosition + rayDirection * (dists.x + stepSize * jitter);
+    vec3  increment   = rayDirection * stepSize;
+
+    float distanceToClouds = dists.y;
 
     float VdotL = dot(rayDirection, shadowLightVector);
     float VdotU = dot(rayDirection, up);
     
     float bouncedLight = abs(-VdotU) * RCP_PI * 0.5 * isotropicPhase;
 
-    vec2 scattering = vec2(0.0);
-    float transmittance = 1.0, sum = 0.0, weight = 0.0;
+    vec2  scattering    = vec2(0.0);
+    float transmittance = 1.0;
     
     for(int i = 0; i < layer.steps; i++, rayPosition += increment) {
         if(transmittance <= cloudsTransmitThreshold) break;
@@ -169,15 +172,12 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
         float density = calculateCloudsDensity(rayPosition, layer);
         if(density < EPS) continue;
 
-        sum    += distance(atmosphereRayPosition, rayPosition) * density; 
-        weight += density;
-
         float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
         float stepTransmittance = exp(-stepOpticalDepth);
 
         float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition, shadowLightVector, 5, layer);
+        float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition,-up,                1, layer);
         float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition, up,                2, layer);
-        float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition,-up,                2, layer);
 
 	    float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
 	    float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
@@ -194,7 +194,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
 
             stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * directOpticalDepth) * cloudsPhase    * powderSun;
             stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * groundOpticalDepth) * bouncedLight   * powder;
-            stepScattering.y += scatteringCoefficient * exp(-extinctionCoefficient * skyOpticalDepth)    * isotropicPhase * powderSky;
+            stepScattering.y += scatteringCoefficient * exp(-extinctionCoefficient * skyOpticalDepth   ) * isotropicPhase * powderSky;
 
             extinctionCoefficient *= cloudsExtinctionFalloff;
             scatteringCoefficient *= cloudsScatteringFalloff;
@@ -204,10 +204,12 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
 
         scattering    += stepScattering * scatteringIntegral * transmittance;
         transmittance *= stepTransmittance;
+
+        distanceToClouds = min((i + jitter) * stepSize + dists.x, distanceToClouds);
     }
 
     transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
-    vec4 result   = vec4(scattering, transmittance, sum / weight);
+    vec4 result   = vec4(scattering, transmittance, distanceToClouds);
 
     result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, max0(exp2(-5e-5 * result.a)));
     return result;

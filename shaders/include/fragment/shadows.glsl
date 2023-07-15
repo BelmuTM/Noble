@@ -3,10 +3,6 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-vec3 worldToShadow(vec3 worldPosition) {
-	return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
-}
-
 /*
 float contactShadow(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter) {
     vec3 rayPosition  = viewToScreen(viewPosition);
@@ -32,6 +28,10 @@ float contactShadow(vec3 viewPosition, vec3 rayDirection, int stepCount, float j
 }
 */
 
+vec3 worldToShadow(vec3 worldPosition) {
+	return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
+}
+
 float visibility(sampler2D tex, vec3 samplePos) {
     return step(samplePos.z, texelFetch(tex, ivec2(samplePos.xy * shadowMapResolution), 0).r);
 }
@@ -54,11 +54,11 @@ vec3 getShadowColor(vec3 samplePos) {
 
 #if SHADOWS == 1 
     #if SHADOW_TYPE == 1
-        float findBlockerDepth(vec3 shadowPosition, float phi, out float ssDepth) {
+        float findBlockerDepth(vec3 shadowPosition, out float ssDepth) {
             float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int blockers = 0;
 
             for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-                vec2 offset      = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, phi * TAU) * rcp(shadowMapResolution);
+                vec2 offset      = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, randF() * TAU) * rcp(shadowMapResolution);
                 vec2 localCoords = shadowPosition.xy + offset;
                 if(saturate(localCoords) != localCoords) return -1.0;
 
@@ -109,7 +109,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geoNormal, out float ssDept
 
         #if SHADOW_TYPE == 1
             vec3 shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
-            float avgBlockerDepth = findBlockerDepth(shadowPosDistort, randF(), ssDepth);
+            float avgBlockerDepth = findBlockerDepth(shadowPosDistort, ssDepth);
             if(avgBlockerDepth < 0.0) return vec3(-1.0);
 
             if(texture(shadowcolor0, shadowPosDistort.xy).a > 0.0)
