@@ -74,7 +74,7 @@ void main() {
             float weight    = pow(exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
             vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
-                 weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
+                 weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
 
             temporalData.a = log2(depth);
         #else

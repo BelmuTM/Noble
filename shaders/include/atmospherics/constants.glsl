@@ -15,7 +15,7 @@ const float mieScatteringAlbedo = 0.9;
 const float mieAnisotropyFactor = 0.76;
 
 const vec3 rayleighScatteringCoefficients = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
-const vec3 mieScatteringCoefficients      = vec3(0.00000925288);
+const vec3 mieScatteringCoefficients      = vec3(9.25288e-6);
 const vec3 ozoneExtinctionCoefficients    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14;
 
 const vec3 rayleighScatteringCoefficientsEnd = vec3(7e-2, 4e-6, 1e-10);
@@ -89,11 +89,11 @@ const float sunAngularRadius  = CELESTIAL_SIZE_MULTIPLIER * sunRadius  / sunDist
 const float moonAngularRadius = CELESTIAL_SIZE_MULTIPLIER * moonRadius / moonDistance;
 const float starAngularRadius = CELESTIAL_SIZE_MULTIPLIER * starRadius / starDistance;
 
-vec3 sunIrradiance = blackbody(5778.0) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
-vec3 sunRadiance   = sunIrradiance / coneAngleToSolidAngle(sunAngularRadius);
+const vec3 sunIrradiance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
+      vec3 sunRadiance   = sunIrradiance / coneAngleToSolidAngle(sunAngularRadius);
 
-vec3 moonRadiance   = moonAlbedo * sunIrradiance;
-vec3 moonIrradiance = moonRadiance * coneAngleToSolidAngle(moonAngularRadius); // The rough amount of light the moon emits that reaches the earth
+const vec3 moonRadiance   = moonAlbedo * sunIrradiance;
+      vec3 moonIrradiance = moonRadiance * coneAngleToSolidAngle(moonAngularRadius); // The rough amount of light the moon emits that reaches the earth
 
 vec3 starIrradiance = blackbody(25000.0) * 100.0;
 vec3 starRadiance   = starIrradiance / coneAngleToSolidAngle(starAngularRadius);

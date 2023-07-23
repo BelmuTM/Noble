@@ -177,7 +177,7 @@ vec3 evaluateUniformSkyIrradianceApproximation() {
     vec3 skyIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        const ivec2 samples = ivec2(16, 8);
+        const ivec2 samples = ivec2(8, 8);
 
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
@@ -213,7 +213,7 @@ vec3[9] evaluateUniformSkyIrradiance() {
     for(int n = 0; n < irradiance.length(); n++) irradiance[n] = vec3(0.0);
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        const ivec2 samples = ivec2(8);
+        const ivec2 samples = ivec2(8, 8);
 
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {

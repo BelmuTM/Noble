@@ -103,15 +103,15 @@ vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     vec3  single = mix(smoothSurf, vec3(roughSurf), material.roughness) * RCP_PI;
     float multi  = 0.1159 * material.roughness;
 
-    return NdotL * (material.albedo * multi + single);
+    return max0(NdotL * (material.albedo * multi + single));
 }
 
 vec3 hemisphericalAlbedo(vec3 n) {
     vec3 n2  = pow2(n);
     vec3 T_1 = (4.0 * (2.0 * n + 1.0)) / (3.0 * pow2(n + 1.0));
     vec3 T_2 = ((4.0 * pow3(n) * (n2 + 2.0 * n - 1.0)) / (pow2(n2 + 1.0) * (n2 - 1.0))) - 
-                ((2.0 * n2 * (n2 + 1.0) * log(n)) / pow2(n2 - 1.0)) +
-                ((2.0 * n2 * pow2(n2 - 1.0) * log((n * (n + 1.0)) / (n-  1.0))) / pow3(n2 + 1.0));
+               ((2.0 * n2 * (n2 + 1.0) * log(n)) / pow2(n2 - 1.0)) +
+               ((2.0 * n2 * pow2(n2 - 1.0) * log((n * (n + 1.0)) / (n-  1.0))) / pow3(n2 + 1.0));
     return saturate(1.0 - 0.5 * (T_1 + T_2));
 }
 
@@ -134,7 +134,7 @@ vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 ligh
 }
 
 vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, vec4 shadowmap, vec3 directIlluminance, vec3 skyIlluminance, float ao, float cloudsShadows) {
-    viewDirection = -normalize(viewDirection);
+    viewDirection = normalize(-viewDirection);
 
     vec3 diffuse  = hammonDiffuse(material, viewDirection, lightDirection);
          diffuse *= shadowmap.rgb * cloudsShadows;
@@ -175,8 +175,9 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     #endif
 
     diffuse += (blocklight + skylight + ambient) * material.ao * ao;
+    diffuse += emissiveness;
 
-    return material.albedo * max0(diffuse + emissiveness);
+    return material.albedo * diffuse;
 }
 
 vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection) {
@@ -197,5 +198,5 @@ vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection)
     vec3  F  = fresnelDielectricConductor(VdotH, material.N, material.K);
     float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
         
-    return max0(saturate(NdotL) * F * D * G2 / (4.0 * NdotL * NdotV));
+    return NdotL * F * D * G2 / maxEps(4.0 * NdotL * NdotV);
 }

@@ -5,7 +5,7 @@
 
 /*
     [References]:
-        Karis, B. (2013). Specular BRDF Reference. http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
+        Lagarde, S. (2013). Memo on Fresnel equations. https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 */
 
 float fresnelDielectric(float cosTheta, float n1, float n2) {
