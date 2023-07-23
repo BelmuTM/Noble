@@ -27,7 +27,7 @@
 
     /* RENDERTARGETS: 6 */
 
-    layout (location = 0) out vec4 sky;
+    layout (location = 0) out vec3 sky;
 
     in vec2 textureCoords;
     in vec3 skyIlluminance;
@@ -35,7 +35,7 @@
     void main() {
         #if defined WORLD_OVERWORLD || defined WORLD_END
             vec3 skyRay = normalize(unprojectSphere(textureCoords));
-                 sky    = logLuvEncode(evaluateAtmosphericScattering(skyRay, skyIlluminance));
+                 sky    = evaluateAtmosphericScattering(skyRay, skyIlluminance);
         #endif
     }
 #endif

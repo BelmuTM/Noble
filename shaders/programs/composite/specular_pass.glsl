@@ -46,12 +46,18 @@ in vec2 vertexCoords;
         vec3 fresnel      = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
         vec3 sampledColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
 
-        if(material.blockId == WATER_ID) {
-            return sampledColor * (1.0 - fresnel);
+        float density = 0.0;
+
+        switch(material.blockId) {
+            case WATER_ID:         return sampledColor * (1.0 - fresnel);
+            case NETHER_PORTAL_ID: density = 3.0;
+            default: {
+                density = clamp(distance(linearizeDepth(texture(depthtex1, hitPosition.xy).r), linearizeDepth(material.depth0)), 0.0, 5.0);
+                break;
+            }
         }
 
-        float density     = material.blockId == NETHER_PORTAL_ID ? 3.0 : clamp(distance(viewToScene(screenToView(hitPosition)), scenePosition), EPS, 5.0);
-        vec3  attenuation = exp(-(1.0 - material.albedo) * density);
+        vec3 attenuation = exp(-(1.0 - material.albedo) * density);
 
         vec3 blocklightColor = getBlockLightColor(material);
         vec3 emissiveness    = material.emission * blocklightColor;
@@ -163,4 +169,7 @@ void main() {
     }
     
     color += envSpecular;
+
+    vec4 basic     = texture(RASTER_BUFFER, vertexCoords);
+         color.rgb = mix(color.rgb, basic.rgb, basic.a);
 }

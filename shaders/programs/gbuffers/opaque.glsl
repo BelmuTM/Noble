@@ -47,13 +47,11 @@
 			botLeft       = mc_midTexCoord - halfSize;
 		#endif
 
-		#if !defined PROGRAM_BASIC 
-    		viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
+    	viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
-    		tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
-    		tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
-			tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
-		#endif
+    	tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+    	tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+		tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
 
 		blockId = int((mc_Entity.x - 1000.0) + 0.25);
 	

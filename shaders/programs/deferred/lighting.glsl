@@ -35,7 +35,7 @@ in vec2 vertexCoords;
 
 void main() {
     vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
-	if(saturate(fragCoords) != fragCoords) discard;
+	if(saturate(fragCoords) != fragCoords) { discard; return; }
 
     #if GI == 1
         vec2 tmpTextureCoords = textureCoords / GI_SCALE;

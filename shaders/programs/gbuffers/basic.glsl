@@ -7,6 +7,8 @@
 
 #include "/settings.glsl"
 #include "/include/utility/uniforms.glsl"
+
+#include "/include/utility/rng.glsl"
 #include "/include/utility/math.glsl"
 #include "/include/utility/transforms.glsl"
 
@@ -28,6 +30,10 @@
 		#endif
 
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
+
+		#if TAA == 1
+			gl_Position.xy += taaJitter(gl_Position);
+		#endif
 	}
 
 #elif defined STAGE_FRAGMENT

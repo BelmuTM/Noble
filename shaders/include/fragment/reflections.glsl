@@ -21,7 +21,7 @@ vec3 getHitColor(vec2 hitCoords) {
 vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
     #if defined WORLD_OVERWORLD || defined WORLD_END
         vec2 coords     = projectSphere(mat3(gbufferModelViewInverse) * reflected);
-        vec3 atmosphere = logLuvDecode(texture(ATMOSPHERE_BUFFER, saturate(coords + randF() * pixelSize)));
+        vec3 atmosphere = texture(ATMOSPHERE_BUFFER, saturate(coords + randF() * pixelSize)).rgb;
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
         #if defined WORLD_OVERWORLD
@@ -53,12 +53,6 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
         float hit  = float(raytrace(depthtex0, viewPosition, rayDirection, SMOOTH_REFLECTIONS_STEPS, randF(), hitPosition));
               hit *= kneemundAttenuation(hitPosition.xy);
 
-        #if defined SKY_FALLBACK
-            vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition.xy), hit);
-        #else
-            vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition.xy), hit);
-        #endif
-
         float NdotL   = abs(dot(material.normal, rayDirection));
         float NdotV   = dot(material.normal, -viewDirection);
         float alphaSq = maxEps(material.roughness * material.roughness);
@@ -67,7 +61,13 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
         float G1 = G1SmithGGX(NdotV, alphaSq);
         float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
 
-        return NdotV > 0.0 && NdotL > 0.0 ? sampledColor * ((F * G2) / G1) : vec3(0.0);
+        #if defined SKY_FALLBACK
+            vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition.xy), hit);
+        #else
+            vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition.xy), hit);
+        #endif
+
+        return sampledColor * ((F * G2) / G1);
     }
 #else
 
@@ -85,34 +85,31 @@ vec3 getSkyFallback(vec2 hitCoords, vec3 reflected, Material material) {
         mat3  tbn           = constructViewTBN(material.normal);
         float NdotV         = dot(material.normal, -viewDirection);
 	
-        for(int i = 0; i < ROUGH_REFLECTIONS_SAMPLES; i++) {
+        for(int i = 0; i < ROUGH_REFLECTIONS_SAMPLES; i++, samples++) {
             vec3 microfacet   = tbn * sampleGGXVNDF(-viewDirection * tbn, rand2F(), material.roughness);
 		    vec3 rayDirection = reflect(viewDirection, microfacet);	
             float NdotL       = dot(material.normal, rayDirection);
 
-            if(NdotV > 0.0 && NdotL > 0.0) {
-                vec3 hitPosition = vec3(0.0);
+            vec3 hitPosition = vec3(0.0);
                 
-                float hit  = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECTIONS_STEPS, randF(), hitPosition));
-                      hit *= kneemundAttenuation(hitPosition.xy);
+            float hit  = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECTIONS_STEPS, randF(), hitPosition));
+                  hit *= kneemundAttenuation(hitPosition.xy);
 
-                #if defined SKY_FALLBACK
-                    vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition.xy), hit);
-                #else
-                    vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition.xy), hit);
-                #endif
+            float MdotV   = dot(microfacet, -viewDirection);
+            float alphaSq = maxEps(material.roughness * material.roughness);
 
-                float MdotV   = dot(microfacet, -viewDirection);
-                float alphaSq = maxEps(material.roughness * material.roughness);
+            vec3  F  = isEyeInWater == 1 ? vec3(fresnelDielectric(MdotV, 1.333, airIOR)) : fresnelDielectricConductor(MdotV, material.N, material.K);
+            float G1 = G1SmithGGX(NdotV, alphaSq);
+            float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
 
-                vec3  F  = isEyeInWater == 1 ? vec3(fresnelDielectric(MdotV, 1.333, airIOR)) : fresnelDielectricConductor(MdotV, material.N, material.K);
-                float G1 = G1SmithGGX(NdotV, alphaSq);
-                float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
+             #if defined SKY_FALLBACK
+                vec3 sampledColor = mix(getSkyFallback(hitPosition.xy, rayDirection, material), getHitColor(hitPosition.xy), hit);
+            #else
+                vec3 sampledColor = mix(vec3(0.0), getHitColor(hitPosition.xy), hit);
+            #endif
 
-                color += sampledColor * ((F * G2) / G1);
-                samples++;
-            }
+            color += sampledColor * ((F * G2) / G1);
 	    }
-	    return max0(color * rcp(samples));
+	    return max0(color / samples);
     }
 #endif

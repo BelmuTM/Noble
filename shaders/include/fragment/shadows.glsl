@@ -110,7 +110,10 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geoNormal, out float ssDept
         #if SHADOW_TYPE == 1
             vec3 shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
             float avgBlockerDepth = findBlockerDepth(shadowPosDistort, ssDepth);
-            if(avgBlockerDepth < 0.0) return vec3(-1.0);
+            if(avgBlockerDepth < 0.0) {
+                ssDepth = 1.0;
+                return vec3(-1.0);
+            }
 
             if(texture(shadowcolor0, shadowPosDistort.xy).a > 0.0)
                 penumbraSize = max(MIN_SHADOW_PENUMBRA, (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth);

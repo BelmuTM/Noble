@@ -43,7 +43,7 @@
                     case 7: illuminanceOut = skyIlluminance[6]; return;
                     case 8: illuminanceOut = skyIlluminance[7]; return;
                     case 9: illuminanceOut = skyIlluminance[8]; return;
-                    default: discard;
+                    default: { discard; return; }
                 }
             }
         #endif
