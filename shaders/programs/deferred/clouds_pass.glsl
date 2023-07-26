@@ -68,7 +68,7 @@
             float distanceToClouds = min(layer0.a, layer1.a);
             if(distanceToClouds > EPS) {
 
-                vec2 scattering = layer1.rg    * layer0.z + layer0.rg;
+                vec2 scattering = layer1.rg    * layer0.b + layer0.rg;
                 clouds.rgb     += scattering.r * directIlluminance;
                 clouds.rgb     += scattering.g * skyIlluminance;
                 clouds.a        = layer0.b     * layer1.b;

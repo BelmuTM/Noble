@@ -77,8 +77,9 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
     vec2 direction = vec2(0.786, 0.352);
 
     for(int i = 0; i < octaves; i++) {
-        float noise   = FBM(position * inversesqrt(lambda) - (speed * direction), 1, 0.3);
-              height -= gerstnerWaves(position +  vec2(noise, -noise) * sqrt(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
+        float noise = FBM(position * inversesqrt(lambda) - (speed * direction), 1, 0.3);
+
+        height -= gerstnerWaves(position +  vec2(noise, -noise) * sqrt(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
 
         steepness *= 1.02;
         amplitude *= 0.83;

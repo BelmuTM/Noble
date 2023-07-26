@@ -47,7 +47,7 @@ vec3 physicalStar(vec3 sceneDir) {
 vec3 renderAtmosphere(vec2 coords, vec3 viewPosition) {
 	#if defined WORLD_OVERWORLD || defined WORLD_END
 		vec3 sceneDir = normalize(viewToScene(viewPosition));
-		vec3 sky      = texture(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDir) + randF() * pixelSize)).rgb;
+		vec3 sky      = textureCatmullRom(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDir) + randF() * pixelSize)).rgb;
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD

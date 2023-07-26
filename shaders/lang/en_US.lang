@@ -396,6 +396,7 @@ value.CLOUDS_LAYER0_ENABLED.1 = §aON
 
 option.CLOUDS_LAYER0_SCATTERING_STEPS = Scattering Samples
 option.CLOUDS_LAYER0_SCATTERING_STEPS.comment = Influences how accurately light scatters inside of this cloud layer. §cHigher value gives better results, but reduces §cperformance.
+value.CLOUDS_LAYER0_SCATTERING_STEPS.4  = §b4
 value.CLOUDS_LAYER0_SCATTERING_STEPS.8  = §38
 value.CLOUDS_LAYER0_SCATTERING_STEPS.12 = §212
 value.CLOUDS_LAYER0_SCATTERING_STEPS.16 = §a16
@@ -453,6 +454,7 @@ value.CLOUDS_LAYER1_ENABLED.1 = §aON
 
 option.CLOUDS_LAYER1_SCATTERING_STEPS = Scattering Samples
 option.CLOUDS_LAYER1_SCATTERING_STEPS.comment = Influences how accurately light scatters inside of this cloud layer. §cHigher value gives better results, but reduces §cperformance.
+value.CLOUDS_LAYER1_SCATTERING_STEPS.4  = §b4
 value.CLOUDS_LAYER1_SCATTERING_STEPS.8  = §38
 value.CLOUDS_LAYER1_SCATTERING_STEPS.12 = §212
 value.CLOUDS_LAYER1_SCATTERING_STEPS.16 = §a16

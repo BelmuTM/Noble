@@ -52,7 +52,7 @@ const float cloudsPeakWeight   = 0.15;
 
 const int   cloudsMultiScatterSteps = 8;
 const float cloudsExtinctionFalloff = 0.60;
-const float cloudsScatteringFalloff = 0.55;
+const float cloudsScatteringFalloff = 0.50;
 const float cloudsAnisotropyFalloff = 0.80;
 
 /* FOG CONSTANTS */

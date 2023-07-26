@@ -98,10 +98,10 @@ void main() {
                     cloudsShadows = getCloudsShadows(viewToScene(viewPosition0));
                 #endif
 
-                skyIlluminance = texture(ILLUMINANCE_BUFFER, vertexCoords).rgb;
+                skyIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
 
                 #if SHADOWS == 1
-                    shadowmap = texture(SHADOWMAP_BUFFER, vertexCoords);
+                    shadowmap = texelFetch(SHADOWMAP_BUFFER, ivec2(gl_FragCoord.xy), 0);
                 #endif
             #endif
 

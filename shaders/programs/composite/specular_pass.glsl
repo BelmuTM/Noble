@@ -26,7 +26,7 @@ in vec2 vertexCoords;
 //////////////////////////////////////////////////////////
 
 #if REFRACTIONS == 1
-    vec3 computeRefractions(vec3 viewPosition, vec3 scenePosition, Material material, inout vec3 hitPosition) {
+    vec3 computeRefractions(vec3 viewPosition, Material material, inout vec3 hitPosition) {
         vec3 n1 = vec3(airIOR), n2 = material.N;
         if(isEyeInWater == 1) {
             n1 = vec3(1.333);
@@ -112,17 +112,13 @@ void main() {
                 #endif
             #endif
 
-            if(viewPosition0.z != viewPosition1.z) {
-                //////////////////////////////////////////////////////////
-                /*-------------------- REFRACTIONS ---------------------*/
-                //////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////
+            /*-------------------- REFRACTIONS ---------------------*/
+            //////////////////////////////////////////////////////////
 
-                #if REFRACTIONS == 1
-                    if(material.F0 > EPS) {
-                        color = computeRefractions(viewPosition0, viewToScene(viewPosition1), material, coords);
-                    }
-                #endif
-            }
+            #if REFRACTIONS == 1
+                if(viewPosition0.z != viewPosition1.z && material.F0 > EPS) color = computeRefractions(viewPosition0, material, coords);
+            #endif
 
             //////////////////////////////////////////////////////////
             /*-------------------- REFLECTIONS ---------------------*/

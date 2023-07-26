@@ -11,7 +11,6 @@
 
 /*
 const int shadowcolor0Format = RGBA16F;
-const int shadowcolor1Format = RGBA8;
 
 const int colortex0Format  = RGBA16F;   // Main
 const int colortex1Format  = RGBA32UI;  // Gbuffer data

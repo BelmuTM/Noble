@@ -85,12 +85,7 @@ void main() {
     color *= exposure;
     
     // Tonemapping & Color Grading
-    whiteBalance(color);
-    vibrance(color,   1.0 + VIBRANCE);
-    saturation(color, 1.0 + SATURATION);
-    contrast(color,   1.0 + CONTRAST);
-    liftGammaGain(color, LIFT * 0.1, 1.0 + GAMMA, 1.0 + GAIN);
-
+    
     #if TONEMAP == ACES        // ACES
         rrt(color);
         odt(color);
@@ -109,6 +104,12 @@ void main() {
     #if TONEMAP != ACES
         color = linearToSrgb(color);
     #endif
+
+    whiteBalance(color);
+    vibrance(color,   1.0 + VIBRANCE);
+    saturation(color, 1.0 + SATURATION);
+    contrast(color,   1.0 + CONTRAST);
+    liftGammaGain(color, LIFT * 0.1, 1.0 + GAMMA, 1.0 + GAIN);
 
     color = saturate(color);
 }
