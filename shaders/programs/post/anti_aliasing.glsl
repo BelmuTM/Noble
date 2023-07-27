@@ -34,7 +34,7 @@
     in vec2 textureCoords;
     in vec2 vertexCoords;
 
-    #if TAA == 1
+    #if EIGHT_BITS_FILTER == 0 && TAA == 1
         #include "/include/utility/sampling.glsl"
 
         vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
@@ -77,9 +77,18 @@
         }
     #endif
 
+    vec4 samplePixelatedBuffer(sampler2D tex, vec2 coords, int resolution) {
+        vec2 resolutionVec = resolution * vec2(aspectRatio, 1.0);
+        return texelFetch(tex, ivec2((floor(coords * resolutionVec) / resolutionVec) * viewSize), 0);
+    }
+
     void main() {
-        #if TAA == 0
-            color.rgb = texture(MAIN_BUFFER, vertexCoords).rgb;
+        #if EIGHT_BITS_FILTER == 1 || TAA == 0
+            #if EIGHT_BITS_FILTER == 1
+                color.rgb = samplePixelatedBuffer(MAIN_BUFFER, vertexCoords, 350).rgb;
+            #else
+                color.rgb = texture(MAIN_BUFFER, vertexCoords).rgb;
+            #endif
         #else
             vec3 closestFragment = getClosestFragment(vec3(textureCoords, texture(depthtex0, vertexCoords).r));
             vec2 prevCoords      = textureCoords + getVelocity(closestFragment).xy;

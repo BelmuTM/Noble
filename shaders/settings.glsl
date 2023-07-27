@@ -318,6 +318,8 @@ const int EMISSIVE_INTENSITY = 900;
 #define WATER_DISTORTION_SPEED     0.65
 #define WATER_DISTORTION_AMPLITUDE 0.40
 
+#define EIGHT_BITS_FILTER 0 // [0 1]
+
 //////////////////////////////////////////////////////////
 /*------------------ CAMERA SETTINGS -------------------*/
 //////////////////////////////////////////////////////////

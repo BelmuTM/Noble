@@ -806,6 +806,11 @@ value.SHARPEN.1 = §aON
 option.SHARPEN_STRENGTH = Sharpen Strength
 option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§r's intensity.
 
+option.EIGHT_BITS_FILTER = 8-Bits Filter
+option.EIGHT_BITS_FILTER.comment = Makes the game look like a vintage 8-bits game.
+value.EIGHT_BITS_FILTER.0 = §cOFF
+value.EIGHT_BITS_FILTER.1 = §aON
+
 ##################### DEBUG #####################
 
 option.DEBUG_HISTOGRAM = Display Histogram

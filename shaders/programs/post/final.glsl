@@ -89,6 +89,16 @@ vec3 interpolateTurbo(float x) {
 }
 */
 
+#if EIGHT_BITS_FILTER == 1
+    void quantizeColor(inout vec3 color, float quantizationPeriod) {
+        color = floor((color + quantizationPeriod * 0.5) / quantizationPeriod) * quantizationPeriod;
+    }
+
+    void ditherColor(inout vec3 color, float quantizationPeriod) {
+        color += (bayer2(gl_FragCoord.xy) - 0.5) * quantizationPeriod;
+    }
+#endif
+
 void main() {
     vec2 distortCoords = textureCoords;
 
@@ -115,5 +125,13 @@ void main() {
         color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
-    color += bayer8(gl_FragCoord.xy) * rcpMaxVal8;
+    #if EIGHT_BITS_FILTER == 1
+        const int   colorPaletteSize   = 2;
+        const float quantizationPeriod = 1.0 / colorPaletteSize;
+
+        ditherColor  (color, quantizationPeriod);
+        quantizeColor(color, quantizationPeriod);
+    #else
+        color += bayer8(gl_FragCoord.xy) * rcpMaxVal8;
+    #endif
 }
