@@ -38,11 +38,12 @@ screen.WATER             = Water
 screen.WATER_ABSORPTION  = Absorption
 screen.WATER_SCATTERING  = Scattering
 screen.POM               = POM
-screen.POST_PROCESSING   = Camera
+screen.CAMERA            = Camera
 screen.CAMERA_SETTINGS   = Camera Settings
-screen.DEPTH_OF_FIELD    = Depth of Field
-screen.COLOR_GRADING     = Color Grading
 screen.ANTI_ALIASING     = Anti-Aliasing
+screen.COLOR_GRADING     = Color Grading
+screen.POST_PROCESSING   = Post-Processing
+screen.DEPTH_OF_FIELD    = Depth of Field
 screen.DEBUG             = Debug
 
 ##################### LIGHTING #####################
