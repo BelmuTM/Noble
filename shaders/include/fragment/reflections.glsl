@@ -45,7 +45,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
         float NdotL         = abs(dot(material.normal, rayDirection));
 
         vec3 hitPosition;
-        float hit = float(raytrace(depthtex0, viewPosition, rayDirection, SMOOTH_REFLECTIONS_STEPS, randF(), hitPosition));
+        float hit = float(raytrace(depthtex0, viewPosition, rayDirection, SMOOTH_REFLECTIONS_STEPS, randF(), RENDER_SCALE, hitPosition));
 
         vec3  F  = fresnelDielectricConductor(NdotL, material.N, material.K);
         float G1 = G1SmithGGX(NdotV, alphaSq);
@@ -80,7 +80,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
             float NdotL           = abs(dot(material.normal, rayDirection));
 
             vec3 hitPosition;
-            float hit = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECTIONS_STEPS, randF(), hitPosition));
+            float hit = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECTIONS_STEPS, randF(), RENDER_SCALE, hitPosition));
 
             vec3  F  = isEyeInWater == 1 ? vec3(fresnelDielectric(MdotV, 1.333, airIOR)) : fresnelDielectricConductor(MdotV, material.N, material.K);
             float G1 = G1SmithGGX(NdotV, alphaSq);

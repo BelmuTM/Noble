@@ -190,6 +190,8 @@
 					translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminanceTmp, skyIlluminance, 1.0, 1.0);
 					translucents.a   = albedoTex.a;
 				}
+			#else
+				discard; return;
 			#endif
 		}
 

@@ -4,8 +4,10 @@
 /***********************************************/
 
 /*
-                        - CREDITS -
-    Thanks Bálint#1673 and Jessie#7257 for their huge help!
+    [Credits]:
+        Bálint (https://github.com/BalintCsala)
+        Jessie (https://github.com/Jessie-LC)
+        Thanks to them for helping me understand the basics of path tracing when I was beginning
 */
 
 #if GI == 1
@@ -87,7 +89,7 @@
 
                 brdf += material.albedo * EMISSIVE_INTENSITY * material.emission;
              
-                bool hit = raytrace(depthtex0, screenToView(rayPosition), rayDirection, MAX_GI_STEPS, randF(), rayPosition);
+                bool hit = raytrace(depthtex0, screenToView(rayPosition), rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
 
                 float NdotL = dot(material.normal, rayDirection);
                 if(NdotL <= 0.0) continue;
@@ -101,8 +103,9 @@
                 }
 
                 if(!hit) {
-                    #if SKY_CONTRIBUTION == 1
-                        estimate += throughput * texture(ILLUMINANCE_BUFFER, rayPosition.xy).rgb * RCP_PI * getSkylightFalloff(material.lightmap.y);
+                    #if defined WORLD_OVERWORLD && SKY_CONTRIBUTION == 1
+                        vec3 atmosphere = texture(ATMOSPHERE_BUFFER, projectSphere(rayDirection)).rgb;
+                             estimate  += throughput * atmosphere * RCP_PI * getSkylightFalloff(material.lightmap.y);
                     #endif
                     break;
                 }

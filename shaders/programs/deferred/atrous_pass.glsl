@@ -5,7 +5,7 @@
 
 /*
     [Credits]:
-        Jakemichie97 (https://twitter.com/jakemichie97?lang=en)
+        Jakemichie97 (https://twitter.com/jakemichie97)
         Samuel (https://github.com/swr06)
         L4mbads (L4mbads#6227)
         SixthSurge (https://github.com/sixthsurge)
@@ -80,8 +80,6 @@
             float centerLuma = luminance(irradiance);
             float variance   = gaussianVariance(coords);
 
-            moments = texture(MOMENTS_BUFFER, coords);
-
             for(int x = -1; x <= 1; x++) {
                 for(int y = -1; y <= 1; y++) {
                     if(all(equal(ivec2(x,y), ivec2(0)))) continue;
@@ -92,7 +90,7 @@
                     if(saturate(sampleCoords) != sampleCoords) continue;
 
                     Material sampleMaterial = getMaterial(sampleCoords);
-                    vec3 sampleIrradiance   = texelFetch(tex, ivec2(sampleCoords * viewSize), 0).rgb;
+                    vec3 sampleIrradiance   = texture(tex, sampleCoords).rgb;
 
                     float normalWeight = getATrousNormalWeight(material.normal, sampleMaterial.normal);
                     float depthWeight  = getATrousDepthWeight(material.depth0, sampleMaterial.depth0, dgrad, offset);
@@ -109,7 +107,8 @@
         }
 
         void main() {
-            color = texture(DEFERRED_BUFFER, vertexCoords);
+            color        = texture(DEFERRED_BUFFER, vertexCoords);
+            temporalData = texture(MOMENTS_BUFFER, vertexCoords);
 
             aTrousFilter(color.rgb, temporalData, DEFERRED_BUFFER, vertexCoords, ATROUS_PASS_INDEX);
         }

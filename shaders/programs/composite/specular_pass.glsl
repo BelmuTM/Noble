@@ -35,7 +35,7 @@ in vec2 vertexCoords;
 
         vec3 viewDirection = normalize(viewPosition);
         vec3 refracted     = refract(viewDirection, material.normal, n1.r / n2.r);
-        bool hit           = raytrace(depthtex1, viewPosition, refracted, REFRACTIONS_STEPS, randF(), hitPosition);
+        bool hit           = raytrace(depthtex1, viewPosition, refracted, REFRACTIONS_STEPS, randF(), RENDER_SCALE, hitPosition);
         
         if(saturate(hitPosition.xy) != hitPosition.xy || !hit && texture(depthtex1, hitPosition.xy).r != 1.0 || isHand(hitPosition.xy * RENDER_SCALE)) {
             hitPosition.xy = textureCoords;
@@ -75,10 +75,9 @@ void main() {
         /*---------------- GLOBAL ILLUMINATION -----------------*/
         //////////////////////////////////////////////////////////
 
-        vec2 scaledUv = vertexCoords * GI_SCALE;
-        color = texture(DEFERRED_BUFFER, scaledUv).rgb;
+        color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
 
-        uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, scaledUv).rg;
+        uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, vertexCoords).rg;
 
         vec3 direct   = logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8)));
         vec3 indirect = logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8)));

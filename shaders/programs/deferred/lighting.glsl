@@ -23,13 +23,11 @@ in vec2 textureCoords;
 in vec2 vertexCoords;
 
 #include "/include/atmospherics/constants.glsl"
-
-#include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/brdf.glsl"
-
 #include "/include/atmospherics/celestial.glsl"
 
 #if GI == 1
+    #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/pathtracer.glsl"
 #endif
 
@@ -37,19 +35,11 @@ void main() {
     vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-    #if GI == 1
-        vec2 tmpTextureCoords = textureCoords / GI_SCALE;
-        vec2 tmpVertexCoords  = vertexCoords / GI_SCALE;
-    #else
-        vec2 tmpTextureCoords = textureCoords;
-        vec2 tmpVertexCoords  = vertexCoords;
-    #endif
-
-    float depth         = texture(depthtex0, tmpVertexCoords).r;
-    vec3  viewPosition0 = screenToView(vec3(tmpTextureCoords, depth));
+    float depth         = texture(depthtex0, vertexCoords).r;
+    vec3  viewPosition0 = screenToView(vec3(textureCoords, depth));
 
     if(depth == 1.0) {
-        vec3 sky = renderAtmosphere(tmpVertexCoords, viewPosition0);
+        vec3 sky = renderAtmosphere(vertexCoords, viewPosition0);
         #if GI == 1
             firstBounceData.x = packUnormArb(logLuvEncode(sky), uvec4(8));
         #else
@@ -58,7 +48,7 @@ void main() {
         return;
     }
 
-    Material material = getMaterial(tmpVertexCoords);
+    Material material = getMaterial(vertexCoords);
 
     #if HARDCODED_SSS == 1
         if(material.blockId > NETHER_PORTAL_ID && material.blockId <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
@@ -69,19 +59,24 @@ void main() {
         vec2  prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
         vec4  history      = texture(DEFERRED_BUFFER, prevCoords);
 
+        color.a  = history.a;
+        color.a *= float(clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords);
+        color.a *= float(!isHand(vertexCoords));
+
         #if RENDER_MODE == 0
             float prevDepth = exp2(texture(MOMENTS_BUFFER, prevCoords).a);
-            float weight    = pow(exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
+
+            color.a *= pow(exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
             vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
-                 weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
+                 color.a        *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
 
             temporalData.a = log2(depth);
         #else
-            float weight = float(hideGUI);
+            color.a *= float(hideGUI);
         #endif
 
-        color.a = (history.a * weight * float(clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords) * float(!isHand(vertexCoords))) + 1.0;
+        color.a++;
     #endif
 
     #if GI == 0
@@ -116,30 +111,27 @@ void main() {
         vec3 direct   = vec3(0.0);
         vec3 indirect = vec3(1.0);
 
-        if(clamp(vertexCoords, vec2(0.0), vec2(GI_SCALE)) == vertexCoords) {
+        pathtrace(color.rgb, vec3(vertexCoords, depth), direct, indirect);
 
-            pathtrace(color.rgb, vec3(vertexCoords, depth), direct, indirect);
+        #if GI_TEMPORAL_ACCUMULATION == 1
+            float weight = saturate(1.0 / max(color.a * float(linearizeDepthFast(material.depth0) >= MC_HAND_DEPTH), 1.0));
 
-            #if GI_TEMPORAL_ACCUMULATION == 1
-                float frameWeight = 1.0 / max(color.a * float(linearizeDepthFast(material.depth0) >= MC_HAND_DEPTH), 1.0);
+            color.rgb = mix(history.rgb, color.rgb, weight);
 
-                color.rgb = mix(history.rgb, color.rgb, frameWeight);
+            uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, prevCoords).rg;
 
-                uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, prevCoords).rg;
+            direct   = max0(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8))), direct  , weight));
+            indirect = max0(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8))), indirect, weight));
 
-                direct   = max0(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8))), direct  , frameWeight));
-                indirect = max0(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8))), indirect, frameWeight));
+            #if GI_FILTER == 1
+                float luminance = luminance(color.rgb);
+                temporalData.rg = vec2(luminance, luminance * luminance);
 
-                #if GI_FILTER == 1
-                    float luminance = luminance(color.rgb);
-                    temporalData.rg = vec2(luminance, luminance * luminance);
-
-                    vec2 prevMoments     = texture(MOMENTS_BUFFER, prevCoords).rg;
-                         temporalData.rg = mix(prevMoments, temporalData.rg, frameWeight);
-                         temporalData.b  = sqrt(abs(temporalData.g - temporalData.r * temporalData.r));
-                #endif
+                vec2 prevMoments     = texture(MOMENTS_BUFFER, prevCoords).rg;
+                     temporalData.rg = mix(prevMoments, temporalData.rg, weight);
+                     temporalData.b  = sqrt(abs(temporalData.g - temporalData.r * temporalData.r));
             #endif
-        }
+        #endif
 
         firstBounceData.x = packUnormArb(logLuvEncode(direct  ), uvec4(8));
         firstBounceData.y = packUnormArb(logLuvEncode(indirect), uvec4(8));
