@@ -12,7 +12,7 @@
 
 #include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
-#include "/internalSettings.glsl"
+#include "/include/internalSettings.glsl"
 
 #if AO == 0 || GI == 1
     #include "/programs/discard.glsl"
@@ -157,7 +157,7 @@
             	vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
             	vec4 prevAO       = texture(AO_BUFFER, prevCoords);
         
-            	float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevCoords).w, 1.0);
+            	float weight = 1.0 / max(texture(LIGHTING_BUFFER, prevCoords).w, 1.0);
 
             	ao.w   = mix(prevAO.w  , ao.w  , weight);
             	ao.xyz = mix(prevAO.xyz, ao.xyz, weight);

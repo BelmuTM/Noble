@@ -104,8 +104,7 @@
 
                 if(!hit) {
                     #if defined WORLD_OVERWORLD && SKY_CONTRIBUTION == 1
-                        vec3 atmosphere = texture(ATMOSPHERE_BUFFER, projectSphere(rayDirection)).rgb;
-                             estimate  += throughput * atmosphere * RCP_PI * getSkylightFalloff(material.lightmap.y);
+                        estimate  += throughput * texture(ILLUMINANCE_BUFFER, rayPosition.xy).rgb * RCP_PI * getSkylightFalloff(material.lightmap.y);
                     #endif
                     break;
                 }

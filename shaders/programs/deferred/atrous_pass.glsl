@@ -18,7 +18,7 @@
 #include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
 
-#if GI == 0 || GI_FILTER == 0
+#if GI == 0 || GI_FILTER == 0 || RENDER_MODE == 1
     #include "/programs/discard.glsl"
 #else
     #if defined STAGE_VERTEX
@@ -26,25 +26,24 @@
 
     #elif defined STAGE_FRAGMENT
 
-        /* RENDERTARGETS: 4,10 */
+        #if ATROUS_PASS_INDEX <= 0
+            #define INPUT_BUFFER LIGHTING_BUFFER
+        #else
+            #define INPUT_BUFFER MAIN_BUFFER
+        #endif
 
-        layout (location = 0) out vec4 color;
-        layout (location = 1) out vec4 temporalData;
+        #if ATROUS_PASS_INDEX == 0
+            /* RENDERTARGETS: 0 */
+
+            layout (location = 0) out vec4 irradiance;
+        #else
+            /* RENDERTARGETS: 0 */
+
+            layout (location = 0) out vec4 irradiance;
+        #endif
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
-
-        float gaussianVariance(vec2 coords) {
-            float variance = 0.0;
-
-            for(int x = -1; x <= 1; x++) {
-                for(int y = -1; y <= 1; y++) {
-                    float weight = gaussianDistribution2D(vec2(x, y), 1.0);
-                    variance    += texture(MOMENTS_BUFFER, coords + vec2(x, y) * pixelSize).z * weight;
-                }
-            }
-            return variance;
-        }
 
         const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
         const float steps[5]  = float[5](
@@ -55,30 +54,88 @@
             ATROUS_STEP_SIZE
         );
 
-        float getATrousNormalWeight(vec3 normal, vec3 sampleNormal) {
+        float calculateATrousNormalWeight(vec3 normal, vec3 sampleNormal) {   
             return pow(max0(dot(normal, sampleNormal)), NORMAL_WEIGHT_SIGMA);
         }
 
-        float getATrousDepthWeight(float depth, float sampleDepth, vec2 dgrad, vec2 offset) {
-            return exp(-abs(depth - sampleDepth) / (abs(DEPTH_WEIGHT_SIGMA * dot(dgrad, offset)) + 5e-3));
+        float calculateATrousDepthWeight(float depth, float sampleDepth, vec2 depthGradient, vec2 offset) {
+            return exp(-abs(depth - sampleDepth) / (abs(DEPTH_WEIGHT_SIGMA * dot(depthGradient, offset)) + 5e-3));
         }
 
-        float getATrousLuminanceWeight(float luminance, float sampleLuminance, float variance) {
-            return exp(-abs(luminance - sampleLuminance) / (LUMA_WEIGHT_SIGMA * variance + 1e-6));
+        float calculateATrousLuminanceWeight(float luminance, float sampleLuminance, float variance) {
+            return exp(-abs(luminance - sampleLuminance) / maxEps(LUMINANCE_WEIGHT_SIGMA * variance));
         }
 
-        void aTrousFilter(inout vec3 irradiance, inout vec4 moments, sampler2D tex, vec2 coords, int passIndex) {
+        float spatialVariance(vec2 coords, Material material, vec2 depthGradient) {
+            float sum = 0.0, sqSum = 0.0, totalWeight = 1.0;
+
+            int  filterSize = 3;
+            vec2 stepSize   = steps[ATROUS_PASS_INDEX] * pixelSize;
+
+            for(int x = -filterSize; x <= filterSize; x++) {
+                for(int y = -filterSize; y <= filterSize; y++) {
+                    float weight       = gaussianDistribution2D(vec2(x, y), 1.0);
+                    vec2  offset       = vec2(x, y) * stepSize;
+                    vec2  sampleCoords = coords + offset;
+
+                    if(saturate(sampleCoords) != sampleCoords) continue;
+
+                    Material sampleMaterial = getMaterial(sampleCoords);
+
+                    float normalWeight = calculateATrousNormalWeight(material.normal, sampleMaterial.normal);
+                    float depthWeight  = calculateATrousDepthWeight(material.depth0, sampleMaterial.depth0, depthGradient, offset);
+
+                    weight = saturate(weight) * aTrous[abs(x)] * aTrous[abs(y)];
+
+                    float luminance = luminance(texture(INPUT_BUFFER, sampleCoords).rgb);
+
+                    sum   += luminance * weight;
+                    sqSum += luminance * luminance * weight;
+
+                    totalWeight += weight;
+                }
+            }
+            sum   /= totalWeight;
+            sqSum /= totalWeight;
+            return sqrt(max0(sqSum - (sum * sum)));
+        }
+
+        float temporalVariance(vec2 coords) {
+            float sum = 0.0, sqSum = 0.0, totalWeight = 1.0;
+
+            int filterSize = 1;
+
+            for(int x = -filterSize; x <= filterSize; x++) {
+                for(int y = -filterSize; y <= filterSize; y++) {
+                    float weight      = gaussianDistribution2D(vec2(x, y), 1.0);
+                    float luminanceSq = texture(TEMPORAL_DATA_BUFFER, coords + vec2(x, y) * pixelSize).r;
+                    
+                    sum   += sqrt(luminanceSq) * weight;
+                    sqSum += luminanceSq       * weight;
+
+                    totalWeight += weight;
+                }
+            }
+            sum   /= totalWeight;
+            sqSum /= totalWeight;
+            return sqrt(max0(sqSum - (sum * sum)));
+        }
+
+        void aTrousFilter(inout vec3 irradiance, vec2 coords) {
             Material material = getMaterial(coords);
             if(material.depth0 == 1.0) return;
 
-            float totalWeight = 1.0, totalWeightSq = 1.0;
-            vec2 stepSize     = steps[passIndex] * pixelSize;
+            vec2 depthGradient = vec2(dFdx(material.depth0), dFdy(material.depth0));
 
-            float frames = float(texture(DEFERRED_BUFFER, coords).a > 4.0);
-            vec2 dgrad   = vec2(dFdx(material.depth0), dFdy(material.depth0));
+            float totalWeight = 1.0;
+            vec2 stepSize     = steps[ATROUS_PASS_INDEX] * pixelSize;
 
-            float centerLuma = luminance(irradiance);
-            float variance   = gaussianVariance(coords);
+            float accumulatedSamples = texture(LIGHTING_BUFFER, textureCoords).a;
+
+            float frameWeight = float(accumulatedSamples > 4.0);
+
+            float centerLuminance = luminance(irradiance);
+            float variance        = accumulatedSamples < 128.0 ? spatialVariance(coords, material, depthGradient) : temporalVariance(coords);
 
             for(int x = -1; x <= 1; x++) {
                 for(int y = -1; y <= 1; y++) {
@@ -90,27 +147,23 @@
                     if(saturate(sampleCoords) != sampleCoords) continue;
 
                     Material sampleMaterial = getMaterial(sampleCoords);
-                    vec3 sampleIrradiance   = texture(tex, sampleCoords).rgb;
+                    vec3 sampleIrradiance   = texture(INPUT_BUFFER, sampleCoords).rgb;
 
-                    float normalWeight = getATrousNormalWeight(material.normal, sampleMaterial.normal);
-                    float depthWeight  = getATrousDepthWeight(material.depth0, sampleMaterial.depth0, dgrad, offset);
-                    float lumaWeight   = mix(1.0, getATrousLuminanceWeight(centerLuma, luminance(sampleIrradiance), variance), frames);
+                    float normalWeight    = calculateATrousNormalWeight(material.normal, sampleMaterial.normal);
+                    float depthWeight     = calculateATrousDepthWeight(material.depth0, sampleMaterial.depth0, depthGradient, offset);
+                    float luminanceWeight = calculateATrousLuminanceWeight(centerLuminance, luminance(sampleIrradiance), variance);
 
-                    float weight   = saturate(normalWeight * depthWeight * lumaWeight) * aTrous[abs(x)] * aTrous[abs(y)];
-                    irradiance    += sampleIrradiance * weight;
-                    totalWeight   += weight;
-                    totalWeightSq += weight * weight;
+                    float weight = saturate(normalWeight * depthWeight * mix(1.0, luminanceWeight, frameWeight) * aTrous[abs(x)] * aTrous[abs(y)]);
+                    irradiance  += sampleIrradiance * weight;
+                    totalWeight += weight;
                 }
             }
             irradiance /= totalWeight;
-            moments.z  *= totalWeightSq;
         }
 
         void main() {
-            color        = texture(DEFERRED_BUFFER, vertexCoords);
-            temporalData = texture(MOMENTS_BUFFER, vertexCoords);
-
-            aTrousFilter(color.rgb, temporalData, DEFERRED_BUFFER, vertexCoords, ATROUS_PASS_INDEX);
+            irradiance = texture(INPUT_BUFFER, vertexCoords);
+            aTrousFilter(irradiance.rgb, vertexCoords);
         }
     #endif
 #endif

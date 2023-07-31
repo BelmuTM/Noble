@@ -52,7 +52,7 @@
 
             if(any(isnan(prevColor))) prevColor = reflections.rgb;
 
-            float weight = 1.0 / max(texture(DEFERRED_BUFFER, prevCoords).w, 1.0);
+            float weight = 1.0 / max(texture(LIGHTING_BUFFER, prevCoords).w, 1.0);
             reflections  = logLuvEncode(mix(prevColor, reflections.rgb, weight));
         }
     #endif

@@ -80,7 +80,7 @@
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
 
-                float frameWeight = 1.0 / max(texture(DEFERRED_BUFFER, prevPosition).w, 1.0);
+                float frameWeight = 1.0 / max(texture(LIGHTING_BUFFER, prevPosition).w, 1.0);
 
                 float weight = centerWeight * frameWeight * float(clamp(prevPosition, 0.0, RENDER_SCALE - 1e-3) == prevPosition);
 

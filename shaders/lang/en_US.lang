@@ -269,8 +269,8 @@ option.NORMAL_WEIGHT_SIGMA.comment = Adjusts the strength of the normal weight u
 option.DEPTH_WEIGHT_SIGMA = Depth Weight Strength
 option.DEPTH_WEIGHT_SIGMA.comment = Adjusts the strength of the depth weight used to denoise.
 
-option.LUMA_WEIGHT_SIGMA = Luminance Weight Strength
-option.LUMA_WEIGHT_SIGMA.comment = Adjusts the strength of the luminance weight used to denoise.
+option.LUMINANCE_WEIGHT_SIGMA = Luminance Weight Strength
+option.LUMINANCE_WEIGHT_SIGMA.comment = Adjusts the strength of the luminance weight used to denoise.
 
 option.SKY_CONTRIBUTION = Sky Contribution
 option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r (can be problematic in screen space). Lets the sky contribute in indirect lighting.

@@ -11,12 +11,12 @@
 
     layout (location = 0) out vec4 color;
     layout (location = 1) out uvec2 firstBounceData;
-    layout (location = 2) out vec4 temporalData;
+    layout (location = 2) out vec2 temporalData;
 #else
     /* RENDERTARGETS: 4,10 */
 
     layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 temporalData;
+    layout (location = 1) out vec2 temporalData;
 #endif
 
 in vec2 textureCoords;
@@ -54,24 +54,24 @@ void main() {
         if(material.blockId > NETHER_PORTAL_ID && material.blockId <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
     #endif
 
-    #if AO_FILTER == 1 && GI == 0 || GI == 1
+    #if AO_FILTER == 1 && GI == 0 || GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
         vec3  currPosition = vec3(textureCoords, depth);
         vec2  prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
-        vec4  history      = texture(DEFERRED_BUFFER, prevCoords);
+        vec4  history      = texture(LIGHTING_BUFFER, prevCoords);
 
         color.a  = history.a;
         color.a *= float(clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords);
         color.a *= float(!isHand(vertexCoords));
 
-        #if RENDER_MODE == 0
-            float prevDepth = exp2(texture(MOMENTS_BUFFER, prevCoords).a);
+        temporalData = texture(TEMPORAL_DATA_BUFFER, prevCoords).rg;
 
-            color.a *= pow(exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(prevDepth))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
+        #if RENDER_MODE == 0
+            color.a *= pow(exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(exp2(temporalData.g)))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
             vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
                  color.a        *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
 
-            temporalData.a = log2(depth);
+            temporalData.g = log2(depth);
         #else
             color.a *= float(hideGUI);
         #endif
@@ -116,20 +116,16 @@ void main() {
         #if GI_TEMPORAL_ACCUMULATION == 1
             float weight = saturate(1.0 / max(color.a * float(linearizeDepthFast(material.depth0) >= MC_HAND_DEPTH), 1.0));
 
-            color.rgb = mix(history.rgb, color.rgb, weight);
+            color.rgb = clamp16(mix(history.rgb, color.rgb, weight));
 
             uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, prevCoords).rg;
 
-            direct   = max0(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8))), direct  , weight));
-            indirect = max0(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8))), indirect, weight));
+            direct   = clamp16(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8))), direct  , weight));
+            indirect = clamp16(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8))), indirect, weight));
 
             #if GI_FILTER == 1
-                float luminance = luminance(color.rgb);
-                temporalData.rg = vec2(luminance, luminance * luminance);
-
-                vec2 prevMoments     = texture(MOMENTS_BUFFER, prevCoords).rg;
-                     temporalData.rg = mix(prevMoments, temporalData.rg, weight);
-                     temporalData.b  = sqrt(abs(temporalData.g - temporalData.r * temporalData.r));
+                float luminance      = luminance(color.rgb);
+                      temporalData.r = mix(temporalData.r, luminance * luminance, weight);
             #endif
         #endif
 

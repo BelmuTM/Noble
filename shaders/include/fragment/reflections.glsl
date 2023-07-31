@@ -7,7 +7,7 @@ vec3 sampleHitColor(vec2 hitCoords) {
     #if SSR_REPROJECTION == 1
         return texture(HISTORY_BUFFER, hitCoords).rgb;
     #else
-        return texture(DEFERRED_BUFFER, hitCoords).rgb;
+        return texture(LIGHTING_BUFFER, hitCoords).rgb;
     #endif
 }
 

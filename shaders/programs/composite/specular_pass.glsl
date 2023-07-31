@@ -44,7 +44,7 @@ in vec2 vertexCoords;
         hitPosition.xy *= RENDER_SCALE;
 
         vec3 fresnel      = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
-        vec3 sampledColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
+        vec3 sampledColor = texture(LIGHTING_BUFFER, hitPosition.xy).rgb;
 
         float density = 0.0;
 
@@ -75,14 +75,18 @@ void main() {
         /*---------------- GLOBAL ILLUMINATION -----------------*/
         //////////////////////////////////////////////////////////
 
-        color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
-
         uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, vertexCoords).rg;
 
         vec3 direct   = logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8)));
         vec3 indirect = logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8)));
+
+        #if GI_FILTER == 1
+            vec3 radiance = texture(MAIN_BUFFER, vertexCoords).rgb;
+        #else
+            vec3 radiance = texture(LIGHTING_BUFFER, vertexCoords).rgb;
+        #endif
         
-        color = direct + (indirect * color);
+        color = direct + indirect * radiance;
     #endif
 
     vec3 coords = vec3(vertexCoords, 0.0);
@@ -90,7 +94,7 @@ void main() {
     vec3 sunSpecular = vec3(0.0), envSpecular = vec3(0.0);
 
     #if GI == 0
-        color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+        color = texture(LIGHTING_BUFFER, vertexCoords).rgb;
 
         if(!isSky(vertexCoords)) {
             Material material = getMaterial(vertexCoords);

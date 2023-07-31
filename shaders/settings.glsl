@@ -9,21 +9,21 @@
 /*---------------------- BUFFERS -----------------------*/
 //////////////////////////////////////////////////////////
 
-#define MAIN_BUFFER				colortex0
-#define GBUFFERS_DATA			colortex1
-#define REFLECTIONS_BUFFER		colortex2
-#define SHADOWMAP_BUFFER		colortex3
-#define DEFERRED_BUFFER			colortex4
-#define ILLUMINANCE_BUFFER		colortex5
-#define ATMOSPHERE_BUFFER		colortex6
-#define CLOUDS_BUFFER			colortex7
-#define HISTORY_BUFFER			colortex8
-#define GI_DATA_BUFFER			colortex9
-#define MOMENTS_BUFFER			colortex10
-#define FOG_BUFFER				colortex11
-#define AO_BUFFER				colortex12
-#define LUT_BUFFER				colortex14
-#define RASTER_BUFFER			colortex15
+#define MAIN_BUFFER          colortex0
+#define GBUFFERS_DATA        colortex1
+#define REFLECTIONS_BUFFER   colortex2
+#define SHADOWMAP_BUFFER     colortex3
+#define LIGHTING_BUFFER      colortex4
+#define ILLUMINANCE_BUFFER   colortex5
+#define ATMOSPHERE_BUFFER    colortex6
+#define CLOUDS_BUFFER        colortex7
+#define HISTORY_BUFFER       colortex8
+#define GI_DATA_BUFFER       colortex9
+#define TEMPORAL_DATA_BUFFER colortex10
+#define FOG_BUFFER           colortex11
+#define AO_BUFFER            colortex12
+#define LUT_BUFFER           colortex14
+#define RASTER_BUFFER        colortex15
 
 //////////////////////////////////////////////////////////
 /*------------------------ MATH ------------------------*/
@@ -136,10 +136,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
 #define RENDER_MODE 			 0 // [0 1]
 
-#define ATROUS_STEP_SIZE     16 // [1 2 4 6 8 10 12 14 16 18 20]
-#define NORMAL_WEIGHT_SIGMA 128 // [1 2 4 6 8 10 12 14 16 32 48 64 80 96 112 128]
-#define DEPTH_WEIGHT_SIGMA    1 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 ]
-#define LUMA_WEIGHT_SIGMA     4 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
+#define ATROUS_STEP_SIZE      16 // [1 2 4 6 8 10 12 14 16 18 20]
+#define NORMAL_WEIGHT_SIGMA  128 // [1 2 4 6 8 10 12 14 16 32 48 64 80 96 112 128]
+#define DEPTH_WEIGHT_SIGMA     1 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 ]
+#define LUMINANCE_WEIGHT_SIGMA 4 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
 
 #define GI_SAMPLES     1 // [1 2 3 4 5 6 7 8]
 #define MAX_GI_BOUNCES 8 // [1 2 3 4 5 6 7 8 9 10 11 12 9999]
