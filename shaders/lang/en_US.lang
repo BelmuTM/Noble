@@ -798,6 +798,11 @@ option.TAA_OFFCENTER_REJECTION.comment = Adjusts §bTemporal Anti-Aliasing§r's 
 
 ##################### POST-PROCESSING #####################
 
+option.EIGHT_BITS_FILTER = 8-Bits Filter
+option.EIGHT_BITS_FILTER.comment = Makes the game look like a vintage 8-bits game.
+value.EIGHT_BITS_FILTER.0 = §cOFF
+value.EIGHT_BITS_FILTER.1 = §aON
+
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
 value.BLOOM.0 = §cOFF
@@ -815,7 +820,7 @@ option.VIGNETTE_STRENGTH = Vignette Strength
 option.VIGNETTE_STRENGTH.comment = Adjusts §bVignette§r's intensity.
 
 option.FILM_GRAIN = Film Grain
-option.FILM_GRAIN.comment = Moving granularity displaying on top of the screen to imitate old movies.
+option.FILM_GRAIN.comment = Moving granularity displaying on top of the screen to mimick old movies look.
 value.FILM_GRAIN.0 = §cOFF
 value.FILM_GRAIN.1 = §aON
 
@@ -830,10 +835,13 @@ value.SHARPEN.1 = §aON
 option.SHARPEN_STRENGTH = Sharpen Strength
 option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§r's intensity.
 
-option.EIGHT_BITS_FILTER = 8-Bits Filter
-option.EIGHT_BITS_FILTER.comment = Makes the game look like a vintage 8-bits game.
-value.EIGHT_BITS_FILTER.0 = §cOFF
-value.EIGHT_BITS_FILTER.1 = §aON
+option.CEL_SHADING = Cel Shading
+option.CEL_SHADING.comment = Flattens the shading and colors to make the display look like a cartoon.
+value.CEL_SHADING.0 = §cOFF
+value.CEL_SHADING.1 = §aON
+
+option.CEL_SHADES = Cel Shades
+option.CEL_SHADES.comment = Adjusts the amount of shades possible for §bCel Shading§r.
 
 ##################### DEBUG #####################
 

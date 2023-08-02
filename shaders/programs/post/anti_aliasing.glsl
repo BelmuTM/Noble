@@ -85,7 +85,7 @@
     void main() {
         #if EIGHT_BITS_FILTER == 1 || TAA == 0
             #if EIGHT_BITS_FILTER == 1
-                color.rgb = samplePixelatedBuffer(MAIN_BUFFER, vertexCoords, 350).rgb;
+                color.rgb = samplePixelatedBuffer(MAIN_BUFFER, vertexCoords, 400).rgb;
             #else
                 color.rgb = texture(MAIN_BUFFER, vertexCoords).rgb;
             #endif

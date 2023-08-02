@@ -105,11 +105,25 @@ void main() {
         color = linearToSrgb(color);
     #endif
 
-    whiteBalance(color);
-    vibrance(color,   1.0 + VIBRANCE);
-    saturation(color, 1.0 + SATURATION);
-    contrast(color,   1.0 + CONTRAST);
-    liftGammaGain(color, LIFT * 0.1, 1.0 + GAMMA, 1.0 + GAIN);
+    float vibranceMul   = 1.0 + VIBRANCE;
+    float saturationMul = 1.0 + SATURATION;
+    float contrastMul   = 1.0 + CONTRAST;
+    float liftMul       = 0.1 * LIFT;
+    float gammaMul      = 1.0 + GAMMA;
+    float gainMul       = 1.0 + GAIN;
+
+    #if CEL_SHADING == 1
+        vibranceMul   += 0.5;
+        saturationMul += 0.2;
+        contrastMul   -= 0.4;
+        gainMul       += 0.1;
+    #endif
+
+    whiteBalance( color);
+    vibrance(color, vibranceMul);
+    saturation(color, saturationMul);
+    contrast(color, contrastMul);
+    liftGammaGain(color, liftMul, gammaMul, gainMul);
 
     color = saturate(color);
 }
