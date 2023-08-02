@@ -113,8 +113,8 @@ void main() {
     float gainMul       = 1.0 + GAIN;
 
     #if CEL_SHADING == 1
-        vibranceMul   += 0.5;
-        saturationMul += 0.5;
+        vibranceMul   += 0.6;
+        saturationMul += 0.3;
         contrastMul   -= 0.4;
     #endif
 
