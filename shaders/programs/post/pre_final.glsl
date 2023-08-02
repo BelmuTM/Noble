@@ -114,9 +114,8 @@ void main() {
 
     #if CEL_SHADING == 1
         vibranceMul   += 0.5;
-        saturationMul += 0.2;
+        saturationMul += 0.5;
         contrastMul   -= 0.4;
-        gainMul       += 0.1;
     #endif
 
     whiteBalance( color);
