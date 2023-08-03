@@ -538,14 +538,13 @@ value.AIR_FOG.2 = §e§lApproximation
 
 option.AIR_FOG_SCATTERING_STEPS = VF Scattering Steps
 option.AIR_FOG_SCATTERING_STEPS.comment = Influences §bVolumetric Fog§r's scattering accuracy. §cHigher value gives better results, but reduces §cperformance.
-value.AIR_FOG_SCATTERING_STEPS.4  = §b4
 value.AIR_FOG_SCATTERING_STEPS.8  = §38
-value.AIR_FOG_SCATTERING_STEPS.12 = §212
-value.AIR_FOG_SCATTERING_STEPS.16 = §a16
-value.AIR_FOG_SCATTERING_STEPS.20 = §e20
-value.AIR_FOG_SCATTERING_STEPS.24 = §624
-value.AIR_FOG_SCATTERING_STEPS.28 = §c28
-value.AIR_FOG_SCATTERING_STEPS.32 = §432
+value.AIR_FOG_SCATTERING_STEPS.16 = §216
+value.AIR_FOG_SCATTERING_STEPS.24 = §a24
+value.AIR_FOG_SCATTERING_STEPS.32 = §e32
+value.AIR_FOG_SCATTERING_STEPS.40 = §640
+value.AIR_FOG_SCATTERING_STEPS.48 = §c48
+value.AIR_FOG_SCATTERING_STEPS.64 = §464
 
 option.FOG_ALTITUDE = Altitude
 option.FOG_ALTITUDE.comment = Adjusts the fog altitude.

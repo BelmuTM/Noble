@@ -102,7 +102,7 @@
             vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
                  weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
 
-            color.rgb = YCoCg_2_SRGB_MAT * mix(currColor, prevColor, saturate(weight));
+            color.rgb = max0(YCoCg_2_SRGB_MAT * mix(currColor, prevColor, saturate(weight)));
         #endif
 
         #if EXPOSURE > 0

@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-float dither = fract(frameTimeCounter + bayer256(gl_FragCoord.xy));
+float dither = fract(frameTimeCounter + bayer64(gl_FragCoord.xy));
 
 float calculateAirFogPhase(float cosTheta) {
     float forwardsLobe  = henyeyGreensteinPhase(cosTheta, airFogForwardsLobe);
@@ -16,56 +16,54 @@ float calculateAirFogPhase(float cosTheta) {
 #if defined WORLD_OVERWORLD
     vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
     vec3 airFogScatteringCoefficients  = vec3(airFogScatteringCoefficient);
+
+    const float fogAltitude   = FOG_ALTITUDE;
+    const float fogThickness  = FOG_THICKNESS;
+          float densityFactor = wetness;
+    const float densityMult   = 1.0;
 #elif defined WORLD_NETHER
     const vec3 airFogAttenuationCoefficients = vec3(0.6, 0.4, 0.05);
     const vec3 airFogScatteringCoefficients  = vec3(1.0, 0.3, 0.0);
+
+    const float fogAltitude   = FOG_ALTITUDE - 34.0;
+    const float fogThickness  = FOG_THICKNESS * 1.8;
+    const float densityFactor = 1.0;
+    const float densityMult   = 1.0;
 #elif defined WORLD_END
     const vec3 airFogAttenuationCoefficients = vec3(0.7, 0.5, 0.75);
     const vec3 airFogScatteringCoefficients  = vec3(0.7, 0.3, 0.8);
+
+    const float fogAltitude   = FOG_ALTITUDE - 10.0;
+    const float fogThickness  = (FOG_THICKNESS + 40.0) * 1.3;
+    const float densityFactor = 1.0;
+    const float densityMult   = 2.0;
 #endif
+
+float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
 
 #if AIR_FOG == 2
     void computeAirFogApproximation(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
-        float airmass    = length(viewPosition) * 0.01 * (FOG_DENSITY * 10.0);
+        float airmass    = length(viewPosition) * 0.01 * fogDensity * densityMult;
         transmittanceOut = exp(-airFogAttenuationCoefficients * airmass);
 
-        scatteringOut  = skyIlluminance    * isotropicPhase              * skylight;
-        scatteringOut += directIlluminance * calculateAirFogPhase(VdotL) * skylight;
+        scatteringOut  = skyIlluminance    * isotropicPhase * skylight;
+        scatteringOut += directIlluminance * calculateAirFogPhase(VdotL);
         scatteringOut *= airFogScatteringCoefficients * ((1.0 - transmittanceOut) / airFogAttenuationCoefficients);
     }
 
 #elif AIR_FOG == 1
 
     float getAirFogDensity(vec3 position) {
-        #if defined WORLD_OVERWORLD
-            const float fogAltitude   = FOG_ALTITUDE;
-            const float fogThickness  = FOG_THICKNESS;
-                  float densityFactor = wetness;
-            const float densityMult   = 1.0;
-        #elif defined WORLD_NETHER
-            const float fogAltitude   = FOG_ALTITUDE - 34.0;
-            const float fogThickness  = FOG_THICKNESS * 1.8;
-            const float densityFactor = 1.0;
-            const float densityMult   = 1.0;
-        #elif defined WORLD_END
-            const float fogAltitude   = FOG_ALTITUDE - 10.0;
-            const float fogThickness  = (FOG_THICKNESS + 40.0) * 1.3;
-            const float densityFactor = 1.0;
-            const float densityMult   = 2.0;
-        #endif
+        if(clamp(position.y, fogAltitude, fogAltitude + fogThickness) != position.y) return 0.0;
 
         float altitude   = (position.y - fogAltitude) * rcp(fogThickness);
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
-
-        /*
-            CREDITS (density function):
-            SixSeven: https://www.curseforge.com/minecraft/customization/voyager-shader-2-0
-        */
-        float shapeNoise  = FBM(position * 0.03, 3, 2.0);
+        
+        float shapeNoise  = FBM(position * 0.03, AIR_FOG_OCTAVES, 2.0);
               shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
               shapeNoise *= exp(-max0(position.y - fogAltitude) * 0.2);
         
-        return saturate(shapeNoise) * mix(FOG_DENSITY, 1.0, densityFactor) * densityMult;
+        return saturate(shapeNoise) * fogDensity * densityMult;
     }
 
     /*
@@ -83,6 +81,8 @@ float calculateAirFogPhase(float cosTheta) {
     */
 
     void computeVolumetricAirFog(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
+        if(fogDensity == 0.0) return;
+
         const float stepSize = 1.0 / AIR_FOG_SCATTERING_STEPS;
         
         vec3 increment    = (endPosition - startPosition) * stepSize;
@@ -102,7 +102,9 @@ float calculateAirFogPhase(float cosTheta) {
         vec3   transmittance = vec3(1.0);
 
         for(int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
-            float density      = getAirFogDensity(rayPosition);
+            float density = getAirFogDensity(rayPosition);
+            if(density < EPS) continue;
+
             float airmass      = density * rayLength;
             vec3  opticalDepth = airFogAttenuationCoefficients * airmass;
 

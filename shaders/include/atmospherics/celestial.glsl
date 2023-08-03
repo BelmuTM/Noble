@@ -52,7 +52,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition) {
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD
 			#if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-				clouds = texture(CLOUDS_BUFFER, saturate(coords + randF() * pixelSize));
+				clouds = texture(CLOUDS_BUFFER, coords);
 			#endif
 
 			sky += clamp16(physicalSun (sceneDir));

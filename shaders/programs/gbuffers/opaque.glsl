@@ -97,9 +97,9 @@
 
 	#if POM > 0 && defined PROGRAM_TERRAIN
 		/*
-			CREDITS:
-			Null:      https://github.com/null511 - null511#3026
-			NinjaMike:                            - ninjamike1211#5424
+			[Credits]
+				Null (https://github.com/null511)
+				ninjamike1211
 			
 			Thanks to them for their help!
 		*/
@@ -151,44 +151,42 @@
         	}
 
 			vec2 prevCoords = currCoords + offset;
-			   shadowCoords = prevCoords;
 
 			#if POM == 1
-				height = currLayerHeight;
+				height       = currLayerHeight;
+				shadowCoords = prevCoords;
+				return currCoords;
 			#else
 				float afterHeight  = currFragHeight - currLayerHeight;
 				float beforeHeight = sampleHeightMap(prevCoords, texDeriv) - currLayerHeight + layerHeight;
 				float weight       = afterHeight / (afterHeight - beforeHeight);
 
-				height = 0.0;
+				vec2 smoothenedCoords = mix(currCoords, prevCoords, weight);
 
-				return mix(currCoords, prevCoords, weight);
+				height       = sampleHeightMap(smoothenedCoords, texDeriv);
+				shadowCoords = smoothenedCoords;
+				return smoothenedCoords;
 			#endif
-
- 			return currCoords;
     	}
 
 		float parallaxShadowing(vec2 parallaxCoords, float height, mat2 texDeriv) {
-			vec3  tangentDir      = shadowLightVector * tbn;
-        	float currLayerHeight = height;
+			vec3  tangentDirection = shadowLightVector * tbn;
+        	float currLayerHeight  = height;
 
-        	vec2 scaledVector = (tangentDir.xy / tangentDir.z) * POM_DEPTH * texSize;
+        	vec2 scaledVector = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize;
         	vec2 offset 	  = scaledVector * layerHeight;
 
         	vec2  currCoords     = parallaxCoords;
         	float currFragHeight = 1.0;
 
-			float disocclusion = 1.0;
-
         	for(int i = 0; i < POM_LAYERS; i++) {
-				if(currLayerHeight >= currFragHeight) {
-					disocclusion = 0.0; break;
-				}
+				if(currLayerHeight >= currFragHeight) return 0.0;
+
             	currCoords      += offset;
             	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
             	currLayerHeight -= layerHeight;
         	}
- 			return disocclusion;
+ 			return 1.0;
     	}
 	#endif
 

@@ -115,6 +115,9 @@ void main() {
         #endif
     }
 
-    fog.x = packUnormArb(logLuvEncode(scatteringLayer0    * transmittanceLayer1 + scatteringLayer1), uvec4(8));
-    fog.y = packUnormArb(logLuvEncode(transmittanceLayer0 * transmittanceLayer1                   ), uvec4(8));
+    vec3 scattering    = scatteringLayer0    * transmittanceLayer1 + scatteringLayer1;
+    vec3 transmittance = transmittanceLayer0 * transmittanceLayer1;
+
+    if(scattering != vec3(0.0)) fog.x = packUnormArb(logLuvEncode(scattering   ), uvec4(8));
+    if(scattering != vec3(1.0)) fog.y = packUnormArb(logLuvEncode(transmittance), uvec4(8));
 }

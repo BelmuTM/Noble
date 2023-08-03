@@ -5,7 +5,7 @@
 
 #if defined STAGE_VERTEX
     void main() {
-        gl_Position = vec4(1.0);
+        gl_Position = vec4(10.0);
     }
 #elif defined STAGE_FRAGMENT
     /* RENDERTARGETS: 13 */

@@ -103,7 +103,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define SHADOW_DEPTH_STRETCH 0.25
 
 #define NORMAL_SHADOW_PENUMBRA 1.0
-#define MIN_SHADOW_PENUMBRA    0.1
+#define MIN_SHADOW_PENUMBRA    0.4
 
 // Soft Shadows
 #define BLOCKER_SEARCH_SAMPLES   8
@@ -121,7 +121,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define RAY_DEPTH_TOLERANCE 0.5
 
 #define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT      6
+#define BINARY_COUNT     10
 
 #define TEMPORAL_DEPTH_WEIGHT_SIGMA 2.0
 
@@ -226,7 +226,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 // FOG
 
 #define AIR_FOG                   1 // [0 1 2]
-#define AIR_FOG_SCATTERING_STEPS 16 // [4 8 12 16 20 24 28 32]
+#define AIR_FOG_SCATTERING_STEPS 16 // [8 16 24 32 40 48 64]
+#define AIR_FOG_OCTAVES           3
 
 #define FOG_ALTITUDE  63.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0 51.0 52.0 53.0 54.0 55.0 56.0 57.0 58.0 59.0 60.0 61.0 62.0 63.0 64.0]
 #define FOG_THICKNESS 65.0 // [30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0 90.0 95.0 100.0 105.0 110.0 115.0 120.0 125.0 130.0 135.0 140.0 145.0 150.0]
@@ -262,8 +263,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define RAIN_DIRECTION vec2(0.35, 0.1)
 
+// POM
+
 #define POM         1 // [0 1 2]
-#define POM_LAYERS 64 // [32 64 128 256 512]
+#define POM_LAYERS 32 // [32 64 128 256 512]
 #define POM_DEPTH 0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 
 // WATER

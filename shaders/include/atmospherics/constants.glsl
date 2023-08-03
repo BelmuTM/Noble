@@ -44,7 +44,7 @@ vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 const float cloudsScatteringCoefficient = 0.99;
 const float cloudsTransmitThreshold     = 5e-2;
 
-const float cloudsForwardsLobe = 0.50;
+const float cloudsForwardsLobe = 0.40;
 const float cloudsBackardsLobe = 0.40;
 const float cloudsForwardsPeak = 0.90;
 const float cloudsBackScatter  = 0.20;

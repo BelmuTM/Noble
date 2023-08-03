@@ -80,7 +80,7 @@
         /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
         //////////////////////////////////////////////////////////
 
-        vec4 ao = vec4(0.0, 0.0, 0.0, 1.0);
+        vec4 ao = vec4(material.normal, 1.0);
 
         #if GI == 0 && AO == 1
             ao = texture(AO_BUFFER, vertexCoords);
