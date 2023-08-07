@@ -35,7 +35,7 @@ in vec2 textureCoords;
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
-        color = clamp(color, vec3(0.0), vec3(0.983));
+        color = clamp(color, vec3(0.02745098039), vec3(0.96862745098));
 
         #if DEBUG_LUT == 1
             if(all(lessThan(gl_FragCoord.xy, ivec2(256)))) {

@@ -48,7 +48,7 @@
         }
 
         vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
-            vec3 minColor = vec3(1e10), maxColor = vec3(-1e10);
+            vec3 minColor = vec3(1e6), maxColor = vec3(-1e6);
             const int size = 1;
 
             for(int x = -size; x <= size; x++) {
@@ -77,10 +77,12 @@
         }
     #endif
 
-    vec4 samplePixelatedBuffer(sampler2D tex, vec2 coords, int resolution) {
-        vec2 resolutionVec = resolution * vec2(aspectRatio, 1.0);
-        return texelFetch(tex, ivec2((floor(coords * resolutionVec) / resolutionVec) * viewSize), 0);
-    }
+    #if EIGHT_BITS_FILTER == 1
+        vec4 samplePixelatedBuffer(sampler2D tex, vec2 coords, int resolution) {
+            vec2 resolutionVec = resolution * vec2(aspectRatio, 1.0);
+            return texelFetch(tex, ivec2((floor(coords * resolutionVec) / resolutionVec) * viewSize), 0);
+        }
+    #endif
 
     void main() {
         #if EIGHT_BITS_FILTER == 1 || TAA == 0

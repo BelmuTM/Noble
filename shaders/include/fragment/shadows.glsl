@@ -58,7 +58,7 @@ vec3 getShadowColor(vec3 samplePos) {
             float avgBlockerDepth = 0.0, totalSSDepth = 0.0; int blockers = 0;
 
             for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-                vec2 offset      = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, randF()) * rcp(shadowMapResolution);
+                vec2 offset      = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, randF(), randF()) * rcp(shadowMapResolution);
                 vec2 localCoords = shadowPosition.xy + offset;
                 if(saturate(localCoords) != localCoords) return -1.0;
 
@@ -84,7 +84,7 @@ vec3 getShadowColor(vec3 samplePos) {
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
             #if SHADOW_TYPE != 2
-                offset = (diskSampling(i, SHADOW_SAMPLES, randF()) * penumbraSize) * rcp(shadowMapResolution);
+                offset = (diskSampling(i, SHADOW_SAMPLES, randF(), randF()) * penumbraSize) * rcp(shadowMapResolution);
             #endif
 
             vec3 samplePos = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;

@@ -43,8 +43,8 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
 
 #if AIR_FOG == 2
     void computeAirFogApproximation(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
-        float airmass    = length(viewPosition) * 0.01 * fogDensity * densityMult;
-        transmittanceOut = exp(-airFogAttenuationCoefficients * airmass);
+        float airmass    = quintic(0.0, far, length(viewPosition)) * fogDensity * densityMult;
+        transmittanceOut = exp(-airFogAttenuationCoefficients * airmass * 10.0);
 
         scatteringOut  = skyIlluminance    * isotropicPhase * skylight;
         scatteringOut += directIlluminance * calculateAirFogPhase(VdotL);

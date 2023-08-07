@@ -235,9 +235,9 @@ vec2 vogelDisk(float i, float n, float phi) {
     return sincos(r * theta);
 }
 
-vec2 diskSampling(float i, float n, float phi) {
+vec2 diskSampling(float i, float n, float phi, float r) {
     float theta = (i + phi) / n; 
-    return sincos(theta * TAU * n * GOLDEN_ANGLE) * theta;
+    return sincos(theta * TAU * n * GOLDEN_ANGLE) * sqrt(r);
 }
 
 float gaussianDistribution1D(float x, float sigma) {

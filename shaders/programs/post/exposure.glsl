@@ -10,12 +10,12 @@
     flat out float avgLuminance;
     out vec2 textureCoords;
 
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+    #if MANUAL_CAMERA == 0 && DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         flat out int medianBin;
         flat out vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
     #endif
 
-    #if EXPOSURE == 2
+    #if MANUAL_CAMERA == 0 && EXPOSURE == 2
         /*
             SOURCE:
             Alex Tardif - https://www.alextardif.com/HistogramLuminance.html
@@ -67,7 +67,7 @@
         gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
         textureCoords = gl_Vertex.xy;
 
-        #if EXPOSURE > 0
+        #if MANUAL_CAMERA == 0 && EXPOSURE > 0
             #if EXPOSURE == 1
                 float avgLuma = pow2(textureLod(MAIN_BUFFER, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
             #else
@@ -101,7 +101,7 @@
     flat in float avgLuminance;
     in vec2 textureCoords;
 
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+    #if MANUAL_CAMERA == 0 && DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         flat in int medianBin;
         flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
     #endif
@@ -111,7 +111,7 @@
 
         history.rgb = color.rgb;
 
-        #if EXPOSURE > 0
+        #if MANUAL_CAMERA == 0 && EXPOSURE > 0
             history.a = avgLuminance;
             color.a   = avgLuminance;
 
