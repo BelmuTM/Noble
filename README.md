@@ -23,7 +23,7 @@ being accessible to public no matter what.
 * ⚠️ **MAKE SURE TO UNZIP THE FILE FIRST**
 
 ## License
-NobleRT is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
+Noble is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
 
 ## Socials (Click the banners)
 [![Discord](https://i.imgur.com/3shUTJu.png)](https://discord.gg/jjRrhpkH9e)
