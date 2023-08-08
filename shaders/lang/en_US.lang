@@ -568,7 +568,7 @@ option.STARS_LUMINOSITY.comment = Adjusts the luminosity of stars in the sky.
 
 ### WATER
 
-option.WATER_CAUSTICS = Water Caustics
+option.WATER_CAUSTICS = Caustics
 option.WATER_CAUSTICS.comment = Caustics provoked by the refraction of light on water. They cast underwater.
 value.WATER_CAUSTICS.0 = §cOFF
 value.WATER_CAUSTICS.1 = §aON
@@ -608,22 +608,22 @@ value.WATER_FOG_STEPS.8 = §a8
 value.WATER_FOG_STEPS.16 = §e16
 value.WATER_FOG_STEPS.32 = §632
 
-option.WATER_ABSORPTION_R = Water Absorption §cRed
+option.WATER_ABSORPTION_R = §cRed
 option.WATER_ABSORPTION_R.comment = Adjusts how water absorbs light. Higher value means that §cred§r will be absorbed more.
 
-option.WATER_ABSORPTION_G = Water Absorption §aGreen
+option.WATER_ABSORPTION_G = §aGreen
 option.WATER_ABSORPTION_G.comment = Adjusts how water absorbs light. Higher value means that §agreen§r will be absorbed more.
 
-option.WATER_ABSORPTION_B = Water Absorption §9Blue
+option.WATER_ABSORPTION_B = §9Blue
 option.WATER_ABSORPTION_B.comment = Adjusts how water absorbs light. Higher value means that §9blue§r will be absorbed more.
 
-option.WATER_SCATTERING_R = Water Scattering §cRed
+option.WATER_SCATTERING_R = §cRed
 option.WATER_SCATTERING_R.comment = Adjusts how water scatters light. Higher value means that §cred§r will be scattered more.
 
-option.WATER_SCATTERING_G = Water Scattering §aGreen
+option.WATER_SCATTERING_G = §aGreen
 option.WATER_SCATTERING_G.comment = Adjusts how water scatters light. Higher value means that §agreen§r will be scattered more.
 
-option.WATER_SCATTERING_B = Water Scattering §9Blue
+option.WATER_SCATTERING_B = §9Blue
 option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher value means that §9blue§r will be scattered more.
 
 ### POM
@@ -634,7 +634,7 @@ value.POM.0 = §cOFF
 value.POM.1 = §e§lSteep
 value.POM.2 = §e§lSmooth
 
-option.POM_LAYERS = POM layers
+option.POM_LAYERS = Layers
 option.POM_LAYERS.comment = Adjusts §bPOM§r's quality, the more layers there are, the more detailed it will be. §cHigher value gives better results, but reduces §cperformance.
 value.POM_LAYERS.32 = §a32
 value.POM_LAYERS.64 = §e64
@@ -642,8 +642,18 @@ value.POM_LAYERS.128 = §6128
 value.POM_LAYERS.256 = §c256
 value.POM_LAYERS.512 = §4512
 
-option.POM_DEPTH = POM Depth
+option.POM_DEPTH = Depth
 option.POM_DEPTH.comment = Adjusts §bPOM§r's depth.
+
+option.POM_SHADOWING = Shadowing
+option.POM_SHADOWING.comment = Computes shadows for §bPOM§r.
+value.POM_SHADOWING.0 = §cOFF
+value.POM_SHADOWING.1 = §aON
+
+option.POM_DEPTH_WRITE = Depth Write
+option.POM_DEPTH_WRITE.comment = Writes the depth of §bPOM§r to the depth buffer. This makes applying effects like ambient occlusion on §bPOM§r possible. §cEnabling it gives better results, but reduces §cperformance.
+value.POM_DEPTH_WRITE.0 = §cOFF
+value.POM_DEPTH_WRITE.1 = §aON
 
 ### TERRAIN
 

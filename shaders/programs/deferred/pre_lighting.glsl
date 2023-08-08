@@ -77,17 +77,6 @@
         //depth.a = computeLowerHiZDepthLevels();
 
         //////////////////////////////////////////////////////////
-        /*-------- AMBIENT OCCLUSION / BENT NORMALS ------------*/
-        //////////////////////////////////////////////////////////
-
-        vec4 ao = vec4(material.normal, 1.0);
-
-        #if GI == 0 && AO == 1
-            ao = texture(AO_BUFFER, vertexCoords);
-            if(any(greaterThan(ao, vec4(0.0)))) ao = saturate(ao);
-        #endif
-
-        //////////////////////////////////////////////////////////
         /*--------------------- IRRADIANCE ---------------------*/
         //////////////////////////////////////////////////////////
 
@@ -102,6 +91,11 @@
 
             if(receivesSkylight) {
                 #if GI == 0
+                    vec4 ao = vec4(material.normal, 1.0);
+                    #if AO == 1
+                        ao = texture(AO_BUFFER, vertexCoords);
+                    #endif
+
                     skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
                 #else
                     skyIlluminance = evaluateUniformSkyIrradianceApproximation();

@@ -54,7 +54,7 @@ void main() {
         if(material.blockId > NETHER_PORTAL_ID && material.blockId <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
     #endif
 
-    #if AO_FILTER == 1 && GI == 0 || GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
+    #if AO_FILTER == 1 && GI == 0 || REFLECTIONS == 1 && GI == 0 || GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
         vec3  currPosition = vec3(textureCoords, depth);
         vec2  prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
         vec4  history      = texture(LIGHTING_BUFFER, prevCoords);
@@ -101,9 +101,7 @@ void main() {
             #endif
 
             float ao = 1.0;
-            #if AO == 1
-                ao = texture(AO_BUFFER, vertexCoords).a;
-            #endif
+
 
             color.rgb = computeDiffuse(viewPosition0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         }

@@ -151,7 +151,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
     vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e6);
 
-    float jitter      = randF();
+    float jitter      = interleavedGradientNoise(gl_FragCoord.xy);
     float stepSize    = (dists.y - dists.x) / layer.steps;
     vec3  rayPosition = atmosphereRayPosition + rayDirection * (dists.x + stepSize * jitter);
     vec3  increment   = rayDirection * stepSize;

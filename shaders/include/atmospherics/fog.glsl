@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-float dither = fract(frameTimeCounter + bayer64(gl_FragCoord.xy));
+float dither = interleavedGradientNoise(gl_FragCoord.xy);
 
 float calculateAirFogPhase(float cosTheta) {
     float forwardsLobe  = henyeyGreensteinPhase(cosTheta, airFogForwardsLobe);

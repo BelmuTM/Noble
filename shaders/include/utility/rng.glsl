@@ -54,12 +54,19 @@ vec2 taaJitter(vec4 pos) {
     vec2  rand2F() { return vec2(randF(), randF());                              }
 #endif
 
+float interleavedGradientNoise(vec2 uv) {
+    uv += float(frameCounter) * 5.588238;
+    return fract(52.9829189 * fract(0.06711056 * uv.x + 0.00583715 * uv.y));  
+}
+
 float rand(vec2 uv) {
     float dt = dot(uv.xy, vec2(12.9898, 78.233));
     return fract(sin(mod(dt, PI)) * 43758.5453);
 }
 
-float hash11(float p) { return fract(sin(p) * 1e4); }
+float hash11(float p) {
+    return fract(sin(p) * 1e4);
+}
 
 float hash12(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);

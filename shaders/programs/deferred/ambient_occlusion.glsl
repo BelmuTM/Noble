@@ -101,8 +101,10 @@
 		    	vec2 radius  		= GTAO_RADIUS * rcpViewLength * rcp(vec2(1.0, aspectRatio));
 		    	vec3 viewDirection  = viewPosition * -rcpViewLength;
 
+				float dither = interleavedGradientNoise(gl_FragCoord.xy);
+
 		    	for(int i = 0; i < GTAO_SLICES; i++) {
-			    	float sliceAngle = (PI * rcp(GTAO_SLICES)) * (i + randF());
+			    	float sliceAngle = (PI * rcp(GTAO_SLICES)) * (i + dither);
 			    	vec3  sliceDir   = vec3(cos(sliceAngle), sin(sliceAngle), 0.0);
 
 			    	vec3 orthoDir   = sliceDir - dot(sliceDir, viewDirection) * viewDirection;
@@ -150,8 +152,6 @@
             	ao.w = GTAO(vertexCoords, getViewPosition0(vertexCoords), material.normal, ao.xyz);
         	#endif
 
-        	ao.w = saturate(ao.w);
-
         	#if AO_FILTER == 1
             	vec3 currPosition = vec3(textureCoords, texture(depthtex0, vertexCoords).r);
             	vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
@@ -162,6 +162,8 @@
             	ao.w   = mix(prevAO.w  , ao.w  , weight);
             	ao.xyz = mix(prevAO.xyz, ao.xyz, weight);
         	#endif
+
+			ao = saturate(ao);
 		}
 	#endif
 #endif

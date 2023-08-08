@@ -46,7 +46,7 @@ const float GOLDEN_ANGLE = 2.39996322;
 	#define MC_HAND_DEPTH 0.56
 #endif
 
-const float sunPathRotation     = -35.0; // [-90.0 -85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0 90.0]
+const float sunPathRotation     = -40.0; // [-90.0 -85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0 90.0]
 const int   shadowMapResolution = 3072;  // [512 1024 2048 3072 4096 6144 8192 10240]
 const float shadowDistance      = 128;   // [64 128 256 512 1024 2048 4096]
 
@@ -108,7 +108,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 // Soft Shadows
 #define BLOCKER_SEARCH_SAMPLES   8
 #define BLOCKER_SEARCH_RADIUS 10.0
-#define LIGHT_SIZE           100.0
+#define LIGHT_SIZE            50.0
 
 //////////////////////////////////////////////////////////
 /*-------------------- RAY TRACING ---------------------*/
@@ -259,15 +259,18 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define PLANTS_ID              14
 
 #define RAIN_PUDDLES       1 // [0 1]
-#define RAIN_PUDDLES_SIZE 35 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define RAIN_PUDDLES_SIZE 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
-#define RAIN_DIRECTION vec2(0.35, 0.1)
+#define RAIN_DIRECTION vec2(0.60, 0.1)
 
 // POM
 
 #define POM         1 // [0 1 2]
 #define POM_LAYERS 32 // [32 64 128 256 512]
 #define POM_DEPTH 0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+
+#define POM_SHADOWING   1 // [0 1]
+#define POM_DEPTH_WRITE 0 // [0 1]
 
 // WATER
 

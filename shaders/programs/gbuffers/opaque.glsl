@@ -96,102 +96,10 @@
 	#endif
 
 	#if POM > 0 && defined PROGRAM_TERRAIN
-		/*
-			[Credits]
-				Null (https://github.com/null511)
-				ninjamike1211
-			
-			Thanks to them for their help!
-		*/
-
-		const float layerHeight = 1.0 / float(POM_LAYERS);
-
-		void wrapCoordinates(inout vec2 coords) { coords -= floor((coords - botLeft) / texSize) * texSize; }
-
-		vec2 localToAtlas(vec2 localCoords) { return (fract(localCoords) * texSize + botLeft); }
-		vec2 atlasToLocal(vec2 atlasCoords) { return (atlasCoords - botLeft) / texSize;        }
-
-		#if POM == 1
-			float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
-				wrapCoordinates(coords);
-				return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
-			}
-		#else
-			#include "/include/utility/sampling.glsl"
-
-			float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
-				wrapCoordinates(coords);
-
-				vec2 uv[4];
-				vec2 f = getLinearCoords(atlasToLocal(coords), texSize * atlasSize, uv);
-
-				uv[0] = localToAtlas(uv[0]);
-				uv[1] = localToAtlas(uv[1]);
-				uv[2] = localToAtlas(uv[2]);
-				uv[3] = localToAtlas(uv[3]);
-
-    			return 1.0 - textureGradLinear(normals, uv, texDeriv, f, 3);
-			}
-		#endif
-
-    	vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out vec2 shadowCoords) {
-			vec3 tangentDirection = normalize(viewToScene(viewPosition)) * tbn;
-        	float currLayerHeight = 0.0;
-
-        	vec2 scaledVector = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize;
-        	vec2 offset       = scaledVector * layerHeight;
-
-        	vec2  currCoords     = textureCoords;
-        	float currFragHeight = sampleHeightMap(currCoords, texDeriv);
-
-        	for(int i = 0; i < POM_LAYERS && currLayerHeight < currFragHeight; i++) {
-            	currCoords      -= offset;
-            	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
-            	currLayerHeight += layerHeight;
-        	}
-
-			vec2 prevCoords = currCoords + offset;
-
-			#if POM == 1
-				height       = currLayerHeight;
-				shadowCoords = prevCoords;
-				return currCoords;
-			#else
-				float afterHeight  = currFragHeight - currLayerHeight;
-				float beforeHeight = sampleHeightMap(prevCoords, texDeriv) - currLayerHeight + layerHeight;
-				float weight       = afterHeight / (afterHeight - beforeHeight);
-
-				vec2 smoothenedCoords = mix(currCoords, prevCoords, weight);
-
-				height       = sampleHeightMap(smoothenedCoords, texDeriv);
-				shadowCoords = smoothenedCoords;
-				return smoothenedCoords;
-			#endif
-    	}
-
-		float parallaxShadowing(vec2 parallaxCoords, float height, mat2 texDeriv) {
-			vec3  tangentDirection = shadowLightVector * tbn;
-        	float currLayerHeight  = height;
-
-        	vec2 scaledVector = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize;
-        	vec2 offset 	  = scaledVector * layerHeight;
-
-        	vec2  currCoords     = parallaxCoords;
-        	float currFragHeight = 1.0;
-
-        	for(int i = 0; i < POM_LAYERS; i++) {
-				if(currLayerHeight >= currFragHeight) return 0.0;
-
-            	currCoords      += offset;
-            	currFragHeight   = sampleHeightMap(currCoords, texDeriv);
-            	currLayerHeight -= layerHeight;
-        	}
- 			return 1.0;
-    	}
+		#include "/include/fragment/parallax.glsl"
 	#endif
 
 	vec2 computeLightmap(vec3 normal) {
-
 		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
 			// Thanks ninjamike1211 for the help
 			vec2 lightmap 	   = lightmapCoords;
@@ -205,7 +113,7 @@
 
     		lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), normal) + 0.8) * 0.2 + 0.8;
 		
-			return lightmap;
+			return any(isnan(lightmap)) || any(lessThan(lightmap, vec2(0.0))) ? lightmapCoords : lightmap;
 		#endif
 		return lightmapCoords;
 	}
@@ -223,13 +131,21 @@
 		#if POM > 0 && defined PROGRAM_TERRAIN
 			vec2 coords = textureCoords;
 
-			if(texture(normals, textureCoords).a < 1.0 - EPS) {
+			if(texture(normals, textureCoords).a < 1.0) {
 				mat2 texDeriv = mat2(dFdx(textureCoords), dFdy(textureCoords));
-				float height  = 1.0;
-				vec2 shadowCoords;
 
-				coords 				  = parallaxMapping(viewPosition, texDeriv, height, shadowCoords);
-				parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
+				float height = 1.0, traceDistance = 0.0;
+				vec2  shadowCoords = vec2(0.0);
+
+				coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
+
+				#if POM_SHADOWING == 1
+					parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
+				#endif
+
+				#if POM_DEPTH_WRITE == 1
+					gl_FragDepth = projectDepth(unprojectDepth(gl_FragCoord.z) + traceDistance);
+				#endif
 			}
 
 			if(saturate(coords) != coords) discard;
@@ -310,27 +226,15 @@
 			}
 		#endif
 
-		/*
-		if(blockId == 13) {
-        	F0 = 1.0;
-        	roughness = EPS;
-        	albedoTex.rgb = vec3(1.0);
-        	ao = 1.0;
-        	emission = 0.0;
-        	subsurface = 0.0;
-			normal = tbn[2];
-    	}
-		*/
-
 		vec3 labPbrData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
 		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
 		vec4 labPbrData2 = vec4(albedoTex.rgb, roughness);
 		vec2 encNormal   = encodeUnitVector(normalize(normal));
 	
-		uvec4 shiftedData0  = uvec4(round(labPbrData0 * vec3(1.0, 8191.0, 4095.0)), blockId) << uvec4(0, 1, 14, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8                           )) << uvec4(0, 8, 16, 24);
-		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxVal8                           )) << uvec4(0, 8, 16, 24);
-		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16                          )) << uvec2(0, 16);
+		uvec4 shiftedData0  = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8                  )) << uvec4(0, 8, 16, 24);
+		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxVal8                  )) << uvec4(0, 8, 16, 24);
+		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16                 )) << uvec2(0, 16);
 
 		data0.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
 		data0.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;

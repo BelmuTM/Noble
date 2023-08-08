@@ -50,10 +50,12 @@
             vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
             vec3 prevColor    = logLuvDecode(texture(REFLECTIONS_BUFFER, prevCoords));
 
-            if(any(isnan(prevColor))) prevColor = reflections.rgb;
-
-            float weight = 1.0 / max(texture(LIGHTING_BUFFER, prevCoords).w, 1.0);
-            reflections  = logLuvEncode(mix(prevColor, reflections.rgb, weight));
+            if(!any(isnan(prevColor)) && !isHand(vertexCoords)) {
+                float weight = 1.0 / max(texture(LIGHTING_BUFFER, prevCoords).w, 1.0);
+                reflections  = logLuvEncode(mix(prevColor, reflections.rgb, weight));
+            } else {
+                reflections  = logLuvEncode(reflections.rgb);
+            }
         }
     #endif
 #endif
