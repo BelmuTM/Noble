@@ -4,6 +4,9 @@
 /***********************************************/
 
 /*
+    [Credits]:
+        Jessie - providing beam ratio equation for transmission (https://github.com/Jessie-LC)
+
     [References]:
         Arnott, W.P. (2008). Fresnel equations. https://www.patarnott.com/atms749/pdf/FresnelEquations.pdf
         Lagarde, S. (2013). Memo on Fresnel equations. https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
@@ -15,13 +18,13 @@
         discovered by a Persian scientist called Ibn-Sahl.
 */
 
-vec3 snellsLaw(vec3 thetaI, vec3 n1, vec3 n2) {
+vec3 calculateRefractedAngle(vec3 thetaI, vec3 n1, vec3 n2) {
     return asin((n1 / n2) * sin(thetaI));
 }
 
 vec3 fresnelDielectricDielectric_R(float cosThetaI, vec3 n1, vec3 n2) {
     vec3 thetaI = vec3(acos(cosThetaI));
-    vec3 thetaT = snellsLaw(thetaI, n1, n2);
+    vec3 thetaT = calculateRefractedAngle(thetaI, n1, n2);
 
     vec3 cosThetaT = cos(thetaT);
 
@@ -33,7 +36,7 @@ vec3 fresnelDielectricDielectric_R(float cosThetaI, vec3 n1, vec3 n2) {
 
 vec3 fresnelDielectricDielectric_T(float cosThetaI, vec3 n1, vec3 n2) {
     vec3 thetaI = vec3(acos(cosThetaI));
-    vec3 thetaT = snellsLaw(thetaI, n1, n2);
+    vec3 thetaT = calculateRefractedAngle(thetaI, n1, n2);
 
     vec3 cosThetaT = cos(thetaT);
 
@@ -44,7 +47,9 @@ vec3 fresnelDielectricDielectric_T(float cosThetaI, vec3 n1, vec3 n2) {
     vec3 Ts = abs(numerator / (n1 * cosThetaI + n2 * cosThetaT));
     vec3 Tp = abs(numerator / (n1 * cosThetaT + n2 * cosThetaI));
 
-    return saturate((Ts * Ts + Tp * Tp) * 0.5);
+    vec3 beamRatio = abs((n2 * cosThetaT) / (n1 * cosThetaI));
+
+    return saturate(beamRatio * (Ts * Ts + Tp * Tp) * 0.5);
 }
 
 vec3 fresnelDielectricConductor(float cosTheta, vec3 eta, vec3 etaK) {  
