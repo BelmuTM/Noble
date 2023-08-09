@@ -16,8 +16,8 @@ vec3 fresnelDielectricDielectric_R(float cosThetaI, vec3 n1, vec3 n2) {
     vec3 sinThetaT = eta * saturate(1.0 - cosThetaI * cosThetaI);
     vec3 cosThetaT = 1.0 - sinThetaT * sinThetaT;
 
-    vec3 Rs = abs((n1 * cosThetaI - n2 * cosThetaT) / (n1 * cosThetaI + n2 * cosThetaT));
-    vec3 Rp = abs((n1 * cosThetaT - n2 * cosThetaI) / (n1 * cosThetaT + n2 * cosThetaI));
+    vec3 Rs = (n1 * cosThetaI - n2 * cosThetaT) / (n1 * cosThetaI + n2 * cosThetaT);
+    vec3 Rp = (n1 * cosThetaT - n2 * cosThetaI) / (n1 * cosThetaT + n2 * cosThetaI);
 
     return saturate((Rs * Rs + Rp * Rp) * 0.5);
 }
