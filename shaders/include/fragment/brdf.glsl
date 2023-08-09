@@ -91,19 +91,20 @@ vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     float VdotL  = dot(viewDirection, lightDirection);
     float NdotH  = dot(material.normal, halfway);
 
+    vec3 F0 = vec3(material.F0), eta = material.N / airIOR, etaK = material.K / airIOR;
+
     float facing    = 0.5 + 0.5 * VdotL;
     float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
 
-    float energyConservationFactor = 1.0 - (4.0 * sqrt(material.F0) + 5.0 * material.F0 * material.F0) * rcp(9.0);
-    vec3  fresnelL = 1.0 - fresnelDielectric(NdotL, vec3(airIOR), material.N);
-    vec3  fresnelV = 1.0 - fresnelDielectric(NdotV, vec3(airIOR), material.N);
+    vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * rcp(9.0);
+    vec3 fresnelL = 1.0 - fresnelDielectricConductor(NdotL, eta, etaK);
+    vec3 fresnelV = 1.0 - fresnelDielectricConductor(NdotV, eta, etaK);
 
-    vec3 smoothSurf = fresnelL * fresnelV / energyConservationFactor;
+    vec3 smoothSurf = (fresnelL * fresnelV) / energyConservationFactor;
+    vec3 single     = mix(smoothSurf, vec3(roughSurf), material.roughness) * RCP_PI;
+    float multi     = 0.1159 * material.roughness;
 
-    vec3  single = mix(smoothSurf, vec3(roughSurf), material.roughness) * RCP_PI;
-    float multi  = 0.1159 * material.roughness;
-
-    return max0(NdotL * (material.albedo * multi + single));
+    return NdotL * (material.albedo * multi + single);
 }
 
 vec3 hemisphericalAlbedo(vec3 n) {

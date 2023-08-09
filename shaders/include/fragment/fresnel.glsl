@@ -6,41 +6,45 @@
 /*
     [References]:
         Lagarde, S. (2013). Memo on Fresnel equations. https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
+
+    [Notes]:
+        These two equations both assume a non-polarized input.
 */
 
-float fresnelDielectric(float cosTheta, float n1, float n2) {
-    float sinThetaT = (n1 / n2) * max0(1.0 - pow2(cosTheta));
-    float cosThetaT = 1.0 - pow2(sinThetaT);
+vec3 fresnelDielectricDielectric_R(float cosThetaI, vec3 n1, vec3 n2) {
+    vec3 eta       = n1 / n2;
+    vec3 sinThetaT = eta * saturate(1.0 - cosThetaI * cosThetaI);
+    vec3 cosThetaT = 1.0 - sinThetaT * sinThetaT;
 
-    if(sinThetaT >= 1.0) return 1.0;
+    vec3 Rs = abs((n1 * cosThetaI - n2 * cosThetaT) / (n1 * cosThetaI + n2 * cosThetaT));
+    vec3 Rp = abs((n1 * cosThetaT - n2 * cosThetaI) / (n1 * cosThetaT + n2 * cosThetaI));
 
-    float sPolar = (n2 * cosTheta - n1 * cosThetaT) / (n2 * cosTheta + n1 * cosThetaT);
-    float pPolar = (n2 * cosThetaT - n1 * cosTheta) / (n2 * cosThetaT + n1 * cosTheta);
-
-    return saturate((pow2(sPolar) + pow2(pPolar)) * 0.5);
+    return saturate((Rs * Rs + Rp * Rp) * 0.5);
 }
 
-vec3 fresnelDielectric(float cosTheta, vec3 n1, vec3 n2) {
-    vec3 sinThetaT = (n1 / n2) * max0(1.0 - pow2(cosTheta));
-    vec3 cosThetaT = 1.0 - pow2(sinThetaT);
+vec3 fresnelDielectricDielectric_T(float cosThetaI, vec3 n1, vec3 n2) {
+    vec3 eta       = n1 / n2;
+    vec3 sinThetaT = eta * saturate(1.0 - cosThetaI * cosThetaI);
+    vec3 cosThetaT = 1.0 - sinThetaT * sinThetaT;
 
-    vec3 sPolar = (n2 * cosTheta - n1 * cosThetaT) / (n2 * cosTheta + n1 * cosThetaT);
-    vec3 pPolar = (n2 * cosThetaT - n1 * cosTheta) / (n2 * cosThetaT + n1 * cosTheta);
+    if(any(greaterThan(sinThetaT, vec3(1.0)))) return vec3(1.0);
 
-    return saturate((pow2(sPolar) + pow2(pPolar)) * 0.5);
+    vec3 numerator = 2.0 * n1 * cosThetaI;
+
+    vec3 Ts = numerator / (n1 * cosThetaI + n2 * cosThetaT);
+    vec3 Tp = numerator / (n1 * cosThetaT + n2 * cosThetaI);
+
+    return saturate((Ts * Ts + Tp * Tp) * 0.5);
 }
 
 vec3 fresnelDielectricConductor(float cosTheta, vec3 eta, vec3 etaK) {  
-   float cosThetaSq = cosTheta * cosTheta;
-   float sinThetaSq = 1.0 - cosThetaSq;
-   vec3  eta2       = eta * eta;
-   vec3  etaK2      = etaK * etaK;
+   float cosThetaSq = cosTheta * cosTheta, sinThetaSq = 1.0 - cosThetaSq;
+   vec3 etaSq = eta * eta, etaKSq = etaK * etaK;
 
-   vec3 t0   = eta2 - etaK2 - sinThetaSq;
-   vec3 a2b2 = sqrt(t0 * t0 + 4.0 * eta2 * etaK2);
+   vec3 t0   = etaSq - etaKSq - sinThetaSq;
+   vec3 a2b2 = sqrt(t0 * t0 + 4.0 * etaSq * etaKSq);
    vec3 t1   = a2b2 + cosThetaSq;
-   vec3 a    = sqrt(0.5 * (a2b2 + t0));
-   vec3 t2   = 2.0 * a * cosTheta;
+   vec3 t2   = 2.0 * sqrt(0.5 * (a2b2 + t0)) * cosTheta;
    vec3 Rs   = (t1 - t2) / (t1 + t2);
 
    vec3 t3 = cosThetaSq * a2b2 + sinThetaSq * sinThetaSq;

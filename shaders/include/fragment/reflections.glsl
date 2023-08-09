@@ -47,7 +47,13 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
         vec3 hitPosition;
         float hit = float(raytrace(depthtex0, viewPosition, rayDirection, SMOOTH_REFLECTIONS_STEPS, randF(), RENDER_SCALE, hitPosition));
 
-        vec3  F  = fresnelDielectricConductor(NdotL, material.N, material.K);
+        vec3 fresnel = vec3(0.0);
+        if(isEyeInWater == 1) {
+            fresnel = fresnelDielectricDielectric_R(NdotL, vec3(1.333), vec3(airIOR));
+        } else {
+            fresnel = fresnelDielectricConductor(NdotL, material.N / airIOR, material.K / airIOR);
+        }
+
         float G1 = G1SmithGGX(NdotV, alphaSq);
         float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
 
@@ -57,7 +63,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
             vec3 fallback = vec3(0.0);
         #endif
 
-        return mix(fallback, sampleHitColor(hitPosition.xy), hit) * ((F * G2) / G1);
+        return mix(fallback, sampleHitColor(hitPosition.xy), hit) * ((fresnel * G2) / G1);
     }
 #else
 
@@ -82,7 +88,13 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
             vec3 hitPosition;
             float hit = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECTIONS_STEPS, randF(), RENDER_SCALE, hitPosition));
 
-            vec3  F  = isEyeInWater == 1 ? vec3(fresnelDielectric(MdotV, 1.333, airIOR)) : fresnelDielectricConductor(MdotV, material.N, material.K);
+            vec3 fresnel = vec3(0.0);
+            if(isEyeInWater == 1) {
+                fresnel = fresnelDielectricDielectric_R(MdotV, vec3(1.333), vec3(airIOR));
+            } else {
+                fresnel = fresnelDielectricConductor(MdotV, material.N / airIOR, material.K / airIOR);
+            }
+
             float G1 = G1SmithGGX(NdotV, alphaSq);
             float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
 
@@ -92,7 +104,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
                 vec3 fallback = vec3(0.0);
             #endif
 
-            reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * ((F * G2) / G1);
+            reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * ((fresnel * G2) / G1);
 	    }
 	    return reflection / ROUGH_REFLECTIONS_SAMPLES;
     }

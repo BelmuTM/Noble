@@ -108,7 +108,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 // Soft Shadows
 #define BLOCKER_SEARCH_SAMPLES   8
 #define BLOCKER_SEARCH_RADIUS 10.0
-#define LIGHT_SIZE            50.0
+#define LIGHT_SIZE            70.0
 
 //////////////////////////////////////////////////////////
 /*-------------------- RAY TRACING ---------------------*/

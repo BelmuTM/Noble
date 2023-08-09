@@ -9,7 +9,7 @@
 */
 
 #include "/settings.glsl"
-#include "/include/utility/uniforms.glsl"
+#include "/include/uniforms.glsl"
 
 #include "/include/utility/rng.glsl"
 #include "/include/utility/math.glsl"

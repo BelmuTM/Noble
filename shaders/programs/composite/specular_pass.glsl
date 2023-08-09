@@ -37,19 +37,19 @@ in vec2 vertexCoords;
         vec3 refracted     = refract(viewDirection, material.normal, n1.r / n2.r);
         bool hit           = raytrace(depthtex1, viewPosition, refracted, REFRACTIONS_STEPS, randF(), RENDER_SCALE, hitPosition);
         
-        if(saturate(hitPosition.xy) != hitPosition.xy || !hit && texture(depthtex1, hitPosition.xy).r != 1.0 || isHand(hitPosition.xy * RENDER_SCALE)) {
+        if(!hit && material.depth1 < 1.0 || saturate(hitPosition.xy) != hitPosition.xy || isHand(hitPosition.xy * RENDER_SCALE)) {
             hitPosition.xy = textureCoords;
         }
 
         hitPosition.xy *= RENDER_SCALE;
 
-        vec3 fresnel      = fresnelDielectric(dot(material.normal, -viewDirection), n1, n2);
+        vec3 fresnel      = fresnelDielectricDielectric_T(dot(material.normal, -viewDirection), n1, n2);
         vec3 sampledColor = texture(LIGHTING_BUFFER, hitPosition.xy).rgb;
 
         float density = 0.0;
 
         switch(material.blockId) {
-            case WATER_ID:         return sampledColor * (1.0 - fresnel);
+            case WATER_ID:         return sampledColor * fresnel;
             case NETHER_PORTAL_ID: density = 3.0;
             default: {
                 density = clamp(distance(linearizeDepth(texture(depthtex1, hitPosition.xy).r), linearizeDepth(material.depth0)), 0.0, 5.0);
@@ -62,7 +62,7 @@ in vec2 vertexCoords;
         vec3 blocklightColor = getBlockLightColor(material);
         vec3 emissiveness    = material.emission * blocklightColor;
 
-        return (sampledColor * (1.0 - fresnel) * attenuation) + (emissiveness * material.albedo);
+        return sampledColor * fresnel * attenuation + emissiveness * material.albedo;
     }
 #endif
 
@@ -120,7 +120,9 @@ void main() {
             //////////////////////////////////////////////////////////
 
             #if REFRACTIONS == 1
-                if(viewPosition0.z != viewPosition1.z && material.F0 > EPS) color = computeRefractions(viewPosition0, material, coords);
+                if(viewPosition0.z != viewPosition1.z && material.F0 > EPS) {
+                    color = computeRefractions(viewPosition0, material, coords);
+                }
             #endif
 
             //////////////////////////////////////////////////////////
