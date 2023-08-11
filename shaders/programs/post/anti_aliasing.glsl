@@ -68,7 +68,7 @@
 
             for(int x = -size; x <= size; x++) {
                 for(int y = -size; y <= size; y++) {
-                    currentFragment.xy = position.xy + vec2(x, y) * pixelSize;
+                    currentFragment.xy = position.xy + vec2(x, y) * texelSize;
                     currentFragment.z  = texture(depthtex0, currentFragment.xy * RENDER_SCALE).r;
                     closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
                 }

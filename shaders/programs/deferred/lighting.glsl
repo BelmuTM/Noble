@@ -32,7 +32,7 @@ in vec2 vertexCoords;
 #endif
 
 void main() {
-    vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+    vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) { discard; return; }
 
     float depth         = texture(depthtex0, vertexCoords).r;

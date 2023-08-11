@@ -26,7 +26,7 @@ in vec2 vertexCoords;
 #endif
 
 void main() {
-    vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+    vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) { discard; return; }
 
     #if GI == 1
@@ -113,7 +113,7 @@ void main() {
         for(int y = -filterSize; y <= filterSize; y++) {
             float weight = gaussianDistribution2D(vec2(x, y), 1.0);
 
-            uvec2 packedFog = texture(FOG_BUFFER, coords.xy + vec2(x, y) * pixelSize).rg;
+            uvec2 packedFog = texture(FOG_BUFFER, coords.xy + vec2(x, y) * texelSize).rg;
             
             scattering    += logLuvDecode(unpackUnormArb(packedFog[0], uvec4(8))) * weight;
             transmittance += logLuvDecode(unpackUnormArb(packedFog[1], uvec4(8))) * weight;

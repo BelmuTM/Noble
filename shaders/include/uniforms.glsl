@@ -17,7 +17,7 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform float aspectRatio;
 uniform vec2 viewSize;
-uniform vec2 pixelSize;
+uniform vec2 texelSize;
 uniform ivec2 atlasSize;
 
 uniform int worldTime;

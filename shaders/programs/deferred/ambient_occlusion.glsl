@@ -136,7 +136,7 @@
 		void main() {
 			ao = vec4(0.0, 0.0, 0.0, 1.0);
 
-    		vec2 fragCoords = gl_FragCoord.xy * pixelSize / RENDER_SCALE;
+    		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 			if(saturate(fragCoords) != fragCoords) { discard; return; }
 
     		if(isSky(vertexCoords) || isHand(vertexCoords)) return;

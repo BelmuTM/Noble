@@ -53,8 +53,8 @@
             wr     = generateCosineVector(microfacet, rand2F());
             phase  = (1.0 - fresnel) / (1.0 - specularBounceProbability);
             phase /= energyConservationFactor;
-            phase *= (1.0 - fresnelDielectricConductor(dot(microfacet, wr), material.N, material.K));
             phase *= material.albedo * material.ao;
+            phase *= fresnelDielectricDielectric_T(dot(microfacet, wr), material.N, vec3(airIOR));
         }
         return phase;
     }

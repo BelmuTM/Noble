@@ -100,12 +100,12 @@ vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
 */
 vec2 getLinearCoords(const in vec2 coords, const in vec2 texSize, out vec2 uv[4]) {
     vec2 f         = fract(coords * texSize);
-    vec2 pixelSize = rcp(texSize);
+    vec2 texelSize = rcp(texSize);
 
-    uv[0] = coords - f * pixelSize;
-    uv[1] = uv[0] + vec2(1.0, 0.0) * pixelSize;
-    uv[2] = uv[0] + vec2(0.0, 1.0) * pixelSize;
-    uv[3] = uv[0] + vec2(1.0, 1.0) * pixelSize;
+    uv[0] = coords - f * texelSize;
+    uv[1] = uv[0] + vec2(1.0, 0.0) * texelSize;
+    uv[2] = uv[0] + vec2(0.0, 1.0) * texelSize;
+    uv[3] = uv[0] + vec2(1.0, 1.0) * texelSize;
     return f;
 }
 

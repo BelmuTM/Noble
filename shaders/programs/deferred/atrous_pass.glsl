@@ -70,7 +70,7 @@
             float sum = 0.0, sqSum = 0.0, totalWeight = 1.0;
 
             int  filterSize = 3;
-            vec2 stepSize   = steps[ATROUS_PASS_INDEX] * pixelSize;
+            vec2 stepSize   = steps[ATROUS_PASS_INDEX] * texelSize;
 
             for(int x = -filterSize; x <= filterSize; x++) {
                 for(int y = -filterSize; y <= filterSize; y++) {
@@ -108,7 +108,7 @@
             for(int x = -filterSize; x <= filterSize; x++) {
                 for(int y = -filterSize; y <= filterSize; y++) {
                     float weight      = gaussianDistribution2D(vec2(x, y), 1.0);
-                    float luminanceSq = texture(TEMPORAL_DATA_BUFFER, coords + vec2(x, y) * pixelSize).r;
+                    float luminanceSq = texture(TEMPORAL_DATA_BUFFER, coords + vec2(x, y) * texelSize).r;
                     
                     sum   += sqrt(luminanceSq) * weight;
                     sqSum += luminanceSq       * weight;
@@ -128,7 +128,7 @@
             vec2 depthGradient = vec2(dFdx(material.depth0), dFdy(material.depth0));
 
             float totalWeight = 1.0;
-            vec2 stepSize     = steps[ATROUS_PASS_INDEX] * pixelSize;
+            vec2 stepSize     = steps[ATROUS_PASS_INDEX] * texelSize;
 
             float accumulatedSamples = texture(LIGHTING_BUFFER, textureCoords).a;
 

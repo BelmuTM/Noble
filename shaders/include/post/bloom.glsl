@@ -19,7 +19,7 @@
 		float scale = exp2(lod + 1); 
 		vec2 coords = (textureCoords - bloomOffsets[lod]) * scale;
 
-		vec2 texelScale = pixelSize * scale;
+		vec2 texelScale = texelSize * scale;
 
 		if(any(greaterThanEqual(abs(coords - 0.5), texelScale + 0.5))) return;
 

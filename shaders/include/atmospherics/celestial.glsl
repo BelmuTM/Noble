@@ -49,7 +49,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition) {
 		float jitter = interleavedGradientNoise(gl_FragCoord.xy);
 
 		vec3 sceneDir = normalize(viewToScene(viewPosition));
-		vec3 sky      = textureCatmullRom(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDir) + jitter * pixelSize)).rgb;
+		vec3 sky      = textureCatmullRom(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDir) + jitter * texelSize)).rgb;
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD

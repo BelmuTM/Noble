@@ -91,14 +91,14 @@ vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     float VdotL  = dot(viewDirection, lightDirection);
     float NdotH  = dot(material.normal, halfway);
 
-    vec3 F0 = vec3(material.F0), eta = material.N / airIOR, etaK = material.K / airIOR;
+    vec3 F0 = vec3(material.F0);
 
     float facing    = 0.5 + 0.5 * VdotL;
     float roughSurf = facing * (0.9 - 0.4 * facing) * (0.5 + NdotH / NdotH);
 
     vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * rcp(9.0);
-    vec3 fresnelL = 1.0 - fresnelDielectricConductor(NdotL, eta, etaK);
-    vec3 fresnelV = 1.0 - fresnelDielectricConductor(NdotV, eta, etaK);
+    vec3 fresnelL = fresnelDielectricDielectric_T(NdotL, material.N, vec3(airIOR));
+    vec3 fresnelV = fresnelDielectricDielectric_T(NdotV, material.N, vec3(airIOR));
 
     vec3 smoothSurf = (fresnelL * fresnelV) / energyConservationFactor;
     vec3 single     = mix(smoothSurf, vec3(roughSurf), material.roughness) * RCP_PI;

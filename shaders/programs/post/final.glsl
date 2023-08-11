@@ -70,7 +70,7 @@ in vec2 textureCoords;
 
         for(int x = -1; x <= 1; x++) {
             for(int y = -1; y <= 1; y++, weight++) {
-                avgLuma += luminance(texture(MAIN_BUFFER, coords + vec2(x, y) * pixelSize).rgb);
+                avgLuma += luminance(texture(MAIN_BUFFER, coords + vec2(x, y) * texelSize).rgb);
             }
         }
         avgLuma /= weight;

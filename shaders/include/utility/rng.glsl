@@ -38,7 +38,7 @@ const vec2 taaOffsets[8] = vec2[8](
 );
 
 vec2 taaJitter(vec4 pos) {
-    return taaOffsets[framemod] * (pos.w * pixelSize);
+    return taaOffsets[framemod] * (pos.w * texelSize);
 }
 
 #if defined STAGE_FRAGMENT
