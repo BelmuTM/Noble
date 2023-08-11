@@ -54,7 +54,7 @@
             phase  = (1.0 - fresnel) / (1.0 - specularBounceProbability);
             phase /= energyConservationFactor;
             phase *= material.albedo * material.ao;
-            phase *= fresnelDielectricDielectric_T(dot(microfacet, wr), material.N, vec3(airIOR));
+            phase *= fresnelDielectricDielectric_T(dot(microfacet, wr), vec3(airIOR), material.N);
         }
         return phase;
     }
