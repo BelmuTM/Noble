@@ -37,6 +37,7 @@ const float RCP_PI  = 1.0 / PI;
 const float TAU     = 6.28318530;
 
 const float GOLDEN_ANGLE = 2.39996322;
+const float GOLDEN_RATIO = 1.61803398;
 
 //////////////////////////////////////////////////////////
 /*----------------- OPTIFINE CONSTANTS -----------------*/
@@ -157,8 +158,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define REFLECTIONS_SCALE 100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 #define ROUGH_REFLECTIONS_SAMPLES 1
-#define ROUGH_REFLECTIONS_STEPS  40
-#define SMOOTH_REFLECTIONS_STEPS 64
+#define ROUGH_REFLECTIONS_STEPS  64
+#define SMOOTH_REFLECTIONS_STEPS 80
 
 #define SKY_FALLBACK
 #define SSR_REPROJECTION 1 // [0 1]

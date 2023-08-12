@@ -78,9 +78,13 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
         mat3  tbn           = constructViewTBN(material.normal);
         float NdotV         = dot(material.normal, -viewDirection);
 
+        float G1 = G1SmithGGX(NdotV, alphaSq);
+
+        vec3 tangentViewDirection = -viewDirection * tbn;
+
         vec3 reflection = vec3(0.0);
         for(int i = 0; i < ROUGH_REFLECTIONS_SAMPLES; i++) {
-            vec3 microfacetNormal = tbn * sampleGGXVNDF(-viewDirection * tbn, rand2F(), material.roughness);
+            vec3 microfacetNormal = tbn * sampleGGXVNDF(tangentViewDirection, rand2F(), material.roughness);
             float MdotV           = dot(microfacetNormal, -viewDirection);
 		    vec3 rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
             float NdotL           = abs(dot(material.normal, rayDirection));
@@ -95,7 +99,6 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
                 fresnel = fresnelDielectricConductor(MdotV, material.N / airIOR, material.K / airIOR);
             }
 
-            float G1 = G1SmithGGX(NdotV, alphaSq);
             float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
 
             #if defined SKY_FALLBACK

@@ -35,6 +35,8 @@ uniform float wetness;
 uniform float sunAngle;
 uniform ivec2 eyeBrightness;
 
+uniform sampler2D noisetex;
+
 uniform sampler2D tex;
 uniform sampler2D normals;
 uniform sampler2D specular;
@@ -59,12 +61,11 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 
 uniform sampler3D depthtex2;
-uniform sampler3D noisetex;
+uniform sampler3D shadowcolor1;
 
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
-uniform sampler2D shadowcolor1;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -79,6 +80,8 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousModelViewInverse;
 uniform mat4 gbufferPreviousProjection;
+
+const int noiseTextureResolution = 256;
 
 // Maximum values for x amount of bits and their inverses (2^x - 1)
 const float maxVal8     = 255.0;

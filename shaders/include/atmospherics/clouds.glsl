@@ -116,7 +116,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
 
     position *= layer.detailScale;
 
-    vec3 curlTex   = texture(noisetex, position * 0.4).rgb * 2.0 - 1.0;
+    vec3 curlTex   = texture(shadowcolor1, position * 0.4).rgb * 2.0 - 1.0;
          position += curlTex * layer.swirl;
 
     vec4  shapeTex   = texture(depthtex2, position);

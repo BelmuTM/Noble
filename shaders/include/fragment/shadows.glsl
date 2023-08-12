@@ -88,7 +88,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
             #if SHADOW_TYPE != 2
-                offset = (diskSampling(i, SHADOW_SAMPLES, rng) * penumbraSize) * invShadowMapResolution;
+                offset = diskSampling(i, SHADOW_SAMPLES, rng) * penumbraSize * invShadowMapResolution;
             #endif
 
             vec3 samplePos = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;
