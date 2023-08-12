@@ -3,4 +3,4 @@
 #define STAGE_FRAGMENT
 #define WORLD_NETHER
 
-#include "/programs/deferred/atmosphere_pass.glsl"
+#include "/programs/prepare/atmosphere_pass.glsl"

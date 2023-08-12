@@ -232,12 +232,3 @@ float calculateCloudsShadows(vec3 shadowPosition, vec3 rayDirection, CloudLayer 
     }
     return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);
 }
-
-vec3 reprojectClouds(vec3 viewPosition, float distanceToClouds) {
-    vec3 scenePosition = normalize((gbufferModelViewInverse * vec4(viewPosition, 1.0)).xyz) * distanceToClouds;
-    vec3 velocity      = previousCameraPosition - cameraPosition - CLOUDS_WIND_SPEED * frameTime * windDir;
-
-    vec4 prevPosition = gbufferPreviousModelView * vec4(scenePosition + velocity, 1.0);
-         prevPosition = gbufferPreviousProjection * vec4(prevPosition.xyz, 1.0);
-    return prevPosition.xyz / prevPosition.w * 0.5 + 0.5;
-}

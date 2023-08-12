@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+const float invShadowMapResolution = 1.0 / shadowMapResolution;
+
 /*
 float contactShadow(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter) {
     vec3 rayPosition  = viewToScreen(viewPosition);
@@ -61,7 +63,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
             int blockers = 0;
             for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-                vec2 offset       = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, rng) * rcp(shadowMapResolution);
+                vec2 offset       = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, rng) * invShadowMapResolution;
                 vec2 sampleCoords = shadowPosition.xy + offset;
                 if(saturate(sampleCoords) != sampleCoords) return -1.0;
 
@@ -86,7 +88,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
             #if SHADOW_TYPE != 2
-                offset = (diskSampling(i, SHADOW_SAMPLES, rng) * penumbraSize) * rcp(shadowMapResolution);
+                offset = (diskSampling(i, SHADOW_SAMPLES, rng) * penumbraSize) * invShadowMapResolution;
             #endif
 
             vec3 samplePos = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;

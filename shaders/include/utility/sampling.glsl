@@ -3,18 +3,14 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-/*
-    Bicubic texture filtering
-    SOURCE: provided by swr#1793
-*/
-vec4 cubic(float v) {
-    vec4 n  = vec4(1.0, 2.0, 3.0, 4.0) - v;
-    vec4 s  = pow3(n);
-    float x = s.x;
-    float y = s.y - 4.0 * s.x;
-    float z = s.z - 4.0 * s.y + 6.0 * s.x;
-    float w = 6.0 - x - y - z;
-    return vec4(x, y, z, w) * rcp(6.0);
+vec4 cubicWeight(float v) {
+    vec4 s = pow3(vec4(1.0, 2.0, 3.0, 4.0) - v);
+    vec4 weight;
+         weight.x = s.x;
+         weight.y = s.y - 4.0 * s.x;
+         weight.z = s.z - 4.0 * s.y + 6.0 * s.x;
+         weight.w = 6.0 - weight.x - weight.y - weight.z;
+    return weight / 6.0;
 }
  
 vec4 textureBicubic(sampler2D tex, vec2 coords) {
@@ -24,13 +20,13 @@ vec4 textureBicubic(sampler2D tex, vec2 coords) {
     coords = coords * texSize - 0.5;
  
     vec2 fxy = fract(coords);
-    coords  -= fxy;
+
+    coords -= fxy;
  
-    vec4 xcubic = cubic(fxy.x);
-    vec4 ycubic = cubic(fxy.y);
+    vec4 xcubic = cubicWeight(fxy.x);
+    vec4 ycubic = cubicWeight(fxy.y);
  
-    vec4 c = coords.xxyy + vec2(-0.5, 1.5).xyxy;
- 
+    vec4 c      = coords.xxyy + vec2(-0.5, 1.5).xyxy;
     vec4 s      = vec4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
     vec4 offset = c + vec4(xcubic.yw, ycubic.yw) / s;
  

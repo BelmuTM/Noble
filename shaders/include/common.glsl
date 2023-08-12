@@ -5,7 +5,6 @@
 
 /*
     const bool colortex0MipmapEnabled = true;
-    const bool colortex3MipmapEnabled = true;
 */
 
 #include "/settings.glsl"

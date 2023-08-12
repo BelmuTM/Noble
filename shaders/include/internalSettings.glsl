@@ -10,7 +10,8 @@
 #endif
 
 /*
-const int shadowcolor0Format = RGBA16F;
+const int  shadowcolor0Format      = RGBA16F;
+const bool shadowHardwareFiltering = false;
 
 const int colortex0Format  = RGBA16F;   // Main
 const int colortex1Format  = RGBA32UI;  // Gbuffer data

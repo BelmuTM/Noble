@@ -74,7 +74,7 @@
                 clouds.a        = layer0.b     * layer1.b;
 
                 /* Reprojection */
-                vec2 prevPosition = reprojectClouds(viewPosition, distanceToClouds).xy * RENDER_SCALE;
+                vec2 prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy * RENDER_SCALE;
                 vec4 history      = texture(CLOUDS_BUFFER, prevPosition);
 
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);

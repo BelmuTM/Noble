@@ -21,7 +21,7 @@
 
         /* RENDERTARGETS: 3 */
 
-        layout (location = 0) out vec3 tilemap;
+        layout (location = 0) out vec3 bloomTiles;
 
         in vec2 textureCoords;
 
@@ -29,8 +29,7 @@
         #include "/include/post/bloom.glsl"
 
         void main() {
-            tilemap = BLOOM_PASS_INDEX == 0 ? vec3(0.0) : texture(colortex3, textureCoords).rgb;
-            writeBloomTile(tilemap, BLOOM_PASS_INDEX);
+            bloomTiles = writeBloom();
         }
     #endif
 #endif
