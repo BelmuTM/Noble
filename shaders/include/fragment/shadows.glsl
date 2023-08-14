@@ -113,15 +113,18 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geoNormal, out float subsur
         subsurfaceDepth = 0.0;
 
         #if SHADOW_TYPE == 1
-            vec3 shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
-            float avgBlockerDepth = findBlockerDepth(shadowPosDistort, subsurfaceDepth);
+            vec3  shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
+            float avgBlockerDepth  = findBlockerDepth(shadowPosDistort, subsurfaceDepth);
+
             if(avgBlockerDepth < 0.0) {
                 subsurfaceDepth = 1.0;
                 return vec3(-1.0);
             }
 
+            if(NdotL < EPS) return vec3(0.0);
+
             if(texture(shadowcolor0, shadowPosDistort.xy).a > 0.0)
-                penumbraSize = max(MIN_SHADOW_PENUMBRA, (max0(shadowPosDistort.z - avgBlockerDepth) * LIGHT_SIZE) / avgBlockerDepth);
+                penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * (shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
             else
                 penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
         #endif

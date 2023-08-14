@@ -48,7 +48,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
         float hit = float(raytrace(depthtex0, viewPosition, rayDirection, SMOOTH_REFLECTIONS_STEPS, randF(), RENDER_SCALE, hitPosition));
 
         vec3 fresnel = vec3(0.0);
-        if(isEyeInWater == 1) {
+        if(isEyeInWater == 1 || material.blockId == WATER_ID) {
             fresnel = fresnelDielectricDielectric_R(NdotL, vec3(1.333), vec3(airIOR));
         } else {
             fresnel = fresnelDielectricConductor(NdotL, material.N / airIOR, material.K / airIOR);
@@ -84,16 +84,16 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
 
         vec3 reflection = vec3(0.0);
         for(int i = 0; i < ROUGH_REFLECTIONS_SAMPLES; i++) {
-            vec3 microfacetNormal = tbn * sampleGGXVNDF(tangentViewDirection, rand2F(), material.roughness);
-            float MdotV           = dot(microfacetNormal, -viewDirection);
-		    vec3 rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
-            float NdotL           = abs(dot(material.normal, rayDirection));
+            vec3  microfacetNormal = tbn * sampleGGXVNDF(tangentViewDirection, rand2F(), material.roughness);
+            float MdotV            = dot(microfacetNormal, -viewDirection);
+		    vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
+            float NdotL            = abs(dot(material.normal, rayDirection));
 
             vec3 hitPosition;
             float hit = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECTIONS_STEPS, randF(), RENDER_SCALE, hitPosition));
 
             vec3 fresnel = vec3(0.0);
-            if(isEyeInWater == 1) {
+            if(isEyeInWater == 1 || material.blockId == WATER_ID) {
                 fresnel = fresnelDielectricDielectric_R(MdotV, vec3(airIOR), vec3(1.333));
             } else {
                 fresnel = fresnelDielectricConductor(MdotV, material.N / airIOR, material.K / airIOR);

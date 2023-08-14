@@ -71,7 +71,7 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
     float amplitude = WAVE_AMPLITUDE;
     float lambda    = WAVE_LENGTH;
 
-    const float angle   = TAU * 0.4;
+    const float angle   = TAU * 0.08;
 	const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
 
     vec2 direction = vec2(0.786, 0.352);

@@ -75,7 +75,7 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 4.0);
+        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 3.0);
     #endif
 
     #if PURKINJE == 1
@@ -111,12 +111,6 @@ void main() {
     float liftMul       = 0.1 * LIFT;
     float gammaMul      = 1.0 + GAMMA;
     float gainMul       = 1.0 + GAIN;
-
-    #if CEL_SHADING == 1
-        vibranceMul   += 0.6;
-        saturationMul += 0.3;
-        contrastMul   -= 0.4;
-    #endif
 
     whiteBalance( color);
     vibrance(color, vibranceMul);

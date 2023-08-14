@@ -46,6 +46,8 @@
                 reflections.rgb = computeRoughReflections(viewPosition, material);
             #endif
 
+            reflections.rgb = clamp16(reflections.rgb);
+
             vec3 currPosition = vec3(textureCoords, texture(depthtex0, vertexCoords).r);
             vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
             vec3 prevColor    = logLuvDecode(texture(REFLECTIONS_BUFFER, prevCoords));
