@@ -51,6 +51,8 @@
 
             clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
+            if(!isSky(vertexCoords)) { discard; return; }
+
             vec3 viewPosition       = screenToView(vec3(textureCoords, texture(depthtex1, vertexCoords).r));
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
@@ -80,7 +82,7 @@
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
 
-                float frameWeight = 1.0 / max(texture(LIGHTING_BUFFER, prevPosition).w, 1.0);
+                float frameWeight = 1.0 / max(texture(LIGHTING_BUFFER, prevPosition).a, 1.0);
 
                 float weight = saturate(centerWeight * frameWeight) * float(clamp(prevPosition, 0.0, RENDER_SCALE - 1e-3) == prevPosition);
 

@@ -157,7 +157,7 @@
             	vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
             	vec4 prevAO       = texture(AO_BUFFER, prevCoords);
         
-            	float weight = 1.0 / max(texture(LIGHTING_BUFFER, prevCoords).w, 1.0);
+            	float weight = 1.0 / max(texture(LIGHTING_BUFFER, prevCoords).a, 1.0);
 
             	ao.w   = mix(prevAO.w  , ao.w  , weight);
             	ao.xyz = mix(prevAO.xyz, ao.xyz, weight);

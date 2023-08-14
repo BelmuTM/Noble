@@ -31,10 +31,10 @@
 
 const float EPS = 1e-6;
 
-const float HALF_PI = 1.57079632;
-const float PI      = 3.14159265;
+const float PI      = radians(180.0);
+const float HALF_PI = PI * 0.5;
 const float RCP_PI  = 1.0 / PI;
-const float TAU     = 6.28318530;
+const float TAU     = PI * 2.0;
 
 const float GOLDEN_ANGLE = 2.39996322;
 const float GOLDEN_RATIO = 1.61803398;
@@ -76,10 +76,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 /*------------------ AMBIENT OCCLUSION -----------------*/
 //////////////////////////////////////////////////////////
 
-#define AO        1 // [0 1]
-#define AO_TYPE   2 // [0 1 2]
-#define AO_FILTER 1 // [0 1]
-#define AO_SCALE 75 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define AO         1 // [0 1]
+#define AO_TYPE    2 // [0 1 2]
+#define AO_FILTER  1 // [0 1]
+#define AO_SCALE 100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 #define SSAO_SAMPLES   12 // [4 8 12 16 20]
 #define SSAO_RADIUS   0.7 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
