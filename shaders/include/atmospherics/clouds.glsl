@@ -149,7 +149,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
     vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
-    if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e6);
+    if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e35);
 
     float jitter      = interleavedGradientNoise(gl_FragCoord.xy);
     float stepSize    = (dists.y - dists.x) / layer.steps;

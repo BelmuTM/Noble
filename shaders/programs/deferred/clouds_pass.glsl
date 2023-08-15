@@ -8,7 +8,7 @@
 
 #include "/include/atmospherics/constants.glsl"
 
-#if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0 && defined WORLD_OVERWORLD
+#if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0 || !defined WORLD_OVERWORLD
     #include "/programs/discard.glsl"
 #else
     #if defined STAGE_VERTEX
@@ -56,8 +56,8 @@
             vec3 viewPosition       = screenToView(vec3(textureCoords, texture(depthtex1, vertexCoords).r));
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
-            vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e6);
-            vec4 layer1 = vec4(0.0, 0.0, 1.0, 1e6);
+            vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e35);
+            vec4 layer1 = vec4(0.0, 0.0, 1.0, 1e35);
 
             #if CLOUDS_LAYER0_ENABLED == 1
                 layer0 = estimateCloudsScattering(cloudLayer0, cloudsRayDirection);
