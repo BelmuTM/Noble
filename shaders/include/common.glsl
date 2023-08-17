@@ -7,7 +7,6 @@
     const bool colortex0MipmapEnabled = true;
 */
 
-#include "/settings.glsl"
 #include "/include/uniforms.glsl"
 
 #include "/include/utility/rng.glsl"
@@ -15,7 +14,6 @@
 #include "/include/utility/color.glsl"
 
 #include "/include/utility/transforms.glsl"
-#include "/include/utility/phase.glsl"
 
 #include "/include/utility/material.glsl"
 

@@ -3,7 +3,9 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
 
 #if defined STAGE_VERTEX
@@ -12,6 +14,8 @@
 	out vec3 skyIlluminance;
 	
 	#include "/include/atmospherics/constants.glsl"
+
+	#include "/include/utility/phase.glsl"
 	#include "/include/atmospherics/atmosphere.glsl"
 
 	void main() {

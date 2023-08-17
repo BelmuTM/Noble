@@ -144,19 +144,12 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
         diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows;
     #endif
 
-    float isSkyOccluded = float(material.lightmap.y > EPS || isEyeInWater == 1);
-
     material.lightmap.x = getBlocklightFalloff(material.lightmap.x);
 
     #if defined WORLD_OVERWORLD
         material.lightmap.y = getSkylightFalloff(material.lightmap.y);
-
-        #if defined SUNLIGHT_LEAKING_FIX
-            diffuse        *= directIlluminance * isSkyOccluded;
-            skyIlluminance *= isSkyOccluded;
-        #else
-            diffuse *= directIlluminance;
-        #endif
+        
+         diffuse *= directIlluminance;
 
         vec3 skylight = skyIlluminance * material.lightmap.y;
     #else

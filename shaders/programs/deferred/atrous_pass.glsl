@@ -15,8 +15,8 @@
         Dundr, J. (2018). Progressive Spatiotemporal Variance-Guided Filtering. https://cescg.org/wp-content/uploads/2018/04/Dundr-Progressive-Spatiotemporal-Variance-Guided-Filtering-2.pdf
 */
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
-#include "/include/common.glsl"
 
 #if GI == 0 || GI_FILTER == 0 || RENDER_MODE == 1
     #include "/programs/discard.glsl"
@@ -44,6 +44,8 @@
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
+
+        #include "/include/common.glsl"
 
         const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
         const float steps[5]  = float[5](

@@ -48,7 +48,7 @@ vec2 taaJitter(vec4 pos) {
         seed = (word >> 22u) ^ word;
     }
 
-    uint rngState = uint(viewWidth * viewHeight) * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewSize.x);
+    uint rngState = uint(viewWidth * viewHeight) * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewWidth);
 
     float randF()  { pcg(rngState); return float(rngState) / float(0xffffffffu); }
     vec2  rand2F() { return vec2(randF(), randF());                              }

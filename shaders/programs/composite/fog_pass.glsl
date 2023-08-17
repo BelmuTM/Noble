@@ -10,9 +10,12 @@ layout (location = 0) out uvec2 fog;
 in vec2 textureCoords;
 in vec2 vertexCoords;
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
 
+#include "/include/utility/phase.glsl"
 #include "/include/atmospherics/constants.glsl"
 
 #if defined WORLD_OVERWORLD || defined WORLD_END
@@ -28,11 +31,8 @@ void main() {
 
     Material material = getMaterial(vertexCoords);
 
-    float depth0        = texture(depthtex0, vertexCoords).r;
-    vec3  viewPosition0 = screenToView(vec3(textureCoords, depth0));
-
-    float depth1        = texture(depthtex1, vertexCoords).r;
-    vec3  viewPosition1 = screenToView(vec3(textureCoords, depth1));
+    vec3 viewPosition0  = getViewPosition0(textureCoords);
+    vec3 viewPosition1  = getViewPosition1(textureCoords);
     vec3 scenePosition0 = viewToScene(viewPosition0);
 
     vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);

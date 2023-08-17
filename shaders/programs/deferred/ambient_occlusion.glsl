@@ -10,9 +10,10 @@
 		Jimenez et al. (2016). Practical Realtime Strategies for Accurate Indirect Occlusion. https://blog.selfshadow.com/publications/s2016-shading-course/activision/s2016_pbs_activision_occlusion.pdf
 */
 
-#include "/include/taau_scale.glsl"
-#include "/include/common.glsl"
+#include "/settings.glsl"
 #include "/include/internalSettings.glsl"
+
+#include "/include/taau_scale.glsl"
 
 #if AO == 0 || GI == 1
     #include "/programs/discard.glsl"
@@ -28,6 +29,8 @@
 
 		in vec2 textureCoords;
 		in vec2 vertexCoords;
+
+		#include "/include/common.glsl"
     
     	#if AO_TYPE == 0
 
@@ -75,15 +78,15 @@
     	    	return visibility / (albedo * visibility + (1.0 - albedo)); 
  	    	}
 
-	    	float findMaximumHorizon(vec2 coords, vec3 viewPosition, vec3 viewDirection, vec3 normal, vec3 sliceDir, vec2 radius) {
+	    	float findMaximumHorizon(vec3 viewPosition, vec3 viewDirection, vec3 normal, vec3 sliceDir, vec2 radius) {
 		    	float horizonCos = -1.0;
 
 		    	vec2 stepSize    = radius * rcp(GTAO_HORIZON_STEPS);
 		    	vec2 increment   = sliceDir.xy * stepSize;
-		    	vec2 rayPosition = coords + rand2F() * increment;
+		    	vec2 rayPosition = textureCoords + rand2F() * increment;
 
 		    	for(int i = 0; i < GTAO_HORIZON_STEPS; i++, rayPosition += increment) {
-			    	float depth = texelFetch(depthtex0, ivec2(saturate(rayPosition) * viewSize), 0).r;
+			    	float depth = texelFetch(depthtex0, ivec2(rayPosition * viewSize * RENDER_SCALE), 0).r;
 			    	if(saturate(rayPosition) != rayPosition || depth == 1.0 || isHand(rayPosition)) continue;
 
 			    	vec3 horizonVec = screenToView(vec3(rayPosition, depth)) - viewPosition;
@@ -94,12 +97,12 @@
 		    	return fastAcos(horizonCos);
 	    	}
 
-	    	float GTAO(vec2 coords, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+	    	float GTAO(vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
 		    	float visibility = 0.0;
 
 		    	float rcpViewLength = fastRcpLength(viewPosition);
-		    	vec2 radius  		= GTAO_RADIUS * rcpViewLength * rcp(vec2(1.0, aspectRatio));
-		    	vec3 viewDirection  = viewPosition * -rcpViewLength;
+		    	vec2  radius  		= GTAO_RADIUS * rcpViewLength * rcp(vec2(1.0, aspectRatio));
+		    	vec3  viewDirection = viewPosition * -rcpViewLength;
 
 				float dither = interleavedGradientNoise(gl_FragCoord.xy);
 
@@ -117,8 +120,8 @@
 			    	float gamma    = sgnGamma * fastAcos(cosGamma);
 
 			    	vec2 horizons;
-			    	horizons.x = -findMaximumHorizon(coords, viewPosition, viewDirection, normal,-sliceDir, radius);
-			    	horizons.y =  findMaximumHorizon(coords, viewPosition, viewDirection, normal, sliceDir, radius);
+			    	horizons.x = -findMaximumHorizon(viewPosition, viewDirection, normal,-sliceDir, radius);
+			    	horizons.y =  findMaximumHorizon(viewPosition, viewDirection, normal, sliceDir, radius);
 			    	horizons   =  gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
 			
 			    	vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
@@ -142,14 +145,14 @@
     		if(isSky(vertexCoords) || isHand(vertexCoords)) return;
 
         	Material material = getMaterial(vertexCoords);
+			vec3 viewPosition = getViewPosition0(textureCoords);
 
         	#if AO_TYPE == 0
-            	ao.w = SSAO(getViewPosition0(vertexCoords), material.normal);
+            	ao.w = SSAO(viewPosition, material.normal);
         	#elif AO_TYPE == 1
-            	vec3 viewPosition = screenToView(vec3(textureCoords, texture(depthtex0, vertexCoords).r));
             	ao.w = RTAO(viewPosition, material.normal, ao.xyz);
         	#elif AO_TYPE == 2
-            	ao.w = GTAO(vertexCoords, getViewPosition0(vertexCoords), material.normal, ao.xyz);
+            	ao.w = GTAO(viewPosition, material.normal, ao.xyz);
         	#endif
 
         	#if AO_FILTER == 1

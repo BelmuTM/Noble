@@ -3,8 +3,12 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
+
+#include "/include/utility/phase.glsl"
 
 #include "/include/atmospherics/constants.glsl"
 
@@ -74,7 +78,7 @@
 	in mat3[2] skyIlluminanceMat;
 	in vec4 vertexColor;
 	in mat3 tbn;
-
+	
 	#include "/include/fragment/brdf.glsl"
 
 	#if SHADOWS == 1

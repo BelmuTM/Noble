@@ -10,10 +10,14 @@ layout (location = 0) out vec3 color;
 in vec2 textureCoords;
 in vec2 vertexCoords;
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
 
 #include "/include/atmospherics/constants.glsl"
+
+#include "/include/utility/phase.glsl"
 
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
@@ -58,11 +62,8 @@ void main() {
         if(!isSky(vertexCoords)) {
             Material material = getMaterial(vertexCoords);
 
-            float depth0        = texture(depthtex0, vertexCoords).r;
-            vec3  viewPosition0 = screenToView(vec3(textureCoords, depth0));
-
-            float depth1        = texture(depthtex1, vertexCoords).r;
-            vec3  viewPosition1 = screenToView(vec3(textureCoords, depth1));
+            vec3 viewPosition0  = getViewPosition0(textureCoords);
+            vec3 viewPosition1  = getViewPosition1(textureCoords);
 
             vec3 directIlluminance = vec3(0.0);
     
@@ -130,6 +131,6 @@ void main() {
     
     color += envSpecular;
 
-    vec4 basic     = texture(RASTER_BUFFER, vertexCoords);
-         color.rgb = mix(color.rgb, basic.rgb, basic.a);
+    vec4 basic = texture(RASTER_BUFFER, vertexCoords);
+         color = mix(color, basic.rgb, basic.a);
 }

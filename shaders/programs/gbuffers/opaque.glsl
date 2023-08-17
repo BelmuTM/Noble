@@ -3,7 +3,9 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
 
 #if defined STAGE_VERTEX

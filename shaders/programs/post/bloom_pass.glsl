@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#include "/include/common.glsl"
+#include "/settings.glsl"
 
 #if BLOOM == 0
     #include "/programs/discard.glsl"
@@ -24,6 +24,10 @@
         layout (location = 0) out vec3 bloomTiles;
 
         in vec2 textureCoords;
+
+        #include "/include/taau_scale.glsl"
+
+        #include "/include/common.glsl"
 
         #include "/include/utility/sampling.glsl"
         #include "/include/post/bloom.glsl"

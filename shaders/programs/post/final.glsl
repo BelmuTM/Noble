@@ -7,6 +7,9 @@ out vec3 color;
 
 in vec2 textureCoords;
 
+#include "/settings.glsl"
+#include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
 
 #if UNDERWATER_DISTORTION == 1

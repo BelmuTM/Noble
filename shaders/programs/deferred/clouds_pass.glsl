@@ -3,9 +3,12 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
 
+#include "/include/utility/phase.glsl"
 #include "/include/atmospherics/constants.glsl"
 
 #if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0 || !defined WORLD_OVERWORLD
@@ -53,7 +56,7 @@
 
             if(!isSky(vertexCoords)) { discard; return; }
 
-            vec3 viewPosition       = screenToView(vec3(textureCoords, texture(depthtex1, vertexCoords).r));
+            vec3 viewPosition       = getViewPosition0(textureCoords);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
             vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e35);

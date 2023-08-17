@@ -11,7 +11,9 @@
         Pedersen, L. J. F. (2016). Temporal Reprojection Anti-Aliasing in INSIDE. http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
 */
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
 
 #if defined STAGE_VERTEX
@@ -69,7 +71,7 @@
             for(int x = -size; x <= size; x++) {
                 for(int y = -size; y <= size; y++) {
                     currentFragment.xy = position.xy + vec2(x, y) * texelSize;
-                    currentFragment.z  = texture(depthtex0, currentFragment.xy * RENDER_SCALE).r;
+                    currentFragment.z  = texelFetch(depthtex0, ivec2(currentFragment.xy * viewSize * RENDER_SCALE), 0).r;
                     closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
                 }
             }

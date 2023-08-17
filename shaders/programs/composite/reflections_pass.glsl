@@ -3,8 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
-#include "/include/common.glsl"
 
 #if REFLECTIONS == 0 || GI == 1
     #include "/programs/discard.glsl"
@@ -21,7 +21,11 @@
         in vec2 textureCoords;
         in vec2 vertexCoords;
 
+        #include "/include/common.glsl"
+
         #include "/include/atmospherics/constants.glsl"
+
+        #include "/include/utility/phase.glsl"
 
         #include "/include/fragment/brdf.glsl"
     
@@ -36,9 +40,8 @@
 
             if(isSky(vertexCoords)) { discard; return; }
 
-            Material material  = getMaterial(vertexCoords);
-            float depth        = texture(depthtex0, vertexCoords).r;
-            vec3  viewPosition = screenToView(vec3(textureCoords, depth));
+            Material material = getMaterial(vertexCoords);
+            vec3 viewPosition = getViewPosition0(textureCoords);
                     
             #if REFLECTIONS_TYPE == 0
                 reflections.rgb = computeSmoothReflections(viewPosition, material);

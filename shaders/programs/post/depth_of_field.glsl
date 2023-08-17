@@ -3,8 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
-#include "/include/common.glsl"
 
 #if DOF == 0
     #include "/programs/discard.glsl"
@@ -20,6 +20,8 @@
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
+
+        #include "/include/common.glsl"
 
         // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
         float getCoC(float fragDepth, float targetDepth) {

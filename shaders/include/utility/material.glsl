@@ -71,7 +71,7 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
     float amplitude = WAVE_AMPLITUDE;
     float lambda    = WAVE_LENGTH;
 
-    const float angle   = TAU * 0.08;
+    const float angle   = TAU * 0.15;
 	const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
 
     vec2 direction = vec2(0.786, 0.352);
@@ -79,11 +79,11 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
     for(int i = 0; i < octaves; i++) {
         float noise = FBM(position * inversesqrt(lambda) - (speed * direction), 1, 0.3);
 
-        height -= gerstnerWaves(position +  vec2(noise, -noise) * sqrt(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
+        height += gerstnerWaves(position + vec2(noise, -noise) * sqrt(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
 
         steepness *= 1.02;
         amplitude *= 0.83;
-        lambda    *= 0.85;
+        lambda    *= 0.87;
         direction *= rotation;
     }
     return height;

@@ -3,12 +3,15 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
 
 #include "/include/atmospherics/constants.glsl"
 
 #if defined WORLD_OVERWORLD || defined WORLD_END
+    #include "/include/utility/phase.glsl"
 	#include "/include/atmospherics/atmosphere.glsl"
 #endif
 
@@ -116,7 +119,7 @@
             #if SHADOWS == 1
                 if(!isSky(vertexCoords)) {
                     vec3 geoNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
-                    vec3 scenePos  = viewToScene(screenToView(vec3(textureCoords, texture(depthtex0, vertexCoords).r)));
+                    vec3 scenePos  = viewToScene(getViewPosition0(textureCoords));
                     shadowmap.rgb  = calculateShadowMapping(scenePos, geoNormal, shadowmap.a);
                     shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
                 }

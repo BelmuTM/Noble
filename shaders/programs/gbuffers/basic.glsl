@@ -3,10 +3,10 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#include "/include/taau_scale.glsl"
-
 #include "/settings.glsl"
 #include "/include/uniforms.glsl"
+
+#include "/include/taau_scale.glsl"
 
 #include "/include/utility/rng.glsl"
 #include "/include/utility/math.glsl"

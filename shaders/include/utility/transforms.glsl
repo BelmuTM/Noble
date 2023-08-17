@@ -33,6 +33,18 @@ vec3 distortShadowSpace(vec3 position) {
 	return position;
 }
 
+float DISTORT_FACTOR = 0.1;
+float CURVE_FACTOR = 0.1;
+
+vec2 distort(vec2 uv) {
+    vec2 absUV = abs(uv);
+    float maxCoord = min(absUV.x, absUV.y) / max(absUV.x, absUV.y);
+    float maxLen = sqrt(1.0 + maxCoord * maxCoord);
+    float fac1 = length(uv) + DISTORT_FACTOR;
+    float fac = mix(1.0, fac1, pow(1.0 - length(uv) / maxLen, CURVE_FACTOR));
+    return vec2(uv / fac);
+}
+
 //////////////////////////////////////////////////////////
 /*----------------- CLOUDS SHADOWS ---------------------*/
 //////////////////////////////////////////////////////////
@@ -90,11 +102,11 @@ mat3 constructViewTBN(vec3 viewNormal) {
 }
 
 vec3 getViewPosition0(vec2 coords) {
-    return screenToView(vec3(coords, texture(depthtex0, coords).r));
+    return screenToView(vec3(coords, texture(depthtex0, coords * RENDER_SCALE).r));
 }
 
 vec3 getViewPosition1(vec2 coords) {
-    return screenToView(vec3(coords, texture(depthtex1, coords).r));
+    return screenToView(vec3(coords, texture(depthtex1, coords * RENDER_SCALE).r));
 }
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth
@@ -118,15 +130,6 @@ vec3 getVelocity(vec3 currPosition) {
          prevPosition = (projectOrthogonal(gbufferPreviousProjection, prevPosition) / -prevPosition.z) * 0.5 + 0.5;
 
     return prevPosition - currPosition;
-}
-
-vec3 reproject(vec2 coords) {
-    vec3 position = viewToScene(getViewPosition0(coords));
-
-	vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(linearizeDepthFast(texture(depthtex0, coords).r) >= MC_HAND_DEPTH);
-
-    position = transform(gbufferPreviousModelView, cameraOffset + viewToScene(getViewPosition0(coords)));
-    return (projectOrthogonal(gbufferPreviousProjection, position) / -position.z) * 0.5 + 0.5;
 }
 
 vec3 reproject(vec3 viewPosition, float distanceToFrag, vec3 offset) {

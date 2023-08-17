@@ -3,7 +3,9 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/settings.glsl"
 #include "/include/taau_scale.glsl"
+
 #include "/include/common.glsl"
 
 #if GI == 1
@@ -23,6 +25,9 @@ in vec2 textureCoords;
 in vec2 vertexCoords;
 
 #include "/include/atmospherics/constants.glsl"
+
+#include "/include/utility/phase.glsl"
+
 #include "/include/fragment/brdf.glsl"
 #include "/include/atmospherics/celestial.glsl"
 
@@ -35,11 +40,11 @@ void main() {
     vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-    float depth         = texture(depthtex0, vertexCoords).r;
-    vec3  viewPosition0 = screenToView(vec3(textureCoords, depth));
+    float depth        = texture(depthtex0, vertexCoords).r;
+    vec3  viewPosition = screenToView(vec3(textureCoords, depth));
 
     if(depth == 1.0) {
-        vec3 sky = renderAtmosphere(vertexCoords, viewPosition0);
+        vec3 sky = renderAtmosphere(vertexCoords, viewPosition);
         #if GI == 1
             firstBounceData.x = packUnormArb(logLuvEncode(sky), uvec4(8));
         #else
@@ -55,23 +60,22 @@ void main() {
     #endif
 
     #if AO_FILTER == 1 && GI == 0 || REFLECTIONS == 1 && GI == 0 || GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
-        vec3  currPosition = vec3(textureCoords, depth);
-        vec2  prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
-        vec4  history      = texture(LIGHTING_BUFFER, prevCoords);
+        vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth)) * RENDER_SCALE;
+        vec4 history      = texture(LIGHTING_BUFFER, prevPosition.xy);
 
         color.a  = history.a;
-        color.a *= float(clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords);
+        color.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
         color.a *= float(!isHand(vertexCoords));
 
-        temporalData = texture(TEMPORAL_DATA_BUFFER, prevCoords).rg;
+        temporalData = texelFetch(TEMPORAL_DATA_BUFFER, ivec2(prevPosition.xy * viewSize), 0).rg;
 
         #if RENDER_MODE == 0
-            color.a *= pow(exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(exp2(temporalData.g)))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
+            color.a *= pow(exp(-abs(linearizeDepthFast(prevPosition.z) - linearizeDepthFast(exp2(temporalData.g)))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
 
-            vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
+            vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
                  color.a        *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
 
-            temporalData.g = log2(depth);
+            temporalData.g = log2(prevPosition.z);
         #else
             color.a *= float(hideGUI);
         #endif
@@ -90,7 +94,7 @@ void main() {
                 directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
 
                 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                    cloudsShadows = getCloudsShadows(viewToScene(viewPosition0));
+                    cloudsShadows = getCloudsShadows(viewToScene(viewPosition));
                 #endif
 
                 skyIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
@@ -103,7 +107,7 @@ void main() {
             float ao = 1.0;
 
 
-            color.rgb = computeDiffuse(viewPosition0, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
+            color.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         }
     #else
         vec3 direct   = vec3(0.0);
@@ -116,7 +120,7 @@ void main() {
 
             color.rgb = clamp16(mix(history.rgb, color.rgb, weight));
 
-            uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, prevCoords).rg;
+            uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, prevPosition.xy).rg;
 
             direct   = clamp16(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8))), direct  , weight));
             indirect = clamp16(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8))), indirect, weight));
