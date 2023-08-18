@@ -59,14 +59,8 @@
 	
 		vec3 worldPosition = transform(gbufferModelViewInverse, viewPosition);
 
-		#if RENDER_MODE == 0
-			#if defined PROGRAM_TERRAIN && WAVING_PLANTS == 1
-				animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
-			#endif
-
-			#if defined PROGRAM_WEATHER
-				worldPosition.xz += RAIN_DIRECTION * worldPosition.y;
-			#endif
+		#if RENDER_MODE == 0 && defined PROGRAM_TERRAIN && WAVING_PLANTS == 1
+			animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
 		#endif
 	
 		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];

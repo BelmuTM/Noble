@@ -241,11 +241,11 @@ vec2 diskSampling(float i, float n, float phi) {
 }
 
 float gaussianDistribution1D(float x, float sigma) {
-    return (1.0 / (sqrt(TAU) * sigma)) * exp(-pow2(x) / (2.0 * pow2(sigma)));
+    return (1.0 / (sqrt(TAU) * sigma)) * exp(-pow2(x) / (2.0 * sigma * sigma));
 }
 
 float gaussianDistribution2D(vec2 xy, float sigma) {
-    return (1.0 / (TAU * pow2(sigma))) * exp(-dot(xy, xy) / (2.0 * pow2(sigma)));
+    return (1.0 / (TAU * sigma * sigma)) * exp(-dot(xy, xy) / (2.0 * sigma * sigma));
 }
 
 //////////////////////////////////////////////////////////
