@@ -3,4 +3,4 @@
 #define STAGE_VERTEX
 #define WORLD_END
 
-#include "/programs/deferred/atmosphere_pass.glsl"
+#include "/programs/deferred/clouds_pass.glsl"

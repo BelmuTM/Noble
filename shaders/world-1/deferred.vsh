@@ -1,4 +1,6 @@
 #version 400 compatibility
 
 #define STAGE_VERTEX
-#include "/programs/deferred/ambient_occlusion.glsl"
+#define WORLD_NETHER
+
+#include "/programs/deferred/atmosphere_pass.glsl"

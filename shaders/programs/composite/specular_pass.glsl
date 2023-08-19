@@ -96,7 +96,9 @@ void main() {
                     visibility *= getCloudsShadows(viewToScene(viewPosition0));
                 #endif
 
-                sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowVec) * directIlluminance * saturate(visibility);
+                if(visibility != vec3(0.0)) {
+                    sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowVec) * directIlluminance * saturate(visibility);
+                }
             #endif
 
             #if REFLECTIONS == 1
