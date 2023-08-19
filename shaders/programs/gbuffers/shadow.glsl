@@ -31,8 +31,8 @@
              worldPosition = transform(shadowModelViewInverse, viewShadowPos);
 
         #if WATER_CAUSTICS == 1
-    	    tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
-    	    tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
+    	    tbn[2] = mat3(shadowModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+    	    tbn[0] = mat3(shadowModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
 		    tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
         #endif
 
@@ -60,14 +60,15 @@
     in mat3 tbn;
 
     #if WATER_CAUSTICS == 1
-        // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
-        // Thanks jakemichie97#7237 for the help!
-        float waterCaustics(vec3 oldPos, vec3 normal) {
-	        vec3 newPos = oldPos + refract(shadowLightVector, normal, 0.75) * 3.0;
+        #include "/include/fragment/gerstner.glsl"
 
-            float oldArea = fastInvSqrtN1(lengthSqr(dFdx(oldPos)) * lengthSqr(dFdy(oldPos)));
-            float newArea =    fastSqrtN1(lengthSqr(dFdx(newPos)) * lengthSqr(dFdy(newPos)));
-	        return oldArea * newArea;
+        // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
+        float waterCaustics(vec3 oldPos, vec3 normal) {
+	        vec3 newPos = oldPos + refract(shadowLightVector, normal, 0.75) * 2.0;
+
+            float oldArea = length(dFdx(oldPos)) * length(dFdy(oldPos));
+            float newArea = length(dFdx(newPos)) * length(dFdy(newPos));
+	        return oldArea / newArea * 0.2;
         }
     #endif
 
@@ -79,11 +80,17 @@
 	    	albedoTex.rgb = vec3(1.0);
         #endif
 
-        #if WATER_CAUSTICS == 1
-            float caustics = 1.0 + saturate(1.0 - waterCaustics(worldPosition, tbn * getWaterNormals(worldPosition, int(WATER_OCTAVES * 0.5))));
-            color0         = mix(albedoTex, vec4(caustics, caustics, caustics, 0.0), float(blockId == WATER_ID));
-        #else
-            color0 = mix(albedoTex, vec4(1.0, 1.0, 1.0, 0.0), float(blockId == WATER_ID));
-        #endif
+        color0 = albedoTex;
+
+        if(blockId == WATER_ID) {
+            color0.rgb = vec3(1.0);
+
+            #if WATER_CAUSTICS == 1
+                vec3  waterNormals = normalize(tbn * getWaterNormals(worldPosition, WATER_OCTAVES));
+                float caustics     = waterCaustics(worldPosition, waterNormals) * WATER_CAUSTICS_STRENGTH;
+
+                color0.rgb += caustics;
+            #endif
+        }
     }
 #endif

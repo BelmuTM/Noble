@@ -85,6 +85,8 @@
 		#include "/include/fragment/shadows.glsl"
 	#endif
 
+	#include "/include/fragment/gerstner.glsl"
+
 	void main() {
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 		if(saturate(fragCoords) != fragCoords) discard;

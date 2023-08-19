@@ -90,7 +90,7 @@ void main() {
             //////////////////////////////////////////////////////////
 
             #if SPECULAR == 1
-                vec3 visibility = viewPosition0.z == viewPosition1.z ? texture(SHADOWMAP_BUFFER, coords.xy).rgb : vec3(1.0);
+                vec3 visibility = texture(SHADOWMAP_BUFFER, coords.xy).rgb;
 
                 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                     visibility *= getCloudsShadows(viewToScene(viewPosition0));

@@ -53,54 +53,6 @@ const mat2x3 hardcodedMetals[] = mat2x3[](
            vec3(3.9291, 3.1900, 2.3808))
 );
 
-float gerstnerWaves(vec2 coords, float time, float steepness, float amplitude, float lambda, vec2 direction) {
-    const float g = 9.81; // Earth's gravity constant
-
-	float k = TAU / lambda;
-    float x = (sqrt(g * k)) * time - k * dot(direction, coords);
-
-    return amplitude * pow(sin(x) * 0.5 + 0.5, steepness);
-}
-
-float calculateWaveHeightGerstner(vec2 position, int octaves) {
-    float height = 0.0;
-
-    float speed     = 1.0;
-    float time      = RENDER_MODE == 0 ? frameTimeCounter * speed : 1.0;
-    float steepness = WAVE_STEEPNESS;
-    float amplitude = WAVE_AMPLITUDE;
-    float lambda    = WAVE_LENGTH;
-
-    const float angle   = TAU * 0.15;
-	const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
-
-    vec2 direction = vec2(0.786, 0.352);
-
-    for(int i = 0; i < octaves; i++) {
-        float noise = FBM(position * inversesqrt(lambda) - (speed * direction), 1, 0.3);
-
-        height += gerstnerWaves(position + vec2(noise, -noise) * sqrt(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
-
-        steepness *= 1.02;
-        amplitude *= 0.83;
-        lambda    *= 0.87;
-        direction *= rotation;
-    }
-    return height;
-}
-
-const vec2 offset = vec2(0.05, 0.0);
-
-vec3 getWaterNormals(vec3 worldPosition, int octaves) {
-    vec2 position = worldPosition.xz;
-
-    float pos0 = calculateWaveHeightGerstner(position,             octaves);
-	float pos1 = calculateWaveHeightGerstner(position + offset.xy, octaves);
-	float pos2 = calculateWaveHeightGerstner(position + offset.yx, octaves);
-
-    return vec3(pos0 - pos1, pos0 - pos2, 1.0);
-}
-
 float f0ToIOR(float F0) {
 	F0 = sqrt(F0) * 0.99999;
 	return airIOR * ((1.0 + F0) / (1.0 - F0));
