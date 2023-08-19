@@ -8,18 +8,17 @@
 
 #include "/include/common.glsl"
 
+#define MIN_RAIN_BRIGHTNESS 6.0
+
 #if defined STAGE_VERTEX
 
 	out vec2 textureCoords;
-	out vec3 skyIlluminance;
-	
-	#include "/include/atmospherics/constants.glsl"
-
-	#include "/include/utility/phase.glsl"
-	#include "/include/atmospherics/atmosphere.glsl"
+	out vec3 directIlluminance;
 
 	void main() {
 		textureCoords = gl_MultiTexCoord0.xy;
+
+		directIlluminance = max(texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb, vec3(MIN_RAIN_BRIGHTNESS));
 
 		vec3 worldPosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
 
@@ -29,8 +28,6 @@
 
 		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
-
-		skyIlluminance = evaluateUniformSkyIrradianceApproximation();
 	}
 
 #elif defined STAGE_FRAGMENT
@@ -40,7 +37,7 @@
 	layout (location = 0) out vec4 color;
 
 	in vec2 textureCoords;
-	in vec3 skyIlluminance;
+	in vec3 directIlluminance;
 
 	void main() {
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
@@ -50,15 +47,15 @@
 
 		const float density               = 2.0;
 		const float scatteringCoefficient = 0.1;
-		const float alpha                 = 0.3;
-
-		vec3 attenuationCoefficients = vec3(0.338675, 0.0493852, 0.00218174);
+		const float alpha                 = 0.1;
 
 		#if TONEMAP == ACES
-			attenuationCoefficients *= SRGB_2_AP1_ALBEDO;
+			const vec3 attenuationCoefficients = vec3(0.338675, 0.0493852, 0.00218174) * SRGB_2_AP1_ALBEDO;
+		#else
+			const vec3 attenuationCoefficients = vec3(0.338675, 0.0493852, 0.00218174);
 		#endif
 
-		color.rgb = skyIlluminance * exp(-attenuationCoefficients * density) * scatteringCoefficient;
+		color.rgb = directIlluminance * exp(-attenuationCoefficients * density) * scatteringCoefficient;
 		color.a   = alpha;
 	}
 #endif

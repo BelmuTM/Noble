@@ -22,7 +22,7 @@
 #define TEMPORAL_DATA_BUFFER colortex10
 #define FOG_BUFFER           colortex11
 #define AO_BUFFER            colortex12
-#define LUT_BUFFER           colortex14
+#define LUT_BUFFER           colortex6
 #define RASTER_BUFFER        colortex15
 
 //////////////////////////////////////////////////////////
