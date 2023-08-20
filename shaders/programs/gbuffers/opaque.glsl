@@ -104,9 +104,11 @@
 			vec2 blocklightDeriv = vec2(dFdx(lightmap.x), dFdy(lightmap.x));
 			vec2 skylightDeriv   = vec2(dFdx(lightmap.y), dFdy(lightmap.y));
 
-			if(lengthSqr(blocklightDeriv) > EPS) {
+			if(lengthSqr(blocklightDeriv) > 1e-10) {
 				vec3 lightmapVectorX = normalize(dFdx(scenePosition) * blocklightDeriv.x + dFdy(scenePosition) * blocklightDeriv.y);
 					 lightmap.x     *= saturate(dot(lightmapVectorX, textureNormal) + 0.8) * 0.8 + 0.2;
+			} else {
+				lightmap.x *= saturate(dot(tbn[2], textureNormal));
 			}
 
     		lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), textureNormal) + 0.8) * 0.2 + 0.8;
@@ -163,6 +165,8 @@
 		#endif
 
 		albedoTex *= vertexColor;
+
+		albedoTex = saturate(albedoTex);
 
 		vec2 lightmap = lightmapCoords;
 

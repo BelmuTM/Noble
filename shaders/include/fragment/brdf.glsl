@@ -85,8 +85,10 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
 }
 
 vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
+    float NdotL = dot(material.normal, lightDirection);
+    if(NdotL <= 0.0) return vec3(0.0);
+
     vec3 halfway = normalize(viewDirection + lightDirection);
-    float NdotL  = saturate(dot(material.normal, lightDirection));
     float NdotV  = saturate(dot(material.normal, viewDirection));
     float VdotL  = dot(viewDirection, lightDirection);
     float NdotH  = dot(material.normal, halfway);
@@ -144,22 +146,16 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
         diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows;
     #endif
 
-    material.lightmap.x = getBlocklightFalloff(material.lightmap.x);
+    diffuse *= directIlluminance;
+
+    vec3 skylight = skyIlluminance;
 
     #if defined WORLD_OVERWORLD
-        material.lightmap.y = getSkylightFalloff(material.lightmap.y);
-        
-         diffuse *= directIlluminance;
-
-        vec3 skylight = skyIlluminance * material.lightmap.y;
-    #else
-        diffuse *= directIlluminance;
-
-        vec3 skylight = skyIlluminance;
+        skylight *= getSkylightFalloff(material.lightmap.y);
     #endif
 
     vec3 blocklightColor = getBlockLightColor(material);
-    vec3 blocklight      = blocklightColor * material.lightmap.x;
+    vec3 blocklight      = blocklightColor * getBlocklightFalloff(material.lightmap.x);
     vec3 emissiveness    = material.emission * blocklightColor;
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
@@ -175,10 +171,10 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
 }
 
 vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection) {
-    float alphaSq = maxEps(material.roughness * material.roughness);
-
     float NdotL = dot(material.normal, lightDirection);
     if(NdotL <= 0.0) return vec3(0.0);
+
+    float alphaSq = maxEps(material.roughness * material.roughness);
 
     float NdotV = dot(material.normal, viewDirection);
     float VdotL = dot(viewDirection,   lightDirection);
