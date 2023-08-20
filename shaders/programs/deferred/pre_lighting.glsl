@@ -96,7 +96,10 @@
                 #if GI == 0
                     vec4 ao = vec4(material.normal, 1.0);
                     #if AO == 1 && AO_TYPE == 1 || AO == 1 && AO_TYPE == 2
-                        ao = texture(AO_BUFFER, vertexCoords);
+                        vec3 aoBuffer = texture(AO_BUFFER, vertexCoords).rgb;
+
+                        ao.xyz = decodeUnitVector(aoBuffer.xy);
+                        ao.w   = aoBuffer.z;
                     #endif
 
                     skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));

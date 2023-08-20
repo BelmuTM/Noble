@@ -43,7 +43,7 @@ const int colortex8Format       = RGBA16F;   // History
 const int colortex11Format      = RG32UI;    // Fog
 
 #if AO == 1
-     const int colortex12Format = RGBA16F;   // Ambient occlusion
+     const int colortex12Format = RGB16F;   // Ambient occlusion
      const bool colortex12Clear = false;
 #endif
 

@@ -25,7 +25,7 @@
 
 		/* RENDERTARGETS: 12 */
 
-		layout (location = 0) out vec4 ao;
+		layout (location = 0) out vec3 ao;
 
 		in vec2 textureCoords;
 		in vec2 vertexCoords;
@@ -87,7 +87,7 @@
 
 		    	for(int i = 0; i < GTAO_HORIZON_STEPS; i++, rayPosition += increment) {
 			    	float depth = texelFetch(depthtex0, ivec2(rayPosition * viewSize * RENDER_SCALE), 0).r;
-			    	if(saturate(rayPosition) != rayPosition || depth == 1.0 || isHand(rayPosition)) continue;
+			    	if(saturate(rayPosition) != rayPosition || depth == 1.0 || depth < MC_HAND_DEPTH) continue;
 
 			    	vec3 horizonVec = screenToView(vec3(rayPosition, depth)) - viewPosition;
 			    	float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(2.0, 3.0, lengthSqr(horizonVec)));
@@ -137,33 +137,40 @@
     	#endif
 
 		void main() {
-			ao = vec4(0.0, 0.0, 0.0, 1.0);
+			ao = vec3(0.0, 0.0, 1.0);
 
     		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 			if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-    		if(isSky(vertexCoords) || isHand(vertexCoords)) return;
+    		if(isSky(vertexCoords)) return;
 
         	Material material = getMaterial(vertexCoords);
 			vec3 viewPosition = getViewPosition0(textureCoords);
 
+			vec3 bentNormal = vec3(0.0);
+
         	#if AO_TYPE == 0
-            	ao.w = SSAO(viewPosition, material.normal);
+            	ao.b = SSAO(viewPosition, material.normal);
         	#elif AO_TYPE == 1
-            	ao.w = RTAO(viewPosition, material.normal, ao.xyz);
+            	ao.b = RTAO(viewPosition, material.normal, bentNormal);
         	#elif AO_TYPE == 2
-            	ao.w = GTAO(viewPosition, material.normal, ao.xyz);
+            	ao.b = GTAO(viewPosition, material.normal, bentNormal);
         	#endif
 
         	#if AO_FILTER == 1
             	vec3 currPosition = vec3(textureCoords, texture(depthtex0, vertexCoords).r);
             	vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
-            	vec4 prevAO       = texture(AO_BUFFER, prevCoords);
+            	vec3 prevAO       = texture(AO_BUFFER, prevCoords).rgb;
         
             	float weight = 1.0 / max(texture(LIGHTING_BUFFER, prevCoords).a, 1.0);
 
-            	ao.w   = mix(prevAO.w  , ao.w  , weight);
-            	ao.xyz = mix(prevAO.xyz, ao.xyz, weight);
+				#if AO_TYPE == 1 || AO_TYPE == 2
+					vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
+
+					ao.xy = encodeUnitVector(mix(prevBentNormal, bentNormal, weight));
+				#endif
+
+            	ao.b = mix(prevAO.b, ao.b, weight);
         	#endif
 
 			ao = saturate(ao);
