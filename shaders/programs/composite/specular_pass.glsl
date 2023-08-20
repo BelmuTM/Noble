@@ -134,5 +134,5 @@ void main() {
     color += envSpecular;
 
     vec4 basic = texture(RASTER_BUFFER, vertexCoords);
-         color = mix(color, basic.rgb, basic.a);
+         color = mix(color, basic.rgb, basic.a * float(isHand(vertexCoords)));
 }
