@@ -68,7 +68,7 @@
 			    	occlusion -= rcp(RTAO_SAMPLES);
 		    	}
 		    	bentNormal = normalize(bentNormal);
-		    	return occlusion;
+		    	return saturate(occlusion);
 	    	}
 
     	#else

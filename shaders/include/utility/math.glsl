@@ -120,6 +120,7 @@ float cubeLength(vec2 v) {
     return pow(pow3(abs(v.x)) + pow3(abs(v.y)), 1.0 / 3.0);
 }
 
+float lengthSqr    (vec2 x) { return dot(x, x);              }
 float lengthSqr    (vec3 x) { return dot(x, x);              }
 float fastRcpLength(vec3 x) { return inversesqrt(dot(x, x)); }
 float fastLength   (vec3 x) { return sqrt(dot(x, x));        }

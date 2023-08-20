@@ -95,7 +95,7 @@
 		#include "/include/fragment/parallax.glsl"
 	#endif
 
-	vec2 computeLightmap(vec3 normal) {
+	vec2 computeLightmap(vec3 textureNormal) {
 		#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
 			// Thanks ninjamike1211 for the help
 			vec2 lightmap 	   = lightmapCoords;
@@ -104,10 +104,12 @@
 			vec2 blocklightDeriv = vec2(dFdx(lightmap.x), dFdy(lightmap.x));
 			vec2 skylightDeriv   = vec2(dFdx(lightmap.y), dFdy(lightmap.y));
 
-			vec3 lightmapVectorX = dFdx(scenePosition) * blocklightDeriv.x + dFdy(scenePosition) * blocklightDeriv.y;
-				 lightmap.x     *= saturate(dot(normalize(lightmapVectorX), normal) + 0.8) * 0.8 + 0.2;
+			if(lengthSqr(blocklightDeriv) > EPS) {
+				vec3 lightmapVectorX = normalize(dFdx(scenePosition) * blocklightDeriv.x + dFdy(scenePosition) * blocklightDeriv.y);
+					 lightmap.x     *= saturate(dot(lightmapVectorX, textureNormal) + 0.8) * 0.8 + 0.2;
+			}
 
-    		lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), normal) + 0.8) * 0.2 + 0.8;
+    		lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), textureNormal) + 0.8) * 0.2 + 0.8;
 		
 			return any(isnan(lightmap)) || any(lessThan(lightmap, vec2(0.0))) ? lightmapCoords : lightmap;
 		#endif
@@ -196,7 +198,7 @@
 				normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
 				normal    = tbn * normal;
 
-				if(any(greaterThan(normalTex.xy, vec2(1e-3)))) lightmap = computeLightmap(normalize(normal));
+				lightmap = computeLightmap(normalize(normal));
 			}
 		#endif
 
