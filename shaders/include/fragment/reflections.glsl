@@ -49,7 +49,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
 
         vec3 fresnel = vec3(0.0);
         if(isEyeInWater == 1 || material.blockId == WATER_ID) {
-            fresnel = fresnelDielectricDielectric_R(NdotL, vec3(1.333), vec3(airIOR));
+            fresnel = fresnelDielectricDielectric_R(NdotV, vec3(airIOR), vec3(1.333));
         } else {
             fresnel = fresnelDielectricConductor(NdotL, material.N / airIOR, material.K / airIOR);
         }
