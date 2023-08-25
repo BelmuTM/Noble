@@ -14,7 +14,7 @@
 
     #elif defined STAGE_FRAGMENT
 
-        /* RENDERTARGETS: 0 */
+        /* RENDERTARGETS: 13 */
 
         layout (location = 0) out vec3 color;
 
@@ -64,7 +64,7 @@
                 float targetDepth = float(DOF_DEPTH);
             #endif
 
-            depthOfField(color, MAIN_BUFFER, vertexCoords, getCoC(depth0, targetDepth));
+            depthOfField(color, DEFERRED_BUFFER, vertexCoords, getCoC(depth0, targetDepth));
         }
     #endif
 #endif

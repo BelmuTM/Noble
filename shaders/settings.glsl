@@ -5,25 +5,35 @@
 
 #define ABOUT 0 // [0 1]
 
+#define RENDER_MODE 0 // [0 1]
+
 //////////////////////////////////////////////////////////
 /*---------------------- BUFFERS -----------------------*/
 //////////////////////////////////////////////////////////
 
-#define MAIN_BUFFER          colortex0
-#define GBUFFERS_DATA        colortex1
-#define REFLECTIONS_BUFFER   colortex2
-#define SHADOWMAP_BUFFER     colortex3
-#define LIGHTING_BUFFER      colortex4
-#define ILLUMINANCE_BUFFER   colortex5
-#define ATMOSPHERE_BUFFER    colortex6
-#define CLOUDS_BUFFER        colortex7
-#define HISTORY_BUFFER       colortex8
-#define GI_DATA_BUFFER       colortex9
-#define TEMPORAL_DATA_BUFFER colortex10
-#define FOG_BUFFER           colortex11
-#define AO_BUFFER            colortex12
-#define LUT_BUFFER           colortex6
-#define RASTER_BUFFER        colortex15
+#define MAIN_BUFFER         colortex0
+
+#define GBUFFERS_DATA       colortex1
+
+#define REFLECTIONS_BUFFER  colortex2
+#define SHADOWMAP_BUFFER    colortex3
+#define ACCUMULATION_BUFFER colortex4
+
+#define ILLUMINANCE_BUFFER  colortex5
+#define ATMOSPHERE_BUFFER   colortex6
+#define CLOUDS_BUFFER       colortex7
+
+#define HISTORY_BUFFER      colortex8
+#define GI_DATA_BUFFER      colortex9
+#define MOMENTS_BUFFER      colortex10
+
+#define FOG_BUFFER          colortex11
+
+#define AO_BUFFER           colortex12
+#define DEFERRED_BUFFER     colortex13
+
+#define LUT_BUFFER          colortex6
+#define RASTER_BUFFER       colortex15
 
 //////////////////////////////////////////////////////////
 /*------------------------ MATH ------------------------*/
@@ -124,8 +134,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define BINARY_REFINEMENT 1 // [0 1]
 #define BINARY_COUNT     10
 
-#define TEMPORAL_DEPTH_WEIGHT_SIGMA 2.0
-
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/
 //////////////////////////////////////////////////////////
@@ -133,19 +141,21 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define GI               0 // [0 1]
 #define SKY_CONTRIBUTION 1 // [0 1]
 
-#define GI_FILTER                1 // [0 1]
-#define GI_TEMPORAL_ACCUMULATION 1 // [0 1]
-#define RENDER_MODE 			 0 // [0 1]
+#define ATROUS_FILTER         1 // [0 1]
+#define TEMPORAL_ACCUMULATION 1 // [0 1]
 
-#define ATROUS_STEP_SIZE      16 // [1 2 4 6 8 10 12 14 16 18 20]
-#define NORMAL_WEIGHT_SIGMA  128 // [1 2 4 6 8 10 12 14 16 32 48 64 80 96 112 128]
-#define DEPTH_WEIGHT_SIGMA     1 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 ]
-#define LUMINANCE_WEIGHT_SIGMA 4 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
+#define VARIANCE_STABILIZATION_THRESHOLD 6.0
+#define MIN_FRAMES_LUMINANCE_WEIGHT      6.0
 
-#define GI_SAMPLES     1 // [1 2 3 4 5 6 7 8]
-#define MAX_GI_BOUNCES 8 // [1 2 3 4 5 6 7 8 9 10 11 12 9999]
-#define MAX_GI_STEPS  64 // [64 80]
-#define GI_SCALE 	 100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define ATROUS_STEP_SIZE      32.0 // [1.0 2.0 4.0 6.0 8.0 10.0 12.0 14.0 16.0 18.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0]
+#define NORMAL_WEIGHT_SIGMA   32.0 // [4.0 8.0 16.0 32.0 48.0 64.0 80.0 128.0]
+#define DEPTH_WEIGHT_SIGMA     1.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
+#define LUMINANCE_WEIGHT_SIGMA 4.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0 51.0 52.0 53.0 54.0 55.0 56.0 57.0 58.0 59.0 60.0 61.0 62.0 63.0 64.0 65.0 66.0 67.0 68.0 69.0 70.0 71.0 72.0 73.0 74.0 75.0 76.0 77.0 78.0 79.0 80.0 81.0 82.0 83.0 84.0 85.0 86.0 87.0 88.0 89.0 90.0 91.0 92.0 93.0 94.0 95.0 96.0 97.0 98.0 99.0 100.0]
+
+#define GI_SAMPLES      1 // [1 2 3 4 5 6 7 8]
+#define MAX_GI_BOUNCES  4 // [1 2 3 4 5 6 7 8 9 10 11 12 9999]
+#define MAX_GI_STEPS  128 // [128 256]
+#define GI_SCALE 	  100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 #define MIN_ROULETTE_BOUNCES 0
 

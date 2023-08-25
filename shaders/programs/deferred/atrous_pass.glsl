@@ -16,30 +16,31 @@
 */
 
 #include "/settings.glsl"
-#include "/include/taau_scale.glsl"
 
-#if GI == 0 || GI_FILTER == 0 || RENDER_MODE == 1
-    #include "/programs/discard.glsl"
-#else
+#if RENDER_MODE == 0 && GI == 1 && ATROUS_FILTER == 1
+    #include "/include/taau_scale.glsl"
+
     #if defined STAGE_VERTEX
         #include "/programs/vertex_taau.glsl"
 
     #elif defined STAGE_FRAGMENT
 
         #if ATROUS_PASS_INDEX <= 0
-            #define INPUT_BUFFER LIGHTING_BUFFER
+            #define INPUT_BUFFER ACCUMULATION_BUFFER
         #else
-            #define INPUT_BUFFER MAIN_BUFFER
+            #define INPUT_BUFFER DEFERRED_BUFFER
         #endif
 
         #if ATROUS_PASS_INDEX == 0
-            /* RENDERTARGETS: 0 */
+            /* RENDERTARGETS: 10,13 */
 
-            layout (location = 0) out vec4 irradiance;
+            layout (location = 0) out vec4 moments;
+            layout (location = 1) out vec4 irradiance;
         #else
-            /* RENDERTARGETS: 0 */
+            /* RENDERTARGETS: 10,13 */
 
-            layout (location = 0) out vec4 irradiance;
+            layout (location = 0) out vec4 moments;
+            layout (location = 1) out vec4 irradiance;
         #endif
 
         in vec2 textureCoords;
@@ -47,125 +48,96 @@
 
         #include "/include/common.glsl"
 
-        const float aTrous[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
-        const float steps[5]  = float[5](
-            ATROUS_STEP_SIZE * 0.0625,
-            ATROUS_STEP_SIZE * 0.125,
-            ATROUS_STEP_SIZE * 0.25,
-            ATROUS_STEP_SIZE * 0.5,
-            ATROUS_STEP_SIZE
-        );
+        const float waveletKernel[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
 
         float calculateATrousNormalWeight(vec3 normal, vec3 sampleNormal) {   
             return pow(max0(dot(normal, sampleNormal)), NORMAL_WEIGHT_SIGMA);
         }
 
         float calculateATrousDepthWeight(float depth, float sampleDepth, vec2 depthGradient, vec2 offset) {
-            return exp(-abs(depth - sampleDepth) / (abs(DEPTH_WEIGHT_SIGMA * dot(depthGradient, offset)) + 5e-3));
+            return exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(sampleDepth)) / (abs(DEPTH_WEIGHT_SIGMA * dot(depthGradient, offset)) + 0.1));
         }
 
         float calculateATrousLuminanceWeight(float luminance, float sampleLuminance, float variance) {
-            return exp(-abs(luminance - sampleLuminance) / maxEps(LUMINANCE_WEIGHT_SIGMA * variance));
+            return exp(-abs(luminance - sampleLuminance) / maxEps(LUMINANCE_WEIGHT_SIGMA * sqrt(variance)));
         }
 
-        float spatialVariance(vec2 coords, Material material, vec2 depthGradient) {
-            float sum = 0.0, sqSum = 0.0, totalWeight = 1.0;
+        float gaussianVariance(vec2 coords, vec3 normal, float depth, vec2 depthGradient) {
+            float varianceSum = 0.0, totalWeight = EPS;
 
-            int  filterSize = 3;
-            vec2 stepSize   = steps[ATROUS_PASS_INDEX] * texelSize;
-
+            int filterSize = 3;
+            
             for(int x = -filterSize; x <= filterSize; x++) {
                 for(int y = -filterSize; y <= filterSize; y++) {
-                    float weight       = gaussianDistribution2D(vec2(x, y), 1.0);
-                    vec2  offset       = vec2(x, y) * stepSize;
+                    vec2  offset       = vec2(x, y) * texelSize;
                     vec2  sampleCoords = coords + offset;
 
                     if(saturate(sampleCoords) != sampleCoords) continue;
 
-                    Material sampleMaterial = getMaterial(sampleCoords);
+                    float weight   = saturate(gaussianDistribution2D(vec2(x, y), 1.0));
+                    float variance = texture(MOMENTS_BUFFER, sampleCoords).b;
 
-                    float normalWeight = calculateATrousNormalWeight(material.normal, sampleMaterial.normal);
-                    float depthWeight  = calculateATrousDepthWeight(material.depth0, sampleMaterial.depth0, depthGradient, offset);
-
-                    weight = saturate(weight) * aTrous[abs(x)] * aTrous[abs(y)];
-
-                    float luminance = luminance(texture(INPUT_BUFFER, sampleCoords).rgb);
-
-                    sum   += luminance * weight;
-                    sqSum += luminance * luminance * weight;
-
+                    varianceSum += variance * weight;
                     totalWeight += weight;
                 }
             }
-            sum   /= totalWeight;
-            sqSum /= totalWeight;
-            return sqrt(max0(sqSum - (sum * sum)));
+            return varianceSum / totalWeight;
         }
 
-        float temporalVariance(vec2 coords) {
-            float sum = 0.0, sqSum = 0.0, totalWeight = 1.0;
-
-            int filterSize = 1;
-
-            for(int x = -filterSize; x <= filterSize; x++) {
-                for(int y = -filterSize; y <= filterSize; y++) {
-                    float weight      = gaussianDistribution2D(vec2(x, y), 1.0);
-                    float luminanceSq = texture(TEMPORAL_DATA_BUFFER, coords + vec2(x, y) * texelSize).r;
-                    
-                    sum   += sqrt(luminanceSq) * weight;
-                    sqSum += luminanceSq       * weight;
-
-                    totalWeight += weight;
-                }
-            }
-            sum   /= totalWeight;
-            sqSum /= totalWeight;
-            return sqrt(max0(sqSum - (sum * sum)));
-        }
-
-        void aTrousFilter(inout vec3 irradiance, vec2 coords) {
+        void aTrousFilter(inout vec3 irradiance, inout vec3 moments, vec2 coords) {
             Material material = getMaterial(coords);
             if(material.depth0 == 1.0) return;
 
-            vec2 depthGradient = vec2(dFdx(material.depth0), dFdy(material.depth0));
+            float accumulatedSamples = texture(ACCUMULATION_BUFFER, coords).a;
+            float frameWeight        = float(accumulatedSamples > MIN_FRAMES_LUMINANCE_WEIGHT);
 
+            float linearDepth   = linearizeDepthFast(material.depth0);
+            vec2  depthGradient = vec2(dFdx(linearDepth), dFdy(linearDepth));
+
+            float centerLuminance  = luminance(irradiance);
+            float filteredVariance = gaussianVariance(coords, material.normal, material.depth0, depthGradient);
+
+            vec2  stepSize    = ATROUS_STEP_SIZE * pow(0.5, 4 - ATROUS_PASS_INDEX) * texelSize;
             float totalWeight = 1.0;
-            vec2 stepSize     = steps[ATROUS_PASS_INDEX] * texelSize;
-
-            float accumulatedSamples = texture(LIGHTING_BUFFER, textureCoords).a;
-
-            float frameWeight = float(accumulatedSamples > 4.0);
-
-            float centerLuminance = luminance(irradiance);
-            float variance        = accumulatedSamples < 128.0 ? spatialVariance(coords, material, depthGradient) : temporalVariance(coords);
 
             for(int x = -1; x <= 1; x++) {
                 for(int y = -1; y <= 1; y++) {
-                    if(all(equal(ivec2(x,y), ivec2(0)))) continue;
+                    if(x == 0 && y == 0) continue;
 
                     vec2 offset       = vec2(x, y) * stepSize;
                     vec2 sampleCoords = coords + offset;
 
                     if(saturate(sampleCoords) != sampleCoords) continue;
 
-                    Material sampleMaterial = getMaterial(sampleCoords);
-                    vec3 sampleIrradiance   = texture(INPUT_BUFFER, sampleCoords).rgb;
+                    Material sampleMaterial   = getMaterial(sampleCoords);
+                    vec3     sampleIrradiance = texture(INPUT_BUFFER  , sampleCoords).rgb;
+                    float    sampleVariance   = texture(MOMENTS_BUFFER, sampleCoords).b;
 
                     float normalWeight    = calculateATrousNormalWeight(material.normal, sampleMaterial.normal);
                     float depthWeight     = calculateATrousDepthWeight(material.depth0, sampleMaterial.depth0, depthGradient, offset);
-                    float luminanceWeight = calculateATrousLuminanceWeight(centerLuminance, luminance(sampleIrradiance), variance);
+                    float luminanceWeight = calculateATrousLuminanceWeight(centerLuminance, luminance(sampleIrradiance), filteredVariance);
 
-                    float weight = saturate(normalWeight * depthWeight * mix(1.0, luminanceWeight, frameWeight) * aTrous[abs(x)] * aTrous[abs(y)]);
+                    float weight  = saturate(normalWeight * depthWeight * mix(1.0, luminanceWeight, frameWeight));
+                          weight *= waveletKernel[abs(x)] * waveletKernel[abs(y)];
+
                     irradiance  += sampleIrradiance * weight;
+                    moments.b   += sampleVariance   * weight * weight;
                     totalWeight += weight;
                 }
             }
             irradiance /= totalWeight;
+            moments.b  /= (totalWeight * totalWeight);
         }
 
         void main() {
-            irradiance = texture(INPUT_BUFFER, vertexCoords);
-            aTrousFilter(irradiance.rgb, vertexCoords);
+            vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
+	        if(saturate(fragCoords) != fragCoords) { discard; return; }
+
+            irradiance = texture(INPUT_BUFFER  , vertexCoords);
+            moments    = texture(MOMENTS_BUFFER, vertexCoords);
+            aTrousFilter(irradiance.rgb, moments.rgb, vertexCoords);
         }
     #endif
+#else
+    #include "/programs/discard.glsl"
 #endif

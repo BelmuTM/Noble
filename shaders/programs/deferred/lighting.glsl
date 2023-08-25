@@ -11,14 +11,14 @@
 #if GI == 1
     /* RENDERTARGETS: 4,9,10 */
 
-    layout (location = 0) out vec4 color;
+    layout (location = 0) out vec4 radianceOut;
     layout (location = 1) out uvec2 firstBounceData;
-    layout (location = 2) out vec2 temporalData;
+    layout (location = 2) out vec4 momentsOut;
 #else
     /* RENDERTARGETS: 4,10 */
 
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec2 temporalData;
+    layout (location = 0) out vec4 radianceOut;
+    layout (location = 1) out vec4 momentsOut;
 #endif
 
 in vec2 textureCoords;
@@ -34,6 +34,40 @@ in vec2 vertexCoords;
 #if GI == 1
     #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/pathtracer.glsl"
+
+    #if RENDER_MODE == 0 && ATROUS_FILTER == 1
+		float estimateSpatialVariance(sampler2D tex, vec2 coords) {
+			float sum = 0.0, sqSum = 0.0, totalWeight = 1.0;
+
+			int filterSize = 1;
+
+			for(int x = -filterSize; x <= filterSize; x++) {
+				for(int y = -filterSize; y <= filterSize; y++) {
+					if(x == 0 && y == 0) continue;
+
+					vec2 sampleCoords = coords + vec2(x, y) * texelSize;
+					if(saturate(sampleCoords) != sampleCoords) continue;
+
+					float weight    = gaussianDistribution2D(vec2(x, y), 1.0);
+					float luminance = luminance(texture(tex, sampleCoords).rgb);
+                    
+					sum   += luminance * weight;
+					sqSum += luminance * luminance * weight;
+
+					totalWeight += weight;
+				}
+			}
+			sum   /= totalWeight;
+			sqSum /= totalWeight;
+			return sqrt(abs(sqSum - (sum * sum)));
+    	}
+	#endif
+#endif
+
+#if RENDER_MODE == 0
+	float calculateGaussianDepthWeight(float depth, float sampleDepth, float sigma) {
+    	return pow(exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(sampleDepth))), sigma);
+	}
 #endif
 
 void main() {
@@ -48,7 +82,7 @@ void main() {
         #if GI == 1
             firstBounceData.x = packUnormArb(logLuvEncode(sky), uvec4(8));
         #else
-            color.rgb = sky;
+            radianceOut.rgb = sky;
         #endif
         return;
     }
@@ -59,32 +93,46 @@ void main() {
         if(material.blockId > NETHER_PORTAL_ID && material.blockId <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
     #endif
 
-    #if AO_FILTER == 1 && GI == 0 || REFLECTIONS == 1 && GI == 0 || GI == 1 && GI_TEMPORAL_ACCUMULATION == 1
+    #if AO_FILTER == 1 && GI == 0 || REFLECTIONS == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
         vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth)) * RENDER_SCALE;
-        vec4 history      = texture(LIGHTING_BUFFER, prevPosition.xy);
+        vec4 history      = texture(ACCUMULATION_BUFFER, prevPosition.xy);
 
-        color.a  = history.a;
-        color.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
-        color.a *= float(!isHand(vertexCoords));
+        radianceOut.a  = history.a;
+        radianceOut.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
+        radianceOut.a *= float(!isHand(vertexCoords));
 
-        temporalData = texelFetch(TEMPORAL_DATA_BUFFER, ivec2(prevPosition.xy * viewSize), 0).rg;
+        momentsOut = texture(MOMENTS_BUFFER, prevPosition.xy);
 
         #if RENDER_MODE == 0
-            color.a *= pow(exp(-abs(linearizeDepthFast(prevPosition.z) - linearizeDepthFast(exp2(temporalData.g)))), TEMPORAL_DEPTH_WEIGHT_SIGMA);
+            #if GI == 0
+                radianceOut.a *= calculateGaussianDepthWeight(prevPosition.z, momentsOut.a, 0.01);
 
-            vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                 color.a        *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
+                vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
+                     radianceOut.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
 
-            temporalData.g = log2(prevPosition.z);
+                momentsOut.a = log2(prevPosition.z);
+            #else
+				float prevDepth = exp2(momentsOut.a);
+
+				float linearDepth     = linearizeDepthFast(prevPosition.z);
+				float linearPrevDepth = linearizeDepthFast(prevDepth);
+
+				radianceOut.a *= float(depth < 1.0);
+				radianceOut.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.3);
+				radianceOut.a *= calculateGaussianDepthWeight(prevPosition.z, prevDepth, 0.5);
+                radianceOut.a *= float(linearizeDepthFast(material.depth0) >= MC_HAND_DEPTH);
+
+				momentsOut.a = log2(prevPosition.z);
+            #endif
         #else
-            color.a *= float(hideGUI);
+            radianceOut.a *= float(hideGUI);
         #endif
 
-        color.a++;
+        radianceOut.a++;
     #endif
 
     #if GI == 0
-        color.rgb = vec3(0.0);
+        radianceOut.rgb = vec3(0.0);
 
         if(material.F0 * maxVal8 <= 229.5) {
             vec3 skyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);
@@ -105,30 +153,41 @@ void main() {
             #endif
 
             float ao = 1.0;
+            #if AO == 1
+                ao = texture(AO_BUFFER, vertexCoords).b;
+            #endif
 
-
-            color.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
+            radianceOut.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         }
     #else
         vec3 direct   = vec3(0.0);
         vec3 indirect = vec3(1.0);
 
-        pathtrace(color.rgb, vec3(vertexCoords, depth), direct, indirect);
+        if(material.F0 * maxVal8 <= 229.5) {
+            pathtrace(radianceOut.rgb, vec3(vertexCoords, depth), direct, indirect);
+        }
 
-        #if GI_TEMPORAL_ACCUMULATION == 1
-            float weight = saturate(1.0 / max(color.a * float(linearizeDepthFast(material.depth0) >= MC_HAND_DEPTH), 1.0));
+        #if TEMPORAL_ACCUMULATION == 1
+            radianceOut.a = min(radianceOut.a, 256.0);
+            float weight  = saturate(1.0 / max(radianceOut.a, 1.0));
 
-            color.rgb = clamp16(mix(history.rgb, color.rgb, weight));
+            radianceOut.rgb = clamp16(mix(history.rgb, radianceOut.rgb, weight));
 
-            uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, prevPosition.xy).rg;
+            uint data = texture(GI_DATA_BUFFER, prevPosition.xy).g;
+            indirect  = mix(logLuvDecode(unpackUnormArb(data, uvec4(8))), indirect, 1.0);
 
-            direct   = clamp16(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8))), direct  , weight));
-            indirect = clamp16(mix(logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8))), indirect, weight));
+			#if RENDER_MODE == 0 && ATROUS_FILTER == 1
+				float luminance = luminance(radianceOut.rgb);
+				vec2  moments   = vec2(luminance, luminance * luminance);
 
-            #if GI_FILTER == 1
-                float luminance      = luminance(color.rgb);
-                      temporalData.r = mix(temporalData.r, luminance * luminance, weight);
-            #endif
+				momentsOut.rg = mix(momentsOut.rg, moments, weight);
+
+				if(radianceOut.a < VARIANCE_STABILIZATION_THRESHOLD) {
+					momentsOut.b = estimateSpatialVariance(ACCUMULATION_BUFFER, vertexCoords);
+				} else { 
+					momentsOut.b = abs(momentsOut.g - (momentsOut.r * momentsOut.r));
+				}
+			#endif
         #endif
 
         firstBounceData.x = packUnormArb(logLuvEncode(direct  ), uvec4(8));

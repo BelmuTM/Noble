@@ -6,7 +6,7 @@
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 
-#if REFLECTIONS == 0 || GI == 1
+#if REFLECTIONS == 0
     #include "/programs/discard.glsl"
 #else
     #if defined STAGE_VERTEX
@@ -56,7 +56,14 @@
             vec3 prevColor    = logLuvDecode(texture(REFLECTIONS_BUFFER, prevCoords));
 
             if(!any(isnan(prevColor)) && !isHand(vertexCoords)) {
-                float weight = 1.0 / max(texture(LIGHTING_BUFFER, prevCoords).a * (1.0 - material.roughness), 1.0);
+                float frames  = texture(ACCUMULATION_BUFFER, prevCoords).a;
+                      frames *= (1.0 - material.roughness);
+
+                #if GI == 1
+                    frames *= 0.3;
+                #endif
+
+                float weight = 1.0 / max(frames, 1.0);
                 reflections  = logLuvEncode(mix(prevColor, reflections.rgb, weight));
             } else {
                 reflections  = logLuvEncode(reflections.rgb);

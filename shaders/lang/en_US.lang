@@ -250,27 +250,27 @@ option.GI.comment = Simulates light bounces, §7§l§oexample: the color of a §
 value.GI.0 = §cOFF
 value.GI.1 = §aON
 
-option.GI_FILTER = Filter
-option.GI_FILTER.comment = Denoises §bGlobal Illumination§r.
-value.GI_FILTER.0 = §cOFF
-value.GI_FILTER.1 = §aON
+option.ATROUS_FILTER = À-Trous Filter
+option.ATROUS_FILTER.comment = Denoises §bGlobal Illumination§r by blurring it while preserving details.
+value.ATROUS_FILTER.0 = §cOFF
+value.ATROUS_FILTER.1 = §aON
 
-option.GI_TEMPORAL_ACCUMULATION = Temporal Accumulation
-option.GI_TEMPORAL_ACCUMULATION.comment = Accumulates §bGlobal Illumination§r over multiple frames to reduce noise and give a cleaner result.
-value.GI_TEMPORAL_ACCUMULATION.0 = §cOFF
-value.GI_TEMPORAL_ACCUMULATION.1 = §aON
+option.TEMPORAL_ACCUMULATION = Temporal Accumulation
+option.TEMPORAL_ACCUMULATION.comment = Accumulates §bGlobal Illumination§r over multiple frames to reduce noise and give a cleaner result.
+value.TEMPORAL_ACCUMULATION.0 = §cOFF
+value.TEMPORAL_ACCUMULATION.1 = §aON
 
 option.ATROUS_STEP_SIZE = Blur Size
-option.ATROUS_STEP_SIZE.comment = Adjusts the size of the blur used to denoise.
+option.ATROUS_STEP_SIZE.comment = Adjusts the size of the blur used for À-Trous filtering.
 
 option.NORMAL_WEIGHT_SIGMA = Normal Weight Strength
-option.NORMAL_WEIGHT_SIGMA.comment = Adjusts the strength of the normal weight used to denoise.
+option.NORMAL_WEIGHT_SIGMA.comment = Adjusts the strength of the normal weight used for À-Trous filtering.
 
 option.DEPTH_WEIGHT_SIGMA = Depth Weight Strength
-option.DEPTH_WEIGHT_SIGMA.comment = Adjusts the strength of the depth weight used to denoise.
+option.DEPTH_WEIGHT_SIGMA.comment = Adjusts the strength of the depth weight used for À-Trous filtering.
 
 option.LUMINANCE_WEIGHT_SIGMA = Luminance Weight Strength
-option.LUMINANCE_WEIGHT_SIGMA.comment = Adjusts the strength of the luminance weight used to denoise.
+option.LUMINANCE_WEIGHT_SIGMA.comment = Adjusts the strength of the luminance weight used for À-Trous filtering.
 
 option.SKY_CONTRIBUTION = Sky Contribution
 option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r (can be problematic in screen space). Lets the sky contribute in indirect lighting.

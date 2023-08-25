@@ -20,8 +20,13 @@ vec3 computeRefractions(vec3 viewPosition, Material material, inout vec3 hitPosi
 
     hitPosition.xy *= RENDER_SCALE;
 
-    vec3 fresnel      = fresnelDielectricDielectric_T(dot(material.normal, -viewDirection), n1, n2);
-    vec3 sampledColor = texture(LIGHTING_BUFFER, hitPosition.xy).rgb;
+    vec3 fresnel = fresnelDielectricDielectric_T(dot(material.normal, -viewDirection), n1, n2);
+
+    #if GI == 1
+        vec3 sampledColor = texture(DEFERRED_BUFFER, hitPosition.xy).rgb;
+    #else
+        vec3 sampledColor = texture(ACCUMULATION_BUFFER, hitPosition.xy).rgb;
+    #endif
 
     float density = 0.0;
 

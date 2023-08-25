@@ -162,7 +162,7 @@
             	vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
             	vec3 prevAO       = texture(AO_BUFFER, prevCoords).rgb;
         
-            	float weight = 1.0 / max(texture(LIGHTING_BUFFER, prevCoords).a, 1.0);
+            	float weight = 1.0 / max(texture(ACCUMULATION_BUFFER, prevCoords).a, 1.0);
 
 				#if AO_TYPE == 1 || AO_TYPE == 2
 					vec3 prevBentNormal = decodeUnitVector(prevAO.xy);

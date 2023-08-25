@@ -150,55 +150,38 @@
 				material.normal    = tbn * material.normal;
 			}
 
-			#if GI == 0
-				#if REFRACTIONS == 0
-					bool shadeTranslucents = true;
-				#else
-					bool shadeTranslucents = material.F0 < EPS;
-				#endif
+			#if REFRACTIONS == 0
+				bool shadeTranslucents = true;
+			#else
+				bool shadeTranslucents = material.F0 < EPS;
+			#endif
 
-				if(material.F0 * maxVal8 <= 229.5 && shadeTranslucents) {
-					vec3 scenePosition = viewToScene(viewPosition);
+			if(material.F0 * maxVal8 <= 229.5 && shadeTranslucents) {
+				vec3 scenePosition = viewToScene(viewPosition);
 
-    				#if TONEMAP == ACES
-        				material.albedo = srgbToAP1Albedo(material.albedo);
-    				#else
-        				material.albedo = srgbToLinear(material.albedo);
-    				#endif
+    			#if TONEMAP == ACES
+        			material.albedo = srgbToAP1Albedo(material.albedo);
+    			#else
+        			material.albedo = srgbToLinear(material.albedo);
+    			#endif
 
-					if(material.F0 * maxVal8 > 229.5) {
-        				mat2x3 hcm = getHardcodedMetal(material);
-        				material.N = hcm[0], material.K = hcm[1];
-    				} else {
-        				material.N = vec3(f0ToIOR(material.F0));
-        				material.K = vec3(0.0);
-    				}
+        		material.N = vec3(f0ToIOR(material.F0));
+        		material.K = vec3(0.0);
 
-					vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
-					vec3 skyIlluminance = vec3(0.0);
+				vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
+				vec3 skyIlluminance = vec3(0.0);
 
-					#if defined WORLD_OVERWORLD || defined WORLD_END
-						#if defined WORLD_OVERWORLD && SHADOWS == 1
-							shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], shadowmap.a));
-						#endif
-
-						if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
+				#if defined WORLD_OVERWORLD || defined WORLD_END
+					#if defined WORLD_OVERWORLD && SHADOWS == 1
+						shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], shadowmap.a));
 					#endif
 
-					vec3 directIlluminanceTmp = directIlluminance;
+					if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
+				#endif
 
-					float isSkyOccluded = float(getSkylightFalloff(material.lightmap.y) > EPS || isEyeInWater == 1);
-    				#if defined SUNLIGHT_LEAKING_FIX
-        				directIlluminanceTmp *= isSkyOccluded;
-        				skyIlluminance       *= isSkyOccluded;
-    				#endif
-
-					translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminanceTmp, skyIlluminance, 1.0, 1.0);
-					translucents.a   = albedoTex.a;
-				}
-			#else
-				discard; return;
-			#endif
+				translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+				translucents.a   = albedoTex.a;
+			}
 		}
 
 		vec3 labPbrData0 = vec3(0.0, saturate(lightmapCoords));

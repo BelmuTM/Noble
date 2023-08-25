@@ -49,13 +49,19 @@
             return denom > 1.0 ? pClip + vClip / denom : prevColor;
         }
 
+        #if GI == 0
+            const float scale = RENDER_SCALE;
+        #else
+            const float scale = RENDER_SCALE * GI_SCALE * 0.01;
+        #endif
+
         vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
             vec3 minColor = vec3(1e6), maxColor = vec3(-1e6);
             const int size = 1;
 
             for(int x = -size; x <= size; x++) {
                 for(int y = -size; y <= size; y++) {
-                    vec3 color = SRGB_2_YCoCg_MAT * texelFetch(currTex, ivec2(gl_FragCoord.xy * RENDER_SCALE) + ivec2(x, y), 0).rgb;
+                    vec3 color = SRGB_2_YCoCg_MAT * texelFetch(currTex, ivec2(gl_FragCoord.xy * scale) + ivec2(x, y), 0).rgb;
                     minColor = min(minColor, color); 
                     maxColor = max(maxColor, color); 
                 }
@@ -89,17 +95,17 @@
     void main() {
         #if EIGHT_BITS_FILTER == 1 || TAA == 0
             #if EIGHT_BITS_FILTER == 1
-                color.rgb = samplePixelatedBuffer(MAIN_BUFFER, vertexCoords, 400).rgb;
+                color.rgb = samplePixelatedBuffer(DEFERRED_BUFFER, vertexCoords, 400).rgb;
             #else
-                color.rgb = texture(MAIN_BUFFER, vertexCoords).rgb;
+                color.rgb = texture(DEFERRED_BUFFER, vertexCoords).rgb;
             #endif
         #else
             vec3 closestFragment = getClosestFragment(vec3(textureCoords, texture(depthtex0, vertexCoords).r));
             vec2 prevCoords      = textureCoords + getVelocity(closestFragment).xy;
 
-            vec3 currColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(MAIN_BUFFER   , vertexCoords).rgb);
-            vec3 prevColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(HISTORY_BUFFER, prevCoords  ).rgb);
-                 prevColor = neighbourhoodClipping(MAIN_BUFFER, prevColor);
+            vec3 currColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(DEFERRED_BUFFER, vertexCoords).rgb);
+            vec3 prevColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(HISTORY_BUFFER , prevCoords  ).rgb);
+                 prevColor = neighbourhoodClipping(DEFERRED_BUFFER, prevColor);
 
             float weight = float(saturate(prevCoords) == prevCoords) * TAA_STRENGTH;
 
