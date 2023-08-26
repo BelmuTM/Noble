@@ -34,6 +34,7 @@ in vec2 textureCoords;
     #include "/include/post/aces/lib/splines.glsl"
     #include "/include/post/aces/lib/transforms.glsl"
 
+    #include "/include/post/aces/lmt.glsl"
     #include "/include/post/aces/rrt.glsl"
     #include "/include/post/aces/odt.glsl"
 #endif
@@ -93,6 +94,7 @@ void main() {
         agxLook(color);
         agxEotf(color);
     #elif TONEMAP == ACES      // ACES
+        compressionLMT(color);
         rrt(color);
         odt(color);
     #elif TONEMAP == 2         // Burgess

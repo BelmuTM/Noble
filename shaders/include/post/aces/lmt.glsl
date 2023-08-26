@@ -55,18 +55,6 @@
 /*  WHETHER DISCLOSED OR UNDISCLOSED.                                    */
 /*************************************************************************/
 
-float glowFwd(float ycIn, float glowGainIn, float glowMid) {
-	if(ycIn <= 2.0 / 3.0 * glowMid) { return glowGainIn;                          }
-	else if(ycIn >= 2.0 * glowMid)  { return 0.0;                                 } 
-	else                            { return glowGainIn * (glowMid / ycIn - 0.5); }
-}
-
-float centerHue(float hue, float centerHue) {
-	float hueCentered = hue - centerHue;
-	return hueCentered < -180.0 ? hueCentered + 360.0 : hueCentered - 360.0;
-}
-
-/*
 const float LIM_CYAN    = 1.147;
 const float LIM_MAGENTA = 1.264;
 const float LIM_YELLOW  = 1.312;
@@ -83,10 +71,7 @@ const float PWR = 1.2;
 
 // Calculate compressed distance
 float compress(float dist, float lim, float thr, float pwr) {
-    float compressedDist;
-    float scl;
-    float nd;
-    float p;
+    float compressedDist, scl, nd, p;
 
     if (dist < thr) {
         compressedDist = dist; // No compression below threshold
@@ -102,10 +87,8 @@ float compress(float dist, float lim, float thr, float pwr) {
     }
     return compressedDist;
 }
-*/
 
-void rrt(inout vec3 color) {
-	/*
+void compressionLMT(inout vec3 color) {
 	// Achromatic axis
     float achromaticAxis = maxOf(color);
 
@@ -120,31 +103,4 @@ void rrt(inout vec3 color) {
 
     // Recalculate RGB from compressed distance and achromatic
     color = achromaticAxis - compressedDist * abs(achromaticAxis);
-	*/
-
-	// Convert back to ACES2065-1
-	color *= AP1_2_AP0_MAT;
-
-	// --- Glow module --- //
-	float saturation = rgbToSaturation(color);
-	float ycIn       = rgbToYc(color);
-	float s          = sigmoidShaper((saturation - 0.4) / 0.2);
-	float addedGlow  = 1.0 + glowFwd(ycIn, RRT_GLOW_GAIN * s, RRT_GLOW_MID);
-
-	color *= addedGlow;
-
-	// --- Red modifier --- //
-	float hue         = rgbToHue(color);
-	float centeredHue = centerHue(hue, RRT_RED_HUE);
-	float hueWeight   = cubicBasisShaper(centeredHue, RRT_RED_WIDTH);
-
-	color.r += hueWeight * saturation * (RRT_RED_PIVOT - color.r) * (1.0 - RRT_RED_SCALE);
-
-	color  = clamp16(max0(color) * AP0_2_AP1_MAT);			 // ACES to RGB rendering space
-	color *= calcSatAdjustMatrix(RRT_SAT_FACTOR, AP1_RGB2Y); // Global desaturation
-
-	// --- Apply the tonescale independently in rendering-space RGB --- //
-	color.r = segmentedSplineC5Fwd(color.r);
-	color.g = segmentedSplineC5Fwd(color.g);
-	color.b = segmentedSplineC5Fwd(color.b);
 }
