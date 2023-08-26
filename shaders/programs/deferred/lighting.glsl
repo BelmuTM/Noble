@@ -15,7 +15,7 @@
     layout (location = 1) out uvec2 firstBounceData;
     layout (location = 2) out vec4 momentsOut;
 #else
-    /* RENDERTARGETS: 13,10 */
+    /* RENDERTARGETS: 4,10 */
 
     layout (location = 0) out vec4 radianceOut;
     layout (location = 1) out vec4 momentsOut;
