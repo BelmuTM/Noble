@@ -66,63 +66,8 @@ float centerHue(float hue, float centerHue) {
 	return hueCentered < -180.0 ? hueCentered + 360.0 : hueCentered - 360.0;
 }
 
-/*
-const float LIM_CYAN    = 1.147;
-const float LIM_MAGENTA = 1.264;
-const float LIM_YELLOW  = 1.312;
-
-// Percentage of the core gamut to protect
-// Values calculated to protect all the colors of the ColorChecker Classic 24 as given by
-// ISO 17321-1 and Ohta (1997)
-const float THR_CYAN    = 0.815;
-const float THR_MAGENTA = 0.803;
-const float THR_YELLOW  = 0.880;
-
-// Aggressiveness of the compression curve
-const float PWR = 1.2;
-
-// Calculate compressed distance
-float compress(float dist, float lim, float thr, float pwr) {
-    float compressedDist;
-    float scl;
-    float nd;
-    float p;
-
-    if (dist < thr) {
-        compressedDist = dist; // No compression below threshold
-    } else {
-        // Calculate scale factor for y = 1 intersect
-        scl = (lim - thr) / pow(pow((1.0 - thr) / (lim - thr), -pwr) - 1.0, 1.0 / pwr);
-
-        // Normalize distance outside threshold by scale factor
-        nd = (dist - thr) / scl;
-        p = pow(nd, pwr);
-
-        compressedDist = thr + scl * nd / (pow(1.0 + p, 1.0 / pwr)); // Compress
-    }
-    return compressedDist;
-}
-*/
-
 void rrt(inout vec3 color) {
-	/*
-	// Achromatic axis
-    float achromaticAxis = maxOf(color);
-
-	// Distance from the achromatic axis for each color component aka inverse RGB ratios
-    vec3 dist = achromaticAxis == 0.0 ? vec3(0.0) : (achromaticAxis - color) / abs(achromaticAxis);
-
-    // Compress distance with parameterized shaper function
-    vec3 compressedDist;
-    compressedDist.r = compress(dist.r, LIM_CYAN   , THR_CYAN   , PWR);
-    compressedDist.g = compress(dist.g, LIM_MAGENTA, THR_MAGENTA, PWR);
-    compressedDist.b = compress(dist.b, LIM_YELLOW , THR_YELLOW , PWR);
-
-    // Recalculate RGB from compressed distance and achromatic
-    color = achromaticAxis - compressedDist * abs(achromaticAxis);
-	*/
-
-	// Convert back to ACES2065-1
+	// Convert to ACES2065-1
 	color *= AP1_2_AP0_MAT;
 
 	// --- Glow module --- //
