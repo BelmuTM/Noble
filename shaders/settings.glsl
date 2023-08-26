@@ -374,10 +374,12 @@ const float sensorSensitivity = 100.0; // Sensor sensitivity
 /*------------------- COLOR GRADING --------------------*/
 //////////////////////////////////////////////////////////
 
-#define ACES 0
+#define ACES 1
 
-#define TONEMAP 4 // [-1 0 1 2 3 4 5]
+#define TONEMAP 0 // [-1 0 1 2 3 4 5 6]
 #define LUT     0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
+
+#define AGX_LOOK 2
 
 #if TONEMAP == ACES
 	// ACES Settings

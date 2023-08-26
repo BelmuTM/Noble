@@ -50,7 +50,7 @@ float computeEV100fromLuminance(float luminance) {
 }
 
 float computeExposureFromEV100(float ev100) {
-    return 1.0 / (1.2 / exposureBias * exp2(ev100));
+    return 1.0 / (1.2 * exp2(ev100));
 }
 
 float computeExposure(float averageLuminance) {
@@ -88,22 +88,26 @@ void main() {
     
     // Tonemapping & Color Grading
     
-    #if TONEMAP == ACES        // ACES
+    #if TONEMAP == 0           // AgX
+        agx(color);
+        agxLook(color);
+        agxEotf(color);
+    #elif TONEMAP == ACES      // ACES
         rrt(color);
         odt(color);
-    #elif TONEMAP == 1         // Burgess
+    #elif TONEMAP == 2         // Burgess
         burgess(color);
-    #elif TONEMAP == 2         // Reinhard-Jodie
+    #elif TONEMAP == 3         // Reinhard-Jodie
         reinhardJodie(color);
-    #elif TONEMAP == 3         // Lottes
+    #elif TONEMAP == 4         // Lottes
         lottes(color);
-    #elif TONEMAP == 4         // Uchimura
+    #elif TONEMAP == 5         // Uchimura
         uchimura(color);
-    #elif TONEMAP == 5         // Uncharted 2
+    #elif TONEMAP == 6         // Uncharted 2
         uncharted2(color);
     #endif
 
-    #if TONEMAP != ACES
+    #if TONEMAP != ACES && TONEMAP != 0
         color = linearToSrgb(color);
     #endif
 
