@@ -55,7 +55,7 @@
         }
 
         float calculateATrousDepthWeight(float depth, float sampleDepth, vec2 depthGradient, vec2 offset) {
-            return exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(sampleDepth)) / (abs(DEPTH_WEIGHT_SIGMA * dot(depthGradient, offset)) + 0.1));
+            return exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(sampleDepth)) / (abs(DEPTH_WEIGHT_SIGMA * dot(depthGradient, offset)) + 0.2));
         }
 
         float calculateATrousLuminanceWeight(float luminance, float sampleLuminance, float variance) {
@@ -109,9 +109,11 @@
 
                     if(saturate(sampleCoords) != sampleCoords) continue;
 
+                    ivec2 texelCoords = ivec2(sampleCoords * viewSize * GI_SCALE * 0.01);
+
                     Material sampleMaterial   = getMaterial(sampleCoords);
-                    vec3     sampleIrradiance = texture(INPUT_BUFFER  , sampleCoords).rgb;
-                    float    sampleVariance   = texture(MOMENTS_BUFFER, sampleCoords).b;
+                    vec3     sampleIrradiance = texelFetch(INPUT_BUFFER  , texelCoords, 0).rgb;
+                    float    sampleVariance   = texelFetch(MOMENTS_BUFFER, texelCoords, 0).b;
 
                     float normalWeight    = calculateATrousNormalWeight(material.normal, sampleMaterial.normal);
                     float depthWeight     = calculateATrousDepthWeight(material.depth0, sampleMaterial.depth0, depthGradient, offset);
@@ -133,8 +135,10 @@
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	        if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-            irradiance = texture(INPUT_BUFFER  , vertexCoords);
-            moments    = texture(MOMENTS_BUFFER, vertexCoords);
+            ivec2 texelCoords = ivec2(gl_FragCoord.xy);
+
+            irradiance = texelFetch(INPUT_BUFFER  , texelCoords, 0);
+            moments    = texelFetch(MOMENTS_BUFFER, texelCoords, 0);
             aTrousFilter(irradiance.rgb, moments.rgb, vertexCoords);
         }
     #endif

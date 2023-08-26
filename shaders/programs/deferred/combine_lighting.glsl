@@ -1,6 +1,6 @@
 /***********************************************/
-/*           Copyright (C) 2023 Belmu          */
-/*             All Rights Reserved             */
+/*          Copyright (C) 2023 Belmu           */
+/*       GNU General Public License V3.0       */
 /***********************************************/
 
 #include "/settings.glsl"

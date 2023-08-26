@@ -33,11 +33,7 @@ void main() {
     vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-    #if GI == 1
-        lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
-    #else
-        lighting = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
-    #endif
+    lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
 
     vec3 coords = vec3(vertexCoords, 0.0);
 
