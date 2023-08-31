@@ -14,9 +14,15 @@ const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
 const float mieScatteringAlbedo = 0.9;
 const float mieAnisotropyFactor = 0.76;
 
+const float airNumberDensity    = 2.5035422e25;
+const float ozonePeakDensity    = 5e-6;
+const float ozonePeakAltitude   = 35e3;
+const float ozoneNumberDensity  = airNumberDensity * exp(-ozonePeakAltitude / 8e3) * (134.628 / 48.0) * ozonePeakDensity;
+const float ozoneUnitConversion = 1e-4; // Converts from cm² to m²
+
 const vec3 rayleighScatteringCoefficients = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
 const vec3 mieScatteringCoefficients      = vec3(9.25288e-6);
-const vec3 ozoneExtinctionCoefficients    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * 3.5356617e14;
+const vec3 ozoneExtinctionCoefficients    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * ozoneNumberDensity * ozoneUnitConversion;
 
 const vec3 rayleighScatteringCoefficientsEnd = vec3(7e-2, 4e-6, 1e-10);
 const vec3 mieScatteringCoefficientsEnd      = vec3(1.3e-3);

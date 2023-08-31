@@ -24,32 +24,32 @@ vec3 computeStarfield(vec3 viewPosition) {
 	return max0(saturate(star - (1.0 - STARS_AMOUNT * 2e-3)) * factor * STARS_LUMINOSITY * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords))));
 }
 
-vec3 physicalSun(vec3 sceneDir) {
-    return dot(sceneDir, sunVector) < cos(sunAngularRadius) ? vec3(0.0) : sunRadiance * RCP_PI;
+vec3 physicalSun(vec3 sceneDirection) {
+    return dot(sceneDirection, sunVector) < cos(sunAngularRadius) ? vec3(0.0) : sunRadiance * RCP_PI;
 }
 
-vec3 physicalMoon(vec3 sceneDir) {
-    vec2 sphere = intersectSphere(-moonVector, sceneDir, moonAngularRadius);
+vec3 physicalMoon(vec3 sceneDirection) {
+    vec2 sphere = intersectSphere(-moonVector, sceneDirection, moonAngularRadius);
 
 	Material moonMaterial;
-	moonMaterial.normal    = normalize(sceneDir * sphere.x - moonVector);
+	moonMaterial.normal    = normalize(sceneDirection * sphere.x - moonVector);
 	moonMaterial.albedo    = vec3(moonAlbedo);
 	moonMaterial.roughness = moonRoughness;
 	moonMaterial.F0		   = 0.0;
 
-    return sphere.y < 0.0 ? vec3(0.0) : moonMaterial.albedo * hammonDiffuse(moonMaterial, -sceneDir, sunVector) * sunIrradiance;
+    return sphere.y < 0.0 ? vec3(0.0) : moonMaterial.albedo * hammonDiffuse(moonMaterial, -sceneDirection, sunVector) * sunIrradiance;
 }
 
-vec3 physicalStar(vec3 sceneDir) {
-    return dot(sceneDir, starVector) < cos(starAngularRadius) ? vec3(0.0) : starRadiance * RCP_PI;
+vec3 physicalStar(vec3 sceneDirection) {
+    return dot(sceneDirection, starVector) < cos(starAngularRadius) ? vec3(0.0) : starRadiance * RCP_PI;
 }
 
 vec3 renderAtmosphere(vec2 coords, vec3 viewPosition) {
 	#if defined WORLD_OVERWORLD || defined WORLD_END
 		float jitter = interleavedGradientNoise(gl_FragCoord.xy);
 
-		vec3 sceneDir = normalize(viewToScene(viewPosition));
-		vec3 sky      = textureCatmullRom(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDir) + jitter * texelSize)).rgb;
+		vec3 sceneDirection = normalize(viewToScene(viewPosition));
+		vec3 sky            = textureCatmullRom(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDirection) + jitter * texelSize)).rgb;
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD
@@ -57,10 +57,10 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition) {
 				clouds = texture(CLOUDS_BUFFER, coords);
 			#endif
 
-			sky += clamp16(physicalSun (sceneDir));
-			sky += clamp16(physicalMoon(sceneDir));
+			sky += clamp16(physicalSun (sceneDirection));
+			sky += clamp16(physicalMoon(sceneDirection));
 		#elif defined WORLD_END
-			sky += clamp16(physicalStar(sceneDir));
+			sky += clamp16(physicalStar(sceneDirection));
 		#endif
 
 		sky += computeStarfield(viewPosition);

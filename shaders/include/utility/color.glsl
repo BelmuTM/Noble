@@ -144,7 +144,7 @@ vec3 srgbToAP1Albedo(vec3 color) {
     return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
 }
 
-vec3 fromXyz(vec3 color) {
+vec3 fromXYZ(vec3 color) {
     #if TONEMAP == ACES
         return color * XYZ_2_AP1_MAT;
     #else
@@ -152,7 +152,7 @@ vec3 fromXyz(vec3 color) {
     #endif
 }
 
-vec3 toXyz(vec3 color) {
+vec3 toXYZ(vec3 color) {
     #if TONEMAP == ACES
         return color * AP1_2_XYZ_MAT;
     #else
@@ -160,7 +160,7 @@ vec3 toXyz(vec3 color) {
     #endif
 }
 
-mat3 fromXyz(mat3 mat) {
+mat3 fromXYZ(mat3 mat) {
     #if TONEMAP == ACES
         return mat * XYZ_2_AP1_MAT;
     #else
@@ -168,7 +168,7 @@ mat3 fromXyz(mat3 mat) {
     #endif
 }
 
-mat3 toXyz(mat3 mat) {
+mat3 toXYZ(mat3 mat) {
     #if TONEMAP == ACES
         return mat * AP1_2_XYZ_MAT;
     #else
@@ -198,7 +198,7 @@ vec3 blackbody(float temperature) {
         const float rcpBias = 1.0 / bias;
         const vec2 xy_b     = vec2(0.20);
 
-        vec3 xyz = toXyz(color * rcpBias);
+        vec3 xyz = toXYZ(color * rcpBias);
 
         float s;
         if(log10(xyz.y) < -2.0) {
@@ -219,6 +219,6 @@ vec3 blackbody(float temperature) {
         color.r = (x * color.g) / y;
         color.b = (color.r / x) - color.r - color.g;
 
-        color = fromXyz(color) * bias;
+        color = fromXYZ(color) * bias;
     }
 #endif

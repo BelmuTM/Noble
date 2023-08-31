@@ -185,9 +185,9 @@ mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
 }
 
 void whiteBalance(inout vec3 color) {
-    vec3 source           = toXyz(blackbody(WHITE_BALANCE));
-    vec3 destination      = toXyz(blackbody(WHITE_POINT  ));
-    mat3 chromaAdaptation = fromXyz(toXyz(chromaticAdaptationMatrix(source, destination)));
+    vec3 source           = toXYZ(blackbody(WHITE_BALANCE));
+    vec3 destination      = toXYZ(blackbody(WHITE_POINT  ));
+    mat3 chromaAdaptation = fromXYZ(toXYZ(chromaticAdaptationMatrix(source, destination)));
 
     color *= chromaAdaptation;
 }

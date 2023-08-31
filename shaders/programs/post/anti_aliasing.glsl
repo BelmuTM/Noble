@@ -86,9 +86,9 @@
     #endif
 
     #if EIGHT_BITS_FILTER == 1
-        vec4 samplePixelatedBuffer(sampler2D tex, vec2 coords, int resolution) {
-            vec2 resolutionVec = resolution * vec2(aspectRatio, 1.0);
-            return texelFetch(tex, ivec2((floor(coords * resolutionVec) / resolutionVec) * viewSize), 0);
+        vec4 samplePixelatedBuffer(sampler2D tex, vec2 coords, int size) {
+            vec2 aspectCorrectedSize = size * vec2(aspectRatio, 1.0);
+            return texelFetch(tex, ivec2((floor(coords * aspectCorrectedSize) / aspectCorrectedSize) * viewSize), 0);
         }
     #endif
 
