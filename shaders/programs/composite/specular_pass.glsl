@@ -39,11 +39,13 @@ void main() {
 
     vec3 sunSpecular = vec3(0.0), envSpecular = vec3(0.0);
 
-    if(!isSky(vertexCoords)) {
+    float depth = texture(depthtex0, vertexCoords).r;
+
+    if(depth != 1.0) {
         Material material = getMaterial(vertexCoords);
 
-        vec3 viewPosition0  = getViewPosition0(textureCoords);
-        vec3 viewPosition1  = getViewPosition1(textureCoords);
+        vec3 viewPosition0 = screenToView(vec3(textureCoords, material.depth0));
+        vec3 viewPosition1 = screenToView(vec3(textureCoords, material.depth1));
 
         vec3 directIlluminance = vec3(0.0);
     
@@ -113,5 +115,5 @@ void main() {
     lighting += envSpecular;
 
     vec4 basic    = texture(RASTER_BUFFER, vertexCoords);
-         lighting = mix(lighting, basic.rgb, basic.a * float(isHand(vertexCoords)));
+         lighting = mix(lighting, basic.rgb, basic.a * float(depth >= handDepth));
 }

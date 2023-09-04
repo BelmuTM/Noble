@@ -40,7 +40,9 @@
 		    	for(int i = 0; i < SSAO_SAMPLES; i++) {
 			    	vec3 rayDirection = generateCosineVector(normal, rand2F());
 			    	vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
-			    	float rayDepth    = getViewPosition0(viewToScreen(rayPosition).xy).z;
+
+					vec2  sampleCoords = viewToScreen(rayPosition).xy;
+			    	float rayDepth     = screenToView(vec3(sampleCoords, texture(depthtex0, sampleCoords).r)).z;
 
 			    	float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
         	    	occlusion 		+= (rayDepth >= rayPosition.z + EPS ? 1.0 : 0.0) * rangeCheck;
@@ -87,7 +89,7 @@
 
 		    	for(int i = 0; i < GTAO_HORIZON_STEPS; i++, rayPosition += increment) {
 			    	float depth = texelFetch(depthtex0, ivec2(rayPosition * viewSize * RENDER_SCALE), 0).r;
-			    	if(saturate(rayPosition) != rayPosition || depth == 1.0 || depth < MC_HAND_DEPTH) continue;
+			    	if(saturate(rayPosition) != rayPosition || depth == 1.0 || depth < handDepth) continue;
 
 			    	vec3 horizonVec = screenToView(vec3(rayPosition, depth)) - viewPosition;
 			    	float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(2.0, 3.0, lengthSqr(horizonVec)));
@@ -141,11 +143,13 @@
 
     		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 			if(saturate(fragCoords) != fragCoords) { discard; return; }
+			
+			float depth = texture(depthtex0, vertexCoords).r;
 
-    		if(isSky(vertexCoords)) return;
+    		if(depth == 1.0) return;
 
         	Material material = getMaterial(vertexCoords);
-			vec3 viewPosition = getViewPosition0(textureCoords);
+			vec3 viewPosition = screenToView(vec3(textureCoords, depth));
 
 			vec3 bentNormal = vec3(0.0);
 

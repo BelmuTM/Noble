@@ -54,9 +54,11 @@
 
             clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
-            if(!isSky(vertexCoords)) { discard; return; }
+            float depth = texture(depthtex0, vertexCoords).r;
 
-            vec3 viewPosition       = getViewPosition0(textureCoords);
+            if(depth != 1.0) { discard; return; }
+
+            vec3 viewPosition       = screenToView(vec3(textureCoords, depth));
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
             vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e35);

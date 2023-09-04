@@ -99,7 +99,7 @@ void main() {
 
         radianceOut.a  = history.a;
         radianceOut.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
-        radianceOut.a *= float(!isHand(vertexCoords));
+        radianceOut.a *= float(depth >= handDepth);
 
         momentsOut = texture(MOMENTS_BUFFER, prevPosition.xy);
 
@@ -120,7 +120,7 @@ void main() {
 				radianceOut.a *= float(depth < 1.0);
 				radianceOut.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.3);
 				radianceOut.a *= calculateGaussianDepthWeight(prevPosition.z, prevDepth, 0.5);
-                radianceOut.a *= float(linearizeDepthFast(material.depth0) >= MC_HAND_DEPTH);
+                radianceOut.a *= float(material.depth0 >= handDepth);
 
 				momentsOut.a = log2(prevPosition.z);
             #endif

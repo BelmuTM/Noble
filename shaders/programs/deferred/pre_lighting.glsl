@@ -120,9 +120,9 @@
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS == 1
-                if(!isSky(vertexCoords)) {
+                if(material.depth0 != 1.0) {
                     vec3 geoNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
-                    vec3 scenePos  = viewToScene(getViewPosition0(textureCoords));
+                    vec3 scenePos  = viewToScene(screenToView(vec3(textureCoords, material.depth0)));
                     shadowmap.rgb  = calculateShadowMapping(scenePos, geoNormal, shadowmap.a);
                     shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
                 }

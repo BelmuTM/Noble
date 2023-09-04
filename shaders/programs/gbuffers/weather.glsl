@@ -32,7 +32,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 4 */
+	/* RENDERTARGETS: 13 */
 
 	layout (location = 0) out vec4 color;
 

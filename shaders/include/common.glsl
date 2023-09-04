@@ -19,13 +19,6 @@
 
 const vec3 labPbrData0Range = vec3(1.0, 8191.0, 4095.0);
 
-//////////////////////////////////////////////////////////
-/*-------------- MISC UTILITY FUNCTIONS ----------------*/
-//////////////////////////////////////////////////////////
-
-bool isSky(vec2 coords)  { return texture(depthtex0, coords).r == 1.0;                              }
-bool isHand(vec2 coords) { return linearizeDepthFast(texture(depthtex0, coords).r) < MC_HAND_DEPTH; }
-
 /*
 const vec2 hiZOffsets[] = vec2[](
 	vec2(0.0, 0.0  ),

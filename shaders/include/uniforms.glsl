@@ -90,3 +90,5 @@ const float rcpMaxVal8  = 0.00392156;
 const float rcpMaxVal12 = 0.00024420;
 const float rcpMaxVal13 = 0.00012208;
 const float rcpMaxVal16 = 0.00001525;
+
+const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;

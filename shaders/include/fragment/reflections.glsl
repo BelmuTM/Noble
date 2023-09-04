@@ -13,7 +13,7 @@ vec3 sampleHitColor(vec2 hitCoords) {
 
 vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        vec2 coords     = projectSphere(mat3(gbufferModelViewInverse) * reflected);
+        vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected));
         vec3 atmosphere = texture(ATMOSPHERE_BUFFER, saturate(coords)).rgb;
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);

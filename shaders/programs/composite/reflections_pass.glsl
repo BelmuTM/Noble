@@ -38,10 +38,13 @@
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	        if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-            if(isSky(vertexCoords)) { discard; return; }
+            float depth = texture(depthtex0, vertexCoords).r;
+
+            if(depth == 1.0) { discard; return; }
 
             Material material = getMaterial(vertexCoords);
-            vec3 viewPosition = getViewPosition0(textureCoords);
+            vec3 currPosition = vec3(textureCoords, depth);
+            vec3 viewPosition = screenToView(currPosition);
                     
             #if REFLECTIONS_TYPE == 0
                 reflections.rgb = computeSmoothReflections(viewPosition, material);
@@ -51,11 +54,10 @@
 
             reflections.rgb = clamp16(reflections.rgb);
 
-            vec3 currPosition = vec3(textureCoords, texture(depthtex0, vertexCoords).r);
-            vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
-            vec3 prevColor    = logLuvDecode(texture(REFLECTIONS_BUFFER, prevCoords));
+            vec2 prevCoords = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
+            vec3 prevColor  = logLuvDecode(texture(REFLECTIONS_BUFFER, prevCoords));
 
-            if(!any(isnan(prevColor)) && !isHand(vertexCoords)) {
+            if(!any(isnan(prevColor)) && currPosition.z >= handDepth) {
                 float frames  = texture(ACCUMULATION_BUFFER, prevCoords).a;
                       frames *= (1.0 - material.roughness);
 

@@ -23,26 +23,14 @@ float getDistortionFactor(vec2 coords) {
 	return cubeLength(coords) * SHADOW_DISTORTION + (1.0 - SHADOW_DISTORTION);
 }
 
-vec2 distortShadowSpace(vec2 position) {
-	return position / getDistortionFactor(position.xy);
+vec2 distortShadowSpace(vec2 coords) {
+	return coords / getDistortionFactor(coords);
 }
 
 vec3 distortShadowSpace(vec3 position) {
 	position.xy = distortShadowSpace(position.xy);
 	position.z *= SHADOW_DEPTH_STRETCH;
 	return position;
-}
-
-float DISTORT_FACTOR = 0.1;
-float CURVE_FACTOR = 0.1;
-
-vec2 distort(vec2 uv) {
-    vec2 absUV = abs(uv);
-    float maxCoord = min(absUV.x, absUV.y) / max(absUV.x, absUV.y);
-    float maxLen = sqrt(1.0 + maxCoord * maxCoord);
-    float fac1 = length(uv) + DISTORT_FACTOR;
-    float fac = mix(1.0, fac1, pow(1.0 - length(uv) / maxLen, CURVE_FACTOR));
-    return vec2(uv / fac);
 }
 
 //////////////////////////////////////////////////////////
@@ -101,14 +89,6 @@ mat3 constructViewTBN(vec3 viewNormal) {
 	return mat3(tangent, cross(tangent, viewNormal), viewNormal);
 }
 
-vec3 getViewPosition0(vec2 coords) {
-    return screenToView(vec3(coords, texture(depthtex0, coords * RENDER_SCALE).r));
-}
-
-vec3 getViewPosition1(vec2 coords) {
-    return screenToView(vec3(coords, texture(depthtex1, coords * RENDER_SCALE).r));
-}
-
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth
 float linearizeDepth(float depth) {
     depth = depth * 2.0 - 1.0;
@@ -124,7 +104,7 @@ float linearizeDepthFast(float depth) {
 //////////////////////////////////////////////////////////
 
 vec3 getVelocity(vec3 currPosition) {
-    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(linearizeDepthFast(currPosition.z) >= MC_HAND_DEPTH);
+    vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(currPosition.z >= handDepth);
 
     vec3 prevPosition = transform(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPosition)));
          prevPosition = (projectOrthogonal(gbufferPreviousProjection, prevPosition) / -prevPosition.z) * 0.5 + 0.5;
