@@ -47,7 +47,7 @@ void main() {
             float VdotL = dot(normalize(scenePosition0 - gbufferModelViewInverse[3].xyz), starVector);
         #endif
     #else
-        directIlluminance = getBlockLightColor(material) * saturate(material.lightmap.x + 0.3);
+        directIlluminance = getBlockLightColor(material);
         float VdotL = 0.0;
     #endif
 
