@@ -20,29 +20,22 @@
 
         out vec2 textureCoords;
         out vec2 vertexCoords;
-        out vec3 skyIlluminance;
-        out vec3 directIlluminance;
 
         void main() {
             gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
             gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w; + (RENDER_SCALE - 1.0);
             textureCoords  = gl_Vertex.xy;
             vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
-
-            skyIlluminance    = evaluateUniformSkyIrradianceApproximation();
-            directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
         }
 
     #elif defined STAGE_FRAGMENT
 
         /* RENDERTARGETS: 7 */
 
-        layout (location = 0) out vec4 clouds;
+        layout (location = 0) out vec3 clouds;
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
-        in vec3 skyIlluminance;
-        in vec3 directIlluminance;
 
         #include "/include/utility/sampling.glsl"
 
@@ -52,7 +45,7 @@
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	        if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-            clouds = vec4(0.0, 0.0, 0.0, 1.0);
+            clouds = vec3(0.0, 0.0, 1.0);
 
             float depth = texture(depthtex0, vertexCoords).r;
 
@@ -75,14 +68,12 @@
             float distanceToClouds = min(layer0.a, layer1.a);
             if(distanceToClouds > EPS) {
 
-                vec2 scattering = layer1.rg    * layer0.b + layer0.rg;
-                clouds.rgb     += scattering.r * directIlluminance;
-                clouds.rgb     += scattering.g * skyIlluminance;
-                clouds.a        = layer0.b     * layer1.b;
+                clouds.rg = layer1.rg * layer0.b + layer0.rg;
+                clouds.b  = layer0.b  * layer1.b;
 
                 /* Reprojection */
                 vec2 prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy * RENDER_SCALE;
-                vec4 history      = texture(CLOUDS_BUFFER, prevPosition);
+                vec3 history      = texture(CLOUDS_BUFFER, prevPosition).rgb;
 
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;

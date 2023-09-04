@@ -69,7 +69,7 @@ void pathtrace(inout vec3 radiance, in vec3 screenPosition, inout vec3 outColorD
             vec3 brdf  = evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material, directIlluminance);
             vec3 phase = sampleMicrosurfaceOpaquePhase(rayDirection, material);
 
-            brdf += material.albedo * EMISSIVE_INTENSITY * material.emission;
+            brdf += material.albedo * EMISSIVE_INTENSITY * 2.0 * material.emission;
              
             bool hit = raytrace(depthtex0, screenToView(rayPosition), rayDirection, steps, randF(), 1.0, rayPosition);
 

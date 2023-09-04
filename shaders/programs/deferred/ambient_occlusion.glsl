@@ -42,7 +42,7 @@
 			    	vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
 
 					vec2  sampleCoords = viewToScreen(rayPosition).xy;
-			    	float rayDepth     = screenToView(vec3(sampleCoords, texture(depthtex0, sampleCoords).r)).z;
+			    	float rayDepth     = screenToView(vec3(sampleCoords, texture(depthtex0, sampleCoords * RENDER_SCALE).r)).z;
 
 			    	float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
         	    	occlusion 		+= (rayDepth >= rayPosition.z + EPS ? 1.0 : 0.0) * rangeCheck;

@@ -1,4 +1,6 @@
 #version 400 compatibility
 
-#include "/include/taau_scale.glsl"
-#include "/programs/vertex_taau.glsl"
+#define STAGE_VERTEX
+#define WORLD_NETHER
+
+#include "/programs/deferred/lighting.glsl"

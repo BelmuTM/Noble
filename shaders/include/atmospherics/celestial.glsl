@@ -44,7 +44,7 @@ vec3 physicalStar(vec3 sceneDirection) {
     return dot(sceneDirection, starVector) < cos(starAngularRadius) ? vec3(0.0) : starRadiance * RCP_PI;
 }
 
-vec3 renderAtmosphere(vec2 coords, vec3 viewPosition) {
+vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, vec3 skyIlluminance) {
 	#if defined WORLD_OVERWORLD || defined WORLD_END
 		float jitter = interleavedGradientNoise(gl_FragCoord.xy);
 
@@ -54,7 +54,10 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition) {
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD
 			#if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-				clouds = texture(CLOUDS_BUFFER, coords);
+				vec3 cloudsBuffer = texture(CLOUDS_BUFFER, coords).rgb;
+
+				clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;
+				clouds.a   = cloudsBuffer.b;
 			#endif
 
 			sky += clamp16(physicalSun (sceneDirection));

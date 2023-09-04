@@ -35,6 +35,8 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
 /*------------------ SMOOTH REFLECTIONS ----------------*/
 //////////////////////////////////////////////////////////
 
+float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
+
 #if REFLECTIONS_TYPE == 0
     vec3 computeSmoothReflections(vec3 viewPosition, Material material) {
         float alphaSq = maxEps(material.roughness * material.roughness);
@@ -45,7 +47,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
         float NdotL         = abs(dot(material.normal, rayDirection));
 
         vec3 hitPosition;
-        float hit = float(raytrace(depthtex0, viewPosition, rayDirection, SMOOTH_REFLECTIONS_STEPS, randF(), RENDER_SCALE, hitPosition));
+        float hit = float(raytrace(depthtex0, viewPosition, rayDirection, SMOOTH_REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
 
         vec3 fresnel = vec3(0.0);
         if(isEyeInWater == 1 || material.blockId == WATER_ID) {
@@ -90,7 +92,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
             float NdotL            = abs(dot(material.normal, rayDirection));
 
             vec3 hitPosition;
-            float hit = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECTIONS_STEPS, randF(), RENDER_SCALE, hitPosition));
+            float hit = float(raytrace(depthtex0, viewPosition, rayDirection, ROUGH_REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
 
             vec3 fresnel = vec3(0.0);
             if(isEyeInWater == 1 || material.blockId == WATER_ID) {

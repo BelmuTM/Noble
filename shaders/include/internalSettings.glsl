@@ -27,7 +27,7 @@ const int colortex5Format       = RGBA32F;   // Irradiance, clouds shadows
 const int colortex6Format       = RGB16F;    // Atmosphere
 
 #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-     const int colortex7Format  = RGBA16F;   // Clouds
+     const int colortex7Format  = RGB16F;   // Clouds
      const bool colortex7Clear  = false;
 #endif
 
@@ -37,8 +37,11 @@ const int colortex8Format       = RGBA16F;   // History
      const int colortex9Format  = RG32UI;    // First bounce indirect & direct
      const int colortex10Format = RGBA32F;   // Moments
      const bool colortex9Clear  = false;
-     const bool colortex10Clear = false;
+#else
+     const int colortex10Format = RGBA16F;   // Previous Depth
 #endif
+
+const bool colortex10Clear      = false;
 
 const int colortex11Format      = RG32UI;    // Fog
 
