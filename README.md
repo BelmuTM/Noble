@@ -34,6 +34,7 @@ Noble is licensed under the GPL v3.0 License. Please consider reading the terms 
 > Thanks to the beta testers who helped me fix and deal with multiple issues.
 
 ## Showcases
+![Showcase 00](https://i.imgur.com/jD8XyOf.png)
 ![Showcase 01](https://i.imgur.com/6ZhEyYW.png)
 ![Showcase 02](https://i.imgur.com/5IE0iPD.png)
 ![Showcase 03](https://i.imgur.com/EyxxpKi.png)
