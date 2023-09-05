@@ -182,7 +182,7 @@ vec3 evaluateUniformSkyIrradianceApproximation() {
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
                 vec3 direction  = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy;
-                skyIlluminance += texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
+                skyIlluminance += vec3(luminance(texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb));
             }
         }
         skyIlluminance *= PI / (samples.x * samples.y);
@@ -218,7 +218,7 @@ vec3[9] evaluateUniformSkyIrradiance() {
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
                 vec3     direction      = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy;
-                vec3     radiance       = texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
+                vec3     radiance       = vec3(luminance(texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb));
                 float[9] shCoefficients = calculateSphericalHarmonicsCoefficients(direction);
 
                 for(int n = 0; n < irradiance.length(); n++) irradiance[n] += radiance * shCoefficients[n];

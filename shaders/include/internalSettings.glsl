@@ -23,7 +23,7 @@ const int colortex1Format       = RGBA32UI;  // Gbuffer data
 
 const int colortex3Format       = RGBA16F;   // Geometric normals, shadowmap, bloom
 const int colortex4Format       = RGBA16F;   // Deferred Lighting
-const int colortex5Format       = RGBA32F;   // Irradiance, clouds shadows
+const int colortex5Format       = RGBA16F;   // Irradiance, clouds shadows
 const int colortex6Format       = RGB16F;    // Atmosphere
 
 #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
