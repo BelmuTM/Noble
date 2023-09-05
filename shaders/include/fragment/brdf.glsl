@@ -142,8 +142,10 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     vec3 diffuse  = hammonDiffuse(material, viewDirection, lightDirection);
          diffuse *= shadowmap.rgb * cloudsShadows;
 
+    float skylightFalloff = getSkylightFalloff(material.lightmap.y);
+
     #if SUBSURFACE_SCATTERING == 1
-        diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows;
+        diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows * skylightFalloff;
     #endif
 
     diffuse *= directIlluminance;
@@ -151,7 +153,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     vec3 skylight = skyIlluminance;
 
     #if defined WORLD_OVERWORLD
-        skylight *= getSkylightFalloff(material.lightmap.y);
+        skylight *= skylightFalloff;
     #endif
 
     vec3 blocklightColor = getBlockLightColor(material);
@@ -159,7 +161,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     vec3 emissiveness    = material.emission * blocklightColor;
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        vec3 ambient = vec3(0.4);
+        vec3 ambient = vec3(0.2);
     #else
         vec3 ambient = vec3(1.0);
     #endif
