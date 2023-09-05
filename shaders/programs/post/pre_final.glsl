@@ -113,18 +113,18 @@ void main() {
         color = linearToSrgb(color);
     #endif
 
-    float vibranceMul   = 1.0 + VIBRANCE;
-    float saturationMul = 1.0 + SATURATION;
-    float contrastMul   = 1.0 + CONTRAST;
-    float liftMul       = 0.1 * LIFT;
-    float gammaMul      = 1.0 + GAMMA;
-    float gainMul       = 1.0 + GAIN;
+    color = saturate(color);
 
-    whiteBalance( color);
+    const float vibranceMul   = 1.0 + VIBRANCE;
+    const float saturationMul = 1.0 + SATURATION;
+    const float contrastMul   = 1.0 + CONTRAST;
+    const float liftMul       = 0.1 * LIFT;
+    const float gammaMul      = 1.0 + GAMMA;
+    const float gainMul       = 1.0 + GAIN;
+
+    whiteBalance(color);
     vibrance(color, vibranceMul);
     saturation(color, saturationMul);
     contrast(color, contrastMul);
     liftGammaGain(color, liftMul, gammaMul, gainMul);
-
-    color = saturate(color);
 }
