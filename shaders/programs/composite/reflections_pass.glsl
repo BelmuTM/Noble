@@ -66,7 +66,7 @@
                 #endif
 
                 float weight = 1.0 / max(frames, 1.0);
-                reflections  = logLuvEncode(mix(prevColor, reflections.rgb, weight));
+                reflections  = clamp(logLuvEncode(mix(prevColor, reflections.rgb, weight)), vec4(0.0), vec4(maxVal8));
             } else {
                 reflections  = logLuvEncode(reflections.rgb);
             }

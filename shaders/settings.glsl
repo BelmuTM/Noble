@@ -258,12 +258,13 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define WATER_ID                1
 #define LAVA_ID                 5
 #define FIRE_ID                 6
+#define HANGING_LANTERN_ID      8
 #define NETHER_PORTAL_ID        9
-#define SSS_ID                 10
-#define LEAVES_ID              11
-#define DOUBLE_PLANTS_LOWER_ID 12
-#define DOUBLE_PLANTS_UPPER_ID 13
-#define PLANTS_ID              14
+#define SSS_ID                 11
+#define LEAVES_ID              12
+#define DOUBLE_PLANTS_LOWER_ID 13
+#define DOUBLE_PLANTS_UPPER_ID 14
+#define PLANTS_ID              15
 
 #define RAIN_PUDDLES       1 // [0 1]
 #define RAIN_PUDDLES_SIZE 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]

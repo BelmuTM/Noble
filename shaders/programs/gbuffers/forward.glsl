@@ -19,6 +19,7 @@
 #if defined STAGE_VERTEX
 	#define attribute in
 	attribute vec4 at_tangent;
+	attribute vec3 at_midBlock;
 	attribute vec3 mc_Entity;
 
 	flat out int blockId;
