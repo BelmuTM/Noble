@@ -33,7 +33,7 @@ vec3 computeRefractions(vec3 viewPosition, Material material, inout vec3 hitPosi
 
     float density = 0.0;
 
-    switch(material.blockId) {
+    switch(material.id) {
         case WATER_ID:         return sampledColor * fresnel;
         case NETHER_PORTAL_ID: density = 3.0;
         default: {

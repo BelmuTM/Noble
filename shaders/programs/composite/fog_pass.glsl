@@ -70,7 +70,7 @@ void main() {
 
             vec3 scenePosition1 = viewToScene(viewPosition1);
 
-            if(isEyeInWater != 1 && material.blockId == WATER_ID) {
+            if(isEyeInWater != 1 && material.id == WATER_ID) {
                 #if defined WORLD_OVERWORLD || defined WORLD_END
                     #if defined WORLD_OVERWORLD && defined SUNLIGHT_LEAKING_FIX
                         directIlluminance *= float(material.lightmap.y != 0.0);

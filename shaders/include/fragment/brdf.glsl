@@ -125,7 +125,7 @@ vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 ligh
     float cosTheta = dot(normalize(viewDirection + lightDirection), viewDirection);
 
     // Phase function specifically made for leaves
-    if(material.blockId == LEAVES_ID) {
+    if(material.id == LEAVES_ID) {
         return max0(beer * biLambertianPlatePhase(0.3, cosTheta));
     }
 
@@ -145,7 +145,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     float skylightFalloff = getSkylightFalloff(material.lightmap.y);
 
     #if SUBSURFACE_SCATTERING == 1
-        diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows * skylightFalloff;
+        diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows * (material.id == SSS_ID ? skylightFalloff : 1.0);
     #endif
 
     diffuse *= directIlluminance;

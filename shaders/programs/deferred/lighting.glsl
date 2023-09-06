@@ -118,7 +118,7 @@
         Material material = getMaterial(vertexCoords);
 
         #if HARDCODED_SSS == 1
-            if(material.blockId > NETHER_PORTAL_ID && material.blockId <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
+            if(material.id > NETHER_PORTAL_ID && material.id <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
         #endif
 
         #if AO_FILTER == 1 && GI == 0 || REFLECTIONS == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
@@ -135,10 +135,10 @@
                 float prevDepth = exp2(momentsOut.a);
 
                 #if GI == 0
-                    radianceOut.a *= calculateGaussianDepthWeight(prevPosition.z, prevDepth, 0.3);
+                    radianceOut.a *= saturate(calculateGaussianDepthWeight(prevPosition.z, prevDepth, 0.3));
 
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                         radianceOut.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
+                         radianceOut.a  *= saturate(sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9);
 
                     momentsOut.a = log2(prevPosition.z);
                 #else

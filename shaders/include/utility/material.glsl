@@ -24,7 +24,7 @@ struct Material {
 
     float parallaxSelfShadowing;
 
-    int blockId;
+    int id;
     vec2 lightmap;
 
     float depth0;
@@ -109,7 +109,7 @@ Material getMaterial(vec2 coords) {
 
     material.normal = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTex.w & 65535u, (dataTex.w >> 16u) & 65535u) * rcpMaxVal16);
 
-    material.blockId  = int((dataTex.x >> 26u) & 63u);
+    material.id       = int((dataTex.x >> 26u) & 63u);
     material.lightmap = vec2((dataTex.x >> 1u) & 8191u, (dataTex.x >> 14u) & 4095u) * vec2(rcpMaxVal13, rcpMaxVal12);
 
     material.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
@@ -119,7 +119,7 @@ Material getMaterial(vec2 coords) {
 }
 
 vec3 getBlockLightColor(Material material) {
-    switch(material.blockId) {
+    switch(material.id) {
         case LAVA_ID: return blackbody(1523.15) * EMISSIVE_INTENSITY; // Lava, magma
 
         default: return blackbody(BLOCKLIGHT_TEMPERATURE) * EMISSIVE_INTENSITY;
