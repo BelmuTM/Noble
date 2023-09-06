@@ -84,7 +84,7 @@ void main() {
         #endif
 
            #if REFLECTIONS == 1
-            envSpecular = logLuvDecode(texture(REFLECTIONS_BUFFER, vertexCoords));
+            envSpecular = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
         #endif
     }
 

@@ -16,7 +16,7 @@
 
         /* RENDERTARGETS: 2 */
     
-        layout (location = 0) out vec4 reflections;
+        layout (location = 0) out vec3 reflections;
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
@@ -55,7 +55,7 @@
             reflections.rgb = clamp16(reflections.rgb);
 
             vec2 prevCoords = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
-            vec3 prevColor  = logLuvDecode(texture(REFLECTIONS_BUFFER, prevCoords));
+            vec3 prevColor  = texture(REFLECTIONS_BUFFER, prevCoords).rgb;
 
             if(!any(isnan(prevColor)) && currPosition.z >= handDepth) {
                 float frames  = texture(ACCUMULATION_BUFFER, prevCoords).a;
@@ -66,9 +66,9 @@
                 #endif
 
                 float weight = 1.0 / max(frames, 1.0);
-                reflections  = clamp(logLuvEncode(mix(prevColor, reflections.rgb, weight)), vec4(0.0), vec4(maxVal8));
+                reflections  = mix(prevColor, reflections.rgb, weight);
             } else {
-                reflections  = logLuvEncode(reflections.rgb);
+                reflections  = reflections.rgb;
             }
         }
     #endif

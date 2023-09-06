@@ -36,8 +36,8 @@ void hangingLantern(inout vec3 worldPosition, bool isBottomVertex) {
 	vec3 localOrigin   = worldPosition + at_midBlock / 64.0;
 		 localOrigin.y = ceil(localOrigin.y);
 
-	vec2 rng      = vec2(FBM(floor(worldPosition.xz), 1, 5.0), FBM(floor(worldPosition.xz), 1, 10.0));
-	vec2 rotation = sincos(frameTimeCounter) * vec2(7.0 * (0.2 + rng.y + rng.x), 8.0 * (0.3 + rng.y)) * 0.9;
+	vec2 rng      = vec2(FBM(floor(worldPosition.xz + vec2(150.0)), 1, 5.0), FBM(floor(worldPosition.xz), 1, 10.0)) * 2.0 - 1.0;
+	vec2 rotation = sincos(frameTimeCounter * 1.5) * vec2(7.0 * (rng.y * 2.0 + rng.x * 4.0), 10.0 * (rng.y * 6.0)) * 0.1;
 
 	worldPosition -= localOrigin;
 	worldPosition  = rotate(worldPosition, vec3(0.0, 0.0, 1.0), rotation.x);
