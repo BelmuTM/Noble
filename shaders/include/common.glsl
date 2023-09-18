@@ -17,8 +17,6 @@
 
 #include "/include/utility/material.glsl"
 
-const vec3 labPbrData0Range = vec3(1.0, 8191.0, 4095.0);
-
 /*
 const vec2 hiZOffsets[] = vec2[](
 	vec2(0.0, 0.0  ),

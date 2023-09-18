@@ -9,6 +9,8 @@
         Zombye     - skylight falloff function (https://github.com/zombye)
 */
 
+const vec3 labPbrData0Range = vec3(1.0, 8191.0, 4095.0);
+
 struct Material {
     float F0;
     float roughness;

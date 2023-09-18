@@ -86,9 +86,9 @@ const int noiseTextureResolution = 256;
 // Maximum values for x amount of bits and their inverses (2^x - 1)
 const float maxVal8     = 255.0;
 const float maxVal16    = 65535.0;
-const float rcpMaxVal8  = 0.00392156;
-const float rcpMaxVal12 = 0.00024420;
-const float rcpMaxVal13 = 0.00012208;
-const float rcpMaxVal16 = 0.00001525;
+const float rcpMaxVal8  = 1.0 / maxVal8;
+const float rcpMaxVal12 = 1.0 / (pow(2.0, 12.0) - 1.0);
+const float rcpMaxVal13 = 1.0 / (pow(2.0, 13.0) - 1.0);
+const float rcpMaxVal16 = 1.0 / maxVal16;
 
 const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
