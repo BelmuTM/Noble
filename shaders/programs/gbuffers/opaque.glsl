@@ -174,8 +174,8 @@
 		float F0 		 = specularTex.y;
 		float ao 		 = normalTex.z;
 		float roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
-		float emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
-		float subsurface = saturate(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
+		float emission   = specularTex.w * maxFloat8 < 254.5 ? specularTex.w : 0.0;
+		float subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
 
 		#if defined PROGRAM_ENTITY
 			albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
@@ -213,7 +213,7 @@
 
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
 			if(wetness > 0.0 && isEyeInWater == 0) {
-				float porosity    = saturate(specularTex.z * (maxVal8 / 64.0));
+				float porosity    = saturate(specularTex.z * (maxFloat8 / 64.0));
 				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE * 0.01);
 
 				float puddle  = saturate(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
@@ -223,7 +223,7 @@
 			  	  	  puddle *= quintic(0.89, 0.99, tbn[2].y);
 					  puddle  = saturate(puddle);
 	
-				F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxVal8, float(F0 * maxVal8 <= 229.5)));
+				F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxFloat8, float(F0 * maxFloat8 <= 229.5)));
 				roughness = mix(roughness, 0.0, puddle);
 				normal    = mix(normal, tbn[2], puddle);
 			}
@@ -235,9 +235,9 @@
 		vec2 encNormal   = encodeUnitVector(normalize(normal));
 	
 		uvec4 shiftedData0  = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8                  )) << uvec4(0, 8, 16, 24);
-		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxVal8                  )) << uvec4(0, 8, 16, 24);
-		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16                 )) << uvec2(0, 16);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxFloat8                  )) << uvec4(0, 8, 16, 24);
+		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxFloat8                  )) << uvec4(0, 8, 16, 24);
+		uvec2 shiftedNormal = uvec2(round(encNormal   * maxFloat16                 )) << uvec2(0, 16);
 
 		data0.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
 		data0.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;

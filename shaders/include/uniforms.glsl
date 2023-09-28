@@ -84,11 +84,11 @@ uniform mat4 gbufferPreviousProjection;
 const int noiseTextureResolution = 256;
 
 // Maximum values for x amount of bits and their inverses (2^x - 1)
-const float maxVal8     = 255.0;
-const float maxVal16    = 65535.0;
-const float rcpMaxVal8  = 1.0 / maxVal8;
-const float rcpMaxVal12 = 1.0 / (pow(2.0, 12.0) - 1.0);
-const float rcpMaxVal13 = 1.0 / (pow(2.0, 13.0) - 1.0);
-const float rcpMaxVal16 = 1.0 / maxVal16;
+const float maxFloat8     = 255.0;
+const float maxFloat16    = 65535.0;
+const float rcpMaxFloat8  = 1.0 / maxFloat8;
+const float rcpMaxFloat12 = 1.0 / (pow(2.0, 12.0) - 1.0);
+const float rcpMaxFloat13 = 1.0 / (pow(2.0, 13.0) - 1.0);
+const float rcpMaxFloat16 = 1.0 / maxFloat16;
 
 const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;

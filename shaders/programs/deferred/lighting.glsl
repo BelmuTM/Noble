@@ -162,7 +162,7 @@
         #if GI == 0
             radianceOut.rgb = vec3(0.0);
 
-            if(material.F0 * maxVal8 <= 229.5) {
+            if(material.F0 * maxFloat8 <= 229.5) {
                 float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
                 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
@@ -184,7 +184,7 @@
             vec3 direct   = vec3(0.0);
             vec3 indirect = vec3(1.0);
 
-            if(material.F0 * maxVal8 <= 229.5) {
+            if(material.F0 * maxFloat8 <= 229.5) {
                 pathtrace(radianceOut.rgb, vec3(vertexCoords, depth), direct, indirect);
 
                 #if TEMPORAL_ACCUMULATION == 1

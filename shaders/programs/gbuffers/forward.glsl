@@ -132,8 +132,8 @@
 				material.F0         = specularTex.y;
     			material.roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
     			material.ao         = normalTex.z;
-				material.emission   = specularTex.w * maxVal8 < 254.5 ? specularTex.w : 0.0;
-    			material.subsurface = saturate(specularTex.z * (maxVal8 / 190.0) - (65.0 / 190.0));
+				material.emission   = specularTex.w * maxFloat8 < 254.5 ? specularTex.w : 0.0;
+    			material.subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
 			#endif
 
 			if(blockId == NETHER_PORTAL_ID) material.emission = 1.0;
@@ -157,7 +157,7 @@
 				bool shadeTranslucents = material.F0 < EPS;
 			#endif
 
-			if(material.F0 * maxVal8 <= 229.5 && shadeTranslucents) {
+			if(material.F0 * maxFloat8 <= 229.5 && shadeTranslucents) {
 				vec3 scenePosition = viewToScene(viewPosition);
 
     			#if TONEMAP == ACES
@@ -191,9 +191,9 @@
 		vec2 encNormal   = encodeUnitVector(normalize(material.normal));
 	
 		uvec4 shiftedData0  = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxVal8                  )) << uvec4(0, 8, 16, 24);
-		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxVal8                  )) << uvec4(0, 8, 16, 24);
-		uvec2 shiftedNormal = uvec2(round(encNormal   * maxVal16                 )) << uvec2(0, 16);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxFloat8                  )) << uvec4(0, 8, 16, 24);
+		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxFloat8                  )) << uvec4(0, 8, 16, 24);
+		uvec2 shiftedNormal = uvec2(round(encNormal   * maxFloat16                 )) << uvec2(0, 16);
 
 		data.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
 		data.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;

@@ -157,7 +157,7 @@ void agxLook(inout vec3 color) {
         // Punchy
         const vec3  slope      = vec3(1.1);
         const vec3  power      = vec3(1.2);
-        const float saturation = 1.2;
+        const float saturation = 1.4;
     #endif
 
     float luma = luminance(color);

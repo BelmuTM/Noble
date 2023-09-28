@@ -245,7 +245,7 @@ vec3[9] sampleUniformSkyIrradiance() {
 
 vec3 evaluateDirectionalSkyIrradiance(vec3[9] irradiance, vec3 wi, float visibility) {
     const int n0 = 1, n1 = 3, n2 = 5;
-    vec3 normalization = sqrt(2.0 * TAU / vec3(n0, n1, n2));
+    const vec3 normalization = sqrt(2.0 * TAU / vec3(n0, n1, n2));
 
     float[3] zonalHarmonicsCoefficients;
              zonalHarmonicsCoefficients[0] = 0.88622692 * visibility;

@@ -80,18 +80,18 @@ Material getMaterial(vec2 coords) {
     uvec4 dataTex = texelFetch(GBUFFERS_DATA, ivec2(coords), 0);
 
     Material material;
-    material.roughness  = ((dataTex.z >> 24u) & 255u) * rcpMaxVal8;
+    material.roughness  = ((dataTex.z >> 24u) & 255u) * rcpMaxFloat8;
     material.roughness *= material.roughness;
-    material.ao         = (dataTex.y & 255u)          * rcpMaxVal8;
-    material.emission   = ((dataTex.y >> 8u)  & 255u) * rcpMaxVal8;
-    material.F0         = ((dataTex.y >> 16u) & 255u) * rcpMaxVal8;
-    material.subsurface = ((dataTex.y >> 24u) & 255u) * rcpMaxVal8;
+    material.ao         = (dataTex.y & 255u)          * rcpMaxFloat8;
+    material.emission   = ((dataTex.y >> 8u)  & 255u) * rcpMaxFloat8;
+    material.F0         = ((dataTex.y >> 16u) & 255u) * rcpMaxFloat8;
+    material.subsurface = ((dataTex.y >> 24u) & 255u) * rcpMaxFloat8;
 
     #if MATERIAL_AO == 0
         material.ao = 1.0;
     #endif
 
-    material.albedo = ((uvec3(dataTex.z) >> uvec3(0, 8, 16)) & 255u) * rcpMaxVal8;
+    material.albedo = ((uvec3(dataTex.z) >> uvec3(0, 8, 16)) & 255u) * rcpMaxFloat8;
 
     #if TONEMAP == ACES
         material.albedo = srgbToAP1Albedo(material.albedo);
@@ -99,7 +99,7 @@ Material getMaterial(vec2 coords) {
         material.albedo = srgbToLinear(material.albedo);
     #endif
 
-    if(material.F0 * maxVal8 > 229.5) {
+    if(material.F0 * maxFloat8 > 229.5) {
         mat2x3 hcm = getHardcodedMetal(material);
         material.N = hcm[0], material.K = hcm[1];
     } else {
@@ -109,10 +109,10 @@ Material getMaterial(vec2 coords) {
 
     material.parallaxSelfShadowing = dataTex.x & 1u;
 
-    material.normal = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTex.w & 65535u, (dataTex.w >> 16u) & 65535u) * rcpMaxVal16);
+    material.normal = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTex.w & 65535u, (dataTex.w >> 16u) & 65535u) * rcpMaxFloat16);
 
     material.id       = int((dataTex.x >> 26u) & 63u);
-    material.lightmap = vec2((dataTex.x >> 1u) & 8191u, (dataTex.x >> 14u) & 4095u) * vec2(rcpMaxVal13, rcpMaxVal12);
+    material.lightmap = vec2((dataTex.x >> 1u) & 8191u, (dataTex.x >> 14u) & 4095u) * vec2(rcpMaxFloat13, rcpMaxFloat12);
 
     material.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
     material.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;

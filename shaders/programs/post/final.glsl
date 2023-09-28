@@ -148,7 +148,7 @@ void main() {
         quantizeColor(color, quantizationPeriod);
     #else
         #if CEL_SHADING == 0
-            color += bayer8(gl_FragCoord.xy) * rcpMaxVal8;
+            color += bayer8(gl_FragCoord.xy) * rcpMaxFloat8;
         #endif
     #endif
 }
