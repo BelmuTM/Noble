@@ -109,10 +109,14 @@
             }
         #endif
 
-        if(ivec2(gl_FragCoord) == ivec2(0))
-            illuminance.rgb = directIlluminance;
-        else
-            illuminance.rgb = skyIlluminance;
+        illuminance.rgb = skyIlluminance;
+
+        if(int(gl_FragCoord.y) == 0) {
+            if(int(gl_FragCoord.x) == 0)
+                illuminance.rgb = directIlluminance;
+            else if(int(gl_FragCoord.x) > 0 && int(gl_FragCoord.x) < 10)
+                illuminance.rgb = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
+        }
                 
         //////////////////////////////////////////////////////////
         /*----------------- SHADOW MAPPING ---------------------*/

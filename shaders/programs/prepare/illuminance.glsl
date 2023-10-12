@@ -21,7 +21,8 @@
             gl_Position = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
 
             directIlluminance = evaluateDirectIlluminance();
-            skyIlluminance    = evaluateUniformSkyIrradiance();
+
+            if(frameCounter % 16 == 0) skyIlluminance = evaluateUniformSkyIrradiance();
         }
 
     #elif defined STAGE_FRAGMENT
@@ -33,21 +34,21 @@
         in vec3 directIlluminance;
         in vec3[9] skyIlluminance;
 
+                #include "/settings.glsl"
+        #include "/include/taau_scale.glsl"
+        
+        #include "/include/common.glsl"
+
+        #include "/include/utility/phase.glsl"
+        #include "/include/atmospherics/constants.glsl"
+        #include "/include/atmospherics/atmosphere.glsl"
+
         void main() {
-            if(ivec2(gl_FragCoord) == ivec2(0)) {
-                illuminanceOut = directIlluminance; return;
-            } else {
-                switch(int(gl_FragCoord.x)) {
-                    case 1: illuminanceOut = skyIlluminance[0]; return;
-                    case 2: illuminanceOut = skyIlluminance[1]; return;
-                    case 3: illuminanceOut = skyIlluminance[2]; return;
-                    case 4: illuminanceOut = skyIlluminance[3]; return;
-                    case 5: illuminanceOut = skyIlluminance[4]; return;
-                    case 6: illuminanceOut = skyIlluminance[5]; return;
-                    case 7: illuminanceOut = skyIlluminance[6]; return;
-                    case 8: illuminanceOut = skyIlluminance[7]; return;
-                    case 9: illuminanceOut = skyIlluminance[8]; return;
-                    default: { discard; return; }
+            if(int(gl_FragCoord.y) == 0) {
+                if(int(gl_FragCoord.x) == 0) {
+                    illuminanceOut = directIlluminance; return;
+                } else if(int(gl_FragCoord.x) > 0 && int(gl_FragCoord.x) < 10) {
+                    illuminanceOut = frameCounter % 16 == 0 ? skyIlluminance[int(gl_FragCoord.x) - 1] : texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb; return;
                 }
             }
         }

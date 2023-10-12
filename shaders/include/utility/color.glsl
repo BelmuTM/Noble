@@ -181,7 +181,7 @@ vec3 plancks(float temperature, vec3 lambda) {
     const float c = 2.99792458e17;  // Speed of light in a vacuum
     const float k = 1.38064852e-5;  // Boltzmann's constant
 
-    float numerator   = 2.0 * h * pow2(c);
+    const float numerator = 2.0 * h * c * c;
     vec3  denominator = (exp(h * c / (lambda * k * temperature)) - vec3(1.0)) * pow5(lambda);
     return (numerator / denominator) * pow2(1e9);
 }
