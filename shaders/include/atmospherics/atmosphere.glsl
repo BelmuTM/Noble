@@ -255,10 +255,10 @@ vec3 evaluateDirectionalSkyIrradiance(vec3[9] irradiance, vec3 wi, float visibil
     float[9] shCoefficients = calculateSphericalHarmonicsCoefficients(wi);
 
     return normalization[0] * zonalHarmonicsCoefficients[0] * shCoefficients[0] * irradiance[0]
-         + normalization[1] * zonalHarmonicsCoefficients[1] * shCoefficients[1] * irradiance[1]
+         + normalization[1] * zonalHarmonicsCoefficients[1] * shCoefficients[1] * irradiance[1] // 1st order
          + normalization[1] * zonalHarmonicsCoefficients[1] * shCoefficients[2] * irradiance[2]
          + normalization[1] * zonalHarmonicsCoefficients[1] * shCoefficients[3] * irradiance[3]
-         + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[4] * irradiance[4]
+         + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[4] * irradiance[4] // 2nd order
          + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[5] * irradiance[5]
          + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[6] * irradiance[6]
          + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[7] * irradiance[7]

@@ -102,7 +102,9 @@
                         ao.w   = aoBuffer.z;
                     #endif
 
-                    skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
+                    #if IRRADIANCE_REFRESH_TIME == 0
+                        skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
+                    #endif
                 #else
                     skyIlluminance = evaluateUniformSkyIrradianceApproximation();
                 #endif
