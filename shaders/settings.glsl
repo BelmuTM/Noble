@@ -185,8 +185,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define ATMOSPHERE_SCATTERING_STEPS   16 // [8 12 16 20 24 28 32]
 #define ATMOSPHERE_TRANSMITTANCE_STEPS 8 // [8 12 16 20 24 28 32]
 
-#define IRRADIANCE_REFRESH_TIME (frameCounter % 16)
-
 // CLOUDS
 
 #define CLOUDS_SCALE 50 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]

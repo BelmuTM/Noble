@@ -56,7 +56,6 @@ const int colortex15Format      = RGBA16F;   // Gbuffer data
 
 const bool colortex0Clear       = false;
 const bool colortex4Clear       = false;
-const bool colortex5Clear       = false;
 const bool colortex6Clear       = false;
 const bool colortex8Clear       = false;
 */

@@ -21,10 +21,7 @@
             gl_Position = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
 
             directIlluminance = evaluateDirectIlluminance();
-
-            #if IRRADIANCE_REFRESH_TIME == 0
-                skyIlluminance = evaluateUniformSkyIrradiance();
-            #endif
+            skyIlluminance    = evaluateUniformSkyIrradiance();
         }
 
     #elif defined STAGE_FRAGMENT
@@ -50,11 +47,7 @@
                 if(int(gl_FragCoord.x) == 0) {
                     illuminanceOut = directIlluminance; return;
                 } else if(int(gl_FragCoord.x) > 0 && int(gl_FragCoord.x) < 10) {
-                    #if IRRADIANCE_REFRESH_TIME == 0
-                        illuminanceOut = skyIlluminance[int(gl_FragCoord.x) - 1];
-                    #else
-                        illuminanceOut = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.x, 0), 0).rgb;
-                    #endif
+                    illuminanceOut = skyIlluminance[int(gl_FragCoord.x) - 1];
                 }
             }
         }

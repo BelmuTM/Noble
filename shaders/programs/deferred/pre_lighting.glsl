@@ -102,23 +102,17 @@
                         ao.w   = aoBuffer.z;
                     #endif
 
-                    #if IRRADIANCE_REFRESH_TIME == 0
-                        skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
-                    #endif
+                    skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
                 #else
                     skyIlluminance = evaluateUniformSkyIrradianceApproximation();
                 #endif
             }
         #endif
 
-        illuminance.rgb = skyIlluminance;
-
-        if(int(gl_FragCoord.y) == 0) {
-            if(int(gl_FragCoord.x) == 0)
-                illuminance.rgb = directIlluminance;
-            else if(int(gl_FragCoord.x) > 0 && int(gl_FragCoord.x) < 10)
-                illuminance.rgb = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
-        }
+        if(ivec2(gl_FragCoord.xy) == ivec2(0))
+            illuminance.rgb = directIlluminance;
+        else
+            illuminance.rgb = skyIlluminance;
                 
         //////////////////////////////////////////////////////////
         /*----------------- SHADOW MAPPING ---------------------*/
