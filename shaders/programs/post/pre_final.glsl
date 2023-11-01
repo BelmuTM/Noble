@@ -44,7 +44,7 @@ in vec2 textureCoords;
 const float exposureBias = 1.0;
 
 float minExposure = 1.0  * exposureBias / luminance(sunIrradiance);
-float maxExposure = 0.03 * exposureBias / luminance(moonIrradiance);
+float maxExposure = 0.01 * exposureBias / luminance(moonIrradiance);
 
 float computeEV100fromLuminance(float luminance) {
     return log2(luminance * sensorSensitivity * exposureBias / calibration);
@@ -78,7 +78,7 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 4.0);
+        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 3.0);
     #endif
 
     #if PURKINJE == 1

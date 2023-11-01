@@ -42,10 +42,10 @@ vec3 computeRefractions(vec3 viewPosition, Material material, inout vec3 hitPosi
         }
     }
 
-    vec3 attenuation = exp(-(1.0 - material.albedo) * density);
+    vec3 absorption = exp(-(1.0 - material.albedo) * density);
 
     vec3 blocklightColor = getBlockLightColor(material);
     vec3 emissiveness    = material.emission * blocklightColor;
 
-    return sampledColor * fresnel * attenuation + emissiveness * material.albedo;
+    return sampledColor * fresnel * absorption + emissiveness * material.albedo;
 }
