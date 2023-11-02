@@ -59,7 +59,7 @@
 
             if(!any(isnan(prevColor)) && currPosition.z >= handDepth) {
                 float frames  = texture(ACCUMULATION_BUFFER, prevCoords).a;
-                      frames *= (1.0 - material.roughness);
+                      frames *= material.F0;
 
                 #if GI == 1
                     frames *= 0.3;
