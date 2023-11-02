@@ -114,6 +114,6 @@ void main() {
     
     lighting += envSpecular;
 
-    vec4 basic    = texture(RASTER_BUFFER, vertexCoords);
+    vec4 basic    = texture(RASTER_BUFFER, coords.xy);
          lighting = mix(lighting, basic.rgb, basic.a * float(depth >= handDepth));
 }
