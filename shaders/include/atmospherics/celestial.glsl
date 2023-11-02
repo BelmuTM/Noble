@@ -7,7 +7,7 @@
 
 // Originally written by Capt Tatsu
 // Modified it myself
-vec3 computeStarfield(vec3 viewPosition) {
+float computeStarfield(vec3 viewPosition) {
 	vec3 scenePosition = viewToScene(viewPosition);
 	vec3 planeCoords   = scenePosition / (scenePosition.y + length(scenePosition.xz));
 	vec2 coords 	   = planeCoords.xz * 0.9 + cameraPosition.xz * 1e-5 + frameTime * 0.00125;
@@ -21,7 +21,7 @@ vec3 computeStarfield(vec3 viewPosition) {
 		star *= rand( coords.xy);
 		star *= rand(-coords.xy + 0.1);
 	}
-	return max0(saturate(star - (1.0 - STARS_AMOUNT * 2e-3)) * factor * STARS_LUMINOSITY * blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords))));
+	return max0(saturate(star - (1.0 - STARS_AMOUNT * 2e-3)) * factor * STARS_LUMINOSITY * luminance(blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)))));
 }
 
 vec3 physicalSun(vec3 sceneDirection) {
