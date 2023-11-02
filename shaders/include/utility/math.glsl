@@ -294,12 +294,12 @@ uint packUnormArb(vec4 data, const uvec4 bits) {
 }
 
 vec4 unpackUnormArb(uint pack, const uvec4 bits) {
-    uvec4 maxFloatue  = uvec4(exp2(bits) - 1);
+    uvec4 maxValue  = uvec4(exp2(bits) - 1);
     uvec4 shift     = uvec4(0, bits.x, bits.x + bits.y, bits.x + bits.y + bits.z);
     uvec4 unshifted = uvec4(pack) >> shift;
-          unshifted = unshifted & maxFloatue;
+          unshifted = unshifted & maxValue;
 
-    return vec4(unshifted) * 1.0 / vec4(maxFloatue);
+    return vec4(unshifted) * 1.0 / vec4(maxValue);
 }
 
 vec2 encodeUnitVector(vec3 v) {
