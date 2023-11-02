@@ -61,9 +61,7 @@
                 float frames = 0.0;
                 if(material.id != WATER_ID) frames = texture(ACCUMULATION_BUFFER, prevCoords).a;
 
-                #if GI == 1
-                    frames *= 0.3;
-                #endif
+                frames *= 0.5;
 
                 float weight = 1.0 / max(frames, 1.0);
                 reflections  = mix(prevColor, reflections.rgb, weight);
