@@ -149,7 +149,7 @@
 				#endif
 
 				#if POM_DEPTH_WRITE == 1
-					gl_FragDepth = projectDepth(unprojectDepth(gl_FragCoord.z) + traceDistance);
+					gl_FragDepth = projectDepth(unprojectDepth(gl_FragCoord.z) + traceDistance * POM_DEPTH);
 				#endif
 			}
 
