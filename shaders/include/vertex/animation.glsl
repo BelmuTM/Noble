@@ -3,8 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-float windSpeed = mix(1.4, 3.0, wetness);
-vec3  windDir   = windSpeed * frameTimeCounter * vec3(-0.2, 0.35, -1.0);
+const float windSpeed = 1.5;
+      vec3  windDir   = windSpeed * frameTimeCounter * vec3(-0.2, 0.35, -1.0);
 
 void wavingLeaves(inout vec3 worldPosition, float skyFalloff) {
 	worldPosition += cameraPosition;
@@ -23,7 +23,7 @@ void wavingPlants(inout vec3 worldPosition, float skyFalloff, bool isTopVertex, 
 
 	float rng = 1.0 + FBM(worldPosition.xz, 1, 1.5);
 
-	vec2 offset  = sin(worldPosition.xz * 1.4 + windDir.xz * rng * 2.0) * 0.1 + vec2(0.06, -0.03);
+	vec2 offset  = sin(worldPosition.xz * 1.4 + rng * windDir.xz) * 0.1 + vec2(0.06, -0.03);
 		 offset *= (isTopBlock ? 1.0 : float(isTopVertex)) * skyFalloff;
 
 	worldPosition.xz += offset;

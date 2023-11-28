@@ -96,7 +96,7 @@ void main() {
         }
 
         #if defined WORLD_OVERWORLD
-            computeLandAerialPerspective(scatteringLayer2, transmittanceLayer2, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
+            computeLandAerialPerspective(scatteringLayer2, transmittanceLayer2, viewPosition0, VdotL, directIlluminance, skyIlluminance);
         #endif
     } else {
         skylight = 1.0;
