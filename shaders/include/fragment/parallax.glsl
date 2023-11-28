@@ -20,7 +20,7 @@ const float layerHeight = 1.0 / float(POM_LAYERS);
     }
 
     float unprojectDepth(float depth) {
-        return gbufferProjection[3].z / (gbufferProjection[2].z + (depth * 2.0 - 1.0));
+        return gbufferProjection[3].z / (gbufferProjection[2].z + depth * 2.0 - 1.0);
     }
 #endif
 
