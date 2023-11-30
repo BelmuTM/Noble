@@ -170,7 +170,7 @@
                 #endif
 
                 #if SHADOWS == 1
-                    shadowmap = texelFetch(SHADOWMAP_BUFFER, ivec2(gl_FragCoord.xy), 0);
+                    shadowmap = texelFetch(SHADOWMAP_BUFFER, ivec2(max(gl_FragCoord.xy, vec2(1.0))), 0);
                 #endif
 
                 float ao = 1.0;

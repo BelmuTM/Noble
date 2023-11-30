@@ -21,6 +21,7 @@
     out vec2 vertexCoords;
     out vec3 directIlluminance;
     out vec3[9] skyIrradiance;
+    out vec3 uniformSkyIlluminance;
 
     void main() {
         gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
@@ -34,6 +35,8 @@
             #if GI == 0
 			    skyIrradiance = sampleUniformSkyIrradiance();
             #endif
+
+            uniformSkyIlluminance = evaluateUniformSkyIrradianceApproximation();
 		#endif
     }
 
@@ -49,6 +52,7 @@
     in vec2 vertexCoords;
     in vec3 directIlluminance;
     in vec3[9] skyIrradiance;
+    in vec3 uniformSkyIlluminance;
 
     #if defined WORLD_OVERWORLD && SHADOWS == 1
         #include "/include/fragment/shadows.glsl"
@@ -104,7 +108,7 @@
 
                     skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
                 #else
-                    skyIlluminance = evaluateUniformSkyIrradianceApproximation();
+                    skyIlluminance = uniformSkyIlluminance;
                 #endif
             }
         #endif
@@ -132,5 +136,8 @@
                 illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), shadowLightVector, cloudLayer0, 20);
             #endif
         #endif
+
+        if(ivec2(gl_FragCoord.xy) == ivec2(0))
+            shadowmap.rgb = uniformSkyIlluminance;
     }
 #endif

@@ -11,7 +11,7 @@
 */
 
 vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material material, vec3 directIlluminance) {
-    vec4 shadowmap = texture(SHADOWMAP_BUFFER, hitPosition.xy);
+    vec4 shadowmap = texture(SHADOWMAP_BUFFER, max(hitPosition, texelSize));
     vec3 diffuse   = hammonDiffuse(material, wi, wo);
 
     #if SUBSURFACE_SCATTERING == 1
