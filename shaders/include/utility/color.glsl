@@ -183,7 +183,8 @@ vec3 plancks(float temperature, vec3 lambda) {
 
     const float numerator = 2.0 * h * c * c;
     vec3  denominator = (exp(h * c / (lambda * k * temperature)) - vec3(1.0)) * pow5(lambda);
-    return (numerator / denominator) * pow2(1e9);
+    
+    return numerator / denominator;
 }
 
 vec3 blackbody(float temperature) {
