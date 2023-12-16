@@ -118,7 +118,7 @@
 
 					float sgnGamma = sign(dot(projNormal, orthoDir));
 					float normLen  = length(projNormal);
-					float cosGamma = saturate(dot(projNormal, viewDirection) * normLen);
+					float cosGamma = saturate(dot(projNormal, viewDirection) / normLen);
 					float gamma    = sgnGamma * fastAcos(cosGamma);
 
 					vec2 horizons;
