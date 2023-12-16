@@ -151,4 +151,6 @@ void main() {
             color += bayer8(gl_FragCoord.xy) * rcpMaxFloat8;
         #endif
     #endif
+
+    color = vec3(texture(AO_BUFFER, textureCoords).b);
 }
