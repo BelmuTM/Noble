@@ -135,10 +135,10 @@
                 float prevDepth = exp2(momentsOut.a);
 
                 #if GI == 0
-                    radianceOut.a *= saturate(calculateGaussianDepthWeight(prevPosition.z, prevDepth, 0.3));
+                    radianceOut.a *= calculateGaussianDepthWeight(prevPosition.z, prevDepth, 1.0);
 
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                         radianceOut.a  *= saturate(sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9);
+                         radianceOut.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
 
                     momentsOut.a = log2(prevPosition.z);
                 #else

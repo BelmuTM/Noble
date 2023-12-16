@@ -68,21 +68,6 @@
             }
             return clipAABB(prevColor, minColor, maxColor);
         }
-
-        vec3 getClosestFragment(vec3 position) {
-	        vec3 closestFragment = position;
-            vec3 currentFragment;
-            const int size = 1;
-
-            for(int x = -size; x <= size; x++) {
-                for(int y = -size; y <= size; y++) {
-                    currentFragment.xy = position.xy + vec2(x, y) * texelSize;
-                    currentFragment.z  = texelFetch(depthtex0, ivec2(currentFragment.xy * viewSize * RENDER_SCALE), 0).r;
-                    closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
-                }
-            }
-            return closestFragment;
-        }
     #endif
 
     #if EIGHT_BITS_FILTER == 1

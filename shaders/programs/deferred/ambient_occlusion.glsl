@@ -162,9 +162,10 @@
 			#endif
 
 			#if AO_FILTER == 1
-				vec3 currPosition = vec3(textureCoords, texture(depthtex0, vertexCoords).r);
-				vec2 prevCoords   = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
-				vec3 prevAO       = texture(AO_BUFFER, prevCoords).rgb;
+				vec3 closestFragment = getClosestFragment(vec3(textureCoords, texture(depthtex0, vertexCoords).r));
+				vec2 prevCoords      = vertexCoords + getVelocity(closestFragment).xy * RENDER_SCALE;
+
+				vec3 prevAO = texture(AO_BUFFER, prevCoords).rgb;
 		
 				float weight = 1.0 / max(texture(ACCUMULATION_BUFFER, prevCoords).a, 1.0);
 
