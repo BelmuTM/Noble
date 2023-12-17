@@ -29,6 +29,35 @@ in vec2 vertexCoords;
     #include "/include/fragment/refractions.glsl"
 #endif
 
+#if REFLECTIONS == 1 && GI == 1 && RENDER_MODE == 0
+    vec3 filterSpecularHistory(sampler2D tex, vec2 coords, Material material) {
+		vec3 history = vec3(0.0);
+        float totalWeight = EPS;
+
+		const int size = 1;
+
+		for(int x = -size; x <= size; x++) {
+			for(int y = -size; y <= size; y++) {
+				vec2 sampleCoords = coords + vec2(x, y) * texelSize;
+				if(saturate(sampleCoords) != sampleCoords) continue;
+
+                float sampleDepth = exp2(texture(MOMENTS_BUFFER, sampleCoords).a);
+
+                uvec4 sampleDataTexture = texture(GBUFFERS_DATA, sampleCoords);
+                vec3  sampleNormal      = mat3(gbufferModelView) * decodeUnitVector(vec2(sampleDataTexture.w & 65535u, (sampleDataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
+
+                float weight  = gaussianDistribution2D(vec2(x, y), 1.0);
+                      weight *= pow(exp(-abs(linearizeDepthFast(material.depth0) - linearizeDepthFast(sampleDepth))), 1.0);
+                      weight *= pow(max0(dot(material.normal, sampleNormal)), 32.0);
+
+				history     += texture(tex, sampleCoords).rgb * weight;
+				totalWeight += weight;
+			}
+		}
+		return history / totalWeight;
+    }
+#endif
+
 void main() {
     vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) { discard; return; }
@@ -83,8 +112,12 @@ void main() {
             }
         #endif
 
-           #if REFLECTIONS == 1
-            envSpecular = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
+        #if REFLECTIONS == 1
+            #if GI == 1 && RENDER_MODE == 0
+                envSpecular = filterSpecularHistory(REFLECTIONS_BUFFER, vertexCoords, material);
+            #else
+                envSpecular = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
+            #endif
         #endif
     }
 

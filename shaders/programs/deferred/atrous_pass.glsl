@@ -55,47 +55,48 @@
         }
 
         float calculateATrousDepthWeight(float depth, float sampleDepth, vec2 depthGradient, vec2 offset) {
-            return exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(sampleDepth)) / (abs(DEPTH_WEIGHT_SIGMA * dot(depthGradient, offset)) + 0.2));
+            return exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(sampleDepth)) / (abs(DEPTH_WEIGHT_SIGMA * dot(depthGradient, offset)) + 0.8));
         }
 
         float calculateATrousLuminanceWeight(float luminance, float sampleLuminance, float variance) {
-            return exp(-abs(luminance - sampleLuminance) / maxEps(LUMINANCE_WEIGHT_SIGMA * sqrt(variance)));
+            return exp(-abs(luminance - sampleLuminance) / maxEps(LUMINANCE_WEIGHT_SIGMA * sqrt(variance) + 0.1));
         }
 
         float gaussianVariance(vec2 coords, vec3 normal, float depth, vec2 depthGradient) {
             float varianceSum = 0.0, totalWeight = EPS;
-
-            int filterSize = 3;
             
-            for(int x = -filterSize; x <= filterSize; x++) {
-                for(int y = -filterSize; y <= filterSize; y++) {
+            for(int x = -1; x <= 1; x++) {
+                for(int y = -1; y <= 1; y++) {
                     vec2  offset       = vec2(x, y) * texelSize;
                     vec2  sampleCoords = coords + offset;
 
                     if(saturate(sampleCoords) != sampleCoords) continue;
 
-                    float weight   = saturate(gaussianDistribution2D(vec2(x, y), 1.0));
+                    float weight   = gaussianDistribution2D(vec2(x, y), 1.0);
                     float variance = texture(MOMENTS_BUFFER, sampleCoords).b;
 
                     varianceSum += variance * weight;
                     totalWeight += weight;
                 }
             }
-            return varianceSum / totalWeight;
+            return (varianceSum / totalWeight) * 5.0;
         }
 
         void aTrousFilter(inout vec3 irradiance, inout vec3 moments, vec2 coords) {
-            Material material = getMaterial(coords);
-            if(material.depth0 == 1.0) return;
+            float depth = texture(depthtex0, coords).r;
+            if(depth == 1.0) return;
+
+            uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(gl_FragCoord.xy), 0);
+            vec3  normal      = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTexture.w & 65535u, (dataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
 
             float accumulatedSamples = texture(ACCUMULATION_BUFFER, coords).a;
             float frameWeight        = float(accumulatedSamples > MIN_FRAMES_LUMINANCE_WEIGHT);
 
-            float linearDepth   = linearizeDepthFast(material.depth0);
+            float linearDepth   = linearizeDepthFast(depth);
             vec2  depthGradient = vec2(dFdx(linearDepth), dFdy(linearDepth));
 
             float centerLuminance  = luminance(irradiance);
-            float filteredVariance = gaussianVariance(coords, material.normal, material.depth0, depthGradient);
+            float filteredVariance = gaussianVariance(coords, normal, depth, depthGradient);
 
             vec2  stepSize    = ATROUS_STEP_SIZE * pow(0.5, 4 - ATROUS_PASS_INDEX) * texelSize;
             float totalWeight = 1.0;
@@ -111,12 +112,15 @@
 
                     ivec2 texelCoords = ivec2(sampleCoords * viewSize * GI_SCALE * 0.01);
 
-                    Material sampleMaterial   = getMaterial(sampleCoords);
-                    vec3     sampleIrradiance = texelFetch(INPUT_BUFFER  , texelCoords, 0).rgb;
-                    float    sampleVariance   = texelFetch(MOMENTS_BUFFER, texelCoords, 0).b;
+                    uvec4 sampleDataTexture = texelFetch(GBUFFERS_DATA, texelCoords, 0);
+                    vec3  sampleNormal      = mat3(gbufferModelView) * decodeUnitVector(vec2(sampleDataTexture.w & 65535u, (sampleDataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
+                    float sampleDepth       = texture(depthtex0, sampleCoords).r;
 
-                    float normalWeight    = calculateATrousNormalWeight(material.normal, sampleMaterial.normal);
-                    float depthWeight     = calculateATrousDepthWeight(material.depth0, sampleMaterial.depth0, depthGradient, offset);
+                    vec3  sampleIrradiance = texelFetch(INPUT_BUFFER  , texelCoords, 0).rgb;
+                    float sampleVariance   = texelFetch(MOMENTS_BUFFER, texelCoords, 0).b;
+
+                    float normalWeight    = calculateATrousNormalWeight(normal, sampleNormal);
+                    float depthWeight     = calculateATrousDepthWeight(depth, sampleDepth, depthGradient, offset);
                     float luminanceWeight = calculateATrousLuminanceWeight(centerLuminance, luminance(sampleIrradiance), filteredVariance);
 
                     float weight  = saturate(normalWeight * depthWeight * mix(1.0, luminanceWeight, frameWeight));

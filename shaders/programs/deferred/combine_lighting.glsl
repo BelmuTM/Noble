@@ -23,20 +23,17 @@
 	void main() {
 		#if GI == 0
     		lighting = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
-			return;
-		#endif
+		#else
+        	vec3 direct = texture(DIRECT_BUFFER, vertexCoords).rgb;
+			vec3 albedo = ((uvec3(texture(GBUFFERS_DATA, vertexCoords).z) >> uvec3(0, 8, 16)) & 255u) * rcpMaxFloat8;
 
-        uvec2 packedFirstBounceData = texture(GI_DATA_BUFFER, vertexCoords).rg;
-
-        vec3 direct   = logLuvDecode(unpackUnormArb(packedFirstBounceData[0], uvec4(8)));
-        vec3 indirect = logLuvDecode(unpackUnormArb(packedFirstBounceData[1], uvec4(8)));
-
-        #if ATROUS_FILTER == 1
-            vec3 radiance = texture(DEFERRED_BUFFER, vertexCoords).rgb;
-        #else
-            vec3 radiance = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
-        #endif
+        	#if ATROUS_FILTER == 1
+            	vec3 radiance = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+        	#else
+            	vec3 radiance = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
+        	#endif
         
-        lighting = direct + indirect * radiance;
+        	lighting = direct + albedo * radiance;
+		#endif
 	}
 #endif

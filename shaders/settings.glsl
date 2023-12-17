@@ -24,7 +24,7 @@
 #define CLOUDS_BUFFER       colortex7
 
 #define HISTORY_BUFFER      colortex8
-#define GI_DATA_BUFFER      colortex9
+#define DIRECT_BUFFER       colortex9
 #define MOMENTS_BUFFER      colortex10
 
 #define FOG_BUFFER          colortex11

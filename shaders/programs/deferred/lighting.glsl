@@ -34,7 +34,7 @@
         /* RENDERTARGETS: 4,9,10 */
 
         layout (location = 0) out vec4 radianceOut;
-        layout (location = 1) out uvec2 firstBounceData;
+        layout (location = 1) out vec3 directOut;
         layout (location = 2) out vec4 momentsOut;
     #else
         /* RENDERTARGETS: 4,10 */
@@ -59,38 +59,34 @@
         #include "/include/fragment/pathtracer.glsl"
 
         #if RENDER_MODE == 0 && ATROUS_FILTER == 1
-		    float estimateSpatialVariance(sampler2D tex, vec2 coords) {
-			    float sum = 0.0, sqSum = 0.0, totalWeight = 1.0;
+			float estimateSpatialVariance(sampler2D tex, vec2 moments) {
+				float sum = moments.r, sqSum = moments.g, totalWeight = 1.0;
 
-			    int filterSize = 1;
+				const float waveletKernel[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
 
-			    for(int x = -filterSize; x <= filterSize; x++) {
-				    for(int y = -filterSize; y <= filterSize; y++) {
-					    if(x == 0 && y == 0) continue;
+				vec2 stepSize = 5.0 * texelSize;
 
-					    vec2 sampleCoords = coords + vec2(x, y) * texelSize;
-					    if(saturate(sampleCoords) != sampleCoords) continue;
+				for(int x = -1; x <= 1; x++) {
+					for(int y = -1; y <= 1; y++) {
+						if(x == 0 && y == 0) continue;
 
-					    float weight    = gaussianDistribution2D(vec2(x, y), 1.0);
-					    float luminance = luminance(texture(tex, sampleCoords).rgb);
+						vec2 sampleCoords = textureCoords + vec2(x, y) * stepSize;
+						if(saturate(sampleCoords) != sampleCoords) continue;
+
+						float weight    = waveletKernel[abs(x)] * waveletKernel[abs(y)];
+						float luminance = luminance(texture(tex, sampleCoords).rgb);
                     
-					    sum   += luminance * weight;
-					    sqSum += luminance * luminance * weight;
+						sum   += luminance * weight;
+						sqSum += luminance * luminance * weight;
 
-					    totalWeight += weight;
-				    }
-			    }
-			    sum   /= totalWeight;
-			    sqSum /= totalWeight;
-			    return sqrt(abs(sqSum - (sum * sum)));
-    	    }
+						totalWeight += weight;
+					}
+				}
+				sum   /= totalWeight;
+				sqSum /= totalWeight;
+				return abs(sqSum - sum * sum);
+    		}
 	    #endif
-    #endif
-
-    #if RENDER_MODE == 0
-	    float calculateGaussianDepthWeight(float depth, float sampleDepth, float sigma) {
-    	    return pow(exp(-abs(linearizeDepthFast(depth) - linearizeDepthFast(sampleDepth))), sigma);
-	    }
     #endif
 
     void main() {
@@ -108,7 +104,7 @@
         if(depth == 1.0) {
             vec3 sky = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
             #if GI == 1
-                firstBounceData.x = packUnormArb(logLuvEncode(sky), uvec4(8));
+                directOut = sky;
             #else
                 radianceOut.rgb = sky;
             #endif
@@ -133,24 +129,20 @@
 
             #if RENDER_MODE == 0
                 float prevDepth = exp2(momentsOut.a);
+                
+                momentsOut.a = log2(prevPosition.z);
 
                 #if GI == 0
-                    radianceOut.a *= calculateGaussianDepthWeight(prevPosition.z, prevDepth, 1.0);
+                    radianceOut.a *= pow(exp(-abs(linearizeDepthFast(prevPosition.z) - linearizeDepthFast(prevDepth))), 1.0);
 
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
                          radianceOut.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
-
-                    momentsOut.a = log2(prevPosition.z);
                 #else
 				    float linearDepth     = linearizeDepthFast(prevPosition.z);
 				    float linearPrevDepth = linearizeDepthFast(prevDepth);
 
-				    radianceOut.a *= float(depth < 1.0);
-				    radianceOut.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.3);
-				    radianceOut.a *= calculateGaussianDepthWeight(prevPosition.z, prevDepth, 0.5);
+				    radianceOut.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.1);
                     radianceOut.a *= float(material.depth0 >= handDepth);
-
-				    momentsOut.a = log2(prevPosition.z);
                 #endif
             #else
                 radianceOut.a *= float(hideGUI);
@@ -181,20 +173,12 @@
                 radianceOut.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
             }
         #else
-            vec3 direct   = vec3(0.0);
-            vec3 indirect = vec3(1.0);
-
             if(material.F0 * maxFloat8 <= 229.5) {
-                pathtrace(radianceOut.rgb, vec3(vertexCoords, depth), direct, indirect);
+                pathtrace(radianceOut.rgb, vec3(vertexCoords, depth), directOut, directIlluminance);
 
                 #if TEMPORAL_ACCUMULATION == 1
-                    radianceOut.a = min(radianceOut.a, 256.0);
-                    float weight  = saturate(1.0 / max(radianceOut.a, 1.0));
-
+                    float weight    = 1.0 / clamp(radianceOut.a, 1.0, 60.0);
                     radianceOut.rgb = clamp16(mix(history.rgb, radianceOut.rgb, weight));
-
-                    uint data = texture(GI_DATA_BUFFER, prevPosition.xy).g;
-                    indirect  = mix(logLuvDecode(unpackUnormArb(data, uvec4(8))), indirect, 1.0);
 
 			        #if RENDER_MODE == 0 && ATROUS_FILTER == 1
 				        float luminance = luminance(radianceOut.rgb);
@@ -203,15 +187,12 @@
 				        momentsOut.rg = mix(momentsOut.rg, moments, weight);
 
 				        if(radianceOut.a < VARIANCE_STABILIZATION_THRESHOLD) {
-					        momentsOut.b = estimateSpatialVariance(ACCUMULATION_BUFFER, vertexCoords);
+					        momentsOut.b = estimateSpatialVariance(ACCUMULATION_BUFFER, moments);
 				        } else { 
-					        momentsOut.b = abs(momentsOut.g - (momentsOut.r * momentsOut.r));
+					        momentsOut.b = abs(momentsOut.g - momentsOut.r * momentsOut.r);
 				        }
 			        #endif
                 #endif
-
-                firstBounceData.x = packUnormArb(logLuvEncode(direct  ), uvec4(8));
-                firstBounceData.y = packUnormArb(logLuvEncode(indirect), uvec4(8));
             }
         #endif
     }
