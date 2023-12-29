@@ -132,26 +132,20 @@
 		#if POM > 0 && defined PROGRAM_TERRAIN
 			vec2 coords = textureCoords;
 
-			#if POM_DEPTH_WRITE == 1
-				gl_FragDepth = gl_FragCoord.z;
+			mat2 texDeriv = mat2(dFdx(textureCoords), dFdy(textureCoords));
+
+			float height = 1.0, traceDistance = 0.0;
+			vec2  shadowCoords = vec2(0.0);
+
+			coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
+
+			#if POM_SHADOWING == 1
+				parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
 			#endif
 
-			if(texture(normals, textureCoords).a < 1.0) {
-				mat2 texDeriv = mat2(dFdx(textureCoords), dFdy(textureCoords));
-
-				float height = 1.0, traceDistance = 0.0;
-				vec2  shadowCoords = vec2(0.0);
-
-				coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
-
-				#if POM_SHADOWING == 1
-					parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
-				#endif
-
-				#if POM_DEPTH_WRITE == 1
-					gl_FragDepth = projectDepth(unprojectDepth(gl_FragCoord.z) + traceDistance * POM_DEPTH);
-				#endif
-			}
+			#if POM_DEPTH_WRITE == 1
+				gl_FragDepth = projectDepth(unprojectDepth(gl_FragCoord.z) + traceDistance * POM_DEPTH);
+			#endif
 
 			if(saturate(coords) != coords) discard;
 		#else
