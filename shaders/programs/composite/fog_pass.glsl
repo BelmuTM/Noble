@@ -22,7 +22,7 @@ in vec2 vertexCoords;
 	#include "/include/atmospherics/atmosphere.glsl"
 #endif
 
-#include "/include/fragment/shadows.glsl"
+#include "/include/fragment/shadowmapping.glsl"
 #include "/include/atmospherics/fog.glsl"
 
 void main() {
@@ -94,7 +94,9 @@ void main() {
         }
 
         #if defined WORLD_OVERWORLD
-            computeLandAerialPerspective(scatteringLayer2, transmittanceLayer2, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
+            if(isEyeInWater == 0) {
+                computeLandAerialPerspective(scatteringLayer2, transmittanceLayer2, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
+            }
         #endif
     } else {
         skylight = 1.0;

@@ -55,7 +55,7 @@
     in vec3 uniformSkyIlluminance;
 
     #if defined WORLD_OVERWORLD && SHADOWS == 1
-        #include "/include/fragment/shadows.glsl"
+        #include "/include/fragment/shadowmapping.glsl"
     #endif
 
     #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
@@ -125,9 +125,10 @@
         #if defined WORLD_OVERWORLD
             #if SHADOWS == 1
                 if(material.depth0 != 1.0) {
-                    vec3 geoNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
-                    vec3 scenePos  = viewToScene(screenToView(vec3(textureCoords, material.depth0)));
-                    shadowmap.rgb  = calculateShadowMapping(scenePos, geoNormal, shadowmap.a);
+                    vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
+                    vec3 scenePosition   = viewToScene(screenToView(vec3(textureCoords, material.depth0)));
+
+                    shadowmap.rgb  = calculateShadowMapping(scenePosition, geometricNormal, shadowmap.a);
                     shadowmap.rgb  = abs(shadowmap.rgb) * material.parallaxSelfShadowing;
                 }
             #endif
