@@ -83,7 +83,7 @@
 	#include "/include/fragment/brdf.glsl"
 
 	#if SHADOWS == 1
-		#include "/include/fragment/shadowmapping.glsl"
+		#include "/include/fragment/shadowmap.glsl"
 	#endif
 
 	#include "/include/fragment/gerstner.glsl"

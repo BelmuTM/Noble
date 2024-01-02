@@ -21,7 +21,7 @@ in vec2 vertexCoords;
 
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/shadowmapping.glsl"
+#include "/include/fragment/shadowmap.glsl"
 
 #include "/include/utility/sampling.glsl"
 

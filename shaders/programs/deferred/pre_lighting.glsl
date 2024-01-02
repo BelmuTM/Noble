@@ -55,7 +55,7 @@
     in vec3 uniformSkyIlluminance;
 
     #if defined WORLD_OVERWORLD && SHADOWS == 1
-        #include "/include/fragment/shadowmapping.glsl"
+        #include "/include/fragment/shadowmap.glsl"
     #endif
 
     #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1

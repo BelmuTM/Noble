@@ -645,6 +645,9 @@ value.POM_LAYERS.512 = §4512
 option.POM_DEPTH = Depth
 option.POM_DEPTH.comment = Adjusts §bPOM§r's depth.
 
+option.POM_DISTANCE = Render Distance
+option.POM_DISTANCE.comment = Adjusts §bPOM§r's render distance. §cHigher value gives better results, but reduces §cperformance.
+
 option.POM_SHADOWING = Shadowing
 option.POM_SHADOWING.comment = Computes shadows for §bPOM§r.
 value.POM_SHADOWING.0 = §cOFF

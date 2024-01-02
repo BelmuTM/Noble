@@ -273,9 +273,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // POM
 
-#define POM         1 // [0 1 2]
-#define POM_LAYERS 32 // [32 64 128 256 512]
-#define POM_DEPTH 0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define POM           1 // [0 1 2]
+#define POM_LAYERS   32 // [32 64 128 256 512]
+#define POM_DEPTH   0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define POM_DISTANCE 32 // [16 32 48 64 80 96 112 128 144 160 176 192 208 224 240 256 512]
 
 #define POM_SHADOWING   1 // [0 1]
 #define POM_DEPTH_WRITE 0 // [0 1]

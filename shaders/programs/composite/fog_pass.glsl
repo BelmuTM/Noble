@@ -22,7 +22,7 @@ in vec2 vertexCoords;
 	#include "/include/atmospherics/atmosphere.glsl"
 #endif
 
-#include "/include/fragment/shadowmapping.glsl"
+#include "/include/fragment/shadowmap.glsl"
 #include "/include/atmospherics/fog.glsl"
 
 void main() {

@@ -98,14 +98,14 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
     }
 #endif
 
-vec3 calculateShadowMapping(vec3 scenePosition, vec3 geoNormal, out float subsurfaceDepth) {
+vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, out float subsurfaceDepth) {
     #if SHADOWS == 1 
         vec3  shadowPosition = worldToShadow(scenePosition);
-        float NdotL          = dot(geoNormal, shadowLightVector);
+        float NdotL          = dot(geometricNormal, shadowLightVector);
 
         // Shadow bias implementation from Emin and concept from gri573
         float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.35;
-        shadowPosition  += mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
+        shadowPosition  += mat3(shadowProjection) * (mat3(shadowModelView) * geometricNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
         shadowPosition  *= 1.0002;
 
         float penumbraSize = NORMAL_SHADOW_PENUMBRA;
