@@ -135,12 +135,12 @@
 			discard;
 		#endif
 
+		vec2 coords = textureCoords;
+
 		float parallaxSelfShadowing = 1.0;
 
 		#if POM > 0 && defined PROGRAM_TERRAIN
-			vec2 coords = textureCoords;
-
-			mat2 texDeriv = mat2(dFdx(textureCoords), dFdy(textureCoords));
+			mat2 texDeriv = mat2(dFdx(coords), dFdy(coords));
 
 			#if POM_DEPTH_WRITE == 1
 				gl_FragDepth = gl_FragCoord.z;
@@ -162,8 +162,6 @@
 
 				if(saturate(coords) != coords) return;
 			}
-		#else
-			vec2 coords = textureCoords;
 		#endif
 
 		vec4 albedoTex = texture(tex, coords);

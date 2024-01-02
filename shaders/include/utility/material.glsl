@@ -107,7 +107,7 @@ Material getMaterial(vec2 coords) {
         material.K = vec3(0.0);
     }
 
-    material.parallaxSelfShadowing = dataTexture.x & 1u;
+    material.parallaxSelfShadowing = float(dataTexture.x & 1u);
 
     material.normal = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTexture.w & 65535u, (dataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
 
