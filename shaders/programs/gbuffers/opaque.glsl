@@ -18,8 +18,12 @@
 	flat out int blockId;
 	out vec2 textureCoords;
 	out vec2 lightmapCoords;
-	out vec2 texSize;
-	out vec2 botLeft;
+
+	#if POM > 0 && defined PROGRAM_TERRAIN
+		out vec2 texSize;
+		out vec2 botLeft;
+	#endif
+
 	out vec3 viewPosition;
 	out vec4 vertexColor;
 	out mat3 tbn;
@@ -82,8 +86,12 @@
 	flat in int blockId;
 	in vec2 textureCoords;
 	in vec2 lightmapCoords;
-	in vec2 texSize;
-	in vec2 botLeft;
+
+	#if POM > 0 && defined PROGRAM_TERRAIN
+		in vec2 texSize;
+		in vec2 botLeft;
+	#endif
+
 	in vec3 viewPosition;
 	in vec4 vertexColor;
 	in mat3 tbn;
