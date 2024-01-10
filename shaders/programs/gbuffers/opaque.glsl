@@ -18,8 +18,12 @@
 	flat out int blockId;
 	out vec2 textureCoords;
 	out vec2 lightmapCoords;
-	out vec2 texSize;
-	out vec2 botLeft;
+
+	#if POM > 0 && defined PROGRAM_TERRAIN
+		out vec2 texSize;
+		out vec2 botLeft;
+	#endif
+
 	out vec3 viewPosition;
 	out vec4 vertexColor;
 	out mat3 tbn;
@@ -82,8 +86,12 @@
 	flat in int blockId;
 	in vec2 textureCoords;
 	in vec2 lightmapCoords;
-	in vec2 texSize;
-	in vec2 botLeft;
+
+	#if POM > 0 && defined PROGRAM_TERRAIN
+		in vec2 texSize;
+		in vec2 botLeft;
+	#endif
+
 	in vec3 viewPosition;
 	in vec4 vertexColor;
 	in mat3 tbn;
@@ -127,18 +135,18 @@
 			discard;
 		#endif
 
+		vec2 coords = textureCoords;
+
 		float parallaxSelfShadowing = 1.0;
 
 		#if POM > 0 && defined PROGRAM_TERRAIN
-			vec2 coords = textureCoords;
+			mat2 texDeriv = mat2(dFdx(coords), dFdy(coords));
 
 			#if POM_DEPTH_WRITE == 1
 				gl_FragDepth = gl_FragCoord.z;
 			#endif
 
-			if(texture(normals, textureCoords).a < 1.0) {
-				mat2 texDeriv = mat2(dFdx(textureCoords), dFdy(textureCoords));
-
+			if(length(viewPosition) < POM_DISTANCE) {
 				float height = 1.0, traceDistance = 0.0;
 				vec2  shadowCoords = vec2(0.0);
 
@@ -151,11 +159,9 @@
 				#if POM_DEPTH_WRITE == 1
 					gl_FragDepth = projectDepth(unprojectDepth(gl_FragCoord.z) + traceDistance * POM_DEPTH);
 				#endif
-			}
 
-			if(saturate(coords) != coords) discard;
-		#else
-			vec2 coords = textureCoords;
+				if(saturate(coords) != coords) return;
+			}
 		#endif
 
 		vec4 albedoTex = texture(tex, coords);

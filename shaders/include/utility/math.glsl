@@ -230,13 +230,7 @@ float solidAngleToConeAngle(float x) { return fastAcos(1.0 - (x) / TAU); }
 /*-------------------- DISTRIBUTION --------------------*/
 //////////////////////////////////////////////////////////
 
-vec2 vogelDisk(float i, float n, float phi) {
-    float r     = sqrt(i + phi) / n;
-    float theta = i * GOLDEN_ANGLE;
-    return sincos(r * theta);
-}
-
-vec2 diskSampling(float i, float n, float phi) {
+vec2 sampleDisk(float i, float n, float phi) {
     float theta = (i + phi) / n; 
     return sincos(theta * TAU * n * GOLDEN_ANGLE) * sqrt(phi);
 }

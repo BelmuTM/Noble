@@ -134,7 +134,7 @@ value.AO_FILTER.0 = §cOFF
 value.AO_FILTER.1 = §aON
 
 option.AO_TYPE = AO Type
-option.AO_TYPE.comment = §aRTAO §7-> §rRay Traced Ambient Occlusion. §aSSAO §7-> §rScreen Space Ambient Occlusion.
+option.AO_TYPE.comment = §aSSAO §7-> §rScreen Space Ambient Occlusion. §aRTAO §7-> §rRay Traced Ambient Occlusion. §aGTAO §7-> §rGround Truth Ambient Occlusion.
 value.AO_TYPE.0 = §e§lSSAO
 value.AO_TYPE.1 = §e§lRTAO
 value.AO_TYPE.2 = §e§lGTAO
@@ -644,6 +644,9 @@ value.POM_LAYERS.512 = §4512
 
 option.POM_DEPTH = Depth
 option.POM_DEPTH.comment = Adjusts §bPOM§r's depth.
+
+option.POM_DISTANCE = Render Distance
+option.POM_DISTANCE.comment = Adjusts §bPOM§r's render distance. §cHigher value gives better results, but reduces §cperformance.
 
 option.POM_SHADOWING = Shadowing
 option.POM_SHADOWING.comment = Computes shadows for §bPOM§r.

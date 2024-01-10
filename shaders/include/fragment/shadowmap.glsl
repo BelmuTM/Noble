@@ -43,15 +43,15 @@ vec3 getShadowColor(vec3 samplePos) {
 
     float shadowDepth0 = visibility(shadowtex0, samplePos);
     float shadowDepth1 = visibility(shadowtex1, samplePos);
-    vec4 shadowCol     = texelFetch(shadowcolor0, ivec2(samplePos.xy * shadowMapResolution), 0);
+    vec4  shadowColor  = texelFetch(shadowcolor0, ivec2(samplePos.xy * shadowMapResolution), 0);
     
     #if TONEMAP == ACES
-        shadowCol.rgb = srgbToAP1Albedo(shadowCol.rgb);
+        shadowColor.rgb = srgbToAP1Albedo(shadowColor.rgb);
     #else
-        shadowCol.rgb = srgbToLinear(shadowCol.rgb);
+        shadowColor.rgb = srgbToLinear(shadowColor.rgb);
     #endif
 
-    return mix(vec3(shadowDepth0), shadowCol.rgb * (1.0 - shadowCol.a), saturate(shadowDepth1 - shadowDepth0));
+    return mix(vec3(shadowDepth0), shadowColor.rgb * (1.0 - shadowColor.a), saturate(shadowDepth1 - shadowDepth0));
 }
 
 float rng = interleavedGradientNoise(gl_FragCoord.xy);
@@ -63,7 +63,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
             int blockers = 0;
             for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-                vec2 offset       = BLOCKER_SEARCH_RADIUS * diskSampling(i, BLOCKER_SEARCH_SAMPLES, rng) * invShadowMapResolution;
+                vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, rng) * invShadowMapResolution;
                 vec2 sampleCoords = shadowPosition.xy + offset;
                 if(saturate(sampleCoords) != sampleCoords) return -1.0;
 
@@ -88,7 +88,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
             #if SHADOW_TYPE != 2
-                offset = diskSampling(i, SHADOW_SAMPLES, rng) * penumbraSize * invShadowMapResolution;
+                offset = sampleDisk(i, SHADOW_SAMPLES, rng) * penumbraSize * invShadowMapResolution;
             #endif
 
             vec3 samplePos = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;
@@ -98,14 +98,14 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
     }
 #endif
 
-vec3 calculateShadowMapping(vec3 scenePosition, vec3 geoNormal, out float subsurfaceDepth) {
+vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, out float subsurfaceDepth) {
     #if SHADOWS == 1 
         vec3  shadowPosition = worldToShadow(scenePosition);
-        float NdotL          = dot(geoNormal, shadowLightVector);
+        float NdotL          = dot(geometricNormal, shadowLightVector);
 
-        // Shadow bias implementation from Emin#7309 and concept from gri573#7741
+        // Shadow bias implementation from Emin and concept from gri573
         float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.35;
-        shadowPosition  += mat3(shadowProjection) * (mat3(shadowModelView) * geoNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
+        shadowPosition  += mat3(shadowProjection) * (mat3(shadowModelView) * geometricNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
         shadowPosition  *= 1.0002;
 
         float penumbraSize = NORMAL_SHADOW_PENUMBRA;

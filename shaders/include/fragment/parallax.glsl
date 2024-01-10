@@ -59,8 +59,6 @@ vec2 atlasToLocal(vec2 atlasCoords) {
 	}
 #endif
 
-float dither = interleavedGradientNoise(gl_FragCoord.xy);
-
 vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out vec2 shadowCoords, out float traceDistance) {
 	vec3 tangentDirection = normalize(viewToScene(viewPosition)) * tbn;
     traceDistance = 0.0;
@@ -71,7 +69,7 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
     float currFragHeight = sampleHeightMap(currCoords, texDeriv);
 
     for(int i = 0; i < POM_LAYERS && traceDistance < currFragHeight; i++) {
-        currCoords    -= increment * (dither * 0.5 + 0.5);
+        currCoords    -= increment;
         currFragHeight = sampleHeightMap(currCoords, texDeriv);
         traceDistance += layerHeight;
     }
@@ -108,7 +106,7 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
         for(int i = 0; i < POM_LAYERS; i++) {
 		    if(currLayerHeight >= currFragHeight) return 0.0;
 
-            currCoords      += increment * dither;
+            currCoords      += increment;
             currFragHeight   = sampleHeightMap(currCoords, texDeriv);
             currLayerHeight -= layerHeight;
         }

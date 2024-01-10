@@ -52,7 +52,7 @@
 
     /* RENDERTARGETS: 0 */
 
-    layout (location = 0) out vec4 color0;
+    layout (location = 0) out vec4 shadowmap;
 
     flat in int blockId;
     in vec2 textureCoords;
@@ -81,16 +81,16 @@
 	    	albedoTex.rgb = vec3(1.0);
         #endif
 
-        color0 = albedoTex;
+        shadowmap = albedoTex;
 
         if(blockId == WATER_ID) {
-            color0.rgb = vec3(1.0);
+            shadowmap.rgb = vec3(1.0);
 
             #if WATER_CAUSTICS == 1
                 vec3  waterNormals = normalize(tbn * getWaterNormals(worldPosition, WATER_OCTAVES));
                 float caustics     = waterCaustics(worldPosition, waterNormals) * WATER_CAUSTICS_STRENGTH;
 
-                color0.rgb += caustics;
+                shadowmap.rgb += caustics;
             #endif
         }
     }

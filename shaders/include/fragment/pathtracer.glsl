@@ -11,7 +11,7 @@
 */
 
 vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material material, vec3 directIlluminance) {
-    vec4 shadowmap = texture(SHADOWMAP_BUFFER, max(hitPosition, texelSize));
+    vec4 shadowmap = texture(SHADOWMAP_BUFFER, max(hitPosition, texelSize + 1e-3));
     vec3 diffuse   = hammonDiffuse(material, wi, wo);
 
     #if SUBSURFACE_SCATTERING == 1
@@ -39,10 +39,8 @@ vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
     return phase;
 }
 
-void pathtrace(inout vec3 radiance, in vec3 screenPosition, inout vec3 outColorDirect, inout vec3 outColorIndirect) {
+void pathtrace(out vec3 radiance, in vec3 screenPosition, out vec3 direct, vec3 directIlluminance) {
     vec3 viewPosition = screenToView(screenPosition);
-
-    vec3 directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
 
     for(int i = 0; i < GI_SAMPLES; i++) {
 
@@ -54,8 +52,6 @@ void pathtrace(inout vec3 radiance, in vec3 screenPosition, inout vec3 outColorD
         vec3 estimate   = vec3(0.0);
 
         for(int j = 0; j < MAX_GI_BOUNCES; j++) {
-
-            int steps = MAX_GI_STEPS;
 
             /* Russian Roulette */
             if(j > MIN_ROULETTE_BOUNCES) {
@@ -69,17 +65,19 @@ void pathtrace(inout vec3 radiance, in vec3 screenPosition, inout vec3 outColorD
             vec3 brdf  = evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material, directIlluminance);
             vec3 phase = sampleMicrosurfaceOpaquePhase(rayDirection, material);
 
-            brdf += material.albedo * EMISSIVE_INTENSITY * 2.0 * material.emission;
+            brdf += material.albedo * EMISSIVE_INTENSITY * 5.0 * material.emission;
+
+            vec3 tracePosition = screenToView(rayPosition) + material.normal * 1e-2;
              
-            bool hit = raytrace(depthtex0, screenToView(rayPosition), rayDirection, steps, randF(), 1.0, rayPosition);
+            bool hit = raytrace(depthtex0, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
 
             if(j == 0) {
-                outColorDirect   = brdf;
-                outColorIndirect = phase;
+                direct = brdf;
             } else {
-                estimate   += throughput * brdf; 
-                throughput *= phase;
+                estimate += throughput * brdf; 
             }
+
+            throughput *= phase;
 
             if(!hit) {
                 #if defined WORLD_OVERWORLD && SKY_CONTRIBUTION == 1

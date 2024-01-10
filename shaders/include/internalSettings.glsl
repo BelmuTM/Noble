@@ -34,9 +34,8 @@ const int colortex6Format       = RGB16F;    // Atmosphere
 const int colortex8Format       = RGBA16F;   // History
 
 #if GI == 1
-     const int colortex9Format  = RG32UI;    // First bounce indirect & direct
+     const int colortex9Format  = RGB16F;    // Direct lighting
      const int colortex10Format = RGBA32F;   // Moments
-     const bool colortex9Clear  = false;
 #else
      const int colortex10Format = RGBA16F;   // Previous Depth
 #endif

@@ -49,7 +49,7 @@ uniform sampler2D colortex5;
 uniform sampler2D colortex6;
 uniform sampler2D colortex7;
 uniform sampler2D colortex8;
-uniform usampler2D colortex9;
+uniform sampler2D colortex9;
 uniform sampler2D colortex10;
 uniform usampler2D colortex11;
 uniform sampler2D colortex12;
@@ -71,6 +71,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
+
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
 uniform mat4 shadowProjection;
