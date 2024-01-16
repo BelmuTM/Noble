@@ -44,11 +44,12 @@
 					vec2  sampleCoords = viewToScreen(rayPosition).xy;
 					float rayDepth     = screenToView(vec3(sampleCoords, texture(depthtex0, sampleCoords * RENDER_SCALE).r)).z;
 
-					float rangeCheck = quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
-					occlusion 		+= (rayDepth >= rayPosition.z + EPS ? 1.0 : 0.0) * rangeCheck;
-				}
-				return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
-			}
+					if(rayDepth >= rayPosition.z + EPS) {
+						occlusion += quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
+					}
+		    	}
+		    	return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
+	    	}
 
 		#elif AO_TYPE == 1
 
