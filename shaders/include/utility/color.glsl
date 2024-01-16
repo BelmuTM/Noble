@@ -118,16 +118,14 @@ float luminance(vec3 color) {
     return dot(color, luminanceCoefficients);
 }
 
-const float SRGB_ALPHA = 0.055;
-
 vec3 linearToSrgb(vec3 linear) {
-    vec3 higher = (pow(abs(linear), vec3(0.41666666)) * (1.0 + SRGB_ALPHA)) - SRGB_ALPHA;
+    vec3 higher = (pow(abs(linear), vec3(0.41666666)) * 1.055) - 0.055;
     vec3 lower  = linear * 12.92;
     return mix(higher, lower, step(linear, vec3(0.0031308)));
 }
 
 vec3 srgbToLinear(vec3 srgb) {
-    vec3 higher = pow((srgb + SRGB_ALPHA) * 0.94786729, vec3(2.4));
+    vec3 higher = pow((srgb + 0.055) * 0.94786729, vec3(2.4));
     vec3 lower  = srgb * 0.07739938;
     return mix(higher, lower, step(srgb, vec3(0.04045)));
 }

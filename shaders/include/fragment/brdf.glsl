@@ -121,12 +121,12 @@ vec3 hemisphericalAlbedo(vec3 n) {
 vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 lightDirection, float distThroughMedium) {
     if(material.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
-    vec3 beer      = exp((material.albedo * 0.5 - 1.0) * maxEps(distThroughMedium) / material.subsurface);
-    float cosTheta = dot(normalize(viewDirection + lightDirection), viewDirection);
+    vec3 beer      = saturate(exp((material.albedo * 0.5 - 1.0) * max0(distThroughMedium) / material.subsurface));
+    float cosTheta = -dot(lightDirection, viewDirection);
 
     // Phase function specifically made for leaves
     if(material.id == LEAVES_ID) {
-        return max0(beer * biLambertianPlatePhase(0.3, cosTheta));
+        return beer * biLambertianPlatePhase(0.3, cosTheta);
     }
 
     vec3 isotropicLobe = beer * isotropicPhase;

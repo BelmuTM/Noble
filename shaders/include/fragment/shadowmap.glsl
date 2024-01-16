@@ -58,28 +58,31 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
 #if SHADOWS == 1 
     #if SHADOW_TYPE == 1
-        float findBlockerDepth(vec3 shadowPosition, out float subsurfaceDepth) {
-            float blockerDepthSum = 0.0, subsurfaceDepthSum = 0.0;
+        float findBlockerDepth(vec2 shadowCoords, float shadowDepth, out float subsurfaceDepth) {
+            float blockerDepthSum    = 0.0;
+            float subsurfaceDepthSum = 0.0;
 
-            int blockers = 0;
+            float weightSum = 0.0;
+
             for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
                 vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, rng) * invShadowMapResolution;
-                vec2 sampleCoords = shadowPosition.xy + offset;
+                vec2 sampleCoords = distortShadowSpace(shadowCoords + offset) * 0.5 + 0.5;
+                
                 if(saturate(sampleCoords) != sampleCoords) return -1.0;
 
-                float depth = texelFetch(shadowtex0, ivec2(sampleCoords * shadowMapResolution), 0).r;
+                float depth  = texelFetch(shadowtex0, ivec2(sampleCoords * shadowMapResolution), 0).r;
+                float weight = step(depth, shadowDepth);
 
-                if(shadowPosition.z > depth) {
-                    blockerDepthSum += depth;
-                    blockers++;
-                }
-                subsurfaceDepthSum += max0(shadowPosition.z - depth);
+                blockerDepthSum += depth * weight;
+                weightSum       += weight;
+
+                subsurfaceDepthSum += max0(shadowDepth - depth);
             }
             // Subsurface depth calculation from sixthsurge
             // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
             subsurfaceDepth = (-shadowProjectionInverse[2].z * subsurfaceDepthSum) / (SHADOW_DEPTH_STRETCH * BLOCKER_SEARCH_SAMPLES);
 
-            return blockers == 0 ? -1.0 : blockerDepthSum / float(blockers);
+            return weightSum == 0.0 ? -1.0 : blockerDepthSum / weightSum;
         }
     #endif
 
@@ -114,9 +117,9 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, out float 
 
         #if SHADOW_TYPE == 1
             vec3  shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
-            float avgBlockerDepth  = findBlockerDepth(shadowPosDistort, subsurfaceDepth);
+            float avgBlockerDepth  = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
 
-            if(avgBlockerDepth < 0.0) {
+            if(avgBlockerDepth < EPS) {
                 subsurfaceDepth = 1.0;
                 return vec3(-1.0);
             }
