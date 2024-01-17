@@ -49,7 +49,7 @@
 
             float depth = texture(depthtex0, vertexCoords).r;
 
-            if(depth != 1.0) { discard; return; }
+            if(depth != 1.0) return;
 
             vec3 viewPosition       = screenToView(vec3(textureCoords, depth));
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
