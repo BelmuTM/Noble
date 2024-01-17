@@ -9,9 +9,9 @@ const float windSpeed = 1.5;
 void wavingLeaves(inout vec3 worldPosition, float skyFalloff) {
 	worldPosition += cameraPosition;
 
-	float rng = 1.0 + FBM(worldPosition.xz * 0.7, 1, 1.0);
+	float rng = 1.0 + FBM(worldPosition * vec3(0.3, 0.5, 0.3), 1, 1.0);
 
-    vec3 offset  = sin(worldPosition * 1.4 + windDir * vec3(rng, 1.3, rng) * 2.0) * vec3(0.04, 0.06, 0.04);
+    vec3 offset  = sin(worldPosition * 1.4 + windDir * rng * vec3(2.0, 1.5, 2.0)) * vec3(0.04, 0.06, 0.04);
 		 offset *= skyFalloff;
 
 	worldPosition += offset;

@@ -329,7 +329,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define FILM_GRAIN_STRENGTH 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 #define SHARPEN             1 // [0 1]
-#define SHARPEN_STRENGTH 0.50 // [0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
+#define SHARPEN_STRENGTH 1.00 // [0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
 
 #define UNDERWATER_DISTORTION         1
 #define WATER_DISTORTION_SPEED     0.65
