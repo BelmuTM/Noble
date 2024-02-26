@@ -1,5 +1,5 @@
 /***********************************************/
-/*          Copyright (C) 2023 Belmu           */
+/*          Copyright (C) 2024 Belmu           */
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
@@ -11,7 +11,7 @@
         Karis, B. (2013). Specular BRDF Reference. http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
         de Carpentier, G., & Ishiyama, K. (2017). DECIMA ENGINE: ADVANCES IN LIGHTING AND AA. https://www.guerrilla-games.com/media/News/Files/DecimaSiggraph2017.pdf
         Hammon, A., Jr. (2017). PBR Diffuse Lighting for GGX+Smith Microsurfaces. https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
-        Dupuy, J., & Benyoub, A. (2023). Sampling Visible GGX Normals with Spherical Caps. https://arxiv.org/pdf/2306.05044.pdf
+        Dupuy, J., & Benyoub, A. (2024). Sampling Visible GGX Normals with Spherical Caps. https://arxiv.org/pdf/2306.05044.pdf
 */
 
 #include "/include/fragment/fresnel.glsl"
