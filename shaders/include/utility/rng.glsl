@@ -116,8 +116,8 @@ const float fbmLacunarity  = 2.0;
 const float fbmPersistance = 0.5;
 
 float FBM(vec2 uv, int octaves, float frequency) {
-    float height      = 0.0;
-    float amplitude   = 1.0;
+    float height    = 0.0;
+    float amplitude = 1.0;
 
     for(int i = 0; i < octaves; i++) {
         height    += noise(uv * frequency) * amplitude;
@@ -128,8 +128,8 @@ float FBM(vec2 uv, int octaves, float frequency) {
 }
 
 float FBM(vec3 pos, int octaves, float frequency) {
-    float height      = 0.0;
-    float amplitude   = 1.0;
+    float height    = 0.0;
+    float amplitude = 1.0;
 
     for(int i = 0; i < octaves; i++) {
         height    += noise(pos * frequency) * amplitude;

@@ -25,7 +25,7 @@
 	flat out int blockId;
 	out vec2 textureCoords;
 	out vec2 lightmapCoords;
-	out vec3 viewPosition;
+	out vec3 worldPosition;
 	out vec3 directIlluminance;
 	out mat3[2] skyIlluminanceMat;
 	out vec4 vertexColor;
@@ -41,7 +41,7 @@
 		lightmapCoords = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor    = gl_Color;
 		
-    	viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
+    	vec3 viewPosition = (gl_ModelViewMatrix * gl_Vertex).xyz;
 
     	tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
     	tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
@@ -54,10 +54,12 @@
 			skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 		#endif
 
-		vec3 worldPosition = transform(gbufferModelViewInverse, viewPosition);
+		worldPosition = transform(gbufferModelViewInverse, viewPosition);
 		
 		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
+
+		worldPosition += cameraPosition;
 
 		#if TAA == 1 && EIGHT_BITS_FILTER == 0
 			gl_Position.xy += taaJitter(gl_Position);
@@ -74,7 +76,7 @@
 	flat in int blockId;
 	in vec2 textureCoords;
 	in vec2 lightmapCoords;
-	in vec3 viewPosition;
+	in vec3 worldPosition;
 	in vec3 directIlluminance;
 	in mat3[2] skyIlluminanceMat;
 	in vec4 vertexColor;
@@ -117,7 +119,7 @@
 			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
 
     		material.albedo = vec3(0.0);
-			material.normal = tbn * getWaterNormals(viewToWorld(viewPosition), WATER_OCTAVES);
+			material.normal = tbn * getWaterNormals(worldPosition, WATER_OCTAVES);
 		
 		} else {
 			material.lightmap = lightmapCoords;
@@ -158,8 +160,6 @@
 			#endif
 
 			if(material.F0 * maxFloat8 <= 229.5 && shadeTranslucents) {
-				vec3 scenePosition = viewToScene(viewPosition);
-
     			#if TONEMAP == ACES
         			material.albedo = srgbToAP1Albedo(material.albedo);
     			#else
@@ -174,13 +174,13 @@
 
 				#if defined WORLD_OVERWORLD || defined WORLD_END
 					#if defined WORLD_OVERWORLD && SHADOWS == 1
-						shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], shadowmap.a));
+						shadowmap.rgb = abs(calculateShadowMapping(worldPosition, tbn[2], shadowmap.a));
 					#endif
 
 					if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
 				#endif
 
-				translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+				translucents.rgb = computeDiffuse(worldPosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 				translucents.a   = albedoTex.a;
 			}
 		}

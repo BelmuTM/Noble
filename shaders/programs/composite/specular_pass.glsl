@@ -139,13 +139,13 @@ void main() {
     
     if(isEyeInWater == 1) {
         lighting += sunSpecular;
+        lighting += envSpecular;
         lighting  = lighting * transmittance + scattering;
     } else {
         lighting  = lighting * transmittance + scattering;
         lighting += sunSpecular;
+        lighting += envSpecular;
     }
-    
-    lighting += envSpecular;
 
     vec4 basic    = texture(RASTER_BUFFER, coords.xy);
          lighting = mix(lighting, basic.rgb, basic.a * float(depth >= handDepth));

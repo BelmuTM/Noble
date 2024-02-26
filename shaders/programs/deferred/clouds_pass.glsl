@@ -45,11 +45,14 @@
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	        if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-            clouds = vec3(0.0, 0.0, 1.0);
-
             float depth = texture(depthtex0, vertexCoords).r;
 
-            if(depth != 1.0) return;
+            if(depth != 1.0) {
+                clouds = texture(CLOUDS_BUFFER, textureCoords).rgb;
+                return;
+            }
+
+            clouds = vec3(0.0, 0.0, 1.0);
 
             vec3 viewPosition       = screenToView(vec3(textureCoords, depth));
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
@@ -72,15 +75,21 @@
                 clouds.b  = layer0.b  * layer1.b;
 
                 /* Reprojection */
-                vec2 prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy * RENDER_SCALE;
-                vec3 history      = texture(CLOUDS_BUFFER, prevPosition).rgb;
+                vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy * RENDER_SCALE;
+                float prevDepth    = texture(depthtex0, prevPosition.xy).r;
 
-                vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);
+                if(clamp(prevPosition.xy, 0.0, RENDER_SCALE - 1e-3) != prevPosition.xy || prevDepth < handDepth) {
+                    return;
+                }
+
+                vec3 history = texture(CLOUDS_BUFFER, prevPosition.xy).rgb;
+
+                vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
 
-                float frameWeight = 1.0 / max(texture(ACCUMULATION_BUFFER, prevPosition).a, 1.0);
+                float frameWeight = 1.0 / max(texture(ACCUMULATION_BUFFER, prevPosition.xy).a, 1.0);
 
-                float weight = saturate(centerWeight * frameWeight) * float(clamp(prevPosition, 0.0, RENDER_SCALE - 1e-3) == prevPosition);
+                float weight = saturate(centerWeight * frameWeight);
 
                 clouds = clamp16(mix(clouds, history, weight));
             }
