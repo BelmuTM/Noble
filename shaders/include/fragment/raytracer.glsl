@@ -26,7 +26,7 @@ bool raytrace(sampler2D depthTexture, vec3 viewPosition, vec3 rayDirection, int 
         if(saturate(rayPosition.xy) != rayPosition.xy) return false;
 
         float depth = texelFetch(depthTexture, ivec2(rayPosition.xy * viewSize * scale), 0).r;
-        intersect   = abs(depthLenience - (rayPosition.z - depth)) < depthLenience && depth >= handDepth;
+        intersect   = abs(depthLenience - (rayPosition.z - depth)) < depthLenience;
 
         rayPosition += rayDirection;
     }
