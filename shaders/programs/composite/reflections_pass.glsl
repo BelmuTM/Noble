@@ -47,12 +47,12 @@
             vec3 viewPosition = screenToView(currPosition);
                     
             #if REFLECTIONS_TYPE == 0
-                reflections.rgb = computeSmoothReflections(viewPosition, material);
+                reflections = computeSmoothReflections(viewPosition, material);
             #else
-                reflections.rgb = computeRoughReflections(viewPosition, material);
+                reflections = computeRoughReflections(viewPosition, material);
             #endif
 
-            reflections.rgb = clamp16(reflections.rgb);
+            reflections = clamp16(reflections);
 
             vec2 prevCoords = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
             vec3 prevColor  = texture(REFLECTIONS_BUFFER, prevCoords).rgb;
@@ -69,10 +69,9 @@
                 #endif
 
                 float weight = 1.0 / max(frames, 1.0);
-                reflections  = mix(prevColor, reflections.rgb, weight);
-            } else {
-                reflections  = reflections.rgb;
+                reflections  = mix(prevColor, reflections, weight);
             }
+
         }
         
     #endif

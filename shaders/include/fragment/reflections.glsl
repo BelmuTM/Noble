@@ -41,6 +41,8 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
     vec3 computeSmoothReflections(vec3 viewPosition, Material material) {
         float alphaSq = maxEps(material.roughness * material.roughness);
 
+        viewPosition += material.normal * 1e-2;
+
         vec3  viewDirection = normalize(viewPosition);
         float NdotV         = dot(material.normal, -viewDirection);
         vec3  rayDirection  = viewDirection + 2.0 * NdotV * material.normal; 
@@ -75,6 +77,8 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
 
     vec3 computeRoughReflections(vec3 viewPosition, Material material) {
         float alphaSq = maxEps(material.roughness * material.roughness);
+
+        viewPosition += material.normal * 1e-2;
 
         vec3  viewDirection = normalize(viewPosition);
         mat3  tbn           = constructViewTBN(material.normal);
