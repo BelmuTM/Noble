@@ -66,5 +66,6 @@
 
             depthOfField(color, DEFERRED_BUFFER, vertexCoords, getCoC(depth0, targetDepth));
         }
+        
     #endif
 #endif

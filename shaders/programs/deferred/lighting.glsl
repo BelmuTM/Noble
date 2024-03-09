@@ -118,6 +118,8 @@
         #endif
 
         #if AO_FILTER == 1 && GI == 0 || REFLECTIONS == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
+            
+
             vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth)) * RENDER_SCALE;
             vec4 history      = texture(ACCUMULATION_BUFFER, prevPosition.xy);
 
@@ -132,16 +134,15 @@
                 
                 momentsOut.a = log2(prevPosition.z);
 
+                float linearDepth     = linearizeDepthFast(prevPosition.z);
+			    float linearPrevDepth = linearizeDepthFast(prevDepth);
+
+                radianceOut.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.1);
+
                 #if GI == 0
-                    radianceOut.a *= pow(exp(-abs(linearizeDepthFast(prevPosition.z) - linearizeDepthFast(prevDepth))), 1.0);
-
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                         radianceOut.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
+                         radianceOut.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
                 #else
-				    float linearDepth     = linearizeDepthFast(prevPosition.z);
-				    float linearPrevDepth = linearizeDepthFast(prevDepth);
-
-				    radianceOut.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.1);
                     radianceOut.a *= float(material.depth0 >= handDepth);
                 #endif
             #else

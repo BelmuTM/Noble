@@ -1,4 +1,8 @@
 #version 400 compatibility
 
 #define STAGE_FRAGMENT
-#include "/programs/post/pre_final.glsl"
+
+#include "/settings.glsl"
+
+#define BLOOM_PASS_INDEX 4
+#include "/include/post/bloom/downsample.glsl"

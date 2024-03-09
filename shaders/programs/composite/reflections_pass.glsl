@@ -63,7 +63,6 @@
 
                 #if RENDER_MODE == 0
                     #if GI == 0
-                        frames *= 0.5;
                     #else
                         frames = min(frames, 10.0);
                     #endif
@@ -75,5 +74,6 @@
                 reflections  = reflections.rgb;
             }
         }
+        
     #endif
 #endif

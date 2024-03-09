@@ -36,4 +36,5 @@
         	lighting = direct + albedo * radiance;
 		#endif
 	}
+	
 #endif

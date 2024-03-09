@@ -21,13 +21,15 @@ const int colortex1Format       = RGBA32UI;  // Gbuffer data
      const bool colortex2Clear  = false;
 #endif
 
-const int colortex3Format       = RGBA16F;   // Geometric normals, shadowmap, bloom
-const int colortex4Format       = RGBA16F;   // Deferred Lighting
-const int colortex5Format       = RGBA16F;   // Irradiance, clouds shadows
-const int colortex6Format       = RGB16F;    // Atmosphere
+const int colortex3Format       = RGBA16F;        // Geometric normals, shadowmap, bloom
+const int colortex4Format       = RGBA16F;        // Deferred Lighting
+const int colortex5Format       = RGBA16F;        // Irradiance, clouds shadows
+const int colortex6Format       = R11F_G11F_B10F; // Atmosphere
+
+const vec4 colortex3ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 
 #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-     const int colortex7Format  = RGB16F;   // Clouds
+     const int colortex7Format  = R11F_G11F_B10F; // Clouds
      const bool colortex7Clear  = false;
 #endif
 

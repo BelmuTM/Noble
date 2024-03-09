@@ -26,8 +26,7 @@ in vec2 textureCoords;
 #include "/include/atmospherics/constants.glsl"
 
 #if BLOOM == 1
-    #include "/include/utility/sampling.glsl"
-    #include "/include/post/bloom.glsl"
+    #include "/include/post/bloom/upsample.glsl"
 #endif
 
 #if TONEMAP == ACES
@@ -78,7 +77,7 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += readBloom() * exp2(exposure + BLOOM_STRENGTH - 4.0);
+        color += computeBloom(textureCoords) * exp2(exposure + BLOOM_STRENGTH - 3.0);
     #endif
 
     #if PURKINJE == 1

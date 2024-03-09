@@ -104,4 +104,5 @@
             color.a = sqrt(luminance(max(color.rgb, vec3(EPS))));
         #endif
     }
+    
 #endif

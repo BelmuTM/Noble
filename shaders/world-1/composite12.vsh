@@ -1,3 +1,8 @@
 #version 400 compatibility
 
-#include "/programs/vertex_simple.glsl"
+#define STAGE_VERTEX
+
+#include "/settings.glsl"
+
+#define BLOOM_PASS_INDEX 4
+#include "/include/post/bloom/downsample.glsl"

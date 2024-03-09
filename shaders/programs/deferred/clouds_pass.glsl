@@ -94,5 +94,6 @@
                 clouds = clamp16(mix(clouds, history, weight));
             }
         }
+        
     #endif
 #endif

@@ -145,6 +145,7 @@
             moments    = texelFetch(MOMENTS_BUFFER, texelCoords, 0);
             aTrousFilter(irradiance.rgb, moments.rgb, vertexCoords);
         }
+        
     #endif
 #else
     #include "/programs/discard.glsl"

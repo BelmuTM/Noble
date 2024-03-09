@@ -141,4 +141,5 @@
         if(ivec2(gl_FragCoord.xy) == ivec2(0))
             shadowmap.rgb = uniformSkyIlluminance;
     }
+    
 #endif
