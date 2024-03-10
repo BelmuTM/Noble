@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#include "/settings.glsl"
+
 #if BLOOM == 0
     #include "/programs/discard.glsl"
 #else
