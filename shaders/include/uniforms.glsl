@@ -82,7 +82,7 @@ uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousModelViewInverse;
 uniform mat4 gbufferPreviousProjection;
 
-const int noiseTextureResolution = 256;
+const int noiseTextureResolution = 128;
 
 // Maximum values for x amount of bits and their inverses (2^x - 1)
 const float maxFloat8     = 255.0;

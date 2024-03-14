@@ -5,31 +5,6 @@
 
 const float invShadowMapResolution = 1.0 / shadowMapResolution;
 
-/*
-float contactShadow(vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter) {
-    vec3 rayPosition  = viewToScreen(viewPosition);
-         rayDirection = normalize(viewToScreen(viewPosition + rayDirection) - rayPosition);
-
-    const float contactShadowDepthLenience = 0.2;
-
-    vec3 increment    = rayDirection * (contactShadowDepthLenience * rcp(stepCount));
-         rayPosition += increment * (1.0 + jitter);
-
-    for(int i = 0; i <= stepCount; i++, rayPosition += increment) {
-        if(saturate(rayPosition.xy) != rayPosition.xy) return 1.0;
-
-        float depth = texelFetch(depthtex1, ivec2(rayPosition.xy * viewSize), 0).r;
-        if(depth >= rayPosition.z) return 1.0;
-
-                 depth = linearizeDepth(depth);
-        float rayDepth = linearizeDepth(rayPosition.z);
-
-        if(abs(depth - rayDepth) / depth < contactShadowDepthLenience) return 0.0;
-    }
-    return 1.0;
-}
-*/
-
 vec3 worldToShadow(vec3 worldPosition) {
 	return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
 }

@@ -59,13 +59,24 @@ vec3 distortShadowSpace(vec3 position) {
 /*--------------- SPACE CONVERSIONS --------------------*/
 //////////////////////////////////////////////////////////
 
-vec3 screenToView(vec3 screenPosition) {
+vec3 screenToView(vec3 screenPosition, bool unjitter) {
 	screenPosition = screenPosition * 2.0 - 1.0;
+
+    #if TAA == 1
+        if(unjitter) screenPosition.xy -= taaOffsets[framemod] * texelSize;
+    #endif
+
 	return projectOrthogonal(gbufferProjectionInverse, screenPosition) / (gbufferProjectionInverse[2].w * screenPosition.z + gbufferProjectionInverse[3].w);
 }
 
-vec3 viewToScreen(vec3 viewPosition) {
-	return (projectOrthogonal(gbufferProjection, viewPosition) / -viewPosition.z) * 0.5 + 0.5;
+vec3 viewToScreen(vec3 viewPosition, bool unjitter) {
+	vec3 ndcPosition = (projectOrthogonal(gbufferProjection, viewPosition) / -viewPosition.z);
+
+    #if TAA == 1
+        if(unjitter) ndcPosition.xy += taaOffsets[framemod] * texelSize;
+    #endif
+
+    return ndcPosition * 0.5 + 0.5;
 }
 
 vec3 sceneToView(vec3 scenePosition) {
@@ -106,7 +117,7 @@ float linearizeDepthFast(float depth) {
 vec3 getVelocity(vec3 currPosition) {
     vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(currPosition.z >= handDepth);
 
-    vec3 prevPosition = transform(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPosition)));
+    vec3 prevPosition = transform(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPosition, false)));
          prevPosition = (projectOrthogonal(gbufferPreviousProjection, prevPosition) / -prevPosition.z) * 0.5 + 0.5;
 
     return prevPosition - currPosition;
@@ -116,7 +127,7 @@ vec3 reproject(vec3 viewPosition, float distanceToFrag, vec3 offset) {
     vec3 scenePosition = normalize((gbufferModelViewInverse * vec4(viewPosition, 1.0)).xyz) * distanceToFrag;
     vec3 velocity      = previousCameraPosition - cameraPosition - offset;
 
-    vec4 prevPosition = gbufferPreviousModelView * vec4(scenePosition + velocity, 1.0);
+    vec4 prevPosition = gbufferPreviousModelView  * vec4(scenePosition + velocity, 1.0);
          prevPosition = gbufferPreviousProjection * vec4(prevPosition.xyz, 1.0);
     return prevPosition.xyz / prevPosition.w * 0.5 + 0.5;
 }

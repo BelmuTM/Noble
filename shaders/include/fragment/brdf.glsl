@@ -139,13 +139,23 @@ vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 ligh
 vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, vec4 shadowmap, vec3 directIlluminance, vec3 skyIlluminance, float ao, float cloudsShadows) {
     viewDirection = normalize(-viewDirection);
 
-    vec3 diffuse  = hammonDiffuse(material, viewDirection, lightDirection);
-         diffuse *= shadowmap.rgb * cloudsShadows;
+    bool isMetal = material.F0 * maxFloat8 > 229.5;
+
+    vec3 diffuse;
+    if(isMetal) {
+        diffuse = vec3(max0(dot(material.normal, lightDirection)) * RCP_PI);
+    } else {
+        diffuse = hammonDiffuse(material, viewDirection, lightDirection);
+    }
+
+    diffuse *= shadowmap.rgb * cloudsShadows;
 
     float skylightFalloff = getSkylightFalloff(material.lightmap.y);
 
     #if SUBSURFACE_SCATTERING == 1
-        diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows * (material.id == SSS_ID ? skylightFalloff : 1.0);
+        if(!isMetal) {
+            diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows * (material.id == SSS_ID ? skylightFalloff : 1.0);
+        }
     #endif
 
     diffuse *= directIlluminance;

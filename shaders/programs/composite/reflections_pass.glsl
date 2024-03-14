@@ -44,7 +44,7 @@
 
             Material material = getMaterial(vertexCoords);
             vec3 currPosition = vec3(textureCoords, depth);
-            vec3 viewPosition = screenToView(currPosition);
+            vec3 viewPosition = screenToView(currPosition, true);
                     
             #if REFLECTIONS_TYPE == 0
                 reflections = computeSmoothReflections(viewPosition, material);
@@ -53,25 +53,6 @@
             #endif
 
             reflections = clamp16(reflections);
-
-            vec2 prevCoords = vertexCoords + getVelocity(currPosition).xy * RENDER_SCALE;
-            vec3 prevColor  = texture(REFLECTIONS_BUFFER, prevCoords).rgb;
-
-            if(!any(isnan(prevColor)) && currPosition.z >= handDepth) {
-                float frames = 0.0;
-                if(material.id != WATER_ID) frames = texture(ACCUMULATION_BUFFER, prevCoords).a;
-
-                #if RENDER_MODE == 0
-                    #if GI == 0
-                    #else
-                        frames = min(frames, 10.0);
-                    #endif
-                #endif
-
-                float weight = 1.0 / max(frames, 1.0);
-                reflections  = mix(prevColor, reflections, weight);
-            }
-
         }
         
     #endif

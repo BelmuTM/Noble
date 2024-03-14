@@ -40,7 +40,7 @@ vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
 }
 
 void pathtrace(out vec3 radiance, in vec3 screenPosition, out vec3 direct, vec3 directIlluminance) {
-    vec3 viewPosition = screenToView(screenPosition);
+    vec3 viewPosition = screenToViewUnjittered(screenPosition);
 
     for(int i = 0; i < GI_SAMPLES; i++) {
 
@@ -67,7 +67,7 @@ void pathtrace(out vec3 radiance, in vec3 screenPosition, out vec3 direct, vec3 
 
             brdf += material.albedo * EMISSIVE_INTENSITY * 5.0 * material.emission;
 
-            vec3 tracePosition = screenToView(rayPosition) + material.normal * 1e-2;
+            vec3 tracePosition = screenToViewUnjittered(rayPosition) + material.normal * 1e-2;
              
             bool hit = raytrace(depthtex0, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
 

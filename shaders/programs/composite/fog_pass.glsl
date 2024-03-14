@@ -31,8 +31,8 @@ void main() {
 
     Material material = getMaterial(vertexCoords);
 
-    vec3 viewPosition0  = screenToView(vec3(textureCoords, material.depth0));
-    vec3 viewPosition1  = screenToView(vec3(textureCoords, material.depth1));
+    vec3 viewPosition0  = screenToView(vec3(textureCoords, material.depth0), true);
+    vec3 viewPosition1  = screenToView(vec3(textureCoords, material.depth1), true);
     vec3 scenePosition0 = viewToScene(viewPosition0);
 
     vec3 skyIlluminance = vec3(0.0), uniformSkyIlluminance = vec3(0.0), directIlluminance = vec3(0.0);

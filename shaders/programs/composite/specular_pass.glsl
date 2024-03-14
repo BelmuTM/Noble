@@ -62,7 +62,7 @@ void main() {
     vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-    lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+    lighting = vec3(0.0);
 
     vec3 coords = vec3(vertexCoords, 0.0);
 
@@ -73,8 +73,12 @@ void main() {
     if(depth != 1.0) {
         Material material = getMaterial(vertexCoords);
 
-        vec3 viewPosition0 = screenToView(vec3(textureCoords, material.depth0));
-        vec3 viewPosition1 = screenToView(vec3(textureCoords, material.depth1));
+        if(material.F0 * maxFloat8 <= 229.5) {
+            lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+        }
+
+        vec3 viewPosition0 = screenToView(vec3(textureCoords, material.depth0), true);
+        vec3 viewPosition1 = screenToView(vec3(textureCoords, material.depth1), true);
 
         vec3 directIlluminance = vec3(0.0);
     
@@ -119,6 +123,8 @@ void main() {
                 envSpecular = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
             #endif
         #endif
+    } else {
+        lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
     }
 
     vec3 scattering    = vec3(0.0);

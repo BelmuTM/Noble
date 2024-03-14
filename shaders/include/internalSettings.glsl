@@ -18,7 +18,6 @@ const int colortex1Format       = RGBA32UI;  // Gbuffer data
 
 #if REFLECTIONS == 1
      const int colortex2Format  = RGB16F;    // Reflections
-     const bool colortex2Clear  = false;
 #endif
 
 const int colortex3Format       = RGBA16F;        // Geometric normals, shadowmap, bloom

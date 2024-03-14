@@ -41,8 +41,8 @@
 					vec3 rayDirection = generateCosineVector(normal, rand2F());
 					vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
 
-					vec2  sampleCoords = viewToScreen(rayPosition).xy;
-					float rayDepth     = screenToView(vec3(sampleCoords, texture(depthtex0, sampleCoords * RENDER_SCALE).r)).z;
+					vec2  sampleCoords = viewToScreen(rayPosition, true).xy;
+					float rayDepth     = screenToView(vec3(sampleCoords, texture(depthtex0, sampleCoords * RENDER_SCALE).r), true).z;
 
 					if(rayDepth >= rayPosition.z + EPS) {
 						occlusion += quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
@@ -92,7 +92,7 @@
 					float depth = texelFetch(depthtex0, ivec2(rayPosition * viewSize * RENDER_SCALE), 0).r;
 					if(saturate(rayPosition) != rayPosition || depth == 1.0 || depth < handDepth) continue;
 
-					vec3 horizonVec = screenToView(vec3(rayPosition, depth)) - viewPosition;
+					vec3 horizonVec = screenToView(vec3(rayPosition, depth), true) - viewPosition;
 					float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(2.0, 3.0, lengthSqr(horizonVec)));
 		
 					horizonCos = max(horizonCos, cosTheta);
@@ -150,7 +150,7 @@
 			if(depth == 1.0) return;
 
 			Material material = getMaterial(vertexCoords);
-			vec3 viewPosition = screenToView(vec3(textureCoords, depth));
+			vec3 viewPosition = screenToView(vec3(textureCoords, depth), true);
 
 			vec3 bentNormal = vec3(0.0);
 

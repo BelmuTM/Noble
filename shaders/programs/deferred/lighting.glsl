@@ -94,7 +94,7 @@
 	    if(saturate(fragCoords) != fragCoords) { discard; return; }
 
         float depth        = texture(depthtex0, vertexCoords).r;
-        vec3  viewPosition = screenToView(vec3(textureCoords, depth));
+        vec3  viewPosition = screenToView(vec3(textureCoords, depth), true);
 
         vec3 skyIlluminance = vec3(0.0);
         #if defined WORLD_OVERWORLD || defined WORLD_END
@@ -155,24 +155,22 @@
         #if GI == 0
             radianceOut.rgb = vec3(0.0);
 
-            if(material.F0 * maxFloat8 <= 229.5) {
-                float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
+            float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
-                #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                    cloudsShadows = getCloudsShadows(viewToScene(viewPosition));
-                #endif
+            #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+                cloudsShadows = getCloudsShadows(viewToScene(viewPosition));
+            #endif
 
-                #if SHADOWS == 1
-                    shadowmap = texelFetch(SHADOWMAP_BUFFER, ivec2(max(gl_FragCoord.xy, vec2(1.0))), 0);
-                #endif
+            #if SHADOWS == 1
+                shadowmap = texelFetch(SHADOWMAP_BUFFER, ivec2(max(gl_FragCoord.xy, vec2(1.0))), 0);
+            #endif
 
-                float ao = 1.0;
-                #if AO == 1
-                    ao = texture(AO_BUFFER, vertexCoords).b;
-                #endif
+            float ao = 1.0;
+            #if AO == 1
+                ao = texture(AO_BUFFER, vertexCoords).b;
+            #endif
 
-                radianceOut.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
-            }
+            radianceOut.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         #else
             if(material.F0 * maxFloat8 <= 229.5) {
                 pathtrace(radianceOut.rgb, vec3(vertexCoords, depth), directOut, directIlluminance);

@@ -86,18 +86,23 @@
             #endif
         #else
             vec3 closestFragment = getClosestFragment(vec3(textureCoords, texture(depthtex0, vertexCoords).r));
-            vec2 prevCoords      = textureCoords + getVelocity(closestFragment).xy;
+            vec2 velocity        = getVelocity(closestFragment).xy;
+            vec2 prevCoords      = textureCoords + velocity;
 
-            vec3 currColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(DEFERRED_BUFFER, vertexCoords).rgb);
-            vec3 prevColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(HISTORY_BUFFER , prevCoords  ).rgb);
-                 prevColor = neighbourhoodClipping(DEFERRED_BUFFER, prevColor);
+            if(saturate(prevCoords) == prevCoords) {
+                vec3 currColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(DEFERRED_BUFFER, vertexCoords + taaOffsets[framemod] * texelSize).rgb);
+                vec3 prevColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(HISTORY_BUFFER , prevCoords  ).rgb);
+                     prevColor = neighbourhoodClipping(DEFERRED_BUFFER, prevColor);
 
-            float weight = float(saturate(prevCoords) == prevCoords) * TAA_STRENGTH;
+	            float luminanceDelta = pow2(distance(prevColor, currColor) / luminance(prevColor));
 
-            vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
-                 weight         *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * TAA_OFFCENTER_REJECTION + (1.0 - TAA_OFFCENTER_REJECTION);
+	            float weight = saturate(length(velocity * viewSize));
+	                  weight = (1.0 - TAA_STRENGTH + weight * 0.5) / (1.0 + luminanceDelta);
 
-            color.rgb = max0(YCoCg_2_SRGB_MAT * mix(currColor, prevColor, saturate(weight)));
+                color.rgb = max0(YCoCg_2_SRGB_MAT * mix(prevColor, currColor, saturate(weight)));
+            } else {
+                color.rgb = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+            }
         #endif
 
         #if EXPOSURE > 0

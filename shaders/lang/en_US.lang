@@ -806,9 +806,6 @@ value.TAA.1 = §aON
 option.TAA_STRENGTH = Strength
 option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§r's strength.
 
-option.TAA_OFFCENTER_REJECTION = Offcenter Rejection
-option.TAA_OFFCENTER_REJECTION.comment = Adjusts §bTemporal Anti-Aliasing§r's offcenter weight strength. The lower the value is, the weaker TAA is be during movement.
-
 ##################### POST-PROCESSING #####################
 
 option.EIGHT_BITS_FILTER = 8-Bits Filter
