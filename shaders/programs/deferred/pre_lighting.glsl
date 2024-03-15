@@ -54,7 +54,7 @@
     in vec3[9] skyIrradiance;
     in vec3 uniformSkyIlluminance;
 
-    #if defined WORLD_OVERWORLD && SHADOWS == 1
+    #if defined WORLD_OVERWORLD && SHADOWS > 0
         #include "/include/fragment/shadowmap.glsl"
     #endif
 
@@ -99,7 +99,7 @@
             if(receivesSkylight) {
                 #if GI == 0
                     vec4 ao = vec4(material.normal, 1.0);
-                    #if AO == 1 && AO_TYPE == 1 || AO == 1 && AO_TYPE == 2
+                    #if AO == 1 || AO == 3
                         vec3 aoBuffer = texture(AO_BUFFER, vertexCoords).rgb;
 
                         ao.xyz = decodeUnitVector(aoBuffer.xy);
@@ -123,7 +123,7 @@
         //////////////////////////////////////////////////////////
             
         #if defined WORLD_OVERWORLD
-            #if SHADOWS == 1
+            #if SHADOWS > 0
                 if(material.depth0 != 1.0) {
                     vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
                     vec3 scenePosition   = viewToScene(screenToView(vec3(textureCoords, material.depth0), true));

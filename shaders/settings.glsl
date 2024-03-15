@@ -39,23 +39,23 @@
 /*------------------------ MATH ------------------------*/
 //////////////////////////////////////////////////////////
 
-const float EPS = 1e-6;
+const float EPS = 1e-4;
 
 const float PI      = radians(180.0);
 const float HALF_PI = PI * 0.5;
 const float RCP_PI  = 1.0 / PI;
 const float TAU     = PI * 2.0;
 
-const float GOLDEN_ANGLE = 2.39996322;
-const float GOLDEN_RATIO = 1.61803398;
+const float GOLDEN_ANGLE = PI * (3.0 - sqrt(5.0));
+const float GOLDEN_RATIO = sqrt(5.0) * 0.5 + 0.5;
 
 //////////////////////////////////////////////////////////
 /*----------------- OPTIFINE CONSTANTS -----------------*/
 //////////////////////////////////////////////////////////
 
 const float sunPathRotation     = -40.0; // [-90.0 -85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0 90.0]
-const int   shadowMapResolution = 3072;  // [512 1024 2048 3072 4096 6144 8192 10240]
-const float shadowDistance      = 128;   // [64 128 256 512 1024 2048 4096]
+const int   shadowMapResolution =  3072; // [512 1024 2048 3072 4096 6144 8192 10240]
+const float shadowDistance      =  128 ; // [64 128 256 512 1024 2048 4096]
 
 //////////////////////////////////////////////////////////
 /*---------------------- LIGHTING ----------------------*/
@@ -63,14 +63,13 @@ const float shadowDistance      = 128;   // [64 128 256 512 1024 2048 4096]
 
 const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
+#define DIRECTIONAL_LIGHTMAP 1 // [0 1]
+
 #define SUBSURFACE_SCATTERING 1 // [0 1]
-#define MATERIAL_AO           1 // [0 1]
-#define SPECULAR              1 // [0 1]
 
 #define BLOCKLIGHT_TEMPERATURE 3000 // [1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2100 2200 2300 2400 2500 2600 2700 2800 2900 3000 3100 3200 3300 3400 3500 3600 3700 3800 3900 4000 4100 4200 4300 4400 4500 4600 4700 4800 4900 5000 5100 5200 5300 5400 5500 5600 5700 5800 5900 6000 6100 6200 6300 6400 6500 6600 6700 6800 6900 7000 7100 7200 7300 7400 7500 7600 7700 7800 7900 8000 8100 8200 8300 8400 8500 8600 8700 8800 8900 9000 9100 9200 9300 9400 9500 9600 9700 9800 9900 10000 10100 10200 10300 10400 10500 10600 10700 10800 10900 11000 11100 11200 11300 11400 11500 11600 11700 11800 11900 12000 12100 12200 12300 12400 12500 12600 12700 12800 12900 13000 13100 13200 13300 13400 13500 13600 13700 13800 13900 14000 14100 14200 14300 14400 14500 14600 14700 14800 14900 15000]
 #define EMISSIVE_INTENSITY      200 // [100 200 300 400 500 600 700 800 900 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2100 2200 2300 2400 2500 2600 2700 2800 2900 3000 3100 3200 3300 3400 3500 3600 3700 3800 3900 4000 4100 4200 4300 4400 4500 4600 4700 4800 4900 5000 5100 5200 5300 5400 5500 5600 5700 5800 5900 6000]
 
-#define DIRECTIONAL_LIGHTMAP 1 // [0 1]
 #define SUNLIGHT_LEAKING_FIX
 
 #define HARDCODED_SSS             1
@@ -79,13 +78,31 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define HARDCODED_EMISSION_VAL 0.70
 
 //////////////////////////////////////////////////////////
+/*---------------------- SHADOWS -----------------------*/
+//////////////////////////////////////////////////////////
+
+#define SHADOWS        1 // [0 1 2 3]
+#define SHADOW_SAMPLES 8 // [2 4 6 8 10 12 14 16]
+
+#define SHADOW_DISTORTION    0.88
+#define SHADOW_DEPTH_STRETCH 0.25
+
+#define NORMAL_SHADOW_PENUMBRA 1.0
+#define MIN_SHADOW_PENUMBRA    0.2
+
+// Soft Shadows
+#define BLOCKER_SEARCH_SAMPLES   8
+#define BLOCKER_SEARCH_RADIUS 10.0
+#define LIGHT_SIZE            70.0
+
+//////////////////////////////////////////////////////////
 /*------------------ AMBIENT OCCLUSION -----------------*/
 //////////////////////////////////////////////////////////
 
-#define AO         1 // [0 1]
-#define AO_TYPE    2 // [0 1 2]
-#define AO_FILTER  1 // [0 1]
-#define AO_SCALE 100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define AO          1 // [0 1 2 3]
+#define MATERIAL_AO 1 // [0 1]
+#define AO_FILTER   1 // [0 1]
+#define AO_SCALE  100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 #define SSAO_SAMPLES   12 // [4 8 12 16 20]
 #define SSAO_RADIUS   0.7 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
@@ -99,25 +116,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define GTAO_RADIUS      1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 //////////////////////////////////////////////////////////
-/*---------------------- SHADOWS -----------------------*/
-//////////////////////////////////////////////////////////
-
-#define SHADOWS     1 // [0 1]
-#define SHADOW_TYPE 1 // [0 1 2]
-
-#define SHADOW_SAMPLES          8 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
-#define SHADOW_DISTORTION    0.88
-#define SHADOW_DEPTH_STRETCH 0.25
-
-#define NORMAL_SHADOW_PENUMBRA 1.0
-#define MIN_SHADOW_PENUMBRA    0.2
-
-// Soft Shadows
-#define BLOCKER_SEARCH_SAMPLES   8
-#define BLOCKER_SEARCH_RADIUS 10.0
-#define LIGHT_SIZE            70.0
-
-//////////////////////////////////////////////////////////
 /*-------------------- RAY TRACING ---------------------*/
 //////////////////////////////////////////////////////////
 
@@ -127,15 +125,32 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define RAY_DEPTH_TOLERANCE 0.5
 
-#define BINARY_REFINEMENT 1 // [0 1]
-#define BINARY_COUNT     10
+#define BINARY_REFINEMEN
+#define BINARY_COUNT 10
+
+//////////////////////////////////////////////////////////
+/*------------- REFLECTIONS | REFRACTIONS --------------*/
+//////////////////////////////////////////////////////////
+
+#define SPECULAR 1 // [0 1]
+
+#define REFLECTIONS         1 // [0 1 2]
+#define REFLECTIONS_SCALE 100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+
+#define REFLECTIONS_STEPS 32 // [8 16 32 64 128]
+
+#define ROUGH_REFLECTIONS_SAMPLES 2 // [1 2 3 4]
+
+#define REFLECTIONS_SKY_FALLBACK
+
+#define REFRACTIONS        1 // [0 1]
+#define REFRACTIONS_STEPS 64 // [16 32 64 128]
 
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/
 //////////////////////////////////////////////////////////
 
-#define GI               0 // [0 1]
-#define SKY_CONTRIBUTION 1 // [0 1]
+#define GI 0 // [0 1]
 
 #define ATROUS_FILTER         1 // [0 1]
 #define TEMPORAL_ACCUMULATION 1 // [0 1]
@@ -148,30 +163,14 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define DEPTH_WEIGHT_SIGMA     1.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
 #define LUMINANCE_WEIGHT_SIGMA 4.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0 51.0 52.0 53.0 54.0 55.0 56.0 57.0 58.0 59.0 60.0 61.0 62.0 63.0 64.0 65.0 66.0 67.0 68.0 69.0 70.0 71.0 72.0 73.0 74.0 75.0 76.0 77.0 78.0 79.0 80.0 81.0 82.0 83.0 84.0 85.0 86.0 87.0 88.0 89.0 90.0 91.0 92.0 93.0 94.0 95.0 96.0 97.0 98.0 99.0 100.0]
 
+#define SKY_CONTRIBUTION 1 // [0 1]
+
 #define GI_SAMPLES      1 // [1 2 3 4 5 6 7 8]
 #define MAX_GI_BOUNCES  4 // [1 2 3 4 5 6 7 8 9 10 11 12 9999]
 #define MAX_GI_STEPS  128 // [128 256]
 #define GI_SCALE 	  100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 #define MIN_ROULETTE_BOUNCES 0
-
-//////////////////////////////////////////////////////////
-/*------------- REFLECTIONS | REFRACTIONS --------------*/
-//////////////////////////////////////////////////////////
-
-#define REFLECTIONS         1 // [0 1]
-#define REFLECTIONS_TYPE    1 // [0 1]
-#define REFLECTIONS_SCALE 100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-
-#define ROUGH_REFLECTIONS_SAMPLES 1
-#define ROUGH_REFLECTIONS_STEPS  64
-#define SMOOTH_REFLECTIONS_STEPS 64
-
-#define SKY_FALLBACK
-#define SSR_REPROJECTION 0 // [0 1]
-
-#define REFRACTIONS        1 // [0 1]
-#define REFRACTIONS_STEPS 64
 
 //////////////////////////////////////////////////////////
 /*-------------------- ATMOSPHERICS --------------------*/

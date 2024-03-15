@@ -32,49 +32,7 @@
 
 		#include "/include/common.glsl"
 	
-		#if AO_TYPE == 0
-
-			float SSAO(vec3 viewPosition, vec3 normal) {
-				float occlusion = 0.0;
-
-				for(int i = 0; i < SSAO_SAMPLES; i++) {
-					vec3 rayDirection = generateCosineVector(normal, rand2F());
-					vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
-
-					vec2  sampleCoords = viewToScreen(rayPosition, true).xy;
-					float rayDepth     = screenToView(vec3(sampleCoords, texture(depthtex0, sampleCoords * RENDER_SCALE).r), true).z;
-
-					if(rayDepth >= rayPosition.z + EPS) {
-						occlusion += quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
-					}
-		    	}
-		    	return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
-	    	}
-
-		#elif AO_TYPE == 1
-
-			#include "/include/fragment/raytracer.glsl"
-
-			float RTAO(vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
-				vec3 rayPosition = viewPosition + normal * 1e-2;
-				float occlusion  = 1.0;
-
-				vec3 hitPosition = vec3(0.0);
-
-				for(int i = 0; i < RTAO_SAMPLES; i++) {
-					vec3 rayDirection = generateCosineVector(normal, rand2F());
-
-					if(!raytrace(depthtex0, rayPosition, rayDirection, RTAO_STEPS, randF(), RENDER_SCALE, hitPosition)) {
-						bentNormal += rayDirection;
-						continue;
-					}
-					occlusion -= rcp(RTAO_SAMPLES);
-				}
-				bentNormal = normalize(bentNormal);
-				return saturate(occlusion);
-			}
-
-		#else
+		#if AO == 1
 
 			float multiBounceApprox(float visibility) { 
 				const float albedo = 0.2; 
@@ -137,6 +95,48 @@
 				return multiBounceApprox(visibility * rcp(GTAO_SLICES));
 			}
 
+		#elif AO == 2
+
+			float SSAO(vec3 viewPosition, vec3 normal) {
+				float occlusion = 0.0;
+
+				for(int i = 0; i < SSAO_SAMPLES; i++) {
+					vec3 rayDirection = generateCosineVector(normal, rand2F());
+					vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
+
+					vec2  sampleCoords = viewToScreen(rayPosition, true).xy;
+					float rayDepth     = screenToView(vec3(sampleCoords, texture(depthtex0, sampleCoords * RENDER_SCALE).r), true).z;
+
+					if(rayDepth >= rayPosition.z + EPS) {
+						occlusion += quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
+					}
+		    	}
+		    	return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
+	    	}
+
+		#elif AO == 3
+
+			#include "/include/fragment/raytracer.glsl"
+
+			float RTAO(vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+				vec3 rayPosition = viewPosition + normal * 1e-2;
+				float occlusion  = 1.0;
+
+				vec3 hitPosition = vec3(0.0);
+
+				for(int i = 0; i < RTAO_SAMPLES; i++) {
+					vec3 rayDirection = generateCosineVector(normal, rand2F());
+
+					if(!raytrace(depthtex0, rayPosition, rayDirection, RTAO_STEPS, randF(), RENDER_SCALE, hitPosition)) {
+						bentNormal += rayDirection;
+						continue;
+					}
+					occlusion -= rcp(RTAO_SAMPLES);
+				}
+				bentNormal = normalize(bentNormal);
+				return saturate(occlusion);
+			}
+
 		#endif
 
 		void main() {
@@ -154,12 +154,12 @@
 
 			vec3 bentNormal = vec3(0.0);
 
-			#if AO_TYPE == 0
-				ao.b = SSAO(viewPosition, material.normal);
-			#elif AO_TYPE == 1
-				ao.b = RTAO(viewPosition, material.normal, bentNormal);
-			#elif AO_TYPE == 2
+			#if AO == 1
 				ao.b = GTAO(viewPosition, material.normal, bentNormal);
+			#elif AO == 2
+				ao.b = SSAO(viewPosition, material.normal);
+			#elif AO == 3
+				ao.b = RTAO(viewPosition, material.normal, bentNormal);
 			#endif
 
 			#if AO_FILTER == 1
@@ -168,9 +168,9 @@
 
 				vec3 prevAO = texture(AO_BUFFER, prevCoords).rgb;
 		
-				float weight = 1.0 / max(texture(ACCUMULATION_BUFFER, prevCoords).a, 1.0);
+				float weight = 1.0 / clamp(texture(ACCUMULATION_BUFFER, prevCoords).a, 1.0, 64.0);
 
-				#if AO_TYPE == 1 || AO_TYPE == 2
+				#if AO == 1 || AO == 3
 					vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
 
 					ao.xy = encodeUnitVector(mix(prevBentNormal, bentNormal, weight));

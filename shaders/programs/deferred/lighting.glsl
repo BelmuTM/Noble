@@ -117,9 +117,7 @@
             if(material.id > NETHER_PORTAL_ID && material.id <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
         #endif
 
-        #if AO_FILTER == 1 && GI == 0 || REFLECTIONS == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
-            
-
+        #if AO_FILTER == 1 && GI == 0 || REFLECTIONS > 0 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
             vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth)) * RENDER_SCALE;
             vec4 history      = texture(ACCUMULATION_BUFFER, prevPosition.xy);
 
@@ -161,12 +159,12 @@
                 cloudsShadows = getCloudsShadows(viewToScene(viewPosition));
             #endif
 
-            #if SHADOWS == 1
+            #if SHADOWS > 0
                 shadowmap = texelFetch(SHADOWMAP_BUFFER, ivec2(max(gl_FragCoord.xy, vec2(1.0))), 0);
             #endif
 
             float ao = 1.0;
-            #if AO == 1
+            #if AO > 0
                 ao = texture(AO_BUFFER, vertexCoords).b;
             #endif
 

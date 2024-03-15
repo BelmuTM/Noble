@@ -22,39 +22,33 @@ suffix.RENDER_SCALE = x
 
 ##################### SCREENS #####################
 
-screen.LIGHTING          = Lighting
-screen.AMBIENT_OCCLUSION = Ambient Occlusion
-screen.RAYTRACING        = Ray Tracing
-screen.FILTER            = Denoiser
-screen.ATMOSPHERICS      = Atmospherics
-screen.ATMOSPHERE        = Atmosphere
-screen.CLOUDS            = Clouds
-screen.CLOUDS_LAYER0     = First Layer
-screen.CLOUDS_LAYER1     = Second Layer
-screen.FOG               = Air Fog
-screen.STARS             = Stars
-screen.TERRAIN           = Terrain
-screen.WATER             = Water
-screen.WATER_ABSORPTION  = Absorption
-screen.WATER_SCATTERING  = Scattering
-screen.POM               = POM
-screen.CAMERA            = Camera
-screen.CAMERA_SETTINGS   = Camera Settings
-screen.ANTI_ALIASING     = Anti-Aliasing
-screen.COLOR_GRADING     = Color Grading
-screen.POST_PROCESSING   = Post-Processing
-screen.DEPTH_OF_FIELD    = Depth of Field
-screen.DEBUG             = Debug
+screen.LIGHTING                = Lighting
+screen.SHADOWS                 = Shadows
+screen.AMBIENT_OCCLUSION       = Ambient Occlusion
+screen.REFLECTIONS_REFRACTIONS = Reflections | Refractions
+screen.GLOBAL_ILLUMINATION     = Global Illumination
+screen.FILTER                  = Denoiser
+screen.ATMOSPHERICS            = Atmospherics
+screen.ATMOSPHERE              = Atmosphere
+screen.CLOUDS                  = Clouds
+screen.CLOUDS_LAYER0           = First Layer
+screen.CLOUDS_LAYER1           = Second Layer
+screen.FOG                     = Air Fog
+screen.STARS                   = Stars
+screen.TERRAIN                 = Terrain
+screen.WATER                   = Water
+screen.WATER_ABSORPTION        = Absorption
+screen.WATER_SCATTERING        = Scattering
+screen.POM                     = POM
+screen.CAMERA                  = Camera
+screen.CAMERA_SETTINGS         = Camera Settings
+screen.ANTI_ALIASING           = Anti-Aliasing
+screen.COLOR_GRADING           = Color Grading
+screen.POST_PROCESSING         = Post-Processing
+screen.DEPTH_OF_FIELD          = Depth of Field
+screen.DEBUG                   = Debug
 
 ##################### LIGHTING #####################
-
-option.BLOCKLIGHT_TEMPERATURE = Blocklight Temperature
-option.BLOCKLIGHT_TEMPERATURE.comment = Adjusts the temperature of blocklight (in Kelvins). It influences the blocklight color.
-suffix.BLOCKLIGHT_TEMPERATURE = K
-
-option.EMISSIVE_INTENSITY = Emissive Intensity
-option.EMISSIVE_INTENSITY.comment = Adjusts the intensity of emitted blocklight (in Lumens).
-suffix.EMISSIVE_INTENSITY =  lumens
 
 option.DIRECTIONAL_LIGHTMAP = Directional Lightmap
 option.DIRECTIONAL_LIGHTMAP.comment = Makes Minecraft's lightmap depend on the direction to the light source. §cMight produce visual bugs.
@@ -66,47 +60,32 @@ option.SUBSURFACE_SCATTERING.comment = Simulates how light goes through certain 
 value.SUBSURFACE_SCATTERING.0 = §cOFF
 value.SUBSURFACE_SCATTERING.1 = §aON
 
-option.MATERIAL_AO = Material AO
-option.MATERIAL_AO.comment = §bMaterial Ambient Occlusion§r. Adds pseudo-shadows from the textures themselves. §cRequires a LabPBR resource pack!
-value.MATERIAL_AO.0 = §cOFF
-value.MATERIAL_AO.1 = §aON
+option.BLOCKLIGHT_TEMPERATURE = Blocklight Temperature
+option.BLOCKLIGHT_TEMPERATURE.comment = Adjusts the temperature of blocklight (in Kelvins). It influences the blocklight color.
+suffix.BLOCKLIGHT_TEMPERATURE = K
 
-option.SPECULAR = Specular
-option.SPECULAR.comment = Adds a certain shininess to blocks.
-value.SPECULAR.0 = §cOFF
-value.SPECULAR.1 = §aON
+option.EMISSIVE_INTENSITY = Emissive Intensity
+option.EMISSIVE_INTENSITY.comment = Adjusts the intensity of emitted blocklight (in Lumens).
+suffix.EMISSIVE_INTENSITY =  lumens
+
+##################### SHADOWS #####################
 
 option.SHADOWS = Shadows
-option.SHADOWS.comment = Adds shadows.
+option.SHADOWS.comment = §aSoft§r shadows get blurrier the farther they are from the blocker. §aNormal§r shadows are shadows with uniformly blurred edges. §aSharp§r shadows have very sharp edges.
 value.SHADOWS.0 = §cOFF
-value.SHADOWS.1 = §aON
+value.SHADOWS.1 = §e§lSoft
+value.SHADOWS.2 = §e§lNormal
+value.SHADOWS.3 = §e§lSharp
 
-option.SHADOW_TYPE = Shadow Type
-option.SHADOW_TYPE.comment = §aNormal§r shadows are shadows with blurred edges. §aSoft§r shadows get blurrier the farther they are from the blocker. §aSharp§r shadows have very sharp edges.
-value.SHADOW_TYPE.0 = §eNormal
-value.SHADOW_TYPE.1 = §eSoft
-value.SHADOW_TYPE.2 = §eSharp
-
-option.shadowDistance = Shadow Distance
-option.shadowDistance.comment = Adjusts §bShadows§r maximum render distance.
-
-option.SHADOW_SAMPLES = Shadow Samples
-option.SHADOW_SAMPLES.comment = Adjusts §bShadows§r quality. §cHigher resolution gives better shadows, but reduces §cperformance. §cDoesn't apply to hard shadows.
-value.SHADOW_SAMPLES.1 = §b1
+option.SHADOW_SAMPLES = Samples
+option.SHADOW_SAMPLES.comment = Adjusts §bShadows§r quality. §cHigher resolution gives better shadows, but reduces §cperformance. §cDoesn't apply to sharp shadows.
 value.SHADOW_SAMPLES.2 = §b2
-value.SHADOW_SAMPLES.3 = §33
 value.SHADOW_SAMPLES.4 = §34
-value.SHADOW_SAMPLES.5 = §25
 value.SHADOW_SAMPLES.6 = §26
-value.SHADOW_SAMPLES.7 = §a7
 value.SHADOW_SAMPLES.8 = §a8
-value.SHADOW_SAMPLES.9 = §e9
 value.SHADOW_SAMPLES.10 = §e10
-value.SHADOW_SAMPLES.11 = §611
 value.SHADOW_SAMPLES.12 = §612
-value.SHADOW_SAMPLES.13 = §c13
 value.SHADOW_SAMPLES.14 = §c14
-value.SHADOW_SAMPLES.15 = §415
 value.SHADOW_SAMPLES.16 = §416
 
 option.shadowMapResolution = Shadow Resolution
@@ -121,25 +100,29 @@ value.shadowMapResolution.8192 = §c8192
 value.shadowMapResolution.10240 = §410240
 suffix.shadowMapResolution = x
 
+option.shadowDistance = Shadow Distance
+option.shadowDistance.comment = Adjusts §bShadows§r maximum render distance.
+
 ##################### AMBIENT OCCLUSION #####################
 
 option.AO = Ambient Occlusion (AO)
-option.AO.comment = §bAmbient Occlusion. §rFeatures pseudo-shadows that enhance a scene's depth perception.
+option.AO.comment = §rFeatures pseudo-shadows that enhance a scene's depth perception. §aGTAO §7-> §rGround Truth Ambient Occlusion. §aSSAO §7-> §rScreen Space Ambient Occlusion. §aRTAO §7-> §rRay Traced Ambient Occlusion.
 value.AO.0 = §cOFF
-value.AO.1 = §aON
+value.AO.1 = §e§lGTAO
+value.AO.2 = §e§lSSAO
+value.AO.3 = §e§lRTAO
 
-option.AO_FILTER = AO Filter
+option.MATERIAL_AO = Material AO
+option.MATERIAL_AO.comment = Adds pseudo-shadows to the textures themselves. §cRequires a LabPBR resource pack!
+value.MATERIAL_AO.0 = §cOFF
+value.MATERIAL_AO.1 = §aON
+
+option.AO_FILTER = Temporal Filter
 option.AO_FILTER.comment = Accumulates §bAmbient Occlusion§r over multiple frames to reduce noise and give a cleaner result.
 value.AO_FILTER.0 = §cOFF
 value.AO_FILTER.1 = §aON
 
-option.AO_TYPE = AO Type
-option.AO_TYPE.comment = §aSSAO §7-> §rScreen Space Ambient Occlusion. §aRTAO §7-> §rRay Traced Ambient Occlusion. §aGTAO §7-> §rGround Truth Ambient Occlusion.
-value.AO_TYPE.0 = §e§lSSAO
-value.AO_TYPE.1 = §e§lRTAO
-value.AO_TYPE.2 = §e§lGTAO
-
-option.AO_SCALE = AO Render Scale
+option.AO_SCALE = Render Scale
 option.AO_SCALE.comment = Adjusts §bAO§r's rendering scale. §cHigher value gives better results, but reduces §cperformance.
 suffix.AO_SCALE = x
 value.AO_SCALE.10 = 0.10
@@ -201,24 +184,33 @@ value.GTAO_SLICES.6 = §46
 option.GTAO_RADIUS = GTAO Radius
 option.GTAO_RADIUS.comment = Adjusts §bGTAO§r's radius.
 
-##################### RAY TRACING #####################
+##################### REFLECTIONS | REFRACTIONS #####################
 
-### REFLECTIONS & REFRACTIONS
+option.SPECULAR = Sun Reflections
+option.SPECULAR.comment = Adds solar specular reflections.
+value.SPECULAR.0 = §cOFF
+value.SPECULAR.1 = §aON
 
 option.REFLECTIONS = Reflections
-option.REFLECTIONS.comment = §cCan only reflect what's being displayed §con your screen.
+option.REFLECTIONS.comment = §cCan only reflect what's being displayed §con your screen. §aRough§r reflections consider a surface's roughness. §aSmooth§r reflections §cdon't§r consider a surface's roughness.
 value.REFLECTIONS.0 = §cOFF
-value.REFLECTIONS.1 = §aON
+value.REFLECTIONS.1 = §e§lRough
+value.REFLECTIONS.2 = §e§lSmooth
 
-option.REFRACTIONS = Refractions
-option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen.
-value.REFRACTIONS.0 = §cOFF
-value.REFRACTIONS.1 = §aON
+option.REFLECTIONS_STEPS = Reflections Steps
+option.REFLECTIONS_STEPS.comment = Influences §bReflections§r' accuracy. §cHigher value gives better results, but reduces §cperformance.
+value.REFLECTIONS_STEPS.8 = §28
+value.REFLECTIONS_STEPS.16 = §a16
+value.REFLECTIONS_STEPS.32 = §e32
+value.REFLECTIONS_STEPS.64 = §664
+value.REFLECTIONS_STEPS.128 = §c128
 
-option.REFLECTIONS_TYPE = Reflections Type
-option.REFLECTIONS_TYPE.comment = §bSmooth reflections§r do not consider a material's roughness. §bRough reflections§r do consider it, §cthey give a better §cresult but reduce performance.
-value.REFLECTIONS_TYPE.0 = §eSmooth Reflections
-value.REFLECTIONS_TYPE.1 = §eRough Reflections
+option.ROUGH_REFLECTIONS_SAMPLES = Rough Reflections Samples
+option.ROUGH_REFLECTIONS_SAMPLES.comment = Influences §bRough Reflections§r' quality. §cHigher value gives better results, but reduces §cperformance.
+value.ROUGH_REFLECTIONS_SAMPLES.1 = §a1
+value.ROUGH_REFLECTIONS_SAMPLES.2 = §e2
+value.ROUGH_REFLECTIONS_SAMPLES.3 = §63
+value.ROUGH_REFLECTIONS_SAMPLES.4 = §c4
 
 option.REFLECTIONS_SCALE = Reflections Render Scale
 option.REFLECTIONS_SCALE.comment = Adjusts §bReflections§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
@@ -243,12 +235,48 @@ value.REFLECTIONS_SCALE.90 = 0.90
 value.REFLECTIONS_SCALE.95 = 0.95
 value.REFLECTIONS_SCALE.100 = 1.00
 
-### GLOBAL ILLUMINATION
+option.REFRACTIONS = Refractions
+option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen.
+value.REFRACTIONS.0 = §cOFF
+value.REFRACTIONS.1 = §aON
+
+option.REFRACTIONS_STEPS = Refractions Steps
+option.REFRACTIONS_STEPS.comment = Influences §bRefractions§r' accuracy. §cHigher value gives better results, but reduces §cperformance.
+value.REFRACTIONS_STEPS.8 = §28
+value.REFRACTIONS_STEPS.16 = §a16
+value.REFRACTIONS_STEPS.32 = §e32
+value.REFRACTIONS_STEPS.64 = §664
+value.REFRACTIONS_STEPS.128 = §c128
+
+##################### GLOBAL ILLUMINATION #####################
 
 option.GI = Global Illumination (GI)
 option.GI.comment = Simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it. §cCan only sample what's being displayed §con your screen.
 value.GI.0 = §cOFF
 value.GI.1 = §aON
+
+option.GI_SCALE = Render Scale
+option.GI_SCALE.comment = Adjusts §bGI§r's rendering scale. §cHigher value gives better results, but reduces §cperformance.
+suffix.GI_SCALE = x
+value.GI_SCALE.10 = 0.10
+value.GI_SCALE.15 = 0.15
+value.GI_SCALE.20 = 0.20
+value.GI_SCALE.25 = 0.25
+value.GI_SCALE.30 = 0.30
+value.GI_SCALE.35 = 0.35
+value.GI_SCALE.40 = 0.40
+value.GI_SCALE.45 = 0.45
+value.GI_SCALE.50 = 0.50
+value.GI_SCALE.55 = 0.55
+value.GI_SCALE.60 = 0.60
+value.GI_SCALE.65 = 0.65
+value.GI_SCALE.70 = 0.70
+value.GI_SCALE.75 = 0.75
+value.GI_SCALE.80 = 0.80
+value.GI_SCALE.85 = 0.85
+value.GI_SCALE.90 = 0.90
+value.GI_SCALE.95 = 0.95
+value.GI_SCALE.100 = 1.00
 
 option.ATROUS_FILTER = À-Trous Filter
 option.ATROUS_FILTER.comment = Denoises §bGlobal Illumination§r by blurring it while preserving details.
@@ -277,47 +305,12 @@ option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r
 value.SKY_CONTRIBUTION.0 = §cOFF
 value.SKY_CONTRIBUTION.1 = §aON
 
-option.GI_SCALE = GI Render Scale
-option.GI_SCALE.comment = Adjusts §bGI§r's rendering scale. §cHigher value gives better results, but reduces §cperformance.
-suffix.GI_SCALE = x
-value.GI_SCALE.10 = 0.10
-value.GI_SCALE.15 = 0.15
-value.GI_SCALE.20 = 0.20
-value.GI_SCALE.25 = 0.25
-value.GI_SCALE.30 = 0.30
-value.GI_SCALE.35 = 0.35
-value.GI_SCALE.40 = 0.40
-value.GI_SCALE.45 = 0.45
-value.GI_SCALE.50 = 0.50
-value.GI_SCALE.55 = 0.55
-value.GI_SCALE.60 = 0.60
-value.GI_SCALE.65 = 0.65
-value.GI_SCALE.70 = 0.70
-value.GI_SCALE.75 = 0.75
-value.GI_SCALE.80 = 0.80
-value.GI_SCALE.85 = 0.85
-value.GI_SCALE.90 = 0.90
-value.GI_SCALE.95 = 0.95
-value.GI_SCALE.100 = 1.00
-
 option.GI_SAMPLES = GI Samples
 option.GI_SAMPLES.comment = Adjusts the amount of samples taken to calculate §bGlobal Illumination§r. §cHigher value gives better results, but reduces §cperformance.
 
 option.MAX_GI_BOUNCES = GI Bounces
 option.MAX_GI_BOUNCES.comment = Makes §bGlobal Illumination§r bounce §aX§r times to gather light. §cHigher value gives better results, but reduces §cperformance.
 value.MAX_GI_BOUNCES.9999 = §cInfinite
-
-### RAY TRACING
-
-option.BINARY_REFINEMENT = Binary Refinement
-option.BINARY_REFINEMENT.comment = Adjusts the raytracer's hit position to make it more accurate. §cHigher value gives better results, but reduces §cperformance.
-value.BINARY_REFINEMENT.0 = §cOFF
-value.BINARY_REFINEMENT.1 = §aON
-
-option.SSR_REPROJECTION = SSR Reprojection
-option.SSR_REPROJECTION.comment = Reflects the last frame to make the light bounce infinitely. §aIt doesn't affect performance.
-value.SSR_REPROJECTION.0 = §cOFF
-value.SSR_REPROJECTION.1 = §aON
 
 ##################### ATMOSPHERICS #####################
 

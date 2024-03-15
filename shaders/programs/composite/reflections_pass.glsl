@@ -46,10 +46,10 @@
             vec3 currPosition = vec3(textureCoords, depth);
             vec3 viewPosition = screenToView(currPosition, true);
                     
-            #if REFLECTIONS_TYPE == 0
-                reflections = computeSmoothReflections(viewPosition, material);
-            #else
+            #if REFLECTIONS == 1
                 reflections = computeRoughReflections(viewPosition, material);
+            #elif REFLECTIONS == 2
+                reflections = computeSmoothReflections(viewPosition, material);
             #endif
 
             reflections = clamp16(reflections);

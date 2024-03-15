@@ -90,14 +90,16 @@
             vec2 prevCoords      = textureCoords + velocity;
 
             if(saturate(prevCoords) == prevCoords) {
-                vec3 currColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(DEFERRED_BUFFER, vertexCoords + taaOffsets[framemod] * texelSize).rgb);
-                vec3 prevColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(HISTORY_BUFFER , prevCoords  ).rgb);
+                vec2 jitteredCoords = vertexCoords + taaOffsets[framemod] * texelSize;
+
+                vec3 currColor = SRGB_2_YCoCg_MAT * textureBicubic(DEFERRED_BUFFER, jitteredCoords).rgb;
+                vec3 prevColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
                      prevColor = neighbourhoodClipping(DEFERRED_BUFFER, prevColor);
 
 	            float luminanceDelta = pow2(distance(prevColor, currColor) / luminance(prevColor));
 
 	            float weight = saturate(length(velocity * viewSize));
-	                  weight = (1.0 - TAA_STRENGTH + weight * 0.5) / (1.0 + luminanceDelta);
+	                  weight = (1.0 - TAA_STRENGTH + weight * 0.3) / (1.0 + luminanceDelta);
 
                 color.rgb = max0(YCoCg_2_SRGB_MAT * mix(prevColor, currColor, saturate(weight)));
             } else {

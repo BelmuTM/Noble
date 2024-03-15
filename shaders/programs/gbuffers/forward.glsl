@@ -84,7 +84,7 @@
 	
 	#include "/include/fragment/brdf.glsl"
 
-	#if SHADOWS == 1
+	#if SHADOWS > 0
 		#include "/include/fragment/shadowmap.glsl"
 	#endif
 
@@ -173,7 +173,7 @@
 				vec3 skyIlluminance = vec3(0.0);
 
 				#if defined WORLD_OVERWORLD || defined WORLD_END
-					#if defined WORLD_OVERWORLD && SHADOWS == 1
+					#if defined WORLD_OVERWORLD && SHADOWS > 0
 						shadowmap.rgb = abs(calculateShadowMapping(worldPosition, tbn[2], shadowmap.a));
 					#endif
 

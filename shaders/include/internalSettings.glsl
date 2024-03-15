@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-#if AO == 1 || GI == 1
+#if AO > 0 || GI == 1
      const float ambientOcclusionLevel = 0.0;
 #else
      const float ambientOcclusionLevel = 1.0;
@@ -16,7 +16,7 @@ const bool shadowHardwareFiltering = false;
 const int colortex0Format       = RGBA16F;   // Main
 const int colortex1Format       = RGBA32UI;  // Gbuffer data
 
-#if REFLECTIONS == 1
+#if REFLECTIONS > 0
      const int colortex2Format  = RGB16F;    // Reflections
 #endif
 
@@ -45,7 +45,7 @@ const bool colortex10Clear      = false;
 
 const int colortex11Format      = RG32UI;    // Fog
 
-#if AO == 1
+#if AO > 0
      const int colortex12Format = RGB16F;    // Ambient occlusion
      const bool colortex12Clear = false;
 #endif

@@ -31,8 +31,10 @@ vec3 getShadowColor(vec3 samplePos) {
 
 float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
-#if SHADOWS == 1 
-    #if SHADOW_TYPE == 1
+#if SHADOWS > 0
+
+    #if SHADOWS == 1
+
         float findBlockerDepth(vec2 shadowCoords, float shadowDepth, out float subsurfaceDepth) {
             float blockerDepthSum    = 0.0;
             float subsurfaceDepthSum = 0.0;
@@ -59,13 +61,14 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
             return weightSum == 0.0 ? -1.0 : blockerDepthSum / weightSum;
         }
+
     #endif
 
     vec3 PCF(vec3 shadowPosition, float penumbraSize) {
 	    vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
-            #if SHADOW_TYPE != 2
+            #if SHADOWS != 3
                 offset = sampleDisk(i, SHADOW_SAMPLES, rng) * penumbraSize * invShadowMapResolution;
             #endif
 
@@ -74,10 +77,11 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
         }
         return shadowResult * rcp(SHADOW_SAMPLES);
     }
+
 #endif
 
 vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, out float subsurfaceDepth) {
-    #if SHADOWS == 1 
+    #if SHADOWS > 0
         vec3  shadowPosition = worldToShadow(scenePosition);
         float NdotL          = dot(geometricNormal, shadowLightVector);
 
@@ -90,7 +94,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, out float 
 
         subsurfaceDepth = 0.0;
 
-        #if SHADOW_TYPE == 1
+        #if SHADOWS == 1
             vec3  shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
             float avgBlockerDepth  = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
 

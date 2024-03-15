@@ -3,12 +3,14 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-void binarySearch(sampler2D depthTexture, inout vec3 rayPosition, vec3 rayDirection, float scale) {
-    for(int i = 0; i < BINARY_COUNT; i++) {
-        rayPosition  += sign(texelFetch(depthTexture, ivec2(rayPosition.xy * viewSize * scale), 0).r - rayPosition.z) * rayDirection;
-        rayDirection *= 0.5;
+#if defined BINARY_REFINEMENT
+    void binarySearch(sampler2D depthTexture, inout vec3 rayPosition, vec3 rayDirection, float scale) {
+        for(int i = 0; i < BINARY_COUNT; i++) {
+            rayPosition  += sign(texelFetch(depthTexture, ivec2(rayPosition.xy * viewSize * scale), 0).r - rayPosition.z) * rayDirection;
+            rayDirection *= 0.5;
+        }
     }
-}
+#endif
 
 bool raytrace(sampler2D depthTexture, vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter, float scale, out vec3 rayPosition) {
     if(rayDirection.z > -viewPosition.z) return false;
@@ -31,7 +33,7 @@ bool raytrace(sampler2D depthTexture, vec3 viewPosition, vec3 rayDirection, int 
         rayPosition += rayDirection;
     }
 
-    #if BINARY_REFINEMENT == 1
+    #if defined BINARY_REFINEMENT
         if(intersect) binarySearch(depthTexture, rayPosition, rayDirection, scale);
     #endif
 

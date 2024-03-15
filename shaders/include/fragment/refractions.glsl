@@ -19,7 +19,7 @@ vec3 computeRefractions(vec3 viewPosition, Material material, inout vec3 hitPosi
     float depth0 = texture(depthtex0, hitPosition.xy).r;
     float depth1 = texture(depthtex1, hitPosition.xy).r;
         
-    if(!hit || saturate(hitPosition.xy) != hitPosition.xy || depth1 - depth0 < EPS || depth1 < handDepth) {
+    if(saturate(hitPosition.xy) != hitPosition.xy || depth1 - depth0 < EPS || depth1 < handDepth) {
         hitPosition.xy = vertexCoords;
     }
 
