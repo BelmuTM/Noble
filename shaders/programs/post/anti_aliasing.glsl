@@ -101,8 +101,8 @@
             if(saturate(prevCoords) == prevCoords) {
                 vec2 jitteredCoords = vertexCoords + taaOffsets[framemod] * texelSize;
 
-                vec3 currColor = textureBicubic(DEFERRED_BUFFER, jitteredCoords).rgb;
-                vec3 prevColor = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
+                vec3 currColor = max0(textureCatmullRom(DEFERRED_BUFFER, jitteredCoords).rgb);
+                vec3 prevColor = max0(textureCatmullRom(HISTORY_BUFFER , prevCoords    ).rgb);
                      prevColor = neighbourhoodClipping(DEFERRED_BUFFER, prevColor * SRGB_2_YCoCg_MAT) * YCoCg_2_SRGB_MAT;
 
 	            float luminanceDelta = pow2(distance(prevColor, currColor) / luminance(prevColor));
