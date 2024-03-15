@@ -125,8 +125,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define RAY_DEPTH_TOLERANCE 0.5
 
-#define BINARY_REFINEMEN
-#define BINARY_COUNT 10
+#define BINARY_REFINEMENT
+#define BINARY_COUNT 6
 
 //////////////////////////////////////////////////////////
 /*------------- REFLECTIONS | REFRACTIONS --------------*/

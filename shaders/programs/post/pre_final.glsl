@@ -43,7 +43,7 @@ in vec2 textureCoords;
 const float exposureBias = 1.0;
 
 float minExposure = 1.0 * exposureBias / luminance(sunIrradiance);
-float maxExposure = 0.2 * exposureBias / luminance(moonIrradiance);
+float maxExposure = 0.1 * exposureBias / luminance(moonIrradiance);
 
 float computeEV100fromLuminance(float luminance) {
     return log2(luminance * sensorSensitivity * exposureBias / calibration);

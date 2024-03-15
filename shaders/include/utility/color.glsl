@@ -102,7 +102,7 @@ const mat3 SRGB_2_AP1        = SRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP1_MAT;
 const mat3 SRGB_2_AP1_ALBEDO = SRGB_2_XYZ_MAT * XYZ_2_AP1_MAT;
 
 const mat3 SRGB_2_YCoCg_MAT = mat3(0.25, 0.5, -0.25, 0.5, 0.0,  0.5,  0.25, -0.5, -0.25);
-const mat3 YCoCg_2_SRGB_MAT = mat3(1.00, 1.0,  1.00, 1.0, 0.0, -1.0, -1.00,  1.0, -1.00);
+const mat3 YCoCg_2_SRGB_MAT = mat3(1.0 , 1.0,  1.0 , 1.0, 0.0, -1.0, -1.0 ,  1.0, -1.0 );
 
 //////////////////////////////////////////////////////////
 /*----------------- COLOR CONVERSIONS ------------------*/

@@ -9,6 +9,7 @@
 
     [References]:
         Pedersen, L. J. F. (2016). Temporal Reprojection Anti-Aliasing in INSIDE. http://s3.amazonaws.com/arena-attachments/655504/c5c71c5507f0f8bf344252958254fb7d.pdf?1468341463
+        Intel. (2023). TAA. https://github.com/GameTechDev/TAA/tree/39786709cf70a1e0906196c600f6079571a33ceb
 */
 
 #include "/settings.glsl"
@@ -56,12 +57,12 @@
         #endif
 
         vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
-            vec3 minColor = vec3(1e6), maxColor = vec3(-1e6);
+            vec3 minColor = vec3(1e30), maxColor = vec3(-1e30);
             const int size = 1;
 
             for(int x = -size; x <= size; x++) {
                 for(int y = -size; y <= size; y++) {
-                    vec3 color = SRGB_2_YCoCg_MAT * texelFetch(currTex, ivec2(gl_FragCoord.xy * scale) + ivec2(x, y), 0).rgb;
+                    vec3 color = texelFetch(currTex, ivec2(gl_FragCoord.xy * scale) + ivec2(x, y), 0).rgb * SRGB_2_YCoCg_MAT;
                     minColor = min(minColor, color); 
                     maxColor = max(maxColor, color); 
                 }
@@ -76,6 +77,14 @@
             return texelFetch(tex, ivec2((floor(coords * aspectCorrectedSize) / aspectCorrectedSize) * viewSize), 0);
         }
     #endif
+
+    vec3 reinhard(vec3 color) {
+	    return color / (1.0 + luminance(color));
+    }
+
+    vec3 inverseReinhard(vec3 color) {
+	    return color / (1.0 - luminance(color));
+    }
 
     void main() {
         #if EIGHT_BITS_FILTER == 1 || TAA == 0
@@ -92,16 +101,16 @@
             if(saturate(prevCoords) == prevCoords) {
                 vec2 jitteredCoords = vertexCoords + taaOffsets[framemod] * texelSize;
 
-                vec3 currColor = SRGB_2_YCoCg_MAT * textureBicubic(DEFERRED_BUFFER, jitteredCoords).rgb;
-                vec3 prevColor = SRGB_2_YCoCg_MAT * max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
-                     prevColor = neighbourhoodClipping(DEFERRED_BUFFER, prevColor);
+                vec3 currColor = textureBicubic(DEFERRED_BUFFER, jitteredCoords).rgb;
+                vec3 prevColor = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
+                     prevColor = neighbourhoodClipping(DEFERRED_BUFFER, prevColor * SRGB_2_YCoCg_MAT) * YCoCg_2_SRGB_MAT;
 
 	            float luminanceDelta = pow2(distance(prevColor, currColor) / luminance(prevColor));
 
 	            float weight = saturate(length(velocity * viewSize));
 	                  weight = (1.0 - TAA_STRENGTH + weight * 0.3) / (1.0 + luminanceDelta);
 
-                color.rgb = max0(YCoCg_2_SRGB_MAT * mix(prevColor, currColor, saturate(weight)));
+                color.rgb = inverseReinhard(mix(reinhard(prevColor), reinhard(currColor), saturate(weight)));
             } else {
                 color.rgb = texture(DEFERRED_BUFFER, vertexCoords).rgb;
             }

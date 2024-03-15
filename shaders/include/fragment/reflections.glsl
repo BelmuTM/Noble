@@ -73,7 +73,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
                 vec3 fallback = vec3(0.0);
             #endif
 
-            reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * ((fresnel * G2) / G1);
+            reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * G2 / G1;
 	    }
 	    return reflection / ROUGH_REFLECTIONS_SAMPLES;
     }
