@@ -115,12 +115,12 @@
 
 			if(lengthSqr(blocklightDeriv) > 1e-10) {
 				vec3 lightmapVectorX = normalize(dFdx(scenePosition) * blocklightDeriv.x + dFdy(scenePosition) * blocklightDeriv.y);
-					 lightmap.x     *= saturate(dot(lightmapVectorX, textureNormal) + 0.8) * 0.8 + 0.2;
+					 lightmap.x     *= saturate(dot(lightmapVectorX, textureNormal) + 0.8) * 0.35 + 0.75;
 			} else {
 				lightmap.x *= saturate(dot(tbn[2], textureNormal));
 			}
 
-    		lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), textureNormal) + 0.8) * 0.2 + 0.8;
+    		lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), textureNormal) + 0.8) * 0.35 + 0.75;
 		
 			return any(isnan(lightmap)) || any(lessThan(lightmap, vec2(0.0))) ? lightmapCoords : lightmap;
 		#endif
