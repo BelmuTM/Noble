@@ -101,9 +101,6 @@ const vec3 AP1_RGB2Y = vec3(0.2722287168, 0.6740817658, 0.0536895174); // Desatu
 const mat3 SRGB_2_AP1        = SRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP1_MAT;
 const mat3 SRGB_2_AP1_ALBEDO = SRGB_2_XYZ_MAT * XYZ_2_AP1_MAT;
 
-const mat3 SRGB_2_YCoCg_MAT = mat3(0.25, 0.5, -0.25, 0.5, 0.0,  0.5,  0.25, -0.5, -0.25);
-const mat3 YCoCg_2_SRGB_MAT = mat3(1.0 , 1.0,  1.0 , 1.0, 0.0, -1.0, -1.0 ,  1.0, -1.0 );
-
 //////////////////////////////////////////////////////////
 /*----------------- COLOR CONVERSIONS ------------------*/
 //////////////////////////////////////////////////////////
@@ -140,6 +137,20 @@ vec3 ap1ToLinear(vec3 color) {
 
 vec3 srgbToAP1Albedo(vec3 color) {
     return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
+}
+
+vec3 fromYCoCg(vec3 color) {
+    float r = color.x + color.y - color.z;
+    float g = color.x + color.z;
+    float b = color.x - color.y - color.z;
+    return vec3(r, g, b);
+}
+
+vec3 toYCoCg(vec3 color) {
+    float y  =  0.25 * color.r + 0.5 * color.g + 0.25 * color.b;
+    float co =  0.5  * color.r - 0.5 * color.b;
+    float cg = -0.25 * color.r + 0.5 * color.g - 0.25 * color.b;
+    return vec3(y, co, cg);
 }
 
 vec3 fromXYZ(vec3 color) {

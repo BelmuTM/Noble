@@ -154,7 +154,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
 
     #if SUBSURFACE_SCATTERING == 1
         if(!isMetal) {
-            diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows * (material.id == SSS_ID ? skylightFalloff : 1.0);
+            diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows * skylightFalloff;
         }
     #endif
 

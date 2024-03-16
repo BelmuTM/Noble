@@ -25,7 +25,7 @@
 	flat out int blockId;
 	out vec2 textureCoords;
 	out vec2 lightmapCoords;
-	out vec3 worldPosition;
+	out vec3 scenePosition;
 	out vec3 directIlluminance;
 	out mat3[2] skyIlluminanceMat;
 	out vec4 vertexColor;
@@ -54,12 +54,10 @@
 			skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 		#endif
 
-		worldPosition = transform(gbufferModelViewInverse, viewPosition);
+		scenePosition = transform(gbufferModelViewInverse, viewPosition);
 		
-		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+		gl_Position    = transform(gbufferModelView, scenePosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
-
-		worldPosition += cameraPosition;
 
 		#if TAA == 1 && EIGHT_BITS_FILTER == 0
 			gl_Position.xy += taaJitter(gl_Position);
@@ -76,7 +74,7 @@
 	flat in int blockId;
 	in vec2 textureCoords;
 	in vec2 lightmapCoords;
-	in vec3 worldPosition;
+	in vec3 scenePosition;
 	in vec3 directIlluminance;
 	in mat3[2] skyIlluminanceMat;
 	in vec4 vertexColor;
@@ -119,7 +117,7 @@
 			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
 
     		material.albedo = vec3(0.0);
-			material.normal = tbn * getWaterNormals(worldPosition, WATER_OCTAVES);
+			material.normal = tbn * getWaterNormals(scenePosition + cameraPosition, WATER_OCTAVES);
 		
 		} else {
 			material.lightmap = lightmapCoords;
@@ -174,13 +172,13 @@
 
 				#if defined WORLD_OVERWORLD || defined WORLD_END
 					#if defined WORLD_OVERWORLD && SHADOWS > 0
-						shadowmap.rgb = abs(calculateShadowMapping(worldPosition, tbn[2], shadowmap.a));
+						shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], shadowmap.a));
 					#endif
 
 					if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
 				#endif
 
-				translucents.rgb = computeDiffuse(worldPosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+				translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 				translucents.a   = albedoTex.a;
 			}
 		}

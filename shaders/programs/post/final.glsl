@@ -10,7 +10,11 @@ in vec2 textureCoords;
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 
-#include "/include/common.glsl"
+#include "/include/uniforms.glsl"
+
+#include "/include/utility/rng.glsl"
+#include "/include/utility/math.glsl"
+#include "/include/utility/color.glsl"
 
 #if UNDERWATER_DISTORTION == 1
     void underwaterDistortion(inout vec2 coords) {
@@ -27,14 +31,15 @@ in vec2 textureCoords;
 #endif
 
 #if LUT > 0 || CEL_SHADING == 1
+
+     #include "/include/utility/sampling.glsl"
+
     const int lutTileSize = 8;
     const int lutSize     = lutTileSize  * lutTileSize;
     const vec2 lutRes     = vec2(lutSize * lutTileSize);
 
     const float rcpLutTileSize = 1.0 / lutTileSize;
     const vec2  rcpLutTexSize  = 1.0 / lutRes;
-
-    #include "/include/utility/sampling.glsl"
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
     void applyLUT(sampler2D lookupTable, inout vec3 color) {
@@ -60,9 +65,11 @@ in vec2 textureCoords;
             color.b - bL
         );
     }
+
 #endif
 
 #if SHARPEN == 1
+
     /*
         SOURCES / CREDITS:
         spolsh: https://www.shadertoy.com/view/XlSBRW
@@ -81,9 +88,11 @@ in vec2 textureCoords;
         float centerLuma = luminance(color);
         color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / centerLuma;
     }
+
 #endif
 
 #if EIGHT_BITS_FILTER == 1
+
     void quantizeColor(inout vec3 color, float quantizationPeriod) {
         color = floor((color + quantizationPeriod * 0.5) / quantizationPeriod) * quantizationPeriod;
     }
@@ -91,13 +100,16 @@ in vec2 textureCoords;
     void ditherColor(inout vec3 color, float quantizationPeriod) {
         color += (bayer2(gl_FragCoord.xy) - 0.5) * quantizationPeriod;
     }
+
 #endif
 
 #if CEL_SHADING == 1
+
     void celShading(inout vec3 color) {
         float luminance = luminance(color);
 	          color    /= luminance / (floor(luminance * CEL_SHADES) / CEL_SHADES);
     }
+    
 #endif
 
 /*

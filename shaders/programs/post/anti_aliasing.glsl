@@ -38,6 +38,7 @@
     in vec2 vertexCoords;
 
     #if EIGHT_BITS_FILTER == 0 && TAA == 1
+    
         #include "/include/utility/sampling.glsl"
 
         vec3 clipAABB(vec3 prevColor, vec3 minColor, vec3 maxColor) {
@@ -56,19 +57,53 @@
             const float scale = RENDER_SCALE * GI_SCALE * 0.01;
         #endif
 
-        vec3 neighbourhoodClipping(sampler2D currTex, vec3 prevColor) {
-            vec3 minColor = vec3(1e30), maxColor = vec3(-1e30);
-            const int size = 1;
+        vec3 neighbourhoodClipping(sampler2D currTex, vec3 history) {
+            vec3 minColor, maxColor;
 
-            for(int x = -size; x <= size; x++) {
-                for(int y = -size; y <= size; y++) {
-                    vec3 color = texelFetch(currTex, ivec2(gl_FragCoord.xy * scale) + ivec2(x, y), 0).rgb * SRGB_2_YCoCg_MAT;
-                    minColor = min(minColor, color); 
-                    maxColor = max(maxColor, color); 
-                }
-            }
-            return clipAABB(prevColor, minColor, maxColor);
+            ivec2 coords = ivec2(gl_FragCoord.xy * scale);
+
+            // Left to right, top to bottom
+            vec3 sample_0 = (texelFetch(currTex, coords + ivec2(-1,  1), 0).rgb);
+            vec3 sample_1 = (texelFetch(currTex, coords + ivec2( 0,  1), 0).rgb);
+            vec3 sample_2 = (texelFetch(currTex, coords + ivec2( 1,  1), 0).rgb);
+            vec3 sample_3 = (texelFetch(currTex, coords + ivec2(-1,  0), 0).rgb);
+            vec3 sample_4 = (texelFetch(currTex, coords                , 0).rgb);
+            vec3 sample_5 = (texelFetch(currTex, coords + ivec2( 1,  0), 0).rgb);
+            vec3 sample_6 = (texelFetch(currTex, coords + ivec2(-1, -1), 0).rgb);
+            vec3 sample_7 = (texelFetch(currTex, coords + ivec2( 0, -1), 0).rgb);
+            vec3 sample_8 = (texelFetch(currTex, coords + ivec2( 1, -1), 0).rgb);
+
+            // Min and max nearest 5 + nearest 9
+            minColor  = min(sample_1, min(sample_3, min(sample_4, min(sample_5, sample_7))));
+	        minColor += min(minColor, min(sample_0, min(sample_2, min(sample_6, sample_8))));
+	        minColor *= 0.5;
+
+	        maxColor  = max(sample_1, max(sample_3, max(sample_4, max(sample_5, sample_7))));
+	        maxColor += max(minColor, max(sample_0, max(sample_2, max(sample_6, sample_8))));
+	        maxColor *= 0.5;
+
+            history = clipAABB(history, minColor, maxColor);
+
+            return history;
         }
+
+        // https://iquilezles.org/articles/texture/
+        vec4 textureCubic(sampler2D tex, vec2 uv) {
+            uv = uv * viewSize + 0.5;
+            vec2 fuv = fract(uv);
+            uv = floor(uv) + fuv * fuv * (3.0 - 2.0 * fuv);
+            uv = (uv - 0.5) * texelSize;
+            return texture(tex, uv);
+        }
+
+        vec3 reinhard(vec3 color) {
+            return color / (1.0 + luminance(color));
+        }
+
+        vec3 inverseReinhard(vec3 color) {
+            return color / (1.0 - luminance(color));
+        }
+
     #endif
 
     #if EIGHT_BITS_FILTER == 1
@@ -77,14 +112,6 @@
             return texelFetch(tex, ivec2((floor(coords * aspectCorrectedSize) / aspectCorrectedSize) * viewSize), 0);
         }
     #endif
-
-    vec3 reinhard(vec3 color) {
-	    return color / (1.0 + luminance(color));
-    }
-
-    vec3 inverseReinhard(vec3 color) {
-	    return color / (1.0 - luminance(color));
-    }
 
     void main() {
         #if EIGHT_BITS_FILTER == 1 || TAA == 0
@@ -101,16 +128,17 @@
             if(saturate(prevCoords) == prevCoords) {
                 vec2 jitteredCoords = vertexCoords + taaOffsets[framemod] * texelSize;
 
-                vec3 currColor = textureBicubic(DEFERRED_BUFFER, jitteredCoords).rgb;
-                vec3 prevColor = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
-                     prevColor = neighbourhoodClipping(DEFERRED_BUFFER, prevColor * SRGB_2_YCoCg_MAT) * YCoCg_2_SRGB_MAT;
+                vec3 currColor = textureCubic(DEFERRED_BUFFER, jitteredCoords).rgb;
 
-	            float luminanceDelta = pow2(distance(prevColor, currColor) / luminance(prevColor));
+                vec3 history = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
+                     history = neighbourhoodClipping(DEFERRED_BUFFER, history);
+
+	            float luminanceDelta = pow2(distance(history, currColor) / luminance(history));
 
 	            float weight = saturate(length(velocity * viewSize));
 	                  weight = (1.0 - TAA_STRENGTH + weight * 0.3) / (1.0 + luminanceDelta);
 
-                color.rgb = inverseReinhard(mix(reinhard(prevColor), reinhard(currColor), saturate(weight)));
+                color.rgb = inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight)));
             } else {
                 color.rgb = texture(DEFERRED_BUFFER, vertexCoords).rgb;
             }
