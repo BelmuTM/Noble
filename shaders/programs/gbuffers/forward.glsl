@@ -40,6 +40,14 @@
 		textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 		lightmapCoords = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor    = gl_Color;
+
+		#if defined PROGRAM_ENTITY
+			// Thanks Niemand#1929 for the nametag fix
+			if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
+				gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
+				return;
+			}
+		#endif
 		
     	vec3 viewPosition = (gl_ModelViewMatrix * gl_Vertex).xyz;
 
@@ -106,12 +114,12 @@
 		vec4 normalTex   = vec4(0.0);
 		vec4 specularTex = vec4(0.0);
 
-		#if !defined PROGRAM_TEXTURED
+		#if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT
 			normalTex   = texture(normals,  textureCoords);
 			specularTex = texture(specular, textureCoords);
 		#endif
 
-		albedoTex.rgb *= vertexColor.rgb;
+		albedoTex *= vertexColor;
 
 		Material material;
 		translucents = vec4(0.0);
@@ -155,6 +163,7 @@
     		#endif
 
 			material.normal = tbn[2];
+
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				material.normal.xy = normalTex.xy * 2.0 - 1.0;
 				material.normal.z  = sqrt(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
