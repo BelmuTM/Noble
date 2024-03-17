@@ -183,8 +183,10 @@
         			material.albedo = srgbToLinear(material.albedo);
     			#endif
 
-        		material.N = vec3(f0ToIOR(material.F0));
-        		material.K = vec3(0.0);
+				#if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT
+        			material.N = vec3(f0ToIOR(material.F0));
+        			material.K = vec3(0.0);
+				#endif
 
 				vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
 				vec3 skyIlluminance = vec3(0.0);
@@ -197,12 +199,40 @@
 					if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
 				#endif
 
-				translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
-				translucents.a   = albedoTex.a;
+				#if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT && !defined PROGRAM_SPIDEREYES
+					translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+				#else
+					vec3 diffuse = vec3(RCP_PI);
+
+					diffuse *= directIlluminance * shadowmap.rgb;
+
+					vec3 skylight = skyIlluminance;
+
+					#if defined WORLD_OVERWORLD
+						skylight *= getSkylightFalloff(material.lightmap.y);
+					#endif
+
+					vec3 blocklightColor = getBlockLightColor(material);
+					vec3 blocklight      = blocklightColor * getBlocklightFalloff(material.lightmap.x);
+					vec3 emissiveness    = material.emission * blocklightColor;
+
+					#if defined WORLD_OVERWORLD || defined WORLD_END
+						const vec3 ambient = vec3(0.2);
+					#else
+						const vec3 ambient = vec3(1.0);
+					#endif
+
+					diffuse += blocklight + skylight + ambient;
+					diffuse += emissiveness;
+
+					translucents.rgb = material.albedo * diffuse;
+				#endif
+
+				translucents.a = albedoTex.a;
 			}
 		}
 
-		vec3 labPbrData0 = vec3(0.0, saturate(lightmapCoords));
+		vec3 labPbrData0 = vec3(0.0, saturate(material.lightmap));
 		vec4 labPbrData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
 		vec4 labPbrData2 = vec4(albedoTex.rgb, material.roughness);
 		vec2 encNormal   = encodeUnitVector(normalize(material.normal));
