@@ -35,5 +35,5 @@ vec3 computeBloom(vec2 coords) {
     bloom += sampleBloomTile(coords, 3);
     bloom += sampleBloomTile(coords, 4);
     bloom += sampleBloomTile(coords, 5);
-    return bloom / 6.0;
+    return clamp16(bloom / 6.0);
 }

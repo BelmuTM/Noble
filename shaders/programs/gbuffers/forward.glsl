@@ -107,7 +107,7 @@
 			specularTex = texture(specular, textureCoords);
 		#endif
 
-		albedoTex *= vertexColor;
+		albedoTex.rgb *= vertexColor.rgb;
 
 		Material material;
 		translucents = vec4(0.0);

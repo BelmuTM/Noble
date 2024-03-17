@@ -49,7 +49,9 @@
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 		if(saturate(fragCoords) != fragCoords) discard;
 
-		vec4 albedoTex = texture(tex, textureCoords) * vertexColor;
+		vec4 albedoTex = texture(tex, textureCoords);
+		albedoTex.rgb *= vertexColor.rgb;
+		
 		if(albedoTex.a < 0.102) discard;
 
 		color = albedoTex;

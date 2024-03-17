@@ -175,9 +175,7 @@
 			vec4 specularTex = vec4(0.0);
 		#endif
 
-		albedoTex *= vertexColor;
-
-		albedoTex = saturate(albedoTex);
+		albedoTex.rgb *= vertexColor.rgb;
 
 		vec2 lightmap = lightmapCoords;
 

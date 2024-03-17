@@ -66,7 +66,9 @@
     #endif
 
     void main() {
-        vec4 albedoTex = texture(tex, textureCoords) * vertexColor;
+        vec4 albedoTex = texture(tex, textureCoords);
+        albedoTex.rgb *= vertexColor.rgb;
+
         if(albedoTex.a < 0.102) discard;
 
         #if WHITE_WORLD == 1

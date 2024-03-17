@@ -10,29 +10,30 @@ in vec2 textureCoords;
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 
-#include "/include/uniforms.glsl"
-
-#include "/include/utility/rng.glsl"
-#include "/include/utility/math.glsl"
-#include "/include/utility/color.glsl"
+#include "/include/common.glsl"
 
 #if UNDERWATER_DISTORTION == 1
+
     void underwaterDistortion(inout vec2 coords) {
         float speed   = frameTimeCounter * WATER_DISTORTION_SPEED;
         float offsetX = coords.x * 25.0 + speed;
         float offsetY = coords.y * 25.0 + speed;
 
-        vec2 distorted = coords + vec2(
+        vec2 distortion = coords + vec2(
             WATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
             WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
         );
-        coords = saturate(distorted) != distorted ? coords : distorted;
+
+        if(saturate(distortion) == distortion) {
+            coords = distortion;
+        }
     }
+    
 #endif
 
 #if LUT > 0 || CEL_SHADING == 1
 
-     #include "/include/utility/sampling.glsl"
+    #include "/include/utility/sampling.glsl"
 
     const int lutTileSize = 8;
     const int lutSize     = lutTileSize  * lutTileSize;
@@ -69,7 +70,6 @@ in vec2 textureCoords;
 #endif
 
 #if SHARPEN == 1
-
     /*
         SOURCES / CREDITS:
         spolsh: https://www.shadertoy.com/view/XlSBRW
@@ -88,7 +88,6 @@ in vec2 textureCoords;
         float centerLuma = luminance(color);
         color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / centerLuma;
     }
-
 #endif
 
 #if EIGHT_BITS_FILTER == 1
@@ -109,7 +108,7 @@ in vec2 textureCoords;
         float luminance = luminance(color);
 	          color    /= luminance / (floor(luminance * CEL_SHADES) / CEL_SHADES);
     }
-    
+
 #endif
 
 /*
