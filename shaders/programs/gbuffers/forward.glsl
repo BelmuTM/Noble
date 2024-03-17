@@ -79,6 +79,10 @@
 	in mat3[2] skyIlluminanceMat;
 	in vec4 vertexColor;
 	in mat3 tbn;
+
+	#if defined PROGRAM_ENTITY
+		uniform vec4 entityColor;
+	#endif
 	
 	#include "/include/fragment/brdf.glsl"
 
@@ -134,6 +138,12 @@
     			material.ao         = normalTex.z;
 				material.emission   = specularTex.w * maxFloat8 < 254.5 ? specularTex.w : 0.0;
     			material.subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
+			#endif
+
+			#if defined PROGRAM_ENTITY
+				albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
+			
+				material.ao = all(lessThanEqual(normalTex.rgb, vec3(EPS))) ? 1.0 : material.ao;
 			#endif
 
 			if(blockId == NETHER_PORTAL_ID) material.emission = 1.0;

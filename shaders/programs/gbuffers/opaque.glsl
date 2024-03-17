@@ -96,10 +96,6 @@
 	in vec4 vertexColor;
 	in mat3 tbn;
 
-	#if defined PROGRAM_ENTITY
-		uniform vec4 entityColor;
-	#endif
-
 	#if POM > 0 && defined PROGRAM_TERRAIN
 		#include "/include/fragment/parallax.glsl"
 	#endif
@@ -184,12 +180,6 @@
 		float roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
 		float emission   = specularTex.w * maxFloat8 < 254.5 ? specularTex.w : 0.0;
 		float subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
-
-		#if defined PROGRAM_ENTITY
-			albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
-			
-			ao = all(lessThanEqual(normalTex.rgb, vec3(EPS))) ? 1.0 : ao;
-		#endif
 
 		#if WHITE_WORLD == 1
 	    	albedoTex.rgb = vec3(1.0);
