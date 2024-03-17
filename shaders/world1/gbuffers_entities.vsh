@@ -2,5 +2,6 @@
 
 #define PROGRAM_ENTITY
 #define STAGE_VERTEX
+#define WORLD_END
 
-#include "/programs/gbuffers/opaque.glsl"
+#include "/programs/gbuffers/forward.glsl"

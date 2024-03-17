@@ -151,7 +151,7 @@
 				material.normal    = tbn * material.normal;
 			}
 
-			#if REFRACTIONS == 0
+			#if REFRACTIONS == 0 || defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT
 				bool shadeTranslucents = true;
 			#else
 				bool shadeTranslucents = material.F0 < EPS;
