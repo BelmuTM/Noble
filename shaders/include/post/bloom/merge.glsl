@@ -23,7 +23,7 @@
 		uniform sampler2D colortex3;
 
 		void main() {
-            bloom = texelFetch(colortex3, ivec2(gl_FragCoord.xy), 0).rgb;
+            bloom = clamp(texelFetch(colortex3, ivec2(gl_FragCoord.xy), 0).rgb, 0.0, 65535.0);
 		}
         
 	#endif

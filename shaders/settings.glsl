@@ -344,7 +344,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define PURKINJE 1 // [0 1]
 
 #define EXPOSURE_GROWTH 2.40
-#define EXPOSURE_DECAY  0.25
+#define EXPOSURE_DECAY  0.50
 
 const float calibration       = 12.5;  // Light meter calibration
 const float sensorSensitivity = 100.0; // Sensor sensitivity
@@ -353,7 +353,7 @@ const float sensorSensitivity = 100.0; // Sensor sensitivity
 	#define HISTOGRAM_BINS 64
 
 	// Logarithmic scale
-	const float minLuminance      = -8.0;
+	const float minLuminance      = -6.0;
 	const float maxLuminance      =  9.0;
 	const float luminanceRange    = maxLuminance - minLuminance;
 	const float rcpLuminanceRange = 1.0 / luminanceRange;

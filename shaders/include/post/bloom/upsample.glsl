@@ -24,7 +24,7 @@ const vec2 bloomOffsets[6] = vec2[6](
 );
 
 vec3 sampleBloomTile(vec2 coords, int lod) {
-    return textureBicubic(SHADOWMAP_BUFFER, coords * bloomScales[lod] + bloomOffsets[lod]).rgb;
+    return clamp16(textureBicubic(SHADOWMAP_BUFFER, coords * bloomScales[lod] + bloomOffsets[lod]).rgb);
 }
 
 vec3 computeBloom(vec2 coords) {
@@ -35,5 +35,5 @@ vec3 computeBloom(vec2 coords) {
     bloom += sampleBloomTile(coords, 3);
     bloom += sampleBloomTile(coords, 4);
     bloom += sampleBloomTile(coords, 5);
-    return clamp16(bloom / 6.0);
+    return bloom / 6.0;
 }

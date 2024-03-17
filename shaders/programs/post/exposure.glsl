@@ -24,11 +24,13 @@
             Alex Tardif - https://www.alextardif.com/HistogramLuminance.html
         */
 
-        ivec2 gridSize = ivec2(viewSize / vec2(64, 32));
+        ivec2 gridSize = ivec2(viewSize / vec2(128, 72));
         vec2 tileSize  = 1.0 / gridSize;
 
         int getBinFromLuminance(float luminance) {
-    	    return luminance < EPS ? 0 : int(clamp((log(luminance) * rcpLuminanceRange - (minLuminance * rcpLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
+            if(luminance <= 0) return 0;
+
+    	    return int(clamp((log(luminance) * rcpLuminanceRange - (minLuminance * rcpLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
         }
 
         float getLuminanceFromBin(int bin) {
@@ -85,12 +87,12 @@
                 float avgLuma = getLuminanceFromBin(closestBinToMedian);
             #endif
 
-            float prevLuma = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
-                  prevLuma = prevLuma > 0.0 ? prevLuma : avgLuma;
-                  prevLuma = isnan(prevLuma) || isinf(prevLuma) ? avgLuma : prevLuma;
+            float luma = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
+                  luma = luma > 0.0 ? luma : avgLuma;
+                  luma = isnan(luma) || isinf(luma) ? avgLuma : luma;
 
-            float exposureTime = avgLuma < prevLuma ? EXPOSURE_GROWTH : EXPOSURE_DECAY;
-                  avgLuminance = mix(avgLuma, prevLuma, exp(-exposureTime * frameTime));
+            float exposureTime = avgLuma < luma ? EXPOSURE_GROWTH : EXPOSURE_DECAY;
+                  avgLuminance = mix(avgLuma, luma, exp(-exposureTime * frameTime));
         #endif
     }
 
