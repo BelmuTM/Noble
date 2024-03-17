@@ -138,9 +138,9 @@
 	            float weight = saturate(length(velocity * viewSize));
 	                  weight = (1.0 - TAA_STRENGTH + weight * 0.3) / (1.0 + luminanceDelta);
 
-                color.rgb = inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight)));
+                color.rgb = clamp16(inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight))));
             } else {
-                color.rgb = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+                color.rgb = clamp16(texture(DEFERRED_BUFFER, vertexCoords).rgb);
             }
         #endif
 
