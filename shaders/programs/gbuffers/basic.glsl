@@ -50,10 +50,15 @@
 		if(saturate(fragCoords) != fragCoords) discard;
 
 		vec4 albedoTex = texture(tex, textureCoords);
-		albedoTex.rgb *= vertexColor.rgb;
-		
-		if(albedoTex.a < 0.102) discard;
 
-		color = albedoTex;
+		#if defined PROGRAM_ARMOR_GLINT
+			color = vec4(albedoTex.rgb, 0.0);
+		#else
+			albedoTex.rgb *= vertexColor.rgb;
+		
+			if(albedoTex.a < 0.102) discard;
+
+			color = albedoTex;
+		#endif
 	}
 #endif
