@@ -117,7 +117,7 @@
 				vec3 lightmapVectorX = normalize(dFdx(scenePosition) * blocklightDeriv.x + dFdy(scenePosition) * blocklightDeriv.y);
 					 lightmap.x     *= saturate(dot(lightmapVectorX, textureNormal) + 0.8) * 0.35 + 0.75;
 			} else {
-				lightmap.x *= saturate(dot(tbn[2], textureNormal));
+				lightmap.x *= saturate(dot(tbn[2], textureNormal) + 0.8);
 			}
 
     		lightmap.y *= saturate(dot(vec3(0.0, 1.0, 0.0), textureNormal) + 0.8) * 0.35 + 0.75;
