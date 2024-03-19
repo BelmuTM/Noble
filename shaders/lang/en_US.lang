@@ -55,10 +55,20 @@ option.DIRECTIONAL_LIGHTMAP.comment = Makes Minecraft's lightmap depend on the d
 value.DIRECTIONAL_LIGHTMAP.0 = §cOFF
 value.DIRECTIONAL_LIGHTMAP.1 = §aON
 
-option.SUBSURFACE_SCATTERING = Subsurface Scattering
+option.SUBSURFACE_SCATTERING = Subsurface Scattering (SSS)
 option.SUBSURFACE_SCATTERING.comment = Simulates how light goes through certain materials (leaves, skin,...). §cRequires a PBR resource pack!
 value.SUBSURFACE_SCATTERING.0 = §cOFF
 value.SUBSURFACE_SCATTERING.1 = §aON
+
+option.HARDCODED_EMISSION = Hardcoded Emission
+option.HARDCODED_EMISSION.comment = Forces light sources to emit light when you don't have a §bPBR resource pack§r for it.
+value.HARDCODED_EMISSION.0 = §cOFF
+value.HARDCODED_EMISSION.1 = §aON
+
+option.HARDCODED_SSS = Hardcoded SSS
+option.HARDCODED_SSS.comment = Forces subsurface scattering to happen for certain blocks (leaves, wool, sand,...) when you don't have a §bPBR resource pack§r for it.
+value.HARDCODED_SSS.0 = §cOFF
+value.HARDCODED_SSS.1 = §aON
 
 option.BLOCKLIGHT_TEMPERATURE = Blocklight Temperature
 option.BLOCKLIGHT_TEMPERATURE.comment = Adjusts the temperature of blocklight (in Kelvins). It influences the blocklight color.
