@@ -164,7 +164,7 @@
 			}
 		#endif
 
-		vec4 albedoTex = texture(tex, coords);
+		vec4 albedoTex = texture(tex, coords) * vertexColor;
 		if(albedoTex.a < 0.102) discard;
 
 		vec4 normalTex = texture(normals, coords);
@@ -174,8 +174,6 @@
 		#else
 			vec4 specularTex = vec4(0.0);
 		#endif
-
-		albedoTex.rgb *= vertexColor.rgb;
 
 		vec2 lightmap = lightmapCoords;
 
@@ -196,7 +194,7 @@
 		#endif
 
 		#if defined PROGRAM_BEACONBEAM
-			if(albedoTex.a <= 1.0 - EPS) discard;
+			if(albedoTex.a < 0.999) discard;
 			emission = 1.0;
 		#endif
 
