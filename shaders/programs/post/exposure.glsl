@@ -24,8 +24,8 @@
             Alex Tardif - https://www.alextardif.com/HistogramLuminance.html
         */
 
-        ivec2 gridSize = ivec2(viewSize / vec2(128, 72));
-        vec2 tileSize  = 1.0 / gridSize;
+        const ivec2 tiles    = ivec2(128, 72);
+        const vec2  tileSize = 1.0 / tiles;
 
         int getBinFromLuminance(float luminance) {
             if(luminance <= 0) return 0;
@@ -43,8 +43,8 @@
             float[HISTOGRAM_BINS] pdf;
             for(int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] = 0.0;
 
-            for(int x = 0; x < gridSize.x; x++) {
-                for(int y = 0; y < gridSize.y; y++) {
+            for(int x = 0; x < tiles.x; x++) {
+                for(int y = 0; y < tiles.y; y++) {
                     vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
                     float luminance = pow2(textureLod(MAIN_BUFFER, coords, lod).a);
 

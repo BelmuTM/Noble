@@ -7,7 +7,7 @@ vec3 sampleHitColor(vec2 hitCoords) {
     return texture(ACCUMULATION_BUFFER, hitCoords * RENDER_SCALE).rgb;
 }
 
-vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
+vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
     #if defined WORLD_OVERWORLD || defined WORLD_END
         vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected));
         vec3 atmosphere = texture(ATMOSPHERE_BUFFER, saturate(coords)).rgb;
@@ -21,7 +21,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, Material material) {
 		    #endif
         #endif
 
-        return max0((atmosphere * clouds.a + clouds.rgb) * getSkylightFalloff(material.lightmap.y));
+        return max0((atmosphere * clouds.a + clouds.rgb) * skylight);
     #else
         return vec3(0.0);
     #endif
@@ -37,6 +37,10 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
 
     vec3 computeRoughReflections(vec3 viewPosition, Material material) {
         float alphaSq = maxEps(material.roughness * material.roughness);
+
+        float skylight = getSkylightFalloff(material.lightmap.y);
+
+        viewPosition += material.normal * 1e-2;
 
         vec3  viewDirection = normalize(viewPosition);
         mat3  tbn           = constructViewTBN(material.normal);
@@ -56,7 +60,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
             vec3 hitPosition;
             float hit = float(raytrace(depthtex0, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
 
-            vec3 fresnel = vec3(0.0);
+            vec3 fresnel;
             if(isEyeInWater == 1 || material.id == WATER_ID) {
                 fresnel = fresnelDielectricDielectric_R(MdotV, vec3(airIOR), vec3(1.333));
             } else {
@@ -66,7 +70,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
             float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
 
             #if defined REFLECTIONS_SKY_FALLBACK
-                vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, material);
+                vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
             #else
                 vec3 fallback = vec3(0.0);
             #endif
@@ -85,6 +89,10 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
     vec3 computeSmoothReflections(vec3 viewPosition, Material material) {
         float alphaSq = maxEps(material.roughness * material.roughness);
 
+        float skylight = getSkylightFalloff(material.lightmap.y);
+
+        viewPosition += material.normal * 1e-2;
+
         vec3  viewDirection = normalize(viewPosition);
         float NdotV         = dot(material.normal, -viewDirection);
         vec3  rayDirection  = viewDirection + 2.0 * NdotV * material.normal; 
@@ -93,7 +101,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
         vec3 hitPosition;
         float hit = float(raytrace(depthtex0, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
 
-        vec3 fresnel = vec3(0.0);
+        vec3 fresnel;
         if(isEyeInWater == 1 || material.id == WATER_ID) {
             fresnel = fresnelDielectricDielectric_R(NdotV, vec3(airIOR), vec3(1.333));
         } else {
@@ -104,7 +112,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
         float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
 
         #if defined REFLECTIONS_SKY_FALLBACK
-            vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, material);
+            vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
         #else
             vec3 fallback = vec3(0.0);
         #endif

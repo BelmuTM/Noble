@@ -29,8 +29,6 @@ in vec2 vertexCoords;
     #include "/include/fragment/refractions.glsl"
 #endif
 
-#include "/include/post/exposure.glsl"
-
 void main() {
     vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) { discard; return; }
@@ -120,18 +118,5 @@ void main() {
         lighting  = lighting * transmittance + scattering;
         lighting += sunSpecular;
         lighting += envSpecular;
-    }
-
-    vec4 basic = texture(RASTER_BUFFER, coords.xy);
-
-    bool isEnchantmentGlint = basic.a == 0.0;
-
-    if(isEnchantmentGlint) {
-        float prevLuminance = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
-
-        // Cancelling exposure for enchantment glints
-        lighting += basic.rgb / computeExposure(prevLuminance);
-    } else {
-        lighting = mix(lighting, basic.rgb, basic.a * float(depth >= handDepth));
     }
 }

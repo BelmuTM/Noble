@@ -45,14 +45,11 @@
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	        if(saturate(fragCoords) != fragCoords) { discard; return; }
 
+            clouds = vec3(0.0, 0.0, 1.0);
+
             float depth = texture(depthtex0, vertexCoords).r;
 
-            if(depth != 1.0) {
-                clouds = texture(CLOUDS_BUFFER, textureCoords).rgb;
-                return;
-            }
-
-            clouds = vec3(0.0, 0.0, 1.0);
+            if(depth != 1.0) return;
 
             vec3 viewPosition       = screenToView(vec3(textureCoords, depth), false);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);

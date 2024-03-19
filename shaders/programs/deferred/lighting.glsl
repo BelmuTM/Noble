@@ -33,13 +33,13 @@
     #if GI == 1
         /* RENDERTARGETS: 4,9,10 */
 
-        layout (location = 0) out vec4 radianceOut;
+        layout (location = 0) out vec4 radiance;
         layout (location = 1) out vec3 directOut;
         layout (location = 2) out vec4 momentsOut;
     #else
         /* RENDERTARGETS: 4,10 */
 
-        layout (location = 0) out vec4 radianceOut;
+        layout (location = 0) out vec4 radiance;
         layout (location = 1) out vec4 momentsOut;
     #endif
 
@@ -53,6 +53,8 @@
 
     #include "/include/fragment/brdf.glsl"
     #include "/include/atmospherics/celestial.glsl"
+
+    #include "/include/post/exposure.glsl"
 
     #if GI == 1
         #include "/include/fragment/raytracer.glsl"
@@ -106,7 +108,7 @@
             #if GI == 1
                 directOut = sky;
             #else
-                radianceOut.rgb = sky;
+                radiance.rgb = sky;
             #endif
             return;
         }
@@ -121,9 +123,9 @@
             vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth)) * RENDER_SCALE;
             vec4 history      = texture(ACCUMULATION_BUFFER, prevPosition.xy);
 
-            radianceOut.a  = history.a;
-            radianceOut.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
-            radianceOut.a *= float(depth >= handDepth);
+            radiance.a  = history.a;
+            radiance.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
+            radiance.a *= float(depth >= handDepth);
 
             momentsOut = texture(MOMENTS_BUFFER, prevPosition.xy);
 
@@ -135,23 +137,23 @@
                 float linearDepth     = linearizeDepthFast(prevPosition.z);
 			    float linearPrevDepth = linearizeDepthFast(prevDepth);
 
-                radianceOut.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.1);
+                radiance.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.1);
 
                 #if GI == 0
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                         radianceOut.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
+                         radiance.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
                 #else
-                    radianceOut.a *= float(material.depth0 >= handDepth);
+                    radiance.a *= float(material.depth0 >= handDepth);
                 #endif
             #else
-                radianceOut.a *= float(hideGUI);
+                radiance.a *= float(hideGUI);
             #endif
 
-            radianceOut.a++;
+            radiance.a++;
         #endif
 
         #if GI == 0
-            radianceOut.rgb = vec3(0.0);
+            radiance.rgb = vec3(0.0);
 
             float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
@@ -168,22 +170,22 @@
                 ao = texture(AO_BUFFER, vertexCoords).b;
             #endif
 
-            radianceOut.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
+            radiance.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         #else
             if(material.F0 * maxFloat8 <= 229.5) {
-                pathtrace(radianceOut.rgb, vec3(vertexCoords, depth), directOut, directIlluminance);
+                pathtrace(radiance.rgb, vec3(vertexCoords, depth), directOut, directIlluminance);
 
                 #if TEMPORAL_ACCUMULATION == 1
-                    float weight    = 1.0 / clamp(radianceOut.a, 1.0, 60.0);
-                    radianceOut.rgb = clamp16(mix(history.rgb, radianceOut.rgb, weight));
+                    float weight    = 1.0 / clamp(radiance.a, 1.0, 60.0);
+                    radiance.rgb = clamp16(mix(history.rgb, radiance.rgb, weight));
 
 			        #if RENDER_MODE == 0 && ATROUS_FILTER == 1
-				        float luminance = luminance(radianceOut.rgb);
+				        float luminance = luminance(radiance.rgb);
 				        vec2  moments   = vec2(luminance, luminance * luminance);
 
 				        momentsOut.rg = mix(momentsOut.rg, moments, weight);
 
-				        if(radianceOut.a < VARIANCE_STABILIZATION_THRESHOLD) {
+				        if(radiance.a < VARIANCE_STABILIZATION_THRESHOLD) {
 					        momentsOut.b = estimateSpatialVariance(ACCUMULATION_BUFFER, moments);
 				        } else { 
 					        momentsOut.b = abs(momentsOut.g - momentsOut.r * momentsOut.r);
@@ -192,5 +194,21 @@
                 #endif
             }
         #endif
+
+        // Alpha blending
+        vec4 basic = texture(RASTER_BUFFER, vertexCoords);
+
+        bool isEnchantmentGlint = basic.a == 0.0;
+
+        if(depth >= handDepth) {
+            if(isEnchantmentGlint) {
+                float prevLuminance = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
+
+                // Cancelling exposure for enchantment glints
+                radiance.rgb += basic.rgb / computeExposure(prevLuminance);
+            } else {
+                radiance.rgb = mix(radiance.rgb, basic.rgb, basic.a);
+            }
+        }
     }
 #endif

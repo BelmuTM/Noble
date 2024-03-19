@@ -4,4 +4,4 @@
 #define STAGE_VERTEX
 #define WORLD_END
 
-#include "/programs/gbuffers/forward.glsl"
+#include "/programs/gbuffers/opaque.glsl"

@@ -44,6 +44,7 @@ const float aerialPerspectiveMult = 2.0;
 float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
 
 #if defined WORLD_OVERWORLD
+
     void computeLandAerialPerspective(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
         float airmass      = pow2(quintic(0.0, far, length(viewPosition))) * aerialPerspectiveMult;
         vec3  opticalDepth = atmosphereAttenuationCoefficients * vec3(airmass);
@@ -57,6 +58,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
         scatteringOut  = atmosphereScatteringCoefficients * vec2(phase * airmass) * visibleScattering;
         scatteringOut *= directIlluminance * skyIlluminance;
     }
+    
 #endif
 
 #if AIR_FOG == 2
@@ -160,6 +162,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
         scatteringOut    = scattering[0] + scattering[1];
         transmittanceOut = vec3(1.0);
     }
+
 #endif
 
 #if TONEMAP == ACES
@@ -173,6 +176,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
 vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterAbsorptionCoefficients);
 
 #if WATER_FOG == 0
+
     void computeWaterFogApproximation(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
         transmittanceOut = exp(-waterAbsorptionCoefficients * distance(startPosition, endPosition));
 
@@ -180,48 +184,53 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         scatteringOut += directIlluminance * kleinNishinaPhase(VdotL, 0.5);
         scatteringOut *= waterScatteringCoefficients * (1.0 - transmittanceOut) / waterAbsorptionCoefficients;
     }
+
 #else
 
-    // Thanks Jessie for the help!
     void computeVolumetricWaterFog(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight, bool sky) {
         const float stepSize = 1.0 / WATER_FOG_STEPS;
 
-        vec3 increment    = (endPosition - startPosition) * stepSize;
-        vec3 rayPosition  = startPosition + increment * dither;
-             rayPosition += cameraPosition;
+        vec3 worldIncrement = (endPosition - startPosition) * stepSize;
+        vec3 worldPosition  = startPosition + worldIncrement * dither;
+             worldPosition += cameraPosition;
 
-        vec3 shadowStartPosition = worldToShadow(startPosition);
-        vec3 shadowIncrement     = (worldToShadow(endPosition) - shadowStartPosition) * stepSize;
-        vec3 shadowPosition      = shadowStartPosition + shadowIncrement * dither;
+        vec3 shadowIncrement = mat3(shadowModelView) * worldIncrement;
+             shadowIncrement = diagonal3(shadowProjection) * shadowIncrement;
+        vec3 shadowPosition  = worldToShadow(worldPosition - cameraPosition);
 
-        vec3 stepTransmittance  = exp(-waterExtinctionCoefficients * length(increment));
-        vec3 scatteringIntegral = waterScatteringCoefficients * (1.0 - stepTransmittance) / waterExtinctionCoefficients;
+        float rayLength = sky ? far : length(worldIncrement);
 
-        mat2x3 scattering    = mat2x3(vec3(0.0), vec3(0.0)); 
-        vec3   transmittance = vec3(1.0);
+        vec3 stepTransmittance = exp(-waterExtinctionCoefficients * rayLength);
 
-        for(int i = 0; i < WATER_FOG_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
-            vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
+        vec3 scattering    = vec3(0.0); 
+        vec3 transmittance = vec3(1.0);
+
+        for(int i = 0; i < WATER_FOG_STEPS; i++, worldPosition += worldIncrement, shadowPosition += shadowIncrement) {
+            vec3  shadowScreenPosition = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
+            ivec2 shadowTexel          = ivec2(shadowScreenPosition.xy * shadowMapResolution);
+
+            float shadowDepth0 = texelFetch(shadowtex0, shadowTexel, 0).r;
+            vec3  shadow       = getShadowColor(shadowScreenPosition);
+
+            float distanceThroughWater = abs(shadowDepth0 - shadowScreenPosition.z) * -shadowProjectionInverse[2].z / SHADOW_DEPTH_STRETCH;
 
             #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                shadowColor *= getCloudsShadows(rayPosition);
+                shadow *= getCloudsShadows(worldPosition);
             #endif
 
-            mat2x3 stepScattering = mat2x3(vec3(0.0), vec3(0.0));
+            vec3 directTransmittance = shadow * exp(-waterExtinctionCoefficients * distanceThroughWater);
 
-            stepScattering[0] = stepTransmittance * shadowColor;
-            stepScattering[1] = stepTransmittance * isotropicPhase * skylight;
-
-            scattering[0] += stepScattering[0] * scatteringIntegral * transmittance;
-            scattering[1] += stepScattering[1] * scatteringIntegral * transmittance;
+            scattering += transmittance * directIlluminance * directTransmittance;
+            scattering += transmittance * skyIlluminance    * isotropicPhase * skylight;
             
             transmittance *= stepTransmittance;
         }
-        scattering[0] *= directIlluminance;
-        scattering[1] *= skyIlluminance;
+
+        vec3 scatteringAlbedo = saturate(waterScatteringCoefficients / waterExtinctionCoefficients);
+
+        scattering *= (1.0 - stepTransmittance) * scatteringAlbedo;
 
         // Multiple scattering approximation provided by Jessie
-        vec3 scatteringAlbedo         = saturate(waterScatteringCoefficients / waterExtinctionCoefficients);
         vec3 multipleScatteringFactor = scatteringAlbedo * 0.84;
 
         int phaseSampleCount = 32;
@@ -232,10 +241,10 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         }
         phaseMultiple /= phaseSampleCount;
 
-        scatteringOut  = (scattering[0] + scattering[1]) * phaseMultiple;
+        scatteringOut  = scattering * phaseMultiple;
         scatteringOut *= multipleScatteringFactor / (1.0 - multipleScatteringFactor);
 
-	    if(sky) { transmittanceOut = vec3(1.0); return; }
         transmittanceOut = transmittance;
     }
+
 #endif

@@ -40,14 +40,6 @@
 		textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 		lightmapCoords = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor    = gl_Color;
-
-		#if defined PROGRAM_ENTITY
-			// Thanks Niemand#1929 for the nametag fix
-			if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
-				gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
-				return;
-			}
-		#endif
 		
     	vec3 viewPosition = (gl_ModelViewMatrix * gl_Vertex).xyz;
 
@@ -87,10 +79,6 @@
 	in mat3[2] skyIlluminanceMat;
 	in vec4 vertexColor;
 	in mat3 tbn;
-
-	#if defined PROGRAM_ENTITY
-		uniform vec4 entityColor;
-	#endif
 	
 	#include "/include/fragment/brdf.glsl"
 
@@ -124,6 +112,8 @@
 		Material material;
 		translucents = vec4(0.0);
 
+		material.lightmap = lightmapCoords;
+
 		// WOTAH
 		if(blockId == WATER_ID) { 
 			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
@@ -132,8 +122,6 @@
 			material.normal = tbn * getWaterNormals(scenePosition + cameraPosition, WATER_OCTAVES);
 		
 		} else {
-			material.lightmap = lightmapCoords;
-
 			#if defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT
 				material.F0         = 0.0;
     			material.roughness  = 1.0;
@@ -146,12 +134,6 @@
     			material.ao         = normalTex.z;
 				material.emission   = specularTex.w * maxFloat8 < 254.5 ? specularTex.w : 0.0;
     			material.subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
-			#endif
-
-			#if defined PROGRAM_ENTITY
-				albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
-			
-				material.ao = all(lessThanEqual(normalTex.rgb, vec3(EPS))) ? 1.0 : material.ao;
 			#endif
 
 			if(blockId == NETHER_PORTAL_ID) material.emission = 1.0;
@@ -170,10 +152,10 @@
 				material.normal    = tbn * material.normal;
 			}
 
-			#if REFRACTIONS == 0 || defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT
+			#if REFRACTIONS == 0
 				bool shadeTranslucents = true;
 			#else
-				bool shadeTranslucents = material.F0 < EPS;
+				bool shadeTranslucents = material.F0 <= EPS;
 			#endif
 
 			if(material.F0 * maxFloat8 <= 229.5 && shadeTranslucents) {
@@ -183,10 +165,8 @@
         			material.albedo = srgbToLinear(material.albedo);
     			#endif
 
-				#if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT
-        			material.N = vec3(f0ToIOR(material.F0));
-        			material.K = vec3(0.0);
-				#endif
+        		material.N = vec3(f0ToIOR(material.F0));
+        		material.K = vec3(0.0);
 
 				vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
 				vec3 skyIlluminance = vec3(0.0);
@@ -232,7 +212,7 @@
 			}
 		}
 
-		vec3 labPbrData0 = vec3(0.0, saturate(material.lightmap));
+		vec3 labPbrData0 = vec3(1.0, saturate(material.lightmap));
 		vec4 labPbrData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
 		vec4 labPbrData2 = vec4(albedoTex.rgb, material.roughness);
 		vec2 encNormal   = encodeUnitVector(normalize(material.normal));

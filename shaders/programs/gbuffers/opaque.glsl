@@ -40,6 +40,14 @@
 		lightmapCoords = gl_MultiTexCoord1.xy * rcp(240.0);
 		vertexColor    = gl_Color;
 
+		#if defined PROGRAM_ENTITY
+			// Thanks Niemand#1929 for the nametag fix
+			if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
+				gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
+				return;
+			}
+		#endif
+
 		#if POM > 0 && defined PROGRAM_TERRAIN
 			vec2 halfSize = abs(textureCoords - mc_midTexCoord);
 			texSize       = halfSize * 2.0;
@@ -90,6 +98,10 @@
 
 	#if POM > 0 && defined PROGRAM_TERRAIN
 		#include "/include/fragment/parallax.glsl"
+	#endif
+
+	#if defined PROGRAM_ENTITY
+		uniform vec4 entityColor;
 	#endif
 
 	vec2 computeLightmap(vec3 textureNormal) {
@@ -176,6 +188,12 @@
 		#if WHITE_WORLD == 1
 	    	albedoTex.rgb = vec3(1.0);
     	#endif
+
+		#if defined PROGRAM_ENTITY
+			albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
+			
+			ao = all(lessThanEqual(normalTex.rgb, vec3(EPS))) ? 1.0 : ao;
+		#endif
 
 		#if defined PROGRAM_BEACONBEAM
 			if(albedoTex.a <= 1.0 - EPS) discard;
