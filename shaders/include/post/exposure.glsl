@@ -3,13 +3,11 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-const float exposureBias = 1.0;
-
-float minExposure = 1.0 * exposureBias / luminance(sunIrradiance);
-float maxExposure = 0.1 * exposureBias / luminance(moonIrradiance);
+const float minExposure = 6e-12;
+const float maxExposure = 0.03;
 
 float computeEV100fromLuminance(float luminance) {
-    return log2(luminance * sensorSensitivity * exposureBias / calibration);
+    return log2(luminance * sensorSensitivity / calibration);
 }
 
 float computeExposureFromEV100(float ev100) {
