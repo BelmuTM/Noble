@@ -33,7 +33,6 @@ uniform int hideGUI;
 uniform float rainStrength;
 uniform float wetness;
 uniform float sunAngle;
-uniform ivec2 eyeBrightness;
 
 uniform sampler2D noisetex;
 

@@ -31,6 +31,8 @@
 	out vec4 vertexColor;
 	out mat3 tbn;
 
+	uniform float rcp240;
+
 	void main() {
 		#if defined PROGRAM_HAND && DISCARD_HAND == 1
 			gl_Position = vec4(1.0);
@@ -38,7 +40,7 @@
 		#endif
 
 		textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-		lightmapCoords = gl_MultiTexCoord1.xy * rcp(240.0);
+		lightmapCoords = gl_MultiTexCoord1.xy * rcp240;
 		vertexColor    = gl_Color;
 		
     	vec3 viewPosition = (gl_ModelViewMatrix * gl_Vertex).xyz;

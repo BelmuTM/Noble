@@ -20,6 +20,10 @@
     out vec3 worldPosition;
     out vec4 vertexColor;
 
+    #if RENDER_MODE == 0 && WAVING_PLANTS == 1
+        uniform float rcp240;
+    #endif
+
     #include "/include/vertex/animation.glsl"
 
     void main() {
@@ -31,7 +35,7 @@
              worldPosition = transform(shadowModelViewInverse, viewShadowPos);
 
 	    #if RENDER_MODE == 0 && WAVING_PLANTS == 1
-            animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(gl_MultiTexCoord1.y * rcp(240.0)));
+            animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(gl_MultiTexCoord1.y * rcp240));
             gl_Position = transform(shadowModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
 	    #else
             gl_Position = ftransform();

@@ -13,7 +13,7 @@ float calculateAirFogPhase(float cosTheta) {
     return mix(mix(forwardsLobe, backwardsLobe, airFogBackScatter), forwardsPeak, airFogPeakWeight);
 }
 
-const float aerialPerspectiveMult = 2.0;
+const float aerialPerspectiveMult = 1.0;
 
 #if defined WORLD_OVERWORLD
     vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
@@ -45,7 +45,10 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
 
 #if defined WORLD_OVERWORLD
 
-    void computeLandAerialPerspective(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
+    uniform ivec2 eyeBrightness;
+    uniform float rcp240;
+
+    void computeLandAerialPerspective(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
         float airmass      = pow2(quintic(0.0, far, length(viewPosition))) * aerialPerspectiveMult;
         vec3  opticalDepth = atmosphereAttenuationCoefficients * vec3(airmass);
 
@@ -56,7 +59,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
         vec3 visibleScattering = saturate((transmittanceOut - 1.0) / -opticalDepth);
 
         scatteringOut  = atmosphereScatteringCoefficients * vec2(phase * airmass) * visibleScattering;
-        scatteringOut *= directIlluminance * skyIlluminance;
+        scatteringOut *= directIlluminance * skyIlluminance * eyeBrightness.y * rcp240;
     }
     
 #endif
@@ -80,7 +83,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
         float altitude   = (position.y - fogAltitude) * rcp(fogThickness);
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
         
-        float shapeNoise  = FBM(position * 0.03, AIR_FOG_OCTAVES, 2.0);
+        float shapeNoise  = FBM(position * 0.03, AIR_FOG_OCTAVES, 1.0);
               shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
               shapeNoise *= exp(-max0(position.y - fogAltitude) * 0.2);
         

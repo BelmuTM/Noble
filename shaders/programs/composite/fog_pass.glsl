@@ -95,7 +95,7 @@ void main() {
 
         #if defined WORLD_OVERWORLD
             if(isEyeInWater == 0) {
-                computeLandAerialPerspective(scatteringLayer2, transmittanceLayer2, viewPosition0, VdotL, directIlluminance, skyIlluminance, skylight);
+                computeLandAerialPerspective(scatteringLayer2, transmittanceLayer2, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance);
             }
         #endif
     } else {
