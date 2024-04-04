@@ -167,6 +167,8 @@
             radiance.a++;
         #endif
 
+        Material material = getMaterial(vertexCoords);
+
         #if GI == 0
             radiance.rgb = vec3(0.0);
 
@@ -185,16 +187,14 @@
                 ao = texture(AO_BUFFER, vertexCoords).b;
             #endif
 
-            Material material = getMaterial(vertexCoords);
-
             radiance.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         #else
             if(material.F0 * maxFloat8 <= 229.5) {
                 pathtrace(depthTex, projection, projectionInverse, radiance.rgb, vec3(vertexCoords, depth), directOut, directIlluminance);
 
                 #if TEMPORAL_ACCUMULATION == 1
-                    float weight    = 1.0 / clamp(radiance.a, 1.0, 60.0);
-                    radiance.rgb = clamp16(mix(history.rgb, radiance.rgb, weight));
+                    float weight = 1.0 / clamp(radiance.a, 1.0, 60.0);
+                    radiance.rgb = mix(history.rgb, radiance.rgb, weight);
 
 			        #if RENDER_MODE == 0 && ATROUS_FILTER == 1
 				        float luminance = luminance(radiance.rgb);
