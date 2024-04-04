@@ -183,7 +183,9 @@
 				#endif
 
 				#if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT && !defined PROGRAM_SPIDEREYES
-					translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+					bool isMetal = material.F0 * maxFloat8 > 229.5;
+
+					translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, isMetal, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 				#else
 					vec3 diffuse = vec3(RCP_PI);
 

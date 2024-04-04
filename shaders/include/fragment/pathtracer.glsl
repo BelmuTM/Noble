@@ -39,7 +39,7 @@ vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
     return phase;
 }
 
-void pathtrace(sampler2D depthTex, mat4 projection, mat4 projectionInverse, out vec3 radiance, in vec3 screenPosition, out vec3 direct, vec3 directIlluminance) {
+void pathtrace(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3 directIlluminance, bool isMetal, out vec3 radiance, in vec3 screenPosition, out vec3 direct) {
     vec3 viewPosition = screenToView(screenPosition, projectionInverse, true);
 
     for(int i = 0; i < GI_SAMPLES; i++) {
@@ -77,7 +77,7 @@ void pathtrace(sampler2D depthTex, mat4 projection, mat4 projectionInverse, out 
                 estimate += throughput * brdf; 
             }
 
-            throughput *= phase;
+            throughput *= (isMetal ? material.albedo : phase);
 
             if(!hit) {
                 #if defined WORLD_OVERWORLD && SKY_CONTRIBUTION == 1

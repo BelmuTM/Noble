@@ -136,10 +136,8 @@ vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 ligh
     return mix(isotropicLobe, mix(forwardsLobe, backwardsLobe, 0.3), 0.6);
 }
 
-vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, vec4 shadowmap, vec3 directIlluminance, vec3 skyIlluminance, float ao, float cloudsShadows) {
+vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, bool isMetal, vec4 shadowmap, vec3 directIlluminance, vec3 skyIlluminance, float ao, float cloudsShadows) {
     viewDirection = normalize(-viewDirection);
-
-    bool isMetal = material.F0 * maxFloat8 > 229.5;
 
     vec3 diffuse;
     if(isMetal) {

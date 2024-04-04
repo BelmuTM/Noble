@@ -133,7 +133,7 @@
                 if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(vertexNormal, skyIlluminanceMat);
             #endif
 
-            translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+            translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, false, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 
             translucents.a = vertexColor.a;
 		}

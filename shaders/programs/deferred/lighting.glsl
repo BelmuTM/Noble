@@ -169,6 +169,8 @@
 
         Material material = getMaterial(vertexCoords);
 
+        bool isMetal = material.F0 * maxFloat8 > 229.5;
+
         #if GI == 0
             radiance.rgb = vec3(0.0);
 
@@ -187,29 +189,27 @@
                 ao = texture(AO_BUFFER, vertexCoords).b;
             #endif
 
-            radiance.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
+            radiance.rgb = computeDiffuse(viewPosition, shadowVec, material, isMetal, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         #else
-            if(material.F0 * maxFloat8 <= 229.5) {
-                pathtrace(depthTex, projection, projectionInverse, radiance.rgb, vec3(vertexCoords, depth), directOut, directIlluminance);
+            pathtrace(depthTex, projection, projectionInverse, directIlluminance, isMetal, radiance.rgb, vec3(vertexCoords, depth), directOut);
 
-                #if TEMPORAL_ACCUMULATION == 1
-                    float weight = 1.0 / clamp(radiance.a, 1.0, 60.0);
-                    radiance.rgb = mix(history.rgb, radiance.rgb, weight);
+            #if TEMPORAL_ACCUMULATION == 1
+                float weight = 1.0 / clamp(radiance.a, 1.0, 60.0);
+                radiance.rgb = mix(history.rgb, radiance.rgb, weight);
 
-			        #if RENDER_MODE == 0 && ATROUS_FILTER == 1
-				        float luminance = luminance(radiance.rgb);
-				        vec2  moments   = vec2(luminance, luminance * luminance);
+                #if RENDER_MODE == 0 && ATROUS_FILTER == 1
+                    float luminance = luminance(radiance.rgb);
+                    vec2  moments   = vec2(luminance, luminance * luminance);
 
-				        momentsOut.rg = mix(momentsOut.rg, moments, weight);
+                    momentsOut.rg = mix(momentsOut.rg, moments, weight);
 
-				        if(radiance.a < VARIANCE_STABILIZATION_THRESHOLD) {
-					        momentsOut.b = estimateSpatialVariance(ACCUMULATION_BUFFER, moments);
-				        } else { 
-					        momentsOut.b = abs(momentsOut.g - momentsOut.r * momentsOut.r);
-				        }
-			        #endif
+                    if(radiance.a < VARIANCE_STABILIZATION_THRESHOLD) {
+                        momentsOut.b = estimateSpatialVariance(ACCUMULATION_BUFFER, moments);
+                    } else { 
+                        momentsOut.b = abs(momentsOut.g - momentsOut.r * momentsOut.r);
+                    }
                 #endif
-            }
+            #endif
         #endif
 
         // Alpha blending
