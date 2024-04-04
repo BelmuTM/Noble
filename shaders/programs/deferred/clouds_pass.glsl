@@ -98,7 +98,7 @@
                 vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy * RENDER_SCALE;
                 float prevDepth    = texture(depthtex0, prevPosition.xy).r;
 
-                if(clamp(prevPosition.xy, 0.0, RENDER_SCALE - 1e-2) == prevPosition.xy && prevDepth >= handDepth) {
+                if(clamp(prevPosition.xy, 0.0, RENDER_SCALE - 1e-3) == prevPosition.xy && prevDepth >= handDepth) {
                     vec3 history = texture(CLOUDS_BUFFER, prevPosition.xy).rgb;
 
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
@@ -109,7 +109,7 @@
 
                     float weight = saturate(centerWeight * velocityWeight);
 
-                    clouds = max0(mix(clouds, history, weight));
+                    clouds = clamp16(mix(clouds, history, weight));
                 }
             }
         }
