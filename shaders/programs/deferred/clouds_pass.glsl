@@ -91,7 +91,7 @@
             float distanceToClouds = min(layer0.a, layer1.a);
 
             if(distanceToClouds > EPS) {
-                clouds.rg = layer0.rg + layer1.rg * layer0.b;
+                clouds.rg = layer1.rg * layer0.b + layer0.rg;
                 clouds.b  = layer0.b  * layer1.b;
 
                 /* Reprojection */
@@ -107,9 +107,9 @@
                     float velocityWeight = saturate(length(abs(prevPosition - vertexCoords) * viewSize)) * 0.8 + 0.2;
                           velocityWeight = mix(1.0, velocityWeight, float(CLOUDS_SCALE == 100));
 
-                    float weight = saturate(centerWeight * velocityWeight);
+                    float weight = saturate(centerWeight);
 
-                    clouds = max0(mix(clouds, history, weight));
+                    clouds = clamp16(mix(clouds, history, weight));
                 }
             }
         }
