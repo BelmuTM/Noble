@@ -58,7 +58,7 @@
 
             Material material = getMaterial(vertexCoords);
             vec3 currPosition = vec3(textureCoords, depth);
-            vec3 viewPosition = screenToView(currPosition, dhProjectionInverse, true);
+            vec3 viewPosition = screenToView(currPosition, projectionInverse, true);
                     
             #if REFLECTIONS == 1
                 reflections = computeRoughReflections(depthTex, projection, viewPosition, material);

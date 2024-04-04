@@ -179,11 +179,11 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
         float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition,-up,                1, layer);
         float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition, up,                2, layer);
 
-	    float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
-	    float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
+        float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
+        float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
         float powderSky = mix(powder, 1.0, VdotU * 0.5 + 0.5);
 
-        vec3 mieAnisotropyFactors   = pow(vec3(cloudsForwardsLobe, cloudsBackardsLobe, cloudsForwardsPeak), vec3(directOpticalDepth + 1.0));
+        vec3  mieAnisotropyFactors  = pow(vec3(cloudsForwardsLobe, cloudsBackardsLobe, cloudsForwardsPeak), vec3(directOpticalDepth + 1.0));
         float extinctionCoefficient = cloudsExtinctionCoefficient;
         float scatteringCoefficient = cloudsScatteringCoefficient;
 
@@ -221,9 +221,9 @@ float calculateCloudsShadows(vec3 shadowPosition, vec3 rayDirection, CloudLayer 
 
     vec2 dists = intersectSphericalShell(shadowPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
 
-    float stepSize   = (dists.y - dists.x) * rcp(stepCount);
-    vec3 increment   = rayDirection * stepSize;
-    vec3 rayPosition = shadowPosition + rayDirection * (dists.x + stepSize * 0.5);
+    float stepSize    = (dists.y - dists.x) * rcp(stepCount);
+    vec3  increment   = rayDirection * stepSize;
+    vec3  rayPosition = shadowPosition + rayDirection * (dists.x + stepSize * 0.5);
 
     float opticalDepth = 0.0;
 

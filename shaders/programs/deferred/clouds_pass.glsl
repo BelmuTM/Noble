@@ -61,9 +61,20 @@
             sampler2D depthTex = depthtex0;
             float     depth    = texture(depthtex0, vertexCoords).r;
 
-            if(find4x4MaximumDepth(depthtex0, vertexCoords) < 1.0) return;
+            mat4 projectionInverse = gbufferProjectionInverse;
 
-            vec3 viewPosition       = screenToView(vec3(textureCoords, depth), gbufferProjectionInverse, false);
+            #if defined DISTANT_HORIZONS
+                if(depth >= 1.0) {
+                    depthTex = dhDepthTex0;
+                    depth    = texture(dhDepthTex0, vertexCoords).r;
+
+                    projectionInverse = dhProjectionInverse;
+                }
+            #endif
+
+            if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) return;
+
+            vec3 viewPosition       = screenToView(vec3(textureCoords, depth), projectionInverse, false);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
             vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e35);
@@ -80,8 +91,8 @@
             float distanceToClouds = min(layer0.a, layer1.a);
 
             if(distanceToClouds > EPS) {
-                clouds.rg = layer0.rg + layer1.rg * layer0.b;
-                clouds.b  = layer0.b  * layer1.b;
+                clouds.rg = clamp16(layer0.rg + layer1.rg * layer0.b);
+                clouds.b  = clamp16(layer0.b  * layer1.b            );
 
                 /* Reprojection */
                 vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy * RENDER_SCALE;
@@ -98,7 +109,7 @@
 
                     float weight = saturate(centerWeight * velocityWeight);
 
-                    clouds = max0(mix(clouds, history, weight));
+                    clouds = clamp16(mix(clouds, history, weight));
                 }
             }
         }

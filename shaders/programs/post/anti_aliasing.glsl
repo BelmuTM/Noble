@@ -150,7 +150,7 @@
 	            float luminanceDelta = pow2(distance(history, currColor) / luminance(history));
 
 	            float weight = saturate(length(velocity * viewSize));
-	                  weight = (1.0 - TAA_STRENGTH + weight * 0.5) / (1.0 + luminanceDelta);
+	                  weight = (1.0 - TAA_STRENGTH + weight * 0.2) / (1.0 + luminanceDelta);
 
                 color.rgb = clamp16(inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight))));
             } else {
