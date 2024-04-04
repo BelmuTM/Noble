@@ -70,16 +70,16 @@
                     vec2  offset       = vec2(x, y) * texelSize;
                     vec2  sampleCoords = coords + offset;
 
-                    if(saturate(sampleCoords) != sampleCoords) continue;
+                    if(saturate(sampleCoords) == sampleCoords) {
+                        float weight   = gaussianDistribution2D(vec2(x, y), 1.0);
+                        float variance = texture(MOMENTS_BUFFER, sampleCoords).b;
 
-                    float weight   = gaussianDistribution2D(vec2(x, y), 1.0);
-                    float variance = texture(MOMENTS_BUFFER, sampleCoords).b;
-
-                    varianceSum += variance * weight;
-                    totalWeight += weight;
+                        varianceSum += variance * weight;
+                        totalWeight += weight;
+                    }
                 }
             }
-            return (varianceSum / totalWeight) * 5.0;
+            return (varianceSum / totalWeight) * 7.0;
         }
 
         void aTrousFilter(sampler2D depthTex, float nearPlane, float farPlane, vec2 coords, inout vec3 irradiance, inout vec3 moments) {

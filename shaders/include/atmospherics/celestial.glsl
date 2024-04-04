@@ -60,7 +60,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 				clouds.a   = cloudsBuffer.b;
 			#endif
 
-			sky += physicalSun (sceneDirection) * cloudsBuffer.b;
+			sky += physicalSun (sceneDirection);
 			sky += physicalMoon(sceneDirection);
 		#elif defined WORLD_END
 			sky += physicalStar(sceneDirection);

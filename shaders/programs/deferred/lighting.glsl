@@ -98,7 +98,7 @@
         sampler2D depthTex = depthtex0;
         float     depth    = texture(depthtex0, vertexCoords).r;
 
-        mat4 projection        = gbufferProjectionInverse;
+        mat4 projection        = gbufferProjection;
         mat4 projectionInverse = gbufferProjectionInverse;
 
         float nearPlane = near;
@@ -150,7 +150,7 @@
                 momentsOut.a = log2(prevPosition.z);
 
                 float linearDepth     = linearizeDepth(prevPosition.z, nearPlane, farPlane);
-			    float linearPrevDepth = linearizeDepth(prevDepth, nearPlane, farPlane);
+			    float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
 
                 radiance.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.1);
 
