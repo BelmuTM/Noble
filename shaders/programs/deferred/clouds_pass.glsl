@@ -91,7 +91,7 @@
             float distanceToClouds = min(layer0.a, layer1.a);
 
             if(distanceToClouds > EPS) {
-                clouds.rg = layer1.rg * layer0.b + layer0.rg;
+                clouds.rg = layer0.rg + layer1.rg * layer0.b;
                 clouds.b  = layer0.b  * layer1.b;
 
                 /* Reprojection */
@@ -99,7 +99,7 @@
                 float prevDepth    = texture(depthtex0, prevPosition.xy).r;
 
                 if(clamp(prevPosition.xy, 0.0, RENDER_SCALE - 1e-2) == prevPosition.xy && prevDepth >= handDepth) {
-                    vec3 history = texture(CLOUDS_BUFFER, prevPosition.xy).rgb;
+                    vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition.xy).rgb);
 
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
                     float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
@@ -107,9 +107,9 @@
                     float velocityWeight = saturate(length(abs(prevPosition - vertexCoords) * viewSize)) * 0.8 + 0.2;
                           velocityWeight = mix(1.0, velocityWeight, float(CLOUDS_SCALE == 100));
 
-                    float weight = saturate(centerWeight);
+                    float weight = saturate(centerWeight * velocityWeight);
 
-                    clouds = clamp16(mix(clouds, history, weight));
+                    clouds = max0(mix(clouds, history, weight));
                 }
             }
         }
