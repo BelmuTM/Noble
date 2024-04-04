@@ -9,6 +9,7 @@
 #include "/include/common.glsl"
 
 #if defined STAGE_VERTEX
+
     #define attribute in
     attribute vec4 at_tangent;
     attribute vec3 at_midBlock;
@@ -31,8 +32,8 @@
         vertexColor   = gl_Color;
         blockId       = int((mc_Entity.x - 1000.0) + 0.25);
 
-        vec3 viewShadowPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
-             worldPosition = transform(shadowModelViewInverse, viewShadowPos);
+        vec3 viewShadowPosition = (gl_ModelViewMatrix * gl_Vertex).xyz;
+             worldPosition      = transform(shadowModelViewInverse, viewShadowPosition);
 
 	    #if RENDER_MODE == 0 && WAVING_PLANTS == 1
             animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(gl_MultiTexCoord1.y * rcp240));
@@ -92,4 +93,5 @@
             #endif
         }
     }
+    
 #endif

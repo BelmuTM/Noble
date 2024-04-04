@@ -63,15 +63,15 @@
             ivec2 coords = ivec2(gl_FragCoord.xy * scale);
 
             // Left to right, top to bottom
-            vec3 sample_0 = (texelFetch(currTex, coords + ivec2(-1,  1), 0).rgb);
-            vec3 sample_1 = (texelFetch(currTex, coords + ivec2( 0,  1), 0).rgb);
-            vec3 sample_2 = (texelFetch(currTex, coords + ivec2( 1,  1), 0).rgb);
-            vec3 sample_3 = (texelFetch(currTex, coords + ivec2(-1,  0), 0).rgb);
-            vec3 sample_4 = (texelFetch(currTex, coords                , 0).rgb);
-            vec3 sample_5 = (texelFetch(currTex, coords + ivec2( 1,  0), 0).rgb);
-            vec3 sample_6 = (texelFetch(currTex, coords + ivec2(-1, -1), 0).rgb);
-            vec3 sample_7 = (texelFetch(currTex, coords + ivec2( 0, -1), 0).rgb);
-            vec3 sample_8 = (texelFetch(currTex, coords + ivec2( 1, -1), 0).rgb);
+            vec3 sample_0 = texelFetch(currTex, coords + ivec2(-1,  1), 0).rgb;
+            vec3 sample_1 = texelFetch(currTex, coords + ivec2( 0,  1), 0).rgb;
+            vec3 sample_2 = texelFetch(currTex, coords + ivec2( 1,  1), 0).rgb;
+            vec3 sample_3 = texelFetch(currTex, coords + ivec2(-1,  0), 0).rgb;
+            vec3 sample_4 = texelFetch(currTex, coords                , 0).rgb;
+            vec3 sample_5 = texelFetch(currTex, coords + ivec2( 1,  0), 0).rgb;
+            vec3 sample_6 = texelFetch(currTex, coords + ivec2(-1, -1), 0).rgb;
+            vec3 sample_7 = texelFetch(currTex, coords + ivec2( 0, -1), 0).rgb;
+            vec3 sample_8 = texelFetch(currTex, coords + ivec2( 1, -1), 0).rgb;
 
             // Min and max nearest 5 + nearest 9
             minColor  = min(sample_1, min(sample_3, min(sample_4, min(sample_5, sample_7))));
@@ -121,8 +121,22 @@
                 color.rgb = texture(DEFERRED_BUFFER, vertexCoords).rgb;
             #endif
         #else
-            vec3 closestFragment = getClosestFragment(vec3(textureCoords, texture(depthtex0, vertexCoords).r));
-            vec2 velocity        = getVelocity(closestFragment).xy;
+            sampler2D depthTex = depthtex0;
+            float     depth    = texture(depthtex0, vertexCoords).r;
+
+            mat4 projectionInverse = gbufferProjectionInverse;
+
+            #if defined DISTANT_HORIZONS
+                if(depth >= 1.0) {
+                    depthTex = dhDepthTex0;
+                    depth    = texture(dhDepthTex0, vertexCoords).r;
+
+                    projectionInverse = dhProjectionInverse;
+                }
+            #endif
+
+            vec3 closestFragment = getClosestFragment(depthTex, vec3(textureCoords, depth));
+            vec2 velocity        = getVelocity(vec3(textureCoords, depth), projectionInverse).xy;
             vec2 prevCoords      = textureCoords + velocity;
 
             if(saturate(prevCoords) == prevCoords) {

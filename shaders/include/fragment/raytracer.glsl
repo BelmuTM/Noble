@@ -12,11 +12,11 @@
     }
 #endif
 
-bool raytrace(sampler2D depthTexture, vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter, float scale, out vec3 rayPosition) {
+bool raytrace(sampler2D depthTexture, mat4 projection, vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter, float scale, out vec3 rayPosition) {
     if(rayDirection.z > -viewPosition.z) return false;
 
-    rayPosition   = viewToScreen(viewPosition, true);
-    rayDirection  = normalize(viewToScreen(viewPosition + rayDirection, true) - rayPosition);
+    rayPosition   = viewToScreen(viewPosition, projection, true);
+    rayDirection  = normalize(viewToScreen(viewPosition + rayDirection, projection, true) - rayPosition);
     rayDirection *= minOf((sign(rayDirection) - rayPosition) / rayDirection) * rcp(stepCount);
     rayPosition  += rayDirection * jitter;
 

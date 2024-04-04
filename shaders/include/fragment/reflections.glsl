@@ -35,7 +35,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
     /*------------------ ROUGH REFLECTIONS -----------------*/
     //////////////////////////////////////////////////////////
 
-    vec3 computeRoughReflections(vec3 viewPosition, Material material) {
+    vec3 computeRoughReflections(sampler2D depthTex, mat4 projection, vec3 viewPosition, Material material) {
         float alphaSq = maxEps(material.roughness * material.roughness);
 
         float skylight = getSkylightFalloff(material.lightmap.y);
@@ -58,7 +58,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
             float NdotL            = abs(dot(material.normal, rayDirection));
 
             vec3 hitPosition;
-            float hit = float(raytrace(depthtex0, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+            float hit = float(raytrace(depthTex, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
 
             vec3 fresnel;
             if(isEyeInWater == 1 || material.id == WATER_ID) {
@@ -86,7 +86,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
     /*------------------ SMOOTH REFLECTIONS ----------------*/
     //////////////////////////////////////////////////////////
 
-    vec3 computeSmoothReflections(vec3 viewPosition, Material material) {
+    vec3 computeSmoothReflections(sampler2D depthTex, mat4 projection, vec3 viewPosition, Material material) {
         float alphaSq = maxEps(material.roughness * material.roughness);
 
         float skylight = getSkylightFalloff(material.lightmap.y);
@@ -99,7 +99,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
         float NdotL         = abs(dot(material.normal, rayDirection));
 
         vec3 hitPosition;
-        float hit = float(raytrace(depthtex0, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+        float hit = float(raytrace(depthTex, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
 
         vec3 fresnel;
         if(isEyeInWater == 1 || material.id == WATER_ID) {

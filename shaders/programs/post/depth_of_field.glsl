@@ -56,15 +56,31 @@
         }
 
         void main() {
-            float depth0 = linearizeDepthFast(texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r);
+            sampler2D depthTex = depthtex0;
+            float     depth    = texture(depthtex0, vertexCoords).r;
+
+            float nearPlane = near;
+            float farPlane  = far;
+
+            #if defined DISTANT_HORIZONS
+                if(depth >= 1.0) {
+                    depthTex = dhDepthTex0;
+                    depth    = texture(dhDepthTex0, vertexCoords).r;
+
+                    nearPlane = dhNearPlane;
+                    farPlane  = dhFarPlane;
+                }
+            #endif
+
+            depth = linearizeDepth(depth, nearPlane, farPlane);
 
             #if DOF_DEPTH == 0
-                float targetDepth = linearizeDepthFast(texture(depthtex0, vec2(RENDER_SCALE * 0.5)).r);
+                float targetDepth = linearizeDepth(texture(depthTex, vec2(RENDER_SCALE * 0.5)).r, nearPlane, farPlane);
             #else
                 float targetDepth = float(DOF_DEPTH);
             #endif
 
-            depthOfField(color, DEFERRED_BUFFER, vertexCoords, getCoC(depth0, targetDepth));
+            depthOfField(color, DEFERRED_BUFFER, vertexCoords, getCoC(depth, targetDepth));
         }
         
     #endif

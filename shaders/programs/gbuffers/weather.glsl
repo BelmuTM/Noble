@@ -58,4 +58,5 @@
 		color.rgb = directIlluminance * exp(-attenuationCoefficients * density) * scatteringCoefficient;
 		color.a   = alpha;
 	}
+	
 #endif

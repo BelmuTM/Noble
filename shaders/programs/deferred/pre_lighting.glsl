@@ -124,9 +124,17 @@
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS > 0
+                mat4 projectionInverse = gbufferProjectionInverse;
+
+                #if defined DISTANT_HORIZONS
+                    if(texture(depthtex0, vertexCoords).r >= 1.0) {
+                        projectionInverse = dhProjectionInverse;
+                    }
+                #endif
+
                 if(material.depth0 != 1.0) {
                     vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
-                    vec3 scenePosition   = viewToScene(screenToView(vec3(textureCoords, material.depth0), true));
+                    vec3 scenePosition   = viewToScene(screenToView(vec3(textureCoords, material.depth0), projectionInverse, true));
 
                     shadowmap.rgb = abs(calculateShadowMapping(scenePosition, geometricNormal, shadowmap.a));
 

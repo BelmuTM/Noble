@@ -59,18 +59,18 @@ vec3 distortShadowSpace(vec3 position) {
 /*--------------- SPACE CONVERSIONS --------------------*/
 //////////////////////////////////////////////////////////
 
-vec3 screenToView(vec3 screenPosition, bool unjitter) {
+vec3 screenToView(vec3 screenPosition, mat4 projectionInverse, bool unjitter) {
 	screenPosition = screenPosition * 2.0 - 1.0;
 
     #if TAA == 1
         if(unjitter) screenPosition.xy -= taaOffsets[framemod] * texelSize;
     #endif
 
-	return projectOrthogonal(gbufferProjectionInverse, screenPosition) / (gbufferProjectionInverse[2].w * screenPosition.z + gbufferProjectionInverse[3].w);
+	return projectOrthogonal(projectionInverse, screenPosition) / (projectionInverse[2].w * screenPosition.z + projectionInverse[3].w);
 }
 
-vec3 viewToScreen(vec3 viewPosition, bool unjitter) {
-	vec3 ndcPosition = (projectOrthogonal(gbufferProjection, viewPosition) / -viewPosition.z);
+vec3 viewToScreen(vec3 viewPosition, mat4 projection, bool unjitter) {
+	vec3 ndcPosition = projectOrthogonal(projection, viewPosition) / -viewPosition.z;
 
     #if TAA == 1
         if(unjitter) ndcPosition.xy += taaOffsets[framemod] * texelSize;
@@ -101,24 +101,27 @@ mat3 constructViewTBN(vec3 viewNormal) {
 }
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth
-float linearizeDepth(float depth) {
-    depth = depth * 2.0 - 1.0;
-    return 2.0 * far * near / (far + near - depth * (far - near));
-}
-
-float linearizeDepthFast(float depth) {
-	return (near * far) / (depth * (near - far) + far);
+float linearizeDepth(float depth, float nearPlane, float farPlane) {
+    return (nearPlane * farPlane) / (depth * (nearPlane - farPlane) + farPlane);
 }
 
 //////////////////////////////////////////////////////////
 /*------------------ REPROJECTION ----------------------*/
 //////////////////////////////////////////////////////////
 
-vec3 getVelocity(vec3 currPosition) {
+vec3 getVelocity(vec3 currPosition, mat4 projectionInverse) {
     vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(currPosition.z >= handDepth);
 
-    vec3 prevPosition = transform(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPosition, false)));
-         prevPosition = (projectOrthogonal(gbufferPreviousProjection, prevPosition) / -prevPosition.z) * 0.5 + 0.5;
+    mat4 previousProjection = gbufferPreviousProjection;
+
+    #if defined DISTANT_HORIZONS
+        if(currPosition.z >= 1.0) {
+            previousProjection = dhPreviousProjection;
+        }
+    #endif
+
+    vec3 prevPosition = transform(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPosition, projectionInverse, false)));
+         prevPosition = (projectOrthogonal(previousProjection, prevPosition) / -prevPosition.z) * 0.5 + 0.5;
 
     return prevPosition - currPosition;
 }
@@ -132,7 +135,7 @@ vec3 reproject(vec3 viewPosition, float distanceToFrag, vec3 offset) {
     return prevPosition.xyz / prevPosition.w * 0.5 + 0.5;
 }
 
-vec3 getClosestFragment(vec3 position) {
+vec3 getClosestFragment(sampler2D depthTex, vec3 position) {
 	vec3 closestFragment = position;
     vec3 currentFragment;
     const int size = 1;
@@ -140,7 +143,7 @@ vec3 getClosestFragment(vec3 position) {
     for(int x = -size; x <= size; x++) {
         for(int y = -size; y <= size; y++) {
             currentFragment.xy = position.xy + vec2(x, y) * texelSize;
-            currentFragment.z  = texelFetch(depthtex0, ivec2(currentFragment.xy * viewSize * RENDER_SCALE), 0).r;
+            currentFragment.z  = texelFetch(depthTex, ivec2(currentFragment.xy * viewSize * RENDER_SCALE), 0).r;
             closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
         }
     }

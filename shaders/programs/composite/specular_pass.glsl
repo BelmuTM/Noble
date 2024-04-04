@@ -41,6 +41,22 @@ void main() {
 
     float depth = texture(depthtex0, vertexCoords).r;
 
+    sampler2D depthTex1 = depthtex1;
+
+    mat4 projection        = gbufferProjection;
+    mat4 projectionInverse = gbufferProjectionInverse;
+
+    #if defined DISTANT_HORIZONS
+        if(depth >= 1.0) {
+            depth = texture(dhDepthTex0, vertexCoords).r;
+
+            depthTex1 = dhDepthTex1;
+                    
+            projection        = dhProjection;
+            projectionInverse = dhProjectionInverse;
+        }
+    #endif
+
     if(depth != 1.0) {
         Material material = getMaterial(vertexCoords);
 
@@ -48,8 +64,8 @@ void main() {
             lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
         }
 
-        vec3 viewPosition0 = screenToView(vec3(textureCoords, material.depth0), true);
-        vec3 viewPosition1 = screenToView(vec3(textureCoords, material.depth1), true);
+        vec3 viewPosition0 = screenToView(vec3(textureCoords, material.depth0), projectionInverse, true);
+        vec3 viewPosition1 = screenToView(vec3(textureCoords, material.depth1), projectionInverse, true);
 
         vec3 directIlluminance = vec3(0.0);
     
@@ -67,7 +83,7 @@ void main() {
 
         #if REFRACTIONS == 1
             if(viewPosition0.z != viewPosition1.z && material.F0 > EPS) {
-                lighting = computeRefractions(viewPosition0, material, coords);
+                lighting = computeRefractions(depthTex1, projection, viewPosition0, material, coords);
             }
         #endif
 

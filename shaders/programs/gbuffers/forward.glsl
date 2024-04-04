@@ -17,6 +17,7 @@
 #endif
 
 #if defined STAGE_VERTEX
+
 	#define attribute in
 	attribute vec4 at_tangent;
 	attribute vec3 at_midBlock;
@@ -27,8 +28,8 @@
 	out vec2 lightmapCoords;
 	out vec3 scenePosition;
 	out vec3 directIlluminance;
-	out mat3[2] skyIlluminanceMat;
 	out vec4 vertexColor;
+	out mat3[2] skyIlluminanceMat;
 	out mat3 tbn;
 
 	uniform float rcp240;
@@ -78,8 +79,8 @@
 	in vec2 lightmapCoords;
 	in vec3 scenePosition;
 	in vec3 directIlluminance;
-	in mat3[2] skyIlluminanceMat;
 	in vec4 vertexColor;
+	in mat3[2] skyIlluminanceMat;
 	in mat3 tbn;
 	
 	#include "/include/fragment/brdf.glsl"
@@ -229,4 +230,5 @@
 		data.z = shiftedData2.x  | shiftedData2.y | shiftedData2.z | shiftedData2.w;
 		data.w = shiftedNormal.x | shiftedNormal.y;
 	}
+	
 #endif

@@ -117,6 +117,13 @@ Material getMaterial(vec2 coords) {
     material.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
     material.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;
 
+    #if defined DISTANT_HORIZONS
+        if(material.depth0 >= 1.0) {
+            material.depth0 = texelFetch(dhDepthTex0, ivec2(coords), 0).r;
+            material.depth1 = texelFetch(dhDepthTex1, ivec2(coords), 0).r;
+        }
+    #endif
+
     return material;
 }
 

@@ -13,7 +13,7 @@ float calculateAirFogPhase(float cosTheta) {
     return mix(mix(forwardsLobe, backwardsLobe, airFogBackScatter), forwardsPeak, airFogPeakWeight);
 }
 
-const float aerialPerspectiveMult = 1.0;
+const float aerialPerspectiveMult = 0.8;
 
 #if defined WORLD_OVERWORLD
     vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
@@ -49,7 +49,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
     uniform float rcp240;
 
     void computeLandAerialPerspective(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
-        float airmass      = pow2(quintic(0.0, far, length(viewPosition))) * aerialPerspectiveMult;
+        float airmass      = pow4(quintic(0.0, far, length(viewPosition))) * aerialPerspectiveMult;
         vec3  opticalDepth = atmosphereAttenuationCoefficients * vec3(airmass);
 
         transmittanceOut = exp(-opticalDepth);
@@ -135,8 +135,10 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
             vec3 stepTransmittance = exp(-opticalDepth);
             vec3 visibleScattering = transmittance * saturate((stepTransmittance - 1.0) / -opticalDepth);
 
-            vec3 stepScatteringDirect   = airFogScatteringCoefficients * airmass * phase          * visibleScattering;
-            vec3 stepScatteringIndirect = airFogScatteringCoefficients * airmass * isotropicPhase * visibleScattering;
+            vec3 scatteringAlbedo = saturate(airFogScatteringCoefficients / airFogAttenuationCoefficients);
+
+            vec3 stepScatteringDirect   = airFogScatteringCoefficients * airmass * phase          * ((1.0 - stepTransmittance) * scatteringAlbedo);
+            vec3 stepScatteringIndirect = airFogScatteringCoefficients * airmass * isotropicPhase * ((1.0 - stepTransmittance) * scatteringAlbedo);
 
             #if defined WORLD_OVERWORLD
                 vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);

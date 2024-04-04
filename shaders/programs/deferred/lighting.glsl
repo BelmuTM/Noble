@@ -95,8 +95,29 @@
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	    if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-        float depth        = texture(depthtex0, vertexCoords).r;
-        vec3  viewPosition = screenToView(vec3(textureCoords, depth), true);
+        sampler2D depthTex = depthtex0;
+        float     depth    = texture(depthtex0, vertexCoords).r;
+
+        mat4 projection        = gbufferProjectionInverse;
+        mat4 projectionInverse = gbufferProjectionInverse;
+
+        float nearPlane = near;
+        float farPlane  = far;
+
+        #if defined DISTANT_HORIZONS
+            if(depth >= 1.0) {
+                depthTex = dhDepthTex0;
+                depth    = texture(dhDepthTex0, vertexCoords).r;
+
+                projection        = dhProjection;
+                projectionInverse = dhProjectionInverse;
+
+                nearPlane = dhNearPlane;
+                farPlane  = dhFarPlane;
+            }
+        #endif
+
+        vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
         vec3 skyIlluminance = vec3(0.0);
         #if defined WORLD_OVERWORLD || defined WORLD_END
@@ -113,14 +134,8 @@
             return;
         }
 
-        Material material = getMaterial(vertexCoords);
-
-        #if HARDCODED_SSS == 1
-            if(material.id > NETHER_PORTAL_ID && material.id <= PLANTS_ID && material.subsurface <= EPS) material.subsurface = HARDCODED_SSS_VAL;
-        #endif
-
         #if AO_FILTER == 1 && GI == 0 || REFLECTIONS > 0 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
-            vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth)) * RENDER_SCALE;
+            vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth), projectionInverse) * RENDER_SCALE;
             vec4 history      = texture(ACCUMULATION_BUFFER, prevPosition.xy);
 
             radiance.a  = history.a;
@@ -134,8 +149,8 @@
                 
                 momentsOut.a = log2(prevPosition.z);
 
-                float linearDepth     = linearizeDepthFast(prevPosition.z);
-			    float linearPrevDepth = linearizeDepthFast(prevDepth);
+                float linearDepth     = linearizeDepth(prevPosition.z, nearPlane, farPlane);
+			    float linearPrevDepth = linearizeDepth(prevDepth, nearPlane, farPlane);
 
                 radiance.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.1);
 
@@ -143,7 +158,7 @@
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
                          radiance.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
                 #else
-                    radiance.a *= float(material.depth0 >= handDepth);
+                    radiance.a *= float(depth >= handDepth);
                 #endif
             #else
                 radiance.a *= float(hideGUI);
@@ -170,10 +185,12 @@
                 ao = texture(AO_BUFFER, vertexCoords).b;
             #endif
 
+            Material material = getMaterial(vertexCoords);
+
             radiance.rgb = computeDiffuse(viewPosition, shadowVec, material, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         #else
             if(material.F0 * maxFloat8 <= 229.5) {
-                pathtrace(radiance.rgb, vec3(vertexCoords, depth), directOut, directIlluminance);
+                pathtrace(depthTex, projection, projectionInverse, radiance.rgb, vec3(vertexCoords, depth), directOut, directIlluminance);
 
                 #if TEMPORAL_ACCUMULATION == 1
                     float weight    = 1.0 / clamp(radiance.a, 1.0, 60.0);

@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+#extension GL_ARB_bindless_texture : enable
+
 #define ABOUT 0 // [0 1]
 
 #define RENDER_MODE 0 // [0 1]

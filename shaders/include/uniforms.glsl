@@ -26,8 +26,6 @@ uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;
 uniform float centerDepthSmooth;
-uniform float near;
-uniform float far;
 uniform int isEyeInWater;
 uniform int hideGUI;
 uniform float rainStrength;
@@ -59,6 +57,17 @@ uniform sampler2D colortex15;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 
+uniform float near;
+uniform float far;
+
+#if defined DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex0;
+    uniform sampler2D dhDepthTex1;
+
+    uniform float dhNearPlane;
+    uniform float dhFarPlane;
+#endif
+
 uniform sampler3D depthtex2;
 uniform sampler3D shadowcolor1;
 
@@ -70,6 +79,10 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
+
+uniform mat4 dhProjection;
+uniform mat4 dhProjectionInverse;
+uniform mat4 dhPreviousProjection;
 
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;

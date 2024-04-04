@@ -41,14 +41,14 @@
 
         #include "/include/atmospherics/clouds.glsl"
 
-        float find4x4MaximumDepth(vec2 coords) {
+        float find4x4MaximumDepth(sampler2D tex, vec2 coords) {
             coords *= viewSize;
 
             return maxOf(vec4(
-                texelFetch(depthtex0, ivec2(coords) + ivec2( 2,  2), 0).r,
-                texelFetch(depthtex0, ivec2(coords) + ivec2(-2,  2), 0).r,
-                texelFetch(depthtex0, ivec2(coords) + ivec2(-2, -2), 0).r,
-                texelFetch(depthtex0, ivec2(coords) + ivec2( 2, -2), 0).r
+                texelFetch(tex, ivec2(coords) + ivec2( 2,  2), 0).r,
+                texelFetch(tex, ivec2(coords) + ivec2(-2,  2), 0).r,
+                texelFetch(tex, ivec2(coords) + ivec2(-2, -2), 0).r,
+                texelFetch(tex, ivec2(coords) + ivec2( 2, -2), 0).r
             ));
         }
 
@@ -58,11 +58,23 @@
 
             clouds = vec3(0.0, 0.0, 1.0);
 
-            if(find4x4MaximumDepth(vertexCoords) < 1.0) return;
+            sampler2D depthTex = depthtex0;
+            float     depth    = texture(depthtex0, vertexCoords).r;
 
-            float depth = texture(depthtex0, vertexCoords).r;
+            mat4 projectionInverse = gbufferProjectionInverse;
 
-            vec3 viewPosition       = screenToView(vec3(textureCoords, depth), false);
+            #if defined DISTANT_HORIZONS
+                if(depth >= 1.0) {
+                    depthTex = dhDepthTex0;
+                    depth    = texture(dhDepthTex0, vertexCoords).r;
+
+                    projectionInverse = dhProjectionInverse;
+                }
+            #endif
+
+            if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) return;
+
+            vec3 viewPosition       = screenToView(vec3(textureCoords, depth), projectionInverse, false);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
             vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e35);

@@ -9,6 +9,7 @@
 #include "/include/common.glsl"
 
 #if defined STAGE_VERTEX
+
 	#define attribute in
 	attribute vec4 at_tangent;
 	attribute vec3 at_midBlock;
@@ -199,10 +200,6 @@
 			emission = 1.0;
 		#endif
 
-		#if HARDCODED_EMISSION == 1
-			if(blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
-		#endif
-
 		vec3 normal = tbn[2];
 		#if !defined PROGRAM_BLOCK
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
@@ -238,6 +235,14 @@
 			}
 		#endif
 
+		#if HARDCODED_EMISSION == 1
+			if(blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
+		#endif
+		
+		#if HARDCODED_SSS == 1
+            if(blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID && subsurface <= EPS) subsurface = HARDCODED_SSS_VAL;
+        #endif
+
 		vec3 labPbrData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
 		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
 		vec4 labPbrData2 = vec4(albedoTex.rgb, roughness);
@@ -255,4 +260,5 @@
 
 		data1 = encodeUnitVector(normalize(tbn[2]));
 	}
+
 #endif
