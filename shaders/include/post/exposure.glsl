@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-const float minExposure = 6e-12;
+const float minExposure = 6e-5;
 const float maxExposure = 0.03;
 
 float computeEV100fromLuminance(float luminance) {
