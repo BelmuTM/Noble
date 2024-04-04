@@ -79,24 +79,14 @@ float rand(vec2 uv) {
     return fract(sin(mod(dt, PI)) * 43758.5453);
 }
 
-float hash11(float p) {
-    return fract(sin(p) * 1e4);
-}
-
 float hash12(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-vec3 hash32(vec2 p) {
-	vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
-    p3     += dot(p3, p3.yxz + 33.33);
-    return fract((p3.xxy + p3.yzz) * p3.zyx);
-}
-
-vec3 hash33(vec3 p3) {
-	p3  = fract(p3 * vec3(0.1031, 0.1030, 0.0973));
-    p3 += dot(p3, p3.yxz + 33.33);
-    return fract((p3.xxy + p3.yxx) * p3.zyx);
+float hash13(vec3 p) {
+    p  = fract(p * 0.1031);
+    p += dot(p, p.yzx + 33.33);
+    return fract((p.x + p.y) * p.z);
 }
 
 float noise(vec2 uv) {
@@ -111,16 +101,14 @@ float noise(vec2 uv) {
 }
 
 float noise(vec3 pos) {
-	const vec3 step = vec3(110.0, 241.0, 171.0);
 	vec3 i  = floor(pos);
 	vec3 f  = fract(pos);
-    float n = dot(i, step);
+	vec3 u  = f * f * (3.0 - 2.0 * f);
 
-	vec3 u = f * f * (3.0 - 2.0 * f);
-	return mix(mix(mix(hash11(n + dot(step, vec3(0.0, 0.0, 0.0))), hash11(n + dot(step, vec3(1.0, 0.0, 0.0))), u.x),
-                   mix(hash11(n + dot(step, vec3(0.0, 1.0, 0.0))), hash11(n + dot(step, vec3(1.0, 1.0, 0.0))), u.x), u.y),
-               mix(mix(hash11(n + dot(step, vec3(0.0, 0.0, 1.0))), hash11(n + dot(step, vec3(1.0, 0.0, 1.0))), u.x),
-                   mix(hash11(n + dot(step, vec3(0.0, 1.0, 1.0))), hash11(n + dot(step, vec3(1.0, 1.0, 1.0))), u.x), u.y), u.z);
+	return mix(mix(mix(hash13(i + vec3(0.0, 0.0, 0.0)), hash13(i + vec3(1.0, 0.0, 0.0)), u.x),
+                   mix(hash13(i + vec3(0.0, 1.0, 0.0)), hash13(i + vec3(1.0, 1.0, 0.0)), u.x), u.y),
+               mix(mix(hash13(i + vec3(0.0, 0.0, 1.0)), hash13(i + vec3(1.0, 0.0, 1.0)), u.x),
+                   mix(hash13(i + vec3(0.0, 1.0, 1.0)), hash13(i + vec3(1.0, 1.0, 1.0)), u.x), u.y), u.z);
 }
 
 const float fbmLacunarity  = 2.0;

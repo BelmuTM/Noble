@@ -223,10 +223,10 @@
 				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE * 0.01);
 
 				float puddle  = saturate(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
-		  	  	  	  puddle *= pow2(quintic(0.0, 1.0, lightmapCoords.y));
+		  	  	  	  puddle *= pow2(quinticStep(0.0, 1.0, lightmapCoords.y));
 	  				  puddle *= (1.0 - porosity);
 			  	  	  puddle *= wetness;
-			  	  	  puddle *= quintic(0.89, 0.99, tbn[2].y);
+			  	  	  puddle *= quinticStep(0.89, 0.99, tbn[2].y);
 					  puddle  = saturate(puddle);
 	
 				F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxFloat8, float(F0 * maxFloat8 <= 229.5)));

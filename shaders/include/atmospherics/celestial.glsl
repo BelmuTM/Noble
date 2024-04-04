@@ -49,7 +49,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 		float jitter = interleavedGradientNoise(gl_FragCoord.xy);
 
 		vec3 sceneDirection = normalize(viewToScene(viewPosition));
-		vec3 sky            = textureCatmullRom(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDirection) + jitter * texelSize)).rgb;
+		vec3 sky            = textureBicubic(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDirection) + jitter * texelSize)).rgb;
 
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD
@@ -60,10 +60,10 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 				clouds.a   = cloudsBuffer.b;
 			#endif
 
-			sky += clamp16(physicalSun (sceneDirection));
-			sky += clamp16(physicalMoon(sceneDirection));
+			sky += physicalSun (sceneDirection) * cloudsBuffer.b;
+			sky += physicalMoon(sceneDirection);
 		#elif defined WORLD_END
-			sky += clamp16(physicalStar(sceneDirection));
+			sky += physicalStar(sceneDirection);
 		#endif
 
 		sky += computeStarfield(viewPosition);

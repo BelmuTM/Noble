@@ -13,7 +13,7 @@ float calculateAirFogPhase(float cosTheta) {
     return mix(mix(forwardsLobe, backwardsLobe, airFogBackScatter), forwardsPeak, airFogPeakWeight);
 }
 
-const float aerialPerspectiveMult = 0.8;
+const float aerialPerspectiveMult = 1.0;
 
 #if defined WORLD_OVERWORLD
     vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
@@ -49,12 +49,18 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
     uniform float rcp240;
 
     void computeLandAerialPerspective(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
-        float airmass      = pow4(quintic(0.0, far, length(viewPosition))) * aerialPerspectiveMult;
+        #if defined DISTANT_HORIZONS
+            float farPlane = far * 2.0;
+        #else
+            float farPlane = far;
+        #endif
+
+        float airmass      = pow2(quinticStep(0.0, farPlane, length(viewPosition))) * aerialPerspectiveMult;
         vec3  opticalDepth = atmosphereAttenuationCoefficients * vec3(airmass);
 
         transmittanceOut = exp(-opticalDepth);
 
-        float phase = rayleighPhase(VdotL);
+        vec2 phase = vec2(rayleighPhase(VdotL), henyeyGreensteinPhase(VdotL, mieAnisotropyFactor));
 
         vec3 visibleScattering = saturate((transmittanceOut - 1.0) / -opticalDepth);
 
@@ -67,7 +73,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
 #if AIR_FOG == 2
 
     void computeAirFogApproximation(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
-        float airmass    = quintic(0.0, far, length(viewPosition)) * fogDensity * densityMult;
+        float airmass    = quinticStep(0.0, far, length(viewPosition)) * fogDensity * densityMult;
         transmittanceOut = exp(-airFogAttenuationCoefficients * airmass * 10.0);
 
         scatteringOut  = skyIlluminance    * isotropicPhase * skylight;
@@ -83,7 +89,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
         float altitude   = (position.y - fogAltitude) * rcp(fogThickness);
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
         
-        float shapeNoise  = FBM(position * 0.03, AIR_FOG_OCTAVES, 1.0);
+        float shapeNoise  = pow2(FBM(position * 0.1, AIR_FOG_OCTAVES, 0.7) * 2.0 - 1.0);
               shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
               shapeNoise *= exp(-max0(position.y - fogAltitude) * 0.2);
         
@@ -104,7 +110,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
     }
     */
 
-    void computeVolumetricAirFog(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
+    void computeVolumetricAirFog(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
         if(fogDensity == 0.0) return;
 
         const float stepSize = 1.0 / AIR_FOG_SCATTERING_STEPS;
@@ -120,25 +126,11 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
         float rayLength = length(increment);
         float phase     = calculateAirFogPhase(VdotL);
 
-        float perspective = quintic(0.0, 1.0, exp2(-5e-4 * length(viewPosition)));
-
-        mat2x3 scattering    = mat2x3(vec3(0.0), vec3(0.0)); 
-        vec3   transmittance = vec3(1.0);
+        float perspective = quinticStep(0.0, 1.0, exp2(-5e-4 * length(viewPosition)));
 
         for(int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
             float density = getAirFogDensity(rayPosition);
             if(density < EPS) continue;
-
-            float airmass      = density * rayLength;
-            vec3  opticalDepth = airFogAttenuationCoefficients * airmass;
-
-            vec3 stepTransmittance = exp(-opticalDepth);
-            vec3 visibleScattering = transmittance * saturate((stepTransmittance - 1.0) / -opticalDepth);
-
-            vec3 scatteringAlbedo = saturate(airFogScatteringCoefficients / airFogAttenuationCoefficients);
-
-            vec3 stepScatteringDirect   = airFogScatteringCoefficients * airmass * phase          * ((1.0 - stepTransmittance) * scatteringAlbedo);
-            vec3 stepScatteringIndirect = airFogScatteringCoefficients * airmass * isotropicPhase * ((1.0 - stepTransmittance) * scatteringAlbedo);
 
             #if defined WORLD_OVERWORLD
                 vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
@@ -146,26 +138,26 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
                 #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                     shadowColor *= getCloudsShadows(rayPosition);
                 #endif
-
-                scattering[0] += stepScatteringDirect * shadowColor;
             #else
-                scattering[0] += stepScatteringDirect;
+                vec3 shadowColor = vec3(1.0);
             #endif
 
-            scattering[1] += stepScatteringIndirect;
-            transmittance *= perspective * stepTransmittance;
+            float airmass      = density * rayLength;
+            vec3  opticalDepth = airFogAttenuationCoefficients * airmass;
+
+            vec3 stepTransmittance = exp(-opticalDepth);
+            vec3 visibleScattering = transmittanceOut * saturate((stepTransmittance - 1.0) / -opticalDepth);
+
+            vec3 stepScatteringDirect   = airFogScatteringCoefficients * airmass * phase          * directIlluminance * visibleScattering * shadowColor;
+            vec3 stepScatteringIndirect = airFogScatteringCoefficients * airmass * isotropicPhase * skyIlluminance    * visibleScattering;
+
+            #if defined WORLD_OVERWORLD
+                stepScatteringIndirect *= eyeBrightness.y * rcp240;
+            #endif
+
+            scatteringOut    += stepScatteringDirect + stepScatteringIndirect;
+            transmittanceOut *= perspective * stepTransmittance;
         }
-
-        #if defined WORLD_OVERWORLD
-            scattering[0] *= directIlluminance;
-            scattering[1] *= skyIlluminance * skylight;
-        #else
-            scattering[0] *= directIlluminance;
-            scattering[1] *= skyIlluminance;
-        #endif
-
-        scatteringOut    = scattering[0] + scattering[1];
-        transmittanceOut = vec3(1.0);
     }
 
 #endif

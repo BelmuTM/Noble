@@ -94,14 +94,14 @@ void main() {
                 #endif
             } else {
                 #if AIR_FOG == 1
-                    computeVolumetricAirFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance, skylight);
+                    computeVolumetricAirFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance);
                 #elif AIR_FOG == 2
                     computeAirFogApproximation(scatteringLayer0, transmittanceLayer0, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance, skylight);
                 #endif
             }
         }
 
-        #if defined WORLD_OVERWORLD
+        #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
             if(isEyeInWater == 0) {
                 computeLandAerialPerspective(scatteringLayer2, transmittanceLayer2, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance);
             }
@@ -124,7 +124,7 @@ void main() {
         #endif
     } else {
         #if AIR_FOG == 1
-            computeVolumetricAirFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance, skylight);
+            computeVolumetricAirFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance);
         #elif AIR_FOG == 2
             computeAirFogApproximation(scatteringLayer1, transmittanceLayer1, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance, skylight);
         #endif

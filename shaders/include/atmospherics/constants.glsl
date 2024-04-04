@@ -63,7 +63,7 @@ const float cloudsAnisotropyFalloff = 0.80;
 
 /* FOG CONSTANTS */
 
-const float airFogExtinctionCoefficient = 0.03;
+const float airFogExtinctionCoefficient = 0.1;
 const float airFogScatteringCoefficient = 0.99;
 
 const float airFogForwardsLobe = 0.35;

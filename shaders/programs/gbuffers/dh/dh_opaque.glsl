@@ -64,7 +64,7 @@
 	    	albedoTex.rgb = vec3(1.0);
     	#endif
 
-		float roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
+		float roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0);
 
 		float emission = 0.0;
 

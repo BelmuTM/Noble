@@ -82,7 +82,7 @@ vec2  rcp(vec2 x)  { return 1.0 / x;        }
 vec3  rcp(vec3 x)  { return 1.0 / x;        }
 vec4  rcp(vec4 x)  { return 1.0 / x;        }
 
-float quintic(float edge0, float edge1, float x) {
+float quinticStep(float edge0, float edge1, float x) {
     x = saturate((x - edge0) / (edge1 - edge0));
     return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
 }

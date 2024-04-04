@@ -108,7 +108,7 @@
 					float rayDepth     = screenToView(vec3(sampleCoords, texture(depthTex, sampleCoords * RENDER_SCALE).r), projectionInverse, true).z;
 
 					if(rayDepth >= rayPosition.z + EPS) {
-						occlusion += quintic(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
+						occlusion += quinticStep(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
 					}
 		    	}
 		    	return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
