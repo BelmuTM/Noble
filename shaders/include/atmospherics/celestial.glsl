@@ -3,6 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
+uniform vec3 upPosition;
+
 #include "/include/utility/sampling.glsl"
 
 // Originally written by Capt Tatsu

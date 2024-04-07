@@ -152,7 +152,11 @@
 				float height = 1.0, traceDistance = 0.0;
 				vec2  shadowCoords = vec2(0.0);
 
+				if(texture(normals, textureCoords).a < EPS) discard;
+
 				coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
+
+				if(saturate(coords) != coords) return;
 
 				#if POM_SHADOWING == 1
 					parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
@@ -161,8 +165,6 @@
 				#if POM_DEPTH_WRITE == 1
 					gl_FragDepth = projectDepth(unprojectDepth(gl_FragCoord.z) + traceDistance * POM_DEPTH);
 				#endif
-
-				if(saturate(coords) != coords) return;
 			}
 		#endif
 

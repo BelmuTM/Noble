@@ -11,7 +11,6 @@ uniform vec3 sunVector;
 uniform vec3 moonVector;
 uniform vec3 shadowLightVector;
 uniform vec3 cameraPosition;
-uniform vec3 upPosition;
 
 uniform float viewWidth;
 uniform float viewHeight;
@@ -20,14 +19,14 @@ uniform vec2 viewSize;
 uniform vec2 texelSize;
 uniform ivec2 atlasSize;
 
+uniform int isEyeInWater;
+uniform int hideGUI;
 uniform int worldTime;
 uniform int framemod;
 uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;
 uniform float centerDepthSmooth;
-uniform int isEyeInWater;
-uniform int hideGUI;
 uniform float rainStrength;
 uniform float wetness;
 uniform float sunAngle;
@@ -60,13 +59,11 @@ uniform sampler2D depthtex1;
 uniform float near;
 uniform float far;
 
-#if defined DISTANT_HORIZONS
-    uniform sampler2D dhDepthTex0;
-    uniform sampler2D dhDepthTex1;
+uniform sampler2D dhDepthTex0;
+uniform sampler2D dhDepthTex1;
 
-    uniform float dhNearPlane;
-    uniform float dhFarPlane;
-#endif
+uniform float dhNearPlane;
+uniform float dhFarPlane;
 
 uniform sampler3D depthtex2;
 uniform sampler3D shadowcolor1;
