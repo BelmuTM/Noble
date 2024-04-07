@@ -33,7 +33,7 @@
         in vec3 directIlluminance;
         in vec3[9] skyIlluminance;
 
-                #include "/settings.glsl"
+        #include "/settings.glsl"
         #include "/include/taau_scale.glsl"
         
         #include "/include/common.glsl"
@@ -43,9 +43,11 @@
         #include "/include/atmospherics/atmosphere.glsl"
 
         void main() {
+            illuminanceOut = vec3(0.0);
+
             if(int(gl_FragCoord.y) == 0) {
                 if(int(gl_FragCoord.x) == 0) {
-                    illuminanceOut = directIlluminance; return;
+                    illuminanceOut = directIlluminance;
                 } else if(int(gl_FragCoord.x) > 0 && int(gl_FragCoord.x) < 10) {
                     illuminanceOut = skyIlluminance[int(gl_FragCoord.x) - 1];
                 }
