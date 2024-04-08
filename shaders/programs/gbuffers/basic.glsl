@@ -53,6 +53,12 @@
 
 		#if defined PROGRAM_ARMOR_GLINT
 			color = vec4(albedoTex.rgb, 0.0);
+		#elif defined PROGRAM_DAMAGED_BLOCK
+
+			if(albedoTex.a < 0.102) discard;
+
+			color = vec4(albedoTex.rgb, 1e-4);
+
 		#else
 			albedoTex.rgb *= vertexColor.rgb;
 		
