@@ -17,10 +17,11 @@ likely to be exclusive to Patreon supporters or close friends, but they will alw
 being accessible to public no matter what.
 
 ## Requirements
-* **Optifine / Iris for 1.16 or newer** (older versions aren't supported)
+* **Optifine / Iris for 1.16 or newer** (older versions and 1.17 aren't supported)
 * A Nvidia graphics card (GTX 950 or newer) **OR**  an AMD graphics card (R7 370 or newer)
-* Windows or Linux (MacOS isn't supported)
-* ⚠️ **MAKE SURE TO UNZIP THE FILE FIRST**
+* Windows or Linux (MacOS and Mesa Linux aren't supported)
+
+#### ⚠️ **MAKE SURE TO UNZIP THE FILE FIRST**
 
 ## License
 Noble is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
