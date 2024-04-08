@@ -27,7 +27,7 @@ const float aerialPerspectiveMult = 1.0;
     const vec3 airFogAttenuationCoefficients = vec3(0.6, 0.4, 0.05);
     const vec3 airFogScatteringCoefficients  = vec3(1.0, 0.3, 0.0);
 
-    const float fogAltitude   = FOG_ALTITUDE - 34.0;
+    const float fogAltitude   = max(34.0, FOG_ALTITUDE - 34.0);
     const float fogThickness  = FOG_THICKNESS * 1.8;
     const float densityFactor = 1.0;
     const float densityMult   = 1.0;
@@ -110,7 +110,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
     }
     */
 
-    void computeVolumetricAirFog(inout vec3 scatteringOut, inout vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
+    void computeVolumetricAirFog(inout vec3 scatteringOut, inout vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float farPlane, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
         if(fogDensity == 0.0) return;
 
         const float stepSize = 1.0 / AIR_FOG_SCATTERING_STEPS;
@@ -126,10 +126,13 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
         float rayLength = length(increment);
         float phase     = calculateAirFogPhase(VdotL);
 
-        float perspective = quinticStep(0.0, 1.0, exp2(-5e-4 * length(viewPosition)));
+        float perspective = quinticStep(0.0, 1.0, length(normalize(cameraPosition)));
 
         for(int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
-            float density = getAirFogDensity(rayPosition);
+            float distanceFalloff = quinticStep(0.0, 1.0, exp2(-2.0 * length(rayPosition - cameraPosition) / farPlane));
+
+            float density = getAirFogDensity(rayPosition) * distanceFalloff;
+
             if(density < EPS) continue;
 
             #if defined WORLD_OVERWORLD
@@ -156,7 +159,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
             #endif
 
             scatteringOut    += stepScatteringDirect + stepScatteringIndirect;
-            transmittanceOut *= perspective * stepTransmittance;
+            transmittanceOut *= stepTransmittance;
         }
     }
 

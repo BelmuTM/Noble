@@ -31,10 +31,14 @@ void main() {
 
     Material material = getMaterial(vertexCoords);
 
+    float farPlane = far;
+
     mat4 projectionInverse = gbufferProjectionInverse;
 
     #if defined DISTANT_HORIZONS
         if(texture(depthtex0, vertexCoords).r >= 1.0) {
+            farPlane = dhFarPlane;
+
             projectionInverse = dhProjectionInverse;
         }
     #endif
@@ -94,7 +98,7 @@ void main() {
                 #endif
             } else {
                 #if AIR_FOG == 1
-                    computeVolumetricAirFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance);
+                    computeVolumetricAirFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, viewPosition0, farPlane, VdotL, directIlluminance, uniformSkyIlluminance);
                 #elif AIR_FOG == 2
                     computeAirFogApproximation(scatteringLayer0, transmittanceLayer0, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance, skylight);
                 #endif
@@ -124,7 +128,7 @@ void main() {
         #endif
     } else {
         #if AIR_FOG == 1
-            computeVolumetricAirFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance);
+            computeVolumetricAirFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, farPlane, VdotL, directIlluminance, uniformSkyIlluminance);
         #elif AIR_FOG == 2
             computeAirFogApproximation(scatteringLayer1, transmittanceLayer1, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance, skylight);
         #endif

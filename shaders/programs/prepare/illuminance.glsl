@@ -33,15 +33,6 @@
         in vec3 directIlluminance;
         in vec3[9] skyIlluminance;
 
-        #include "/settings.glsl"
-        #include "/include/taau_scale.glsl"
-        
-        #include "/include/common.glsl"
-
-        #include "/include/utility/phase.glsl"
-        #include "/include/atmospherics/constants.glsl"
-        #include "/include/atmospherics/atmosphere.glsl"
-
         void main() {
             illuminanceOut = vec3(0.0);
 
