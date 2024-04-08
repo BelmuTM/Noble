@@ -161,7 +161,7 @@
 				}
 			#endif
 
-			if(depth == 1.0) return;
+			if(depth == 1.0 || depth < handDepth) return;
 
 			Material material = getMaterial(vertexCoords);
 			vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
@@ -182,7 +182,7 @@
 
 				vec3 prevAO = texture(AO_BUFFER, prevCoords).rgb;
 		
-				float weight = 1.0 / clamp(texture(ACCUMULATION_BUFFER, prevCoords).a * float(depth >= handDepth), 1.0, 64.0);
+				float weight = 1.0 / clamp(texture(ACCUMULATION_BUFFER, prevCoords).a, 1.0, 64.0);
 
 				#if AO == 1 || AO == 3
 					vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
