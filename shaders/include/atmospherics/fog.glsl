@@ -111,7 +111,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
     */
 
     void computeVolumetricAirFog(inout vec3 scatteringOut, inout vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float farPlane, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
-        if(fogDensity == 0.0) return;
+        if(fogDensity < 1e-3) return;
 
         const float stepSize = 1.0 / AIR_FOG_SCATTERING_STEPS;
         
