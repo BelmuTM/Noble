@@ -108,7 +108,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
     layer.coverage += (0.26 * wetness);
 
     float weatherMap  = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
-          weatherMap  = isUpperCloudLayer ? weatherMap : ((weatherMap - (2.0 * wetnessFactor)) + cloudsWorley(position.xz * 4e-5) * (1.0 + wetnessFactor) - wetnessFactor);
+          weatherMap  = isUpperCloudLayer ? weatherMap : weatherMap - 2.0 * wetnessFactor + cloudsWorley(position.xz * 5e-5) * (1.0 + wetnessFactor) - wetnessFactor;
           weatherMap  = weatherMap * (1.0 - layer.coverage) + layer.coverage;
 
     if(weatherMap < EPS) return 0.0;
@@ -207,12 +207,9 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
 
         distanceToClouds = min((i + jitter) * stepSize + dists.x, distanceToClouds);
     }
-
     transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
-    vec4 result   = vec4(scattering, transmittance, distanceToClouds);
 
-    result.rgb = mix(vec3(0.0, 0.0, 1.0), result.rgb, max0(exp2(-5e-5 * result.a)));
-    return result;
+    return vec4(scattering, transmittance, distanceToClouds);
 }
 
 float calculateCloudsShadows(vec3 shadowPosition, vec3 rayDirection, CloudLayer layer, int stepCount) {

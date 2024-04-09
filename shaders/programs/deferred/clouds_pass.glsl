@@ -90,27 +90,28 @@
 
             float distanceToClouds = min(layer0.a, layer1.a);
 
-            if(distanceToClouds > EPS) {
-                clouds.rg = layer0.rg + layer1.rg * layer0.b;
-                clouds.b  = layer0.b  * layer1.b;
+            clouds.rg = layer0.rg + layer1.rg * layer0.b;
+            clouds.b  = layer0.b  * layer1.b;
 
-                /* Reprojection */
-                vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy * RENDER_SCALE;
-                float prevDepth    = texture(depthtex0, prevPosition.xy).r;
+            /* Aerial Perspective */
+            clouds = mix(vec3(0.0, 0.0, 1.0), clouds, quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-5 * distanceToClouds)))));
 
-                if(clamp(prevPosition.xy, 0.0, RENDER_SCALE - 1e-3) == prevPosition.xy && prevDepth >= handDepth) {
-                    vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition.xy).rgb);
+            /* Reprojection */
+            vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy * RENDER_SCALE;
+            float prevDepth    = texture(depthtex0, prevPosition.xy).r;
 
-                    vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                    float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
-                    
-                    float velocityWeight = saturate(length(abs(prevPosition - vertexCoords) * viewSize)) * 0.8 + 0.2;
-                          velocityWeight = mix(1.0, velocityWeight, float(CLOUDS_SCALE == 100));
+            if(clamp(prevPosition.xy, 0.0, RENDER_SCALE - 1e-3) == prevPosition.xy && prevDepth >= handDepth) {
+                vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition.xy).rgb);
 
-                    float weight = saturate(centerWeight * velocityWeight);
+                vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
+                float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
+                
+                float velocityWeight = saturate(length(abs(prevPosition - vertexCoords) * viewSize)) * 0.8 + 0.2;
+                        velocityWeight = mix(1.0, velocityWeight, float(CLOUDS_SCALE == 100));
 
-                    clouds = max0(mix(clouds, history, weight));
-                }
+                float weight = saturate(centerWeight * velocityWeight);
+
+                clouds = max0(mix(clouds, history, weight));
             }
         }
         
