@@ -4,7 +4,7 @@
 /***********************************************/
 
 const float minExposure = 6e-5;
-const float maxExposure = 0.03;
+const float maxExposure = 6e-2;
 
 float computeEV100fromLuminance(float luminance) {
     return log2(luminance * sensorSensitivity / calibration);

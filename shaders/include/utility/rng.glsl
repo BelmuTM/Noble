@@ -101,9 +101,9 @@ float noise(vec2 uv) {
 }
 
 float noise(vec3 pos) {
-	vec3 i  = floor(pos);
-	vec3 f  = fract(pos);
-	vec3 u  = f * f * (3.0 - 2.0 * f);
+	vec3 i = floor(pos);
+	vec3 f = fract(pos);
+	vec3 u = f * f * (3.0 - 2.0 * f);
 
 	return mix(mix(mix(hash13(i + vec3(0.0, 0.0, 0.0)), hash13(i + vec3(1.0, 0.0, 0.0)), u.x),
                    mix(hash13(i + vec3(0.0, 1.0, 0.0)), hash13(i + vec3(1.0, 1.0, 0.0)), u.x), u.y),

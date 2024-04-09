@@ -148,7 +148,7 @@
 				gl_FragDepth = gl_FragCoord.z;
 			#endif
 
-			if(length(viewPosition) < POM_DISTANCE) {
+			if(length(viewToScene(viewPosition)) < POM_DISTANCE) {
 				float height = 1.0, traceDistance = 0.0;
 				vec2  shadowCoords = vec2(0.0);
 
