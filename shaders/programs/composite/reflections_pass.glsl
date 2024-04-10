@@ -4,13 +4,38 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#include "/include/taau_scale.glsl"
 
 #if REFLECTIONS == 0
     #include "/programs/discard.glsl"
 #else
+    #include "/include/taau_scale.glsl"
+
     #if defined STAGE_VERTEX
-        #include "/programs/vertex_taau.glsl"
+        #if defined WORLD_OVERWORLD && CLOUDS_LAYER0_ENABLED == 1 || defined WORLD_OVERWORLD && CLOUDS_LAYER1_ENABLED == 1
+            #include "/include/common.glsl"
+
+            #include "/include/utility/phase.glsl"
+            #include "/include/atmospherics/constants.glsl"
+        
+            #include "/include/atmospherics/atmosphere.glsl"
+        #endif
+
+        out vec2 textureCoords;
+        out vec2 vertexCoords;
+        out vec3 directIlluminance;
+        out vec3 skyIlluminance;
+
+        void main() {
+            gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
+            gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w; + (RENDER_SCALE - 1.0);
+            textureCoords  = gl_Vertex.xy;
+            vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
+
+            #if defined WORLD_OVERWORLD && CLOUDS_LAYER0_ENABLED == 1 || defined WORLD_OVERWORLD && CLOUDS_LAYER1_ENABLED == 1
+                directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+                skyIlluminance    = evaluateUniformSkyIrradianceApproximation();
+            #endif
+        }
 
     #elif defined STAGE_FRAGMENT
 
@@ -20,6 +45,8 @@
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
+        in vec3 directIlluminance;
+        in vec3 skyIlluminance;
 
         #include "/include/common.glsl"
 
@@ -66,7 +93,7 @@
                 reflections = computeSmoothReflections(depthTex, projection, viewPosition, material);
             #endif
 
-            reflections = clamp16(reflections);
+            reflections = max0(reflections);
         }
         
     #endif

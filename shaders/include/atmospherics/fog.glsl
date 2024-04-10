@@ -126,8 +126,6 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
         float rayLength = length(increment);
         float phase     = calculateAirFogPhase(VdotL);
 
-        float perspective = quinticStep(0.0, 1.0, length(normalize(cameraPosition)));
-
         for(int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
             float distanceFalloff = quinticStep(0.0, 1.0, exp2(-2.0 * length(rayPosition - cameraPosition) / farPlane));
 

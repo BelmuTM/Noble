@@ -46,7 +46,7 @@
             for(int x = 0; x < tiles.x; x++) {
                 for(int y = 0; y < tiles.y; y++) {
                     vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
-                    float luminance = pow2(textureLod(MAIN_BUFFER, coords, lod).a);
+                    float luminance = luminance(textureLod(MAIN_BUFFER, coords, lod).rgb);
 
                     pdf[getBinFromLuminance(luminance)]++;
                 }
@@ -74,7 +74,7 @@
 
         #if MANUAL_CAMERA == 0 && EXPOSURE > 0
             #if EXPOSURE == 1
-                float avgLuma = pow2(textureLod(MAIN_BUFFER, vec2(0.5), ceil(log2(maxOf(viewSize)))).a);
+                float avgLuma = luminance(textureLod(MAIN_BUFFER, vec2(0.5), ceil(log2(maxOf(viewSize)))).rgb);
             #else
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
                 int closestBinToMedian    = getClosestBinToMedian(pdf);

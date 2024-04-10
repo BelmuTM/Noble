@@ -32,7 +32,7 @@
 
     /* RENDERTARGETS: 0 */
 
-    layout (location = 0) out vec4 color;
+    layout (location = 0) out vec3 color;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -116,9 +116,9 @@
     void main() {
         #if EIGHT_BITS_FILTER == 1 || TAA == 0
             #if EIGHT_BITS_FILTER == 1
-                color.rgb = samplePixelatedBuffer(DEFERRED_BUFFER, vertexCoords, 400).rgb;
+                color = samplePixelatedBuffer(DEFERRED_BUFFER, vertexCoords, 400).rgb;
             #else
-                color.rgb = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+                color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
             #endif
         #else
             sampler2D depthTex = depthtex0;
@@ -150,17 +150,20 @@
 	            float luminanceDelta = pow2(distance(history, currColor) / luminance(history));
 
 	            float weight = saturate(length(velocity * viewSize));
-	                  weight = (1.0 - TAA_STRENGTH + weight * (depth > handDepth ? 0.2 : 1.0)) / (1.0 + luminanceDelta);
 
-                color.rgb = max0(inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight))));
+                if(depth > handDepth) {
+	                weight = (1.0 - TAA_STRENGTH + weight * 0.2) / (1.0 + luminanceDelta);
+                } else {
+                    weight = 1.0 - TAA_STRENGTH + weight;
+                }
+
+                color = inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight)));
             } else {
-                color.rgb = max0(texture(DEFERRED_BUFFER, vertexCoords).rgb);
+                color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
             }
         #endif
 
-        #if EXPOSURE > 0
-            color.a = sqrt(luminance(max(color.rgb, vec3(EPS))));
-        #endif
+        color = max0(color);
     }
     
 #endif

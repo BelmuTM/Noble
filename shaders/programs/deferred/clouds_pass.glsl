@@ -4,29 +4,14 @@
 /***********************************************/
 
 #include "/settings.glsl"
-#include "/include/taau_scale.glsl"
-
-#include "/include/common.glsl"
-
-#include "/include/utility/phase.glsl"
-#include "/include/atmospherics/constants.glsl"
 
 #if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0 || !defined WORLD_OVERWORLD
     #include "/programs/discard.glsl"
 #else
+    #include "/include/taau_scale.glsl"
+
     #if defined STAGE_VERTEX
-
-        #include "/include/atmospherics/atmosphere.glsl"
-
-        out vec2 textureCoords;
-        out vec2 vertexCoords;
-
-        void main() {
-            gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
-            gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w; + (RENDER_SCALE - 1.0);
-            textureCoords  = gl_Vertex.xy;
-            vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
-        }
+        #include "/programs/vertex_taau.glsl"
 
     #elif defined STAGE_FRAGMENT
 
@@ -37,8 +22,12 @@
         in vec2 textureCoords;
         in vec2 vertexCoords;
 
-        #include "/include/utility/sampling.glsl"
+        #include "/include/common.glsl"
 
+        #include "/include/utility/sampling.glsl"
+        #include "/include/utility/phase.glsl"
+        
+        #include "/include/atmospherics/constants.glsl"
         #include "/include/atmospherics/clouds.glsl"
 
         float find4x4MaximumDepth(sampler2D tex, vec2 coords) {
