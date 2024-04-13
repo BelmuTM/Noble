@@ -104,15 +104,15 @@ void main() {
                 #endif
             }
         }
-
-        #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
-            if(isEyeInWater == 0) {
-                computeLandAerialPerspective(scatteringLayer2, transmittanceLayer2, viewPosition0, VdotL, directIlluminance, uniformSkyIlluminance);
-            }
-        #endif
     } else {
         skylight = 1.0;
     }
+
+    #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
+        if(isEyeInWater == 0) {
+            computeLandAerialPerspective(scatteringLayer2, transmittanceLayer2, scenePosition0, VdotL, directIlluminance, uniformSkyIlluminance);
+        }
+    #endif
 
     //////////////////////////////////////////////////////////
     /*------------------ EYE TO FRONT FOG ------------------*/

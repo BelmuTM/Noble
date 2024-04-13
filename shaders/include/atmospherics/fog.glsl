@@ -13,7 +13,7 @@ float calculateAirFogPhase(float cosTheta) {
     return mix(mix(forwardsLobe, backwardsLobe, airFogBackScatter), forwardsPeak, airFogPeakWeight);
 }
 
-const float aerialPerspectiveMult = 1.0;
+const float aerialPerspectiveMult = 0.5;
 
 #if defined WORLD_OVERWORLD
     vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
@@ -48,19 +48,19 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
     uniform ivec2 eyeBrightness;
     uniform float rcp240;
 
-    void computeLandAerialPerspective(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
+    void computeLandAerialPerspective(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 scenePosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
         #if defined DISTANT_HORIZONS
             float farPlane = far * 2.0;
         #else
             float farPlane = far;
         #endif
 
-        float airmass      = pow2(quinticStep(0.0, farPlane, length(viewPosition))) * aerialPerspectiveMult;
+        float airmass      = pow2(quinticStep(0.0, farPlane, length(scenePosition))) * aerialPerspectiveMult;
         vec3  opticalDepth = atmosphereAttenuationCoefficients * vec3(airmass);
 
         transmittanceOut = exp(-opticalDepth);
 
-        vec2 phase = vec2(rayleighPhase(VdotL), henyeyGreensteinPhase(VdotL, mieAnisotropyFactor));
+        vec2 phase = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, mieAnisotropyFactor));
 
         vec3 visibleScattering = saturate((transmittanceOut - 1.0) / -opticalDepth);
 
