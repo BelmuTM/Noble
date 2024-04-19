@@ -13,7 +13,7 @@ float calculateAirFogPhase(float cosTheta) {
     return mix(mix(forwardsLobe, backwardsLobe, airFogBackScatter), forwardsPeak, airFogPeakWeight);
 }
 
-const float aerialPerspectiveMult = 0.5;
+const float aerialPerspectiveMult = 0.4;
 
 #if defined WORLD_OVERWORLD
     vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
