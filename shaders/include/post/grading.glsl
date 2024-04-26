@@ -1,6 +1,6 @@
 /***********************************************/
-/*           Copyright (C) 2024 Belmu          */
-/*             All Rights Reserved             */
+/*          Copyright (C) 2024 Belmu           */
+/*       GNU General Public License V3.0       */
 /***********************************************/
 
 /*
