@@ -213,7 +213,6 @@
         #endif
 
         // Alpha blending
-        if(depth >= handDepth) {
             vec4 basic = texture(RASTER_BUFFER, vertexCoords);
 
             bool isEnchantmentGlint = basic.a == 0.0;
@@ -229,6 +228,6 @@
             } else {
                 radiance.rgb = mix(radiance.rgb, basic.rgb, basic.a);
             }
-        }
+        
     }
 #endif
