@@ -213,21 +213,20 @@
         #endif
 
         // Alpha blending
-            vec4 basic = texture(RASTER_BUFFER, vertexCoords);
+        vec4 basic = texture(RASTER_BUFFER, vertexCoords);
 
-            bool isEnchantmentGlint = basic.a == 0.0;
-            bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-2;
+        bool isEnchantmentGlint = basic.a == 0.0;
+        bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-2;
 
-            if(isEnchantmentGlint) {
-                float prevLuminance = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
+        if(isEnchantmentGlint) {
+            float prevLuminance = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
 
-                // Inverting exposure for enchantment glints
-                radiance.rgb += basic.rgb / computeExposure(prevLuminance);
-            } else if(isDamageOverlay) {
-                radiance.rgb = 2.0 * basic.rgb * radiance.rgb;
-            } else {
-                radiance.rgb = mix(radiance.rgb, basic.rgb, basic.a);
-            }
-        
+            // Inverting exposure for enchantment glints
+            radiance.rgb += basic.rgb / computeExposure(prevLuminance);
+        } else if(isDamageOverlay) {
+            if(depth >= handDepth) radiance.rgb = 2.0 * basic.rgb * radiance.rgb;
+        } else {
+            radiance.rgb = mix(radiance.rgb, basic.rgb, basic.a);
+        }
     }
 #endif
