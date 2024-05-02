@@ -58,8 +58,6 @@
         #endif
 
         vec3 neighbourhoodClipping(sampler2D currTex, vec3 history) {
-            vec3 minColor, maxColor;
-
             ivec2 coords = ivec2(gl_FragCoord.xy * scale);
 
             // Left to right, top to bottom
@@ -74,6 +72,8 @@
             vec3 sample_8 = texelFetch(currTex, coords + ivec2( 1, -1), 0).rgb;
 
             // Min and max nearest 5 + nearest 9
+            vec3 minColor, maxColor;
+            
             minColor  = min(sample_1, min(sample_3, min(sample_4, min(sample_5, sample_7))));
 	        minColor += min(minColor, min(sample_0, min(sample_2, min(sample_6, sample_8))));
 	        minColor *= 0.5;
@@ -147,12 +147,16 @@
                 vec3 history = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
                      history = neighbourhoodClipping(DEFERRED_BUFFER, history);
 
-	            float luminanceDelta = pow2(distance(history, currColor) / luminance(history));
-
 	            float weight = saturate(length(velocity * viewSize));
 
                 if(depth > handDepth) {
-	                weight = (1.0 - TAA_STRENGTH + weight * 0.2) / (1.0 + luminanceDelta);
+                    #if RENDER_MODE == 0
+                        float luminanceDelta = pow2(distance(history, currColor) / luminance(history));
+
+	                    weight = (1.0 - TAA_STRENGTH + weight * 0.2) / (1.0 + luminanceDelta);
+                    #else
+                        weight = 1.0 - TAA_STRENGTH + weight * 0.2;
+                    #endif
                 } else {
                     weight = 1.0 - TAA_STRENGTH + weight;
                 }

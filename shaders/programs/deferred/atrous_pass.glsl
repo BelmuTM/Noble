@@ -79,7 +79,7 @@
                     }
                 }
             }
-            return (varianceSum / totalWeight) * 7.0;
+            return (varianceSum / totalWeight) * 5.0;
         }
 
         void aTrousFilter(sampler2D depthTex, float nearPlane, float farPlane, vec2 coords, inout vec3 irradiance, inout vec3 moments) {
@@ -124,7 +124,7 @@
                     float depthWeight     = calculateATrousDepthWeight(linearDepth, sampleDepth, depthGradient, offset);
                     float luminanceWeight = calculateATrousLuminanceWeight(centerLuminance, luminance(sampleIrradiance), filteredVariance);
 
-                    float weight  = saturate(normalWeight * depthWeight * mix(1.0, luminanceWeight, frameWeight));
+                    float weight  = normalWeight * depthWeight * mix(1.0, luminanceWeight, frameWeight);
                           weight *= waveletKernel[abs(x)] * waveletKernel[abs(y)];
 
                     irradiance  += sampleIrradiance * weight;
