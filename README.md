@@ -32,7 +32,7 @@ Noble is licensed under the GPL v3.0 License. Please consider reading the terms 
 [![Support me on Patreon](https://i.imgur.com/ZTO3EGk.png)](https://patreon.com/Belmu)
 
 > I would like to thank the people from ShaderLabs for helping me understand and learn GLSL.
-> Thanks to the beta testers who helped me fix and deal with multiple issues.
+> Thanks to all the testers who helped me fix and deal with multiple issues.
 
 ## Showcases
 ![Showcase 00](https://i.imgur.com/jD8XyOf.png)

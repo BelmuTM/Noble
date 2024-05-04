@@ -10,10 +10,6 @@
 
 #if defined STAGE_VERTEX
 
-    #include "/include/utility/phase.glsl"
-    #include "/include/atmospherics/constants.glsl"
-    #include "/include/atmospherics/atmosphere.glsl"
-
     out vec2 textureCoords;
     out vec2 vertexCoords;
     out vec3 directIlluminance;
@@ -30,6 +26,7 @@
     }
 
 #elif defined STAGE_FRAGMENT
+
     #if GI == 1
         /* RENDERTARGETS: 4,9,10 */
 
@@ -152,7 +149,7 @@
                 float linearDepth     = linearizeDepth(prevPosition.z, nearPlane, farPlane);
 			    float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
 
-                radiance.a *= float(abs(linearDepth - linearPrevDepth) / abs(linearDepth) < 0.1);
+                radiance.a *= float(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth) < 0.1);
 
                 #if GI == 0
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
@@ -160,6 +157,8 @@
                 #else
                     radiance.a *= float(depth >= handDepth);
                 #endif
+
+                radiance.a = max(radiance.a, 60.0);
             #else
                 radiance.a *= float(hideGUI);
             #endif
@@ -194,7 +193,7 @@
             pathtrace(depthTex, projection, projectionInverse, directIlluminance, isMetal, radiance.rgb, vec3(vertexCoords, depth), directOut);
 
             #if TEMPORAL_ACCUMULATION == 1
-                float weight = 1.0 / clamp(radiance.a, 1.0, 60.0);
+                float weight = 1.0 / max(radiance.a, 1.0);
                 radiance.rgb = mix(history.rgb, radiance.rgb, weight);
 
                 #if RENDER_MODE == 0 && ATROUS_FILTER == 1
