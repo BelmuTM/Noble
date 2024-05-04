@@ -45,7 +45,7 @@
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	        if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-            clouds = vec3(0.0, 0.0, 1.0);
+            clouds = texture(CLOUDS_BUFFER, textureCoords).rgb;
 
             sampler2D depthTex = depthtex0;
             float     depth    = texture(depthtex0, vertexCoords).r;
