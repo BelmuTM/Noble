@@ -131,7 +131,7 @@
             return;
         }
 
-        #if AO_FILTER == 1 && GI == 0 || REFLECTIONS > 0 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
+        #if AO > 0 && AO_FILTER == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
             vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth), projectionInverse) * RENDER_SCALE;
             vec4 history      = texture(ACCUMULATION_BUFFER, prevPosition.xy);
 
@@ -153,12 +153,12 @@
 
                 #if GI == 0
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                         radiance.a  *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
+                         radiance.a     *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
                 #else
                     radiance.a *= float(depth >= handDepth);
                 #endif
 
-                radiance.a = max(radiance.a, 60.0);
+                radiance.a = min(radiance.a, 60.0);
             #else
                 radiance.a *= float(hideGUI);
             #endif
