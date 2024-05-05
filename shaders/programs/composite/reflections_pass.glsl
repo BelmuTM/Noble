@@ -83,9 +83,9 @@
 
             if(depth == 1.0) { discard; return; }
 
-            Material material = getMaterial(vertexCoords);
-            vec3 currPosition = vec3(textureCoords, depth);
-            vec3 viewPosition = screenToView(currPosition, projectionInverse, true);
+            Material material   = getMaterial(vertexCoords);
+            vec3 screenPosition = vec3(textureCoords, depth);
+            vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
                     
             #if REFLECTIONS == 1
                 reflections = computeRoughReflections(depthTex, projection, viewPosition, material);

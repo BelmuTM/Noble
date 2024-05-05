@@ -21,7 +21,7 @@
 		vertexColor    = gl_Color;
 		blockId        = dhMaterialId;
 
-		vertexNormal = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+		vertexNormal = gl_Normal;
 
         vec3 cameraOffset   = fract(cameraPosition);
         vec3 vertexPosition = floor(gl_Vertex.xyz + cameraOffset + 0.5) - cameraOffset;
