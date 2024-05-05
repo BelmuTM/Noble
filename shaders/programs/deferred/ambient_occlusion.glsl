@@ -180,17 +180,19 @@
 			    vec3 closestFragment = getClosestFragment(depthTex, vec3(textureCoords, depth));
 				vec2 prevCoords      = vertexCoords + getVelocity(closestFragment, projectionInverse).xy * RENDER_SCALE;
 
-				vec3 prevAO = texture(AO_BUFFER, prevCoords).rgb;
-		
-				float weight = 1.0 / clamp(texture(ACCUMULATION_BUFFER, prevCoords).a, 1.0, 64.0);
+				if(clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords) {
+					vec3 prevAO = texture(AO_BUFFER, prevCoords).rgb;
+			
+					float weight = saturate(1.0 / clamp(texture(ACCUMULATION_BUFFER, prevCoords).a, 1.0, 40.0));
 
-				#if AO == 1 || AO == 3
-					vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
+					#if AO == 1 || AO == 3
+						vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
 
-					ao.xy = encodeUnitVector(mix(prevBentNormal, bentNormal, weight));
-				#endif
+						ao.xy = encodeUnitVector(mix(prevBentNormal, bentNormal, weight));
+					#endif
 
-				ao.b = mix(prevAO.b, ao.b, weight);
+					ao.b = mix(prevAO.b, ao.b, weight);
+				}
 			#endif
 
 			ao = saturate(ao);

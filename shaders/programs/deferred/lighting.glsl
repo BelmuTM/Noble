@@ -149,7 +149,7 @@
                 float linearDepth     = linearizeDepth(prevPosition.z, nearPlane, farPlane);
 			    float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
 
-                radiance.a *= float(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth) < 0.1);
+                radiance.a *= step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.1);
 
                 #if GI == 0
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
