@@ -17,7 +17,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
 		    #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
                 hitCoords *= RENDER_SCALE;
 
-                if(saturate(hitCoords) == hitCoords) {
+                if(clamp(hitCoords, 0.0, RENDER_SCALE) == hitCoords) {
                     vec3 cloudsBuffer = texture(CLOUDS_BUFFER, hitCoords).rgb;
 
                     clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;

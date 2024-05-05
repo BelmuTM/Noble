@@ -92,8 +92,6 @@
             #elif REFLECTIONS == 2
                 reflections = computeSmoothReflections(depthTex, projection, viewPosition, material);
             #endif
-
-            reflections = max0(reflections);
         }
         
     #endif
