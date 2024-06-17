@@ -25,10 +25,10 @@ const float aerialPerspectiveMult = 0.4;
     const float densityMult   = 1.0;
 #elif defined WORLD_NETHER
     const vec3 airFogAttenuationCoefficients = vec3(0.6, 0.4, 0.05);
-    const vec3 airFogScatteringCoefficients  = vec3(1.0, 0.3, 0.0);
+    const vec3 airFogScatteringCoefficients  = vec3(0.2, 0.1, 0.06);
 
     const float fogAltitude   = max(34.0, FOG_ALTITUDE - 34.0);
-    const float fogThickness  = FOG_THICKNESS * 1.8;
+    const float fogThickness  = FOG_THICKNESS * 2.0;
     const float densityFactor = 1.0;
     const float densityMult   = 1.0;
 #elif defined WORLD_END

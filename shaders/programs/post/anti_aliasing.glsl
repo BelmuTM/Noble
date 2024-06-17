@@ -57,7 +57,7 @@
             const float scale = RENDER_SCALE * GI_SCALE * 0.01;
         #endif
 
-        vec3 neighbourhoodClipping(sampler2D currTex, vec3 history) {
+        vec3 neighbourhoodClipping(sampler2D currTex, vec3 currColor, vec3 history) {
             ivec2 coords = ivec2(gl_FragCoord.xy * scale);
 
             // Left to right, top to bottom
@@ -65,7 +65,7 @@
             vec3 sample_1 = texelFetch(currTex, coords + ivec2( 0,  1), 0).rgb;
             vec3 sample_2 = texelFetch(currTex, coords + ivec2( 1,  1), 0).rgb;
             vec3 sample_3 = texelFetch(currTex, coords + ivec2(-1,  0), 0).rgb;
-            vec3 sample_4 = texelFetch(currTex, coords                , 0).rgb;
+            vec3 sample_4 = currColor;
             vec3 sample_5 = texelFetch(currTex, coords + ivec2( 1,  0), 0).rgb;
             vec3 sample_6 = texelFetch(currTex, coords + ivec2(-1, -1), 0).rgb;
             vec3 sample_7 = texelFetch(currTex, coords + ivec2( 0, -1), 0).rgb;
@@ -145,7 +145,7 @@
                 vec3 currColor = textureCubic(DEFERRED_BUFFER, jitteredCoords).rgb;
 
                 vec3 history = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
-                     history = neighbourhoodClipping(DEFERRED_BUFFER, history);
+                     history = neighbourhoodClipping(DEFERRED_BUFFER, currColor, history);
 
 	            float weight = saturate(length(velocity * viewSize));
 
