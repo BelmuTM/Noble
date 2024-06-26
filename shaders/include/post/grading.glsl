@@ -156,7 +156,7 @@ void agxLook(inout vec3 color) {
     #elif AGX_LOOK == 2
         // Punchy
         const vec3  slope      = vec3(1.1);
-        const vec3  power      = vec3(1.2);
+        const vec3  power      = vec3(1.1);
         const float saturation = 1.3;
     #endif
 

@@ -105,7 +105,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define AO          1 // [0 1 2 3]
 #define MATERIAL_AO 1 // [0 1]
 #define AO_FILTER   1 // [0 1]
-#define AO_SCALE  100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define AO_SCALE  100 // [25 50 75 100]
 
 #define SSAO_SAMPLES   12 // [4 8 12 16 20]
 #define SSAO_RADIUS   0.7 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
@@ -138,7 +138,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define SPECULAR 1 // [0 1]
 
 #define REFLECTIONS         1 // [0 1 2]
-#define REFLECTIONS_SCALE 100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define REFLECTIONS_SCALE 100 // [25 50 75 100]
 
 #define REFLECTIONS_STEPS 32 // [8 16 32 64 128]
 
@@ -171,7 +171,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define GI_SAMPLES      1 // [1 2 3 4 5 6 7 8]
 #define MAX_GI_BOUNCES  4 // [1 2 3 4 5 6 7 8 9 10 11 12 9999]
 #define MAX_GI_STEPS  128 // [128 256]
-#define GI_SCALE 	  100 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define GI_SCALE 	  100 // [25 50 75 100]
 
 #define MIN_ROULETTE_BOUNCES -1
 
@@ -189,7 +189,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // CLOUDS
 
-#define CLOUDS_SCALE 50 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define CLOUDS_SCALE 50 // [25 30 40 50 60 70 75 80 90 100]
 
 #define CLOUDS_WIND_SPEED 5 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50]
 

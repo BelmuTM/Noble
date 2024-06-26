@@ -45,8 +45,6 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
 
         float skylight = getSkylightFalloff(material.lightmap.y);
 
-        viewPosition += material.normal * 1e-2;
-
         vec3  viewDirection = normalize(viewPosition);
         mat3  tbn           = constructViewTBN(material.normal);
         float NdotV         = dot(material.normal, -viewDirection);
@@ -62,8 +60,8 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
 		    vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
             float NdotL            = abs(dot(material.normal, rayDirection));
 
-            vec3 hitPosition;
-            float hit = float(raytrace(depthTex, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+            vec3 hitPosition; float hit;
+            if(NdotL > 0.0) hit = float(raytrace(depthTex, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
 
             vec3 fresnel;
             if(isEyeInWater == 1 || material.id == WATER_ID) {
@@ -96,15 +94,13 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
 
         float skylight = getSkylightFalloff(material.lightmap.y);
 
-        viewPosition += material.normal * 1e-2;
-
         vec3  viewDirection = normalize(viewPosition);
         float NdotV         = dot(material.normal, -viewDirection);
         vec3  rayDirection  = viewDirection + 2.0 * NdotV * material.normal; 
         float NdotL         = abs(dot(material.normal, rayDirection));
 
-        vec3 hitPosition;
-        float hit = float(raytrace(depthTex, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+        vec3 hitPosition; float hit;
+        if(NdotL > 0.0) hit = float(raytrace(depthTex, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
 
         vec3 fresnel;
         if(isEyeInWater == 1 || material.id == WATER_ID) {
