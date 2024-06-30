@@ -41,7 +41,7 @@ const float aerialPerspectiveMult = 0.4;
     const float densityMult   = 2.0;
 #endif
 
-float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor);
+float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
 
 #if defined WORLD_OVERWORLD
 

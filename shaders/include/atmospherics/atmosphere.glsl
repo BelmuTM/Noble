@@ -5,9 +5,8 @@
 
 /*
     [Credits]:
-        Jessie     - help with atmospheric scattering and providing ozone cross section approximation (https://github.com/Jessie-LC)
-        Zombye     - sky illuminance sampling approximation (https://github.com/zombye)
-        sixthsurge - providing uniform sphere sampling method (https://github.com/sixthsurge)
+        Jessie - help with atmospheric scattering and providing ozone cross section approximation (https://github.com/Jessie-LC)
+        Zombye - sky illuminance sampling approximation (https://github.com/zombye)
         
     [References]:
         Nishita, T. (1993). Display of the earth taking into account atmospheric scattering. http://nishitalab.org/user/nis/cdrom/sig93_nis.pdf
@@ -139,7 +138,7 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
 
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
-                vec3 direction  = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy;
+                vec3 direction  = generateUnitVector((vec2(x, y) + 0.5) / samples);
                 vec3 atmoSample = texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
 
                 skyIlluminance[0][0] += atmoSample * saturate( direction.x);
@@ -181,7 +180,7 @@ vec3 evaluateUniformSkyIrradianceApproximation() {
 
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
-                vec3 direction  = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy;
+                vec3 direction  = generateUnitVector((vec2(x, y) + 0.5) / samples);
                 skyIlluminance += vec3(luminance(texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb));
             }
         }
@@ -217,8 +216,8 @@ vec3[9] evaluateUniformSkyIrradiance() {
 
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
-                vec3     direction      = generateUnitVector(vec2((x + 0.5) / samples.x, 0.5 * (y + 0.5) / samples.y + 0.5)).xzy;
-                vec3     radiance       = vec3(luminance(texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb));
+                vec3     direction      = generateUnitVector((vec2(x, y) + 0.5) / samples);
+                vec3     radiance       = texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
                 float[9] shCoefficients = calculateSphericalHarmonicsCoefficients(direction);
 
                 for(int n = 0; n < irradiance.length(); n++) irradiance[n] += radiance * shCoefficients[n];

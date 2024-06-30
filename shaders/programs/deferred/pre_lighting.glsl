@@ -98,12 +98,14 @@
 
             if(receivesSkylight) {
                 #if GI == 0
-                    vec4 ao = vec4(material.normal, 1.0);
+                    vec4 ao;
                     #if AO == 1 || AO == 3
                         vec3 aoBuffer = texture(AO_BUFFER, vertexCoords).rgb;
 
                         ao.xyz = decodeUnitVector(aoBuffer.xy);
                         ao.w   = aoBuffer.z;
+                    #else
+                        ao = vec4(mat3(gbufferModelViewInverse) * material.normal, 1.0);
                     #endif
 
                     skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));

@@ -114,6 +114,7 @@ void main() {
     vec3 transmittance = vec3(0.0);
 
     const int filterSize = 1;
+    float totalWeight = 0.0;
 
     for(int x = -filterSize; x <= filterSize; x++) {
         for(int y = -filterSize; y <= filterSize; y++) {
@@ -123,8 +124,12 @@ void main() {
             
             scattering    += logLuvDecode(unpackUnormArb(packedFog[0], uvec4(8))) * weight;
             transmittance += logLuvDecode(unpackUnormArb(packedFog[1], uvec4(8))) * weight;
+
+            totalWeight += weight;
         }
     }
+    scattering    /= totalWeight;
+    transmittance /= totalWeight;
     
     if(isEyeInWater == 1) {
         lighting += sunSpecular;

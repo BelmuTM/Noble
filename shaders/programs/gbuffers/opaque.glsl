@@ -152,7 +152,7 @@
 				float height = 1.0, traceDistance = 0.0;
 				vec2  shadowCoords = vec2(0.0);
 
-				if(texture(normals, textureCoords).a < EPS) discard;
+				if(texture(normals, textureCoords).a < 1e-3 || texture(tex, textureCoords).a < 0.102) discard;
 
 				coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
 

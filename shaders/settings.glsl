@@ -263,7 +263,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define LAVA_ID                 5
 #define FIRE_ID                 6
 #define HANGING_LANTERN_ID      8
-#define NETHER_PORTAL_ID        9
+#define NETHER_PORTAL_ID       10
 #define SSS_ID                 11
 #define LEAVES_ID              12
 #define DOUBLE_PLANTS_LOWER_ID 13
