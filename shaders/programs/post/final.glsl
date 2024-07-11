@@ -100,6 +100,10 @@ in vec2 textureCoords;
         color += (bayer2(gl_FragCoord.xy) - 0.5) * quantizationPeriod;
     }
 
+    vec4 samplePixelatedBuffer(sampler2D tex, vec2 coords, int size) {
+        vec2 aspectCorrectedSize = size * vec2(aspectRatio, 1.0);
+        return texelFetch(tex, ivec2((floor(coords * aspectCorrectedSize) / aspectCorrectedSize) * viewSize), 0);
+    }
 #endif
 
 #if CEL_SHADING == 1
@@ -128,6 +132,10 @@ void main() {
     #endif
 
     color = texture(MAIN_BUFFER, distortCoords).rgb;
+
+    #if EIGHT_BITS_FILTER == 1
+        color = samplePixelatedBuffer(MAIN_BUFFER, distortCoords, 300).rgb;
+    #endif
 
     #if SHARPEN == 1
         sharpeningFilter(color, distortCoords);

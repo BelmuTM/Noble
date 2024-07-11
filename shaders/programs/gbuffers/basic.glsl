@@ -31,7 +31,7 @@
 
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
-		#if TAA == 1 && EIGHT_BITS_FILTER == 0
+		#if TAA == 1
 			gl_Position.xy += taaJitter(gl_Position);
 		#endif
 	}

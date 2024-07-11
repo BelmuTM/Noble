@@ -37,7 +37,7 @@
     in vec2 textureCoords;
     in vec2 vertexCoords;
 
-    #if EIGHT_BITS_FILTER == 0 && TAA == 1
+    #if TAA == 1
     
         #include "/include/utility/sampling.glsl"
 
@@ -106,21 +106,10 @@
 
     #endif
 
-    #if EIGHT_BITS_FILTER == 1
-        vec4 samplePixelatedBuffer(sampler2D tex, vec2 coords, int size) {
-            vec2 aspectCorrectedSize = size * vec2(aspectRatio, 1.0);
-            return texelFetch(tex, ivec2((floor(coords * aspectCorrectedSize) / aspectCorrectedSize) * viewSize), 0);
-        }
-    #endif
-
     void main() {
-        #if EIGHT_BITS_FILTER == 1 || TAA == 0
-            #if EIGHT_BITS_FILTER == 1
-                color = samplePixelatedBuffer(DEFERRED_BUFFER, vertexCoords, 400).rgb;
-            #else
-                color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
-            #endif
-        #else
+        color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+
+        #if TAA == 1
             sampler2D depthTex = depthtex0;
             float     depth    = texture(depthtex0, vertexCoords).r;
 
@@ -162,8 +151,6 @@
                 }
 
                 color = inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight)));
-            } else {
-                color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
             }
         #endif
 

@@ -96,7 +96,7 @@
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
                 
                 float velocityWeight = saturate(length(abs(prevPosition - vertexCoords) * viewSize)) * 0.8 + 0.2;
-                        velocityWeight = mix(1.0, velocityWeight, float(CLOUDS_SCALE == 100));
+                      velocityWeight = mix(1.0, velocityWeight, float(CLOUDS_SCALE == 100));
 
                 float weight = saturate(centerWeight * velocityWeight);
 

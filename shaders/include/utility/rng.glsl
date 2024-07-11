@@ -48,29 +48,18 @@ vec2 taaJitter(vec4 pos) {
         seed = (word >> 22u) ^ word;
     }
 
-    #if EIGHT_BITS_FILTER == 0
-        uint rngState = uint(viewWidth * viewHeight) * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewWidth);
-    #else
-        uint rngState = uint(viewWidth * viewHeight) + uint(gl_FragCoord.x + gl_FragCoord.y * viewWidth);
-    #endif
+    uint rngState = uint(viewWidth * viewHeight) * uint(frameCounter) + uint(gl_FragCoord.x + gl_FragCoord.y * viewWidth);
 
     float randF()  { pcg(rngState); return float(rngState) / float(0xffffffffu); }
     vec2  rand2F() { return vec2(randF(), randF());                              }
 #endif
 
 vec3 temporalBlueNoise(vec2 uv) {
-    #if EIGHT_BITS_FILTER == 0
-        int time = frameCounter;
-    #else
-        int time = 1;
-    #endif
-    return fract(texelFetch(noisetex, ivec2(uv) % noiseTextureResolution, 0).rgb + GOLDEN_RATIO * time);
+    return fract(texelFetch(noisetex, ivec2(uv) % noiseTextureResolution, 0).rgb + GOLDEN_RATIO * frameCounter);
 }
 
 float interleavedGradientNoise(vec2 uv) {
-    #if EIGHT_BITS_FILTER == 0
-        uv += float(frameCounter) * 5.588238;
-    #endif
+    uv += float(frameCounter) * 5.588238;
     return fract(52.9829189 * fract(0.06711056 * uv.x + 0.00583715 * uv.y));  
 }
 
