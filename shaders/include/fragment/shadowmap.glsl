@@ -10,7 +10,7 @@ vec3 worldToShadow(vec3 worldPosition) {
 }
 
 float visibility(sampler2D tex, vec3 samplePos) {
-    return step(samplePos.z, texelFetch(tex, ivec2(samplePos.xy * shadowMapResolution), 0).r);
+    return step(samplePos.z - 1e-3, texelFetch(tex, ivec2(samplePos.xy * shadowMapResolution), 0).r);
 }
 
 vec3 getShadowColor(vec3 samplePos) {

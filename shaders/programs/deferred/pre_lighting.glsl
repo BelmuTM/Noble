@@ -134,6 +134,8 @@
                     }
                 #endif
 
+                shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
+
                 if(material.depth0 != 1.0) {
                     vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
                     vec3 scenePosition   = viewToScene(screenToView(vec3(textureCoords, material.depth0), projectionInverse, true));

@@ -36,7 +36,7 @@ const int colortex8Format       = RGBA16F;           // History
 
 #if GI == 1
      const int colortex9Format  = RGB16F;            // Direct lighting
-     const int colortex10Format = RGBA32F;           // Moments
+     const int colortex10Format = RGBA16F;           // Moments
 #else
      const int colortex10Format = RGBA16F;           // Previous Depth
 #endif
