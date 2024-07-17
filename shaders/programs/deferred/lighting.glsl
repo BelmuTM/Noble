@@ -217,15 +217,17 @@
         bool isEnchantmentGlint = basic.a == 0.0;
         bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-2;
 
-        if(isEnchantmentGlint) {
-            float prevLuminance = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
+        float exposure = 1.0;
 
-            // Inverting exposure for enchantment glints
-            radiance.rgb += basic.rgb / computeExposure(prevLuminance);
+        if(isEnchantmentGlint || (!isEnchantmentGlint && !isDamageOverlay))
+            exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+
+        if(isEnchantmentGlint) {
+            radiance.rgb += basic.rgb / exposure;
         } else if(isDamageOverlay) {
             if(depth >= handDepth) radiance.rgb = 2.0 * basic.rgb * radiance.rgb;
         } else {
-            radiance.rgb = mix(radiance.rgb, basic.rgb, basic.a);
+            radiance.rgb = mix(radiance.rgb, basic.rgb / exposure, basic.a);
         }
     }
 #endif

@@ -107,7 +107,7 @@
 		uniform vec4 entityColor;
 	#endif
 
-	#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
+	#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0 && !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 		vec2 computeLightmap(vec3 textureNormal) {
 			// Thanks ninjamike1211 for the help
 			vec2 lightmap 	   = lightmapCoords;
@@ -199,11 +199,12 @@
 
 		#if defined PROGRAM_BEACONBEAM
 			if(albedoTex.a < 0.999) discard;
-			emission = 1.0;
+			emission   = 1.0;
+			lightmap.x = 1.0;
 		#endif
 
 		vec3 normal = tbn[2];
-		#if !defined PROGRAM_BLOCK
+		#if !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 			if(all(greaterThan(normalTex, vec4(EPS)))) {
 				normal.xy = normalTex.xy * 2.0 - 1.0;
 				normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
