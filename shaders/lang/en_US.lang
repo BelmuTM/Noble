@@ -46,6 +46,11 @@ screen.ANTI_ALIASING           = Anti-Aliasing
 screen.COLOR_GRADING           = Color Grading
 screen.POST_PROCESSING         = Post-Processing
 screen.DEPTH_OF_FIELD          = Depth of Field
+screen.BLOOM                   = Bloom
+screen.SHARPEN                 = Sharpen
+screen.VIGNETTE                = Vignette
+screen.FILM_GRAIN              = Film Grain
+screen.CEL_SHADING             = Cel Shading
 screen.DEBUG                   = Debug
 
 ##################### LIGHTING #####################
@@ -715,30 +720,6 @@ option.SHUTTER_SPEED.comment = A measurement of the time the camera's shutter is
 prefix.SHUTTER_SPEED = 1/
 suffix.SHUTTER_SPEED = s
 
-##################### DEPTH OF FIELD #####################
-
-option.DOF = Depth of Field (DOF)
-option.DOF.comment = Blurs objects that are out of focus. Influenced by the §eaperture§r and §efocal length§r in the camera settings.
-value.DOF.0 = §cOFF
-value.DOF.1 = §aON
-
-option.DOF_SAMPLES = DOF Samples
-option.DOF_SAMPLES.comment = Adjusts how much time §bDepth of Field§r is sampled. §cHigher value gives better results, but reduces §cperformance.
-value.DOF_SAMPLES.4 = §b4
-value.DOF_SAMPLES.6 = §36
-value.DOF_SAMPLES.8 = §28
-value.DOF_SAMPLES.10 = §a10
-value.DOF_SAMPLES.12 = §e12
-value.DOF_SAMPLES.14 = §614
-value.DOF_SAMPLES.16 = §c16
-
-option.DOF_RADIUS = DOF Radius
-option.DOF_RADIUS.comment = Adjusts §bDepth of Field§r's intensity.
-
-option.DOF_DEPTH = DOF Focus Depth
-option.DOF_DEPTH.comment = Adjusts §bDepth of Field§r's depth at which it focuses. It is measured in blocks.
-value.DOF_DEPTH.0 = §eAuto-Focus
-
 ##################### COLOR GRADING #####################
 
 option.TONEMAP = Tone Mapping
@@ -814,12 +795,50 @@ value.TAA.1 = §aON
 option.TAA_STRENGTH = Strength
 option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§r's strength.
 
+##################### DEPTH OF FIELD #####################
+
+option.DOF = Depth of Field (DOF)
+option.DOF.comment = Blurs objects that are out of focus. Influenced by the §eaperture§r and §efocal length§r in the camera settings.
+value.DOF.0 = §cOFF
+value.DOF.1 = §aON
+
+option.DOF_SAMPLES = DOF Samples
+option.DOF_SAMPLES.comment = Adjusts how much time §bDepth of Field§r is sampled. §cHigher value gives better results, but reduces §cperformance.
+value.DOF_SAMPLES.4 = §b4
+value.DOF_SAMPLES.6 = §36
+value.DOF_SAMPLES.8 = §28
+value.DOF_SAMPLES.10 = §a10
+value.DOF_SAMPLES.12 = §e12
+value.DOF_SAMPLES.14 = §614
+value.DOF_SAMPLES.16 = §c16
+
+option.DOF_RADIUS = DOF Radius
+option.DOF_RADIUS.comment = Adjusts §bDepth of Field§r's intensity.
+
+option.DOF_DEPTH = DOF Focus Depth
+option.DOF_DEPTH.comment = Adjusts §bDepth of Field§r's depth at which it focuses. It is measured in blocks.
+value.DOF_DEPTH.0 = §eAuto-Focus
+
 ##################### POST-PROCESSING #####################
 
 option.EIGHT_BITS_FILTER = 8-Bits Filter
 option.EIGHT_BITS_FILTER.comment = Makes the game look like a vintage 8-bits game.
 value.EIGHT_BITS_FILTER.0 = §cOFF
 value.EIGHT_BITS_FILTER.1 = §aON
+
+option.PALETTE = Color Palette
+option.PALETTE.comment = Applies a color palette in post-processing.
+value.PALETTE.0 = §cOFF
+value.PALETTE.1 = §7Smooth Polished Silver
+value.PALETTE.2 = §dHortensia §bDiamond
+value.PALETTE.3 = §2Ammo
+value.PALETTE.4 = §6Golden Flame
+value.PALETTE.5 = §5Midnight Ablaze
+value.PALETTE.6 = §fCustodian
+value.PALETTE.7 = §eTil§6a-A§clit
+value.PALETTE.8 = §8Gothic Bit
+value.PALETTE.9 = §6Halloween §5Candy
+value.PALETTE.10 = §bBerry §dNebula
 
 option.BLOOM = Bloom
 option.BLOOM.comment = Allows bright areas to glow.
@@ -828,6 +847,14 @@ value.BLOOM.1 = §aON
 
 option.BLOOM_STRENGTH = Bloom Strength
 option.BLOOM_STRENGTH.comment = Adjusts §bBloom§r's intensity.
+
+option.SHARPEN = Sharpen Filter
+option.SHARPEN.comment = Accentuates colors to make them look sharper.
+value.SHARPEN.0 = §cOFF
+value.SHARPEN.1 = §aON
+
+option.SHARPEN_STRENGTH = Sharpen Strength
+option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§r's intensity.
 
 option.VIGNETTE = Vignette
 option.VIGNETTE.comment = Makes screen edges darker.
@@ -844,14 +871,6 @@ value.FILM_GRAIN.1 = §aON
 
 option.FILM_GRAIN_STRENGTH = Film Grain Strength
 option.FILM_GRAIN_STRENGTH.comment = Adjusts §bFilm Grain§r's intensity.
-
-option.SHARPEN = Sharpen Filter
-option.SHARPEN.comment = Accentuates colors to make them look sharper.
-value.SHARPEN.0 = §cOFF
-value.SHARPEN.1 = §aON
-
-option.SHARPEN_STRENGTH = Sharpen Strength
-option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§r's intensity.
 
 option.CEL_SHADING = Cel Shading
 option.CEL_SHADING.comment = Flattens the shading and colors to make the display look like a cartoon.

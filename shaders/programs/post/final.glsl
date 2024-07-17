@@ -90,6 +90,10 @@ in vec2 textureCoords;
     }
 #endif
 
+#if PALETTE > 0
+    #include "/include/post/palette.glsl"
+#endif
+
 #if EIGHT_BITS_FILTER == 1
 
     void quantizeColor(inout vec3 color, float quantizationPeriod) {
@@ -104,6 +108,7 @@ in vec2 textureCoords;
         vec2 aspectCorrectedSize = size * vec2(aspectRatio, 1.0);
         return texelFetch(tex, ivec2((floor(coords * aspectCorrectedSize) / aspectCorrectedSize) * viewSize), 0);
     }
+
 #endif
 
 #if CEL_SHADING == 1
@@ -131,9 +136,9 @@ void main() {
         if(isEyeInWater == 1) underwaterDistortion(distortCoords);
     #endif
 
-    color = texture(MAIN_BUFFER, distortCoords).rgb;
-
-    #if EIGHT_BITS_FILTER == 1
+    #if EIGHT_BITS_FILTER == 0
+        color = texture(MAIN_BUFFER, distortCoords).rgb;
+    #else
         color = samplePixelatedBuffer(MAIN_BUFFER, distortCoords, 300).rgb;
     #endif
 
@@ -157,6 +162,10 @@ void main() {
     #if CEL_SHADING == 1
         applyLUT(LUT_BUFFER, color);
         celShading(color);
+    #endif
+
+    #if PALETTE > 0
+        applyColorPalette(color);
     #endif
 
     #if EIGHT_BITS_FILTER == 1
