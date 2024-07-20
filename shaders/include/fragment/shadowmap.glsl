@@ -10,7 +10,7 @@ vec3 worldToShadow(vec3 worldPosition) {
 }
 
 float visibility(sampler2D tex, vec3 samplePos) {
-    return step(samplePos.z - 1e-3, texelFetch(tex, ivec2(samplePos.xy * shadowMapResolution), 0).r);
+    return step(samplePos.z, texelFetch(tex, ivec2(samplePos.xy * shadowMapResolution), 0).r);
 }
 
 vec3 getShadowColor(vec3 samplePos) {
@@ -64,7 +64,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
     #endif
 
-    vec3 PCF(vec3 shadowPosition, float penumbraSize) {
+    vec3 PCF(vec3 shadowPosition, float penumbraSize, vec3 selfIntersectionBias) {
 	    vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
@@ -73,14 +73,14 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
             #endif
 
             vec3 samplePos = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;
-            shadowResult  += getShadowColor(samplePos);
+            shadowResult  += getShadowColor(samplePos - selfIntersectionBias);
         }
         return shadowResult * rcp(SHADOW_SAMPLES);
     }
 
 #endif
 
-vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, out float subsurfaceDepth) {
+vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float depth, out float subsurfaceDepth) {
     #if SHADOWS > 0
         vec3  shadowPosition = worldToShadow(scenePosition);
         float NdotL          = dot(geometricNormal, shadowLightVector);
@@ -93,6 +93,10 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, out float 
         float penumbraSize = NORMAL_SHADOW_PENUMBRA;
 
         subsurfaceDepth = 0.0;
+
+        vec3 selfIntersectionBias = vec3(0.0);
+
+        if(depth < handDepth) selfIntersectionBias = vec3(0.0, 0.0, 1e-3);
 
         #if SHADOWS == 1
             vec3  shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
@@ -111,7 +115,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, out float 
                 penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
         #endif
 
-        return PCF(shadowPosition, penumbraSize);
+        return PCF(shadowPosition, penumbraSize, selfIntersectionBias);
     #else
         return vec3(1.0);
     #endif

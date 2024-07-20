@@ -140,7 +140,7 @@
                     vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
                     vec3 scenePosition   = viewToScene(screenToView(vec3(textureCoords, material.depth0), projectionInverse, true));
 
-                    shadowmap.rgb = abs(calculateShadowMapping(scenePosition, geometricNormal, shadowmap.a));
+                    shadowmap.rgb = abs(calculateShadowMapping(scenePosition, geometricNormal, material.depth0, shadowmap.a));
 
                     #if POM > 0 && POM_SHADOWING == 1
                         shadowmap.rgb *= material.parallaxSelfShadowing;

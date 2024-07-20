@@ -176,7 +176,7 @@
 
 				#if defined WORLD_OVERWORLD || defined WORLD_END
 					#if defined WORLD_OVERWORLD && SHADOWS > 0
-						shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], shadowmap.a));
+						shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], gl_FragDepth, shadowmap.a));
 					#endif
 
 					if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
