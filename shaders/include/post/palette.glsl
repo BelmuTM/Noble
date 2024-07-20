@@ -149,7 +149,7 @@ void applyColorPalette(inout vec3 color) {
 
     index = floor(index);
 
-    vec3 c1 = palette[int(index)];
+    vec3 c1 = palette[min(int(index)    , paletteSize - 1)];
     vec3 c2 = palette[min(int(index) + 1, paletteSize - 1)];
 
     color = mix(c1, c2, dither);
