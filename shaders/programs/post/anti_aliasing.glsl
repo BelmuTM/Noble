@@ -45,7 +45,7 @@
             vec3 pClip = 0.5 * (maxColor + minColor); // Center
             vec3 eClip = 0.5 * (maxColor - minColor); // Size
 
-            vec3 vClip  = prevColor - pClip;
+            vec3  vClip = prevColor - pClip;
             float denom = maxOf(abs(vClip / eClip));
 
             return denom > 1.0 ? pClip + vClip / denom : prevColor;
@@ -104,6 +104,17 @@
             return color / (1.0 - luminance(color));
         }
 
+        float find4x4MinimumDepth(sampler2D tex, vec2 coords) {
+            coords *= viewSize;
+
+            return minOf(vec4(
+                texelFetch(tex, ivec2(coords) + ivec2( 2,  2), 0).r,
+                texelFetch(tex, ivec2(coords) + ivec2(-2,  2), 0).r,
+                texelFetch(tex, ivec2(coords) + ivec2(-2, -2), 0).r,
+                texelFetch(tex, ivec2(coords) + ivec2( 2, -2), 0).r
+            ));
+        }
+
     #endif
 
     void main() {
@@ -136,19 +147,24 @@
                 vec3 history = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
                      history = neighbourhoodClipping(DEFERRED_BUFFER, currColor, history);
 
-	            float weight = saturate(length(velocity * viewSize));
+                float velocityWeight = saturate(length(velocity * viewSize));
 
-                if(depth > handDepth) {
-                    #if RENDER_MODE == 0
-                        float luminanceDelta = pow2(distance(history, currColor) / luminance(history));
+                float velocityWeightMult = 0.2;
+                float luminanceWeight    = 1.0;
 
-	                    weight = (1.0 - TAA_STRENGTH + weight * 0.2) / (1.0 + luminanceDelta);
-                    #else
-                        weight = 1.0 - TAA_STRENGTH + weight * 0.2;
-                    #endif
+                bool isSky = find4x4MinimumDepth(depthTex, vertexCoords) == 1.0;
+
+                float taaStrength = isSky ? max0(TAA_STRENGTH - 0.35) : TAA_STRENGTH;
+
+                if(isSky || depth < handDepth) {
+                    velocityWeightMult = 1.0;
                 } else {
-                    weight = 1.0 - TAA_STRENGTH + weight;
+                    #if RENDER_MODE == 0
+                        luminanceWeight = 1.0 + pow2(distance(history, currColor) / luminance(history));
+                    #endif
                 }
+
+                float weight = (1.0 - taaStrength + velocityWeight * velocityWeightMult) / luminanceWeight;
 
                 color = inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight)));
             }

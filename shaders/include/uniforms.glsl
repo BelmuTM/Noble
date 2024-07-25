@@ -30,6 +30,7 @@ uniform float centerDepthSmooth;
 uniform float rainStrength;
 uniform float wetness;
 uniform float sunAngle;
+uniform int renderStage;
 
 uniform sampler2D noisetex;
 

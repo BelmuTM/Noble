@@ -24,8 +24,8 @@
             Alex Tardif - https://www.alextardif.com/HistogramLuminance.html
         */
 
-        const ivec2 tiles    = ivec2(128, 72);
-        const vec2  tileSize = 1.0 / tiles;
+        ivec2 tiles    = ivec2(floor(80.0 * vec2(1.0, aspectRatio)));
+        vec2  tileSize = 1.0 / tiles;
 
         int getBinFromLuminance(float luminance) {
             if(luminance <= 0) return 0;
@@ -124,7 +124,7 @@
     	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
                     vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
     		        int index   = int(HISTOGRAM_BINS * coords.x);
-                    color.rgb   = luminanceHistogram[index >> 2][index & 3] > coords.y ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+                    color.rgb   = luminanceHistogram[index >> 2][index & 3] > coords.y * 0.6 ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
     	        }
             #endif
         #endif

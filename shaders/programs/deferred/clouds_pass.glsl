@@ -63,7 +63,7 @@
 
             if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) return;
 
-            vec3 viewPosition       = screenToView(vec3(textureCoords, depth), projectionInverse, false);
+            vec3 viewPosition       = screenToView(vec3(textureCoords, depth), projectionInverse, true);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
             vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e35);

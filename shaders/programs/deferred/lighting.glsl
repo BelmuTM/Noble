@@ -217,6 +217,8 @@
         bool isEnchantmentGlint = basic.a == 0.0;
         bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-2;
 
+        bool isHand = depth < handDepth;
+
         float exposure = 1.0;
 
         if(isEnchantmentGlint || (!isEnchantmentGlint && !isDamageOverlay))
@@ -225,9 +227,9 @@
         if(isEnchantmentGlint) {
             radiance.rgb += basic.rgb / exposure;
         } else if(isDamageOverlay) {
-            if(depth >= handDepth) radiance.rgb = 2.0 * basic.rgb * radiance.rgb;
+            if(!isHand) radiance.rgb = 2.0 * basic.rgb * radiance.rgb;
         } else {
-            radiance.rgb = mix(radiance.rgb, basic.rgb / exposure, basic.a);
+            if(!isHand) radiance.rgb = mix(radiance.rgb, basic.rgb / exposure, basic.a);
         }
     }
 #endif
