@@ -104,17 +104,6 @@
             return color / (1.0 - luminance(color));
         }
 
-        float find4x4MinimumDepth(sampler2D tex, vec2 coords) {
-            coords *= viewSize;
-
-            return minOf(vec4(
-                texelFetch(tex, ivec2(coords) + ivec2( 2,  2), 0).r,
-                texelFetch(tex, ivec2(coords) + ivec2(-2,  2), 0).r,
-                texelFetch(tex, ivec2(coords) + ivec2(-2, -2), 0).r,
-                texelFetch(tex, ivec2(coords) + ivec2( 2, -2), 0).r
-            ));
-        }
-
     #endif
 
     void main() {
@@ -152,11 +141,7 @@
                 float velocityWeightMult = 0.2;
                 float luminanceWeight    = 1.0;
 
-                bool isSky = find4x4MinimumDepth(depthTex, vertexCoords) == 1.0;
-
-                float taaStrength = isSky ? max0(TAA_STRENGTH - 0.35) : TAA_STRENGTH;
-
-                if(isSky || depth < handDepth) {
+                if(depth == 1.0 || depth < handDepth) {
                     velocityWeightMult = 1.0;
                 } else {
                     #if RENDER_MODE == 0
@@ -164,7 +149,7 @@
                     #endif
                 }
 
-                float weight = (1.0 - taaStrength + velocityWeight * velocityWeightMult) / luminanceWeight;
+                float weight = (1.0 - TAA_STRENGTH + velocityWeight * velocityWeightMult) / luminanceWeight;
 
                 color = inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight)));
             }

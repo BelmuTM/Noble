@@ -49,7 +49,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
         mat3  tbn           = constructViewTBN(material.normal);
         float NdotV         = dot(material.normal, -viewDirection);
 
-        float G1 = G1SmithGGX(NdotV, alphaSq);
+        float G1 = G1_Smith_GGX(NdotV, alphaSq);
 
         vec3 tangentViewDirection = -viewDirection * tbn;
 
@@ -70,7 +70,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
                 fresnel = fresnelDielectricConductor(MdotV, material.N / airIOR, material.K / airIOR);
             }
 
-            float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
+            float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
 
             #if defined REFLECTIONS_SKY_FALLBACK
                 vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
@@ -109,8 +109,8 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
             fresnel = fresnelDielectricConductor(NdotL, material.N / airIOR, material.K / airIOR);
         }
 
-        float G1 = G1SmithGGX(NdotV, alphaSq);
-        float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
+        float G1 = G1_Smith_GGX(NdotV, alphaSq);
+        float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
 
         #if defined REFLECTIONS_SKY_FALLBACK
             vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);

@@ -570,12 +570,16 @@ value.AERIAL_PERSPECTIVE.1 = §aON
 
 ### STARS
 
+option.STARS_SCALE = Scale
+option.STARS_SCALE.comment = Adjusts the scale (or size) of stars in the sky.
+suffix.STARS_SCALE = x
+
 option.STARS_AMOUNT = Amount
 option.STARS_AMOUNT.comment = Adjusts the amount of stars in the sky.
 suffix.STARS_AMOUNT = %
 
-option.STARS_LUMINOSITY = Luminosity
-option.STARS_LUMINOSITY.comment = Adjusts the luminosity of stars in the sky.
+option.STARS_LUMINANCE = Luminosity
+option.STARS_LUMINANCE.comment = Adjusts the luminosity of stars in the sky.
 
 ##################### TERRAIN #####################
 

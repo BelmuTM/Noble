@@ -564,8 +564,8 @@ option.STARS_AMOUNT = 星星数量
 option.STARS_AMOUNT.comment = 调节天空中星星的数量.
 suffix.STARS_AMOUNT = %
 
-option.STARS_LUMINOSITY = 星星亮度
-option.STARS_LUMINOSITY.comment = 调节天空中星星的亮度.
+option.STARS_LUMINANCE = 星星亮度
+option.STARS_LUMINANCE.comment = 调节天空中星星的亮度.
 
 ##################### TERRAIN #####################
 

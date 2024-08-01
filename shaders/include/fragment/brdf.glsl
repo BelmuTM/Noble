@@ -16,23 +16,41 @@
 
 #include "/include/fragment/fresnel.glsl"
 
-float distributionGGX(float cosThetaSq, float alphaSq) {
-    return alphaSq / (PI * pow2(1.0 - cosThetaSq + cosThetaSq * alphaSq));
+//////////////////////////////////////////////////////////
+/*------------------ GGX DISTRIBUTION ------------------*/
+//////////////////////////////////////////////////////////
+
+float distribution_GGX(float cosTheta, float alphaSq) {
+    float denom = cosTheta * cosTheta * (alphaSq - 1.0) + 1.0;
+    return alphaSq * RCP_PI / (denom * denom);
 }
 
-float lambdaSmith(float cosTheta, float alphaSq) {
-    float cosThetaSq = pow2(cosTheta);
+float lambda_Smith(float cosTheta, float alphaSq) {
+    float cosThetaSq = cosTheta * cosTheta;
     return (-1.0 + sqrt(1.0 + alphaSq * (1.0 - cosThetaSq) / cosThetaSq)) * 0.5;
 }
 
-float G1SmithGGX(float cosTheta, float alphaSq) {
-    return 1.0 / (1.0 + lambdaSmith(cosTheta, alphaSq));
+//////////////////////////////////////////////////////////
+/*-------------------- MICROSURFACE --------------------*/
+//////////////////////////////////////////////////////////
+
+float smithG_GGX(float cosTheta, float alphaSq) {
+    float cosThetaSq = cosTheta * cosTheta;
+    return 1.0 / maxEps(cosTheta + sqrt(alphaSq + cosThetaSq - alphaSq * cosThetaSq));
 }
 
-float G2SmithGGX(float NdotL, float NdotV, float alphaSq) {
-    float lambdaV = lambdaSmith(NdotV, alphaSq);
-    float lambdaL = lambdaSmith(NdotL, alphaSq);
+float G1_Smith_GGX(float cosTheta, float alphaSq) {
+    return 1.0 / (1.0 + lambda_Smith(cosTheta, alphaSq));
+}
+
+float G2_Smith_Height_Correlated(float NdotV, float NdotL, float alphaSq) {
+    float lambdaV = lambda_Smith(NdotV, alphaSq);
+    float lambdaL = lambda_Smith(NdotL, alphaSq);
     return 1.0 / (1.0 + lambdaV + lambdaL);
+}
+
+float G2_Smith_Separable(float NdotV, float NdotL, float alphaSq) {
+    return smithG_GGX(NdotV, alphaSq) * smithG_GGX(NdotL, alphaSq);
 }
 
 vec3 sampleGGXVNDF(vec3 viewDirection, vec2 xi, float alpha) {
@@ -47,42 +65,9 @@ vec3 sampleGGXVNDF(vec3 viewDirection, vec2 xi, float alpha) {
     return normalize(vec3(alpha * halfway.xy, halfway.z));
 }
 
-// This function assumes the light source is a sphere
-float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, out float newNdotL, out float newVdotL) {
-    float radiusCos = cos(angularRadius), radiusTan = tan(angularRadius);
-        
-    float RdotL = 2.0 * NdotL * NdotV - VdotL;
-    if(RdotL >= radiusCos) {
-        newNdotL = 2.0 * NdotV - NdotV;
-		newVdotL = 2.0 * NdotV * NdotV - 1.0;
-        return 1.0;
-    }
-
-    float rOverLengthT = radiusCos * radiusTan * inversesqrt(1.0 - RdotL * RdotL);
-    float NdotTr       = rOverLengthT * (NdotV - RdotL * NdotL);
-    float VdotTr       = rOverLengthT * (2.0 * NdotV * NdotV - 1.0 - RdotL * VdotL);
-
-    float triple = sqrt(saturate(1.0 - NdotL * NdotL - NdotV * NdotV - VdotL * VdotL + 2.0 * NdotL * NdotV * VdotL));
-        
-    float NdotBr   = rOverLengthT * triple, VdotBr = rOverLengthT * (2.0 * triple * NdotV);
-    float NdotLVTr = NdotL * radiusCos + NdotV + NdotTr, VdotLVTr = VdotL * radiusCos + 1.0 + VdotTr;
-    float p        = NdotBr * VdotLVTr, q = NdotLVTr * VdotLVTr, s = VdotBr * NdotLVTr;    
-    float xNum     = q * (-0.5 * p + 0.25 * VdotBr * NdotLVTr);
-    float xDenom   = p * p + s * ((s - 2.0 * p)) + NdotLVTr * ((NdotL * radiusCos + NdotV) * VdotLVTr * VdotLVTr + q * (-0.5 * (VdotLVTr + VdotL * radiusCos) - 0.5));
-    float twoX1    = 2.0 * xNum / (xDenom * xDenom + xNum * xNum);
-    float sinTheta = twoX1 * xDenom;
-    float cosTheta = 1.0 - twoX1 * xNum;
-
-    NdotTr = cosTheta * NdotTr + sinTheta * NdotBr;
-    VdotTr = cosTheta * VdotTr + sinTheta * VdotBr;
-
-    newNdotL = NdotL * radiusCos + NdotTr;
-    newVdotL = VdotL * radiusCos + VdotTr;
-
-    float NdotH = NdotV + newNdotL;
-    float HdotH = 2.0 * newVdotL + 2.0;
-    return saturate(NdotH * NdotH / HdotH);
-}
+//////////////////////////////////////////////////////////
+/*----------------------- DIFFUSE ----------------------*/
+//////////////////////////////////////////////////////////
 
 vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     float NdotL = dot(material.normal, lightDirection);
@@ -180,6 +165,47 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     return material.albedo * diffuse;
 }
 
+//////////////////////////////////////////////////////////
+/*---------------------- SPECULAR ----------------------*/
+//////////////////////////////////////////////////////////
+
+// This function assumes the light source is a sphere
+float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, out float newNdotL, out float newVdotL) {
+    float radiusCos = cos(angularRadius), radiusTan = tan(angularRadius);
+        
+    float RdotL = 2.0 * NdotL * NdotV - VdotL;
+    if(RdotL >= radiusCos) {
+        newNdotL = 2.0 * NdotV - NdotV;
+		newVdotL = 2.0 * NdotV * NdotV - 1.0;
+        return 1.0;
+    }
+
+    float rOverLengthT = radiusCos * radiusTan * inversesqrt(1.0 - RdotL * RdotL);
+    float NdotTr       = rOverLengthT * (NdotV - RdotL * NdotL);
+    float VdotTr       = rOverLengthT * (2.0 * NdotV * NdotV - 1.0 - RdotL * VdotL);
+
+    float triple = sqrt(saturate(1.0 - NdotL * NdotL - NdotV * NdotV - VdotL * VdotL + 2.0 * NdotL * NdotV * VdotL));
+        
+    float NdotBr   = rOverLengthT * triple, VdotBr = rOverLengthT * (2.0 * triple * NdotV);
+    float NdotLVTr = NdotL * radiusCos + NdotV + NdotTr, VdotLVTr = VdotL * radiusCos + 1.0 + VdotTr;
+    float p        = NdotBr * VdotLVTr, q = NdotLVTr * VdotLVTr, s = VdotBr * NdotLVTr;    
+    float xNum     = q * (-0.5 * p + 0.25 * VdotBr * NdotLVTr);
+    float xDenom   = p * p + s * ((s - 2.0 * p)) + NdotLVTr * ((NdotL * radiusCos + NdotV) * VdotLVTr * VdotLVTr + q * (-0.5 * (VdotLVTr + VdotL * radiusCos) - 0.5));
+    float twoX1    = 2.0 * xNum / (xDenom * xDenom + xNum * xNum);
+    float sinTheta = twoX1 * xDenom;
+    float cosTheta = 1.0 - twoX1 * xNum;
+
+    NdotTr = cosTheta * NdotTr + sinTheta * NdotBr;
+    VdotTr = cosTheta * VdotTr + sinTheta * VdotBr;
+
+    newNdotL = NdotL * radiusCos + NdotTr;
+    newVdotL = VdotL * radiusCos + VdotTr;
+
+    float NdotH = NdotV + newNdotL;
+    float HdotH = 2.0 * newVdotL + 2.0;
+    return saturate(NdotH * NdotH / HdotH);
+}
+
 vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection) {
     float NdotL = dot(material.normal, lightDirection);
     if(NdotL <= 0.0) return vec3(0.0);
@@ -194,9 +220,9 @@ vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection)
 
     NdotV = abs(NdotV);
     
-    float D  = distributionGGX(NdotHSq, alphaSq);
+    float D  = distribution_GGX(sqrt(NdotHSq), alphaSq);
     vec3  F  = fresnelDielectricConductor(VdotH, material.N, material.K);
-    float G2 = G2SmithGGX(NdotL, NdotV, alphaSq);
+    float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
         
     return NdotL * F * D * G2 / maxEps(4.0 * NdotL * NdotV);
 }

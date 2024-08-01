@@ -7,23 +7,31 @@ uniform vec3 upPosition;
 
 #include "/include/utility/sampling.glsl"
 
-// Originally written by Capt Tatsu
-// Modified it myself
 float computeStarfield(vec3 viewPosition) {
-	vec3 scenePosition = viewToScene(viewPosition);
-	vec3 planeCoords   = scenePosition / (scenePosition.y + length(scenePosition.xz));
-	vec2 coords 	   = planeCoords.xz * 0.9 + cameraPosition.xz * 1e-5 + frameTime * 0.00125;
-	     coords 	   = floor(coords * 1024.0) * rcp(1024.0);
+	vec3 sceneDirection = normalize(viewToScene(viewPosition));
+		 sceneDirection = rotate(sceneDirection, sunVector, vec3(0.0, 0.0, 1.0));
 
-	float VdotU  = saturate(dot(normalize(viewPosition), normalize(upPosition)));
-	float factor = sqrt(sqrt(VdotU)) * (1.0 - rainStrength);
+	vec3  position = sceneDirection * STARS_SCALE;
+	vec3  index    = floor(position);
+	float radius   = lengthSqr(position - index - 0.5);
+
+	float VdotU  = saturate(dot(normalize(viewPosition), upPosition));
+	float factor = max0(sqrt(sqrt(VdotU)) * (1.0 - rainStrength));
+
+	float falloff = pow2(quinticStep(0.5, 0.0, radius));
+
+	float rng = hash13(index);
 
 	float star = 1.0;
 	if(VdotU > 0.0) {
-		star *= rand( coords.xy);
-		star *= rand(-coords.xy + 0.1);
+		star *= rng;
+		star *= hash13(-index + 0.1);
 	}
-	return max0(saturate(star - (1.0 - STARS_AMOUNT * 2e-3)) * factor * STARS_LUMINOSITY * luminance(blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rand(coords)))));
+	star = saturate(star - (1.0 - STARS_AMOUNT * 0.0025));
+
+	float luminosity = STARS_LUMINANCE * luminance(blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rng)));
+
+	return star * factor * falloff * luminosity;
 }
 
 vec3 physicalSun(vec3 sceneDirection) {
