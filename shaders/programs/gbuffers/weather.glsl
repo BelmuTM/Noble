@@ -45,9 +45,9 @@
 
 		if(texture(tex, textureCoords).a < 0.102) discard;
 
-		const float density               = 2.0;
+		const float density               = 1.0;
 		const float scatteringCoefficient = 0.1;
-		const float alpha                 = 0.3;
+		const float alpha                 = 0.1;
 
 		#if TONEMAP == ACES
 			const vec3 attenuationCoefficients = vec3(0.338675, 0.0493852, 0.00218174) * SRGB_2_AP1_ALBEDO;
