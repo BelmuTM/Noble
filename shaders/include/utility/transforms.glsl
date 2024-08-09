@@ -87,14 +87,6 @@ vec3 viewToScene(vec3 viewPosition) {
 	return transform(gbufferModelViewInverse, viewPosition);
 }
 
-vec3 worldToView(vec3 worldPosition) {
-	return mat3(gbufferModelView) * (worldPosition - cameraPosition);
-}
-
-vec3 viewToWorld(vec3 viewPosition) {
-	return viewToScene(viewPosition) + cameraPosition;
-}
-
 mat3 constructViewTBN(vec3 viewNormal) {
 	vec3 tangent = normalize(cross(gbufferModelViewInverse[1].xyz, viewNormal));
 	return mat3(tangent, cross(tangent, viewNormal), viewNormal);

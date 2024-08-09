@@ -223,7 +223,7 @@
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
 			if(wetness > 0.0 && isEyeInWater == 0) {
 				float porosity    = saturate(specularTex.z * (maxFloat8 / 64.0));
-				vec2 puddleCoords = (viewToWorld(viewPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE * 0.01);
+				vec2 puddleCoords = ((viewToScene(viewPosition) + cameraPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE * 0.01);
 
 				float puddle  = saturate(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
 		  	  	  	  puddle *= pow2(quinticStep(0.0, 1.0, lightmapCoords.y));

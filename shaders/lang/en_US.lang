@@ -554,14 +554,18 @@ value.AIR_FOG_SCATTERING_STEPS.40 = §640
 value.AIR_FOG_SCATTERING_STEPS.48 = §c48
 value.AIR_FOG_SCATTERING_STEPS.64 = §464
 
+option.FOG_SHAPE_SCALE = Scale
+option.FOG_SHAPE_SCALE.comment = Adjusts the fog shape's scale.
+suffix.FOG_SHAPE_SCALE = %
+
 option.FOG_ALTITUDE = Altitude
-option.FOG_ALTITUDE.comment = Adjusts the fog altitude.
+option.FOG_ALTITUDE.comment = Adjusts the fog's altitude.
 
 option.FOG_THICKNESS = Thickness
-option.FOG_THICKNESS.comment = Adjusts the fog thickness.
+option.FOG_THICKNESS.comment = Adjusts the fog's thickness.
 
 option.FOG_DENSITY = Density
-option.FOG_DENSITY.comment = Adjusts the fog density.
+option.FOG_DENSITY.comment = Adjusts the fog's density.
 
 option.AERIAL_PERSPECTIVE = Aerial Perspective
 option.AERIAL_PERSPECTIVE.comment = Fog that appears at far distances when the atmosphere starts blending with the terrain.

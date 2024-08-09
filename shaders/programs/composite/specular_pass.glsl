@@ -46,6 +46,9 @@ void main() {
     mat4 projection        = gbufferProjection;
     mat4 projectionInverse = gbufferProjectionInverse;
 
+    float nearPlane = near;
+    float farPlane  = far;
+
     #if defined DISTANT_HORIZONS
         if(depth >= 1.0) {
             depth = texture(dhDepthTex0, vertexCoords).r;
@@ -54,6 +57,9 @@ void main() {
                     
             projection        = dhProjection;
             projectionInverse = dhProjectionInverse;
+        
+            nearPlane = dhNearPlane;
+            farPlane  = dhFarPlane;
         }
     #endif
 
@@ -83,7 +89,7 @@ void main() {
 
         #if REFRACTIONS == 1
             if(viewPosition0.z != viewPosition1.z && material.F0 > EPS) {
-                lighting = computeRefractions(depthTex1, projection, viewPosition0, material, coords);
+                lighting = computeRefractions(depthTex1, projection, viewPosition0, viewPosition1, material, coords);
             }
         #endif
 
@@ -113,14 +119,20 @@ void main() {
     vec3 scattering    = vec3(0.0);
     vec3 transmittance = vec3(0.0);
 
-    const int filterSize = 1;
     float totalWeight = 0.0;
 
+    const int filterSize = 2;
     for(int x = -filterSize; x <= filterSize; x++) {
         for(int y = -filterSize; y <= filterSize; y++) {
+            vec2  sampleCoords = coords.xy + vec2(x, y) * texelSize * 2.0;
+            uvec2 packedFog    = texture(FOG_BUFFER, sampleCoords).rg;
+
             float weight = gaussianDistribution2D(vec2(x, y), 1.0);
 
-            uvec2 packedFog = texture(FOG_BUFFER, coords.xy + vec2(x, y) * texelSize).rg;
+            float linearDepth       = linearizeDepth(texture(depthtex1, coords.xy).r   , nearPlane, farPlane);
+            float linearSampleDepth = linearizeDepth(texture(depthtex1, sampleCoords).r, nearPlane, farPlane);
+
+            weight *= step(abs(linearDepth - linearSampleDepth) / max(linearDepth, linearSampleDepth), 0.1);
             
             scattering    += logLuvDecode(unpackUnormArb(packedFog[0], uvec4(8))) * weight;
             transmittance += logLuvDecode(unpackUnormArb(packedFog[1], uvec4(8))) * weight;

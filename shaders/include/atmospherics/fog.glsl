@@ -89,7 +89,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
         float altitude   = (position.y - fogAltitude) * rcp(fogThickness);
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
         
-        float shapeNoise  = pow2(FBM(position * 0.1, AIR_FOG_OCTAVES, 0.7) * 2.0 - 1.0);
+        float shapeNoise  = pow2(FBM(position * FOG_SHAPE_SCALE * 0.01, AIR_FOG_OCTAVES, 0.7) * 2.0 - 1.0);
               shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
               shapeNoise *= exp(-max0(position.y - fogAltitude) * 0.2);
         
@@ -131,7 +131,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
 
             float density = getAirFogDensity(rayPosition) * distanceFalloff;
 
-            if(density < EPS) continue;
+            if(density <= 1e-3) continue;
 
             #if defined WORLD_OVERWORLD
                 vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
