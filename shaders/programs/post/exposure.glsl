@@ -111,10 +111,18 @@
         flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
     #endif
 
+    #if TAA == 1
+        #include "/include/post/exposure.glsl"
+        #include "/include/post/grading.glsl"
+    #endif
+
     void main() {
         color.rgb = texture(MAIN_BUFFER, textureCoords).rgb;
 
-        history.rgb = color.rgb;
+        #if TAA == 1
+            history.rgb = color.rgb    * computeExposure(avgLuminance);
+            history.rgb = agxTransform * history.rgb;
+        #endif
 
         #if MANUAL_CAMERA == 0 && EXPOSURE > 0
             history.a = avgLuminance;

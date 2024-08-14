@@ -38,6 +38,9 @@
     in vec2 vertexCoords;
 
     #if TAA == 1
+
+        #include "/include/post/exposure.glsl"
+        #include "/include/post/grading.glsl"
     
         #include "/include/utility/sampling.glsl"
 
@@ -96,14 +99,6 @@
             return texture(tex, uv);
         }
 
-        vec3 reinhard(vec3 color) {
-            return color / (1.0 + luminance(color));
-        }
-
-        vec3 inverseReinhard(vec3 color) {
-            return color / (1.0 - luminance(color));
-        }
-
     #endif
 
     void main() {
@@ -151,8 +146,10 @@
 
                 float weight = (1.0 - TAA_STRENGTH + velocityWeight * velocityWeightMult) / luminanceWeight;
 
-                color = inverseReinhard(mix(reinhard(history), reinhard(currColor), saturate(weight)));
+                color = mix(history, currColor, saturate(weight));
             }
+
+            color = (agxTransformInverse * color) / computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
         #endif
 
         color = max0(color);

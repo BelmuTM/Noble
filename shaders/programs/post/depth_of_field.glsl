@@ -23,6 +23,11 @@
 
         #include "/include/common.glsl"
 
+        #if TAA == 1
+            #include "/include/post/exposure.glsl"
+            #include "/include/post/grading.glsl"
+        #endif
+
         // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
         float getCoC(float fragDepth, float targetDepth) {
             return fragDepth <= handDepth ? 0.0 : abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
@@ -31,8 +36,8 @@
         void depthOfField(inout vec3 color, sampler2D tex, vec2 coords, float coc) {
             color = vec3(0.0);
 
-            float weight = pow2(DOF_SAMPLES);
-            float totalWeight = 0.0;
+            float weight      = pow2(DOF_SAMPLES);
+            float totalWeight = EPS;
 
             float distFromCenter = distance(coords, vec2(0.5));
             vec2  caOffset       = vec2(distFromCenter) * coc / weight;
@@ -44,7 +49,7 @@
 
                     vec3 sampleColor  = vec3(
                         texture(tex, sampleCoords + caOffset).r,
-                        texture(tex, sampleCoords).g,
+                        texture(tex, sampleCoords           ).g,
                         texture(tex, sampleCoords - caOffset).b
                     );
 
@@ -81,6 +86,11 @@
             #endif
 
             depthOfField(color, DEFERRED_BUFFER, vertexCoords, getCoC(depth, targetDepth));
+
+            #if TAA == 1
+                color = color        * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+                color = agxTransform * color;
+            #endif
         }
         
     #endif

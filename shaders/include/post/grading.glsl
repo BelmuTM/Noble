@@ -29,7 +29,7 @@ void whitePreservingReinhard(inout vec3 color, float white) {
 
 void reinhardJodie(inout vec3 color) {
     float luminance = luminance(color);
-    vec3 tv         = color / (1.0 + color);
+    vec3  tv        = color / (1.0 + color);
 
     color = mix(color / (1.0 + luminance), tv, tv);
 }
@@ -130,7 +130,7 @@ vec3 agxDefaultContrastApproximation(vec3 x) {
 
 void agx(inout vec3 color) {
     const float minEv = -12.47393;
-    const float maxEv = 4.026069;
+    const float maxEv =  4.026069;
 
     color = agxTransform * color;
     color = clamp(log2(color), minEv, maxEv);

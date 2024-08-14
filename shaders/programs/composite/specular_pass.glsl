@@ -29,6 +29,11 @@ in vec2 vertexCoords;
     #include "/include/fragment/refractions.glsl"
 #endif
 
+#if TAA == 1 && DOF == 0
+    #include "/include/post/exposure.glsl"
+    #include "/include/post/grading.glsl"
+#endif
+
 void main() {
     vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	if(saturate(fragCoords) != fragCoords) { discard; return; }
@@ -152,4 +157,9 @@ void main() {
         lighting += sunSpecular;
         lighting += envSpecular;
     }
+
+    #if TAA == 1 && DOF == 0
+        lighting = lighting     * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+        lighting = agxTransform * lighting;
+    #endif
 }
