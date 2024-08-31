@@ -88,8 +88,8 @@
             depthOfField(color, DEFERRED_BUFFER, vertexCoords, getCoC(depth, targetDepth));
 
             #if TAA == 1
-                color = color        * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
-                color = agxTransform * color;
+                color = color * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+                color = reinhard(color);
             #endif
         }
         

@@ -120,8 +120,8 @@
         color.rgb = texture(MAIN_BUFFER, textureCoords).rgb;
 
         #if TAA == 1
-            history.rgb = color.rgb    * computeExposure(avgLuminance);
-            history.rgb = agxTransform * history.rgb;
+            history.rgb = color.rgb * computeExposure(avgLuminance);
+            history.rgb = reinhard(history.rgb);
         #endif
 
         #if MANUAL_CAMERA == 0 && EXPOSURE > 0

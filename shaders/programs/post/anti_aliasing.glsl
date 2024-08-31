@@ -149,7 +149,7 @@
                 color = mix(history, currColor, saturate(weight));
             }
 
-            color = (agxTransformInverse * color) / computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+            color = inverseReinhard(color) / computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
         #endif
 
         color = max0(color);

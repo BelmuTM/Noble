@@ -159,7 +159,7 @@ void main() {
     }
 
     #if TAA == 1 && DOF == 0
-        lighting = lighting     * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
-        lighting = agxTransform * lighting;
+        lighting = lighting * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+        lighting = reinhard(lighting);
     #endif
 }

@@ -185,6 +185,14 @@ mat3 toXYZ(mat3 mat) {
     #endif
 }
 
+vec3 reinhard(vec3 color) {
+    return color / (1.0 + luminance(color));
+}
+
+vec3 inverseReinhard(vec3 color) {
+    return color / (1.0 - luminance(color));
+}
+
 vec3 plancks(float temperature, vec3 lambda) {
     const float h = 6.62607015e-16; // Planck's constant
     const float c = 2.99792458e17;  // Speed of light in a vacuum
@@ -203,8 +211,9 @@ vec3 blackbody(float temperature) {
 }
 
 #if PURKINJE == 1
+
     void scotopicVisionApproximation(inout vec3 color) {
-        const float bias    = 8.0;
+        const float bias    = 2.0;
         const float rcpBias = 1.0 / bias;
         const vec2 xy_b     = vec2(0.25);
 
@@ -231,4 +240,5 @@ vec3 blackbody(float temperature) {
 
         color = fromXYZ(color) * bias;
     }
+    
 #endif

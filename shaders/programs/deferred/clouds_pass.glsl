@@ -61,7 +61,10 @@
                 }
             #endif
 
-            if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) return;
+            if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) {
+                clouds = texture(CLOUDS_BUFFER, vertexCoords).rgb;
+                return;
+            }
 
             vec3 viewPosition       = screenToView(vec3(textureCoords, depth), projectionInverse, false);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
