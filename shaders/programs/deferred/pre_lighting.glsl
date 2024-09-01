@@ -108,7 +108,7 @@
                         ao = vec4(mat3(gbufferModelViewInverse) * material.normal, 1.0);
                     #endif
 
-                    skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w));
+                    skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, max0(ao.xyz), ao.w));
                 #else
                     skyIlluminance = uniformSkyIlluminance;
                 #endif

@@ -107,6 +107,9 @@
 		uniform vec4 entityColor;
 	#endif
 
+	uniform int heldBlockLightValue;
+	uniform int heldBlockLightValue2;
+
 	#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0 && !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 		vec2 computeLightmap(vec3 textureNormal) {
 			// Thanks ninjamike1211 for the help
@@ -245,6 +248,11 @@
 		#if HARDCODED_SSS == 1
             if(blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID && subsurface <= EPS) subsurface = HARDCODED_SSS_VAL;
         #endif
+
+		float handLight  = min(float(heldBlockLightValue2 + heldBlockLightValue), 15.0) / 15.0;
+			  handLight *= smoothstep(1.0, 0.0, min(HANDLIGHT_DISTANCE * handLight, length(viewPosition)) / (HANDLIGHT_DISTANCE * handLight));
+
+		lightmap.x = max(handLight, lightmap.x);
 
 		vec3 labPbrData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
 		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);

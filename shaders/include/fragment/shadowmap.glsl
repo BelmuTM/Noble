@@ -65,6 +65,10 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
     #endif
 
     vec3 PCF(vec3 shadowPosition, float penumbraSize, vec3 selfIntersectionBias) {
+        if(penumbraSize < EPS) {
+            return getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5 - selfIntersectionBias);
+        }
+
 	    vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
 
         for(int i = 0; i < SHADOW_SAMPLES; i++) {
@@ -112,7 +116,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
             if(texture(shadowcolor0, shadowPosDistort.xy).a > 0.0)
                 penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * (shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
             else
-                penumbraSize = WATER_CAUSTICS_BLUR_RADIUS;
+                penumbraSize = 0.0;
         #endif
 
         return PCF(shadowPosition, penumbraSize, selfIntersectionBias);

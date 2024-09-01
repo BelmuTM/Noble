@@ -3,11 +3,6 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-/*
-    const bool colortex0MipmapEnabled = true;
-    const bool colortex3MipmapEnabled = true;
-*/
-
 #include "/include/uniforms.glsl"
 
 #include "/include/utility/rng.glsl"

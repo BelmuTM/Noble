@@ -10,6 +10,10 @@
 
 #if defined STAGE_VERTEX
 
+    /*
+        const bool colortex0MipmapEnabled = true;
+    */
+
     flat out float avgLuminance;
     out vec2 textureCoords;
 
