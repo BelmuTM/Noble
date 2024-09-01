@@ -64,15 +64,15 @@
             ivec2 coords = ivec2(gl_FragCoord.xy * scale);
 
             // Left to right, top to bottom
-            vec3 sample_0 = texelFetch(currTex, coords + ivec2(-1,  1), 0).rgb;
-            vec3 sample_1 = texelFetch(currTex, coords + ivec2( 0,  1), 0).rgb;
-            vec3 sample_2 = texelFetch(currTex, coords + ivec2( 1,  1), 0).rgb;
-            vec3 sample_3 = texelFetch(currTex, coords + ivec2(-1,  0), 0).rgb;
-            vec3 sample_4 = currColor;
-            vec3 sample_5 = texelFetch(currTex, coords + ivec2( 1,  0), 0).rgb;
-            vec3 sample_6 = texelFetch(currTex, coords + ivec2(-1, -1), 0).rgb;
-            vec3 sample_7 = texelFetch(currTex, coords + ivec2( 0, -1), 0).rgb;
-            vec3 sample_8 = texelFetch(currTex, coords + ivec2( 1, -1), 0).rgb;
+            vec3 sample_0 = toYCoCg(texelFetch(currTex, coords + ivec2(-1,  1), 0).rgb);
+            vec3 sample_1 = toYCoCg(texelFetch(currTex, coords + ivec2( 0,  1), 0).rgb);
+            vec3 sample_2 = toYCoCg(texelFetch(currTex, coords + ivec2( 1,  1), 0).rgb);
+            vec3 sample_3 = toYCoCg(texelFetch(currTex, coords + ivec2(-1,  0), 0).rgb);
+            vec3 sample_4 = toYCoCg(currColor);
+            vec3 sample_5 = toYCoCg(texelFetch(currTex, coords + ivec2( 1,  0), 0).rgb);
+            vec3 sample_6 = toYCoCg(texelFetch(currTex, coords + ivec2(-1, -1), 0).rgb);
+            vec3 sample_7 = toYCoCg(texelFetch(currTex, coords + ivec2( 0, -1), 0).rgb);
+            vec3 sample_8 = toYCoCg(texelFetch(currTex, coords + ivec2( 1, -1), 0).rgb);
 
             // Min and max nearest 5 + nearest 9
             vec3 minColor, maxColor;
@@ -85,7 +85,9 @@
 	        maxColor += max(minColor, max(sample_0, max(sample_2, max(sample_6, sample_8))));
 	        maxColor *= 0.5;
 
+            history = toYCoCg(history);
             history = clipAABB(history, minColor, maxColor);
+            history = fromYCoCg(history);
 
             return history;
         }
