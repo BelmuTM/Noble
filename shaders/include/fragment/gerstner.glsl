@@ -42,11 +42,21 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
 const vec2 offset = vec2(0.015, 0.0);
 
 vec3 getWaterNormals(vec3 worldPosition, int octaves) {
-    vec2 position = worldPosition.xz;
-
-    float pos0 = calculateWaveHeightGerstner(position,             octaves);
-	float pos1 = calculateWaveHeightGerstner(position + offset.xy, octaves);
-	float pos2 = calculateWaveHeightGerstner(position + offset.yx, octaves);
+    float pos0 = calculateWaveHeightGerstner(worldPosition.xz,             octaves);
+	float pos1 = calculateWaveHeightGerstner(worldPosition.xz + offset.xy, octaves);
+	float pos2 = calculateWaveHeightGerstner(worldPosition.xz + offset.yx, octaves);
 
     return vec3(pos0 - pos1, pos0 - pos2, 1.0);
+}
+
+vec3 getWaterNormals(vec3 worldPosition, float strength, int octaves) {
+    const float dStep = 0.02;
+
+    vec2 steps;
+    steps.x = calculateWaveHeightGerstner(worldPosition.xz + vec2( dStep, -dStep), octaves);
+	steps.y = calculateWaveHeightGerstner(worldPosition.xz + vec2(-dStep,  dStep), octaves);
+	steps  -= calculateWaveHeightGerstner(worldPosition.xz + vec2(-dStep, -dStep), octaves);
+    steps  *= strength;
+
+    return normalize(vec3(-steps.x, dStep * 2.0, -steps.y));
 }
