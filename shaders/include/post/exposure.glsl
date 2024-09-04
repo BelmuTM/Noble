@@ -11,7 +11,7 @@ float computeEV100fromLuminance(float luminance) {
 }
 
 float computeExposureFromEV100(float ev100) {
-    return 1.0 / (1.2 * exp2(ev100));
+    return exp2(-ev100);
 }
 
 float computeExposure(float averageLuminance) {

@@ -369,8 +369,8 @@ const float sensorSensitivity = 100.0; // Sensor sensitivity
 	#define HISTOGRAM_BINS 80
 
 	// Logarithmic scale
-	const float minLuminance      = -6.0;
-	const float maxLuminance      =  11.0;
+	const float minLuminance      = -5.0;
+	const float maxLuminance      =  16.0;
 	const float luminanceRange    = maxLuminance - minLuminance;
 	const float rcpLuminanceRange = 1.0 / luminanceRange;
 

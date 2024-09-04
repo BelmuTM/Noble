@@ -23,12 +23,8 @@
     #endif
 
     #if MANUAL_CAMERA == 0 && EXPOSURE == 2
-        /*
-            SOURCE:
-            Alex Tardif - https://www.alextardif.com/HistogramLuminance.html
-        */
 
-        ivec2 tiles    = ivec2(floor(80.0 * vec2(1.0, aspectRatio)));
+        ivec2 tiles    = ivec2(floor(32.0 * vec2(1.0, aspectRatio)));
         vec2  tileSize = 1.0 / tiles;
 
         int getBinFromLuminance(float luminance) {
@@ -70,6 +66,7 @@
             }
             return int(closestBinToMedian.x);
         }
+
     #endif
 
     void main() {
@@ -117,7 +114,6 @@
 
     #if TAA == 1
         #include "/include/post/exposure.glsl"
-        #include "/include/post/grading.glsl"
     #endif
 
     void main() {
@@ -126,6 +122,8 @@
         #if TAA == 1
             history.rgb = color.rgb * computeExposure(avgLuminance);
             history.rgb = reinhard(history.rgb);
+        #else
+            history.rgb = color.rgb;
         #endif
 
         #if MANUAL_CAMERA == 0 && EXPOSURE > 0

@@ -40,7 +40,6 @@
     #if TAA == 1
 
         #include "/include/post/exposure.glsl"
-        #include "/include/post/grading.glsl"
     
         #include "/include/utility/sampling.glsl"
 
