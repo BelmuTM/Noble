@@ -28,12 +28,12 @@
 			vec3 albedo = ((uvec3(texture(GBUFFERS_DATA, vertexCoords).z) >> uvec3(0, 8, 16)) & 255u) * rcpMaxFloat8;
 
         	#if ATROUS_FILTER == 1
-            	vec3 radiance = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+            	vec3 irradiance = texture(DEFERRED_BUFFER, vertexCoords).rgb;
         	#else
-            	vec3 radiance = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
+            	vec3 irradiance = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
         	#endif
         
-        	lighting = direct + albedo * radiance;
+        	lighting = direct + albedo * irradiance;
 		#endif
 	}
 	

@@ -30,13 +30,13 @@
     #if GI == 1
         /* RENDERTARGETS: 4,9,10 */
 
-        layout (location = 0) out vec4 radiance;
+        layout (location = 0) out vec4 color;
         layout (location = 1) out vec3 directOut;
         layout (location = 2) out vec4 momentsOut;
     #else
         /* RENDERTARGETS: 4,10 */
 
-        layout (location = 0) out vec4 radiance;
+        layout (location = 0) out vec4 color;
         layout (location = 1) out vec4 momentsOut;
     #endif
 
@@ -126,7 +126,7 @@
             #if GI == 1
                 directOut = sky;
             #else
-                radiance.rgb = sky;
+                color.rgb = sky;
             #endif
             return;
         }
@@ -135,9 +135,9 @@
             vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth), projectionInverse) * RENDER_SCALE;
             vec4 history      = texture(ACCUMULATION_BUFFER, prevPosition.xy);
 
-            radiance.a  = history.a;
-            radiance.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
-            radiance.a *= float(depth >= handDepth);
+            color.a  = history.a;
+            color.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
+            color.a *= float(depth >= handDepth);
 
             momentsOut = texture(MOMENTS_BUFFER, prevPosition.xy);
 
@@ -149,21 +149,26 @@
                 float linearDepth     = linearizeDepth(prevPosition.z, nearPlane, farPlane);
 			    float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
 
-                radiance.a *= step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.1);
+                vec3 prevScenePosition = viewToScene(screenToView(prevPosition, projectionInverse, false));
+                bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
+
+                float depthWeight = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.1);
+
+                color.a *= (closeToCamera ? depthWeight : 1.0);
 
                 #if GI == 0
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                         radiance.a     *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
+                         color.a     *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
                 #else
-                    radiance.a *= float(depth >= handDepth);
+                    color.a *= float(depth >= handDepth);
                 #endif
 
-                radiance.a = min(radiance.a, 60.0);
+                color.a = min(color.a, 60.0);
             #else
-                radiance.a *= float(hideGUI);
+                color.a *= float(hideGUI);
             #endif
 
-            radiance.a++;
+            color.a++;
         #endif
 
         Material material = getMaterial(vertexCoords);
@@ -171,7 +176,7 @@
         bool isMetal = material.F0 * maxFloat8 > 229.5;
 
         #if GI == 0
-            radiance.rgb = vec3(0.0);
+            color.rgb = vec3(0.0);
 
             float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
@@ -188,21 +193,21 @@
                 ao = texture(AO_BUFFER, vertexCoords).b;
             #endif
 
-            radiance.rgb = computeDiffuse(viewPosition, shadowVec, material, isMetal, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
+            color.rgb = computeDiffuse(viewPosition, shadowVec, material, isMetal, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         #else
-            pathtrace(depthTex, projection, projectionInverse, directIlluminance, isMetal, radiance.rgb, vec3(vertexCoords, depth), directOut);
+            pathtrace(depthTex, projection, projectionInverse, directIlluminance, isMetal, color.rgb, vec3(vertexCoords, depth), directOut);
 
             #if TEMPORAL_ACCUMULATION == 1
-                float weight = 1.0 / max(radiance.a, 1.0);
-                radiance.rgb = mix(history.rgb, radiance.rgb, weight);
+                float weight = 1.0 / max(color.a, 1.0);
+                color.rgb = mix(history.rgb, color.rgb, weight);
 
                 #if RENDER_MODE == 0 && ATROUS_FILTER == 1
-                    float luminance = luminance(radiance.rgb);
+                    float luminance = luminance(color.rgb);
                     vec2  moments   = vec2(luminance, luminance * luminance);
 
                     momentsOut.rg = mix(momentsOut.rg, moments, weight);
 
-                    if(radiance.a < VARIANCE_STABILIZATION_THRESHOLD) {
+                    if(color.a < VARIANCE_STABILIZATION_THRESHOLD) {
                         momentsOut.b = estimateSpatialVariance(ACCUMULATION_BUFFER, moments);
                     } else { 
                         momentsOut.b = abs(momentsOut.g - momentsOut.r * momentsOut.r);
@@ -225,11 +230,11 @@
             exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
         if(isEnchantmentGlint) {
-            radiance.rgb += basic.rgb / exposure;
+            color.rgb += basic.rgb / exposure;
         } else if(isDamageOverlay) {
-            if(!isHand) radiance.rgb = 2.0 * basic.rgb * radiance.rgb;
+            if(!isHand) color.rgb = 2.0 * basic.rgb * color.rgb;
         } else {
-            if(!isHand) radiance.rgb = mix(radiance.rgb, basic.rgb / exposure, basic.a);
+            if(!isHand) color.rgb = mix(color.rgb, basic.rgb / exposure, basic.a);
         }
     }
 #endif
