@@ -96,7 +96,7 @@
                 vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition.xy).rgb);
 
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.2 + 0.8;
+                float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
                 
                 float velocityWeight = saturate(length(abs(prevPosition - vertexCoords) * viewSize)) * 0.8 + 0.2;
                       velocityWeight = mix(1.0, velocityWeight, float(CLOUDS_SCALE == 100));
