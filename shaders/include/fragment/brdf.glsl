@@ -224,5 +224,5 @@ vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection)
     vec3  F  = fresnelDielectricConductor(VdotH, material.N, material.K);
     float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
         
-    return NdotL * F * D * G2 / maxEps(4.0 * NdotL * NdotV);
+    return NdotL * D * F * G2 / maxEps(4.0 * NdotL * NdotV);
 }

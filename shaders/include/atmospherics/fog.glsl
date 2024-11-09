@@ -192,7 +192,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         vec3 worldPosition  = startPosition + worldIncrement * dither;
              worldPosition += cameraPosition;
 
-        vec3 shadowIncrement = mat3(shadowModelView) * worldIncrement;
+        vec3 shadowIncrement = mat3(shadowModelView)       * worldIncrement;
              shadowIncrement = diagonal3(shadowProjection) * shadowIncrement;
         vec3 shadowPosition  = worldToShadow(worldPosition - cameraPosition);
 
@@ -231,7 +231,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         // Multiple scattering approximation provided by Jessie
         vec3 multipleScatteringFactor = scatteringAlbedo * 0.84;
 
-        int phaseSampleCount = 32;
+        int phaseSampleCount = 16;
         float phaseMultiple  = 0.0;
 
         for(int i = 0; i < phaseSampleCount; i++) {
