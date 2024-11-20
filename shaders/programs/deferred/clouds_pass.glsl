@@ -103,7 +103,7 @@
 
                 float weight = saturate(centerWeight * velocityWeight);
 
-                clouds = max0(mix(clouds, history, weight));
+                clouds = max0(mix(clouds, history, min(weight, 0.989)));
             }
         }
         
