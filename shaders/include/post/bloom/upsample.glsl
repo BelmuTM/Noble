@@ -20,7 +20,7 @@ const vec2 bloomOffsets[6] = vec2[6](
     vec2(0.2510, 0.5010),
     vec2(0.2510, 0.6280),
     vec2(0.3145, 0.6280),
-    vec2(0.3150, 0.6615)
+    vec2(0.3150, 0.6618)
 );
 
 vec3 sampleBloomTile(vec2 coords, int lod) {

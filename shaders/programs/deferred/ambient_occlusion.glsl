@@ -161,9 +161,15 @@
 				}
 			#endif
 
-			if(depth == 1.0 || depth < handDepth) return;
+			if(depth == 1.0) return;
 
 			Material material = getMaterial(vertexCoords);
+
+			if(depth < handDepth) {
+				ao = vec3(encodeUnitVector(material.normal), 1.0);
+				return;
+			}
+
 			vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
 			vec3 bentNormal = vec3(0.0);
@@ -192,6 +198,8 @@
 					#endif
 
 					ao.b = mix(prevAO.b, ao.b, weight);
+				} else {
+					ao = vec3(encodeUnitVector(material.normal), 1.0);
 				}
 			#endif
 

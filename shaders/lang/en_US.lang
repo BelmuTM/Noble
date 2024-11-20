@@ -585,6 +585,18 @@ suffix.STARS_AMOUNT = %
 option.STARS_LUMINANCE = Luminosity
 option.STARS_LUMINANCE.comment = Adjusts the luminosity of stars in the sky.
 
+### DIMENSIONS FOG
+
+option.NETHER_FOG = Nether Fog
+option.NETHER_FOG.comment = Fog in the Nether dimension.
+value.NETHER_FOG.0 = §cOFF
+value.NETHER_FOG.1 = §aON
+
+option.END_FOG = End Fog
+option.END_FOG.comment = Fog in the End dimension.
+value.END_FOG.0 = §cOFF
+value.END_FOG.1 = §aON
+
 ##################### TERRAIN #####################
 
 ### WATER

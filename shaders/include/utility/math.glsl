@@ -226,6 +226,13 @@ vec3 generateConeVector(vec3 vector, vec2 xy, float angle) {
 float coneAngleToSolidAngle(float x) { return TAU * (1.0 - cos(x));      }
 float solidAngleToConeAngle(float x) { return fastAcos(1.0 - (x) / TAU); }
 
+vec3 sphericalToCartesian(float azimuth, float altitude) {
+    float phi   = radians(azimuth);
+    float theta = radians(90.0 - altitude);
+
+    return vec3(sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi));
+}
+
 //////////////////////////////////////////////////////////
 /*-------------------- DISTRIBUTION --------------------*/
 //////////////////////////////////////////////////////////

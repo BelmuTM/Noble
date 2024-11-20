@@ -237,6 +237,9 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // FOG
 
+#define NETHER_FOG 1 // [0 1]
+#define END_FOG 1    // [0 1]
+
 #define AIR_FOG                   1 // [0 1 2]
 #define AIR_FOG_SCATTERING_STEPS 16 // [8 16 24 32 40 48 64]
 #define AIR_FOG_OCTAVES           5

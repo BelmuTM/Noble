@@ -53,7 +53,7 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += computeBloom(textureCoords) * exp2(exposure + BLOOM_STRENGTH - 3.0);
+        color += computeBloom(textureCoords) * exp2(exposure + BLOOM_STRENGTH - 2.0);
     #endif
 
     #if PURKINJE == 1

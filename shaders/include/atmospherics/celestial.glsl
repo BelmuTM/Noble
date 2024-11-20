@@ -7,9 +7,9 @@ uniform vec3 upPosition;
 
 #include "/include/utility/sampling.glsl"
 
-float computeStarfield(vec3 viewPosition) {
+float computeStarfield(vec3 viewPosition, vec3 lightVector) {
 	vec3 sceneDirection = normalize(viewToScene(viewPosition));
-		 sceneDirection = rotate(sceneDirection, sunVector, vec3(0.0, 0.0, 1.0));
+		 sceneDirection = rotate(sceneDirection, lightVector, vec3(0.0, 0.0, 1.0));
 
 	vec3  position = sceneDirection * STARS_SCALE;
 	vec3  index    = floor(position);
@@ -76,7 +76,11 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 			sky += physicalStar(sceneDirection);
 		#endif
 
-		sky += computeStarfield(viewPosition);
+		#if defined WORLD_OVERWORLD
+			sky += computeStarfield(viewPosition, sunVector);
+		#elif defined WORLD_END
+			sky += computeStarfield(viewPosition, starVector);
+		#endif
 
 		return sky * clouds.a + clouds.rgb;
 	#else

@@ -185,7 +185,7 @@
             #endif
 
             #if SHADOWS > 0
-                shadowmap = texelFetch(SHADOWMAP_BUFFER, ivec2(max(gl_FragCoord.xy, vec2(1.0))), 0);
+                shadowmap = textureBicubic(SHADOWMAP_BUFFER, vertexCoords);
             #endif
 
             float ao = 1.0;

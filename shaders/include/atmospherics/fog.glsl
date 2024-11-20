@@ -16,29 +16,43 @@ float calculateAirFogPhase(float cosTheta) {
 const float aerialPerspectiveMult = 0.4;
 
 #if defined WORLD_OVERWORLD
+
     vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
     vec3 airFogScatteringCoefficients  = vec3(airFogScatteringCoefficient);
 
-    const float fogAltitude   = FOG_ALTITUDE;
-    const float fogThickness  = FOG_THICKNESS;
-          float densityFactor = wetness;
-    const float densityMult   = 1.0;
+    const float fogAltitude     = FOG_ALTITUDE;
+    const float fogThickness    = FOG_THICKNESS;
+    const float fogFrequency    = 0.7;
+    const vec2  fogShapeFactors = vec2(2.0, 1.0);
+          float densityFactor   = wetness;
+    const float densityMult     = 1.0;
+
 #elif defined WORLD_NETHER
-    const vec3 airFogAttenuationCoefficients = vec3(0.6, 0.4, 0.05);
+
+    const vec3 airFogAttenuationCoefficients = vec3(0.02, 0.03, 0.3);
     const vec3 airFogScatteringCoefficients  = vec3(0.2, 0.1, 0.06);
 
-    const float fogAltitude   = max(34.0, FOG_ALTITUDE - 34.0);
-    const float fogThickness  = FOG_THICKNESS * 2.0;
-    const float densityFactor = 1.0;
-    const float densityMult   = 1.0;
-#elif defined WORLD_END
-    const vec3 airFogAttenuationCoefficients = vec3(0.7, 0.5, 0.75);
-    const vec3 airFogScatteringCoefficients  = vec3(0.7, 0.3, 0.8);
+    const float fogAltitude     = max(0.0, FOG_ALTITUDE - 63.0);
+    const float fogThickness    = FOG_THICKNESS * 2.0;
+    const float fogFrequency    = 0.7;
+          vec2  fogShapeFactors = vec2(2.0, 0.7);
+    const float densityFactor   = 1.0;
+    const float densityMult     = 0.03;
 
-    const float fogAltitude   = FOG_ALTITUDE - 10.0;
-    const float fogThickness  = (FOG_THICKNESS + 40.0) * 1.3;
-    const float densityFactor = 1.0;
-    const float densityMult   = 2.0;
+#elif defined WORLD_END
+
+    float airFogTransitionFactor = sin(frameTimeCounter * 2.0);
+
+    vec3 airFogAttenuationCoefficients = mix(vec3(0.3, 0.2, 0.3), vec3(0.1, 0.05, 0.1), airFogTransitionFactor);
+    vec3 airFogScatteringCoefficients  = mix(vec3(0.9, 0.7, 0.8), vec3(1.0, 1.00, 1.0), airFogTransitionFactor);
+
+    const float fogAltitude     = max(0.0, FOG_ALTITUDE - 63.0);
+    const float fogThickness    = min(200.0, (FOG_THICKNESS + 40.0) * 2.0);
+    const float fogFrequency    = 0.7;
+    const vec2  fogShapeFactors = vec2(2.0, 0.7);
+    const float densityFactor   = 1.0;
+    const float densityMult     = 1.0;
+
 #endif
 
 float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
@@ -88,10 +102,45 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
 
         float altitude   = (position.y - fogAltitude) * rcp(fogThickness);
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
+
+        #if defined WORLD_END
+            float movementSpeed = frameTimeCounter * 10.0;
+
+            position.y -= 60.0;
+            position.xz = -position.xz;
+            position    = rotate(position, vec3(0.0, 1.0, 0.0), starVector);
+            position    = rotate(position, vec3(0.0, 1.0, 0.0), movementSpeed);
+            position.xz = -position.xz;
+            position.y -= movementSpeed;
+        #endif
+
+        #if defined WORLD_NETHER
+            //fogShapeFactors = mix(vec2(2.5, 0.6), fogShapeFactors, sqrt(quinticStep(0.0, 1.0, min(125.0, position.y) / 125.0)));
+        #endif
         
-        float shapeNoise  = pow2(FBM(position * FOG_SHAPE_SCALE * 0.01, AIR_FOG_OCTAVES, 0.7) * 2.0 - 1.0);
+        float shapeNoise  = pow2(FBM(position * FOG_SHAPE_SCALE * 0.01, AIR_FOG_OCTAVES, fogFrequency) * fogShapeFactors.x - fogShapeFactors.y);
               shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
-              shapeNoise *= exp(-max0(position.y - fogAltitude) * 0.2);
+
+        #if defined WORLD_OVERWORLD
+            shapeNoise *= exp(-max0(position.y - fogAltitude) * 0.2);
+
+        #elif defined WORLD_NETHER
+            //fogDensity *= mix(1.2, 1.0, sqrt(quinticStep(0.0, 1.0, min(125.0, position.y) / 125.0)));
+
+        #elif defined WORLD_END
+            float innerRadius    = 30.0;
+            float outerRingStart = 70.0;
+            float outerRingEnd   = 160.0;
+
+            float distanceFromCenter = length(position.xz);
+
+            float fogFalloff = quinticStep(innerRadius, outerRingStart, distanceFromCenter) * 
+                               pow2(quinticStep(outerRingEnd, outerRingStart, distanceFromCenter)) * 
+                               exp(-rcp(distanceFromCenter));
+
+            shapeNoise *= fogFalloff;
+
+        #endif
         
         return saturate(shapeNoise) * fogDensity * densityMult;
     }
@@ -111,6 +160,14 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
     */
 
     void computeVolumetricAirFog(inout vec3 scatteringOut, inout vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float farPlane, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
+        #if defined WORLD_NETHER && NETHER_FOG == 0
+            return;
+        #endif
+        
+        #if defined WORLD_END && END_FOG == 0
+            return;
+        #endif
+        
         if(fogDensity < 1e-3) return;
 
         const float stepSize = 1.0 / AIR_FOG_SCATTERING_STEPS;

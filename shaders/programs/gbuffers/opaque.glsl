@@ -104,6 +104,7 @@
 	#endif
 
 	#if defined PROGRAM_ENTITY
+		uniform int entityId;
 		uniform vec4 entityColor;
 	#endif
 
@@ -249,10 +250,18 @@
             if(blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID && subsurface <= EPS) subsurface = HARDCODED_SSS_VAL;
         #endif
 
-		float handLight  = min(float(heldBlockLightValue2 + heldBlockLightValue), 15.0) / 15.0;
+		float handLight  = min(float(heldBlockLightValue + heldBlockLightValue2), 15.0) / 15.0;
 			  handLight *= smoothstep(1.0, 0.0, min(HANDLIGHT_DISTANCE * handLight, length(viewPosition)) / (HANDLIGHT_DISTANCE * handLight));
 
 		lightmap.x = max(handLight, lightmap.x);
+
+		#if defined PROGRAM_ENTITY
+			// Handling lightning bolts, end crystal and end crystal beams
+			if(entityId == 10000 || entityId == 10001 || entityId == 10002) {
+				emission   = 1.0;
+				lightmap.x = 1.0;
+			}
+		#endif
 
 		vec3 labPbrData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
 		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
