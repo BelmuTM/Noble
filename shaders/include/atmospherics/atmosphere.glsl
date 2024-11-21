@@ -181,7 +181,7 @@ vec3 evaluateUniformSkyIrradianceApproximation() {
         for(int x = 0; x < samples.x; x++) {
             for(int y = 0; y < samples.y; y++) {
                 vec3 direction  = generateUnitVector((vec2(x, y) + 0.5) / samples);
-                skyIlluminance += vec3(luminance(texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb));
+                skyIlluminance += texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
             }
         }
         skyIlluminance *= PI / (samples.x * samples.y);

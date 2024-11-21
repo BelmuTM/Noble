@@ -66,7 +66,7 @@
                 return;
             }
 
-            vec3 viewPosition       = screenToView(vec3(textureCoords, depth), projectionInverse, false);
+            vec3 viewPosition       = screenToView(vec3(textureCoords, depth), projectionInverse, true);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
             vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e35);
@@ -103,7 +103,7 @@
 
                 float weight = saturate(centerWeight * velocityWeight);
 
-                clouds = max0(mix(clouds, history, min(weight, 0.989)));
+                clouds = max0(mix(clouds, history, clamp(weight, 0.6, 0.8)));
             }
         }
         

@@ -185,15 +185,17 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
         float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
         float powderSky = mix(powder, 1.0, VdotU * 0.5 + 0.5);
 
-        vec3  mieAnisotropyFactors  = pow(vec3(cloudsForwardsLobe, cloudsBackardsLobe, cloudsForwardsPeak), vec3(directOpticalDepth + 1.0));
+        vec3  mieAnisotropyFactors  = vec3(cloudsForwardsLobe, cloudsBackardsLobe, cloudsForwardsPeak);
         float extinctionCoefficient = cloudsExtinctionCoefficient;
         float scatteringCoefficient = cloudsScatteringCoefficient;
 
         vec2 stepScattering = vec2(0.0);
         
-        for(int j = 0; j < cloudsMultiScatterSteps; j++) {
-            float cloudsPhase = calculateCloudsPhase(VdotL, mieAnisotropyFactors);
+        float cloudsPhase = calculateCloudsPhase(VdotL, mieAnisotropyFactors);
 
+        mieAnisotropyFactors = pow(mieAnisotropyFactors, vec3(1.0 + directOpticalDepth));
+        
+        for(int j = 0; j < cloudsMultiScatterSteps; j++) {
             stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * directOpticalDepth) * cloudsPhase    * powderSun;
             stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * groundOpticalDepth) * bouncedLight   * powder;
             stepScattering.y += scatteringCoefficient * exp(-extinctionCoefficient * skyOpticalDepth   ) * isotropicPhase * powderSky;
@@ -201,6 +203,8 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
             extinctionCoefficient *= cloudsExtinctionFalloff;
             scatteringCoefficient *= cloudsScatteringFalloff;
             mieAnisotropyFactors  *= cloudsAnisotropyFalloff;
+
+            cloudsPhase = calculateCloudsPhase(VdotL, mieAnisotropyFactors);
         }
         float scatteringIntegral = (1.0 - stepTransmittance) * rcp(cloudsScatteringCoefficient);
 

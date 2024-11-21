@@ -23,9 +23,9 @@ const float aerialPerspectiveMult = 0.4;
     const float fogAltitude     = FOG_ALTITUDE;
     const float fogThickness    = FOG_THICKNESS;
     const float fogFrequency    = 0.7;
-    const vec2  fogShapeFactors = vec2(2.0, 1.0);
+    const vec2  fogShapeFactors = vec2(1.5, 0.3);
           float densityFactor   = wetness;
-    const float densityMult     = 1.0;
+    const float densityMult     = 0.2;
 
 #elif defined WORLD_NETHER
 
@@ -122,7 +122,7 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
               shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
 
         #if defined WORLD_OVERWORLD
-            shapeNoise *= exp(-max0(position.y - fogAltitude) * 0.2);
+            shapeNoise *= exp(-abs(position.y - fogAltitude) * 0.14);
 
         #elif defined WORLD_NETHER
             //fogDensity *= mix(1.2, 1.0, sqrt(quinticStep(0.0, 1.0, min(125.0, position.y) / 125.0)));
