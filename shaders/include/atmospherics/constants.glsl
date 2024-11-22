@@ -33,7 +33,7 @@ const vec3 ozoneExtinctionCoefficients    = vec3(4.51103766177301e-21, 3.2854797
 const vec3 rayleighScatteringCoefficientsEnd = vec3(3e-5, 4e-6, 1e-5);
 const vec3 mieScatteringCoefficientsEnd      = vec3(5.2e-3, 1e-6, 5e-3);
 const vec3 rayleighExtinctionCoefficientsEnd = vec3(3e-5, 1e-1, 4e-5);
-const vec3 mieExtinctionCoefficientsEnd      = vec3(5e-3, 2e-2, 9e-3) / mieScatteringAlbedo;
+const vec3 mieExtinctionCoefficientsEnd      = vec3(7e-3, 2e-2, 9e-3) / mieScatteringAlbedo;
 
 #if TONEMAP == ACES
     const mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO,  mieScatteringCoefficients * SRGB_2_AP1_ALBEDO);
@@ -104,7 +104,7 @@ const vec3 sunIrradiance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of lig
 const vec3 moonRadiance   = moonAlbedo * sunIrradiance;
       vec3 moonIrradiance = moonRadiance * coneAngleToSolidAngle(moonAngularRadius); // The rough amount of light the moon emits that reaches the earth
 
-vec3 starIrradiance = blackbody(25000.0) * 300.0;
+vec3 starIrradiance = blackbody(25000.0) * 500.0;
 vec3 starRadiance   = starIrradiance / coneAngleToSolidAngle(starAngularRadius);
 
 float shadowLightAngularRadius = sunAngle < 0.5 ? sunAngularRadius : moonAngularRadius;

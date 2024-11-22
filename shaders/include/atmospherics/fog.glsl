@@ -44,7 +44,7 @@ const float aerialPerspectiveMult = 0.4;
     float airFogTransitionFactor = sin(frameTimeCounter * 2.0);
 
     vec3 airFogAttenuationCoefficients = mix(vec3(0.3, 0.2, 0.3), vec3(0.1, 0.05, 0.1), airFogTransitionFactor);
-    vec3 airFogScatteringCoefficients  = mix(vec3(0.9, 0.7, 0.8), vec3(1.0, 1.00, 1.0), airFogTransitionFactor);
+    vec3 airFogScatteringCoefficients  = mix(vec3(0.8, 0.7, 0.8), vec3(1.0, 1.00, 1.0), airFogTransitionFactor);
 
     const float fogAltitude     = max(0.0, FOG_ALTITUDE - 63.0);
     const float fogThickness    = min(200.0, (FOG_THICKNESS + 40.0) * 2.0);
