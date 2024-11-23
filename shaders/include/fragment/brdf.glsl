@@ -81,7 +81,7 @@ vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     vec3 F0 = vec3(material.F0);
 
     float facing    = 0.5 + 0.5 * VdotL;
-    float roughSurf = facing * (0.9 - 0.4 * facing) * (inversesqrt(NdotH * NdotH + 1e-2) + 2.0);
+    float roughSurf = facing * (0.9 - 0.4 * facing) * (fastInvSqrtN1(NdotH * NdotH + 1e-2) + 2.0);
 
     vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * rcp(9.0);
     vec3 fresnelL = fresnelDielectricDielectric_T(NdotL, vec3(airIOR), material.N);
@@ -180,7 +180,7 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
         return 1.0;
     }
 
-    float rOverLengthT = radiusCos * radiusTan * inversesqrt(1.0 - RdotL * RdotL);
+    float rOverLengthT = radiusCos * radiusTan * fastInvSqrtN1(1.0 - RdotL * RdotL);
     float NdotTr       = rOverLengthT * (NdotV - RdotL * NdotL);
     float VdotTr       = rOverLengthT * (2.0 * NdotV * NdotV - 1.0 - RdotL * VdotL);
 
@@ -216,7 +216,7 @@ vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection)
     float VdotL = dot(viewDirection,   lightDirection);
 
     float NdotHSq = NdotHSquared(shadowLightAngularRadius, NdotL, NdotV, VdotL, NdotL, VdotL);
-    float VdotH   = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
+    float VdotH   = (VdotL + 1.0) * fastInvSqrtN1(2.0 * VdotL + 2.0);
 
     NdotV = abs(NdotV);
     

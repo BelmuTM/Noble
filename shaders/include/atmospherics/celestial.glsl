@@ -64,7 +64,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 		vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 		#if defined WORLD_OVERWORLD
 			#if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-				vec3 cloudsBuffer = texture(CLOUDS_BUFFER, coords).rgb;
+				vec3 cloudsBuffer = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).rgb;
 
 				clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;
 				clouds.a   = cloudsBuffer.b;

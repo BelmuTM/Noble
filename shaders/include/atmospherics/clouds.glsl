@@ -132,11 +132,13 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
     return saturate(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }
 
-float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int stepCount, CloudLayer layer) {
+float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int stepCount, CloudLayer layer, bool animated) {
     float stepSize = 100.0, opticalDepth = 0.0;
 
+    float jitter = animated ? randF() : bayer32(gl_FragCoord.xy);
+
     for(int i = 0; i < stepCount; i++) {
-        float density = calculateCloudsDensity(rayPosition + lightDirection * stepSize * randF(), layer);
+        float density = calculateCloudsDensity(rayPosition + lightDirection * stepSize * jitter, layer);
         opticalDepth += density * stepSize;
         stepSize      = mix(stepSize, stepSize * 0.8, density);
         rayPosition  += lightDirection * stepSize;
@@ -152,14 +154,14 @@ float calculateCloudsPhase(float cosTheta, vec3 mieAnisotropyFactors) {
     return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeakWeight);
 }
 
-vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
+vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated) {
     float cloudsLowerBound = planetRadius     + layer.altitude;
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
     vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e35);
 
-    float jitter      = interleavedGradientNoise(gl_FragCoord.xy);
+    float jitter      = animated ? interleavedGradientNoise(gl_FragCoord.xy) : bayer64(gl_FragCoord.xy);
     float stepSize    = (dists.y - dists.x) / layer.steps;
     vec3  rayPosition = atmosphereRayPosition + rayDirection * (dists.x + stepSize * jitter);
     vec3  increment   = rayDirection * stepSize;
@@ -183,9 +185,9 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection) {
         float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
         float stepTransmittance = exp(-stepOpticalDepth);
 
-        float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition, shadowLightVector, 5, layer);
-        float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition,-up,                1, layer);
-        float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition, up,                2, layer);
+        float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition, shadowLightVector, 5, layer, animated);
+        float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition,-up,                1, layer, animated);
+        float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition, up,                2, layer, animated);
 
         float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
         float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);

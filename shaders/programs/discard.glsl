@@ -11,7 +11,7 @@
     
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 14 */
+    /* RENDERTARGETS: 9 */
 
     void main() {
 	    discard; return;

@@ -13,17 +13,22 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
         vec3 atmosphere = texture(ATMOSPHERE_BUFFER, saturate(coords)).rgb;
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
-        #if defined WORLD_OVERWORLD
-		    #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-                hitCoords *= RENDER_SCALE;
+        
+        #if defined WORLD_OVERWORLD && CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
+            vec3 cloudsBuffer;
 
-                if(clamp(hitCoords, 0.0, RENDER_SCALE) == hitCoords) {
-                    vec3 cloudsBuffer = texture(CLOUDS_BUFFER, hitCoords).rgb;
+            if(saturate(hitCoords) == hitCoords) {
+                cloudsBuffer = texture(CLOUDS_BUFFER, hitCoords).rgb;
+            } else {
+                #if CLOUDMAP == 1
+                    cloudsBuffer = textureLodLinearRGB(CLOUDMAP_BUFFER, saturate(coords * CLOUDMAP_SCALE), ivec2(textureSize(CLOUDMAP_BUFFER, 0)), 0).rgb;
+                #else
+                    cloudsBuffer = vec3(0.0, 0.0, 1.0);
+                #endif
+            }
 
-                    clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;
-                    clouds.a   = cloudsBuffer.b;
-                }
-		    #endif
+            clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;
+            clouds.a   = cloudsBuffer.b;
         #endif
 
         return max0((atmosphere * clouds.a + clouds.rgb) * skylight);

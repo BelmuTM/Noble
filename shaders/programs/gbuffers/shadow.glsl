@@ -67,7 +67,7 @@
             float oldArea = length(dFdx(oldPos)) * length(dFdy(oldPos));
             float newArea = length(dFdx(newPos)) * length(dFdy(newPos));
             
-	        return inversesqrt(oldArea / newArea) * 0.25;
+	        return saturate(fastInvSqrtN1(oldArea / newArea) * 0.25);
         }
     #endif
 
@@ -90,7 +90,7 @@
                 vec3  waterNormals = getWaterNormals(worldPosition, 1.0, 4);
                 float caustics     = waterCaustics(worldPosition, waterNormals) * WATER_CAUSTICS_STRENGTH;
 
-                shadowmap.rgb += caustics;
+                shadowmap.rgb += max0(caustics);
             #endif
         }
     }

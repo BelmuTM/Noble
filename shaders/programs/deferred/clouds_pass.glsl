@@ -11,16 +11,22 @@
     #include "/include/taau_scale.glsl"
 
     #if defined STAGE_VERTEX
-        #include "/programs/vertex_taau.glsl"
+        #include "/programs/vertex_simple.glsl"
 
     #elif defined STAGE_FRAGMENT
 
-        /* RENDERTARGETS: 7 */
+        #if CLOUDMAP == 1
+            /* RENDERTARGETS: 7,14 */
 
-        layout (location = 0) out vec3 clouds;
+            layout (location = 0) out vec3 clouds;
+            layout (location = 1) out vec3 cloudmap;
+        #else
+            /* RENDERTARGETS: 7 */
+
+            layout (location = 0) out vec3 clouds;
+        #endif
 
         in vec2 textureCoords;
-        in vec2 vertexCoords;
 
         #include "/include/common.glsl"
 
@@ -42,8 +48,7 @@
         }
 
         void main() {
-            vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	        if(saturate(fragCoords) != fragCoords) { discard; return; }
+            vec2 vertexCoords = textureCoords * RENDER_SCALE;
 
             clouds = vec3(0.0, 0.0, 1.0);
 
@@ -61,8 +66,20 @@
                 }
             #endif
 
+            #if CLOUDMAP == 1
+                if(clamp(textureCoords, vec2(0.0), vec2(CLOUDMAP_SCALE)) == textureCoords) {
+                    vec3 cloudsCoords   = normalize(unprojectSphere(textureCoords * rcp(CLOUDMAP_SCALE)));
+                    vec4 cloudmapLayer0 = estimateCloudsScattering(cloudLayer0, cloudsCoords, false);
+                    vec4 cloudmapLayer1 = estimateCloudsScattering(cloudLayer1, cloudsCoords, false);
+
+                    cloudmap.rg  = cloudmapLayer0.rg + cloudmapLayer1.rg * cloudmapLayer0.b;
+                    cloudmap.b   = cloudmapLayer0.b  * cloudmapLayer1.b;
+                    cloudmap.rgb = max0(cloudmap.rgb);
+                }
+            #endif
+
             if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) {
-                clouds = texture(CLOUDS_BUFFER, vertexCoords).rgb;
+                clouds = texture(CLOUDS_BUFFER, textureCoords).rgb;
                 return;
             }
 
@@ -73,11 +90,11 @@
             vec4 layer1 = vec4(0.0, 0.0, 1.0, 1e35);
 
             #if CLOUDS_LAYER0_ENABLED == 1
-                layer0 = estimateCloudsScattering(cloudLayer0, cloudsRayDirection);
+                layer0 = estimateCloudsScattering(cloudLayer0, cloudsRayDirection, true);
             #endif
 
             #if CLOUDS_LAYER1_ENABLED == 1
-                layer1 = estimateCloudsScattering(cloudLayer1, cloudsRayDirection);
+                layer1 = estimateCloudsScattering(cloudLayer1, cloudsRayDirection, true);
             #endif
 
             float distanceToClouds = min(layer0.a, layer1.a);
@@ -89,16 +106,16 @@
             clouds = mix(vec3(0.0, 0.0, 1.0), clouds, quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-5 * distanceToClouds)))));
 
             /* Reprojection */
-            vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy * RENDER_SCALE;
+            vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy;
             float prevDepth    = texture(depthtex0, prevPosition.xy).r;
 
-            if(clamp(prevPosition.xy, 0.0, RENDER_SCALE - 1e-3) == prevPosition.xy && prevDepth >= handDepth) {
+            if(saturate(prevPosition.xy) == prevPosition.xy && prevDepth >= handDepth) {
                 vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition.xy).rgb);
 
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
                 
-                float velocityWeight = saturate(length(abs(prevPosition - vertexCoords) * viewSize)) * 0.2 + 0.8;
+                float velocityWeight = saturate(length(abs(prevPosition - textureCoords) * viewSize)) * 0.2 + 0.8;
                       velocityWeight = mix(1.0, velocityWeight, float(CLOUDS_SCALE == 100));
 
                 float weight = saturate(centerWeight * velocityWeight);

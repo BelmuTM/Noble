@@ -52,6 +52,10 @@ const int colortex11Format      = RG32UI;            // Fog
 
 const int colortex13Format      = RGBA16F;           // Deferred
 
+#if CLOUDMAP == 1
+     const int colortex14Format = R11F_G11F_B10F;    // Cloudmap
+#endif
+
 const int colortex15Format      = RGBA16F;           // Gbuffer data
 
 const bool colortex0Clear       = false;

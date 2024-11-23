@@ -160,8 +160,6 @@ void main() {
         lighting += envSpecular;
     }
 
-    //lighting = texture(SHADOWMAP_BUFFER, max(coords.xy, texelSize)).rgb;
-
     #if TAA == 1 && DOF == 0
         lighting = lighting * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
         lighting = reinhard(lighting);

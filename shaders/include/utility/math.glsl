@@ -82,15 +82,6 @@ vec2  rcp(vec2 x)  { return 1.0 / x;        }
 vec3  rcp(vec3 x)  { return 1.0 / x;        }
 vec4  rcp(vec4 x)  { return 1.0 / x;        }
 
-float quinticStep(float edge0, float edge1, float x) {
-    x = saturate((x - edge0) / (edge1 - edge0));
-    return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
-}
-
-float linearStep(float edge0, float edge1, float x) {
-    return saturate((x - edge0) / (edge1 - edge0));
-}
-
 // max absolute error 9.0x10^-3
 // Eberly's polynomial degree 1 - respect bounds
 // input [-1, 1] and output [0, PI]
@@ -99,13 +90,6 @@ float fastAcos(in float inX) {
     float res = -0.156583 * x + HALF_PI; 
     res *= sqrt(1.0 - x); 
     return (inX >= 0) ? res : PI - res; 
-}
-
-// Same cost as Acos + 1 FR
-// Same error
-// input [-1, 1] and output [-PI/2, PI/2]
-float fastAsin(float x) {
-    return HALF_PI - fastAcos(x);
 }
 
 vec2 sincos(float x) {
@@ -136,8 +120,21 @@ float fastSqrtN1(float x) { return sqrtNewton(x, fastSqrt(x));                  
 float fastInvSqrt  (float x) { return uintBitsToFloat(0x5F400000u - (floatBitsToUint(x) >> 1)); }
 float fastInvSqrtN1(float x) { return invSqrtNewton(x, fastInvSqrt(x));                         }
 
+//////////////////////////////////////////////////////////
+/*---------------------- REMAPPING ---------------------*/
+//////////////////////////////////////////////////////////
+
 float remap(float x, float oldLow, float oldHigh, float newLow, float newHigh) {
     return newLow + (x - oldLow) * (newHigh - newLow) / (oldHigh - oldLow);
+}
+
+float quinticStep(float edge0, float edge1, float x) {
+    x = saturate((x - edge0) / (edge1 - edge0));
+    return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
+}
+
+float linearStep(float edge0, float edge1, float x) {
+    return saturate((x - edge0) / (edge1 - edge0));
 }
 
 //////////////////////////////////////////////////////////
