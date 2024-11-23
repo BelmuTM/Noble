@@ -127,7 +127,7 @@
 		if(blockId == WATER_ID) { 
 			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
 
-			vec3 scenePositionWater = scenePosition;
+			vec3 scenePositionWater = scenePosition + cameraPosition;
 
 			#if WATER_PARALLAX == 1
 				if(length(scenePosition) < WATER_PARALLAX_DISTANCE) {
@@ -137,7 +137,7 @@
 			#endif
 
     		material.albedo = shadowmap.rgb;
-			material.normal = tbn * getWaterNormals(scenePositionWater + cameraPosition, WATER_OCTAVES);
+			material.normal = tbn * getWaterNormals(scenePositionWater, WATER_OCTAVES);
 		
 		} else {
 			#if defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT

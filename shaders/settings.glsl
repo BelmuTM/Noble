@@ -270,7 +270,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define WEATHER_TILT            1 // [0 1]
 #define WEATHER_TILT_ANGLE_X 45.0
-#define WEATHER_TILT_ANGLE_Y  0.0
+#define WEATHER_TILT_ANGLE_Z  0.0
 
 //////////////////////////////////////////////////////////
 /*----------------------- TERRAIN ----------------------*/
