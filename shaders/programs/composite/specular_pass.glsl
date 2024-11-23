@@ -109,9 +109,11 @@ void main() {
                 visibility *= getCloudsShadows(viewToScene(viewPosition0));
             #endif
 
+            if(material.id == WATER_ID) visibility = material.albedo;
+
             if(visibility != vec3(0.0)) {
-                sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowVec) * directIlluminance * saturate(visibility);
-            }
+                sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowVec) * visibility * directIlluminance;
+            }    
         #endif
 
         #if REFLECTIONS > 0
@@ -157,6 +159,8 @@ void main() {
         lighting += sunSpecular;
         lighting += envSpecular;
     }
+
+    //lighting = texture(SHADOWMAP_BUFFER, max(coords.xy, texelSize)).rgb;
 
     #if TAA == 1 && DOF == 0
         lighting = lighting * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);

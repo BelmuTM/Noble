@@ -13,29 +13,31 @@
 /*---------------------- BUFFERS -----------------------*/
 //////////////////////////////////////////////////////////
 
-#define MAIN_BUFFER         colortex0
+#define MAIN_BUFFER             colortex0
 
-#define GBUFFERS_DATA       colortex1
+#define GBUFFERS_DATA           colortex1
 
-#define REFLECTIONS_BUFFER  colortex2
-#define SHADOWMAP_BUFFER    colortex3
-#define ACCUMULATION_BUFFER colortex4
+#define REFLECTIONS_BUFFER      colortex2
+#define SHADOWMAP_BUFFER        colortex3
+#define ACCUMULATION_BUFFER     colortex4
 
-#define ILLUMINANCE_BUFFER  colortex5
-#define ATMOSPHERE_BUFFER   colortex6
-#define CLOUDS_BUFFER       colortex7
+#define ILLUMINANCE_BUFFER      colortex5
+#define ATMOSPHERE_BUFFER       colortex6
+#define CLOUDS_BUFFER           colortex7
 
-#define HISTORY_BUFFER      colortex8
-#define DIRECT_BUFFER       colortex9
-#define MOMENTS_BUFFER      colortex10
+#define HISTORY_BUFFER          colortex8
+#define DIRECT_BUFFER           colortex9
+#define MOMENTS_BUFFER          colortex10
 
-#define FOG_BUFFER          colortex11
+#define FOG_BUFFER              colortex11
 
-#define AO_BUFFER           colortex12
-#define DEFERRED_BUFFER     colortex13
+#define AO_BUFFER               colortex12
+#define DEFERRED_BUFFER         colortex13
 
-#define LUT_BUFFER          colortex6
-#define RASTER_BUFFER       colortex15
+#define GEOMETRIC_NORMAL_BUFFER colortex14
+
+#define LUT_BUFFER              colortex6
+#define RASTER_BUFFER           colortex15
 
 //////////////////////////////////////////////////////////
 /*------------------------ MATH ------------------------*/
@@ -66,7 +68,7 @@ const float shadowIntervalSize  = 2.0;
 
 const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
-#define HANDLIGHT_DISTANCE 10.0
+#define HANDLIGHT_DISTANCE 20.0
 
 #define DIRECTIONAL_LIGHTMAP 1 // [0 1]
 
@@ -94,7 +96,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define SHADOW_DEPTH_STRETCH 0.25
 
 #define NORMAL_SHADOW_PENUMBRA 1.0
-#define MIN_SHADOW_PENUMBRA    0.2
+#define MIN_SHADOW_PENUMBRA    0.5
 
 // Soft Shadows
 #define BLOCKER_SEARCH_SAMPLES   8
@@ -237,9 +239,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // FOG
 
-#define NETHER_FOG 1 // [0 1]
-#define END_FOG 1    // [0 1]
-
 #define AIR_FOG                   1 // [0 1 2]
 #define AIR_FOG_SCATTERING_STEPS 16 // [8 16 24 32 40 48 64]
 #define AIR_FOG_OCTAVES           5
@@ -251,6 +250,9 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define AERIAL_PERSPECTIVE 1 // [0 1]
 
+#define NETHER_FOG 1 // [0 1]
+#define END_FOG 1    // [0 1]
+
 // STARS
 
 #define STARS_SCALE      280 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300 310 320 330 340 350 360 370 380 390 400]
@@ -258,6 +260,12 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define STARS_LUMINANCE   50 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define STARS_MIN_TEMP  2500
 #define STARS_MAX_TEMP 50000
+
+// WEATHER
+
+#define WEATHER_TILT            1 // [0 1]
+#define WEATHER_TILT_ANGLE_X 45.0
+#define WEATHER_TILT_ANGLE_Y  0.0
 
 //////////////////////////////////////////////////////////
 /*----------------------- TERRAIN ----------------------*/
@@ -295,7 +303,12 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // WATER
 
-#define WATER_CAUSTICS               0 // [0 1]
+#define WATER_PARALLAX             1 // [0 1]
+#define WATER_PARALLAX_DEPTH     0.1 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define WATER_PARALLAX_LAYERS      4
+#define WATER_PARALLAX_DISTANCE 64.0
+
+#define WATER_CAUSTICS               1 // [0 1]
 #define WATER_CAUSTICS_STRENGTH    1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define WATER_CAUSTICS_BLUR_RADIUS 0.0
 
@@ -307,13 +320,13 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define WATER_FOG        1 // [0 1]
 #define WATER_FOG_STEPS 16 // [4 8 16 32]
 
-#define WATER_ABSORPTION_R 30 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
-#define WATER_ABSORPTION_G 9  // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
-#define WATER_ABSORPTION_B 4  // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
+#define WATER_ABSORPTION_R 40 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
+#define WATER_ABSORPTION_G 19 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
+#define WATER_ABSORPTION_B 14 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
 
-#define WATER_SCATTERING_R 1 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
-#define WATER_SCATTERING_G 6 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
-#define WATER_SCATTERING_B 5 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
+#define WATER_SCATTERING_R 2 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
+#define WATER_SCATTERING_G 7 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
+#define WATER_SCATTERING_B 6 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
 
 #define UNDERWATER_DISTORTION         1
 #define WATER_DISTORTION_SPEED     0.40

@@ -37,7 +37,7 @@
 
 	    #if RENDER_MODE == 0 && WAVING_PLANTS == 1
             animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(gl_MultiTexCoord1.y * rcp240));
-            gl_Position = transform(shadowModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+            gl_Position = project(gl_ProjectionMatrix, transform(shadowModelView, worldPosition));
 	    #else
             gl_Position = ftransform();
         #endif
@@ -62,11 +62,12 @@
 
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
         float waterCaustics(vec3 oldPos, vec3 normal) {
-	        vec3 newPos = oldPos + refract(shadowLightVector, normal, 0.75) * 15.0;
+	        vec3 newPos = oldPos + refract(shadowLightVector, normal, airIOR / 1.333);
 
             float oldArea = length(dFdx(oldPos)) * length(dFdy(oldPos));
             float newArea = length(dFdx(newPos)) * length(dFdy(newPos));
-	        return oldArea / newArea * 0.2;
+            
+	        return inversesqrt(oldArea / newArea) * 0.25;
         }
     #endif
 
@@ -86,10 +87,7 @@
             shadowmap.rgb = vec3(1.0);
 
             #if WATER_CAUSTICS == 1
-                shadowmap.a = 0.0;
-
-                vec3  waterNormals = getWaterNormals(worldPosition, 5.0, 3);
-                      waterNormals = pow3(waterNormals);
+                vec3  waterNormals = getWaterNormals(worldPosition, 1.0, 4);
                 float caustics     = waterCaustics(worldPosition, waterNormals) * WATER_CAUSTICS_STRENGTH;
 
                 shadowmap.rgb += caustics;

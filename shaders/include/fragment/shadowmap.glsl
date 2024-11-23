@@ -113,10 +113,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
 
             if(NdotL < EPS) return vec3(0.0);
 
-            if(texture(shadowcolor0, shadowPosDistort.xy).a > 0.0)
-                penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * (shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
-            else
-                penumbraSize = 0.0;
+            penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * (shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
         #endif
 
         return PCF(shadowPosition, penumbraSize, selfIntersectionBias);

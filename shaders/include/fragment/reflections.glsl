@@ -46,7 +46,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
         float skylight = getSkylightFalloff(material.lightmap.y);
 
         vec3  viewDirection = normalize(viewPosition);
-        mat3  tbn           = constructViewTBN(material.normal);
+        mat3  tbn           = calculateTBN(material.normal);
         float NdotV         = dot(material.normal, -viewDirection);
 
         float G1 = G1_Smith_GGX(NdotV, alphaSq);

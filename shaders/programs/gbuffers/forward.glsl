@@ -59,7 +59,7 @@
 
 		scenePosition = transform(gbufferModelViewInverse, viewPosition);
 		
-		gl_Position    = transform(gbufferModelView, scenePosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+		gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
 		#if TAA == 1
@@ -117,12 +117,27 @@
 
 		material.lightmap = lightmapCoords;
 
+		vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
+
+		#if defined WORLD_OVERWORLD && SHADOWS > 0
+			shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], gl_FragDepth, shadowmap.a));
+		#endif
+
 		// WOTAH
 		if(blockId == WATER_ID) { 
 			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
 
-    		material.albedo = vec3(0.0);
-			material.normal = tbn * getWaterNormals(scenePosition + cameraPosition, WATER_OCTAVES);
+			vec3 scenePositionWater = scenePosition;
+
+			#if WATER_PARALLAX == 1
+				if(length(scenePosition) < WATER_PARALLAX_DISTANCE) {
+					vec3 tangentDirection = normalize(scenePosition) * tbn;
+					scenePositionWater.xz = parallaxMappingWater(scenePositionWater.xz, tangentDirection, WATER_OCTAVES);
+				}
+			#endif
+
+    		material.albedo = shadowmap.rgb;
+			material.normal = tbn * getWaterNormals(scenePositionWater + cameraPosition, WATER_OCTAVES);
 		
 		} else {
 			#if defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT
@@ -171,14 +186,9 @@
         		material.N = vec3(f0ToIOR(material.F0));
         		material.K = vec3(0.0);
 
-				vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
 				vec3 skyIlluminance = vec3(0.0);
 
 				#if defined WORLD_OVERWORLD || defined WORLD_END
-					#if defined WORLD_OVERWORLD && SHADOWS > 0
-						shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], gl_FragDepth, shadowmap.a));
-					#endif
-
 					if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
 				#endif
 
@@ -219,7 +229,7 @@
 
 		vec3 labPbrData0 = vec3(1.0, saturate(material.lightmap));
 		vec4 labPbrData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
-		vec4 labPbrData2 = vec4(albedoTex.rgb, material.roughness);
+		vec4 labPbrData2 = vec4(material.albedo, material.roughness);
 		vec2 encNormal   = encodeUnitVector(normalize(material.normal));
 	
 		uvec4 shiftedData0  = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);

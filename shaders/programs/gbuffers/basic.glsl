@@ -23,8 +23,8 @@
 
 		#if defined PROGRAM_ARMOR_GLINT
 			vec3 viewPosition  = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
-			vec3 worldPosition = transform(gbufferModelViewInverse, viewPosition);
-			gl_Position        = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+			vec3 scenePosition = transform(gbufferModelViewInverse, viewPosition);
+			gl_Position        = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
 		#else
 			gl_Position = ftransform();
 		#endif

@@ -5,46 +5,51 @@
 
 float dither = interleavedGradientNoise(gl_FragCoord.xy);
 
-float calculateAirFogPhase(float cosTheta) {
-    float forwardsLobe  = henyeyGreensteinPhase(cosTheta, airFogForwardsLobe);
-    float backwardsLobe = henyeyGreensteinPhase(cosTheta,-airFogBackardsLobe);
-    float forwardsPeak  = henyeyGreensteinPhase(cosTheta, airFogForwardsPeak);
-
-    return mix(mix(forwardsLobe, backwardsLobe, airFogBackScatter), forwardsPeak, airFogPeakWeight);
-}
-
-const float aerialPerspectiveMult = 0.4;
+const float aerialPerspectiveMult = 1.0;
 
 #if defined WORLD_OVERWORLD
+    
+    #if defined IS_IRIS
+        vec3 airFogAttenuationCoefficients = mix(vec3(airFogExtinctionCoefficient), vec3(0.24, 0.28, 0.36), biome_may_sandstorm);
+        vec3 airFogScatteringCoefficients  = mix(vec3(airFogScatteringCoefficient), vec3(0.80, 0.55, 0.36), biome_may_sandstorm);
 
-    vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
-    vec3 airFogScatteringCoefficients  = vec3(airFogScatteringCoefficient);
+        const float fogAltitude  = FOG_ALTITUDE;
+        const float fogThickness = FOG_THICKNESS;
+        
+        float fogFrequency    = mix(0.7, 1.0, biome_may_sandstorm);
+        vec2  fogShapeFactors = mix(vec2(1.5, 0.3), vec2(2.0, 0.3), biome_may_sandstorm);
+        float densityFactor   = wetness;
+        float densityMult     = mix(0.2, 0.7, biome_may_sandstorm);
+    #else
+        vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
+        vec3 airFogScatteringCoefficients  = vec3(airFogScatteringCoefficient);
 
-    const float fogAltitude     = FOG_ALTITUDE;
-    const float fogThickness    = FOG_THICKNESS;
-    const float fogFrequency    = 0.7;
-    const vec2  fogShapeFactors = vec2(1.5, 0.3);
-          float densityFactor   = wetness;
-    const float densityMult     = 0.2;
+        const float fogAltitude     = FOG_ALTITUDE;
+        const float fogThickness    = FOG_THICKNESS;
+        const float fogFrequency    = 0.7;
+        const vec2  fogShapeFactors = vec2(1.5, 0.3);
+              float densityFactor   = wetness;
+        const float densityMult     = 0.2;
+    #endif
 
 #elif defined WORLD_NETHER
 
-    const vec3 airFogAttenuationCoefficients = vec3(0.02, 0.03, 0.3);
-    const vec3 airFogScatteringCoefficients  = vec3(0.2, 0.1, 0.06);
+    const vec3 airFogAttenuationCoefficients = vec3(0.02, 0.03, 0.30);
+    const vec3 airFogScatteringCoefficients  = vec3(0.20, 0.10, 0.06);
 
     const float fogAltitude     = max(0.0, FOG_ALTITUDE - 63.0);
     const float fogThickness    = FOG_THICKNESS * 2.0;
     const float fogFrequency    = 0.7;
-          vec2  fogShapeFactors = vec2(2.0, 0.7);
+    const vec2  fogShapeFactors = vec2(2.0, 0.7);
     const float densityFactor   = 1.0;
-    const float densityMult     = 0.03;
+    const float densityMult     = 0.05;
 
 #elif defined WORLD_END
 
     float airFogTransitionFactor = sin(frameTimeCounter * 2.0);
 
-    vec3 airFogAttenuationCoefficients = mix(vec3(0.3, 0.2, 0.3), vec3(0.1, 0.05, 0.1), airFogTransitionFactor);
-    vec3 airFogScatteringCoefficients  = mix(vec3(0.8, 0.7, 0.8), vec3(1.0, 1.00, 1.0), airFogTransitionFactor);
+    vec3 airFogAttenuationCoefficients = mix(vec3(0.30, 0.20, 0.30), vec3(0.10, 0.05, 0.10), airFogTransitionFactor);
+    vec3 airFogScatteringCoefficients  = mix(vec3(0.80, 0.70, 0.80), vec3(1.00, 1.00, 1.00), airFogTransitionFactor);
 
     const float fogAltitude     = max(0.0, FOG_ALTITUDE - 63.0);
     const float fogThickness    = min(200.0, (FOG_THICKNESS + 40.0) * 2.0);
@@ -69,12 +74,12 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
             float farPlane = far;
         #endif
 
-        float airmass      = pow2(quinticStep(0.0, farPlane, length(scenePosition))) * aerialPerspectiveMult;
+        float airmass      = quinticStep(0.0, farPlane, length(scenePosition.xz)) * aerialPerspectiveMult;
         vec3  opticalDepth = atmosphereAttenuationCoefficients * vec3(airmass);
 
         transmittanceOut = exp(-opticalDepth);
 
-        vec2 phase = vec2(rayleighPhase(VdotL), cornetteShanksPhase(VdotL, mieAnisotropyFactor));
+        vec2 phase = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
         vec3 visibleScattering = saturate((transmittanceOut - 1.0) / -opticalDepth);
 
@@ -83,6 +88,14 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
     }
     
 #endif
+
+float calculateAirFogPhase(float cosTheta) {
+    float forwardsLobe  = henyeyGreensteinPhase(cosTheta, airFogForwardsLobe);
+    float backwardsLobe = henyeyGreensteinPhase(cosTheta,-airFogBackardsLobe);
+    float forwardsPeak  = kleinNishinaPhase    (cosTheta, airFogForwardsPeak);
+
+    return mix(mix(forwardsLobe, backwardsLobe, airFogBackScatter), forwardsPeak, airFogPeakWeight);
+}
 
 #if AIR_FOG == 2
 
@@ -145,19 +158,17 @@ float fogDensity = mix(FOG_DENSITY, 1.0, densityFactor) * 0.4;
         return saturate(shapeNoise) * fogDensity * densityMult;
     }
 
-    /*
     float getFogTransmittance(vec3 rayOrigin, vec3 lightDir) {
-        const float stepSize = 1.0 / VL_TRANSMITTANCE_STEPS;
+        const float stepSize = 1.0 / 16.0;
         vec3 increment   = lightDir * stepSize;
         vec3 rayPosition = rayOrigin + increment * 0.5;
 
         float accumAirmass = 0.0;
-        for(int i = 0; i < VL_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
+        for(int i = 0; i < 16; i++, rayPosition += increment) {
             accumAirmass += getAirFogDensity(rayPosition) * stepSize;
         }
         return exp(-airFogExtinctionCoefficient * accumAirmass);
     }
-    */
 
     void computeVolumetricAirFog(inout vec3 scatteringOut, inout vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float farPlane, float VdotL, vec3 directIlluminance, vec3 skyIlluminance) {
         #if defined WORLD_NETHER && NETHER_FOG == 0

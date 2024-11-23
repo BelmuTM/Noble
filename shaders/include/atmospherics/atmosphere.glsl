@@ -223,7 +223,7 @@ vec3[9] evaluateUniformSkyIrradiance() {
                 for(int n = 0; n < irradiance.length(); n++) irradiance[n] += radiance * shCoefficients[n];
             }
         }
-        for(int n = 0; n < irradiance.length(); n++) irradiance[n] *= PI / (samples.x * samples.y);
+        for(int n = 0; n < irradiance.length(); n++) irradiance[n] *= TAU / (samples.x * samples.y);
     #endif
     return irradiance;
 }
@@ -248,7 +248,7 @@ vec3 evaluateDirectionalSkyIrradiance(vec3[9] irradiance, vec3 wi, float visibil
 
     float[3] zonalHarmonicsCoefficients;
              zonalHarmonicsCoefficients[0] = 0.88622692 * visibility;
-             zonalHarmonicsCoefficients[1] = 1.02332670 * (1.0 - fastSqrt(1.0 - visibility)) * (2.0 - visibility);
+             zonalHarmonicsCoefficients[1] = 1.02332670 * (1.0 - sqrt(1.0 - visibility)) * (2.0 - visibility);
              zonalHarmonicsCoefficients[2] = 0.24770795 * visibility * (2.0 + 6.0 * (1.0 - visibility));
 
     float[9] shCoefficients = calculateSphericalHarmonicsCoefficients(wi);

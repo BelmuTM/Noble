@@ -20,13 +20,18 @@
 
 		directIlluminance = max(texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb, vec3(MIN_RAIN_BRIGHTNESS));
 
-		vec3 worldPosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
+		vec3 scenePosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
 
-		#if RENDER_MODE == 0
-			worldPosition.xz += RAIN_DIRECTION * worldPosition.y;
+		#if WEATHER_TILT == 1
+			const float weatherTiltAngleX = radians(WEATHER_TILT_ANGLE_X), weatherTiltAngleY = radians(WEATHER_TILT_ANGLE_Y);
+
+			vec2 weatherTiltRotation = vec2(cos(weatherTiltAngleX), sin(weatherTiltAngleY));
+			vec2 weatherTiltOffset   = weatherTiltRotation * (cos(length(scenePosition + cameraPosition) * 5.0) * 0.2 + 0.8);
+
+			scenePosition.xz += weatherTiltOffset * scenePosition.y;
 		#endif
 
-		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+		gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 	}
 
@@ -39,12 +44,7 @@
 	in vec2 textureCoords;
 	in vec3 directIlluminance;
 
-	void main() {
-		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-		if(saturate(fragCoords) != fragCoords) discard;
-
-		if(texture(tex, textureCoords).a < 0.102) discard;
-
+	vec4 computeRainColor() {
 		const float density               = 1.0;
 		const float scatteringCoefficient = 0.1;
 		const float alpha                 = 0.1;
@@ -55,8 +55,26 @@
 			const vec3 attenuationCoefficients = vec3(0.338675, 0.0493852, 0.00218174);
 		#endif
 
-		color.rgb = directIlluminance * exp(-attenuationCoefficients * density) * scatteringCoefficient;
-		color.a   = alpha;
+		return vec4(exp(-attenuationCoefficients * density) * scatteringCoefficient, alpha);
+	}
+
+	void main() {
+		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
+		if(saturate(fragCoords) != fragCoords) discard;
+
+		vec4 albedo = texture(tex, textureCoords);
+
+		if(albedo.a < 0.102) discard;
+
+		bool isRain = (abs(albedo.r - albedo.b) > EPS);
+
+		if(isRain) {
+			color = computeRainColor();
+		} else {
+			color = vec4(1.0, 1.0, 1.0, 0.1);
+		}
+
+		color.rgb *= directIlluminance;
 	}
 	
 #endif

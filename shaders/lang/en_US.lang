@@ -572,6 +572,16 @@ option.AERIAL_PERSPECTIVE.comment = Fog that appears at far distances when the a
 value.AERIAL_PERSPECTIVE.0 = §cOFF
 value.AERIAL_PERSPECTIVE.1 = §aON
 
+option.NETHER_FOG = Nether Fog
+option.NETHER_FOG.comment = Fog in the Nether dimension.
+value.NETHER_FOG.0 = §cOFF
+value.NETHER_FOG.1 = §aON
+
+option.END_FOG = End Fog
+option.END_FOG.comment = Fog in the End dimension.
+value.END_FOG.0 = §cOFF
+value.END_FOG.1 = §aON
+
 ### STARS
 
 option.STARS_SCALE = Scale
@@ -585,17 +595,12 @@ suffix.STARS_AMOUNT = %
 option.STARS_LUMINANCE = Luminosity
 option.STARS_LUMINANCE.comment = Adjusts the luminosity of stars in the sky.
 
-### DIMENSIONS FOG
+### WEATHER
 
-option.NETHER_FOG = Nether Fog
-option.NETHER_FOG.comment = Fog in the Nether dimension.
-value.NETHER_FOG.0 = §cOFF
-value.NETHER_FOG.1 = §aON
-
-option.END_FOG = End Fog
-option.END_FOG.comment = Fog in the End dimension.
-value.END_FOG.0 = §cOFF
-value.END_FOG.1 = §aON
+option.WEATHER_TILT = Tilted Weather
+option.WEATHER_TILT.comment = Tilts the weather (rain, snow) by an angle to look mimick strong winds.
+value.WEATHER_TILT.0 = §cOFF
+value.WEATHER_TILT.1 = §aON
 
 ##################### TERRAIN #####################
 
@@ -628,6 +633,14 @@ option.WAVE_AMPLITUDE.comment = Adjusts the amplitude of water waves.
 option.WAVE_LENGTH = Wave Length
 option.WAVE_LENGTH.comment = Adjusts the length of water waves (in meters).
 suffix.WAVE_LENGTH = m
+
+option.WATER_PARALLAX = Water Parallax
+option.WATER_PARALLAX.comment = Applies §bParallax Mapping§r to Water waves.
+value.WATER_PARALLAX.0 = §cOFF
+value.WATER_PARALLAX.1 = §aON
+
+option.WATER_PARALLAX_DEPTH = Water Parallax Depth
+option.WATER_PARALLAX_DEPTH.comment = Adjusts §bWater Parallax§r's depth.
 
 option.WATER_FOG = Water Fog
 option.WATER_FOG.comment = Simulates the absorption and scattering of light in water. §aApproximation§r water fog is a semi-accurate way of computing it. §aVolumetric§r water fog uses ray marching and complex calculations to compute it more accurately.

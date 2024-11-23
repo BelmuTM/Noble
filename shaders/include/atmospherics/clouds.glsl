@@ -15,6 +15,8 @@
         Häggström, F. (2018). Real-time rendering of volumetric clouds. http://www.diva-portal.org/smash/get/diva2:1223894/FULLTEXT01.pdf
 */
 
+uniform sampler3D shadowcolor1;
+
 struct CloudLayer {
     int steps;
     int octaves;
@@ -107,9 +109,13 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
 
     layer.coverage += (0.26 * wetness);
 
-    float weatherMap  = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
-          weatherMap  = isUpperCloudLayer ? weatherMap : weatherMap - 2.0 * wetnessFactor + cloudsWorley(position.xz * 5e-5) * (1.0 + wetnessFactor) - wetnessFactor;
-          weatherMap  = weatherMap * (1.0 - layer.coverage) + layer.coverage;
+    float weatherMap = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
+          weatherMap = isUpperCloudLayer ? weatherMap : weatherMap - 2.0 * wetnessFactor + cloudsWorley(position.xz * 5e-5) * (1.0 + wetnessFactor) - wetnessFactor;
+          weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
+    
+    #if defined IS_IRIS
+        weatherMap = mix(weatherMap, 0.0, biome_arid);
+    #endif
 
     if(weatherMap < EPS) return 0.0;
     weatherMap = saturate(weatherMap);
@@ -121,7 +127,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = saturate(remap(shapeNoise * heightAlter(altitude, weatherMap), 1.0 - mix(0.7, 0.8, wetness * float(!isUpperCloudLayer)) * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = saturate(remap(shapeNoise * heightAlter(altitude, weatherMap), 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
 
     return saturate(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }

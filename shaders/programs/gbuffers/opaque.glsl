@@ -26,6 +26,7 @@
 	#endif
 
 	out vec3 viewPosition;
+	out vec3 scenePosition;
 	out vec4 vertexColor;
 	out mat3 tbn;
 
@@ -65,13 +66,13 @@
 
 		blockId = int((mc_Entity.x - 1000.0) + 0.25);
 	
-		vec3 worldPosition = transform(gbufferModelViewInverse, viewPosition);
+		scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
 		#if RENDER_MODE == 0 && defined PROGRAM_TERRAIN && WAVING_PLANTS == 1
-			animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
+			animate(scenePosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
 		#endif
 	
-		gl_Position    = transform(gbufferModelView, worldPosition).xyzz * diagonal4(gl_ProjectionMatrix) + gl_ProjectionMatrix[3];
+		gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
 		#if TAA == 1
@@ -83,8 +84,8 @@
 
 	/* RENDERTARGETS: 1,3 */
 
-	layout (location = 0) out uvec4 data0;
-	layout (location = 1) out vec2  data1;
+	layout (location = 0) out uvec4 data;
+	layout (location = 1) out vec2  geometricNormal;
 
 	flat in int blockId;
 	in vec2 textureCoords;
@@ -96,11 +97,18 @@
 	#endif
 
 	in vec3 viewPosition;
+	in vec3 scenePosition;
 	in vec4 vertexColor;
 	in mat3 tbn;
 
-	#if POM > 0 && defined PROGRAM_TERRAIN
-		#include "/include/fragment/parallax.glsl"
+	#if defined PROGRAM_TERRAIN
+		#if POM > 0
+			#include "/include/fragment/parallax.glsl"
+		#endif
+
+		#if RAIN_PUDDLES == 1
+			#include "/include/fragment/puddles.glsl"
+		#endif
 	#endif
 
 	#if defined PROGRAM_ENTITY
@@ -112,10 +120,9 @@
 	uniform int heldBlockLightValue2;
 
 	#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0 && !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
-		vec2 computeLightmap(vec3 textureNormal) {
+		vec2 computeLightmap(vec3 scenePosition, vec3 textureNormal) {
 			// Thanks ninjamike1211 for the help
-			vec2 lightmap 	   = lightmapCoords;
-			vec3 scenePosition = viewToScene(viewPosition);
+			vec2 lightmap = lightmapCoords;
 
 			vec2 blocklightDeriv = vec2(dFdx(lightmap.x), dFdy(lightmap.x));
 			vec2 skylightDeriv   = vec2(dFdx(lightmap.y), dFdy(lightmap.y));
@@ -152,7 +159,7 @@
 				gl_FragDepth = gl_FragCoord.z;
 			#endif
 
-			if(length(viewToScene(viewPosition)) < POM_DISTANCE) {
+			if(length(scenePosition) < POM_DISTANCE) {
 				float height = 1.0, traceDistance = 0.0;
 				vec2  shadowCoords = vec2(0.0);
 
@@ -215,7 +222,7 @@
 				normal    = tbn * normal;
 
 				#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
-					lightmap = computeLightmap(normalize(normal));
+					lightmap = computeLightmap(scenePosition, normalize(normal));
 				#endif
 			}
 		#endif
@@ -226,19 +233,9 @@
 
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
 			if(wetness > 0.0 && isEyeInWater == 0) {
-				float porosity    = saturate(specularTex.z * (maxFloat8 / 64.0));
-				vec2 puddleCoords = ((viewToScene(viewPosition) + cameraPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE * 0.01);
-
-				float puddle  = saturate(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
-		  	  	  	  puddle *= pow2(quinticStep(0.0, 1.0, lightmapCoords.y));
-	  				  puddle *= (1.0 - porosity);
-			  	  	  puddle *= wetness;
-			  	  	  puddle *= quinticStep(0.89, 0.99, tbn[2].y);
-					  puddle  = saturate(puddle);
-	
-				F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxFloat8, float(F0 * maxFloat8 <= 229.5)));
-				roughness = mix(roughness, 0.0, puddle);
-				normal    = mix(normal, tbn[2], puddle);
+				float porosity = saturate(specularTex.z * (maxFloat8 / 64.0));
+				
+				rainPuddles(scenePosition, tbn[2], lightmapCoords, porosity, F0, roughness, normal);
 			}
 		#endif
 
@@ -258,8 +255,8 @@
 		#if defined PROGRAM_ENTITY
 			// Handling lightning bolts, end crystal and end crystal beams
 			if(entityId == 10000 || entityId == 10001 || entityId == 10002) {
-				emission   = 1.0;
-				lightmap.x = 1.0;
+				emission = 1.0;
+				lightmap = vec2(1.0);
 			}
 		#endif
 
@@ -273,12 +270,12 @@
 		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxFloat8                )) << uvec4(0, 8, 16, 24);
 		uvec2 shiftedNormal = uvec2(round(encNormal   * maxFloat16               )) << uvec2(0, 16);
 
-		data0.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
-		data0.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;
-		data0.z = shiftedData2.x  | shiftedData2.y | shiftedData2.z | shiftedData2.w;
-		data0.w = shiftedNormal.x | shiftedNormal.y;
+		data.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
+		data.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;
+		data.z = shiftedData2.x  | shiftedData2.y | shiftedData2.z | shiftedData2.w;
+		data.w = shiftedNormal.x | shiftedNormal.y;
 
-		data1 = encodeUnitVector(normalize(tbn[2]));
+		geometricNormal = encodeUnitVector(normalize(tbn[2]));
 	}
 
 #endif

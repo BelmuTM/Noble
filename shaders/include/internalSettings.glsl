@@ -17,10 +17,10 @@ const int colortex0Format       = RGBA16F;           // Main
 const int colortex1Format       = RGBA32UI;          // Gbuffer data
 
 #if REFLECTIONS > 0
-     const int colortex2Format  = RGB16F;            // Reflections
+     const int colortex2Format  = R11F_G11F_B10F;    // Reflections
 #endif
 
-const int colortex3Format       = RGBA16F;           // Geometric normals, shadowmap, bloom
+const int colortex3Format       = RGBA16F;           // Shadowmap, bloom
 const int colortex4Format       = RGBA16F;           // Deferred Lighting
 const int colortex5Format       = RGBA32F;           // Irradiance, clouds shadows
 const int colortex6Format       = R11F_G11F_B10F;    // Atmosphere

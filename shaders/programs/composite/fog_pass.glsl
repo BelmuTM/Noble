@@ -53,12 +53,14 @@ void main() {
         directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
         skyIlluminance    = texture(ILLUMINANCE_BUFFER, vertexCoords).rgb;
         
-        uniformSkyIlluminance = texelFetch(SHADOWMAP_BUFFER, ivec2(0), 0).rgb;
+        uniformSkyIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0, 1), 0).rgb;
+
+        vec3 tmp = normalize(scenePosition0 - gbufferModelViewInverse[3].xyz);
 
         #if defined WORLD_OVERWORLD
-            float VdotL = dot(normalize(scenePosition0 - gbufferModelViewInverse[3].xyz), shadowLightVector);
+            float VdotL = dot(tmp, shadowLightVector);
         #else
-            float VdotL = dot(normalize(scenePosition0 - gbufferModelViewInverse[3].xyz), starVector);
+            float VdotL = dot(tmp, starVector);
         #endif
     #else
         directIlluminance = getBlockLightColor(material);

@@ -11,9 +11,10 @@ vec2 diagonal2(mat4 mat) { return vec2(mat[0].x, mat[1].y); 		   }
 vec3 diagonal3(mat4 mat) { return vec3(mat[0].x, mat[1].y, mat[2].z);  }
 vec4 diagonal4(mat4 mat) { return vec4(mat[0].x, mat[1].y, mat[2].zw); }
 
-vec2 projectOrthogonal(mat4 mat, vec2 v) { return diagonal2(mat) * v + mat[3].xy;  }
-vec3 projectOrthogonal(mat4 mat, vec3 v) { return diagonal3(mat) * v + mat[3].xyz; }
-vec3 transform        (mat4 mat, vec3 v) { return mat3(mat)      * v + mat[3].xyz; }
+vec4 project          (mat4 mat, vec3 v) { return diagonal4(mat) * v.xyzz + mat[3]; }
+vec2 projectOrthogonal(mat4 mat, vec2 v) { return diagonal2(mat) * v + mat[3].xy;   }
+vec3 projectOrthogonal(mat4 mat, vec3 v) { return diagonal3(mat) * v + mat[3].xyz;  }
+vec3 transform        (mat4 mat, vec3 v) { return mat3(mat)      * v + mat[3].xyz;  }
 
 //////////////////////////////////////////////////////////
 /*--------------------- SHADOWS ------------------------*/
@@ -87,9 +88,10 @@ vec3 viewToScene(vec3 viewPosition) {
 	return transform(gbufferModelViewInverse, viewPosition);
 }
 
-mat3 constructViewTBN(vec3 viewNormal) {
-	vec3 tangent = normalize(cross(gbufferModelViewInverse[1].xyz, viewNormal));
-	return mat3(tangent, cross(tangent, viewNormal), viewNormal);
+mat3 calculateTBN(vec3 normal) {
+	vec3 tangent = normal.y == 1.0 ? vec3(1.0, 0.0, 0.0) : normalize(cross(vec3(0.0, 1.0, 0.0), normal));
+	vec3 bitangent = normalize(cross(tangent, normal));
+	return mat3(tangent, bitangent, normal);
 }
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth

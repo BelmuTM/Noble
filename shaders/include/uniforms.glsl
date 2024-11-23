@@ -32,6 +32,15 @@ uniform float wetness;
 uniform float sunAngle;
 uniform int renderStage;
 
+#if defined IS_IRIS
+    uniform int biome_category;
+    uniform int biome_precipitation;
+
+    uniform float biome_arid;
+    uniform float biome_may_rain;
+    uniform float biome_may_sandstorm;
+#endif
+
 uniform sampler2D noisetex;
 
 uniform sampler2D tex;
@@ -67,7 +76,6 @@ uniform float dhNearPlane;
 uniform float dhFarPlane;
 
 uniform sampler3D depthtex2;
-uniform sampler3D shadowcolor1;
 
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;

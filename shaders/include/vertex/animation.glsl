@@ -3,8 +3,8 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-const float windSpeed = 1.5;
-      vec3  windDir   = windSpeed * frameTimeCounter * vec3(-0.2, 0.35, -1.0);
+float windSpeed = mix(1.5, 2.5, wetness);
+vec3  windDir   = windSpeed * frameTimeCounter * vec3(-0.2, 0.35, -1.0);
 
 void wavingLeaves(inout vec3 worldPosition, float skyFalloff) {
 	worldPosition += cameraPosition;

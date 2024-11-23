@@ -81,7 +81,7 @@ vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     vec3 F0 = vec3(material.F0);
 
     float facing    = 0.5 + 0.5 * VdotL;
-    float roughSurf = facing * (0.9 - 0.4 * facing) * ((0.5 + NdotH) / NdotH);
+    float roughSurf = facing * (0.9 - 0.4 * facing) * (inversesqrt(NdotH * NdotH + 1e-2) + 2.0);
 
     vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * rcp(9.0);
     vec3 fresnelL = fresnelDielectricDielectric_T(NdotL, vec3(airIOR), material.N);

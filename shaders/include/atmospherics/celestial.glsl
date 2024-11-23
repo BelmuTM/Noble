@@ -16,7 +16,7 @@ float computeStarfield(vec3 viewPosition, vec3 lightVector) {
 	float radius   = lengthSqr(position - index - 0.5);
 
 	float VdotU  = saturate(dot(normalize(viewPosition), upPosition));
-	float factor = max0(sqrt(sqrt(VdotU)) * (1.0 - rainStrength));
+	float factor = max0(sqrt(sqrt(VdotU)));
 
 	float falloff = pow2(quinticStep(0.5, 0.0, radius));
 
@@ -79,7 +79,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 		#if defined WORLD_OVERWORLD
 			sky += computeStarfield(viewPosition, sunVector);
 		#elif defined WORLD_END
-			sky += computeStarfield(viewPosition, starVector);
+			sky += computeStarfield(viewPosition, starVector) * 4.0;
 		#endif
 
 		return sky * clouds.a + clouds.rgb;

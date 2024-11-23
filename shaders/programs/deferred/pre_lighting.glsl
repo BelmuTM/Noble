@@ -115,8 +115,10 @@
             }
         #endif
 
-        if(ivec2(gl_FragCoord.xy) == ivec2(0))
+        if(ivec2(gl_FragCoord.xy) == ivec2(0, 0))
             illuminance.rgb = directIlluminance;
+        else if(ivec2(gl_FragCoord.xy) == ivec2(0, 1))
+            illuminance.rgb = uniformSkyIlluminance;
         else
             illuminance.rgb = skyIlluminance;
                 
@@ -152,9 +154,6 @@
                 illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), shadowLightVector, cloudLayer0, 20);
             #endif
         #endif
-
-        if(ivec2(gl_FragCoord.xy) == ivec2(0))
-            shadowmap.rgb = uniformSkyIlluminance;
     }
     
 #endif

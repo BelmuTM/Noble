@@ -26,24 +26,36 @@ const float ozonePeakAltitude   = 35e3;
 const float ozoneNumberDensity  = airNumberDensity * exp(-ozonePeakAltitude / 8e3) * (134.628 / 48.0) * ozonePeakDensity;
 const float ozoneUnitConversion = 1e-4; // Converts from cm² to m²
 
-const vec3 rayleighScatteringCoefficients = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
-const vec3 mieScatteringCoefficients      = vec3(21e-6);
-const vec3 ozoneExtinctionCoefficients    = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * ozoneNumberDensity * ozoneUnitConversion;
+const vec3 rayleighScatteringCoefficientsSunny = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
+const vec3 mieScatteringCoefficientsSunny      = vec3(21e-6);
+
+const vec3 rayleighScatteringCoefficientsRain = vec3(6.42e-5, 6.98e-5, 8.9e-5);
+const vec3 mieScatteringCoefficientsRain      = vec3(1e-5);
+
+#if defined IS_IRIS
+    vec3 rayleighScatteringCoefficients = mix(rayleighScatteringCoefficientsSunny, rayleighScatteringCoefficientsRain, wetness * biome_may_rain);
+    vec3 mieScatteringCoefficients      = mix(mieScatteringCoefficientsSunny, mieScatteringCoefficientsRain, wetness * biome_may_rain);
+#else
+    vec3 rayleighScatteringCoefficients = mix(rayleighScatteringCoefficientsSunny, rayleighScatteringCoefficientsRain, wetness);
+    vec3 mieScatteringCoefficients      = mix(mieScatteringCoefficientsSunny, mieScatteringCoefficientsRain, wetness);
+#endif
+
+const vec3 ozoneExtinctionCoefficients = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * ozoneNumberDensity * ozoneUnitConversion;
 
 const vec3 rayleighScatteringCoefficientsEnd = vec3(3e-5, 4e-6, 1e-5);
 const vec3 mieScatteringCoefficientsEnd      = vec3(5.2e-3, 1e-6, 5e-3);
-const vec3 rayleighExtinctionCoefficientsEnd = vec3(3e-5, 1e-1, 4e-5);
+const vec3 rayleighExtinctionCoefficientsEnd = vec3(3e-5, 2e-4, 4e-5);
 const vec3 mieExtinctionCoefficientsEnd      = vec3(7e-3, 2e-2, 9e-3) / mieScatteringAlbedo;
 
 #if TONEMAP == ACES
-    const mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO,  mieScatteringCoefficients * SRGB_2_AP1_ALBEDO);
-    const mat3x3 atmosphereAttenuationCoefficients = mat3x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO, (mieScatteringCoefficients * SRGB_2_AP1_ALBEDO) / mieScatteringAlbedo, ozoneExtinctionCoefficients * SRGB_2_AP1_ALBEDO);
+    mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO,  mieScatteringCoefficients * SRGB_2_AP1_ALBEDO);
+    mat3x3 atmosphereAttenuationCoefficients = mat3x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO, (mieScatteringCoefficients * SRGB_2_AP1_ALBEDO) / mieScatteringAlbedo, ozoneExtinctionCoefficients * SRGB_2_AP1_ALBEDO);
 
     const mat2x3 atmosphereScatteringCoefficientsEnd  = mat2x3(rayleighScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO,  mieScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO);
     const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(rayleighScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO, (mieScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO) / mieScatteringAlbedo, vec3(0.0));
 #else
-    const mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients, mieScatteringCoefficients);
-    const mat3x3 atmosphereAttenuationCoefficients = mat3x3(rayleighScatteringCoefficients, mieScatteringCoefficients / mieScatteringAlbedo, ozoneExtinctionCoefficients);
+    mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients, mieScatteringCoefficients);
+    mat3x3 atmosphereAttenuationCoefficients = mat3x3(rayleighScatteringCoefficients, mieScatteringCoefficients / mieScatteringAlbedo, ozoneExtinctionCoefficients);
 
     const mat2x3 atmosphereScatteringCoefficientsEnd  = mat2x3(rayleighScatteringCoefficientsEnd, mieScatteringCoefficientsEnd);
     const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(rayleighExtinctionCoefficientsEnd, mieExtinctionCoefficientsEnd, vec3(0.0));

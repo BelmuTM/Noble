@@ -42,6 +42,8 @@
                 } else if(int(gl_FragCoord.x) > 0 && int(gl_FragCoord.x) < 10) {
                     illuminanceOut = skyIlluminance[int(gl_FragCoord.x) - 1];
                 }
+            } else {
+                discard;
             }
         }
         

@@ -60,3 +60,29 @@ vec3 getWaterNormals(vec3 worldPosition, float strength, int octaves) {
 
     return normalize(vec3(-steps.x, dStep * 2.0, -steps.y));
 }
+
+vec2 parallaxMappingWater(vec2 coords, vec3 tangentDirection, int octaves) {
+    const float layerHeight = 1.0 / WATER_PARALLAX_LAYERS;
+
+    vec2 increment = tangentDirection.xy / tangentDirection.z * WATER_PARALLAX_DEPTH * layerHeight;
+
+    float currHeight = calculateWaveHeightGerstner(coords, octaves);
+    float prevHeight;
+    
+    float traceDistance = 0.0;
+
+    for(int i = 0; i < WATER_PARALLAX_LAYERS && traceDistance < currHeight; i++) {
+        coords        -= increment;
+        prevHeight     = currHeight;
+        currHeight     = calculateWaveHeightGerstner(coords, octaves);
+        traceDistance += layerHeight;
+    }
+
+    vec2 prevCoords = coords + increment;
+    
+    float beforeHeight = prevHeight - traceDistance + layerHeight;
+    float afterHeight  = currHeight - traceDistance;
+    float weight       = afterHeight / (afterHeight - beforeHeight);
+
+    return mix(coords, prevCoords, weight);
+}
