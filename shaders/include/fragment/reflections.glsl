@@ -37,7 +37,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
     #endif
 }
 
-float jitter = temporalBlueNoise(gl_FragCoord.xy).r;
+float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
 #if REFLECTIONS == 1
 

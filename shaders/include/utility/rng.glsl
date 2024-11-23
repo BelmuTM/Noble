@@ -54,8 +54,8 @@ vec2 taaJitter(vec4 pos) {
     vec2  rand2F() { return vec2(randF(), randF());                              }
 #endif
 
-vec3 temporalBlueNoise(vec2 uv) {
-    return fract(texelFetch(noisetex, ivec2(uv) % noiseTextureResolution, 0).rgb + GOLDEN_RATIO * frameCounter);
+float temporalBlueNoise(vec2 uv) {
+    return fract(texelFetch(noisetex, ivec2(uv) % noiseTextureResolution, 0).rgb + GOLDEN_RATIO * frameCounter).r;
 }
 
 float interleavedGradientNoise(vec2 uv) {

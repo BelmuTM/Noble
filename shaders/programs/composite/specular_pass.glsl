@@ -10,6 +10,8 @@ layout (location = 0) out vec3 lighting;
 in vec2 textureCoords;
 in vec2 vertexCoords;
 
+uniform usampler2D colortex11;
+
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 

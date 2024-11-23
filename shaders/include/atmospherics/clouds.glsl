@@ -16,6 +16,7 @@
 */
 
 uniform sampler3D shadowcolor1;
+uniform sampler3D colortex11;
 
 struct CloudLayer {
     int steps;
