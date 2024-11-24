@@ -572,6 +572,10 @@ option.AERIAL_PERSPECTIVE.comment = Fog that appears at far distances when the a
 value.AERIAL_PERSPECTIVE.0 = §cOFF
 value.AERIAL_PERSPECTIVE.1 = §aON
 
+option.AERIAL_PERSPECTIVE_DENSITY = Aerial Perspective Density
+option.AERIAL_PERSPECTIVE_DENSITY.comment = Adjusts the density of §bAerial Perspective§r.
+suffix.AERIAL_PERSPECTIVE_DENSITY = x
+
 option.NETHER_FOG = Nether Fog
 option.NETHER_FOG.comment = Fog in the Nether dimension.
 value.NETHER_FOG.0 = §cOFF
