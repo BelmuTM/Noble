@@ -252,9 +252,13 @@
 
 		lightmap.x = max(handLight, lightmap.x);
 
+		int id = blockId;
+
 		#if defined PROGRAM_ENTITY
 			// Handling lightning bolts, end crystal and end crystal beams
-			if(entityId == 10000 || entityId == 10001 || entityId == 10002) {
+			if(entityId == 10000) id = LIGHTNING_BOLT_ID;
+
+			if(entityId == 10001 || entityId == 10002) {
 				emission = 1.0;
 				lightmap = vec2(1.0);
 			}
@@ -265,10 +269,10 @@
 		vec4 labPbrData2 = vec4(albedoTex.rgb, roughness);
 		vec2 encNormal   = encodeUnitVector(normalize(normal));
 	
-		uvec4 shiftedData0  = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxFloat8                )) << uvec4(0, 8, 16, 24);
-		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxFloat8                )) << uvec4(0, 8, 16, 24);
-		uvec2 shiftedNormal = uvec2(round(encNormal   * maxFloat16               )) << uvec2(0, 16);
+		uvec4 shiftedData0  = uvec4(round(labPbrData0 * labPbrData0Range), id) << uvec4(0, 1, 14, 26);
+		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxFloat8           )) << uvec4(0, 8, 16, 24);
+		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxFloat8           )) << uvec4(0, 8, 16, 24);
+		uvec2 shiftedNormal = uvec2(round(encNormal   * maxFloat16          )) << uvec2(0, 16);
 
 		data.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
 		data.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;
