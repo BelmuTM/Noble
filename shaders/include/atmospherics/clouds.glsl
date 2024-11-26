@@ -110,8 +110,17 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
 
     layer.coverage += (0.26 * wetness);
 
-    float weatherMap = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
-          weatherMap = isUpperCloudLayer ? weatherMap : weatherMap - 2.0 * wetnessFactor + cloudsWorley(position.xz * 5e-5) * (1.0 + wetnessFactor) - wetnessFactor;
+    float worley = cloudsWorley(position.xz * 5e-5);
+
+    float weitherMapLayer0  = pow(FBM(position.xz * layer.scale * 3.5, layer.octaves, layer.frequency), 2.0);
+          weitherMapLayer0 *= sqrt(texture(noisetex, position.xz * 1e-4).g);
+          weitherMapLayer0 += cloudsWorley(position.xz * 5e-5) * (1.0 + wetnessFactor);
+          weitherMapLayer0 -= wetnessFactor;
+
+    float weitherMapLayer1  = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
+          weitherMapLayer1 *= saturate(texture(noisetex, position.xz * 2e-4).b * 0.8 + 0.5);
+
+    float weatherMap = isUpperCloudLayer ? weitherMapLayer1 : weitherMapLayer0;
           weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
     
     #if defined IS_IRIS
@@ -128,7 +137,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
 
     vec4  shapeTex   = texture(depthtex2, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = saturate(remap(shapeNoise * heightAlter(altitude, weatherMap), 1.0 - 0.7 * weatherMap, 1.0, 0.0, 1.0));
+          shapeNoise = saturate(remap(shapeNoise * heightAlter(altitude, weatherMap), 1.0 - 0.72 * weatherMap, 1.0, 0.0, 1.0));
 
     return saturate(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }
