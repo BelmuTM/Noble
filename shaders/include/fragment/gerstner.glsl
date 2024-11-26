@@ -3,11 +3,11 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-float gerstnerWaves(vec2 coords, float time, float steepness, float amplitude, float lambda, vec2 direction) {
-    const float g = 9.81; // Earth's gravity constant
+const float g = 9.81; // Earth's gravitational constant
 
+float gerstnerWaves(vec2 coords, float time, float steepness, float amplitude, float lambda, vec2 direction) {
 	float k = TAU / lambda;
-    float x = (sqrt(g * k)) * time - k * dot(direction, coords);
+    float x = fastSqrtN1(g * k) * time - k * dot(direction, coords);
 
     return amplitude * pow(sin(x) * 0.5 + 0.5, steepness);
 }
@@ -21,19 +21,19 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
     float amplitude = WAVE_AMPLITUDE;
     float lambda    = WAVE_LENGTH;
 
-    const float angle   = 2.6;
+    const float angle   = radians(155.0);
 	const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
 
-    vec2 direction = vec2(0.786, 0.352);
+    vec2 direction = vec2(0.2, 0.3);
 
     for(int i = 0; i < octaves; i++) {
-        float noise = FBM(position * fastInvSqrtN1(lambda) - (speed * direction), 1, 0.7);
+        float noise = FBM(position * fastInvSqrtN1(lambda) - (speed * direction), 2, 1.0);
 
-        height += gerstnerWaves(position + vec2(noise, -noise) * sqrt(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
+        height += gerstnerWaves(position + vec2(noise, -noise) * fastSqrtN1(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
 
-        steepness *= 1.02;
+        steepness *= 1.05;
         amplitude *= 0.90;
-        lambda    *= 0.89;
+        lambda    *= 0.85;
         direction *= rotation;
     }
     return height;
