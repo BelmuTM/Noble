@@ -242,5 +242,5 @@ float calculateCloudsShadows(vec3 shadowPosition, vec3 rayDirection, CloudLayer 
     for(int i = 0; i < stepCount; i++, rayPosition += increment) {
         opticalDepth += calculateCloudsDensity(rayPosition, layer);
     }
-    return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);
+    return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize * 2.0);
 }

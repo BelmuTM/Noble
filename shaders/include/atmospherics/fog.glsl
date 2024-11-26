@@ -210,8 +210,8 @@ float calculateAirFogPhase(float cosTheta) {
                 vec3 shadowColor = vec3(1.0);
             #endif
 
-            float distanceFalloff = quinticStep(0.0, 1.0, exp2(-2.0 * length(rayPosition - cameraPosition) / farPlane));
-            float densityFog      = getAirFogDensity(rayPosition) * distanceFalloff;
+            float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-2.0 * length(rayPosition - cameraPosition) / farPlane));
+            float densityFog         = getAirFogDensity(rayPosition) * distanceFalloffFog;
 
             vec3 stepScatteringDirect   = vec3(0.0);
             vec3 stepScatteringIndirect = vec3(0.0);
@@ -237,7 +237,10 @@ float calculateAirFogPhase(float cosTheta) {
                     float farPlane = far;
                 #endif
 
-                float airmassAerial      = linearStep(0.0, farPlane, length(endPosition.xz)) * rayLength * 10.0 * AERIAL_PERSPECTIVE_DENSITY;
+                float heightFalloffAerial   = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08);
+                float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
+
+                float airmassAerial      = rayLength * heightFalloffAerial * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * 10.0;
                 vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
 
                 vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
