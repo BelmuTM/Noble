@@ -60,8 +60,6 @@
             #if defined DISTANT_HORIZONS
                 if(depth >= 1.0) {
                     depthTex = dhDepthTex0;
-                    depth    = texture(dhDepthTex0, vertexCoords).r;
-
                     projectionInverse = dhProjectionInverse;
                 }
             #endif
@@ -78,16 +76,13 @@
                 }
             #endif
 
-            if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) {
-                clouds = texture(CLOUDS_BUFFER, textureCoords).rgb;
-                return;
-            }
+            // if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) return;
 
-            vec3 viewPosition       = screenToView(vec3(textureCoords, depth), projectionInverse, true);
+            vec3 viewPosition       = screenToView(vec3(textureCoords, 1.0), projectionInverse, true);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
-            vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e35);
-            vec4 layer1 = vec4(0.0, 0.0, 1.0, 1e35);
+            vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e9);
+            vec4 layer1 = vec4(0.0, 0.0, 1.0, 1e9);
 
             #if CLOUDS_LAYER0_ENABLED == 1
                 layer0 = estimateCloudsScattering(cloudLayer0, cloudsRayDirection, true);
@@ -120,7 +115,7 @@
 
                 float weight = saturate(centerWeight * velocityWeight);
 
-                clouds = max0(mix(clouds, history, clamp(weight, 0.6, 0.8)));
+                clouds = max0(mix(clouds, history, min(weight, 0.95)));
             }
         }
         
