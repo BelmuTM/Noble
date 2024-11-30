@@ -23,7 +23,7 @@ uniform usampler2D colortex11;
 
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
-#include "/include/fragment/shadowmap.glsl"
+#include "/include/fragment/shadows.glsl"
 
 #include "/include/utility/sampling.glsl"
 

@@ -3,7 +3,7 @@
 /*       GNU General Public License V3.0       */
 /***********************************************/
 
-// Kneemund's Border Attenuation
+// Kneemund's border attenuation (https://github.com/Kneemund)
 float kneemundAttenuation(vec2 pos, float edgeFactor) {
     pos *= 1.0 - pos;
     return 1.0 - quinticStep(edgeFactor, 0.0, minOf(pos));

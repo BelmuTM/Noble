@@ -27,6 +27,7 @@
 
 	out vec3 viewPosition;
 	out vec3 scenePosition;
+	out vec3 midBlock;
 	out vec4 vertexColor;
 	out mat3 tbn;
 
@@ -45,7 +46,7 @@
 		vertexColor    = gl_Color;
 
 		#if defined PROGRAM_ENTITY
-			// Thanks Niemand#1929 for the nametag fix
+			// Thanks Kneemund for the nametag fix (https://github.com/Kneemund)
 			if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
 				gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
 				return;
@@ -71,6 +72,8 @@
 		#if RENDER_MODE == 0 && defined PROGRAM_TERRAIN && WAVING_PLANTS == 1
 			animate(scenePosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
 		#endif
+
+		midBlock = at_midBlock;
 	
 		gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
@@ -98,6 +101,7 @@
 
 	in vec3 viewPosition;
 	in vec3 scenePosition;
+	in vec3 midBlock;
 	in vec4 vertexColor;
 	in mat3 tbn;
 
@@ -129,7 +133,8 @@
 
 			if(lengthSqr(blocklightDeriv) > 1e-10) {
 				vec3 lightmapVectorX = normalize(dFdx(scenePosition) * blocklightDeriv.x + dFdy(scenePosition) * blocklightDeriv.y);
-						lightmap.x     *= saturate(dot(lightmapVectorX, textureNormal) + 0.8) * 0.35 + 0.75;
+
+				lightmap.x *= saturate(dot(lightmapVectorX, textureNormal) + 0.8) * 0.35 + 0.75;
 			} else {
 				lightmap.x *= saturate(dot(tbn[2], textureNormal) + 0.8);
 			}
@@ -263,6 +268,16 @@
 				lightmap = vec2(1.0);
 			}
 		#endif
+
+		// Flickering fire-powered light sources
+		if(id >= FIRE_ID && id <= HANGING_LANTERN_ID) {
+			const float speed = 4.0;
+			float rng         = FBM(ceil(scenePosition + cameraPosition) + frameTimeCounter * speed * 0.1, 1, 0.5);
+			float flickering  = mix(mix(0.8, 0.95, rng), 1.0, (sin(frameTimeCounter * speed * mix(0.3, 0.5, rng)) + 1.0) * 0.5);
+
+			lightmap.x *= flickering;
+			emission   *= flickering;
+		}
 
 		vec3 labPbrData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
 		vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);

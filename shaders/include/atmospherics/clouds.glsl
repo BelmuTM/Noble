@@ -236,15 +236,15 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
     return vec4(scattering, transmittance, distanceToClouds);
 }
 
-float calculateCloudsShadows(vec3 shadowPosition, vec3 rayDirection, CloudLayer layer, int stepCount) {
+float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer, int stepCount) {
     float cloudsLowerBound = planetRadius     + layer.altitude;
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
-    vec2 dists = intersectSphericalShell(shadowPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
+    vec2 dists = intersectSphericalShell(shadowPosition, shadowLightVector, cloudsLowerBound, cloudsUpperBound);
 
     float stepSize    = (dists.y - dists.x) * rcp(stepCount);
-    vec3  increment   = rayDirection * stepSize;
-    vec3  rayPosition = shadowPosition + rayDirection * (dists.x + stepSize * 0.5);
+    vec3  increment   = shadowLightVector * stepSize;
+    vec3  rayPosition = shadowPosition + shadowLightVector * (dists.x + stepSize * 0.5);
 
     float opticalDepth = 0.0;
 

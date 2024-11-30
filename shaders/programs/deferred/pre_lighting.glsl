@@ -55,7 +55,7 @@
     in vec3 uniformSkyIlluminance;
 
     #if defined WORLD_OVERWORLD && SHADOWS > 0
-        #include "/include/fragment/shadowmap.glsl"
+        #include "/include/fragment/shadows.glsl"
     #endif
 
     #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
@@ -128,11 +128,23 @@
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS > 0
+                sampler2D depthTex = depthtex0;
+
+                mat4 projection        = gbufferProjection;
                 mat4 projectionInverse = gbufferProjectionInverse;
+
+                float nearPlane = near;
+                float farPlane  = far;
 
                 #if defined DISTANT_HORIZONS
                     if(texture(depthtex0, vertexCoords).r >= 1.0) {
+                        depthTex = dhDepthTex0;
+
+                        projection        = dhProjection;
                         projectionInverse = dhProjectionInverse;
+
+                        nearPlane = dhNearPlane;
+                        farPlane  = dhFarPlane;
                     }
                 #endif
 
@@ -140,7 +152,9 @@
 
                 if(material.depth0 != 1.0) {
                     vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
-                    vec3 scenePosition   = viewToScene(screenToView(vec3(textureCoords, material.depth0), projectionInverse, true));
+                    vec3 screenPosition  = vec3(textureCoords, material.depth0);
+                    vec3 viewPosition    = screenToView(screenPosition, projectionInverse, true);
+                    vec3 scenePosition   = viewToScene(viewPosition);
 
                     shadowmap.rgb = abs(calculateShadowMapping(scenePosition, geometricNormal, material.depth0, shadowmap.a));
 
@@ -151,7 +165,7 @@
             #endif
 
             #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), shadowLightVector, cloudLayer0, 20);
+                illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), cloudLayer0, 20);
             #endif
         #endif
     }

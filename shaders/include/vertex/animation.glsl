@@ -30,7 +30,7 @@ void wavingPlants(inout vec3 worldPosition, float skyFalloff, bool isTopVertex, 
 	worldPosition    -= cameraPosition;
 }
 
-void hangingLantern(inout vec3 worldPosition, bool isBottomVertex) {
+void swingingLantern(inout vec3 worldPosition, bool isBottomVertex) {
 	worldPosition += cameraPosition;
 
 	vec3 localOrigin   = worldPosition + at_midBlock / 64.0;
@@ -54,7 +54,7 @@ void animate(inout vec3 worldPosition, bool isTopVertex, float skyFalloff) {
 		case DOUBLE_PLANTS_LOWER_ID: wavingPlants(worldPosition, skyFalloff, isTopVertex, false); break;
 		case DOUBLE_PLANTS_UPPER_ID: wavingPlants(worldPosition, skyFalloff, isTopVertex, true ); break;
 		case PLANTS_ID:              wavingPlants(worldPosition, skyFalloff, isTopVertex, false); break;
-		case HANGING_LANTERN_ID:     hangingLantern(worldPosition, !isTopVertex);                 break; 
+		case HANGING_LANTERN_ID:     swingingLantern(worldPosition, !isTopVertex);                break; 
 		default: break;
 	}
 }
