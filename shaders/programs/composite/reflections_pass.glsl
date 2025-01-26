@@ -65,16 +65,16 @@
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	        if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-            sampler2D depthTex = depthtex0;
-            float     depth    = texture(depthtex0, vertexCoords).r;
+            bool  dhFragment = false;
+            float depth      = texture(depthtex0, vertexCoords).r;
 
 			mat4 projection        = gbufferProjection;
 			mat4 projectionInverse = gbufferProjectionInverse;
 
             #if defined DISTANT_HORIZONS
                 if(depth >= 1.0) {
-                    depthTex = dhDepthTex0;
-                    depth    = texture(dhDepthTex0, vertexCoords).r;
+                    dhFragment = true;
+                    depth      = texture(dhDepthTex0, vertexCoords).r;
                     
                     projection        = dhProjection;
                     projectionInverse = dhProjectionInverse;
@@ -88,9 +88,9 @@
             vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
                     
             #if REFLECTIONS == 1
-                reflections = computeRoughReflections(depthTex, projection, viewPosition, material);
+                reflections = computeRoughReflections(dhFragment, projection, viewPosition, material);
             #elif REFLECTIONS == 2
-                reflections = computeSmoothReflections(depthTex, projection, viewPosition, material);
+                reflections = computeSmoothReflections(dhFragment, projection, viewPosition, material);
             #endif
         }
         

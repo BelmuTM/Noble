@@ -45,7 +45,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
     /*------------------ ROUGH REFLECTIONS -----------------*/
     //////////////////////////////////////////////////////////
 
-    vec3 computeRoughReflections(sampler2D depthTex, mat4 projection, vec3 viewPosition, Material material) {
+    vec3 computeRoughReflections(bool dhFragment, mat4 projection, vec3 viewPosition, Material material) {
         float alphaSq = maxEps(material.roughness * material.roughness);
 
         float skylight = getSkylightFalloff(material.lightmap.y);
@@ -66,7 +66,13 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             float NdotL            = abs(dot(material.normal, rayDirection));
 
             vec3 hitPosition; float hit;
-            if(NdotL > 0.0) hit = float(raytrace(depthTex, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+            if(NdotL > 0.0) {
+                if(dhFragment) {
+                    hit = float(raytrace(dhDepthTex0, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+                } else {
+                    hit = float(raytrace(depthtex0, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+                }
+            }
 
             vec3 fresnel;
             if(isEyeInWater == 1 || material.id == WATER_ID) {
@@ -94,7 +100,8 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
     /*------------------ SMOOTH REFLECTIONS ----------------*/
     //////////////////////////////////////////////////////////
 
-    vec3 computeSmoothReflections(sampler2D depthTex, mat4 projection, vec3 viewPosition, Material material) {
+    vec3 computeSmoothReflections(bool dhFragment, mat4 projection, vec3 viewPosition, Material material) {
+
         float alphaSq = maxEps(material.roughness * material.roughness);
 
         float skylight = getSkylightFalloff(material.lightmap.y);
@@ -105,7 +112,13 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float NdotL         = abs(dot(material.normal, rayDirection));
 
         vec3 hitPosition; float hit;
-        if(NdotL > 0.0) hit = float(raytrace(depthTex, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+        if(NdotL > 0.0) {
+            if(dhFragment) {
+                hit = float(raytrace(dhDepthTex0, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+            } else {
+                hit = float(raytrace(depthtex0, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition));
+            }
+        }
 
         vec3 fresnel;
         if(isEyeInWater == 1 || material.id == WATER_ID) {

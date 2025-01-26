@@ -32,6 +32,7 @@
 
 		#include "/include/common.glsl"
 	
+		
 		#if AO == 1
 
 			float multiBounceApprox(float visibility) { 
@@ -39,7 +40,7 @@
 				return visibility / (albedo * visibility + (1.0 - albedo)); 
  			}
 
-			float findMaximumHorizon(sampler2D depthTex, vec3 viewPosition, vec3 viewDirection, vec3 normal, vec3 sliceDir, vec2 radius, mat4 projectionInverse) {
+			float findMaximumHorizon(bool dhFragment, vec3 viewPosition, vec3 viewDirection, vec3 normal, vec3 sliceDir, vec2 radius, mat4 projectionInverse) {
 				float horizonCos = -1.0;
 
 				vec2 stepSize    = radius * rcp(GTAO_HORIZON_STEPS);
@@ -47,7 +48,9 @@
 				vec2 rayPosition = textureCoords + rand2F() * increment;
 
 				for(int i = 0; i < GTAO_HORIZON_STEPS; i++, rayPosition += increment) {
-					float depth = texelFetch(depthTex, ivec2(rayPosition * viewSize * RENDER_SCALE), 0).r;
+					ivec2 coords = ivec2(rayPosition * viewSize * RENDER_SCALE);
+					float depth  = dhFragment ? texelFetch(dhDepthTex0, coords, 0).r : texelFetch(depthtex0, coords, 0).r;
+
 					if(saturate(rayPosition) != rayPosition || depth == 1.0 || depth < handDepth) continue;
 
 					vec3 horizonVec = screenToView(vec3(rayPosition, depth), projectionInverse, true) - viewPosition;
@@ -58,7 +61,7 @@
 				return fastAcos(horizonCos);
 			}
 
-			float GTAO(sampler2D depthTex, vec3 viewPosition, vec3 normal, mat4 projectionInverse, out vec3 bentNormal) {
+			float GTAO(bool dhFragment, vec3 viewPosition, vec3 normal, mat4 projectionInverse, out vec3 bentNormal) {
 				float visibility = 0.0;
 
 				float rcpViewLength = fastRcpLength(viewPosition);
@@ -81,8 +84,8 @@
 					float gamma    = sgnGamma * fastAcos(cosGamma);
 
 					vec2 horizons;
-					horizons.x = -findMaximumHorizon(depthTex, viewPosition, viewDirection, normal,-sliceDir, radius, projectionInverse);
-					horizons.y =  findMaximumHorizon(depthTex, viewPosition, viewDirection, normal, sliceDir, radius, projectionInverse);
+					horizons.x = -findMaximumHorizon(dhFragment, viewPosition, viewDirection, normal,-sliceDir, radius, projectionInverse);
+					horizons.y =  findMaximumHorizon(dhFragment, viewPosition, viewDirection, normal, sliceDir, radius, projectionInverse);
 					horizons   =  gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
 			
 					vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
@@ -97,15 +100,23 @@
 
 		#elif AO == 2
 
-			float SSAO(sampler2D depthTex, mat4 projection, vec3 viewPosition, vec3 normal, mat4 projectionInverse) {
+			float SSAO(bool dhFragment, mat4 projection, vec3 viewPosition, vec3 normal, mat4 projectionInverse) {
 				float occlusion = 0.0;
 
 				for(int i = 0; i < SSAO_SAMPLES; i++) {
 					vec3 rayDirection = generateCosineVector(normal, rand2F());
 					vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
 
-					vec2  sampleCoords = viewToScreen(rayPosition, projection, true).xy;
-					float rayDepth     = screenToView(vec3(sampleCoords, texture(depthTex, sampleCoords * RENDER_SCALE).r), projectionInverse, true).z;
+					vec2 sampleCoords = viewToScreen(rayPosition, projection, true).xy;
+
+					float sampleDepth;
+					if(dhFragment) {
+						sampleDepth = texture(dhDepthTex0, sampleCoords * RENDER_SCALE).r;
+					} else {
+						sampleDepth = texture(depthtex0, sampleCoords * RENDER_SCALE).r;
+					}
+
+					float rayDepth = screenToView(vec3(sampleCoords, sampleDepth), projectionInverse, true).z;
 
 					if(rayDepth >= rayPosition.z + EPS) {
 						occlusion += quinticStep(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
@@ -118,7 +129,7 @@
 
 			#include "/include/fragment/raytracer.glsl"
 
-			float RTAO(sampler2D depthTex, mat4 projection, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+			float RTAO(bool dhFragment, mat4 projection, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
 				vec3 rayPosition = viewPosition + normal * 1e-2;
 				float occlusion  = 1.0;
 
@@ -127,7 +138,14 @@
 				for(int i = 0; i < RTAO_SAMPLES; i++) {
 					vec3 rayDirection = generateCosineVector(normal, rand2F());
 
-					if(!raytrace(depthTex, projection, rayPosition, rayDirection, RTAO_STEPS, randF(), RENDER_SCALE, hitPosition)) {
+					bool hit;
+					if(dhFragment) {
+						hit = raytrace(dhDepthTex0, projection, rayPosition, rayDirection, RTAO_STEPS, randF(), RENDER_SCALE, hitPosition);
+					} else {
+						hit = raytrace(depthtex0, projection, rayPosition, rayDirection, RTAO_STEPS, randF(), RENDER_SCALE, hitPosition);
+					}
+
+					if(!hit) {
 						bentNormal += rayDirection;
 						continue;
 					}
@@ -145,16 +163,18 @@
 			vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 			if(saturate(fragCoords) != fragCoords) { discard; return; }
 			
-			sampler2D depthTex = depthtex0;
-			float     depth    = texture(depthtex0, vertexCoords).r;
+			bool      dhFragment = false;
+			sampler2D depthTex   = depthtex0;
+			float     depth      = texture(depthtex0, vertexCoords).r;
 
 			mat4 projection        = gbufferProjection;
 			mat4 projectionInverse = gbufferProjectionInverse;
 
 			#if defined DISTANT_HORIZONS
 				if(depth >= 1.0) {
-					depthTex = dhDepthTex0;
-					depth    = texture(dhDepthTex0, vertexCoords).r;
+					dhFragment = true;
+					depthTex   = dhDepthTex0;
+					depth      = texture(dhDepthTex0, vertexCoords).r;
 					
 					projection        = dhProjection;
 					projectionInverse = dhProjectionInverse;
@@ -175,16 +195,24 @@
 			vec3 bentNormal = vec3(0.0);
 
 			#if AO == 1
-				ao.b = GTAO(depthTex, viewPosition, material.normal, projectionInverse, bentNormal);
+				ao.b = GTAO(dhFragment, viewPosition, material.normal, projectionInverse, bentNormal);
 			#elif AO == 2
-				ao.b = SSAO(depthTex, projection, viewPosition, material.normal, projectionInverse);
+				ao.b = SSAO(dhFragment, projection, viewPosition, material.normal, projectionInverse);
 			#elif AO == 3
-				ao.b = RTAO(depthTex, projection, viewPosition, material.normal, bentNormal);
+				ao.b = RTAO(dhFragment, projection, viewPosition, material.normal, bentNormal);
 			#endif
 
 			#if AO_FILTER == 1
-			    vec3 closestFragment = getClosestFragment(depthTex, vec3(textureCoords, depth));
-				vec2 prevCoords      = vertexCoords + getVelocity(closestFragment, projectionInverse).xy * RENDER_SCALE;
+				vec3 currFragment = vec3(textureCoords, depth);
+
+			    vec3 closestFragment;
+				if(dhFragment) {
+					closestFragment = getClosestFragment(dhDepthTex0, currFragment);
+				} else {
+					closestFragment = getClosestFragment(depthtex0, currFragment);
+				}
+
+				vec2 prevCoords = vertexCoords + getVelocity(closestFragment, projectionInverse).xy * RENDER_SCALE;
 
 				if(clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords) {
 					vec3 prevAO = texture(AO_BUFFER, prevCoords).rgb;

@@ -9,7 +9,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
     return 1.0 - quinticStep(edgeFactor, 0.0, minOf(pos));
 }
 
-vec3 computeRefractions(sampler2D depthTex, mat4 projection, vec3 viewPosition0, vec3 viewPosition1, Material material, inout vec3 refractedPosition) {
+vec3 computeRefractions(mat4 projection, vec3 viewPosition0, vec3 viewPosition1, Material material, inout vec3 refractedPosition) {
     vec3 n1 = vec3(airIOR), n2 = material.N;
     if(isEyeInWater == 1) {
         n1 = vec3(1.333);

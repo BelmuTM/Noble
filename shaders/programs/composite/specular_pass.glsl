@@ -48,8 +48,6 @@ void main() {
 
     float depth = texture(depthtex0, vertexCoords).r;
 
-    sampler2D depthTex1 = depthtex1;
-
     mat4 projection        = gbufferProjection;
     mat4 projectionInverse = gbufferProjectionInverse;
 
@@ -59,8 +57,6 @@ void main() {
     #if defined DISTANT_HORIZONS
         if(depth >= 1.0) {
             depth = texture(dhDepthTex0, vertexCoords).r;
-
-            depthTex1 = dhDepthTex1;
                     
             projection        = dhProjection;
             projectionInverse = dhProjectionInverse;
@@ -96,7 +92,7 @@ void main() {
 
         #if REFRACTIONS == 1
             if(viewPosition0.z != viewPosition1.z && material.F0 > EPS) {
-                lighting = computeRefractions(depthTex1, projection, viewPosition0, viewPosition1, material, coords);
+                lighting = computeRefractions(projection, viewPosition0, viewPosition1, material, coords);
             }
         #endif
 
