@@ -1,7 +1,22 @@
-/***********************************************/
-/*          Copyright (C) 2024 Belmu           */
-/*       GNU General Public License V3.0       */
-/***********************************************/
+/********************************************************************************/
+/*                                                                              */
+/*    Noble Shaders                                                             */
+/*    Copyright (C) 2025  Belmu                                                 */
+/*                                                                              */
+/*    This program is free software: you can redistribute it and/or modify      */
+/*    it under the terms of the GNU General Public License as published by      */
+/*    the Free Software Foundation, either version 3 of the License, or         */
+/*    (at your option) any later version.                                       */
+/*                                                                              */
+/*    This program is distributed in the hope that it will be useful,           */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of            */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
+/*    GNU General Public License for more details.                              */
+/*                                                                              */
+/*    You should have received a copy of the GNU General Public License         */
+/*    along with this program.  If not, see <https://www.gnu.org/licenses/>.    */
+/*                                                                              */
+/********************************************************************************/
 
 /*
     [Credits]:
@@ -171,7 +186,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
     vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
     if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e35);
 
-    float jitter      = animated ? interleavedGradientNoise(gl_FragCoord.xy) : bayer64(gl_FragCoord.xy);
+    float jitter      = animated ? temporalBlueNoise(gl_FragCoord.xy) : bayer64(gl_FragCoord.xy);
     float stepSize    = (dists.y - dists.x) / layer.steps;
     vec3  rayPosition = atmosphereRayPosition + rayDirection * (dists.x + stepSize * jitter);
     vec3  increment   = rayDirection * stepSize;
@@ -251,5 +266,5 @@ float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer, int stepCoun
     for(int i = 0; i < stepCount; i++, rayPosition += increment) {
         opticalDepth += calculateCloudsDensity(rayPosition, layer);
     }
-    return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize * 2.0);
+    return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);
 }
