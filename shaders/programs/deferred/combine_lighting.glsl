@@ -40,7 +40,9 @@
     		lighting = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
 		#else
         	vec3 direct = texture(DIRECT_BUFFER, vertexCoords).rgb;
-			vec3 albedo = ((uvec3(texture(GBUFFERS_DATA, vertexCoords).z) >> uvec3(0, 8, 16)) & 255u) * rcpMaxFloat8;
+
+			uvec4 dataTexture = texture(GBUFFERS_DATA, vertexCoords);
+			vec3  albedo      = (uvec3(dataTexture.z) >> uvec3(0, 8, 16) & 255u) * rcpMaxFloat8;
 
         	#if ATROUS_FILTER == 1
             	vec3 irradiance = texture(DEFERRED_BUFFER, vertexCoords).rgb;
@@ -48,7 +50,7 @@
             	vec3 irradiance = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
         	#endif
         
-        	lighting = irradiance;
+        	lighting = direct + albedo * irradiance;
 		#endif
 	}
 	

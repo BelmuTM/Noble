@@ -38,7 +38,7 @@ vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material mat
     return clamp16(material.albedo * diffuse * shadowmap.rgb * directIlluminance);
 }
 
-vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
+vec3 sampleMicrosurfaceOpaquePhase(inout vec3 estimate, inout vec3 wr, Material material) {
     mat3 tbn        = calculateTBN(material.normal);
     vec3 microfacet = tbn * sampleGGXVNDF(-wr * tbn, rand2F(), material.roughness);
     vec3 fresnel    = fresnelDielectricConductor(dot(microfacet, -wr), material.N, material.K);
@@ -48,10 +48,11 @@ vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
     vec3 energyConservationFactor = 1.0 - hemisphericalAlbedo(material.N / vec3(airIOR));
 
     vec3 phase = vec3(0.0);
-    phase  = 1.0 - fresnel;
-    phase /= energyConservationFactor;
-    phase *= material.albedo * material.ao;
-    phase *= fresnelDielectricDielectric_T(dot(microfacet, wr), vec3(airIOR), material.N);
+    phase     = 1.0 - fresnel;
+    phase    /= energyConservationFactor;
+    phase    *= material.albedo * material.ao;
+    estimate += material.albedo * EMISSIVE_INTENSITY * 5.0 * material.emission;
+    phase    *= fresnelDielectricDielectric_T(dot(microfacet, wr), vec3(airIOR), material.N);
     
     return phase;
 }
@@ -80,11 +81,9 @@ void pathtrace(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3
             material = getMaterial(rayPosition.xy);
 
             vec3 brdf  = evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material, directIlluminance);
-            vec3 phase = sampleMicrosurfaceOpaquePhase(rayDirection, material);
+            vec3 phase = sampleMicrosurfaceOpaquePhase(estimate, rayDirection, material);
 
-            brdf += material.albedo * EMISSIVE_INTENSITY * 5.0 * material.emission;
-
-            vec3 tracePosition = screenToView(rayPosition, projectionInverse, true) + material.normal * 1e-2;
+            vec3 tracePosition = screenToView(rayPosition, projectionInverse, true) + material.normal * 1e-3;
              
             bool hit = raytrace(depthTex, projection, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
 
