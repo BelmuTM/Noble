@@ -105,8 +105,8 @@
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 	    if(saturate(fragCoords) != fragCoords) { discard; return; }
 
-        sampler2D depthTex = depthtex0;
-        float     depth    = texture(depthtex0, vertexCoords).r;
+        bool  dhFragment = false;
+        float depth    = texture(depthtex0, vertexCoords).r;
 
         mat4 projection        = gbufferProjection;
         mat4 projectionInverse = gbufferProjectionInverse;
@@ -116,8 +116,8 @@
 
         #if defined DISTANT_HORIZONS
             if(depth >= 1.0) {
-                depthTex = dhDepthTex0;
-                depth    = texture(dhDepthTex0, vertexCoords).r;
+                dhFragment = true;
+                depth      = texture(dhDepthTex0, vertexCoords).r;
 
                 projection        = dhProjection;
                 projectionInverse = dhProjectionInverse;
@@ -208,7 +208,7 @@
 
             color.rgb = computeDiffuse(viewPosition, shadowVec, material, isMetal, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
         #else
-            pathtrace(depthTex, projection, projectionInverse, directIlluminance, isMetal, color.rgb, vec3(vertexCoords, depth), directOut);
+            pathtrace(dhFragment, projection, projectionInverse, directIlluminance, isMetal, color.rgb, vec3(vertexCoords, depth), directOut);
 
             #if TEMPORAL_ACCUMULATION == 1
                 float weight = 1.0 / max(color.a, 1.0);
