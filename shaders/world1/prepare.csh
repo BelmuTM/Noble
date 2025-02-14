@@ -1,6 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
-#define STAGE_FRAGMENT
 #define WORLD_END
-
 #include "/programs/prepare/illuminance.glsl"

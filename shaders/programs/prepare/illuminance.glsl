@@ -18,51 +18,42 @@
 /*                                                                              */
 /********************************************************************************/
 
-#if defined WORLD_OVERWORLD || defined WORLD_END
-    #if defined STAGE_VERTEX
-        #include "/settings.glsl"
-        #include "/include/taau_scale.glsl"
-        
-        #include "/include/common.glsl"
+#include "/settings.glsl"
+#include "/include/taau_scale.glsl"
+#include "/include/common.glsl"
 
-        #include "/include/utility/phase.glsl"
-        #include "/include/atmospherics/constants.glsl"
-        #include "/include/atmospherics/atmosphere.glsl"
+#include "/include/utility/phase.glsl"
+#include "/include/atmospherics/constants.glsl"
+#include "/include/atmospherics/atmosphere.glsl"
 
-        out vec3 directIlluminance;
-        out vec3[9] skyIlluminance;
+layout (rgba32f) uniform image2D colorimg5;
 
-        void main() {
-            gl_Position = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
+layout (local_size_x = 10, local_size_y = 1) in;
 
-            directIlluminance = evaluateDirectIlluminance();
-            skyIlluminance    = evaluateUniformSkyIrradiance();
+const ivec3 workGroups = ivec3(1, 1, 1);
+
+shared vec3 skyIlluminance[9];
+
+void main() {
+    uint x = gl_LocalInvocationID.x;
+
+    if (x == 1) {
+        vec3 temp[9] = evaluateUniformSkyIrradiance();
+        for (int i = 0; i < 9; i++) {
+            skyIlluminance[i] = temp[i];
         }
+    }
 
-    #elif defined STAGE_FRAGMENT
+    memoryBarrierShared();
+    barrier();
 
-        /* RENDERTARGETS: 5 */
+    vec3 illuminance = vec3(0.0);
 
-        layout (location = 0) out vec3 illuminanceOut;
+    if (x == 0) {
+        illuminance = evaluateDirectIlluminance();
+    } else if (x > 0 && x < 10) {
+        illuminance = skyIlluminance[x - 1];
+    }
 
-        in vec3 directIlluminance;
-        in vec3[9] skyIlluminance;
-
-        void main() {
-            illuminanceOut = vec3(0.0);
-
-            if(int(gl_FragCoord.y) == 0) {
-                if(int(gl_FragCoord.x) == 0) {
-                    illuminanceOut = directIlluminance;
-                } else if(int(gl_FragCoord.x) > 0 && int(gl_FragCoord.x) < 10) {
-                    illuminanceOut = skyIlluminance[int(gl_FragCoord.x) - 1];
-                }
-            } else {
-                discard;
-            }
-        }
-        
-    #endif
-#else
-    #include "/programs/discard.glsl"
-#endif
+    imageStore(colorimg5, ivec2(x, 0), vec4(illuminance, 0.0));
+}
