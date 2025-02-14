@@ -26,7 +26,7 @@
 */
 
 #include "/settings.glsl"
-#include "/include/internalSettings.glsl"
+#include "/include/internal_settings.glsl"
 
 #include "/include/taau_scale.glsl"
 

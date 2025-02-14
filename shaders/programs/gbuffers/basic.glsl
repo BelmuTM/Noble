@@ -77,11 +77,6 @@
 		#else
 			if(albedoTex.a < 0.102) discard;
 
-			if(renderStage == MC_RENDER_STAGE_OUTLINE) {
-				color = vertexColor;
-				return;
-			}
-
 			albedoTex.rgb *= vertexColor.rgb;
 
 			color = albedoTex;

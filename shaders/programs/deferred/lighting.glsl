@@ -66,8 +66,6 @@
     #include "/include/fragment/brdf.glsl"
     #include "/include/atmospherics/celestial.glsl"
 
-    #include "/include/post/exposure.glsl"
-
     #if GI == 1
         #include "/include/fragment/raytracer.glsl"
         #include "/include/fragment/pathtracer.glsl"
@@ -230,26 +228,5 @@
                 #endif
             #endif
         #endif
-
-        // Alpha blending
-        vec4 basic = texture(RASTER_BUFFER, vertexCoords);
-
-        bool isEnchantmentGlint = basic.a == 0.0;
-        bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-2;
-
-        bool isHand = depth < handDepth;
-
-        float exposure = 1.0;
-
-        if(isEnchantmentGlint || (!isEnchantmentGlint && !isDamageOverlay))
-            exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
-
-        if(isEnchantmentGlint) {
-            color.rgb += basic.rgb / exposure;
-        } else if(isDamageOverlay) {
-            if(!isHand) color.rgb = 2.0 * basic.rgb * color.rgb;
-        } else {
-            if(!isHand) color.rgb = mix(color.rgb, basic.rgb / exposure, basic.a);
-        }
     }
 #endif

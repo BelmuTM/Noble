@@ -46,8 +46,9 @@ uniform usampler2D colortex11;
     #include "/include/fragment/refractions.glsl"
 #endif
 
+#include "/include/post/exposure.glsl"
+
 #if TAA == 1 && DOF == 0
-    #include "/include/post/exposure.glsl"
     #include "/include/post/grading.glsl"
 #endif
 
@@ -171,6 +172,27 @@ void main() {
         lighting  = lighting * transmittance + scattering;
         lighting += sunSpecular;
         lighting += envSpecular;
+    }
+
+    // Alpha blending
+    vec4 basic = texture(RASTER_BUFFER, vertexCoords);
+
+    bool isEnchantmentGlint = basic.a == 0.0;
+    bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-2;
+
+    bool isHand = depth < handDepth;
+
+    float exposure = 1.0;
+
+    if(isEnchantmentGlint || (!isEnchantmentGlint && !isDamageOverlay))
+        exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+
+    if(isEnchantmentGlint) {
+        lighting.rgb += basic.rgb / exposure;
+    } else if(isDamageOverlay) {
+        if(!isHand) lighting.rgb = 2.0 * basic.rgb * lighting.rgb;
+    } else {
+        if(!isHand) lighting.rgb = mix(lighting.rgb, basic.rgb / exposure, basic.a);
     }
 
     #if TAA == 1 && DOF == 0
