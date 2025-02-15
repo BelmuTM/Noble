@@ -3,6 +3,6 @@
 #define STAGE_VERTEX
 
 #define BLOOM_DOWNSAMPLE_PASS
-#define BLOOM_DOWNSAMPLE_PASS_INDEX 8
+#define BLOOM_DOWNSAMPLE_PASS_INDEX 7
 
-#include "/include/post/bloom/bloom_tile_pass.glsl"
+#include "/include/post/bloom/tile_pass.glsl"

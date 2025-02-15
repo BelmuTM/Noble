@@ -210,11 +210,11 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
         float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
         float stepTransmittance = exp(-stepOpticalDepth);
 
-        float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition, shadowLightVector, 5, layer, animated);
+        float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition, shadowLightVector, 8, layer, animated);
         float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition,-up,                1, layer, animated);
         float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition, up,                2, layer, animated);
 
-        float powder    = 8.0 * (1.0 - 0.97 * exp(-2.0 * density));
+        float powder    = 6.5 * (1.0 - 0.97 * exp(-8.0 * density));
         float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
         float powderSky = mix(powder, 1.0, VdotU * 0.5 + 0.5);
 
