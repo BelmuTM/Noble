@@ -40,10 +40,6 @@ in vec2 textureCoords;
 
 #include "/include/atmospherics/constants.glsl"
 
-#if BLOOM == 1
-    #include "/include/post/bloom/upsample.glsl"
-#endif
-
 #if TONEMAP == ACES
     #include "/include/post/aces/lib/splines.glsl"
     #include "/include/post/aces/lib/transforms.glsl"
@@ -68,10 +64,8 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += computeBloom(textureCoords) * exp2(exposure + BLOOM_STRENGTH - 3.0);
+        color += texture(SHADOWMAP_BUFFER, textureCoords * 0.5).rgb * exp2(exposure + BLOOM_STRENGTH - 3.0);
     #endif
-
-    //color = computeBloom(textureCoords);
 
     #if PURKINJE == 1
         scotopicVisionApproximation(color);

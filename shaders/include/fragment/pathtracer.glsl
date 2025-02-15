@@ -51,7 +51,7 @@ vec3 sampleMicrosurfaceOpaquePhase(inout vec3 estimate, inout vec3 wr, Material 
     phase     = 1.0 - fresnel;
     phase    /= energyConservationFactor;
     phase    *= material.albedo * material.ao;
-    estimate += material.albedo * EMISSIVE_INTENSITY * 5.0 * material.emission;
+    estimate += material.albedo * EMISSIVE_INTENSITY * 100.0 * material.emission;
     phase    *= fresnelDielectricDielectric_T(dot(microfacet, wr), vec3(airIOR), material.N);
     
     return phase;

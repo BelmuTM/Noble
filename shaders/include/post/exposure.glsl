@@ -18,13 +18,11 @@
 /*                                                                              */
 /********************************************************************************/
 
-const float minExposure = 6e-5;
+const float minExposure = 4e-5;
 const float maxExposure = 6e-2;
 
-const float bias = 8.0;
-
 float computeEV100fromLuminance(float luminance) {
-    return log2(luminance * bias * sensorSensitivity / calibration);
+    return log2(luminance * sensorSensitivity / calibration);
 }
 
 float computeExposureFromEV100(float ev100) {

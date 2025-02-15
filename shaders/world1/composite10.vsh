@@ -1,6 +1,8 @@
 #version 400 compatibility
 
 #define STAGE_VERTEX
-#define BLOOM_PASS_INDEX 2
 
-#include "/include/post/bloom/downsample.glsl"
+#define BLOOM_DOWNSAMPLE_PASS
+#define BLOOM_DOWNSAMPLE_PASS_INDEX 3
+
+#include "/include/post/bloom/bloom_tile_pass.glsl"
