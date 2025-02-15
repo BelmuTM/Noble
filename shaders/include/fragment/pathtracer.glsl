@@ -45,7 +45,7 @@ vec3 sampleMicrosurfaceOpaquePhase(inout vec3 estimate, inout vec3 wr, Material 
 
     wr = generateCosineVector(microfacet, rand2F());
 
-    vec3 energyConservationFactor = 1.0 - hemisphericalAlbedo(material.N / vec3(airIOR));
+    vec3 energyConservationFactor = 1.0 - hemisphericalAlbedo(material.N);
 
     vec3 phase = vec3(0.0);
     phase     = 1.0 - fresnel;
@@ -57,7 +57,7 @@ vec3 sampleMicrosurfaceOpaquePhase(inout vec3 estimate, inout vec3 wr, Material 
     return phase;
 }
 
-void pathtrace(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3 directIlluminance, bool isMetal, out vec3 irradiance, in vec3 screenPosition, out vec3 direct) {
+void pathtrace(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 directIlluminance, bool isMetal, out vec3 irradiance, in vec3 screenPosition, out vec3 direct) {
     vec3 viewPosition = screenToView(screenPosition, projectionInverse, true);
 
     for(int i = 0; i < GI_SAMPLES; i++) {
@@ -85,7 +85,12 @@ void pathtrace(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3
 
             vec3 tracePosition = screenToView(rayPosition, projectionInverse, true) + material.normal * 1e-3;
              
-            bool hit = raytrace(depthTex, projection, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
+            bool hit;
+            if(dhFragment) {
+                hit = raytrace(dhDepthTex0, projection, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
+            } else {
+                hit = raytrace(depthtex0, projection, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
+            }
 
             if(j == 0) {
                 direct = brdf;
