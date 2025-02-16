@@ -140,9 +140,7 @@
             vec2 prevCoords      = textureCoords + velocity;
 
             if(saturate(prevCoords) == prevCoords) {
-                vec2 jitteredCoords = vertexCoords + taaOffsets[framemod] * texelSize;
-
-                vec3 currColor = textureCubic(DEFERRED_BUFFER, jitteredCoords).rgb;
+                vec3 currColor = textureCubic(DEFERRED_BUFFER, vertexCoords).rgb;
 
                 vec3 history = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
                      history = neighbourhoodClipping(DEFERRED_BUFFER, currColor, history);
