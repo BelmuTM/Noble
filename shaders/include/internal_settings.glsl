@@ -33,6 +33,7 @@ const int colortex1Format       = RGBA32UI;          // Gbuffer data
 
 #if REFLECTIONS > 0
      const int colortex2Format  = R11F_G11F_B10F;    // Reflections
+     const bool colortex2Clear  = false;
 #endif
 
 const int colortex3Format       = RGBA16F;           // Shadowmap, bloom
@@ -43,7 +44,7 @@ const int colortex6Format       = R11F_G11F_B10F;    // Atmosphere
 const vec4 colortex3ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 
 #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-     const int colortex7Format  = R11F_G11F_B10F;    // Clouds
+     const int colortex7Format  = RGBA16F;           // Clouds
      const bool colortex7Clear  = false;
 #endif
 

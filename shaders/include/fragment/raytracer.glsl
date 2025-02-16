@@ -55,6 +55,42 @@ bool raytrace(sampler2D depthTexture, mat4 projection, vec3 viewPosition, vec3 r
     return intersect;
 }
 
+bool raytrace(sampler2D depthTexture, mat4 projection, vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter, float scale, out vec3 rayPosition, out float rayLength) {
+    rayLength = 0.0;
+
+    if(rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) return false;
+
+    rayPosition   = viewToScreen(viewPosition, projection, true);
+    rayDirection  = normalize(viewToScreen(viewPosition + rayDirection, projection, true) - rayPosition);
+    rayDirection *= minOf((sign(rayDirection) - rayPosition) / rayDirection) * rcp(stepCount);
+    rayPosition  += rayDirection * jitter;
+
+    float initialDepth = rayPosition.z;
+
+    float depthLenience = max(abs(rayDirection.z) * 3.0, 0.02 / pow2(viewPosition.z)); // Provided by DrDesten
+
+    bool intersect = false;
+
+    for(int i = 0; i < stepCount && !intersect; i++) {
+        if(saturate(rayPosition.xy) != rayPosition.xy) break;
+
+        float depth = texelFetch(depthTexture, ivec2(rayPosition.xy * viewSize * scale), 0).r;
+        intersect   = abs(depthLenience - (rayPosition.z - depth)) < depthLenience && depth >= handDepth;
+
+        rayPosition += rayDirection;
+    }
+
+    #if defined BINARY_REFINEMENT
+        if(intersect) binarySearch(depthTexture, rayPosition, rayDirection, scale);
+    #endif
+
+    if(intersect) {
+        rayLength = abs(rayPosition.z - initialDepth);
+    }
+
+    return intersect;
+}
+
 /*
 float getMinimumDepthFromLod(vec2 coords, int lod) {
     if(lod == 0) return find2x2MinimumDepth(coords, 1);

@@ -33,12 +33,12 @@
         #if CLOUDMAP == 1
             /* RENDERTARGETS: 7,14 */
 
-            layout (location = 0) out vec3 clouds;
+            layout (location = 0) out vec4 clouds;
             layout (location = 1) out vec3 cloudmap;
         #else
             /* RENDERTARGETS: 7 */
 
-            layout (location = 0) out vec3 clouds;
+            layout (location = 0) out vec4 clouds;
         #endif
 
         in vec2 textureCoords;
@@ -65,7 +65,7 @@
         void main() {
             vec2 vertexCoords = textureCoords * RENDER_SCALE;
 
-            clouds = vec3(0.0, 0.0, 1.0);
+            clouds = vec4(0.0, 0.0, 1.0, 0.0);
 
             sampler2D depthTex = depthtex0;
             float     depth    = texture(depthtex0, vertexCoords).r;
@@ -113,7 +113,8 @@
             clouds.b  = layer0.b  * layer1.b;
 
             /* Aerial Perspective */
-            clouds = mix(vec3(0.0, 0.0, 1.0), clouds, quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-5 * distanceToClouds)))));
+            clouds.rgb = mix(vec3(0.0, 0.0, 1.0), clouds.rgb, quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-5 * distanceToClouds)))));
+            clouds.a   = distanceToClouds;
 
             /* Reprojection */
             vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy;
@@ -130,7 +131,7 @@
 
                 float weight = saturate(centerWeight * velocityWeight);
 
-                clouds = max0(mix(clouds, history, min(weight, 0.7)));
+                clouds.rgb = max0(mix(clouds.rgb, history, min(weight, 0.7)));
             }
         }
         

@@ -37,6 +37,7 @@
 
         out vec2 textureCoords;
         out vec2 vertexCoords;
+        
         out vec3 directIlluminance;
         out vec3 skyIlluminance;
 
@@ -60,6 +61,7 @@
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
+
         in vec3 directIlluminance;
         in vec3 skyIlluminance;
 
@@ -101,12 +103,39 @@
             Material material   = getMaterial(vertexCoords);
             vec3 screenPosition = vec3(textureCoords, depth);
             vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
+
+            float rayLength;
                     
             #if REFLECTIONS == 1
-                reflections = computeRoughReflections(dhFragment, projection, viewPosition, material);
+                reflections = computeRoughReflections(dhFragment, projection, viewPosition, material, rayLength);
             #elif REFLECTIONS == 2
-                reflections = computeSmoothReflections(dhFragment, projection, viewPosition, material);
+                reflections = computeSmoothReflections(dhFragment, projection, viewPosition, material, rayLength);
             #endif
+
+            float reprojectionDepth;
+            if(rayLength < EPS) {
+                reprojectionDepth = texture(CLOUDMAP_BUFFER, textureCoords).a;
+            } else {
+                reprojectionDepth = depth + (material.roughness > 0.1 ? 0.0 : rayLength);
+            }
+
+            vec3 velocity     = getVelocity(vec3(textureCoords, reprojectionDepth), projectionInverse);
+            vec3 prevPosition = vec3(vertexCoords, reprojectionDepth) + velocity;
+
+            vec3 prevReflections = texture(REFLECTIONS_BUFFER, prevPosition.xy).rgb;
+
+            float weight = 1.0 - saturate(1.0 / max(texture(ACCUMULATION_BUFFER, prevPosition.xy).a, 1.0));
+
+            vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
+            float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y);
+
+            float velocityWeight = 1.0 - (saturate(length(velocity.xy * viewSize)) * 0.2 + 0.8);
+
+            weight *= centerWeight * velocityWeight;
+            weight  = saturate(weight);
+            weight *= float(saturate(prevPosition.xy) == prevPosition.xy);
+
+            reflections = max0(mix(reflections, prevReflections, weight));
         }
         
     #endif
