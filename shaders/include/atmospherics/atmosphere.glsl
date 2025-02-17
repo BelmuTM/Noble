@@ -163,7 +163,7 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
                 skyIlluminance[1][2] += atmoSample * saturate(-direction.z);
             }
         }
-        const float sampleWeight = PI / (samples.x * samples.y);
+        const float sampleWeight = TAU / (samples.x * samples.y);
         skyIlluminance[0][0] *= sampleWeight;
         skyIlluminance[0][1] *= sampleWeight;
         skyIlluminance[0][2] *= sampleWeight;
@@ -222,8 +222,8 @@ float[9] calculateSphericalHarmonicsCoefficients(vec3 wi) {
     );
 }
 
-vec3[9] evaluateUniformSkyIrradiance() {
-    vec3[9] irradiance;
+void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
+    
     for(int n = 0; n < irradiance.length(); n++) irradiance[n] = vec3(0.0);
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
@@ -240,7 +240,6 @@ vec3[9] evaluateUniformSkyIrradiance() {
         }
         for(int n = 0; n < irradiance.length(); n++) irradiance[n] *= TAU / (samples.x * samples.y);
     #endif
-    return irradiance;
 }
 
 vec3[9] sampleUniformSkyIrradiance() {

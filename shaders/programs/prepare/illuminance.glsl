@@ -38,10 +38,7 @@ void main() {
     uint x = gl_LocalInvocationID.x;
 
     if (x == 1) {
-        vec3 temp[9] = evaluateUniformSkyIrradiance();
-        for (int i = 0; i < 9; i++) {
-            skyIlluminance[i] = temp[i];
-        }
+        evaluateUniformSkyIrradiance(skyIlluminance);
     }
 
     memoryBarrierShared();
