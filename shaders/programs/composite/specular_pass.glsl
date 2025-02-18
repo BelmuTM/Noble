@@ -175,7 +175,7 @@ void main() {
     }
 
     // Alpha blending
-    vec4 basic = texture(RASTER_BUFFER, vertexCoords);
+    vec4 basic = texture(GBUFFERS_BASIC_BUFFER, vertexCoords);
 
     bool isEnchantmentGlint = basic.a == 0.0;
     bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-2;

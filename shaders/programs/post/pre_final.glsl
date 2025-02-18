@@ -29,7 +29,7 @@
 
 /* RENDERTARGETS: 0 */
 
-layout (location = 0) out vec3 color;
+layout (location = 0) out vec4 colorOut;
 
 in vec2 textureCoords;
 
@@ -53,18 +53,17 @@ in vec2 textureCoords;
 #include "/include/post/grading.glsl"
 
 void main() {
-    vec4 tmp = texture(MAIN_BUFFER, textureCoords);
-    color    = tmp.rgb;
+    vec3 color = logLuvDecode(texture(MAIN_BUFFER, textureCoords));
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
     	if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) return;
 	#endif
 
-    float exposure = computeExposure(tmp.a);
+    float exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += texture(SHADOWMAP_BUFFER, textureCoords * 0.5).rgb * exp2(exposure + BLOOM_STRENGTH - 3.0);
+        color += texture(SHADOWMAP_BUFFER, textureCoords * 0.5).rgb * 0.3;
     #endif
 
     #if PURKINJE == 1
@@ -113,4 +112,6 @@ void main() {
     saturation(color, saturationMul);
     contrast(color, contrastMul);
     liftGammaGain(color, liftMul, gammaMul, gainMul);
+
+    colorOut = logLuvEncode(color);
 }

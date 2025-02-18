@@ -123,7 +123,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
 
             if(avgBlockerDepth < EPS) {
                 subsurfaceDepth = 1.0;
-                return vec3(-1.0);
+                //return vec3(-1.0);
             }
 
             if(NdotL < EPS) return vec3(0.0);

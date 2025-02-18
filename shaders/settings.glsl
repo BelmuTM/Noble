@@ -28,31 +28,31 @@
 /*---------------------- BUFFERS -----------------------*/
 //////////////////////////////////////////////////////////
 
-#define MAIN_BUFFER         colortex0
+#define MAIN_BUFFER           colortex0
 
-#define GBUFFERS_DATA       colortex1
+#define GBUFFERS_DATA         colortex1
 
-#define REFLECTIONS_BUFFER  colortex2
-#define SHADOWMAP_BUFFER    colortex3
-#define ACCUMULATION_BUFFER colortex4
+#define REFLECTIONS_BUFFER    colortex2
+#define SHADOWMAP_BUFFER      colortex3
+#define ACCUMULATION_BUFFER   colortex4
 
-#define ILLUMINANCE_BUFFER  colortex5
-#define ATMOSPHERE_BUFFER   colortex6
-#define CLOUDS_BUFFER       colortex7
+#define ILLUMINANCE_BUFFER    colortex5
+#define ATMOSPHERE_BUFFER     colortex6
+#define CLOUDS_BUFFER         colortex7
 
-#define HISTORY_BUFFER      colortex8
-#define DIRECT_BUFFER       colortex9
-#define MOMENTS_BUFFER      colortex10
+#define HISTORY_BUFFER        colortex8
+#define DIRECT_BUFFER         colortex9
+#define MOMENTS_BUFFER        colortex10
 
-#define FOG_BUFFER          colortex11
+#define FOG_BUFFER            colortex11
 
-#define AO_BUFFER           colortex12
-#define DEFERRED_BUFFER     colortex13
+#define AO_BUFFER             colortex12
+#define DEFERRED_BUFFER       colortex13
 
-#define CLOUDMAP_BUFFER     colortex14
+#define CLOUDMAP_BUFFER       colortex14
 
-#define LUT_BUFFER          colortex6
-#define RASTER_BUFFER       colortex15
+#define LUT_BUFFER            colortex6
+#define GBUFFERS_BASIC_BUFFER colortex15
 
 //////////////////////////////////////////////////////////
 /*------------------------ MATH ------------------------*/
