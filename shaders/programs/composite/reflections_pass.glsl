@@ -131,7 +131,7 @@
             vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
             float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y);
 
-            float velocityWeight = 1.0 - (saturate(length(velocity.xy * viewSize)) * 0.2 + 0.8);
+            float velocityWeight = 1.0 - (saturate(length(velocity.xy * viewSize)) * 0.4 + 0.6);
 
             weight *= centerWeight * velocityWeight;
             weight  = saturate(weight);

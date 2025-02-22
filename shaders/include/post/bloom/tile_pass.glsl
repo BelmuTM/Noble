@@ -65,6 +65,10 @@ const float lodFactor = exp2(-lod);
 
 		const float filterWeights[3] = float[3](0.125, 0.0625, 0.03125);
 
+	#include "/include/uniforms.glsl"
+	#include "/include/utility/math.glsl"
+
+	#if defined BLOOM_DOWNSAMPLE_PASS
 		#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
 			#define BLOOM_SAMPLER MAIN_BUFFER
 		#else
@@ -75,11 +79,23 @@ const float lodFactor = exp2(-lod);
 
 		#define BLOOM_SAMPLER SHADOWMAP_BUFFER
 
-		#include "/include/utility/math.glsl"
 		#include "/include/utility/sampling.glsl"
 
-		const float tileWeight = 1.0 / 8.0;
-		
+		float tileWeight(int lod) {
+			return exp2(-0.5 * lod);
+		}
+	#endif
+
+	#if defined BLOOM_DOWNSAMPLE_PASS
+
+		vec3 sampleBloomBuffer(vec2 coords) {
+			#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
+				return logLuvDecode(textureLod(BLOOM_SAMPLER, coords, 0));
+			#else
+				return textureLod(BLOOM_SAMPLER, coords, 0).rgb;
+			#endif
+		}
+
 	#endif
 
 	void main() {
@@ -97,29 +113,37 @@ const float lodFactor = exp2(-lod);
 
 		#if defined BLOOM_DOWNSAMPLE_PASS
 
-			bloom.rgb  = textureLod(BLOOM_SAMPLER, coords, 0).rgb * filterWeights[0];
+			bloom.rgb  = sampleBloomBuffer(coords).rgb * filterWeights[0];
 
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[0]  * texelSize, 0).rgb * filterWeights[0];
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[1]  * texelSize, 0).rgb * filterWeights[0];
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[2]  * texelSize, 0).rgb * filterWeights[0];
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[3]  * texelSize, 0).rgb * filterWeights[0];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[0]  * texelSize) * filterWeights[0];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[1]  * texelSize) * filterWeights[0];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[2]  * texelSize) * filterWeights[0];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[3]  * texelSize) * filterWeights[0];
 
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[4]  * texelSize, 0).rgb * filterWeights[1];
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[5]  * texelSize, 0).rgb * filterWeights[1];
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[6]  * texelSize, 0).rgb * filterWeights[1];
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[7]  * texelSize, 0).rgb * filterWeights[1];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[4]  * texelSize) * filterWeights[1];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[5]  * texelSize) * filterWeights[1];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[6]  * texelSize) * filterWeights[1];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[7]  * texelSize) * filterWeights[1];
 
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[8]  * texelSize, 0).rgb * filterWeights[2];
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[9]  * texelSize, 0).rgb * filterWeights[2];
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[10] * texelSize, 0).rgb * filterWeights[2];
-			bloom.rgb += textureLod(BLOOM_SAMPLER, coords + filterOffsets[11] * texelSize, 0).rgb * filterWeights[2];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[8]  * texelSize) * filterWeights[2];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[9]  * texelSize) * filterWeights[2];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[10] * texelSize) * filterWeights[2];
+			bloom.rgb += sampleBloomBuffer(coords + filterOffsets[11] * texelSize) * filterWeights[2];
 
 			bloom.a = 0.0;
 
 		#elif defined BLOOM_UPSAMPLE_PASS
 
+			float normalization = 0.0;
+			for(int tile = 0; tile < 9; tile++) normalization += tileWeight(tile);
+			normalization = 1.0 / normalization;
+
 			bloom.rgb = textureBicubic(BLOOM_SAMPLER, coords).rgb;
-			bloom.a   = tileWeight;
+			bloom.a   = tileWeight(BLOOM_UPSAMPLE_PASS_INDEX) * normalization;
+
+			#if BLOOM_UPSAMPLE_PASS_INDEX == 7
+				bloom.rgb *= tileWeight(BLOOM_UPSAMPLE_PASS_INDEX + 1) * normalization;
+			#endif
 
 		#endif
 	}

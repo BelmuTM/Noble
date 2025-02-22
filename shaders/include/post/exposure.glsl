@@ -18,7 +18,7 @@
 /*                                                                              */
 /********************************************************************************/
 
-const float minExposure = 5e-5;
+const float minExposure = 1e-5;
 const float maxExposure = 6e-2;
 
 float computeEV100fromLuminance(float luminance) {

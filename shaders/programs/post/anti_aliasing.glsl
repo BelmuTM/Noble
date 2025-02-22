@@ -47,7 +47,7 @@
 
     /* RENDERTARGETS: 0 */
 
-    layout (location = 0) out vec3 color;
+    layout (location = 0) out vec4 colorOut;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -118,7 +118,7 @@
     #endif
 
     void main() {
-        color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+        vec3 color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
 
         #if TAA == 1
             sampler2D depthTex = depthtex0;
@@ -140,7 +140,9 @@
             vec2 prevCoords      = textureCoords + velocity;
 
             if(saturate(prevCoords) == prevCoords) {
-                vec3 currColor = textureCubic(DEFERRED_BUFFER, vertexCoords).rgb;
+                vec2 jitteredCoords = depth == 1.0 ? vertexCoords : vertexCoords + taaOffsets[framemod] * texelSize;
+
+                vec3 currColor = max0(textureCatmullRom(DEFERRED_BUFFER, jitteredCoords).rgb);
 
                 vec3 history = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
                      history = neighbourhoodClipping(DEFERRED_BUFFER, currColor, history);
@@ -159,14 +161,16 @@
                 }
 
                 float weight = (1.0 - TAA_STRENGTH + velocityWeight * velocityWeightMult) / luminanceWeight;
+                      weight = saturate(weight);
 
-                color = mix(history, currColor, saturate(weight));
+                color = mix(history, currColor, weight);
             }
 
             color = inverseReinhard(color) / computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
         #endif
 
-        color = max0(color);
+        color    = max0(color);
+        colorOut = logLuvEncode(color);
     }
     
 #endif

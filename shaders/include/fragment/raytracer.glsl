@@ -32,7 +32,7 @@ bool raytrace(sampler2D depthTexture, mat4 projection, vec3 viewPosition, vec3 r
 
     rayPosition   = viewToScreen(viewPosition, projection, true);
     rayDirection  = normalize(viewToScreen(viewPosition + rayDirection, projection, true) - rayPosition);
-    rayDirection *= minOf((sign(rayDirection) - rayPosition) / rayDirection) * rcp(stepCount);
+    rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection) * rcp(stepCount);
     rayPosition  += rayDirection * jitter;
 
     float depthLenience = max(abs(rayDirection.z) * 3.0, 0.02 / pow2(viewPosition.z)); // Provided by DrDesten
@@ -62,7 +62,7 @@ bool raytrace(sampler2D depthTexture, mat4 projection, vec3 viewPosition, vec3 r
 
     rayPosition   = viewToScreen(viewPosition, projection, true);
     rayDirection  = normalize(viewToScreen(viewPosition + rayDirection, projection, true) - rayPosition);
-    rayDirection *= minOf((sign(rayDirection) - rayPosition) / rayDirection) * rcp(stepCount);
+    rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection) * rcp(stepCount);
     rayPosition  += rayDirection * jitter;
 
     float initialDepth = rayPosition.z;

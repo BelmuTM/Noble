@@ -26,7 +26,7 @@
 #if defined STAGE_VERTEX
 
     /*
-        const bool colortex0MipmapEnabled = true;
+        const bool colortex3MipmapEnabled = true;
     */
 
     flat out float avgLuminance;
@@ -90,7 +90,7 @@
 
         #if MANUAL_CAMERA == 0 && EXPOSURE > 0
             #if EXPOSURE == 1
-                float avgLuma = luminance(texture(SHADOWMAP_BUFFER, vec2(0.25)).rgb);
+                avgLuminance = luminance(texture(SHADOWMAP_BUFFER, vec2(0.25)).rgb);
             #else
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
                 int closestBinToMedian    = getClosestBinToMedian(pdf);
@@ -100,56 +100,64 @@
                     for(int i = 0; i < HISTOGRAM_BINS; i++) luminanceHistogram[i >> 2][i & 3] = pdf[i];
                 #endif
 
-                float avgLuma = getLuminanceFromBin(closestBinToMedian);
+                avgLuminance = getLuminanceFromBin(closestBinToMedian);
             #endif
 
-            float luma = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
-                  luma = luma > 0.0 ? luma : avgLuma;
-                  luma = isnan(luma) || isinf(luma) ? avgLuma : luma;
+            float prevLuminance = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
+                  prevLuminance = prevLuminance > 0.0 ? prevLuminance : avgLuminance;
+                  prevLuminance = isnan(prevLuminance) || isinf(prevLuminance) ? avgLuminance : prevLuminance;
 
-            float exposureTime = avgLuma < luma ? EXPOSURE_GROWTH : EXPOSURE_DECAY;
-                  avgLuminance = mix(avgLuma, luma, exp(-exposureTime * frameTime));
+            float exposureSpeed = avgLuminance < prevLuminance ? EXPOSURE_GROWTH : EXPOSURE_DECAY;
+            
+            avgLuminance = mix(avgLuminance, prevLuminance, exp(-exposureSpeed * frameTime));
         #endif
     }
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 0,8 */
+    #if MANUAL_CAMERA == 0 && DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
 
-    layout (location = 0) out vec4 color;
-    layout (location = 1) out vec4 history;
+        /* RENDERTARGETS: 0,8 */
+
+        layout (location = 0) out vec4 colorOut;
+        layout (location = 1) out vec4 history;
+
+        flat in int medianBin;
+        flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
+
+    #else
+
+        /* RENDERTARGETS: 8 */
+
+        layout (location = 0) out vec4 history;
+
+    #endif
 
     flat in float avgLuminance;
     in vec2 textureCoords;
-
-    #if MANUAL_CAMERA == 0 && DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-        flat in int medianBin;
-        flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
-    #endif
 
     #if TAA == 1
         #include "/include/post/exposure.glsl"
     #endif
 
     void main() {
-        color.rgb = texture(MAIN_BUFFER, textureCoords).rgb;
+        history.rgb = logLuvDecode(texture(MAIN_BUFFER, textureCoords));
 
         #if TAA == 1
-            history.rgb = color.rgb * computeExposure(avgLuminance);
-            history.rgb = reinhard(history.rgb);
-        #else
-            history.rgb = color.rgb;
+            history.rgb *= computeExposure(avgLuminance);
+            history.rgb  = reinhard(history.rgb);
         #endif
 
         #if MANUAL_CAMERA == 0 && EXPOSURE > 0
             history.a = avgLuminance;
-            color.a   = avgLuminance;
 
             #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
     	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
                     vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
     		        int index   = int(HISTOGRAM_BINS * coords.x);
-                    color.rgb   = luminanceHistogram[index >> 2][index & 3] > coords.y * 0.6 ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+
+                    colorOut.rgb = luminanceHistogram[index >> 2][index & 3] > coords.y * 0.8 ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+                    colorOut     = logLuvEncode(colorOut.rgb);
     	        }
             #endif
         #endif
