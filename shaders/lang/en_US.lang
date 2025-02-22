@@ -285,29 +285,6 @@ option.GI.comment = Simulates light bounces, §7§l§oexample: the color of a §
 value.GI.0 = §cOFF
 value.GI.1 = §aON
 
-option.GI_SCALE = Render Scale
-option.GI_SCALE.comment = Adjusts §bGI§r's rendering scale. §cHigher value gives better results, but reduces §cperformance.
-suffix.GI_SCALE = x
-value.GI_SCALE.10 = 0.10
-value.GI_SCALE.15 = 0.15
-value.GI_SCALE.20 = 0.20
-value.GI_SCALE.25 = 0.25
-value.GI_SCALE.30 = 0.30
-value.GI_SCALE.35 = 0.35
-value.GI_SCALE.40 = 0.40
-value.GI_SCALE.45 = 0.45
-value.GI_SCALE.50 = 0.50
-value.GI_SCALE.55 = 0.55
-value.GI_SCALE.60 = 0.60
-value.GI_SCALE.65 = 0.65
-value.GI_SCALE.70 = 0.70
-value.GI_SCALE.75 = 0.75
-value.GI_SCALE.80 = 0.80
-value.GI_SCALE.85 = 0.85
-value.GI_SCALE.90 = 0.90
-value.GI_SCALE.95 = 0.95
-value.GI_SCALE.100 = 1.00
-
 option.ATROUS_FILTER = À-Trous Filter
 option.ATROUS_FILTER.comment = Denoises §bGlobal Illumination§r by blurring it while preserving details.
 value.ATROUS_FILTER.0 = §cOFF
@@ -330,17 +307,17 @@ option.DEPTH_WEIGHT_SIGMA.comment = Adjusts the strength of the depth weight use
 option.LUMINANCE_WEIGHT_SIGMA = Luminance Weight Strength
 option.LUMINANCE_WEIGHT_SIGMA.comment = Adjusts the strength of the luminance weight used for À-Trous filtering.
 
-option.SKY_CONTRIBUTION = Sky Contribution
-option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r (can be problematic in screen space). Lets the sky contribute in indirect lighting.
-value.SKY_CONTRIBUTION.0 = §cOFF
-value.SKY_CONTRIBUTION.1 = §aON
-
 option.GI_SAMPLES = GI Samples
 option.GI_SAMPLES.comment = Adjusts the amount of samples taken to calculate §bGlobal Illumination§r. §cHigher value gives better results, but reduces §cperformance.
 
 option.MAX_GI_BOUNCES = GI Bounces
 option.MAX_GI_BOUNCES.comment = Makes §bGlobal Illumination§r bounce §aX§r times to gather light. §cHigher value gives better results, but reduces §cperformance.
 value.MAX_GI_BOUNCES.9999 = §cInfinite
+
+option.SKY_CONTRIBUTION = Sky Contribution
+option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r (can be problematic in screen space). Lets the sky contribute in indirect lighting.
+value.SKY_CONTRIBUTION.0 = §cOFF
+value.SKY_CONTRIBUTION.1 = §aON
 
 ##################### ATMOSPHERICS #####################
 

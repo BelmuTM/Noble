@@ -46,17 +46,10 @@
             #define INPUT_BUFFER DEFERRED_BUFFER
         #endif
 
-        #if ATROUS_PASS_INDEX == 0
-            /* RENDERTARGETS: 10,13 */
+        /* RENDERTARGETS: 10,13 */
 
-            layout (location = 0) out vec4 moments;
-            layout (location = 1) out vec4 irradiance;
-        #else
-            /* RENDERTARGETS: 10,13 */
-
-            layout (location = 0) out vec4 moments;
-            layout (location = 1) out vec4 irradiance;
-        #endif
+        layout (location = 0) out vec4 moments;
+        layout (location = 1) out vec4 irradiance;
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
@@ -125,15 +118,13 @@
 
                     if(saturate(sampleCoords) != sampleCoords) continue;
 
-                    ivec2 texelCoords = ivec2(sampleCoords * viewSize * GI_SCALE * 0.01);
-
-                    uvec4 sampleDataTexture = texelFetch(GBUFFERS_DATA, texelCoords, 0);
+                    uvec4 sampleDataTexture = texture(GBUFFERS_DATA, sampleCoords);
                     vec3  sampleNormal      = mat3(gbufferModelView) * decodeUnitVector(vec2(sampleDataTexture.w & 65535u, (sampleDataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
                     float sampleDepth       = dhFragment ? texture(dhDepthTex0, sampleCoords).r : texture(depthtex0, sampleCoords).r;
                           sampleDepth       = linearizeDepth(sampleDepth, nearPlane, farPlane);
 
-                    vec3  sampleIrradiance = texelFetch(INPUT_BUFFER  , texelCoords, 0).rgb;
-                    float sampleVariance   = texelFetch(MOMENTS_BUFFER, texelCoords, 0).b;
+                    vec3  sampleIrradiance = texture(INPUT_BUFFER  , sampleCoords).rgb;
+                    float sampleVariance   = texture(MOMENTS_BUFFER, sampleCoords).b;
 
                     float normalWeight    = calculateATrousNormalWeight(normal, sampleNormal);
                     float depthWeight     = calculateATrousDepthWeight(linearDepth, sampleDepth, depthGradient, offset);

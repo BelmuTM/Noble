@@ -126,12 +126,12 @@
 
             vec3 prevReflections = texture(REFLECTIONS_BUFFER, prevPosition.xy).rgb;
 
-            float weight = 1.0 - saturate(1.0 / max(texture(ACCUMULATION_BUFFER, prevPosition.xy).a, 1.0));
+            float weight = 0.96;
 
             vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
             float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y);
 
-            float velocityWeight = 1.0 - (saturate(length(velocity.xy * viewSize)) * 0.4 + 0.6);
+            float velocityWeight = 1.0 - (saturate(length(velocity.xy * viewSize)) * 0.5 + 0.5);
 
             weight *= centerWeight * velocityWeight;
             weight  = saturate(weight);

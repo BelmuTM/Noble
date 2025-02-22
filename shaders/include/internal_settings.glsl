@@ -28,7 +28,7 @@
 const int  shadowcolor0Format      = RGBA16F;
 const bool shadowHardwareFiltering = false;
 
-const int  colortex0Format         = RGBA8;             // Main
+const int  colortex0Format         = RGBA16;            // Main
 const bool colortex0Clear          = false;
 const int  colortex1Format         = RGBA32UI;          // Gbuffer data
 
@@ -37,10 +37,10 @@ const int  colortex1Format         = RGBA32UI;          // Gbuffer data
      const bool colortex2Clear     = false;
 #endif
 
-const int  colortex3Format         = RGBA32F;           // Shadowmap, bloom
+const int  colortex3Format         = RGBA32F;           // Shadowmap | Bloom
 const int  colortex4Format         = RGBA16F;           // Deferred Lighting
 const bool colortex4Clear          = false;
-const int  colortex5Format         = RGBA32F;           // Irradiance, clouds shadows
+const int  colortex5Format         = RGBA32F;           // Irradiance | Clouds Shadows
 const int  colortex6Format         = R11F_G11F_B10F;    // Atmosphere
 const bool colortex6Clear          = false;
 
@@ -52,19 +52,13 @@ const bool colortex6Clear          = false;
 const int  colortex8Format         = RGBA32F;           // History
 const bool colortex8Clear          = false;
 
-#if GI == 1
-     const int colortex9Format     = RGB16F;            // Direct lighting
-     const int colortex10Format    = RGBA16F;           // Moments
-#else
-     const int colortex10Format    = RGBA16F;           // Previous Depth
-#endif
-
+const int colortex10Format         = RGBA16F;           // Moments | Previous Frame Depth
 const bool colortex10Clear         = false;
 
 const int colortex11Format         = RG32UI;            // Fog
 
 #if AO == 1
-     const int  colortex12Format   = RGB16F;           // Ambient occlusion
+     const int  colortex12Format   = RGB16F;            // Ambient occlusion
      const bool colortex12Clear    = false;
 #endif
 

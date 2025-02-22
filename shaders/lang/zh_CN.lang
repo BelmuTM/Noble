@@ -290,40 +290,17 @@ option.DEPTH_WEIGHT_SIGMA.comment = 调节用于 À-Trous 过滤过程中深度�
 option.LUMINANCE_WEIGHT_SIGMA = 亮度权重强度
 option.LUMINANCE_WEIGHT_SIGMA.comment = 调节 用于À-Trous 过滤过程中亮度权重的强度.
 
-option.SKY_CONTRIBUTION = 天空贡献率
-option.SKY_CONTRIBUTION.comment = 天空光对 §b全局照明§r 的贡献 (在屏幕空间中可能会出问题). 使天空光参与间接照明计算.
-value.SKY_CONTRIBUTION.0 = §c关
-value.SKY_CONTRIBUTION.1 = §c开
-
-option.GI_SCALE = GI 渲染倍率
-option.GI_SCALE.comment = 调节 §b全局照明§r 的渲染倍率. §c更高的值会有更好的结果, 但会降低 §c性能.
-suffix.GI_SCALE = x
-value.GI_SCALE.10 = 0.10
-value.GI_SCALE.15 = 0.15
-value.GI_SCALE.20 = 0.20
-value.GI_SCALE.25 = 0.25
-value.GI_SCALE.30 = 0.30
-value.GI_SCALE.35 = 0.35
-value.GI_SCALE.40 = 0.40
-value.GI_SCALE.45 = 0.45
-value.GI_SCALE.50 = 0.50
-value.GI_SCALE.55 = 0.55
-value.GI_SCALE.60 = 0.60
-value.GI_SCALE.65 = 0.65
-value.GI_SCALE.70 = 0.70
-value.GI_SCALE.75 = 0.75
-value.GI_SCALE.80 = 0.80
-value.GI_SCALE.85 = 0.85
-value.GI_SCALE.90 = 0.90
-value.GI_SCALE.95 = 0.95
-value.GI_SCALE.100 = 1.00
-
 option.GI_SAMPLES = GI 采样值
 option.GI_SAMPLES.comment = 调节计算 §b全局照明§r 所需的采样值. §c更高的值会有更好的结果, 但会降低 §c性能.
 
 option.MAX_GI_BOUNCES = GI 反弹次数
 option.MAX_GI_BOUNCES.comment = 使 §b全局照明§r 计算中的光线反弹 §aX§r 次来进行采集. §c更高的值会有更好的结果, 但会降低 §c性能.
 value.MAX_GI_BOUNCES.9999 = §c无限
+
+option.SKY_CONTRIBUTION = 天空贡献率
+option.SKY_CONTRIBUTION.comment = 天空光对 §b全局照明§r 的贡献 (在屏幕空间中可能会出问题). 使天空光参与间接照明计算.
+value.SKY_CONTRIBUTION.0 = §c关
+value.SKY_CONTRIBUTION.1 = §c开
 
 ### RAY TRACING
 

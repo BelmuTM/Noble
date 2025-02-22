@@ -42,18 +42,10 @@
 
 #elif defined STAGE_FRAGMENT
 
-    #if GI == 1
-        /* RENDERTARGETS: 4,9,10 */
+    /* RENDERTARGETS: 4,10 */
 
-        layout (location = 0) out vec4 color;
-        layout (location = 1) out vec3 directOut;
-        layout (location = 2) out vec4 momentsOut;
-    #else
-        /* RENDERTARGETS: 4,10 */
-
-        layout (location = 0) out vec4 color;
-        layout (location = 1) out vec4 momentsOut;
-    #endif
+    layout (location = 0) out vec4 color;
+    layout (location = 1) out vec4 momentsOut;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -73,6 +65,7 @@
         #include "/include/fragment/pathtracer.glsl"
 
         #if RENDER_MODE == 0 && ATROUS_FILTER == 1
+
 			float estimateSpatialVariance(sampler2D tex, vec2 moments) {
 				float sum = moments.r, sqSum = moments.g, totalWeight = 1.0;
 
@@ -100,6 +93,7 @@
 				sqSum /= totalWeight;
 				return abs(sqSum - sum * sum);
     		}
+
 	    #endif
     #endif
 
@@ -136,17 +130,15 @@
             skyIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
         #endif
 
-        if(depth == 1.0) {
-            vec3 sky = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
-            #if GI == 1
-                directOut = sky;
-            #else
-                color.rgb = sky;
-            #endif
-            return;
-        }
+        #if GI == 0
+            if(depth == 1.0) {
+                color.rgb = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
+                return;
+            }
+        #endif
 
         #if AO > 0 && AO_FILTER == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
+
             vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth), projectionInverse) * RENDER_SCALE;
             vec4 history      = texture(ACCUMULATION_BUFFER, prevPosition.xy);
 
@@ -184,6 +176,7 @@
             #endif
 
             color.a++;
+            
         #endif
 
         Material material = getMaterial(vertexCoords);
@@ -191,6 +184,7 @@
         bool isMetal = material.F0 * maxFloat8 > 229.5;
 
         #if GI == 0
+        
             color.rgb = vec3(0.0);
 
             float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
@@ -209,10 +203,13 @@
             #endif
 
             color.rgb = computeDiffuse(viewPosition, shadowVec, material, isMetal, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
+
         #else
-            pathtrace(dhFragment, projection, projectionInverse, directIlluminance, isMetal, color.rgb, vec3(vertexCoords, depth), directOut);
+
+            pathtraceDiffuse(dhFragment, projection, projectionInverse, directIlluminance, isMetal, color.rgb, vec3(vertexCoords, depth));
 
             #if TEMPORAL_ACCUMULATION == 1
+
                 float weight = 1.0 / max(color.a, 1.0);
                 color.rgb = mix(history.rgb, color.rgb, weight);
 
@@ -228,7 +225,9 @@
                         momentsOut.b = abs(momentsOut.g - momentsOut.r * momentsOut.r);
                     }
                 #endif
+
             #endif
+
         #endif
     }
 #endif

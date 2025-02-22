@@ -73,6 +73,14 @@ const float lodFactor = exp2(-lod);
 			#define BLOOM_SAMPLER SHADOWMAP_BUFFER
 		#endif
 
+		vec3 sampleBloomBuffer(vec2 coords) {
+			#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
+				return logLuvDecode(textureLod(BLOOM_SAMPLER, coords, 0));
+			#else
+				return textureLod(BLOOM_SAMPLER, coords, 0).rgb;
+			#endif
+		}
+
 	#elif defined BLOOM_UPSAMPLE_PASS
 
 		#define BLOOM_SAMPLER SHADOWMAP_BUFFER
@@ -81,18 +89,6 @@ const float lodFactor = exp2(-lod);
 
 		float tileWeight(int lod) {
 			return exp2(-0.5 * lod);
-		}
-
-	#endif
-
-	#if defined BLOOM_DOWNSAMPLE_PASS
-
-		vec3 sampleBloomBuffer(vec2 coords) {
-			#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
-				return logLuvDecode(textureLod(BLOOM_SAMPLER, coords, 0));
-			#else
-				return textureLod(BLOOM_SAMPLER, coords, 0).rgb;
-			#endif
 		}
 
 	#endif

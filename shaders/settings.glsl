@@ -41,7 +41,6 @@
 #define CLOUDS_BUFFER         colortex7
 
 #define HISTORY_BUFFER        colortex8
-#define DIRECT_BUFFER         colortex9
 #define MOMENTS_BUFFER        colortex10
 
 #define FOG_BUFFER            colortex11
@@ -177,7 +176,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define GI_SAMPLES      1 // [1 2 3 4 5 6 7 8]
 #define MAX_GI_BOUNCES  4 // [1 2 3 4 5 6 7 8 9 10 11 12 9999]
 #define MAX_GI_STEPS  128 // [128 256]
-#define GI_SCALE 	  100 // [25 50 75 100]
 
 #define MIN_ROULETTE_BOUNCES -1
 
@@ -420,7 +418,7 @@ const float sensorSensitivity = 100.0; // Sensor sensitivity
 #define TONEMAP 0 // [-1 0 1 2 3 4 5 6]
 #define LUT     0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 
-#define AGX_LOOK 2
+#define AGX_LOOK 0
 
 #if TONEMAP == ACES
 	// ACES Settings

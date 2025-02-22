@@ -66,7 +66,7 @@ void main() {
 
     #if BLOOM == 1
         // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += texture(SHADOWMAP_BUFFER, textureCoords * 0.5).rgb * 0.3;
+        color += texture(SHADOWMAP_BUFFER, textureCoords * 0.5).rgb * exp2(exposure + BLOOM_STRENGTH - 3.0);
     #endif
 
     #if PURKINJE == 1

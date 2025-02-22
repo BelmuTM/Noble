@@ -182,6 +182,38 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     return material.albedo * diffuse;
 }
 
+// Pathtracing shenanigans
+
+vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material material, vec3 directIlluminance) {
+    vec4 shadowmap = texture(SHADOWMAP_BUFFER, max(hitPosition, texelSize));
+    vec3 diffuse   = hammonDiffuse(material, wi, wo);
+
+    #if SUBSURFACE_SCATTERING == 1
+        diffuse += subsurfaceScatteringApprox(material, wi, wo, shadowmap.a) * float(material.lightmap.y > EPS);
+    #endif
+
+    return diffuse * shadowmap.rgb * directIlluminance;
+}
+
+vec3 sampleMicrosurfaceOpaquePhase(inout vec3 estimate, inout vec3 wr, Material material) {
+    mat3 tbn        = calculateTBN(material.normal);
+    vec3 microfacet = tbn * sampleGGXVNDF(-wr * tbn, rand2F(), material.roughness);
+    vec3 fresnel    = fresnelDielectricConductor(dot(microfacet, -wr), material.N, material.K);
+
+    wr = generateCosineVector(microfacet, rand2F());
+
+    vec3 energyConservationFactor = 1.0 - hemisphericalAlbedo(material.N);
+
+    vec3 phase = vec3(0.0);
+    phase     = 1.0 - fresnel;
+    phase    /= energyConservationFactor;
+    phase    *= material.albedo * material.ao;
+    estimate += material.albedo * EMISSIVE_INTENSITY * 10.0 * material.emission;
+    phase    *= fresnelDielectricDielectric_T(dot(microfacet, wr), vec3(airIOR), material.N);
+    
+    return phase;
+}
+
 //////////////////////////////////////////////////////////
 /*---------------------- SPECULAR ----------------------*/
 //////////////////////////////////////////////////////////

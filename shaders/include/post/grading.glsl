@@ -19,9 +19,6 @@
 /********************************************************************************/
 
 /*
-    [Credits]:
-        Nameless - providing code for AgX tonemapper (https://github.com/NamelessCoding)
-
     [References]:
         Uchimura, H. (2017). HDR Theory and practice. https://www.slideshare.net/nikuque/hdr-theory-and-practicce-jp
         Uchimura, H. (2017). GT Tonemap. https://www.desmos.com/calculator/gslcdxvipg?lang=fr
@@ -29,6 +26,7 @@
         Taylor, M. (2019). Tone Mapping. https://64.github.io/tonemapping/
         Wikipedia. (2023). Von Kries coefficient law. https://en.wikipedia.org/wiki/Von_Kries_coefficient_law
         Wikipedia. (2023). LMS color space. https://en.wikipedia.org/wiki/LMS_color_space
+        Wrensch, B. (2023). MINIMAL AGX IMPLEMENTATION. https://iolite-engine.com/blog_posts/minimal_agx_implementation
 */
 
 //////////////////////////////////////////////////////////
@@ -133,14 +131,16 @@ const mat3 agxTransformInverse = mat3(
 vec3 agxDefaultContrastApproximation(vec3 x) {
     vec3 x2 = x * x;
     vec3 x4 = x2 * x2;
-  
-    return + 15.5     * x4 * x2
-           - 40.14    * x4 * x
-           + 31.96    * x4
-           - 6.868    * x2 * x
-           + 0.4298   * x2
-           + 0.1191   * x
-           - 0.00232;
+    vec3 x6 = x4 * x2;
+
+    return - 17.86     * x6 * x
+           + 78.01     * x6
+           - 126.7     * x4 * x
+           + 92.06     * x4
+           - 28.72     * x2 * x
+           + 4.361     * x2
+           - 0.1718    * x
+           + 0.002857;
 }
 
 void agx(inout vec3 color) {
@@ -162,7 +162,7 @@ void agxLook(inout vec3 color) {
         // Default
         const vec3  slope      = vec3(1.0);
         const vec3  power      = vec3(1.0);
-        const float saturation = 1.0;
+        const float saturation = 1.2;
     #elif AGX_LOOK == 1
         // Golden
         const vec3  slope      = vec3(1.0, 0.9, 0.5);
@@ -171,8 +171,8 @@ void agxLook(inout vec3 color) {
     #elif AGX_LOOK == 2
         // Punchy
         const vec3  slope      = vec3(1.0);
-        const vec3  power      = vec3(1.1);
-        const float saturation = 1.3;
+        const vec3  power      = vec3(1.35);
+        const float saturation = 1.4;
     #endif
 
     float luma = luminance(color);

@@ -68,14 +68,8 @@
             return denom > 1.0 ? pClip + vClip / denom : prevColor;
         }
 
-        #if GI == 0
-            const float scale = RENDER_SCALE;
-        #else
-            const float scale = RENDER_SCALE * GI_SCALE * 0.01;
-        #endif
-
         vec3 neighbourhoodClipping(sampler2D currTex, vec3 currColor, vec3 history) {
-            ivec2 coords = ivec2(gl_FragCoord.xy * scale);
+            ivec2 coords = ivec2(gl_FragCoord.xy * RENDER_SCALE);
 
             // Left to right, top to bottom
             vec3 sample_0 = toYCoCg(texelFetch(currTex, coords + ivec2(-1,  1), 0).rgb);

@@ -25,39 +25,7 @@
         Thanks to them for helping me understand the basics of path tracing when I was beginning
 */
 
-vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material material, vec3 directIlluminance) {
-    ivec2 hitTexel = ivec2(hitPosition * viewSize * GI_SCALE * 0.01);
-
-    vec4 shadowmap = hitTexel == ivec2(0) ? vec4(0.0) : texelFetch(SHADOWMAP_BUFFER, hitTexel, 0);
-    vec3 diffuse   = hammonDiffuse(material, wi, wo);
-
-    #if SUBSURFACE_SCATTERING == 1
-        diffuse += subsurfaceScatteringApprox(material, wi, wo, shadowmap.a) * float(material.lightmap.y > EPS);
-    #endif
-
-    return clamp16(material.albedo * diffuse * shadowmap.rgb * directIlluminance);
-}
-
-vec3 sampleMicrosurfaceOpaquePhase(inout vec3 estimate, inout vec3 wr, Material material) {
-    mat3 tbn        = calculateTBN(material.normal);
-    vec3 microfacet = tbn * sampleGGXVNDF(-wr * tbn, rand2F(), material.roughness);
-    vec3 fresnel    = fresnelDielectricConductor(dot(microfacet, -wr), material.N, material.K);
-
-    wr = generateCosineVector(microfacet, rand2F());
-
-    vec3 energyConservationFactor = 1.0 - hemisphericalAlbedo(material.N);
-
-    vec3 phase = vec3(0.0);
-    phase     = 1.0 - fresnel;
-    phase    /= energyConservationFactor;
-    phase    *= material.albedo * material.ao;
-    estimate += material.albedo * EMISSIVE_INTENSITY * 100.0 * material.emission;
-    phase    *= fresnelDielectricDielectric_T(dot(microfacet, wr), vec3(airIOR), material.N);
-    
-    return phase;
-}
-
-void pathtrace(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 directIlluminance, bool isMetal, out vec3 irradiance, in vec3 screenPosition, out vec3 direct) {
+void pathtraceDiffuse(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 directIlluminance, bool isMetal, out vec3 irradiance, in vec3 screenPosition) {
     vec3 viewPosition = screenToView(screenPosition, projectionInverse, true);
 
     for(int i = 0; i < GI_SAMPLES; i++) {
@@ -80,7 +48,7 @@ void pathtrace(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 di
                 
             material = getMaterial(rayPosition.xy);
 
-            vec3 brdf  = evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material, directIlluminance);
+            vec3 brdf  = material.albedo * evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material, directIlluminance);
             vec3 phase = sampleMicrosurfaceOpaquePhase(estimate, rayDirection, material);
 
             vec3 tracePosition = screenToView(rayPosition, projectionInverse, true) + material.normal * 1e-3;
@@ -92,9 +60,7 @@ void pathtrace(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 di
                 hit = raytrace(depthtex0, projection, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
             }
 
-            if(j == 0) {
-                direct = brdf;
-            } else {
+            if(j > 0) {
                 estimate += throughput * brdf; 
             }
 
