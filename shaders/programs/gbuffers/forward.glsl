@@ -97,6 +97,8 @@
 	in vec4 vertexColor;
 	in mat3[2] skyIlluminanceMat;
 	in mat3 tbn;
+
+	#include "/include/utility/rng.glsl"
 	
 	#include "/include/fragment/brdf.glsl"
 

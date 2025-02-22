@@ -33,6 +33,16 @@
         Wikipedia. (2022). Rodrigues' rotation formula. https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
 */
 
+const float EPS = 1e-4;
+
+const float PI      = radians(180.0);
+const float HALF_PI = PI * 0.5;
+const float RCP_PI  = 1.0 / PI;
+const float TAU     = PI * 2.0;
+
+const float GOLDEN_ANGLE = PI * (3.0 - sqrt(5.0));
+const float GOLDEN_RATIO = sqrt(5.0) * 0.5 + 0.5;
+
 //////////////////////////////////////////////////////////
 /*--------------------- FAST MATH ----------------------*/
 //////////////////////////////////////////////////////////

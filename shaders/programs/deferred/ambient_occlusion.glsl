@@ -46,7 +46,8 @@
 		in vec2 vertexCoords;
 
 		#include "/include/common.glsl"
-	
+
+		#include "/include/utility/rng.glsl"
 		
 		#if AO == 1
 

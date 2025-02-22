@@ -23,6 +23,8 @@
 
 #include "/include/common.glsl"
 
+#include "/include/utility/rng.glsl"
+
 #if defined STAGE_VERTEX
 
 	#define attribute in

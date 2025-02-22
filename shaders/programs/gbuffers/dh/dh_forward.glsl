@@ -82,6 +82,8 @@
 	in vec3 directIlluminance;
 	in vec4 vertexColor;
     in mat3[2] skyIlluminanceMat;
+
+	#include "/include/utility/rng.glsl"
 	
 	#include "/include/fragment/brdf.glsl"
 

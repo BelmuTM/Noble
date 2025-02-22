@@ -27,6 +27,8 @@ in vec2 textureCoords;
 
 #include "/include/common.glsl"
 
+#include "/include/utility/rng.glsl"
+
 #if UNDERWATER_DISTORTION == 1
 
     void underwaterDistortion(inout vec2 coords) {

@@ -26,10 +26,11 @@
 	const int lod = BLOOM_UPSAMPLE_PASS_INDEX;
 #endif
 
+const float lodFactor = exp2(-lod); 
+
 #if defined STAGE_VERTEX
 
 	void main() {
-		float lodFactor = exp2(-lod);
 		vec2 tileCoords = gl_Vertex.xy * lodFactor * 0.5 + 1.0 - lodFactor;
 
 		gl_Position = vec4(tileCoords * 2.0 - 1.0, 0.0, 1.0);
@@ -41,38 +42,44 @@
 
 	layout (location = 0) out vec4 bloom;
 
-	const vec2 filterOffsets[12] = vec2[12](
-		vec2( 1.0,  1.0),
-		vec2(-1.0,  1.0),
-		vec2( 1.0, -1.0),
-		vec2(-1.0, -1.0),
-
-		vec2( 0.0,  2.0),
-		vec2( 0.0, -2.0),
-		vec2( 2.0,  0.0),
-		vec2(-2.0,  0.0),
-
-		vec2( 2.0,  2.0),
-		vec2(-2.0,  2.0),
-		vec2( 2.0, -2.0),
-		vec2(-2.0, -2.0)
-	);
-
-	const float filterWeights[3] = float[3](0.125, 0.0625, 0.03125);
-
 	#include "/include/uniforms.glsl"
 
 	#if defined BLOOM_DOWNSAMPLE_PASS
+
+		const vec2 filterOffsets[12] = vec2[12](
+			vec2( 1.0,  1.0),
+			vec2(-1.0,  1.0),
+			vec2( 1.0, -1.0),
+			vec2(-1.0, -1.0),
+
+			vec2( 0.0,  2.0),
+			vec2( 0.0, -2.0),
+			vec2( 2.0,  0.0),
+			vec2(-2.0,  0.0),
+
+			vec2( 2.0,  2.0),
+			vec2(-2.0,  2.0),
+			vec2( 2.0, -2.0),
+			vec2(-2.0, -2.0)
+		);
+
+		const float filterWeights[3] = float[3](0.125, 0.0625, 0.03125);
+
 		#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
 			#define BLOOM_SAMPLER MAIN_BUFFER
 		#else
 			#define BLOOM_SAMPLER SHADOWMAP_BUFFER
 		#endif
+
 	#elif defined BLOOM_UPSAMPLE_PASS
+
 		#define BLOOM_SAMPLER SHADOWMAP_BUFFER
 
 		#include "/include/utility/math.glsl"
 		#include "/include/utility/sampling.glsl"
+
+		const float tileWeight = 1.0 / 8.0;
+		
 	#endif
 
 	void main() {
@@ -112,7 +119,7 @@
 		#elif defined BLOOM_UPSAMPLE_PASS
 
 			bloom.rgb = textureBicubic(BLOOM_SAMPLER, coords).rgb;
-			bloom.a   = 1.0 / 9.0;
+			bloom.a   = tileWeight;
 
 		#endif
 	}

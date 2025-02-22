@@ -41,21 +41,6 @@ float bayer2(vec2 a) {
 #define bayer256(a) (bayer128(0.5 * (a))  *  0.25 + bayer2(a))
 #define bayer512(a) (bayer256(0.5 * (a))  *  0.25 + bayer2(a))
 
-const vec2 taaOffsets[8] = vec2[8](
-	vec2( 0.125,-0.375),
-	vec2(-0.125, 0.375),
-	vec2( 0.625, 0.125),
-	vec2( 0.375,-0.625),
-	vec2(-0.625, 0.625),
-	vec2(-0.875,-0.125),
-	vec2( 0.375,-0.875),
-	vec2( 0.875, 0.875)
-);
-
-vec2 taaJitter(vec4 pos) {
-    return taaOffsets[framemod] * (pos.w * texelSize);
-}
-
 #if defined STAGE_FRAGMENT
     void pcg(inout uint seed) {
         uint state = seed * 747796405u + 2891336453u;

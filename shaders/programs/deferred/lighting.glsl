@@ -59,6 +59,8 @@
     in vec2 vertexCoords;
     in vec3 directIlluminance;
 
+    #include "/include/utility/rng.glsl"
+
     #include "/include/atmospherics/constants.glsl"
 
     #include "/include/utility/phase.glsl"
