@@ -117,10 +117,11 @@
 
     #if MANUAL_CAMERA == 0 && DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
 
-        /* RENDERTARGETS: 0,8 */
+        /* RENDERTARGETS: 8 */
 
-        layout (location = 0) out vec4 colorOut;
-        layout (location = 1) out vec4 history;
+        layout (location = 0) out vec4 history;
+
+        layout (rgba8) uniform image2D colorimg0;
 
         flat in int medianBin;
         flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
@@ -156,8 +157,9 @@
                     vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
     		        int index   = int(HISTOGRAM_BINS * coords.x);
 
-                    colorOut.rgb = luminanceHistogram[index >> 2][index & 3] > coords.y * 0.8 ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
-                    colorOut     = logLuvEncode(colorOut.rgb);
+                    vec3 histogram = luminanceHistogram[index >> 2][index & 3] > coords.y * 0.8 ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+                    
+                    imageStore(colorimg0, ivec2(gl_FragCoord.xy), logLuvEncode(histogram));
     	        }
             #endif
         #endif

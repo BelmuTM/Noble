@@ -18,7 +18,7 @@
 /*                                                                              */
 /********************************************************************************/
 
-out vec3 color;
+out vec3 colorOut;
 
 in vec2 textureCoords;
 
@@ -154,46 +154,46 @@ void main() {
     #endif
 
     #if EIGHT_BITS_FILTER == 0
-        color = logLuvDecode(texture(MAIN_BUFFER, distortCoords));
+        colorOut = logLuvDecode(texture(MAIN_BUFFER, distortCoords));
     #else
-        color = logLuvDecode(samplePixelatedBuffer(MAIN_BUFFER, distortCoords, 300)).rgb;
+        colorOut = logLuvDecode(samplePixelatedBuffer(MAIN_BUFFER, distortCoords, 300)).rgb;
     #endif
 
     #if SHARPEN == 1
-        sharpeningFilter(color, distortCoords);
+        sharpeningFilter(colorOut, distortCoords);
     #endif
 
     #if LUT > 0
-        applyLUT(LUT_BUFFER, color);
+        applyLUT(LUT_BUFFER, colorOut);
     #endif
 
     #if FILM_GRAIN == 1
-        color += randF() * color * FILM_GRAIN_STRENGTH;
+        colorOut += randF() * colorOut * FILM_GRAIN_STRENGTH;
     #endif
 
     #if VIGNETTE == 1
         vec2 coords = textureCoords * (1.0 - textureCoords.yx);
-        color      *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
+        colorOut   *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
     #endif
 
     #if CEL_SHADING == 1
-        applyLUT(LUT_BUFFER, color);
-        celShading(color);
+        applyLUT(LUT_BUFFER, colorOut);
+        celShading(colorOut);
     #endif
 
     #if PALETTE > 0
-        applyColorPalette(color);
+        applyColorPalette(colorOut);
     #endif
 
     #if EIGHT_BITS_FILTER == 1
         const int   colorPaletteSize   = 2;
         const float quantizationPeriod = 1.0 / colorPaletteSize;
 
-        ditherColor  (color, quantizationPeriod);
-        quantizeColor(color, quantizationPeriod);
+        ditherColor  (colorOut, quantizationPeriod);
+        quantizeColor(colorOut, quantizationPeriod);
     #else
         #if CEL_SHADING == 0
-            color += bayer8(gl_FragCoord.xy) * rcpMaxFloat8;
+            colorOut += bayer8(gl_FragCoord.xy) * rcpMaxFloat8;
         #endif
     #endif
 }

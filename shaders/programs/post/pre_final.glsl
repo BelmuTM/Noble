@@ -53,11 +53,14 @@ in vec2 textureCoords;
 #include "/include/post/grading.glsl"
 
 void main() {
-    vec3 color = logLuvDecode(texture(MAIN_BUFFER, textureCoords));
-
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-    	if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) return;
+    	if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
+            colorOut = texture(MAIN_BUFFER, textureCoords);
+            return;
+        }
 	#endif
+
+    vec3 color = logLuvDecode(texture(MAIN_BUFFER, textureCoords));
 
     float exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 

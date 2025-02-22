@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #define STAGE_VERTEX
 #include "/programs/post/exposure.glsl"
