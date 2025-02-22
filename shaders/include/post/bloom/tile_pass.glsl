@@ -44,6 +44,8 @@ const float lodFactor = exp2(-lod);
 
 	#include "/include/uniforms.glsl"
 
+	#include "/include/utility/math.glsl"
+
 	#if defined BLOOM_DOWNSAMPLE_PASS
 
 		const vec2 filterOffsets[12] = vec2[12](
@@ -65,10 +67,6 @@ const float lodFactor = exp2(-lod);
 
 		const float filterWeights[3] = float[3](0.125, 0.0625, 0.03125);
 
-	#include "/include/uniforms.glsl"
-	#include "/include/utility/math.glsl"
-
-	#if defined BLOOM_DOWNSAMPLE_PASS
 		#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
 			#define BLOOM_SAMPLER MAIN_BUFFER
 		#else
@@ -84,6 +82,7 @@ const float lodFactor = exp2(-lod);
 		float tileWeight(int lod) {
 			return exp2(-0.5 * lod);
 		}
+
 	#endif
 
 	#if defined BLOOM_DOWNSAMPLE_PASS
