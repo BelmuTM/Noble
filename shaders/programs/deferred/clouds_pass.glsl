@@ -93,7 +93,7 @@
                 }
             #endif
 
-            // if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) return;
+            if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) return;
 
             vec3 viewPosition       = screenToView(vec3(textureCoords, 1.0), projectionInverse, false);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
@@ -125,15 +125,16 @@
             if(saturate(prevPosition.xy) == prevPosition.xy && prevDepth >= handDepth) {
                 vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition.xy).rgb);
 
+                const float centerWeightStrength = CLOUDS_SCALE == 100 ? 0.6 : 0.1;
+
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.1 + 0.9;
+                float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
                 
-                float velocityWeight = saturate(length(abs(prevPosition - textureCoords) * viewSize)) * 0.2 + 0.8;
-                      velocityWeight = mix(1.0, velocityWeight, float(CLOUDS_SCALE == 100));
+                float velocityWeight = saturate(exp(-1.0 * length(cameraPosition - previousCameraPosition)));
 
-                float weight = saturate(centerWeight * velocityWeight);
+                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.97);
 
-                clouds.rgb = max0(mix(clouds.rgb, history, min(weight, 0.7)));
+                clouds.rgb = max0(mix(clouds.rgb, history, weight));
             }
         }
         

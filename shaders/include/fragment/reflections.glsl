@@ -52,6 +52,10 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
     #endif
 }
 
+float energyCompensationFactor(float NdotV, float NdotL, float alphaSq) {
+    return 1.0 / (1.0 + lambda_Smith(NdotV, alphaSq) + lambda_Smith(NdotL, alphaSq));
+}
+
 float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
 #if REFLECTIONS == 1
@@ -93,6 +97,12 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
                 }
             }
 
+            #if defined REFLECTIONS_SKY_FALLBACK
+                vec3 fallback = hitPosition.z >= handDepth ? sampleSkyColor(hitPosition.xy, rayDirection, skylight) : vec3(0.0);
+            #else
+                vec3 fallback = vec3(0.0);
+            #endif
+
             vec3 fresnel;
             if(isEyeInWater == 1 || material.id == WATER_ID) {
                 fresnel = fresnelDielectricDielectric_R(MdotV, vec3(airIOR), vec3(1.333));
@@ -101,14 +111,10 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             }
 
             float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
+            
+            float energyCompensation = energyCompensationFactor(NdotV, NdotL, alphaSq);
 
-            #if defined REFLECTIONS_SKY_FALLBACK
-                vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
-            #else
-                vec3 fallback = vec3(0.0);
-            #endif
-
-            reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * G2 / G1;
+            reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * energyCompensation * G2 / G1;
 
             rayLength += sampleRayLength;
 	    }
@@ -145,6 +151,12 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             }
         }
 
+        #if defined REFLECTIONS_SKY_FALLBACK
+            vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
+        #else
+            vec3 fallback = vec3(0.0);
+        #endif
+
         vec3 fresnel;
         if(isEyeInWater == 1 || material.id == WATER_ID) {
             fresnel = fresnelDielectricDielectric_R(NdotV, vec3(airIOR), vec3(1.333));
@@ -155,13 +167,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float G1 = G1_Smith_GGX(NdotV, alphaSq);
         float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
 
-        #if defined REFLECTIONS_SKY_FALLBACK
-            vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
-        #else
-            vec3 fallback = vec3(0.0);
-        #endif
+        float energyCompensation = energyCompensationFactor(NdotV, NdotL, alphaSq);
 
-        return mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * G2 / G1;
+        return mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * energyCompensation * G2 / G1;
     }
 
 #endif

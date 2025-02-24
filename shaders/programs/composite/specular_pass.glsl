@@ -139,6 +139,10 @@ void main() {
         lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
     }
 
+    //////////////////////////////////////////////////////////
+    /*--------------------- FOG FILTER ---------------------*/
+    //////////////////////////////////////////////////////////
+
     vec3 scattering    = vec3(0.0);
     vec3 transmittance = vec3(0.0);
 
@@ -176,7 +180,10 @@ void main() {
         lighting += envSpecular;
     }
 
-    // Alpha blending
+    //////////////////////////////////////////////////////////
+    /*------------------ ALPHA BLENDING --------------------*/
+    //////////////////////////////////////////////////////////
+
     vec4 basic = texture(GBUFFERS_BASIC_BUFFER, vertexCoords);
 
     bool isEnchantmentGlint = basic.a == 0.0;
@@ -196,6 +203,10 @@ void main() {
     } else {
         if(!isHand) lighting.rgb = mix(lighting.rgb, basic.rgb / exposure, basic.a);
     }
+
+    //////////////////////////////////////////////////////////
+    /*---------------- TAA PRE-TONEMAPPING -----------------*/
+    //////////////////////////////////////////////////////////
 
     #if TAA == 1 && DOF == 0
         lighting = lighting * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);

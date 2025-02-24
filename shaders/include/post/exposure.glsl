@@ -18,11 +18,20 @@
 /*                                                                              */
 /********************************************************************************/
 
-const float minExposure = 2e-5;
-const float maxExposure = 6e-2;
+#if TONEMAP == ACES
+	const float bias = 2.0;
+#else
+	const float bias = 1.0;
+#endif
+
+const float minExposure = bias * 3e-5;
+const float maxExposure = bias * 3e-2;
+
+const float calibration       = 12.5;  // Light meter calibration
+const float sensorSensitivity = 100.0; // Sensor sensitivity
 
 float computeEV100fromLuminance(float luminance) {
-    return log2(luminance * sensorSensitivity / calibration);
+    return log2(luminance * bias * sensorSensitivity / calibration);
 }
 
 float computeExposureFromEV100(float ev100) {

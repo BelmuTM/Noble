@@ -81,7 +81,7 @@ vec3 computeRefractions(mat4 projection, vec3 viewPosition0, vec3 viewPosition1,
         case WATER_ID:         return sampledColor * fresnel;
         case NETHER_PORTAL_ID: density = 3.0;
         default: {
-            density = clamp(distance(linearizeDepth(depth1, nearPlane, farPlane), linearizeDepth(material.depth0, nearPlane, farPlane)), 0.0, 3.0);
+            density = clamp(distance(linearizeDepth(depth1, nearPlane, farPlane), linearizeDepth(material.depth0, nearPlane, farPlane)), 0.0, 2.0);
             break;
         }
     }

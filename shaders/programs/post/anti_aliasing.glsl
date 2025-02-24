@@ -100,6 +100,7 @@
             return history;
         }
 
+        /*
         // https://iquilezles.org/articles/texture/
         vec4 textureCubic(sampler2D tex, vec2 uv) {
             uv = uv * viewSize + 0.5;
@@ -108,6 +109,7 @@
             uv = (uv - 0.5) * texelSize;
             return texture(tex, uv);
         }
+        */
 
     #endif
 

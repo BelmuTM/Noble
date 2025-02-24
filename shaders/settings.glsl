@@ -127,12 +127,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 /*-------------------- RAY TRACING ---------------------*/
 //////////////////////////////////////////////////////////
 
-#define HIZ_LOD_COUNT 4
-#define HIZ_START_LOD 4
-#define HIZ_STOP_LOD  0
-
-#define RAY_DEPTH_TOLERANCE 0.5
-
 #define BINARY_REFINEMENT
 #define BINARY_COUNT 6
 
@@ -302,10 +296,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define POM           2 // [0 1 2]
 #define POM_LAYERS   32 // [32 64 128 256 512]
-#define POM_DEPTH   0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define POM_DEPTH   0.4 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define POM_DISTANCE 32 // [16 32 48 64 80 96 112 128 144 160 176 192 208 224 240 256 512]
 
-#define POM_SHADOWING   1 // [0 1]
+#define POM_SHADOWING   0 // [0 1]
 #define POM_DEPTH_WRITE 0 // [0 1]
 
 // WATER
@@ -344,7 +338,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 //////////////////////////////////////////////////////////
 
 #define TAA             1 // [0 1]
-#define TAA_STRENGTH 0.70 // [0.10 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.30 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.40 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.50 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.60 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.70 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.80 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.90 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99]
+#define TAA_STRENGTH 0.90 // [0.10 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.30 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.40 0.41 0.42 0.43 0.44 0.45 0.46 0.47 0.48 0.49 0.50 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.60 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.70 0.71 0.72 0.73 0.74 0.75 0.76 0.77 0.78 0.79 0.80 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.90 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99]
 
 //////////////////////////////////////////////////////////
 /*------------------- POST-PROCESSING ------------------*/
@@ -389,17 +383,14 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE_GROWTH 2.00
 #define EXPOSURE_DECAY  0.50
 
-const float calibration       = 12.5;  // Light meter calibration
-const float sensorSensitivity = 100.0; // Sensor sensitivity
-
 #if EXPOSURE == 2
 	#define HISTOGRAM_BINS 80
 
 	// Logarithmic scale
-	const float minLuminance      = -5.0;
-	const float maxLuminance      =  16.0;
-	const float luminanceRange    = maxLuminance - minLuminance;
-	const float rcpLuminanceRange = 1.0 / luminanceRange;
+	const float minLogLuminance      = -5.0;
+	const float maxLogLuminance      =  10.0;
+	const float logLuminanceRange    = maxLogLuminance - minLogLuminance;
+	const float rcpLogLuminanceRange = 1.0 / logLuminanceRange;
 
 	const vec2 debugHistogramSize = vec2(370, 208);
 #endif
@@ -419,31 +410,6 @@ const float sensorSensitivity = 100.0; // Sensor sensitivity
 #define LUT     0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 
 #define AGX_LOOK 0
-
-#if TONEMAP == ACES
-	// ACES Settings
-	const float ACES_EPS = 0.00006103;
-
-	// Glow module constants
-	const float RRT_GLOW_GAIN = 0.05;
-	const float RRT_GLOW_MID  = 0.08;
-
-	// Red modifier constants
-	const float RRT_RED_SCALE =  0.82;
-	const float RRT_RED_PIVOT =  0.03;
-	const float RRT_RED_HUE   =   0.0;
-	const float RRT_RED_WIDTH = 135.0;
-
-	const float RRT_SAT_FACTOR = 0.96;
-	const float ODT_SAT_FACTOR = 0.93;
-
-	const float DIM_SURROUND_GAMMA = 0.9811;
-	const float ODT_DISPGAMMA      =    2.4;
-	const float ODT_GAMMA_OFFSET   =  0.055;
-
-	const float ODT_CINEMA_WHITE = 48.0;
-	const float ODT_CINEMA_BLACK = (ODT_CINEMA_WHITE / 2400.0);
-#endif
 
 #define WHITE_POINT   6500
 #define WHITE_BALANCE 6500 // [5000 5100 5200 5300 5400 5500 5600 5700 5800 5900 6000 6100 6200 6300 6400 6500 6600 6700 6800 6900 7000 7100 7200 7300 7400 7500 7600 7700 7800 7900 8000 8100 8200 8300 8400 8500 8600 8700 8800 8900 9000 9100 9200 9300 9400 9500 9600 9700 9800 9900 10000]

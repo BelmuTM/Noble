@@ -45,11 +45,11 @@
         int getBinFromLuminance(float luminance) {
             if(luminance <= 0) return 0;
 
-    	    return int(clamp((log(luminance) * rcpLuminanceRange - (minLuminance * rcpLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
+    	    return int(clamp((log(luminance) * rcpLogLuminanceRange - (minLogLuminance * rcpLogLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
         }
 
         float getLuminanceFromBin(int bin) {
-            return exp((bin * rcp(HISTOGRAM_BINS)) * luminanceRange + minLuminance);
+            return exp((bin * rcp(HISTOGRAM_BINS)) * logLuminanceRange + minLogLuminance);
         }
 
         float[HISTOGRAM_BINS] buildLuminanceHistogram() {
@@ -153,14 +153,18 @@
             history.a = avgLuminance;
 
             #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+
     	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
                     vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
     		        int index   = int(HISTOGRAM_BINS * coords.x);
 
-                    vec3 histogram = luminanceHistogram[index >> 2][index & 3] > coords.y * 0.8 ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+                    bool isBin = luminanceHistogram[index >> 2][index & 3] > coords.y * 0.8;
+
+                    vec3 histogram = isBin ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
                     
                     imageStore(colorimg0, ivec2(gl_FragCoord.xy), logLuvEncode(histogram));
     	        }
+                
             #endif
         #endif
     }

@@ -19,12 +19,10 @@
 /********************************************************************************/
 
 /*
-    [Credits]:
-        Jessie - providing rod response coefficients for Purkinje (https://github.com/Jessie-LC)
-
     [References]:
 		Hellsten, J. (2007). Evaluation of tone mapping operators for use in real time environments. http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
         Lagarde, S. (2014). Moving Frostbite to Physically Based Rendering 3.0. https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+        Guy, R., & Agopian, M. (2019). Physically Based Rendering in Filament. https://google.github.io/filament/Filament.md.html
 */
 
 /* RENDERTARGETS: 0 */
@@ -41,6 +39,8 @@ in vec2 textureCoords;
 #include "/include/atmospherics/constants.glsl"
 
 #if TONEMAP == ACES
+    #include "/include/post/aces/lib/parameters.glsl"
+
     #include "/include/post/aces/lib/splines.glsl"
     #include "/include/post/aces/lib/transforms.glsl"
 
@@ -65,8 +65,10 @@ void main() {
     float exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
     #if BLOOM == 1
-        // https://google.github.io/filament/Filament.md.html#imagingpipeline/physicallybasedcamera/bloom
-        color += texture(SHADOWMAP_BUFFER, textureCoords * 0.5).rgb * exp2(exposure + BLOOM_STRENGTH - 3.0);
+        vec3  bloom         = texture(SHADOWMAP_BUFFER, textureCoords * 0.5).rgb;
+        float bloomStrength = exp2(exposure + BLOOM_STRENGTH - 3.0);
+
+        color += bloom * bloomStrength;
     #endif
 
     #if PURKINJE == 1

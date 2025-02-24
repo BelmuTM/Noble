@@ -28,7 +28,6 @@
 
 const float layerHeight = 1.0 / float(POM_LAYERS);
 
-
 #if POM_DEPTH_WRITE == 1
     float projectDepth(float depth) {
         return (-gbufferProjection[2].z * depth + gbufferProjection[3].z) / depth * 0.5 + 0.5;
@@ -44,7 +43,7 @@ void wrapCoordinates(inout vec2 coords) {
 }
 
 vec2 localToAtlas(vec2 localCoords) {
-    return (fract(localCoords) * texSize + botLeft);
+    return fract(localCoords) * texSize + botLeft;
 }
 
 vec2 atlasToLocal(vec2 atlasCoords) {
@@ -98,7 +97,8 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
 	#else
 	    float afterHeight  = currFragHeight - traceDistance;
 		float beforeHeight = sampleHeightMap(prevCoords, texDeriv) - traceDistance + layerHeight;
-		float weight       = afterHeight / (afterHeight - beforeHeight);
+		float heightDelta  = afterHeight - beforeHeight;
+		float weight       = heightDelta <= 0.0 ? 0.0 : afterHeight / (afterHeight - beforeHeight);
 
 		vec2 smoothenedCoords = mix(currCoords, prevCoords, weight);
 
