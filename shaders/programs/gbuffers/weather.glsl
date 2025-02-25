@@ -59,6 +59,8 @@
 	in vec2 textureCoords;
 	in vec3 directIlluminance;
 
+	uniform sampler2D gtexture;
+
 	vec4 computeRainColor() {
 		const float density               = 1.0;
 		const float scatteringCoefficient = 0.1;
@@ -77,7 +79,7 @@
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 		if(saturate(fragCoords) != fragCoords) discard;
 
-		vec4 albedo = texture(tex, textureCoords);
+		vec4 albedo = texture(gtexture, textureCoords);
 
 		if(albedo.a < 0.102) discard;
 

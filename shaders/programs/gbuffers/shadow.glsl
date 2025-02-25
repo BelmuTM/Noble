@@ -74,6 +74,8 @@
     in vec3 worldPosition;
     in vec4 vertexColor;
 
+    uniform sampler2D gtexture;
+
     #if WATER_CAUSTICS == 1
         #include "/include/fragment/gerstner.glsl"
 
@@ -89,7 +91,7 @@
     #endif
 
     void main() {
-        vec4 albedoTex = texture(tex, textureCoords);
+        vec4 albedoTex = texture(gtexture, textureCoords);
         albedoTex.rgb *= vertexColor.rgb;
 
         if(albedoTex.a < 0.102) discard;

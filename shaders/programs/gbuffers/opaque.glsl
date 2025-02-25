@@ -140,6 +140,10 @@
 	uniform int heldBlockLightValue;
 	uniform int heldBlockLightValue2;
 
+	uniform sampler2D gtexture;
+	uniform sampler2D normals;
+	uniform sampler2D specular;
+
 	#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0 && !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 		vec2 computeLightmap(vec3 scenePosition, vec3 textureNormal) {
 			// Thanks ninjamike1211 for the help
@@ -185,7 +189,7 @@
 				float height = 1.0, traceDistance = 0.0;
 				vec2  shadowCoords = vec2(0.0);
 
-				if(texture(normals, textureCoords).a < 1e-3 || texture(tex, textureCoords).a < 0.102) discard;
+				if(texture(normals, textureCoords).a < 1e-3 || texture(gtexture, textureCoords).a < 0.102) discard;
 
 				coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
 
@@ -201,7 +205,7 @@
 			}
 		#endif
 
-		vec4 albedoTex = texture(tex, coords) * vertexColor;
+		vec4 albedoTex = texture(gtexture, coords) * vertexColor;
 		if(albedoTex.a < 0.102) discard;
 
 		vec4 normalTex = texture(normals, coords);

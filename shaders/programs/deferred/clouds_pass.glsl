@@ -69,14 +69,14 @@
 
             clouds = vec4(0.0, 0.0, 1.0, 0.0);
 
-            sampler2D depthTex = depthtex0;
-            float     depth    = texture(depthtex0, vertexCoords).r;
+            bool  dhFragment = false;
+            float depth      = texture(depthtex0, vertexCoords).r;
 
             mat4 projectionInverse = gbufferProjectionInverse;
 
             #if defined DISTANT_HORIZONS
                 if(depth >= 1.0) {
-                    depthTex = dhDepthTex0;
+                    dhFragment        = true;
                     projectionInverse = dhProjectionInverse;
                 }
             #endif
@@ -93,7 +93,11 @@
                 }
             #endif
 
-            if(find4x4MaximumDepth(depthTex, vertexCoords) < 1.0) return;
+            if(dhFragment) {
+                if(find4x4MaximumDepth(dhDepthTex0, vertexCoords) < 1.0) return;
+            } else {
+                if(find4x4MaximumDepth(depthtex0, vertexCoords) < 1.0) return;
+            }
 
             vec3 viewPosition       = screenToView(vec3(textureCoords, 1.0), projectionInverse, false);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);

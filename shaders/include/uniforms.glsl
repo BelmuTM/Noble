@@ -58,9 +58,6 @@ uniform int renderStage;
 
 uniform sampler2D noisetex;
 
-uniform sampler2D tex;
-uniform sampler2D normals;
-uniform sampler2D specular;
 uniform sampler2D colortex0;
 uniform usampler2D colortex1;
 uniform sampler2D colortex2;

@@ -66,7 +66,7 @@
 
         #if RENDER_MODE == 0 && ATROUS_FILTER == 1
 
-			float estimateSpatialVariance(sampler2D tex, vec2 moments) {
+			float estimateSpatialVariance(sampler2D gtexture, vec2 moments) {
 				float sum = moments.r, sqSum = moments.g, totalWeight = 1.0;
 
 				const float waveletKernel[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);

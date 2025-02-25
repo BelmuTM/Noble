@@ -108,6 +108,10 @@
 
 	#include "/include/fragment/gerstner.glsl"
 
+	uniform sampler2D gtexture;
+	uniform sampler2D normals;
+	uniform sampler2D specular;
+
 	void main() {
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 		if(saturate(fragCoords) != fragCoords) discard;
@@ -116,7 +120,7 @@
 			discard;
 		#endif
 
-		vec4 albedoTex = texture(tex, textureCoords);
+		vec4 albedoTex = texture(gtexture, textureCoords);
 		if(albedoTex.a < 0.102) discard;
 
 		vec4 normalTex   = vec4(0.0);

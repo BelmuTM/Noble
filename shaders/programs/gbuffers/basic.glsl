@@ -59,11 +59,13 @@
 	in vec2 textureCoords;
 	in vec4 vertexColor;
 
+	uniform sampler2D gtexture;
+
 	void main() {
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 		if(saturate(fragCoords) != fragCoords) discard;
 
-		vec4 albedoTex = texture(tex, textureCoords);
+		vec4 albedoTex = texture(gtexture, textureCoords);
 
 		#if defined PROGRAM_ARMOR_GLINT
 			color = vec4(albedoTex.rgb, 0.0);
