@@ -130,7 +130,7 @@ const float lodFactor = exp2(-lod);
 		#elif defined BLOOM_UPSAMPLE_PASS
 
 			float normalization = 0.0;
-			for(int tile = 0; tile < 9; tile++) normalization += tileWeight(tile);
+			for(int tile = 0; tile < 8; tile++) normalization += tileWeight(tile);
 			normalization = 1.0 / normalization;
 
 			bloom.rgb = textureBicubic(BLOOM_SAMPLER, coords).rgb;

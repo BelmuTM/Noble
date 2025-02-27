@@ -122,6 +122,10 @@
 	in vec4 vertexColor;
 	in mat3 tbn;
 
+	uniform sampler2D gtexture;
+	uniform sampler2D normals;
+	uniform sampler2D specular;
+
 	#if defined PROGRAM_TERRAIN
 		#if POM > 0
 			#include "/include/fragment/parallax.glsl"
@@ -139,10 +143,6 @@
 
 	uniform int heldBlockLightValue;
 	uniform int heldBlockLightValue2;
-
-	uniform sampler2D gtexture;
-	uniform sampler2D normals;
-	uniform sampler2D specular;
 
 	#if DIRECTIONAL_LIGHTMAP == 1 && GI == 0 && !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 		vec2 computeLightmap(vec3 scenePosition, vec3 textureNormal) {
