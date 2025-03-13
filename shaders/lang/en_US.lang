@@ -319,6 +319,11 @@ option.SKY_CONTRIBUTION.comment = Sky contribution for §bGlobal Illumination§r
 value.SKY_CONTRIBUTION.0 = §cOFF
 value.SKY_CONTRIBUTION.1 = §aON
 
+option.RENDER_ENTITIES = Render Entities
+option.RENDER_ENTITIES.comment = Lets you choose wether or not you want to display entities to the screen. §cOnly works when §lRENDER§r§c mode is enabled.
+value.RENDER_ENTITIES.0 = §cOFF
+value.RENDER_ENTITIES.1 = §aON
+
 ##################### ATMOSPHERICS #####################
 
 option.sunPathRotation = Celestial Path Rotation

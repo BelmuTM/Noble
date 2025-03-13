@@ -53,7 +53,7 @@
 	#include "/include/vertex/animation.glsl"
 
 	void main() {
-		#if defined PROGRAM_HAND && RENDER_MODE == 1
+		#if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
 			gl_Position = vec4(1.0);
 			return;
 		#endif
@@ -170,7 +170,7 @@
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
 		if(saturate(fragCoords) != fragCoords) discard;
 
-		#if defined PROGRAM_HAND && RENDER_MODE == 1
+		#if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
 			discard;
 		#endif
 
