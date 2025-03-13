@@ -35,7 +35,7 @@ vec3 getAtmosphereDensities(float centerDist) {
 	float altitudeKm = (centerDist - planetRadius) * 1e-3;
 	vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * 1e-3));
 
-    // Ozone approximation from Jessie#7257
+    // Ozone approximation from Jessie
     float o1 = 25.0 *     exp(( 0.0 - altitudeKm) * rcp(  8.0));
     float o2 = 30.0 * pow(exp((18.0 - altitudeKm) * rcp( 80.0)), altitudeKm - 18.0);
     float o3 = 75.0 * pow(exp((25.3 - altitudeKm) * rcp( 35.0)), altitudeKm - 25.3);

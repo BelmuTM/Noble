@@ -94,23 +94,27 @@ float densityAlter(float altitude, float weatherMap) {
     return densityAlter;
 }
 
-#define WORLEY__CELL_COUNT (1.0 / 10.0)
+#define WORLEY_CELLS_COUNT (1.0 / 16.0)
 
 vec2 getCellPoint(ivec2 cell) {
-    return (vec2(cell) * WORLEY__CELL_COUNT) + (0.5 + 1.5 * rand(vec2(cell))) * WORLEY__CELL_COUNT;
+	vec2 cell_base = cell * WORLEY_CELLS_COUNT;
+	float noise_x  = rand(vec2(cell));
+    float noise_y  = rand(vec2(cell.yx));
+    return cell_base + (0.5 + 1.5 * vec2(noise_x, noise_y)) * WORLEY_CELLS_COUNT;
 }
 
-float cloudsWorley(vec2 coords) {
-    ivec2 cell = ivec2(coords / WORLEY__CELL_COUNT);
+float worley(vec2 coords) {
+    ivec2 cell = ivec2(coords / WORLEY_CELLS_COUNT);
     float dist = 1.0;
+
+    const int neighbourhoodSize = 2;
     
-    for (int x = 0; x < 2; x++) { 
-        for (int y = 0; y < 2; y++) {
-            dist = min(dist, distance(getCellPoint(cell + ivec2(x - 2, y - 2)), coords));
+    for (int x = -neighbourhoodSize; x < neighbourhoodSize; x++) { 
+        for (int y = -neighbourhoodSize; y < neighbourhoodSize; y++) {
+            dist = min(dist, distance(getCellPoint(cell + ivec2(x, y)), coords));
         }
     }
-    dist /= length(vec2(WORLEY__CELL_COUNT));
-    return pow3(1.0 - dist);
+    return 1.0 - dist / length(vec2(WORLEY_CELLS_COUNT));
 }
 
 float calculateCloudsDensity(vec3 position, CloudLayer layer) {
@@ -125,14 +129,17 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
 
     layer.coverage += (0.26 * wetness);
 
-    float worley = cloudsWorley(position.xz * layer.scale * 0.1);
+    vec2 scaledCoords = position.xz * layer.scale;
 
-    float weitherMapLayer0  = pow(FBM(position.xz * layer.scale * 2.0, layer.octaves, layer.frequency), 2.0);
-          weitherMapLayer0 *= sqrt(texture(noisetex, position.xz * layer.scale).g);
-          weitherMapLayer0 += cloudsWorley(position.xz * layer.scale * 0.09) * (1.0 + wetnessFactor);
+    float worley = worley(scaledCoords * 0.06);
+
+    float weitherMapLayer0  = FBM(scaledCoords * 2.0, layer.octaves, layer.frequency);
+          weitherMapLayer0 *= weitherMapLayer0;
+          weitherMapLayer0 *= sqrt(texture(noisetex, scaledCoords).g);
+          weitherMapLayer0 += worley * worley * worley * (1.0 + wetnessFactor);
           weitherMapLayer0 -= wetnessFactor;
 
-    float weitherMapLayer1  = FBM(position.xz * layer.scale, layer.octaves, layer.frequency);
+    float weitherMapLayer1  = FBM(scaledCoords, layer.octaves, layer.frequency);
           weitherMapLayer1 *= saturate(texture(noisetex, position.xz * 2e-4).b * 0.8 + 0.5);
 
     float weatherMap = isUpperCloudLayer ? weitherMapLayer1 : weitherMapLayer0;
