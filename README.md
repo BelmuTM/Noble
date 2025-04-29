@@ -21,7 +21,8 @@ being accessible to public no matter what.
 * A Nvidia graphics card (GTX 950 or newer) **OR**  an AMD graphics card (R7 370 or newer)
 * Windows or Linux (MacOS and Mesa Linux aren't supported)
 
-#### ⚠️ **MAKE SURE TO UNZIP THE FILE FIRST**
+> [!IMPORTANT]
+> Make sure to unzip the project's file before use
 
 ## License
 Noble is licensed under the GPL v3.0 License. Please consider reading the terms before modifying / distributing this project.
