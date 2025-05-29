@@ -85,8 +85,6 @@ uniform sampler2D dhDepthTex1;
 uniform float dhNearPlane;
 uniform float dhFarPlane;
 
-uniform sampler3D depthtex2;
-
 uniform sampler2D shadowtex0;
 uniform sampler2D shadowtex1;
 uniform sampler2D shadowcolor0;
