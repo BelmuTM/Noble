@@ -102,7 +102,7 @@
 	    if(saturate(fragCoords) != fragCoords) { discard; return; }
 
         bool  dhFragment = false;
-        float depth    = texture(depthtex0, vertexCoords).r;
+        float depth      = texture(depthtex0, vertexCoords).r;
 
         mat4 projection        = gbufferProjection;
         mat4 projectionInverse = gbufferProjectionInverse;
@@ -131,10 +131,10 @@
         #endif
 
         #if GI == 0
-            if(depth == 1.0) {
-                color.rgb = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
-                return;
-            }
+        if(depth == 1.0) {
+            color.rgb = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
+            return;
+        }
         #endif
 
         #if AO > 0 && AO_FILTER == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1

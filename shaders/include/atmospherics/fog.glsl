@@ -214,6 +214,8 @@ float calculateAirFogPhase(float cosTheta) {
         float phaseFog    = calculateAirFogPhase(VdotL);
         vec2  phaseAerial = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
+        float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
+
         for(int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
             #if defined WORLD_OVERWORLD
                 vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
@@ -226,13 +228,17 @@ float calculateAirFogPhase(float cosTheta) {
             #endif
 
             float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-2.0 * length(rayPosition - cameraPosition) / farPlane));
-            float densityFog         = getAirFogDensity(rayPosition) * distanceFalloffFog;
+            float densityFog         = 0.0;
+
+            if(fogDensity > 1e-2) {
+                densityFog = getAirFogDensity(rayPosition) * distanceFalloffFog;
+            }
 
             vec3 stepScatteringDirect   = vec3(0.0);
             vec3 stepScatteringIndirect = vec3(0.0);
             vec3 stepTransmittance      = vec3(1.0);
 
-            if(densityFog > 1e-3) {
+            if(densityFog > 1e-2) {
                 float airmassFog      = densityFog * rayLength;
                 vec3  opticalDepthFog = airFogAttenuationCoefficients * airmassFog;
 
@@ -252,8 +258,7 @@ float calculateAirFogPhase(float cosTheta) {
                     float farPlane = far;
                 #endif
 
-                float heightFalloffAerial   = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08);
-                float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
+                float heightFalloffAerial = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08);
 
                 float airmassAerial      = rayLength * heightFalloffAerial * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * 10.0;
                 vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);

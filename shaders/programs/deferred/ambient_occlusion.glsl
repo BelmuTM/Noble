@@ -87,7 +87,7 @@
 				float dither = interleavedGradientNoise(gl_FragCoord.xy);
 
 				for(int i = 0; i < GTAO_SLICES; i++) {
-					float sliceAngle = (PI * rcp(GTAO_SLICES)) * (i + dither);
+					float sliceAngle = PI * rcp(GTAO_SLICES) * (i + dither);
 					vec3  sliceDir   = vec3(cos(sliceAngle), sin(sliceAngle), 0.0);
 
 					vec3 orthoDir   = sliceDir - dot(sliceDir, viewDirection) * viewDirection;
