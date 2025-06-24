@@ -18,6 +18,11 @@
 /*                                                                              */
 /********************************************************************************/
 
+/*
+	[References]:
+        Wikipedia. (2025). Circle of confusion. https://en.wikipedia.org/wiki/Circle_of_confusion
+*/
+
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 
@@ -43,7 +48,6 @@
             #include "/include/post/grading.glsl"
         #endif
 
-        // https://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field
         float getCoC(float fragDepth, float targetDepth) {
             return fragDepth <= handDepth ? 0.0 : abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
         }
@@ -76,16 +80,16 @@
         }
 
         void main() {
-            sampler2D depthTex = depthtex0;
-            float     depth    = texture(depthtex0, vertexCoords).r;
+            bool  dhFragment = false;
+            float depth      = texture(depthtex0, vertexCoords).r;
 
             float nearPlane = near;
             float farPlane  = far;
 
             #if defined DISTANT_HORIZONS
                 if (depth >= 1.0) {
-                    depthTex = dhDepthTex0;
-                    depth    = texture(dhDepthTex0, vertexCoords).r;
+					dhFragment = true;
+					depth      = texture(dhDepthTex0, vertexCoords).r;
 
                     nearPlane = dhNearPlane;
                     farPlane  = dhFarPlane;
@@ -95,7 +99,9 @@
             depth = linearizeDepth(depth, nearPlane, farPlane);
 
             #if DOF_DEPTH == 0
-                float targetDepth = linearizeDepth(texture(depthTex, vec2(RENDER_SCALE * 0.5)).r, nearPlane, farPlane);
+                vec2  centerCoords = vec2(RENDER_SCALE * 0.5);
+                float centerDepth  = dhFragment ? texture(dhDepthTex0, centerCoords).r : texture(depthtex0, centerCoords).r;
+                float targetDepth  = linearizeDepth(centerDepth, nearPlane, farPlane);
             #else
                 float targetDepth = float(DOF_DEPTH);
             #endif
