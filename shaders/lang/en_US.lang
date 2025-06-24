@@ -270,14 +270,6 @@ option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (
 value.REFRACTIONS.0 = §cOFF
 value.REFRACTIONS.1 = §aON
 
-option.REFRACTIONS_STEPS = Refractions Steps
-option.REFRACTIONS_STEPS.comment = Influences §bRefractions§r' accuracy. §cHigher value gives better results, but reduces §cperformance.
-value.REFRACTIONS_STEPS.8 = §28
-value.REFRACTIONS_STEPS.16 = §a16
-value.REFRACTIONS_STEPS.32 = §e32
-value.REFRACTIONS_STEPS.64 = §664
-value.REFRACTIONS_STEPS.128 = §c128
-
 ##################### GLOBAL ILLUMINATION #####################
 
 option.GI = Global Illumination (GI)
