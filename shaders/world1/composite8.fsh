@@ -5,5 +5,5 @@
 #define BLOOM_DOWNSAMPLE_PASS
 #define BLOOM_DOWNSAMPLE_PASS_INDEX 1
 
-#include "/include/post/bloom/tile_pass.glsl"
+#include "/programs/post/bloom/tile_pass.glsl"
 
