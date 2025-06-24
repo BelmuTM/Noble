@@ -30,7 +30,14 @@ float computeStarfield(vec3 viewPosition, vec3 lightVector) {
 	vec3  index    = floor(position);
 	float radius   = lengthSqr(position - index - 0.5);
 
-	float VdotU  = saturate(dot(normalize(viewPosition), upPosition));
+	float VdotU = dot(normalize(viewPosition), upPosition);
+
+	#if defined WORLD_END
+		VdotU = abs(VdotU);
+	#else
+		VdotU = saturate(VdotU);
+	#endif
+
 	float factor = max0(sqrt(sqrt(VdotU)));
 
 	float falloff = pow2(quinticStep(0.5, 0.0, radius));

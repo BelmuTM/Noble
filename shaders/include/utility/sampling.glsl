@@ -58,6 +58,36 @@ vec4 textureBicubic(sampler2D tex, vec2 coords) {
     return mix(mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
 }
 
+vec3 textureBicubic(usampler2D tex, vec2 coords, int component) {
+    vec2 texSize    = textureSize(tex, 0);
+    vec2 invTexSize = 1.0 / texSize;
+ 
+    coords = coords * texSize - 0.5;
+ 
+    vec2 fxy = fract(coords);
+
+    coords -= fxy;
+ 
+    vec4 xcubic = cubicWeight(fxy.x);
+    vec4 ycubic = cubicWeight(fxy.y);
+ 
+    vec4 c      = coords.xxyy + vec2(-0.5, 1.5).xyxy;
+    vec4 s      = vec4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
+    vec4 offset = c + vec4(xcubic.yw, ycubic.yw) / s;
+ 
+    offset *= invTexSize.xxyy;
+ 
+    vec3 sample0 = logLuvDecode(unpackUnormArb(texture(tex, offset.xz)[component], uvec4(8)));
+    vec3 sample1 = logLuvDecode(unpackUnormArb(texture(tex, offset.yz)[component], uvec4(8)));
+    vec3 sample2 = logLuvDecode(unpackUnormArb(texture(tex, offset.xw)[component], uvec4(8)));
+    vec3 sample3 = logLuvDecode(unpackUnormArb(texture(tex, offset.yw)[component], uvec4(8)));
+ 
+    float sx = s.x / (s.x + s.y);
+    float sy = s.z / (s.z + s.w);
+ 
+    return mix(mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
+}
+
 /*
     Texture CatmullRom taken from TheRealMJP (https://github.com/TheRealMJP)
     SOURCE: https://gist.github.com/TheRealMJP/c83b8c0f46b63f3a88a5986f4fa982b1

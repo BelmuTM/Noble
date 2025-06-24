@@ -32,7 +32,7 @@ const float aerialPerspectiveMult = 1.0;
         const float fogThickness = FOG_THICKNESS;
         
         float fogFrequency    = mix(0.7, 1.0, biome_may_sandstorm);
-        vec2  fogShapeFactors = mix(vec2(1.5, 0.3), vec2(2.0, 0.3), biome_may_sandstorm);
+        vec2  fogShapeFactors = mix(vec2(1.5, 0.4), vec2(2.0, 0.4), biome_may_sandstorm);
         float densityFactor   = wetness;
         float densityMult     = mix(0.2, 0.7, biome_may_sandstorm);
     #else
@@ -42,7 +42,7 @@ const float aerialPerspectiveMult = 1.0;
         const float fogAltitude     = FOG_ALTITUDE;
         const float fogThickness    = FOG_THICKNESS;
         const float fogFrequency    = 0.7;
-        const vec2  fogShapeFactors = vec2(1.5, 0.3);
+        const vec2  fogShapeFactors = vec2(1.5, 0.4);
               float densityFactor   = wetness;
         const float densityMult     = 0.2;
     #endif
@@ -57,7 +57,7 @@ const float aerialPerspectiveMult = 1.0;
     const float fogFrequency    = 0.7;
     const vec2  fogShapeFactors = vec2(2.0, 0.7);
     const float densityFactor   = 1.0;
-    const float densityMult     = 0.05;
+    const float densityMult     = 0.03;
 
 #elif defined WORLD_END
 
@@ -130,6 +130,8 @@ float calculateAirFogPhase(float cosTheta) {
 
 #elif AIR_FOG == 1
 
+    uniform sampler3D depthtex2;
+
     float getAirFogDensity(vec3 position) {
         if(clamp(position.y, fogAltitude, fogAltitude + fogThickness) != position.y) return 0.0;
 
@@ -151,8 +153,9 @@ float calculateAirFogPhase(float cosTheta) {
             //fogShapeFactors = mix(vec2(2.5, 0.6), fogShapeFactors, sqrt(quinticStep(0.0, 1.0, min(125.0, position.y) / 125.0)));
         #endif
         
-        float shapeNoise  = pow2(FBM(position * FOG_SHAPE_SCALE * 0.01, AIR_FOG_OCTAVES, fogFrequency) * fogShapeFactors.x - fogShapeFactors.y);
-              shapeNoise  = shapeNoise * shapeAlter * 0.4 - (2.0 * shapeAlter * altitude * 0.5 + 0.5);
+        vec4  shapeTex   = texture(depthtex2, position * FOG_SHAPE_SCALE * 1e-3);
+        float shapeNoise = remap(pow(shapeTex.r, 1.4), -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
+              shapeNoise = (shapeNoise * shapeAlter - (2.0 * shapeAlter * altitude * 0.5 + 0.5)) * fogShapeFactors.x - fogShapeFactors.y;
 
         #if defined WORLD_OVERWORLD
             shapeNoise *= exp(-abs(position.y - fogAltitude) * 0.14);
@@ -227,10 +230,11 @@ float calculateAirFogPhase(float cosTheta) {
                 vec3 shadowColor = vec3(1.0);
             #endif
 
-            float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-2.0 * length(rayPosition - cameraPosition) / farPlane));
-            float densityFog         = 0.0;
+            float densityFog = 0.0;
 
             if(fogDensity > 1e-2) {
+                float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-1.0 * length(rayPosition - cameraPosition) / farPlane));
+
                 densityFog = getAirFogDensity(rayPosition) * distanceFalloffFog;
             }
 
