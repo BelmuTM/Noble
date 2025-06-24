@@ -73,12 +73,12 @@
 
 				vec2 stepSize = 5.0 * texelSize;
 
-				for(int x = -1; x <= 1; x++) {
-					for(int y = -1; y <= 1; y++) {
-						if(x == 0 && y == 0) continue;
+				for (int x = -1; x <= 1; x++) {
+					for (int y = -1; y <= 1; y++) {
+						if (x == 0 && y == 0) continue;
 
 						vec2 sampleCoords = textureCoords + vec2(x, y) * stepSize;
-						if(saturate(sampleCoords) != sampleCoords) continue;
+						if (saturate(sampleCoords) != sampleCoords) continue;
 
 						float weight    = waveletKernel[abs(x)] * waveletKernel[abs(y)];
 						float luminance = luminance(texture(tex, sampleCoords).rgb);
@@ -99,7 +99,7 @@
 
     void main() {
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	    if(saturate(fragCoords) != fragCoords) { discard; return; }
+	    if (saturate(fragCoords) != fragCoords) { discard; return; }
 
         bool  dhFragment = false;
         float depth      = texture(depthtex0, vertexCoords).r;
@@ -111,7 +111,7 @@
         float farPlane  = far;
 
         #if defined DISTANT_HORIZONS
-            if(depth >= 1.0) {
+            if (depth >= 1.0) {
                 dhFragment = true;
                 depth      = texture(dhDepthTex0, vertexCoords).r;
 
@@ -131,7 +131,7 @@
         #endif
 
         #if GI == 0
-        if(depth == 1.0) {
+        if (depth == 1.0) {
             color.rgb = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
             return;
         }
@@ -149,9 +149,9 @@
             momentsOut = texture(MOMENTS_BUFFER, prevPosition.xy);
 
             #if RENDER_MODE == 0
-                float prevDepth = exp2(momentsOut.a);
+                float prevDepth = exp2(momentsOut.r);
                 
-                momentsOut.a = log2(prevPosition.z);
+                momentsOut.r = log2(prevPosition.z);
 
                 float linearDepth     = linearizeDepth(prevPosition.z, nearPlane, farPlane);
 			    float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
@@ -217,12 +217,12 @@
                     float luminance = luminance(color.rgb);
                     vec2  moments   = vec2(luminance, luminance * luminance);
 
-                    momentsOut.rg = mix(momentsOut.rg, moments, weight);
+                    momentsOut.gb = mix(momentsOut.gb, moments, weight);
 
-                    if(color.a < VARIANCE_STABILIZATION_THRESHOLD) {
-                        momentsOut.b = estimateSpatialVariance(ACCUMULATION_BUFFER, moments);
+                    if (color.a < VARIANCE_STABILIZATION_THRESHOLD) {
+                        momentsOut.a = estimateSpatialVariance(ACCUMULATION_BUFFER, moments);
                     } else { 
-                        momentsOut.b = abs(momentsOut.g - momentsOut.r * momentsOut.r);
+                        momentsOut.a = abs(momentsOut.b - momentsOut.g * momentsOut.g);
                     }
                 #endif
 

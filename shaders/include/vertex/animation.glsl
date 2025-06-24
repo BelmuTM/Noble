@@ -64,7 +64,7 @@ void swingingLantern(inout vec3 worldPosition, bool isBottomVertex) {
 }
 
 void animate(inout vec3 worldPosition, bool isTopVertex, float skyFalloff) {
-	switch(blockId) {
+	switch (blockId) {
 		case LEAVES_ID:              wavingLeaves(worldPosition, skyFalloff                    ); break;
 		case DOUBLE_PLANTS_LOWER_ID: wavingPlants(worldPosition, skyFalloff, isTopVertex, false); break;
 		case DOUBLE_PLANTS_UPPER_ID: wavingPlants(worldPosition, skyFalloff, isTopVertex, true ); break;

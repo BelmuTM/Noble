@@ -114,7 +114,7 @@ Material getMaterial(vec2 coords) {
         material.albedo = srgbToLinear(material.albedo);
     #endif
 
-    if(material.F0 * maxFloat8 > 229.5) {
+    if (material.F0 * maxFloat8 > 229.5) {
         mat2x3 hcm = getHardcodedMetal(material);
         material.N = hcm[0], material.K = hcm[1];
     } else {
@@ -133,7 +133,7 @@ Material getMaterial(vec2 coords) {
     material.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;
 
     #if defined DISTANT_HORIZONS
-        if(material.depth0 >= 1.0) {
+        if (material.depth0 >= 1.0) {
             material.depth0 = texelFetch(dhDepthTex0, ivec2(coords), 0).r;
             material.depth1 = texelFetch(dhDepthTex1, ivec2(coords), 0).r;
         }
@@ -143,7 +143,7 @@ Material getMaterial(vec2 coords) {
 }
 
 vec3 getBlockLightColor(Material material) {
-    switch(material.id) {
+    switch (material.id) {
         case LAVA_ID: return blackbody(1523.15) * EMISSIVE_INTENSITY; // Lava, magma
 
         default: return blackbody(BLOCKLIGHT_TEMPERATURE) * EMISSIVE_INTENSITY;

@@ -48,7 +48,7 @@
 
     void main() {
         float viewDistance = length(scenePosition);
-        if(viewDistance < 0.5 * far) { discard; return; }
+        if (viewDistance < 0.5 * far) { discard; return; }
 
         shadowmap = vertexColor;
     }

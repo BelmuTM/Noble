@@ -28,7 +28,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3 */
+    /* RENDERTARGETS: 5 */
 
     layout (location = 0) out vec3 bloom;
 

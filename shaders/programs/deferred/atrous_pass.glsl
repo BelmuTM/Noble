@@ -73,14 +73,14 @@
         float gaussianVariance(vec2 coords, vec3 normal, float depth, vec2 depthGradient) {
             float varianceSum = 0.0, totalWeight = EPS;
             
-            for(int x = -1; x <= 1; x++) {
-                for(int y = -1; y <= 1; y++) {
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
                     vec2  offset       = vec2(x, y) * texelSize;
                     vec2  sampleCoords = coords + offset;
 
-                    if(saturate(sampleCoords) == sampleCoords) {
+                    if (saturate(sampleCoords) == sampleCoords) {
                         float weight   = gaussianDistribution2D(vec2(x, y), 1.0);
-                        float variance = texture(MOMENTS_BUFFER, sampleCoords).b;
+                        float variance = texture(MOMENTS_BUFFER, sampleCoords).a;
 
                         varianceSum += variance * weight;
                         totalWeight += weight;
@@ -92,7 +92,7 @@
 
         void aTrousFilter(bool dhFragment, float nearPlane, float farPlane, vec2 coords, inout vec3 irradiance, inout vec3 moments) {
             float depth = dhFragment ? texture(dhDepthTex0, coords).r : texture(depthtex0, coords).r;
-            if(depth == 1.0) return;
+            if (depth == 1.0) return;
 
             uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(gl_FragCoord.xy), 0);
             vec3  normal      = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTexture.w & 65535u, (dataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
@@ -109,14 +109,14 @@
             vec2  stepSize    = ATROUS_STEP_SIZE * pow(0.5, 4 - ATROUS_PASS_INDEX) * texelSize;
             float totalWeight = 1.0;
 
-            for(int x = -1; x <= 1; x++) {
-                for(int y = -1; y <= 1; y++) {
-                    if(x == 0 && y == 0) continue;
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    if (x == 0 && y == 0) continue;
 
                     vec2 offset       = vec2(x, y) * stepSize;
                     vec2 sampleCoords = coords + offset;
 
-                    if(saturate(sampleCoords) != sampleCoords) continue;
+                    if (saturate(sampleCoords) != sampleCoords) continue;
 
                     uvec4 sampleDataTexture = texture(GBUFFERS_DATA, sampleCoords);
                     vec3  sampleNormal      = mat3(gbufferModelView) * decodeUnitVector(vec2(sampleDataTexture.w & 65535u, (sampleDataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
@@ -124,7 +124,7 @@
                           sampleDepth       = linearizeDepth(sampleDepth, nearPlane, farPlane);
 
                     vec3  sampleIrradiance = texture(INPUT_BUFFER  , sampleCoords).rgb;
-                    float sampleVariance   = texture(MOMENTS_BUFFER, sampleCoords).b;
+                    float sampleVariance   = texture(MOMENTS_BUFFER, sampleCoords).a;
 
                     float normalWeight    = calculateATrousNormalWeight(normal, sampleNormal);
                     float depthWeight     = calculateATrousDepthWeight(linearDepth, sampleDepth, depthGradient, offset);
@@ -134,17 +134,17 @@
                           weight *= waveletKernel[abs(x)] * waveletKernel[abs(y)];
 
                     irradiance  += sampleIrradiance * weight;
-                    moments.b   += sampleVariance   * weight * weight;
+                    moments.a   += sampleVariance   * weight * weight;
                     totalWeight += weight;
                 }
             }
             irradiance /= totalWeight;
-            moments.b  /= (totalWeight * totalWeight);
+            moments.a  /= (totalWeight * totalWeight);
         }
 
         void main() {
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	        if(saturate(fragCoords) != fragCoords) { discard; return; }
+	        if (saturate(fragCoords) != fragCoords) { discard; return; }
 
             bool  dhFragment = false;
             float depth      = texture(depthtex0, vertexCoords).r;
@@ -153,7 +153,7 @@
             float farPlane  = far;
 
             #if defined DISTANT_HORIZONS
-                if(depth >= 1.0) {
+                if (depth >= 1.0) {
                     dhFragment = true;
 
                     nearPlane = dhNearPlane;
@@ -165,7 +165,7 @@
 
             irradiance = texelFetch(INPUT_BUFFER  , texelCoords, 0);
             moments    = texelFetch(MOMENTS_BUFFER, texelCoords, 0);
-            aTrousFilter(dhFragment, nearPlane, farPlane, vertexCoords, irradiance.rgb, moments.rgb);
+            aTrousFilter(dhFragment, nearPlane, farPlane, vertexCoords, irradiance.rgb, moments.gba);
         }
         
     #endif

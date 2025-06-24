@@ -71,7 +71,7 @@ float moncurve_r(float y, float gamma, float offset) {
     float yb = pow(offset * gamma / (( gamma - 1.0) * (1.0 + offset)), gamma);
     float rs = pow((gamma - 1.0) / offset, gamma - 1.0) * pow((1.0 + offset) / gamma, gamma);
 
-    if(y >= yb) return (1.0 + offset) * pow(y, 1.0 / gamma) - offset;
+    if (y >= yb) return (1.0 + offset) * pow(y, 1.0 / gamma) - offset;
     else        return y * rs;
 }
 

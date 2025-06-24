@@ -68,10 +68,10 @@
 
 	void main() {
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-		if(saturate(fragCoords) != fragCoords) discard;
+		if (saturate(fragCoords) != fragCoords) discard;
 
 		float fragDistance = length(scenePosition);
-    	if(fragDistance < 0.5 * far) { discard; return; }
+    	if (fragDistance < 0.5 * far) { discard; return; }
 
 		vec4 albedoTex = vertexColor;
 
@@ -84,14 +84,14 @@
 		float emission = 0.0;
 
 		#if HARDCODED_EMISSION == 1
-			if(blockId == DH_BLOCK_ILLUMINATED && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
+			if (blockId == DH_BLOCK_ILLUMINATED && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
 		#endif
 
 		float subsurface = 0.0;
 
 		#if HARDCODED_SSS == 1
-			if(subsurface <= EPS) {
-            	if(blockId == DH_BLOCK_LEAVES || blockId == DH_BLOCK_SNOW || blockId == DH_BLOCK_SAND) subsurface = HARDCODED_SSS_VAL;
+			if (subsurface <= EPS) {
+            	if (blockId == DH_BLOCK_LEAVES || blockId == DH_BLOCK_SNOW || blockId == DH_BLOCK_SAND) subsurface = HARDCODED_SSS_VAL;
 			}
         #endif
 

@@ -43,7 +43,7 @@
         vec2  tileSize = 1.0 / tiles;
 
         int getBinFromLuminance(float luminance) {
-            if(luminance <= 0) return 0;
+            if (luminance <= 0) return 0;
 
     	    return int(clamp((log(luminance) * rcpLogLuminanceRange - (minLogLuminance * rcpLogLuminanceRange)) * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1));
         }
@@ -56,17 +56,17 @@
             float lod = ceil(log2(maxOf(viewSize * tileSize)));
 
             float[HISTOGRAM_BINS] pdf;
-            for(int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] = 0.0;
+            for (int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] = 0.0;
 
-            for(int x = 0; x < tiles.x; x++) {
-                for(int y = 0; y < tiles.y; y++) {
+            for (int x = 0; x < tiles.x; x++) {
+                for (int y = 0; y < tiles.y; y++) {
                     vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
-                    float luminance = luminance(textureLod(SHADOWMAP_BUFFER, coords * 0.5, lod).rgb);
+                    float luminance = luminance(textureLod(ILLUMINANCE_BUFFER, coords * 0.5, lod).rgb);
 
                     pdf[getBinFromLuminance(luminance)]++;
                 }
             }
-            for(int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] *= tileSize.x * tileSize.y;
+            for (int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] *= tileSize.x * tileSize.y;
             return pdf;
         }
 
@@ -75,7 +75,7 @@
             vec2 closestBinToMedian = vec2(0.0, 1.0); // vec2(bin, dist)
 
             // Binary search to find the closest bin to the median (CDF = 0.5)
-            for(int i = 0; i < HISTOGRAM_BINS; i++, cumulativeDensity += pdf[i]) {
+            for (int i = 0; i < HISTOGRAM_BINS; i++, cumulativeDensity += pdf[i]) {
                 float distToMedian = distance(cumulativeDensity, 0.5);
                 closestBinToMedian = distToMedian < closestBinToMedian.y ? vec2(i, distToMedian) : closestBinToMedian;
             }
@@ -90,14 +90,14 @@
 
         #if MANUAL_CAMERA == 0 && EXPOSURE > 0
             #if EXPOSURE == 1
-                avgLuminance = luminance(texture(SHADOWMAP_BUFFER, vec2(0.25)).rgb);
+                avgLuminance = luminance(texture(ILLUMINANCE_BUFFER, vec2(0.25)).rgb);
             #else
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
                 int closestBinToMedian    = getClosestBinToMedian(pdf);
 
                 #if DEBUG_HISTOGRAM == 1
                     medianBin = closestBinToMedian;
-                    for(int i = 0; i < HISTOGRAM_BINS; i++) luminanceHistogram[i >> 2][i & 3] = pdf[i];
+                    for (int i = 0; i < HISTOGRAM_BINS; i++) luminanceHistogram[i >> 2][i & 3] = pdf[i];
                 #endif
 
                 avgLuminance = getLuminanceFromBin(closestBinToMedian);
@@ -154,7 +154,7 @@
 
             #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
 
-    	        if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
+    	        if (all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
                     vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
     		        int index   = int(HISTOGRAM_BINS * coords.x);
 

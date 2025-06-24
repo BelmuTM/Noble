@@ -94,7 +94,7 @@ vec3 screenToView(vec3 screenPosition, mat4 projectionInverse, bool unjitter) {
 	screenPosition = screenPosition * 2.0 - 1.0;
 
     #if TAA == 1
-        if(unjitter) screenPosition.xy -= taaOffsets[framemod] * texelSize;
+        if (unjitter) screenPosition.xy -= taaOffsets[framemod] * texelSize;
     #endif
 
 	return projectOrthogonal(projectionInverse, screenPosition) / (projectionInverse[2].w * screenPosition.z + projectionInverse[3].w);
@@ -104,7 +104,7 @@ vec3 viewToScreen(vec3 viewPosition, mat4 projection, bool unjitter) {
 	vec3 ndcPosition = projectOrthogonal(projection, viewPosition) / -viewPosition.z;
 
     #if TAA == 1
-        if(unjitter) ndcPosition.xy += taaOffsets[framemod] * texelSize;
+        if (unjitter) ndcPosition.xy += taaOffsets[framemod] * texelSize;
     #endif
 
     return ndcPosition * 0.5 + 0.5;
@@ -139,7 +139,7 @@ vec3 getVelocity(vec3 currPosition, mat4 projectionInverse) {
     mat4 previousProjection = gbufferPreviousProjection;
 
     #if defined DISTANT_HORIZONS
-        if(currPosition.z >= 1.0) {
+        if (currPosition.z >= 1.0) {
             previousProjection = dhPreviousProjection;
         }
     #endif
@@ -164,8 +164,8 @@ vec3 getClosestFragment(sampler2D depthTex, vec3 position) {
     vec3 currentFragment;
     const int size = 1;
 
-    for(int x = -size; x <= size; x++) {
-        for(int y = -size; y <= size; y++) {
+    for (int x = -size; x <= size; x++) {
+        for (int y = -size; y <= size; y++) {
             currentFragment.xy = position.xy + vec2(x, y) * texelSize;
             currentFragment.z  = texelFetch(depthTex, ivec2(currentFragment.xy * viewSize * RENDER_SCALE), 0).r;
             closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;

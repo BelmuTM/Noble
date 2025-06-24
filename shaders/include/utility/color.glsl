@@ -235,9 +235,9 @@ vec3 blackbody(float temperature) {
         vec3 xyz = toXYZ(color * rcpBias);
 
         float s;
-        if(log10(xyz.y) < -2.0) {
+        if (log10(xyz.y) < -2.0) {
             s = 0.0;
-        } else if(log10(xyz.y) < 0.6) {
+        } else if (log10(xyz.y) < 0.6) {
             s = 3.0 * pow2((log10(xyz.y) + 2.0) / 2.6) - 2.0 * pow3((log10(xyz.y) + 2.0) / 2.6);
         } else {
             s = 1.0;

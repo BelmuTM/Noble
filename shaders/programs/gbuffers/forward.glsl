@@ -114,14 +114,14 @@
 
 	void main() {
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-		if(saturate(fragCoords) != fragCoords) discard;
+		if (saturate(fragCoords) != fragCoords) discard;
 
 		#if defined PROGRAM_HAND && DISCARD_HAND == 1
 			discard;
 		#endif
 
 		vec4 albedoTex = texture(gtexture, textureCoords);
-		if(albedoTex.a < 0.102) discard;
+		if (albedoTex.a < 0.102) discard;
 
 		vec4 normalTex   = vec4(0.0);
 		vec4 specularTex = vec4(0.0);
@@ -145,13 +145,13 @@
 		#endif
 
 		// WOTAH
-		if(blockId == WATER_ID) { 
+		if (blockId == WATER_ID) { 
 			material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
 
 			vec3 scenePositionWater = scenePosition + cameraPosition;
 
 			#if WATER_PARALLAX == 1
-				if(length(scenePosition) < WATER_PARALLAX_DISTANCE) {
+				if (length(scenePosition) < WATER_PARALLAX_DISTANCE) {
 					vec3 tangentDirection = normalize(scenePosition) * tbn;
 					scenePositionWater.xz = parallaxMappingWater(scenePositionWater.xz, tangentDirection, WATER_OCTAVES);
 				}
@@ -175,7 +175,7 @@
     			material.subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
 			#endif
 
-			if(blockId == NETHER_PORTAL_ID) material.emission = 1.0;
+			if (blockId == NETHER_PORTAL_ID) material.emission = 1.0;
 
 			material.albedo = albedoTex.rgb;
 
@@ -185,7 +185,7 @@
 
 			material.normal = tbn[2];
 
-			if(all(greaterThan(normalTex, vec4(EPS)))) {
+			if (all(greaterThan(normalTex, vec4(EPS)))) {
 				material.normal.xy = normalTex.xy * 2.0 - 1.0;
 				material.normal.z  = sqrt(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
 				material.normal    = tbn * material.normal;
@@ -197,7 +197,7 @@
 				bool shadeTranslucents = material.F0 <= EPS;
 			#endif
 
-			if(material.F0 * maxFloat8 <= 229.5 && shadeTranslucents) {
+			if (material.F0 * maxFloat8 <= 229.5 && shadeTranslucents) {
     			#if TONEMAP == ACES
         			material.albedo = srgbToAP1Albedo(material.albedo);
     			#else
@@ -210,7 +210,7 @@
 				vec3 skyIlluminance = vec3(0.0);
 
 				#if defined WORLD_OVERWORLD || defined WORLD_END
-					if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
+					if (material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
 				#endif
 
 				#if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT && !defined PROGRAM_SPIDEREYES

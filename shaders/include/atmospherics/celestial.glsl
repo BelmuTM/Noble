@@ -45,7 +45,7 @@ float computeStarfield(vec3 viewPosition, vec3 lightVector) {
 	float rng = hash13(index);
 
 	float star = 1.0;
-	if(VdotU > 0.0) {
+	if (VdotU > 0.0) {
 		star *= rng;
 		star *= hash13(-index + 0.1);
 	}

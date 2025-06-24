@@ -55,7 +55,7 @@ vec3 fresnelDielectricDielectric_T(float cosThetaI, vec3 n1, vec3 n2) {
 
     vec3 cosThetaT = cos(thetaT);
 
-    if(any(greaterThan(abs(sin(thetaT)), vec3(1.0)))) return vec3(1.0);
+    if (any(greaterThan(abs(sin(thetaT)), vec3(1.0)))) return vec3(1.0);
 
     vec3 numerator = 2.0 * n1 * cosThetaI;
 

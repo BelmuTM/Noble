@@ -41,7 +41,7 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
 
     vec2 direction = vec2(0.2, 0.3);
 
-    for(int i = 0; i < octaves; i++) {
+    for (int i = 0; i < octaves; i++) {
         float noise = FBM(position * fastInvSqrtN1(lambda) - (speed * direction), 2, 1.0);
 
         height += gerstnerWaves(position + vec2(noise, -noise) * fastSqrtN1(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
@@ -86,7 +86,7 @@ vec2 parallaxMappingWater(vec2 coords, vec3 tangentDirection, int octaves) {
     
     float traceDistance = 0.0;
 
-    for(int i = 0; i < WATER_PARALLAX_LAYERS && traceDistance < currHeight; i++) {
+    for (int i = 0; i < WATER_PARALLAX_LAYERS && traceDistance < currHeight; i++) {
         coords        -= increment;
         prevHeight     = currHeight;
         currHeight     = calculateWaveHeightGerstner(coords, octaves);

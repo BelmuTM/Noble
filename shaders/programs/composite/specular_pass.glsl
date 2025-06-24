@@ -56,7 +56,7 @@ uniform usampler2D colortex11;
 
 void main() {
     vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	if(saturate(fragCoords) != fragCoords) { discard; return; }
+	if (saturate(fragCoords) != fragCoords) { discard; return; }
 
     lighting = vec3(0.0);
 
@@ -73,7 +73,7 @@ void main() {
     float farPlane  = far;
 
     #if defined DISTANT_HORIZONS
-        if(depth >= 1.0) {
+        if (depth >= 1.0) {
             depth = texture(dhDepthTex0, vertexCoords).r;
                     
             projection        = dhProjection;
@@ -84,10 +84,10 @@ void main() {
         }
     #endif
 
-    if(depth != 1.0) {
+    if (depth != 1.0) {
         Material material = getMaterial(vertexCoords);
 
-        if(material.F0 * maxFloat8 <= 229.5) {
+        if (material.F0 * maxFloat8 <= 229.5) {
             lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
         }
 
@@ -109,7 +109,7 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if REFRACTIONS == 1
-            if(viewPosition0.z != viewPosition1.z && material.F0 > EPS) {
+            if (viewPosition0.z != viewPosition1.z && material.F0 > EPS) {
                 lighting = computeRefractions(projection, viewPosition0, viewPosition1, material, coords);
             }
         #endif
@@ -125,9 +125,9 @@ void main() {
                 visibility *= getCloudsShadows(viewToScene(viewPosition0));
             #endif
 
-            if(material.id == WATER_ID) visibility = material.albedo;
+            if (material.id == WATER_ID) visibility = material.albedo;
 
-            if(visibility != vec3(0.0)) {
+            if (visibility != vec3(0.0)) {
                 sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowVec) * visibility * directIlluminance;
             }    
         #endif
@@ -149,8 +149,8 @@ void main() {
     float totalWeight = 0.0;
 
     const int filterSize = 2;
-    for(int x = -filterSize; x <= filterSize; x++) {
-        for(int y = -filterSize; y <= filterSize; y++) {
+    for (int x = -filterSize; x <= filterSize; x++) {
+        for (int y = -filterSize; y <= filterSize; y++) {
             vec2  sampleCoords = coords.xy + vec2(x, y) * texelSize * 2.0;
             uvec2 packedFog    = texture(FOG_BUFFER, sampleCoords).rg;
 
@@ -170,7 +170,7 @@ void main() {
     scattering    /= totalWeight;
     transmittance /= totalWeight;
     
-    if(isEyeInWater == 1) {
+    if (isEyeInWater == 1) {
         lighting += sunSpecular;
         lighting += envSpecular;
         lighting  = lighting * transmittance + scattering;
@@ -193,15 +193,15 @@ void main() {
 
     float exposure = 1.0;
 
-    if(isEnchantmentGlint || (!isEnchantmentGlint && !isDamageOverlay))
+    if (isEnchantmentGlint || (!isEnchantmentGlint && !isDamageOverlay))
         exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
-    if(isEnchantmentGlint) {
+    if (isEnchantmentGlint) {
         lighting.rgb += basic.rgb / exposure;
-    } else if(isDamageOverlay) {
-        if(!isHand) lighting.rgb = 2.0 * basic.rgb * lighting.rgb;
+    } else if (isDamageOverlay) {
+        if (!isHand) lighting.rgb = 2.0 * basic.rgb * lighting.rgb;
     } else {
-        if(!isHand) lighting.rgb = mix(lighting.rgb, basic.rgb / exposure, basic.a);
+        if (!isHand) lighting.rgb = mix(lighting.rgb, basic.rgb / exposure, basic.a);
     }
 
     //////////////////////////////////////////////////////////

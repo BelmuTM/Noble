@@ -51,7 +51,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
     vec3 rayPosition = rayOrigin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
-    for(int i = 0; i < ATMOSPHERE_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
+    for (int i = 0; i < ATMOSPHERE_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
         accumAirmass += getAtmosphereDensities(length(rayPosition)) * stepSize;
     }
     return exp(-attenuationCoefficients * accumAirmass);
@@ -60,7 +60,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
 #if defined STAGE_FRAGMENT
     vec3 evaluateAtmosphericScattering(vec3 rayDirection, vec3 skyIlluminance) {
         vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, atmosphereLowerRadius, atmosphereUpperRadius);
-        if(dists.y < 0.0) return vec3(0.0);
+        if (dists.y < 0.0) return vec3(0.0);
 
         float stepSize   = (dists.y - dists.x) * rcp(ATMOSPHERE_SCATTERING_STEPS);
         vec3 increment   = rayDirection * stepSize;
@@ -85,7 +85,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
 
         mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
     
-        for(int i = 0; i < ATMOSPHERE_SCATTERING_STEPS; i++, rayPosition += increment) {
+        for (int i = 0; i < ATMOSPHERE_SCATTERING_STEPS; i++, rayPosition += increment) {
 
             #if defined WORLD_OVERWORLD
                 vec3 airmass          = getAtmosphereDensities(length(rayPosition)) * stepSize;
@@ -151,8 +151,8 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
     #if defined WORLD_OVERWORLD || defined WORLD_END
         const ivec2 samples = ivec2(8, 8);
 
-        for(int x = 0; x < samples.x; x++) {
-            for(int y = 0; y < samples.y; y++) {
+        for (int x = 0; x < samples.x; x++) {
+            for (int y = 0; y < samples.y; y++) {
                 vec3 direction  = generateUnitVector((vec2(x, y) + 0.5) / samples);
                 vec3 atmoSample = texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
 
@@ -193,8 +193,8 @@ vec3 evaluateUniformSkyIrradianceApproximation() {
     #if defined WORLD_OVERWORLD || defined WORLD_END
         const ivec2 samples = ivec2(8, 8);
 
-        for(int x = 0; x < samples.x; x++) {
-            for(int y = 0; y < samples.y; y++) {
+        for (int x = 0; x < samples.x; x++) {
+            for (int y = 0; y < samples.y; y++) {
                 vec3 direction  = generateUnitVector((vec2(x, y) + 0.5) / samples);
                 skyIlluminance += texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
             }
@@ -224,21 +224,21 @@ float[9] calculateSphericalHarmonicsCoefficients(vec3 wi) {
 
 void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
     
-    for(int n = 0; n < irradiance.length(); n++) irradiance[n] = vec3(0.0);
+    for (int n = 0; n < irradiance.length(); n++) irradiance[n] = vec3(0.0);
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
         const ivec2 samples = ivec2(8, 8);
 
-        for(int x = 0; x < samples.x; x++) {
-            for(int y = 0; y < samples.y; y++) {
+        for (int x = 0; x < samples.x; x++) {
+            for (int y = 0; y < samples.y; y++) {
                 vec3     direction      = generateUnitVector((vec2(x, y) + 0.5) / samples);
                 vec3     radiance       = texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
                 float[9] shCoefficients = calculateSphericalHarmonicsCoefficients(direction);
 
-                for(int n = 0; n < irradiance.length(); n++) irradiance[n] += radiance * shCoefficients[n];
+                for (int n = 0; n < irradiance.length(); n++) irradiance[n] += radiance * shCoefficients[n];
             }
         }
-        for(int n = 0; n < irradiance.length(); n++) irradiance[n] *= TAU / (samples.x * samples.y);
+        for (int n = 0; n < irradiance.length(); n++) irradiance[n] *= TAU / (samples.x * samples.y);
     #endif
 }
 

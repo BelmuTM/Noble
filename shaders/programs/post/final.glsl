@@ -41,7 +41,7 @@ in vec2 textureCoords;
             WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
         );
 
-        if(saturate(distortion) == distortion) {
+        if (saturate(distortion) == distortion) {
             coords = distortion;
         }
     }
@@ -64,7 +64,7 @@ in vec2 textureCoords;
         color = clamp(color, vec3(0.02745098039), vec3(0.96862745098));
 
         #if DEBUG_LUT == 1
-            if(all(lessThan(gl_FragCoord.xy, ivec2(256)))) {
+            if (all(lessThan(gl_FragCoord.xy, ivec2(256)))) {
                 color = texture(LUT_BUFFER, gl_FragCoord.xy * rcpLutTexSize * 2.0).rgb;
                 return;
             }
@@ -96,8 +96,8 @@ in vec2 textureCoords;
     void sharpeningFilter(inout vec3 color, vec2 coords) {
         float avgLuma = 0.0, weight = 0.0;
 
-        for(int x = -1; x <= 1; x++) {
-            for(int y = -1; y <= 1; y++, weight++) {
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++, weight++) {
                 avgLuma += luminance(logLuvDecode(texture(MAIN_BUFFER, coords + vec2(x, y) * texelSize)));
             }
         }
@@ -143,7 +143,7 @@ void main() {
     vec2 distortCoords = textureCoords;
 
     #if UNDERWATER_DISTORTION == 1
-        if(isEyeInWater == 1) underwaterDistortion(distortCoords);
+        if (isEyeInWater == 1) underwaterDistortion(distortCoords);
     #endif
 
     #if EIGHT_BITS_FILTER == 0

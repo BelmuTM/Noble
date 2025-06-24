@@ -44,7 +44,7 @@ in vec2 vertexCoords;
 
 void main() {
     vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	if(saturate(fragCoords) != fragCoords) discard;
+	if (saturate(fragCoords) != fragCoords) discard;
 
     Material material = getMaterial(vertexCoords);
 
@@ -53,7 +53,7 @@ void main() {
     mat4 projectionInverse = gbufferProjectionInverse;
 
     #if defined DISTANT_HORIZONS
-        if(texture(depthtex0, vertexCoords).r >= 1.0) {
+        if (texture(depthtex0, vertexCoords).r >= 1.0) {
             farPlane = dhFarPlane;
 
             projectionInverse = dhProjectionInverse;
@@ -96,17 +96,17 @@ void main() {
     vec3 scatteringLayer2    = vec3(0.0);
     vec3 transmittanceLayer2 = vec3(1.0);
 
-    if(!sky) {
+    if (!sky) {
         skylight = getSkylightFalloff(material.lightmap.y);
 
-        if(viewPosition0.z != viewPosition1.z) {
+        if (viewPosition0.z != viewPosition1.z) {
             //////////////////////////////////////////////////////////
             /*---------------- FRONT TO BACK FOG -------------------*/
             //////////////////////////////////////////////////////////
 
             vec3 scenePosition1 = viewToScene(viewPosition1);
 
-            if(isEyeInWater != 1 && material.id == WATER_ID) {
+            if (isEyeInWater != 1 && material.id == WATER_ID) {
                 #if defined WORLD_OVERWORLD || defined WORLD_END
                     #if WATER_FOG == 0
                         computeWaterFogApproximation(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminance, skyIlluminance, skylight);
@@ -131,7 +131,7 @@ void main() {
     /*------------------ EYE TO FRONT FOG ------------------*/
     //////////////////////////////////////////////////////////
 
-    if(isEyeInWater == 1) {
+    if (isEyeInWater == 1) {
         #if defined WORLD_OVERWORLD || defined WORLD_END
             #if WATER_FOG == 0
                 computeWaterFogApproximation(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminance, skyIlluminance, skylight);
@@ -150,6 +150,6 @@ void main() {
     vec3 scattering    = scatteringLayer0    * transmittanceLayer1 + scatteringLayer1 * transmittanceLayer2 + scatteringLayer2;
     vec3 transmittance = transmittanceLayer0 * transmittanceLayer1 * transmittanceLayer2;
 
-    if(scattering != vec3(0.0)) fog.x = packUnormArb(logLuvEncode(scattering   ), uvec4(8));
-    if(scattering != vec3(1.0)) fog.y = packUnormArb(logLuvEncode(transmittance), uvec4(8));
+    if (scattering != vec3(0.0)) fog.x = packUnormArb(logLuvEncode(scattering   ), uvec4(8));
+    if (scattering != vec3(1.0)) fog.y = packUnormArb(logLuvEncode(transmittance), uvec4(8));
 }

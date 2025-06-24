@@ -149,7 +149,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
         weatherMap = mix(weatherMap, 0.0, biome_arid);
     #endif
 
-    if(weatherMap < EPS) return 0.0;
+    if (weatherMap < EPS) return 0.0;
     weatherMap = saturate(weatherMap);
 
     position *= layer.detailScale;
@@ -169,7 +169,7 @@ float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int ste
 
     float jitter = animated ? randF() : bayer32(gl_FragCoord.xy);
 
-    for(int i = 0; i < stepCount; i++) {
+    for (int i = 0; i < stepCount; i++) {
         float density = calculateCloudsDensity(rayPosition + lightDirection * stepSize * jitter, layer);
         opticalDepth += density * stepSize;
         stepSize      = mix(stepSize, stepSize * 0.8, density);
@@ -191,7 +191,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
     vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
-    if(dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e35);
+    if (dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e35);
 
     float jitter      = animated ? temporalBlueNoise(gl_FragCoord.xy) : bayer64(gl_FragCoord.xy);
     float stepSize    = (dists.y - dists.x) / layer.steps;
@@ -208,11 +208,11 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
     vec2  scattering    = vec2(0.0);
     float transmittance = 1.0;
     
-    for(int i = 0; i < layer.steps; i++, rayPosition += increment) {
-        if(transmittance <= cloudsTransmitThreshold) break;
+    for (int i = 0; i < layer.steps; i++, rayPosition += increment) {
+        if (transmittance <= cloudsTransmitThreshold) break;
 
         float density = calculateCloudsDensity(rayPosition, layer);
-        if(density < EPS) continue;
+        if (density < EPS) continue;
 
         float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
         float stepTransmittance = exp(-stepOpticalDepth);
@@ -235,7 +235,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
 
         mieAnisotropyFactors = pow(mieAnisotropyFactors, vec3(1.0 + directOpticalDepth));
         
-        for(int j = 0; j < cloudsMultiScatterSteps; j++) {
+        for (int j = 0; j < cloudsMultiScatterSteps; j++) {
             stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * directOpticalDepth) * cloudsPhase    * powderSun;
             stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * groundOpticalDepth) * bouncedLight   * powder;
             stepScattering.y += scatteringCoefficient * exp(-extinctionCoefficient * skyOpticalDepth   ) * isotropicPhase * powderSky;
@@ -270,7 +270,7 @@ float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer, int stepCoun
 
     float opticalDepth = 0.0;
 
-    for(int i = 0; i < stepCount; i++, rayPosition += increment) {
+    for (int i = 0; i < stepCount; i++, rayPosition += increment) {
         opticalDepth += calculateCloudsDensity(rayPosition, layer);
     }
     return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);

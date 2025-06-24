@@ -109,7 +109,7 @@ float FBM(vec2 uv, int octaves, float frequency) {
     float height    = 0.0;
     float amplitude = 1.0;
 
-    for(int i = 0; i < octaves; i++) {
+    for (int i = 0; i < octaves; i++) {
         height    += noise(uv * frequency) * amplitude;
         frequency *= fbmLacunarity;
         amplitude *= fbmPersistance;
@@ -121,7 +121,7 @@ float FBM(vec3 pos, int octaves, float frequency) {
     float height    = 0.0;
     float amplitude = 1.0;
 
-    for(int i = 0; i < octaves; i++) {
+    for (int i = 0; i < octaves; i++) {
         height    += noise(pos * frequency) * amplitude;
         frequency *= fbmLacunarity;
         amplitude *= fbmPersistance;

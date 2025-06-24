@@ -75,7 +75,7 @@
 			mat4 projectionInverse = gbufferProjectionInverse;
 
 			#if defined DISTANT_HORIZONS
-				if(depth >= 1.0) {
+				if (depth >= 1.0) {
 					depth = texture(dhDepthTex0, vertexCoords).r;
 
 					projectionInverse = dhProjectionInverse;
@@ -85,7 +85,7 @@
 			vec3 screenPosition = vec3(vertexCoords, depth);
 			vec3 viewPosition   = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
-			if(depth == 1.0) {
+			if (depth == 1.0) {
 				vec3 skyIlluminance = vec3(0.0);
 				#if defined WORLD_OVERWORLD || defined WORLD_END
 					skyIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;

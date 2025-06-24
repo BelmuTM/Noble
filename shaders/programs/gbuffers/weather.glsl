@@ -77,15 +77,15 @@
 
 	void main() {
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-		if(saturate(fragCoords) != fragCoords) discard;
+		if (saturate(fragCoords) != fragCoords) discard;
 
 		vec4 albedo = texture(gtexture, textureCoords);
 
-		if(albedo.a < 0.102) discard;
+		if (albedo.a < 0.102) discard;
 
 		bool isRain = (abs(albedo.r - albedo.b) > EPS);
 
-		if(isRain) {
+		if (isRain) {
 			color = computeRainColor();
 		} else {
 			color = vec4(1.0, 1.0, 1.0, 0.1);

@@ -82,7 +82,7 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
     vec2  currCoords     = textureCoords;
     float currFragHeight = sampleHeightMap(currCoords, texDeriv);
 
-    for(int i = 0; i < POM_LAYERS && traceDistance < currFragHeight; i++) {
+    for (int i = 0; i < POM_LAYERS && traceDistance < currFragHeight; i++) {
         currCoords    -= increment;
         currFragHeight = sampleHeightMap(currCoords, texDeriv);
         traceDistance += layerHeight;
@@ -119,8 +119,8 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
         vec2  currCoords     = parallaxCoords;
         float currFragHeight = 1.0;
 
-        for(int i = 0; i < POM_LAYERS; i++) {
-		    if(currLayerHeight >= currFragHeight) return 0.0;
+        for (int i = 0; i < POM_LAYERS; i++) {
+		    if (currLayerHeight >= currFragHeight) return 0.0;
 
             currCoords      += increment;
             currFragHeight   = sampleHeightMap(currCoords, texDeriv);

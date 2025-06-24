@@ -26,7 +26,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
 
 vec3 computeRefractions(mat4 projection, vec3 viewPosition0, vec3 viewPosition1, Material material, inout vec3 refractedPosition) {
     vec3 n1 = vec3(airIOR), n2 = material.N;
-    if(isEyeInWater == 1) {
+    if (isEyeInWater == 1) {
         n1 = vec3(1.333);
         n2 = vec3(airIOR);
     }
@@ -54,7 +54,7 @@ vec3 computeRefractions(mat4 projection, vec3 viewPosition0, vec3 viewPosition1,
     float farPlane  = far;
 
     #if defined DISTANT_HORIZONS
-        if(depth0 >= 1.0) {
+        if (depth0 >= 1.0) {
             depth0 = texture(dhDepthTex0, refractedPosition.xy).r;
             depth1 = texture(dhDepthTex1, refractedPosition.xy).r;
 
@@ -63,7 +63,7 @@ vec3 computeRefractions(mat4 projection, vec3 viewPosition0, vec3 viewPosition1,
         }
     #endif
         
-    if(depth1 - depth0 < EPS || depth1 < handDepth) {
+    if (depth1 - depth0 < EPS || depth1 < handDepth) {
         refractedPosition.xy = vertexCoords;
     }
 
@@ -77,7 +77,7 @@ vec3 computeRefractions(mat4 projection, vec3 viewPosition0, vec3 viewPosition1,
 
     float density = 0.0;
 
-    switch(material.id) {
+    switch (material.id) {
         case WATER_ID:         return sampledColor * fresnel;
         case NETHER_PORTAL_ID: density = 3.0;
         default: {

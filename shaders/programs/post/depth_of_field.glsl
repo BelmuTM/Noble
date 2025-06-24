@@ -57,10 +57,10 @@
             float distFromCenter = distance(coords, vec2(0.5));
             vec2  caOffset       = vec2(distFromCenter) * coc / weight;
 
-            for(float angle = 0.0; angle < TAU; angle += TAU / DOF_ANGLE_SAMPLES) {
-                for(int i = 0; i < DOF_SAMPLES; i++) {
+            for (float angle = 0.0; angle < TAU; angle += TAU / DOF_ANGLE_SAMPLES) {
+                for (int i = 0; i < DOF_SAMPLES; i++) {
                     vec2 sampleCoords = coords + vec2(cos(angle), sin(angle)) * i * coc * texelSize;
-                    if(saturate(sampleCoords) != sampleCoords) continue;
+                    if (saturate(sampleCoords) != sampleCoords) continue;
 
                     vec3 sampleColor  = vec3(
                         texture(tex, sampleCoords + caOffset).r,
@@ -83,7 +83,7 @@
             float farPlane  = far;
 
             #if defined DISTANT_HORIZONS
-                if(depth >= 1.0) {
+                if (depth >= 1.0) {
                     depthTex = dhDepthTex0;
                     depth    = texture(dhDepthTex0, vertexCoords).r;
 

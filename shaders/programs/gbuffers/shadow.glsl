@@ -94,7 +94,7 @@
         vec4 albedoTex = texture(gtexture, textureCoords);
         albedoTex.rgb *= vertexColor.rgb;
 
-        if(albedoTex.a < 0.102) discard;
+        if (albedoTex.a < 0.102) discard;
 
         #if WHITE_WORLD == 1
 	    	albedoTex.rgb = vec3(1.0);
@@ -102,7 +102,7 @@
 
         shadowmap = albedoTex;
 
-        if(blockId == WATER_ID) {
+        if (blockId == WATER_ID) {
             shadowmap.rgb = vec3(1.0);
 
             #if WATER_CAUSTICS == 1

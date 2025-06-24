@@ -83,7 +83,7 @@
     float computeLowerHiZDepthLevels() {
         float tiles = 0.0;
 
-        for(int i = 1; i < HIZ_LOD_COUNT; i++) {
+        for (int i = 1; i < HIZ_LOD_COUNT; i++) {
             int scale   = int(exp2(i)); 
 	        vec2 coords = (textureCoords - hiZOffsets[i - 1]) * scale;
                  tiles += find2x2MinimumDepth(coords, scale);
@@ -94,7 +94,7 @@
 
     void main() {
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	    if(saturate(fragCoords) != fragCoords) discard;
+	    if (saturate(fragCoords) != fragCoords) discard;
 
         Material material = getMaterial(vertexCoords);
 
@@ -113,7 +113,7 @@
                 receivesSkylight = material.lightmap.y > EPS;
             #endif
 
-            if(receivesSkylight) {
+            if (receivesSkylight) {
                 #if GI == 0
                     vec4 ao;
                     #if AO == 1 || AO == 3
@@ -132,9 +132,9 @@
             }
         #endif
 
-        if(ivec2(gl_FragCoord.xy) == ivec2(0, 0))
+        if (ivec2(gl_FragCoord.xy) == ivec2(0, 0))
             illuminance.rgb = directIlluminance;
-        else if(ivec2(gl_FragCoord.xy) == ivec2(0, 1))
+        else if (ivec2(gl_FragCoord.xy) == ivec2(0, 1))
             illuminance.rgb = uniformSkyIlluminance;
         else
             illuminance.rgb = skyIlluminance;
@@ -145,8 +145,6 @@
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS > 0
-                sampler2D depthTex = depthtex0;
-
                 mat4 projection        = gbufferProjection;
                 mat4 projectionInverse = gbufferProjectionInverse;
 
@@ -154,9 +152,7 @@
                 float farPlane  = far;
 
                 #if defined DISTANT_HORIZONS
-                    if(texture(depthtex0, vertexCoords).r >= 1.0) {
-                        depthTex = dhDepthTex0;
-
+                    if (texture(depthtex0, vertexCoords).r >= 1.0) {
                         projection        = dhProjection;
                         projectionInverse = dhProjectionInverse;
 
@@ -167,7 +163,7 @@
 
                 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
-                if(material.depth0 != 1.0) {
+                if (material.depth0 != 1.0) {
                     vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
                     vec3 screenPosition  = vec3(textureCoords, material.depth0);
                     vec3 viewPosition    = screenToView(screenPosition, projectionInverse, true);

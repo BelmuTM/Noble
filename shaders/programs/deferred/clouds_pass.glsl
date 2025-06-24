@@ -75,14 +75,14 @@
             mat4 projectionInverse = gbufferProjectionInverse;
 
             #if defined DISTANT_HORIZONS
-                if(depth >= 1.0) {
+                if (depth >= 1.0) {
                     dhFragment        = true;
                     projectionInverse = dhProjectionInverse;
                 }
             #endif
 
             #if CLOUDMAP == 1
-                if(clamp(textureCoords, vec2(0.0), vec2(CLOUDMAP_SCALE)) == textureCoords) {
+                if (clamp(textureCoords, vec2(0.0), vec2(CLOUDMAP_SCALE)) == textureCoords) {
                     vec3 cloudsCoords   = normalize(unprojectSphere(textureCoords * rcp(CLOUDMAP_SCALE)));
                     vec4 cloudmapLayer0 = estimateCloudsScattering(cloudLayer0, cloudsCoords, false);
                     vec4 cloudmapLayer1 = estimateCloudsScattering(cloudLayer1, cloudsCoords, false);
@@ -93,10 +93,10 @@
                 }
             #endif
 
-            if(dhFragment) {
-                if(find4x4MaximumDepth(dhDepthTex0, vertexCoords) < 1.0) return;
+            if (dhFragment) {
+                if (find4x4MaximumDepth(dhDepthTex0, vertexCoords) < 1.0) return;
             } else {
-                if(find4x4MaximumDepth(depthtex0, vertexCoords) < 1.0) return;
+                if (find4x4MaximumDepth(depthtex0, vertexCoords) < 1.0) return;
             }
 
             vec3 viewPosition       = screenToView(vec3(textureCoords, 1.0), projectionInverse, false);
@@ -126,17 +126,17 @@
             vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy;
             float prevDepth    = texture(depthtex0, prevPosition.xy).r;
 
-            if(saturate(prevPosition.xy) == prevPosition.xy && prevDepth >= handDepth) {
+            if (saturate(prevPosition.xy) == prevPosition.xy && prevDepth >= handDepth) {
                 vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition.xy).rgb);
 
-                const float centerWeightStrength = CLOUDS_SCALE == 100 ? 0.6 : 0.1;
+                const float centerWeightStrength = CLOUDS_SCALE == 100 ? 0.6 : 0.2;
 
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
                 
                 float velocityWeight = saturate(exp(-1.0 * length(cameraPosition - previousCameraPosition)));
 
-                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.97);
+                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.9);
 
                 clouds.rgb = max0(mix(clouds.rgb, history, weight));
             }

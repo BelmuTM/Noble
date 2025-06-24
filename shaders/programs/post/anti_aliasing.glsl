@@ -117,25 +117,34 @@
         vec3 color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
 
         #if TAA == 1
-            sampler2D depthTex = depthtex0;
-            float     depth    = texture(depthtex0, vertexCoords).r;
+
+            bool  dhFragment = false;
+            float depth      = texture(depthtex0, vertexCoords).r;
 
             mat4 projectionInverse = gbufferProjectionInverse;
 
             #if defined DISTANT_HORIZONS
-                if(depth >= 1.0) {
-                    depthTex = dhDepthTex0;
-                    depth    = texture(dhDepthTex0, vertexCoords).r;
+                if (depth >= 1.0) {
+                    dhFragment = true;
+                    depth      = texture(dhDepthTex0, vertexCoords).r;
 
                     projectionInverse = dhProjectionInverse;
                 }
             #endif
 
-            vec3 closestFragment = getClosestFragment(depthTex, vec3(textureCoords, depth));
-            vec2 velocity        = getVelocity(vec3(textureCoords, depth), projectionInverse).xy;
-            vec2 prevCoords      = textureCoords + velocity;
+            vec3 currFragment = vec3(textureCoords, depth);
 
-            if(saturate(prevCoords) == prevCoords) {
+            vec3 closestFragment;
+            if (dhFragment) {
+                closestFragment = getClosestFragment(dhDepthTex0, currFragment);
+            } else {
+                closestFragment = getClosestFragment(depthtex0, currFragment);
+            }
+
+            vec2 velocity   = getVelocity(vec3(textureCoords, depth), projectionInverse).xy;
+            vec2 prevCoords = textureCoords + velocity;
+
+            if (saturate(prevCoords) == prevCoords) {
                 vec2 jitteredCoords = depth == 1.0 ? vertexCoords : vertexCoords + taaOffsets[framemod] * texelSize;
 
                 vec3 currColor = max0(textureCatmullRom(DEFERRED_BUFFER, jitteredCoords).rgb);
@@ -148,7 +157,7 @@
                 float velocityWeightMult = 0.2;
                 float luminanceWeight    = 1.0;
 
-                if(depth == 1.0 || depth < handDepth) {
+                if (depth == 1.0 || depth < handDepth) {
                     velocityWeightMult = 1.0;
                 } else {
                     #if RENDER_MODE == 0
@@ -163,6 +172,7 @@
             }
 
             color = inverseReinhard(color) / computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+            
         #endif
 
         color    = max0(color);

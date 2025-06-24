@@ -82,7 +82,7 @@
 
         void main() {
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	        if(saturate(fragCoords) != fragCoords) { discard; return; }
+	        if (saturate(fragCoords) != fragCoords) { discard; return; }
 
             bool  dhFragment = false;
             float depth      = texture(depthtex0, vertexCoords).r;
@@ -91,7 +91,7 @@
 			mat4 projectionInverse = gbufferProjectionInverse;
 
             #if defined DISTANT_HORIZONS
-                if(depth >= 1.0) {
+                if (depth >= 1.0) {
                     dhFragment = true;
                     depth      = texture(dhDepthTex0, vertexCoords).r;
                     
@@ -100,7 +100,7 @@
                 }
             #endif
 
-            if(depth == 1.0) { discard; return; }
+            if (depth == 1.0) { discard; return; }
 
             Material material   = getMaterial(vertexCoords);
             vec3 screenPosition = vec3(textureCoords, depth);
@@ -115,7 +115,7 @@
             #endif
 
             float reprojectionDepth;
-            if(rayLength < EPS) {
+            if (rayLength < EPS) {
                 reprojectionDepth = texture(CLOUDMAP_BUFFER, textureCoords).a;
             } else {
                 reprojectionDepth = depth + (material.roughness > 0.1 ? 0.0 : rayLength);

@@ -63,11 +63,11 @@
 				vec2 increment   = sliceDir.xy * stepSize;
 				vec2 rayPosition = textureCoords + rand2F() * increment;
 
-				for(int i = 0; i < GTAO_HORIZON_STEPS; i++, rayPosition += increment) {
+				for (int i = 0; i < GTAO_HORIZON_STEPS; i++, rayPosition += increment) {
 					ivec2 coords = ivec2(rayPosition * viewSize * RENDER_SCALE);
 					float depth  = dhFragment ? texelFetch(dhDepthTex0, coords, 0).r : texelFetch(depthtex0, coords, 0).r;
 
-					if(saturate(rayPosition) != rayPosition || depth == 1.0 || depth < handDepth) continue;
+					if (saturate(rayPosition) != rayPosition || depth == 1.0 || depth < handDepth) continue;
 
 					vec3 horizonVec = screenToView(vec3(rayPosition, depth), projectionInverse, true) - viewPosition;
 					float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(2.0, 3.0, lengthSqr(horizonVec)));
@@ -86,7 +86,7 @@
 
 				float dither = interleavedGradientNoise(gl_FragCoord.xy);
 
-				for(int i = 0; i < GTAO_SLICES; i++) {
+				for (int i = 0; i < GTAO_SLICES; i++) {
 					float sliceAngle = PI * rcp(GTAO_SLICES) * (i + dither);
 					vec3  sliceDir   = vec3(cos(sliceAngle), sin(sliceAngle), 0.0);
 
@@ -119,14 +119,14 @@
 			float SSAO(bool dhFragment, mat4 projection, vec3 viewPosition, vec3 normal, mat4 projectionInverse) {
 				float occlusion = 0.0;
 
-				for(int i = 0; i < SSAO_SAMPLES; i++) {
+				for (int i = 0; i < SSAO_SAMPLES; i++) {
 					vec3 rayDirection = generateCosineVector(normal, rand2F());
 					vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
 
 					vec2 sampleCoords = viewToScreen(rayPosition, projection, true).xy;
 
 					float sampleDepth;
-					if(dhFragment) {
+					if (dhFragment) {
 						sampleDepth = texture(dhDepthTex0, sampleCoords * RENDER_SCALE).r;
 					} else {
 						sampleDepth = texture(depthtex0, sampleCoords * RENDER_SCALE).r;
@@ -134,7 +134,7 @@
 
 					float rayDepth = screenToView(vec3(sampleCoords, sampleDepth), projectionInverse, true).z;
 
-					if(rayDepth >= rayPosition.z + EPS) {
+					if (rayDepth >= rayPosition.z + EPS) {
 						occlusion += quinticStep(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
 					}
 		    	}
@@ -151,17 +151,17 @@
 
 				vec3 hitPosition = vec3(0.0);
 
-				for(int i = 0; i < RTAO_SAMPLES; i++) {
+				for (int i = 0; i < RTAO_SAMPLES; i++) {
 					vec3 rayDirection = generateCosineVector(normal, rand2F());
 
 					bool hit;
-					if(dhFragment) {
+					if (dhFragment) {
 						hit = raytrace(dhDepthTex0, projection, rayPosition, rayDirection, RTAO_STEPS, randF(), RENDER_SCALE, hitPosition);
 					} else {
 						hit = raytrace(depthtex0, projection, rayPosition, rayDirection, RTAO_STEPS, randF(), RENDER_SCALE, hitPosition);
 					}
 
-					if(!hit) {
+					if (!hit) {
 						bentNormal += rayDirection;
 						continue;
 					}
@@ -177,19 +177,17 @@
 			ao = vec3(0.0, 0.0, 1.0);
 
 			vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-			if(saturate(fragCoords) != fragCoords) { discard; return; }
+			if (saturate(fragCoords) != fragCoords) { discard; return; }
 			
-			bool      dhFragment = false;
-			sampler2D depthTex   = depthtex0;
-			float     depth      = texture(depthtex0, vertexCoords).r;
+			bool  dhFragment = false;
+			float depth      = texture(depthtex0, vertexCoords).r;
 
 			mat4 projection        = gbufferProjection;
 			mat4 projectionInverse = gbufferProjectionInverse;
 
 			#if defined DISTANT_HORIZONS
-				if(depth >= 1.0) {
+				if (depth >= 1.0) {
 					dhFragment = true;
-					depthTex   = dhDepthTex0;
 					depth      = texture(dhDepthTex0, vertexCoords).r;
 					
 					projection        = dhProjection;
@@ -197,11 +195,11 @@
 				}
 			#endif
 
-			if(depth == 1.0) return;
+			if (depth == 1.0) return;
 
 			Material material = getMaterial(vertexCoords);
 
-			if(depth < handDepth) {
+			if (depth < handDepth) {
 				ao = vec3(encodeUnitVector(material.normal), 1.0);
 				return;
 			}
@@ -222,7 +220,7 @@
 				vec3 currFragment = vec3(textureCoords, depth);
 
 			    vec3 closestFragment;
-				if(dhFragment) {
+				if (dhFragment) {
 					closestFragment = getClosestFragment(dhDepthTex0, currFragment);
 				} else {
 					closestFragment = getClosestFragment(depthtex0, currFragment);
@@ -230,7 +228,7 @@
 
 				vec2 prevCoords = vertexCoords + getVelocity(closestFragment, projectionInverse).xy * RENDER_SCALE;
 
-				if(clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords) {
+				if (clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords) {
 					vec3 prevAO = texture(AO_BUFFER, prevCoords).rgb;
 			
 					float weight = saturate(1.0 / max(texture(ACCUMULATION_BUFFER, prevCoords).a, 1.0));

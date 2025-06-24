@@ -133,7 +133,7 @@ float calculateAirFogPhase(float cosTheta) {
     uniform sampler3D depthtex2;
 
     float getAirFogDensity(vec3 position) {
-        if(clamp(position.y, fogAltitude, fogAltitude + fogThickness) != position.y) return 0.0;
+        if (clamp(position.y, fogAltitude, fogAltitude + fogThickness) != position.y) return 0.0;
 
         float altitude   = (position.y - fogAltitude) * rcp(fogThickness);
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
@@ -187,7 +187,7 @@ float calculateAirFogPhase(float cosTheta) {
         vec3 rayPosition = rayOrigin + increment * 0.5;
 
         float accumAirmass = 0.0;
-        for(int i = 0; i < 16; i++, rayPosition += increment) {
+        for (int i = 0; i < 16; i++, rayPosition += increment) {
             accumAirmass += getAirFogDensity(rayPosition) * stepSize;
         }
         return exp(-airFogExtinctionCoefficient * accumAirmass);
@@ -219,7 +219,7 @@ float calculateAirFogPhase(float cosTheta) {
 
         float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
 
-        for(int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
+        for (int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
             #if defined WORLD_OVERWORLD
                 vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
 
@@ -232,7 +232,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             float densityFog = 0.0;
 
-            if(fogDensity > 1e-2) {
+            if (fogDensity > 1e-2) {
                 float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-1.0 * length(rayPosition - cameraPosition) / farPlane));
 
                 densityFog = getAirFogDensity(rayPosition) * distanceFalloffFog;
@@ -242,7 +242,7 @@ float calculateAirFogPhase(float cosTheta) {
             vec3 stepScatteringIndirect = vec3(0.0);
             vec3 stepTransmittance      = vec3(1.0);
 
-            if(densityFog > 1e-2) {
+            if (densityFog > 1e-2) {
                 float airmassFog      = densityFog * rayLength;
                 vec3  opticalDepthFog = airFogAttenuationCoefficients * airmassFog;
 
@@ -327,7 +327,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         vec3 scattering    = vec3(0.0); 
         vec3 transmittance = vec3(1.0);
 
-        for(int i = 0; i < WATER_FOG_STEPS; i++, worldPosition += worldIncrement, shadowPosition += shadowIncrement) {
+        for (int i = 0; i < WATER_FOG_STEPS; i++, worldPosition += worldIncrement, shadowPosition += shadowIncrement) {
             vec3  shadowScreenPosition = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
             ivec2 shadowTexel          = ivec2(shadowScreenPosition.xy * shadowMapResolution);
 
@@ -358,7 +358,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         int phaseSampleCount = 16;
         float phaseMultiple  = 0.0;
 
-        for(int i = 0; i < phaseSampleCount; i++) {
+        for (int i = 0; i < phaseSampleCount; i++) {
             phaseMultiple += cornetteShanksPhase(VdotL, 0.6 * pow(0.5, phaseSampleCount));
         }
         phaseMultiple /= phaseSampleCount;

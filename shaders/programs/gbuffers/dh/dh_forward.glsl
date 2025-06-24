@@ -95,14 +95,14 @@
 
 	void main() {
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-		if(saturate(fragCoords) != fragCoords) discard;
+		if (saturate(fragCoords) != fragCoords) discard;
 
         float depth       = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
         float linearDepth = linearizeDepth(depth, near, far);
 
         float linearDepthDh = linearizeDepth(gl_FragCoord.z, dhNearPlane, dhFarPlane);
     
-        if(linearDepth < linearDepthDh && depth < 1.0) { discard; return; }
+        if (linearDepth < linearDepthDh && depth < 1.0) { discard; return; }
 
 		Material material;
 		translucents = vec4(0.0);
@@ -111,7 +111,7 @@
         material.normal   = vertexNormal;
 
 		// WOTAH
-		if(blockId == DH_BLOCK_WATER) {
+		if (blockId == DH_BLOCK_WATER) {
             material.albedo = vec3(0.0);
 
 			material.F0 = waterF0, material.roughness = 0.0, material.emission = 0.0;
@@ -125,7 +125,7 @@
 
             material.roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
 
-			if(blockId == DH_BLOCK_ILLUMINATED) material.emission = 1.0;
+			if (blockId == DH_BLOCK_ILLUMINATED) material.emission = 1.0;
 
 			material.albedo = vertexColor.rgb;
 
@@ -147,7 +147,7 @@
                     shadowmap.rgb = abs(calculateShadowMapping(scenePosition, vertexNormal, shadowmap.a));
                 #endif
 
-                if(material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(vertexNormal, skyIlluminanceMat);
+                if (material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(vertexNormal, skyIlluminanceMat);
             #endif
 
             translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, false, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);

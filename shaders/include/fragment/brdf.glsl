@@ -86,7 +86,7 @@ vec3 sampleGGXVNDF(vec3 viewDirection, vec2 xi, float alpha) {
 
 vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
     float NdotL = dot(material.normal, lightDirection);
-    if(NdotL <= 0.0) return vec3(0.0);
+    if (NdotL <= 0.0) return vec3(0.0);
 
     vec3 halfway = normalize(viewDirection + lightDirection);
     float NdotV  = saturate(dot(material.normal, viewDirection));
@@ -119,13 +119,13 @@ vec3 hemisphericalAlbedo(vec3 n) {
 }
 
 vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 lightDirection, float distThroughMedium) {
-    if(material.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
+    if (material.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
     vec3 beer      = saturate(exp((material.albedo * 0.5 - 1.0) * max0(distThroughMedium) / material.subsurface));
     float cosTheta = -dot(lightDirection, viewDirection);
 
     // Phase function specifically made for leaves
-    if(material.id == LEAVES_ID) {
+    if (material.id == LEAVES_ID) {
         return beer * biLambertianPlatePhase(0.3, cosTheta);
     }
 
@@ -137,12 +137,12 @@ vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 ligh
 }
 
 vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, bool isMetal, vec4 shadowmap, vec3 directIlluminance, vec3 skyIlluminance, float ao, float cloudsShadows) {
-    if(material.id == LIGHTNING_BOLT_ID) return vec3(1e7);
+    if (material.id == LIGHTNING_BOLT_ID) return vec3(1e7);
 
     viewDirection = normalize(-viewDirection);
 
     vec3 diffuse;
-    if(isMetal) {
+    if (isMetal) {
         diffuse = vec3(max0(dot(material.normal, lightDirection)) * RCP_PI);
     } else {
         diffuse = hammonDiffuse(material, viewDirection, lightDirection);
@@ -153,7 +153,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     float skylightFalloff = getSkylightFalloff(material.lightmap.y);
 
     #if SUBSURFACE_SCATTERING == 1
-        if(!isMetal) {
+        if (!isMetal) {
             diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows * skylightFalloff;
         }
     #endif
@@ -171,7 +171,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     vec3 emissiveness    = material.emission * blocklightColor;
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        const vec3 ambient = vec3(0.3);
+        const vec3 ambient = vec3(0.0);
     #else
         const vec3 ambient = vec3(1.9, 0.8, 0.1) * 5.0;
     #endif
@@ -223,7 +223,7 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
     float radiusCos = cos(angularRadius), radiusTan = tan(angularRadius);
         
     float RdotL = 2.0 * NdotL * NdotV - VdotL;
-    if(RdotL >= radiusCos) {
+    if (RdotL >= radiusCos) {
         newNdotL = 2.0 * NdotV - NdotV;
 		newVdotL = 2.0 * NdotV * NdotV - 1.0;
         return 1.0;
@@ -257,7 +257,7 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
 
 vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection) {
     float NdotL = dot(material.normal, lightDirection);
-    if(NdotL <= 0.0) return vec3(0.0);
+    if (NdotL <= 0.0) return vec3(0.0);
 
     float alphaSq = maxEps(material.roughness * material.roughness);
 

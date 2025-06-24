@@ -38,7 +38,7 @@ const float lodFactor = exp2(-lod);
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 3 */
+	/* RENDERTARGETS: 5 */
 
 	layout (location = 0) out vec4 bloom;
 
@@ -70,7 +70,7 @@ const float lodFactor = exp2(-lod);
 		#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
 			#define BLOOM_SAMPLER MAIN_BUFFER
 		#else
-			#define BLOOM_SAMPLER SHADOWMAP_BUFFER
+			#define BLOOM_SAMPLER ILLUMINANCE_BUFFER
 		#endif
 
 		vec3 sampleBloomBuffer(vec2 coords) {
@@ -83,7 +83,7 @@ const float lodFactor = exp2(-lod);
 
 	#elif defined BLOOM_UPSAMPLE_PASS
 
-		#define BLOOM_SAMPLER SHADOWMAP_BUFFER
+		#define BLOOM_SAMPLER ILLUMINANCE_BUFFER
 
 		#include "/include/utility/sampling.glsl"
 
@@ -130,7 +130,7 @@ const float lodFactor = exp2(-lod);
 		#elif defined BLOOM_UPSAMPLE_PASS
 
 			float normalization = 0.0;
-			for(int tile = 0; tile < 8; tile++) normalization += tileWeight(tile);
+			for (int tile = 0; tile < 8; tile++) normalization += tileWeight(tile);
 			normalization = 1.0 / normalization;
 
 			bloom.rgb = textureBicubic(BLOOM_SAMPLER, coords).rgb;

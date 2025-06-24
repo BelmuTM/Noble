@@ -29,7 +29,7 @@ float visibility(sampler2D tex, vec3 samplePos) {
 }
 
 vec3 getShadowColor(vec3 samplePos) {
-    if(saturate(samplePos) != samplePos) return vec3(1.0);
+    if (saturate(samplePos) != samplePos) return vec3(1.0);
 
     float shadowDepth0 = visibility(shadowtex0, samplePos);
     float shadowDepth1 = visibility(shadowtex1, samplePos);
@@ -56,11 +56,11 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
             float weightSum = 0.0;
 
-            for(int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
+            for (int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
                 vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, rng) * invShadowMapResolution;
                 vec2 sampleCoords = distortShadowSpace(shadowCoords + offset) * 0.5 + 0.5;
                 
-                if(saturate(sampleCoords) != sampleCoords) return -1.0;
+                if (saturate(sampleCoords) != sampleCoords) return -1.0;
 
                 float depth  = texelFetch(shadowtex0, ivec2(sampleCoords * shadowMapResolution), 0).r;
                 float weight = step(depth, shadowDepth);
@@ -80,13 +80,13 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
     #endif
 
     vec3 PCF(vec3 shadowPosition, float penumbraSize, vec3 selfIntersectionBias) {
-        if(penumbraSize < EPS) {
+        if (penumbraSize < EPS) {
             return getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5 - selfIntersectionBias);
         }
 
 	    vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
 
-        for(int i = 0; i < SHADOW_SAMPLES; i++) {
+        for (int i = 0; i < SHADOW_SAMPLES; i++) {
             #if SHADOWS != 3
                 offset = sampleDisk(i, SHADOW_SAMPLES, rng) * penumbraSize * invShadowMapResolution;
             #endif
@@ -115,18 +115,18 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
 
         vec3 selfIntersectionBias = vec3(0.0);
 
-        if(depth < handDepth) selfIntersectionBias = vec3(0.0, 0.0, 1e-3);
+        if (depth < handDepth) selfIntersectionBias = vec3(0.0, 0.0, 1e-3);
 
         #if SHADOWS == 1
             vec3  shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
             float avgBlockerDepth  = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
 
-            if(avgBlockerDepth < EPS) {
+            if (avgBlockerDepth < EPS) {
                 subsurfaceDepth = 1.0;
                 //return vec3(-1.0);
             }
 
-            if(NdotL < EPS) return vec3(0.0);
+            if (NdotL < EPS) return vec3(0.0);
 
             penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * (shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
         #endif

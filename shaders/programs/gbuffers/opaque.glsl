@@ -64,7 +64,7 @@
 
 		#if defined PROGRAM_ENTITY
 			// Thanks Kneemund for the nametag fix (https://github.com/Kneemund)
-			if(vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
+			if (vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
 				gl_Position = vec4(10.0, 10.0, 10.0, 1.0);
 				return;
 			}
@@ -152,7 +152,7 @@
 			vec2 blocklightDeriv = vec2(dFdx(lightmap.x), dFdy(lightmap.x));
 			vec2 skylightDeriv   = vec2(dFdx(lightmap.y), dFdy(lightmap.y));
 
-			if(lengthSqr(blocklightDeriv) > 1e-10) {
+			if (lengthSqr(blocklightDeriv) > 1e-10) {
 				vec3 lightmapVectorX = normalize(dFdx(scenePosition) * blocklightDeriv.x + dFdy(scenePosition) * blocklightDeriv.y);
 
 				lightmap.x *= saturate(dot(lightmapVectorX, textureNormal) + 0.8) * 0.35 + 0.75;
@@ -168,7 +168,7 @@
 
 	void main() {
 		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-		if(saturate(fragCoords) != fragCoords) discard;
+		if (saturate(fragCoords) != fragCoords) discard;
 
 		#if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
 			discard;
@@ -185,15 +185,15 @@
 				gl_FragDepth = gl_FragCoord.z;
 			#endif
 
-			if(length(scenePosition) < POM_DISTANCE) {
+			if (length(scenePosition) < POM_DISTANCE) {
 				float height = 1.0, traceDistance = 0.0;
 				vec2  shadowCoords = vec2(0.0);
 
-				if(texture(normals, textureCoords).a < 1e-3 || texture(gtexture, textureCoords).a < 0.102) discard;
+				if (texture(normals, textureCoords).a < 1e-3 || texture(gtexture, textureCoords).a < 0.102) discard;
 
 				coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
 
-				if(saturate(coords) != coords) return;
+				if (saturate(coords) != coords) return;
 
 				#if POM_SHADOWING == 1
 					parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
@@ -206,7 +206,7 @@
 		#endif
 
 		vec4 albedoTex = texture(gtexture, coords) * vertexColor;
-		if(albedoTex.a < 0.102) discard;
+		if (albedoTex.a < 0.102) discard;
 
 		vec4 normalTex = texture(normals, coords);
 
@@ -235,14 +235,14 @@
 		#endif
 
 		#if defined PROGRAM_BEACONBEAM
-			if(albedoTex.a < 0.999) discard;
+			if (albedoTex.a < 0.999) discard;
 			emission   = 1.0;
 			lightmap.x = 1.0;
 		#endif
 
 		vec3 normal = tbn[2];
 		#if !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
-			if(all(greaterThan(normalTex, vec4(EPS)))) {
+			if (all(greaterThan(normalTex, vec4(EPS)))) {
 				normal.xy = normalTex.xy * 2.0 - 1.0;
 				normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
 				normal    = tbn * normal;
@@ -258,7 +258,7 @@
 		#endif
 
 		#if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
-			if(wetness > 0.0 && isEyeInWater == 0) {
+			if (wetness > 0.0 && isEyeInWater == 0) {
 				float porosity = saturate(specularTex.z * (maxFloat8 / 64.0));
 				
 				rainPuddles(scenePosition, tbn[2], lightmapCoords, porosity, F0, roughness, normal);
@@ -266,11 +266,11 @@
 		#endif
 
 		#if HARDCODED_EMISSION == 1
-			if(blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
+			if (blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
 		#endif
 		
 		#if HARDCODED_SSS == 1
-            if(blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID && subsurface <= EPS) subsurface = HARDCODED_SSS_VAL;
+            if (blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID && subsurface <= EPS) subsurface = HARDCODED_SSS_VAL;
         #endif
 
 		float handLight  = min(float(heldBlockLightValue + heldBlockLightValue2), 15.0) / 15.0;
@@ -282,16 +282,16 @@
 
 		#if defined PROGRAM_ENTITY
 			// Handling lightning bolts, end crystal and end crystal beams
-			if(entityId == 10000) id = LIGHTNING_BOLT_ID;
+			if (entityId == 10000) id = LIGHTNING_BOLT_ID;
 
-			if(entityId == 10001 || entityId == 10002) {
+			if (entityId == 10001 || entityId == 10002) {
 				emission = 1.0;
 				lightmap = vec2(1.0);
 			}
 		#endif
 
 		// Flickering fire-powered light sources
-		if(id >= FIRE_ID && id <= HANGING_LANTERN_ID) {
+		if (id >= FIRE_ID && id <= HANGING_LANTERN_ID) {
 			const float speed = 4.0;
 			float rng         = FBM(ceil(scenePosition + cameraPosition) + frameTimeCounter * speed * 0.1, 1, 0.5);
 			float flickering  = mix(mix(0.8, 0.95, rng), 1.0, (sin(frameTimeCounter * speed * mix(0.3, 0.5, rng)) + 1.0) * 0.5);

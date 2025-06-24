@@ -54,7 +54,7 @@ in vec2 textureCoords;
 
 void main() {
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-    	if(all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
+    	if (all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
             colorOut = texture(MAIN_BUFFER, textureCoords);
             return;
         }
@@ -65,7 +65,7 @@ void main() {
     float exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
     #if BLOOM == 1
-        vec3  bloom         = texture(SHADOWMAP_BUFFER, textureCoords * 0.5).rgb;
+        vec3  bloom         = texture(ILLUMINANCE_BUFFER, textureCoords * 0.5).rgb;
         float bloomStrength = exp2(exposure + BLOOM_STRENGTH - 3.0);
 
         color += bloom * bloomStrength;
