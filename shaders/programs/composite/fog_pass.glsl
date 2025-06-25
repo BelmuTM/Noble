@@ -150,6 +150,6 @@ void main() {
     vec3 scattering    = scatteringLayer0    * transmittanceLayer1 + scatteringLayer1 * transmittanceLayer2 + scatteringLayer2;
     vec3 transmittance = transmittanceLayer0 * transmittanceLayer1 * transmittanceLayer2;
 
-    if (scattering != vec3(0.0)) fog.x = packUnormArb(logLuvEncode(scattering   ), uvec4(8));
-    if (scattering != vec3(1.0)) fog.y = packUnormArb(logLuvEncode(transmittance), uvec4(8));
+    if (scattering != vec3(0.0)) fog.x = encodeRGBE(scattering   );
+    if (scattering != vec3(1.0)) fog.y = encodeRGBE(transmittance);
 }

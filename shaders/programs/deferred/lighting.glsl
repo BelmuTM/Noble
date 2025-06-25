@@ -165,7 +165,7 @@
 
                 #if GI == 0
                     vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-                         color.a     *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
+                         color.a        *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
                 #else
                     color.a *= float(depth >= handDepth);
                 #endif

@@ -51,6 +51,8 @@ void pathtraceDiffuse(bool dhFragment, mat4 projection, mat4 projectionInverse, 
             vec3 brdf  = material.albedo * evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material, directIlluminance);
             vec3 phase = sampleMicrosurfaceOpaquePhase(estimate, rayDirection, material);
 
+            if (dot(material.normal, rayDirection) <= 0.0) break;
+
             vec3 tracePosition = screenToView(rayPosition, projectionInverse, true) + material.normal * 1e-3;
              
             bool hit;
@@ -60,20 +62,16 @@ void pathtraceDiffuse(bool dhFragment, mat4 projection, mat4 projectionInverse, 
                 hit = raytrace(depthtex0, projection, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
             }
 
+            if (!hit) {
+                estimate += throughput * texture(ATMOSPHERE_BUFFER, projectSphere(rayPosition)).rgb * getSkylightFalloff(material.lightmap.y);
+                break;
+            }
+
             if (j > 0) {
                 estimate += throughput * brdf; 
             }
 
             throughput *= (isMetal ? material.albedo : phase);
-
-            if (!hit) {
-                #if defined WORLD_OVERWORLD && SKY_CONTRIBUTION == 1
-                    estimate += throughput * texture(ATMOSPHERE_BUFFER, projectSphere(rayPosition)).rgb * getSkylightFalloff(material.lightmap.y);
-                #endif
-                break;
-            }
-
-            if (dot(material.normal, rayDirection) <= 0.0) break;
         }
         irradiance += max0(estimate) * rcp(GI_SAMPLES);
     }

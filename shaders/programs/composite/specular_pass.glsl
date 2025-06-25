@@ -161,8 +161,8 @@ void main() {
 
             weight *= step(abs(linearDepth - linearSampleDepth) / max(linearDepth, linearSampleDepth), 0.1);
             
-            scattering    += logLuvDecode(unpackUnormArb(packedFog[0], uvec4(8))) * weight;
-            transmittance += logLuvDecode(unpackUnormArb(packedFog[1], uvec4(8))) * weight;
+            scattering    += decodeRGBE(packedFog[0]) * weight;
+            transmittance += decodeRGBE(packedFog[1]) * weight;
 
             totalWeight += weight;
         }

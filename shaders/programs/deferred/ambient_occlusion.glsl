@@ -197,10 +197,11 @@
 
 			if (depth == 1.0) return;
 
-			Material material = getMaterial(vertexCoords);
+			uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
+			vec3  normal      = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTexture.w & 65535u, dataTexture.w >> 16u & 65535u) * rcpMaxFloat16);
 
 			if (depth < handDepth) {
-				ao = vec3(encodeUnitVector(material.normal), 1.0);
+				ao = vec3(encodeUnitVector(normal), 1.0);
 				return;
 			}
 
@@ -209,11 +210,11 @@
 			vec3 bentNormal = vec3(0.0);
 
 			#if AO == 1
-				ao.b = GTAO(dhFragment, viewPosition, material.normal, projectionInverse, bentNormal);
+				ao.b = GTAO(dhFragment, viewPosition, normal, projectionInverse, bentNormal);
 			#elif AO == 2
-				ao.b = SSAO(dhFragment, projection, viewPosition, material.normal, projectionInverse);
+				ao.b = SSAO(dhFragment, projection, viewPosition, normal, projectionInverse);
 			#elif AO == 3
-				ao.b = RTAO(dhFragment, projection, viewPosition, material.normal, bentNormal);
+				ao.b = RTAO(dhFragment, projection, viewPosition, normal, bentNormal);
 			#endif
 
 			#if AO_FILTER == 1
@@ -241,7 +242,7 @@
 
 					ao.b = mix(prevAO.b, ao.b, weight);
 				} else {
-					ao = vec3(encodeUnitVector(material.normal), 1.0);
+					ao = vec3(encodeUnitVector(normal), 1.0);
 				}
 			#endif
 

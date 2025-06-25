@@ -33,6 +33,7 @@
 #include "/settings.glsl"
 
 #if RENDER_MODE == 0 && GI == 1 && ATROUS_FILTER == 1
+
     #include "/include/taau_scale.glsl"
 
     #if defined STAGE_VERTEX
@@ -87,7 +88,7 @@
                     }
                 }
             }
-            return (varianceSum / totalWeight) * 5.0;
+            return (varianceSum / totalWeight) * 10.0;
         }
 
         void aTrousFilter(bool dhFragment, float nearPlane, float farPlane, vec2 coords, inout vec3 irradiance, inout vec3 moments) {
@@ -134,12 +135,12 @@
                           weight *= waveletKernel[abs(x)] * waveletKernel[abs(y)];
 
                     irradiance  += sampleIrradiance * weight;
-                    moments.a   += sampleVariance   * weight * weight;
+                    moments.b   += sampleVariance   * weight * weight;
                     totalWeight += weight;
                 }
             }
             irradiance /= totalWeight;
-            moments.a  /= (totalWeight * totalWeight);
+            moments.b  /= (totalWeight * totalWeight);
         }
 
         void main() {
@@ -169,6 +170,7 @@
         }
         
     #endif
+    
 #else
     #include "/programs/discard.glsl"
 #endif
