@@ -217,7 +217,7 @@ float calculateAirFogPhase(float cosTheta) {
         float phaseFog    = calculateAirFogPhase(VdotL);
         vec2  phaseAerial = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
-        float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
+        float distanceFalloffAerial = linearStep(0.0, far, length(endPosition.xz));
 
         for (int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
             #if defined WORLD_OVERWORLD
@@ -256,12 +256,6 @@ float calculateAirFogPhase(float cosTheta) {
             }
 
             #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
-                #if defined DISTANT_HORIZONS
-                    float farPlane = far * 2.0;
-                #else
-                    float farPlane = far;
-                #endif
-
                 float heightFalloffAerial = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08);
 
                 float airmassAerial      = rayLength * heightFalloffAerial * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * 10.0;

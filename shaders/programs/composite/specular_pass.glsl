@@ -64,7 +64,8 @@ void main() {
 
     vec3 sunSpecular = vec3(0.0), envSpecular = vec3(0.0);
 
-    float depth = texture(depthtex0, vertexCoords).r;
+    bool  dhFragment = false;
+    float depth      = texture(depthtex0, vertexCoords).r;
 
     mat4 projection        = gbufferProjection;
     mat4 projectionInverse = gbufferProjectionInverse;
@@ -74,7 +75,8 @@ void main() {
 
     #if defined DISTANT_HORIZONS
         if (depth >= 1.0) {
-            depth = texture(dhDepthTex0, vertexCoords).r;
+            dhFragment = true;
+            depth      = texture(dhDepthTex0, vertexCoords).r;
                     
             projection        = dhProjection;
             projectionInverse = dhProjectionInverse;
@@ -147,8 +149,8 @@ void main() {
     vec3 transmittance = vec3(0.0);
 
     float totalWeight = 0.0;
-
     const int filterSize = 2;
+
     for (int x = -filterSize; x <= filterSize; x++) {
         for (int y = -filterSize; y <= filterSize; y++) {
             vec2  sampleCoords = coords.xy + vec2(x, y) * texelSize * 2.0;
@@ -156,8 +158,19 @@ void main() {
 
             float weight = gaussianDistribution2D(vec2(x, y), 1.0);
 
-            float linearDepth       = linearizeDepth(texture(depthtex1, coords.xy).r   , nearPlane, farPlane);
-            float linearSampleDepth = linearizeDepth(texture(depthtex1, sampleCoords).r, nearPlane, farPlane);
+            float linearDepth;
+            float linearSampleDepth;
+
+            if (dhFragment) {
+                linearDepth       = texture(dhDepthTex1, coords.xy).r;
+                linearSampleDepth = texture(dhDepthTex1, sampleCoords).r;
+            } else {
+                linearDepth       = texture(depthtex1, coords.xy).r;
+                linearSampleDepth = texture(depthtex1, sampleCoords).r;
+            }
+
+            linearDepth       = linearizeDepth(linearDepth, nearPlane, farPlane);
+            linearSampleDepth = linearizeDepth(linearSampleDepth, nearPlane, farPlane);
 
             weight *= step(abs(linearDepth - linearSampleDepth) / max(linearDepth, linearSampleDepth), 0.1);
             
