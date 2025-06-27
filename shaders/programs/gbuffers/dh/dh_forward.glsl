@@ -158,17 +158,15 @@
 		vec3 labPbrData0 = vec3(1.0, saturate(material.lightmap));
 		vec4 labPbrData1 = vec4(1.0, material.emission, material.F0, 0.0);
 		vec4 labPbrData2 = vec4(vertexColor.rgb, material.roughness);
-		vec2 encNormal   = encodeUnitVector(normalize(material.normal));
+		
+		vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
 	
-		uvec4 shiftedData0  = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
-		uvec4 shiftedData1  = uvec4(round(labPbrData1 * maxFloat8                )) << uvec4(0, 8, 16, 24);
-		uvec4 shiftedData2  = uvec4(round(labPbrData2 * maxFloat8                )) << uvec4(0, 8, 16, 24);
-		uvec2 shiftedNormal = uvec2(round(encNormal   * maxFloat16               )) << uvec2(0, 16);
+		uvec4 shiftedLabPbrData0 = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
 
-		data.x = shiftedData0.x  | shiftedData0.y | shiftedData0.z | shiftedData0.w;
-		data.y = shiftedData1.x  | shiftedData1.y | shiftedData1.z | shiftedData1.w;
-		data.z = shiftedData2.x  | shiftedData2.y | shiftedData2.z | shiftedData2.w;
-		data.w = shiftedNormal.x | shiftedNormal.y;
+		data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
+		data.y = packUnorm4x8(labPbrData1);
+		data.z = packUnorm4x8(labPbrData2);
+		data.w = packUnorm2x16(encodedNormal);
 	}
 
 #endif

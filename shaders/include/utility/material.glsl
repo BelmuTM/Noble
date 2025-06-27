@@ -94,19 +94,21 @@ Material getMaterial(vec2 coords) {
     coords *= viewSize;
     uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(coords), 0);
 
+    vec4 data1 = unpackUnorm4x8(dataTexture.y);
+    vec4 data2 = unpackUnorm4x8(dataTexture.z);
+
     Material material;
-    material.roughness  = (dataTexture.z >> 24u & 255u) * rcpMaxFloat8;
-    material.roughness *= material.roughness;
-    material.ao         = (dataTexture.y        & 255u) * rcpMaxFloat8;
-    material.emission   = (dataTexture.y >> 8u  & 255u) * rcpMaxFloat8;
-    material.F0         = (dataTexture.y >> 16u & 255u) * rcpMaxFloat8;
-    material.subsurface = (dataTexture.y >> 24u & 255u) * rcpMaxFloat8;
+    material.roughness  = data2.w * data2.w;
+    material.ao         = data1.x;
+    material.emission   = data1.y;
+    material.F0         = data1.z;
+    material.subsurface = data1.w;
 
     #if MATERIAL_AO == 0
         material.ao = 1.0;
     #endif
 
-    material.albedo = (uvec3(dataTexture.z) >> uvec3(0, 8, 16) & 255u) * rcpMaxFloat8;
+    material.albedo = data2.rgb;
 
     #if TONEMAP == ACES
         material.albedo = srgbToAP1Albedo(material.albedo);
@@ -124,7 +126,7 @@ Material getMaterial(vec2 coords) {
 
     material.parallaxSelfShadowing = float(dataTexture.x & 1u);
 
-    material.normal = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTexture.w & 65535u, dataTexture.w >> 16u & 65535u) * rcpMaxFloat16);
+    material.normal = mat3(gbufferModelView) * decodeUnitVector(unpackUnorm2x16(dataTexture.w));
 
     material.id       = int(dataTexture.x >> 26u & 63u);
     material.lightmap = vec2(dataTexture.x >> 1u & 8191u, dataTexture.x >> 14u & 4095u) * vec2(rcpMaxFloat13, rcpMaxFloat12);
@@ -143,12 +145,7 @@ Material getMaterial(vec2 coords) {
 }
 
 vec3 getBlockLightColor(Material material) {
-    switch (material.id) {
-        case LAVA_ID: return blackbody(1523.15) * EMISSIVE_INTENSITY; // Lava, magma
-
-        default: return blackbody(BLOCKLIGHT_TEMPERATURE) * EMISSIVE_INTENSITY;
-    }
-    return vec3(0.0);
+    return blackbody(BLOCKLIGHT_TEMPERATURE) * EMISSIVE_INTENSITY;
 }
 
 float getBlocklightFalloff(float lightmapX) {

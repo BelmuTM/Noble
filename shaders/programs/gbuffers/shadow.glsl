@@ -49,8 +49,7 @@
         vertexColor   = gl_Color;
         blockId       = int((mc_Entity.x - 1000.0) + 0.25);
 
-        vec3 viewShadowPosition = (gl_ModelViewMatrix * gl_Vertex).xyz;
-             worldPosition      = transform(shadowModelViewInverse, viewShadowPosition);
+        worldPosition = transform(shadowModelViewInverse, (gl_ModelViewMatrix * gl_Vertex).xyz);
 
 	    #if RENDER_MODE == 0 && WAVING_PLANTS == 1
             animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(gl_MultiTexCoord1.y * rcp240));
