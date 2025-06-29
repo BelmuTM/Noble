@@ -320,7 +320,7 @@ const mat3x3 decodingMatrix = mat3x3(
 vec4 logLuvEncode(in vec3 value) {
     vec4 encoded;
     vec3 Xp_Y_XYZp = max0(encodingMatrix * value);
-    encoded.xy = Xp_Y_XYZp.xy / Xp_Y_XYZp.z;
+    encoded.xy = Xp_Y_XYZp.xy / maxEps(Xp_Y_XYZp.z);
     float Le = 2.0 * log2(Xp_Y_XYZp.y) + 127.0;
     encoded.w = fract(Le);
     encoded.z = (Le - (floor(encoded.w * 255.0)) / 255.0) / 255.0;
@@ -331,7 +331,7 @@ vec3 logLuvDecode(in vec4 encoded) {
     float Le = encoded.z * 255.0 + encoded.w;
     vec3 Xp_Y_XYZp;
     Xp_Y_XYZp.y = exp2((Le - 127.0) * 0.5);
-    Xp_Y_XYZp.z = Xp_Y_XYZp.y / encoded.y;
+    Xp_Y_XYZp.z = Xp_Y_XYZp.y / maxEps(encoded.y);
     Xp_Y_XYZp.x = encoded.x * Xp_Y_XYZp.z;
     return max0(decodingMatrix * Xp_Y_XYZp);
 }
