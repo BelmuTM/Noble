@@ -305,55 +305,6 @@ vec3 decodeRGBE(uint packed) {
     return encoded.rgb * scale;
 }
 
-const mat3x3 encodingMatrix = mat3x3(
-    0.2209, 0.3390, 0.4184,
-    0.1138, 0.6780, 0.7319,
-    0.0102, 0.1130, 0.2969
-);
-
-const mat3x3 decodingMatrix = mat3x3(
-     6.0013,-2.7000,-1.7995,
-    -1.3320, 3.1029,-5.7720,
-     0.3007,-1.0880, 5.6268
-);
-
-vec4 logLuvEncode(in vec3 value) {
-    vec4 encoded;
-    vec3 Xp_Y_XYZp = max0(encodingMatrix * value);
-    encoded.xy = Xp_Y_XYZp.xy / maxEps(Xp_Y_XYZp.z);
-    float Le = 2.0 * log2(Xp_Y_XYZp.y) + 127.0;
-    encoded.w = fract(Le);
-    encoded.z = (Le - (floor(encoded.w * 255.0)) / 255.0) / 255.0;
-    return encoded;
-}
-
-vec3 logLuvDecode(in vec4 encoded) {
-    float Le = encoded.z * 255.0 + encoded.w;
-    vec3 Xp_Y_XYZp;
-    Xp_Y_XYZp.y = exp2((Le - 127.0) * 0.5);
-    Xp_Y_XYZp.z = Xp_Y_XYZp.y / maxEps(encoded.y);
-    Xp_Y_XYZp.x = encoded.x * Xp_Y_XYZp.z;
-    return max0(decodingMatrix * Xp_Y_XYZp);
-}
-
-uint packUnormArb(vec4 data, const uvec4 bits) {
-    vec4 mul = exp2(vec4(bits)) - 1.0;
-
-    uvec4 shift   = uvec4(0, bits.x, bits.x + bits.y, bits.x + bits.y + bits.z);
-    uvec4 shifted = uvec4(data * mul + 0.5) << shift;
-
-    return shifted.x | shifted.y | shifted.z | shifted.w;
-}
-
-vec4 unpackUnormArb(uint pack, const uvec4 bits) {
-    uvec4 maxValue  = uvec4(exp2(bits) - 1);
-    uvec4 shift     = uvec4(0, bits.x, bits.x + bits.y, bits.x + bits.y + bits.z);
-    uvec4 unshifted = uvec4(pack) >> shift;
-          unshifted = unshifted & maxValue;
-
-    return vec4(unshifted) * 1.0 / vec4(maxValue);
-}
-
 vec2 encodeUnitVector(vec3 v) {
 	vec2 encoded = v.xy / (abs(v.x) + abs(v.y) + abs(v.z));
 	     encoded = (v.z <= 0.0) ? ((1.0 - abs(encoded.yx)) * signNonZero(encoded)) : encoded;

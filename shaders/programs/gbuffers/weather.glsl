@@ -33,7 +33,7 @@
 	void main() {
 		textureCoords = gl_MultiTexCoord0.xy;
 
-		directIlluminance = max(texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb, vec3(MIN_RAIN_BRIGHTNESS));
+		directIlluminance = max(texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb, vec3(MIN_RAIN_BRIGHTNESS));
 
 		vec3 scenePosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
 
@@ -52,7 +52,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 13 */
+	/* RENDERTARGETS: 0 */
 
 	layout (location = 0) out vec4 color;
 

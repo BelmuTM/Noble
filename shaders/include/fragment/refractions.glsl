@@ -70,7 +70,7 @@ vec3 computeRefractions(mat4 projection, vec3 viewPosition0, vec3 viewPosition1,
     vec3 fresnel = fresnelDielectricDielectric_T(dot(material.normal, -normalize(viewPosition0)), n1, n2);
 
     #if GI == 1
-        vec3 sampledColor = texture(DEFERRED_BUFFER, refractedPosition.xy).rgb;
+        vec3 sampledColor = texture(MAIN_BUFFER, refractedPosition.xy).rgb;
     #else
         vec3 sampledColor = texture(ACCUMULATION_BUFFER, refractedPosition.xy).rgb;
     #endif

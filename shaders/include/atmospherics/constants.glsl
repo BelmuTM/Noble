@@ -42,7 +42,7 @@ const float ozoneNumberDensity  = airNumberDensity * exp(-ozonePeakAltitude / 8e
 const float ozoneUnitConversion = 1e-4; // Converts from cm² to m²
 
 const vec3 rayleighScatteringCoefficientsSunny = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
-const vec3 mieScatteringCoefficientsSunny      = vec3(21e-6);
+const vec3 mieScatteringCoefficientsSunny      = vec3(22e-6);
 
 const vec3 rayleighScatteringCoefficientsRain = vec3(6.42e-5, 6.98e-5, 8.9e-5);
 const vec3 mieScatteringCoefficientsRain      = vec3(1e-5);

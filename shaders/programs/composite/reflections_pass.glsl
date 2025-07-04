@@ -26,20 +26,14 @@
     #include "/include/taau_scale.glsl"
 
     #if defined STAGE_VERTEX
-        #if defined WORLD_OVERWORLD && CLOUDS_LAYER0_ENABLED == 1 || defined WORLD_OVERWORLD && CLOUDS_LAYER1_ENABLED == 1
-            #include "/include/common.glsl"
-
-            #include "/include/utility/phase.glsl"
-            #include "/include/atmospherics/constants.glsl"
-        
-            #include "/include/atmospherics/atmosphere.glsl"
-        #endif
 
         out vec2 textureCoords;
         out vec2 vertexCoords;
         
         out vec3 directIlluminance;
         out vec3 skyIlluminance;
+
+        uniform sampler2D colortex5;
 
         void main() {
             gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
@@ -48,8 +42,8 @@
             vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
             #if defined WORLD_OVERWORLD && CLOUDS_LAYER0_ENABLED == 1 || defined WORLD_OVERWORLD && CLOUDS_LAYER1_ENABLED == 1
-                directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
-                skyIlluminance    = evaluateUniformSkyIrradianceApproximation();
+                directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb;
+                skyIlluminance    = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 1), 0).rgb;
             #endif
         }
 
@@ -126,10 +120,10 @@
 
             vec3 prevReflections = texture(REFLECTIONS_BUFFER, prevPosition.xy).rgb;
 
-            float weight = 0.96;
+            float weight = 0.97;
 
             vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-            float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y);
+            float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 1.2 - 0.4;
 
             float velocityWeight = 1.0 - (saturate(length(velocity.xy * viewSize)) * 0.5 + 0.5);
 

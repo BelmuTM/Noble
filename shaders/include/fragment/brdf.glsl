@@ -171,7 +171,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
     vec3 emissiveness    = material.emission * blocklightColor;
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        const vec3 ambient = vec3(0.0);
+        const vec3 ambient = vec3(0.3);
     #else
         const vec3 ambient = vec3(1.9, 0.8, 0.1) * 5.0;
     #endif

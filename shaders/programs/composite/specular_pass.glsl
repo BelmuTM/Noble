@@ -18,7 +18,7 @@
 /*                                                                              */
 /********************************************************************************/
 
-/* RENDERTARGETS: 13 */
+/* RENDERTARGETS: 0 */
 
 layout (location = 0) out vec3 lighting;
 
@@ -90,7 +90,7 @@ void main() {
         Material material = getMaterial(vertexCoords);
 
         if (material.F0 * maxFloat8 <= 229.5) {
-            lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+            lighting = texture(MAIN_BUFFER, vertexCoords).rgb;
         }
 
         vec3 viewPosition0 = screenToView(vec3(textureCoords, material.depth0), projectionInverse, true);
@@ -99,7 +99,7 @@ void main() {
         vec3 directIlluminance = vec3(0.0);
     
         #if defined WORLD_OVERWORLD || defined WORLD_END
-            directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+            directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
 
             #if defined WORLD_OVERWORLD && defined SUNLIGHT_LEAKING_FIX
                 directIlluminance *= float(material.lightmap.y > EPS || isEyeInWater == 1);
@@ -138,7 +138,7 @@ void main() {
             envSpecular = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
         #endif
     } else {
-        lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+        lighting = texture(MAIN_BUFFER, vertexCoords).rgb;
     }
 
     //////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ void main() {
     vec4 basic = texture(GBUFFERS_BASIC_BUFFER, vertexCoords);
 
     bool isEnchantmentGlint = basic.a == 0.0;
-    bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-2;
+    bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-1;
 
     bool isHand = depth < handDepth;
 

@@ -19,6 +19,7 @@
 /********************************************************************************/
 
 #if defined WORLD_OVERWORLD || defined WORLD_END
+
     #include "/settings.glsl"
     #include "/include/taau_scale.glsl"
     
@@ -55,6 +56,7 @@
         }
         
     #endif
+    
 #else
     #include "/programs/discard.glsl"
 #endif

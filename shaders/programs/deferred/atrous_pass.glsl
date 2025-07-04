@@ -44,13 +44,13 @@
         #if ATROUS_PASS_INDEX <= 0
             #define INPUT_BUFFER ACCUMULATION_BUFFER
         #else
-            #define INPUT_BUFFER DEFERRED_BUFFER
+            #define INPUT_BUFFER MAIN_BUFFER
         #endif
 
-        /* RENDERTARGETS: 10,13 */
+        /* RENDERTARGETS: 0,10 */
 
-        layout (location = 0) out vec4 moments;
-        layout (location = 1) out vec4 irradiance;
+        layout (location = 0) out vec4 irradiance;
+        layout (location = 1) out vec4 moments;
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
@@ -161,6 +161,8 @@
                     farPlane  = dhFarPlane;
                 }
             #endif
+
+            if (depth == 1.0) { discard; return; }
 
             ivec2 texelCoords = ivec2(gl_FragCoord.xy);
 

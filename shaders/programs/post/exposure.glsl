@@ -26,7 +26,7 @@
 #if defined STAGE_VERTEX
 
     /*
-        const bool colortex3MipmapEnabled = true;
+        const bool colortex5MipmapEnabled = true;
     */
 
     flat out float avgLuminance;
@@ -61,7 +61,7 @@
             for (int x = 0; x < tiles.x; x++) {
                 for (int y = 0; y < tiles.y; y++) {
                     vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
-                    float luminance = luminance(textureLod(ILLUMINANCE_BUFFER, coords * 0.5, lod).rgb);
+                    float luminance = luminance(textureLod(IRRADIANCE_BUFFER, coords * 0.5, lod).rgb);
 
                     pdf[getBinFromLuminance(luminance)]++;
                 }
@@ -90,7 +90,7 @@
 
         #if MANUAL_CAMERA == 0 && EXPOSURE > 0
             #if EXPOSURE == 1
-                avgLuminance = luminance(texture(ILLUMINANCE_BUFFER, vec2(0.25)).rgb);
+                avgLuminance = luminance(texture(IRRADIANCE_BUFFER, vec2(0.25)).rgb);
             #else
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
                 int closestBinToMedian    = getClosestBinToMedian(pdf);
@@ -121,7 +121,7 @@
 
         layout (location = 0) out vec4 history;
 
-        layout (rgba8) uniform image2D colorimg0;
+        layout (rgba16f) uniform image2D colorimg0;
 
         flat in int medianBin;
         flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
@@ -142,7 +142,7 @@
     #endif
 
     void main() {
-        history.rgb = logLuvDecode(texture(MAIN_BUFFER, textureCoords));
+        history.rgb = texture(MAIN_BUFFER, textureCoords).rgb;
 
         #if TAA == 1
             history.rgb *= computeExposure(avgLuminance);
@@ -162,7 +162,7 @@
 
                     vec3 histogram = isBin ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
                     
-                    imageStore(colorimg0, ivec2(gl_FragCoord.xy), logLuvEncode(histogram));
+                    imageStore(colorimg0, ivec2(gl_FragCoord.xy), vec4(histogram, 0.0));
     	        }
                 
             #endif

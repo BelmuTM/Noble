@@ -70,20 +70,16 @@ const float lodFactor = exp2(-lod);
 		#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
 			#define BLOOM_SAMPLER MAIN_BUFFER
 		#else
-			#define BLOOM_SAMPLER ILLUMINANCE_BUFFER
+			#define BLOOM_SAMPLER IRRADIANCE_BUFFER
 		#endif
 
 		vec3 sampleBloomBuffer(vec2 coords) {
-			#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
-				return logLuvDecode(textureLod(BLOOM_SAMPLER, coords, 0));
-			#else
-				return textureLod(BLOOM_SAMPLER, coords, 0).rgb;
-			#endif
+			return textureLod(BLOOM_SAMPLER, coords, 0).rgb;
 		}
 
 	#elif defined BLOOM_UPSAMPLE_PASS
 
-		#define BLOOM_SAMPLER ILLUMINANCE_BUFFER
+		#define BLOOM_SAMPLER IRRADIANCE_BUFFER
 
 		#include "/include/utility/sampling.glsl"
 

@@ -47,7 +47,7 @@
 
     /* RENDERTARGETS: 0 */
 
-    layout (location = 0) out vec4 colorOut;
+    layout (location = 0) out vec3 color;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -114,7 +114,7 @@
     #endif
 
     void main() {
-        vec3 color = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+        color = texture(MAIN_BUFFER, vertexCoords).rgb;
 
         #if TAA == 1
 
@@ -147,10 +147,10 @@
             if (saturate(prevCoords) == prevCoords) {
                 vec2 jitteredCoords = depth == 1.0 ? vertexCoords : vertexCoords + taaOffsets[framemod] * texelSize;
 
-                vec3 currColor = max0(textureCatmullRom(DEFERRED_BUFFER, jitteredCoords).rgb);
+                vec3 currColor = max0(textureCatmullRom(MAIN_BUFFER, jitteredCoords).rgb);
 
                 vec3 history = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
-                     history = neighbourhoodClipping(DEFERRED_BUFFER, currColor, history);
+                     history = neighbourhoodClipping(MAIN_BUFFER, currColor, history);
 
                 float velocityWeight = saturate(length(velocity * viewSize));
 
@@ -175,8 +175,7 @@
             
         #endif
 
-        color    = max0(color);
-        colorOut = logLuvEncode(color);
+        color = max0(color);
     }
     
 #endif

@@ -28,7 +28,7 @@
 const int  shadowcolor0Format      = RGBA16F;
 const bool shadowHardwareFiltering = false;
 
-const int  colortex0Format         = RGBA16;            // Main
+const int  colortex0Format         = RGBA16F;           // Main
 const bool colortex0Clear          = false;
 const int  colortex1Format         = RGBA32UI;          // Gbuffer data
 
@@ -57,7 +57,6 @@ const bool colortex8Clear          = false;
 #else
      const int colortex10Format    = R16F;              // Previous Frame Depth
 #endif
-
 const bool colortex10Clear         = false;
 
 const int colortex11Format         = RG32UI;            // Fog
@@ -67,11 +66,9 @@ const int colortex11Format         = RG32UI;            // Fog
      const bool colortex12Clear    = false;
 #endif
 
-const int colortex13Format         = RGBA16F;           // Deferred
-
 #if CLOUDMAP == 1
      const int colortex14Format    = R11F_G11F_B10F;    // Cloudmap
 #endif
 
-const int colortex15Format         = RGBA16F;           // Gbuffer data
+const int colortex15Format         = RGBA8;             // Gbuffer data
 */

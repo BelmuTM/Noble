@@ -56,7 +56,7 @@
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
 		#if defined WORLD_OVERWORLD || defined WORLD_END
-			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+			directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
 			skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 		#endif
 		

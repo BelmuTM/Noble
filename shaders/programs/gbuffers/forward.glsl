@@ -68,7 +68,7 @@
 		blockId = int((mc_Entity.x - 1000.0) + 0.25);
 
 		#if defined WORLD_OVERWORLD || defined WORLD_END
-			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+			directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
 			skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
 		#endif
 
@@ -84,7 +84,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 1,13 */
+	/* RENDERTARGETS: 1,0 */
 
 	layout (location = 0) out uvec4 data;
 	layout (location = 1) out vec4 translucents;

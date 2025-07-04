@@ -36,7 +36,7 @@
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
         #if defined WORLD_OVERWORLD
-            directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+            directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
         #endif
     }
 
@@ -123,18 +123,13 @@
             }
         #endif
 
+        if (depth == 1.0) return;
+
         vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
         vec3 skyIlluminance = vec3(0.0);
         #if defined WORLD_OVERWORLD || defined WORLD_END
-            skyIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
-        #endif
-
-        #if GI == 0
-        if (depth == 1.0) {
-            color.rgb = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
-            return;
-        }
+            skyIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
         #endif
 
         #if AO > 0 && AO_FILTER == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1

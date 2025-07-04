@@ -25,7 +25,8 @@
 
     out vec2 textureCoords;
     out vec2 vertexCoords;
-    out vec3 directIlluminance;
+	out vec3 directIlluminance;
+	out vec3 skyIlluminance;
 
 	uniform sampler2D colortex5;
 
@@ -36,71 +37,66 @@
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
         #if defined WORLD_OVERWORLD
-            directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+            directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb;
+			skyIlluminance    = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 1), 0).rgb;
         #endif
     }
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 13 */
+	/* RENDERTARGETS: 0 */
 
 	layout (location = 0) out vec3 lighting;
 
 	in vec2 textureCoords;
 	in vec2 vertexCoords;
 	in vec3 directIlluminance;
+	in vec3 skyIlluminance;
 
 	#include "/include/common.glsl"
 
-	#if GI == 1
-		#include "/include/utility/rng.glsl"
+	#include "/include/utility/rng.glsl"
 
-		#include "/include/atmospherics/constants.glsl"
+	#include "/include/atmospherics/constants.glsl"
 
-		#include "/include/utility/phase.glsl"
+	#include "/include/utility/phase.glsl"
 
-		#include "/include/fragment/brdf.glsl"
-		#include "/include/atmospherics/celestial.glsl"
-	#endif
+	#include "/include/fragment/brdf.glsl"
+	#include "/include/atmospherics/celestial.glsl"
 
 	void main() {
+		float depth = texture(depthtex0, vertexCoords).r;
+
+		mat4 projectionInverse = gbufferProjectionInverse;
+
+		#if defined DISTANT_HORIZONS
+			if (depth >= 1.0) {
+				depth = texture(dhDepthTex0, vertexCoords).r;
+
+				projectionInverse = dhProjectionInverse;
+			}
+		#endif
+
+		vec3 screenPosition = vec3(vertexCoords, depth);
+		vec3 viewPosition   = screenToView(vec3(textureCoords, depth), projectionInverse, true);
+
+		if (depth == 1.0) {
+            lighting = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
+            return;
+        }
+
 		#if GI == 0
 
     		lighting = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
 
 		#else
 
-			float depth = texture(depthtex0, vertexCoords).r;
-
-			mat4 projectionInverse = gbufferProjectionInverse;
-
-			#if defined DISTANT_HORIZONS
-				if (depth >= 1.0) {
-					depth = texture(dhDepthTex0, vertexCoords).r;
-
-					projectionInverse = dhProjectionInverse;
-				}
-			#endif
-
-			vec3 screenPosition = vec3(vertexCoords, depth);
-			vec3 viewPosition   = screenToView(vec3(textureCoords, depth), projectionInverse, true);
-
-			if (depth == 1.0) {
-				vec3 skyIlluminance = vec3(0.0);
-				#if defined WORLD_OVERWORLD || defined WORLD_END
-					skyIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
-				#endif
-
-                lighting = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
-                return;
-            }
-
 			Material material = getMaterial(vertexCoords);
 
         	vec3 directDiffuse = evaluateMicrosurfaceOpaque(vertexCoords, -normalize(viewPosition), shadowVec, material, directIlluminance);
 
         	#if ATROUS_FILTER == 1
-            	vec3 irradianceDiffuse = texture(DEFERRED_BUFFER, vertexCoords).rgb;
+            	vec3 irradianceDiffuse = texture(MAIN_BUFFER, vertexCoords).rgb;
         	#else
             	vec3 irradianceDiffuse = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
         	#endif

@@ -34,7 +34,7 @@
 
     #elif defined STAGE_FRAGMENT
 
-        /* RENDERTARGETS: 13 */
+        /* RENDERTARGETS: 0 */
 
         layout (location = 0) out vec3 color;
 
@@ -106,7 +106,7 @@
                 float targetDepth = float(DOF_DEPTH);
             #endif
 
-            depthOfField(color, DEFERRED_BUFFER, vertexCoords, getCoC(depth, targetDepth));
+            depthOfField(color, MAIN_BUFFER, vertexCoords, getCoC(depth, targetDepth));
 
             #if TAA == 1
                 color = color * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);

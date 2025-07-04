@@ -98,7 +98,7 @@ in vec2 textureCoords;
 
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++, weight++) {
-                avgLuma += luminance(logLuvDecode(texture(MAIN_BUFFER, coords + vec2(x, y) * texelSize)));
+                avgLuma += luminance(texture(MAIN_BUFFER, coords + vec2(x, y) * texelSize).rgb);
             }
         }
         avgLuma /= weight;
@@ -147,9 +147,9 @@ void main() {
     #endif
 
     #if EIGHT_BITS_FILTER == 0
-        colorOut = logLuvDecode(texture(MAIN_BUFFER, distortCoords));
+        colorOut = texture(MAIN_BUFFER, distortCoords).rgb;
     #else
-        colorOut = logLuvDecode(samplePixelatedBuffer(MAIN_BUFFER, distortCoords, 300)).rgb;
+        colorOut = samplePixelatedBuffer(MAIN_BUFFER, distortCoords, 300).rgb;
     #endif
 
     #if SHARPEN == 1

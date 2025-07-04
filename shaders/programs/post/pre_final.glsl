@@ -27,7 +27,7 @@
 
 /* RENDERTARGETS: 0 */
 
-layout (location = 0) out vec4 colorOut;
+layout (location = 0) out vec3 color;
 
 in vec2 textureCoords;
 
@@ -55,17 +55,17 @@ in vec2 textureCoords;
 void main() {
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
     	if (all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
-            colorOut = texture(MAIN_BUFFER, textureCoords);
+            color = texture(MAIN_BUFFER, textureCoords).rgb;
             return;
         }
 	#endif
 
-    vec3 color = logLuvDecode(texture(MAIN_BUFFER, textureCoords));
+    color = texture(MAIN_BUFFER, textureCoords).rgb;
 
     float exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
     #if BLOOM == 1
-        vec3  bloom         = texture(ILLUMINANCE_BUFFER, textureCoords * 0.5).rgb;
+        vec3  bloom         = texture(IRRADIANCE_BUFFER, textureCoords * 0.5).rgb;
         float bloomStrength = exp2(exposure + BLOOM_STRENGTH - 3.0);
 
         color += bloom * bloomStrength;
@@ -117,6 +117,4 @@ void main() {
     saturation(color, saturationMul);
     contrast(color, contrastMul);
     liftGammaGain(color, liftMul, gammaMul, gainMul);
-
-    colorOut = logLuvEncode(color);
 }

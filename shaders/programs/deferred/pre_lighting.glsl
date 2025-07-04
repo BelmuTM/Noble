@@ -47,7 +47,7 @@
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
 		#if defined WORLD_OVERWORLD || defined WORLD_END
-			directIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(0), 0).rgb;
+			directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
 
             #if GI == 0
 			    skyIrradiance = sampleUniformSkyIrradiance();
@@ -142,6 +142,8 @@
         //////////////////////////////////////////////////////////
         /*----------------- SHADOW MAPPING ---------------------*/
         //////////////////////////////////////////////////////////
+
+        if (material.depth0 == 1.0) return;
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS > 0
@@ -161,20 +163,16 @@
                     }
                 #endif
 
-                shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
+                vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
+                vec3 screenPosition  = vec3(textureCoords, material.depth0);
+                vec3 viewPosition    = screenToView(screenPosition, projectionInverse, true);
+                vec3 scenePosition   = viewToScene(viewPosition);
 
-                if (material.depth0 != 1.0) {
-                    vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
-                    vec3 screenPosition  = vec3(textureCoords, material.depth0);
-                    vec3 viewPosition    = screenToView(screenPosition, projectionInverse, true);
-                    vec3 scenePosition   = viewToScene(viewPosition);
+                shadowmap.rgb = abs(calculateShadowMapping(scenePosition, geometricNormal, material.depth0, shadowmap.a));
 
-                    shadowmap.rgb = abs(calculateShadowMapping(scenePosition, geometricNormal, material.depth0, shadowmap.a));
-
-                    #if POM > 0 && POM_SHADOWING == 1
-                        shadowmap.rgb *= material.parallaxSelfShadowing;
-                    #endif
-                }
+                #if POM > 0 && POM_SHADOWING == 1
+                    shadowmap.rgb *= material.parallaxSelfShadowing;
+                #endif
             #endif
 
             #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1

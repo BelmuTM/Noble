@@ -172,7 +172,6 @@ float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int ste
     for (int i = 0; i < stepCount; i++) {
         float density = calculateCloudsDensity(rayPosition + lightDirection * stepSize * jitter, layer);
         opticalDepth += density * stepSize;
-        stepSize      = mix(stepSize, stepSize * 0.8, density);
         rayPosition  += lightDirection * stepSize;
     }
     return opticalDepth;

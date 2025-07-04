@@ -195,7 +195,7 @@
 				}
 			#endif
 
-			if (depth == 1.0) return;
+			if (depth == 1.0) { discard; return; }
 
 			uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 			vec3  normal      = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTexture.w & 65535u, dataTexture.w >> 16u & 65535u) * rcpMaxFloat16);

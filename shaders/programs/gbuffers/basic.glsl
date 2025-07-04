@@ -73,7 +73,7 @@
 
 			if (albedoTex.a < 0.102) discard;
 
-			color = vec4(albedoTex.rgb, 1e-4);
+			color = vec4(albedoTex.rgb, 0.05);
 
 		#else
 			if (albedoTex.a < 0.102) discard;

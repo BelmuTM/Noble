@@ -58,6 +58,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
 }
 
 #if defined STAGE_FRAGMENT
+
     vec3 evaluateAtmosphericScattering(vec3 rayDirection, vec3 skyIlluminance) {
         vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, atmosphereLowerRadius, atmosphereUpperRadius);
         if (dists.y < 0.0) return vec3(0.0);
@@ -131,6 +132,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
     
         return scattering[0] + scattering[1] + multipleScattering;
     }
+
 #endif
 
 vec3 evaluateDirectIlluminance() {
@@ -191,7 +193,7 @@ vec3 evaluateUniformSkyIrradianceApproximation() {
     vec3 skyIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        const ivec2 samples = ivec2(8, 8);
+        const ivec2 samples = ivec2(32);
 
         for (int x = 0; x < samples.x; x++) {
             for (int y = 0; y < samples.y; y++) {
@@ -244,15 +246,15 @@ void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
 
 vec3[9] sampleUniformSkyIrradiance() {
     return vec3[9](
-        texelFetch(ILLUMINANCE_BUFFER, ivec2(1, 0), 0).rgb,
-        texelFetch(ILLUMINANCE_BUFFER, ivec2(2, 0), 0).rgb,
-        texelFetch(ILLUMINANCE_BUFFER, ivec2(3, 0), 0).rgb,
-        texelFetch(ILLUMINANCE_BUFFER, ivec2(4, 0), 0).rgb,
-        texelFetch(ILLUMINANCE_BUFFER, ivec2(5, 0), 0).rgb,
-        texelFetch(ILLUMINANCE_BUFFER, ivec2(6, 0), 0).rgb,
-        texelFetch(ILLUMINANCE_BUFFER, ivec2(7, 0), 0).rgb,
-        texelFetch(ILLUMINANCE_BUFFER, ivec2(8, 0), 0).rgb,
-        texelFetch(ILLUMINANCE_BUFFER, ivec2(9, 0), 0).rgb
+        texelFetch(IRRADIANCE_BUFFER, ivec2(1, 0), 0).rgb,
+        texelFetch(IRRADIANCE_BUFFER, ivec2(2, 0), 0).rgb,
+        texelFetch(IRRADIANCE_BUFFER, ivec2(3, 0), 0).rgb,
+        texelFetch(IRRADIANCE_BUFFER, ivec2(4, 0), 0).rgb,
+        texelFetch(IRRADIANCE_BUFFER, ivec2(5, 0), 0).rgb,
+        texelFetch(IRRADIANCE_BUFFER, ivec2(6, 0), 0).rgb,
+        texelFetch(IRRADIANCE_BUFFER, ivec2(7, 0), 0).rgb,
+        texelFetch(IRRADIANCE_BUFFER, ivec2(8, 0), 0).rgb,
+        texelFetch(IRRADIANCE_BUFFER, ivec2(9, 0), 0).rgb
     );
 }
 
