@@ -33,7 +33,7 @@ const bool colortex0Clear          = false;
 const int  colortex1Format         = RGBA32UI;          // Gbuffer data
 
 #if REFLECTIONS > 0
-     const int  colortex2Format    = R11F_G11F_B10F;    // Reflections
+     const int  colortex2Format    = RGBA16F;           // Reflections
      const bool colortex2Clear     = false;
 #endif
 

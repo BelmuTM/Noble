@@ -51,7 +51,7 @@
 
         /* RENDERTARGETS: 2 */
     
-        layout (location = 0) out vec3 reflections;
+        layout (location = 0) out vec4 reflections;
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
@@ -84,6 +84,9 @@
 			mat4 projection        = gbufferProjection;
 			mat4 projectionInverse = gbufferProjectionInverse;
 
+            float nearPlane = near;
+            float farPlane  = far;
+
             #if defined DISTANT_HORIZONS
                 if (depth >= 1.0) {
                     dhFragment = true;
@@ -91,6 +94,9 @@
                     
                     projection        = dhProjection;
                     projectionInverse = dhProjectionInverse;
+
+                    nearPlane = dhNearPlane;
+                    farPlane  = dhFarPlane;
                 }
             #endif
 
@@ -103,35 +109,43 @@
             float rayLength;
                     
             #if REFLECTIONS == 1
-                reflections = computeRoughReflections(dhFragment, projection, viewPosition, material, rayLength);
+                reflections.rgb = computeRoughReflections(dhFragment, projection, viewPosition, material, rayLength);
             #elif REFLECTIONS == 2
-                reflections = computeSmoothReflections(dhFragment, projection, viewPosition, material, rayLength);
+                reflections.rgb = computeSmoothReflections(dhFragment, projection, viewPosition, material, rayLength);
             #endif
 
+            vec3 velocity     = getVelocity(vec3(textureCoords, depth), projectionInverse);
+            vec3 prevPosition = vec3(vertexCoords, depth);
+
             float reprojectionDepth;
+            bool  isReflectingSky = false;
             if (rayLength < EPS) {
                 reprojectionDepth = texture(CLOUDMAP_BUFFER, textureCoords).a;
+                isReflectingSky   = true;
             } else {
                 reprojectionDepth = depth + (material.roughness > 0.1 ? 0.0 : rayLength);
             }
 
-            vec3 velocity     = getVelocity(vec3(textureCoords, reprojectionDepth), projectionInverse);
-            vec3 prevPosition = vec3(vertexCoords, reprojectionDepth) + velocity;
+            vec3 velocityReflected     = getVelocity(vec3(textureCoords, reprojectionDepth), projectionInverse);
+            vec3 prevPositionReflected = vec3(vertexCoords, reprojectionDepth) + velocityReflected;
 
-            vec3 prevReflections = texture(REFLECTIONS_BUFFER, prevPosition.xy).rgb;
+            vec4 prevReflections = texture(REFLECTIONS_BUFFER, prevPositionReflected.xy);
 
-            float weight = 0.97;
+            float weight = 0.99;
 
-            vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
-            float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * 1.2 - 0.4;
+            float linearDepth     = linearizeDepth(prevPosition.z         , nearPlane, farPlane);
+            float linearPrevDepth = linearizeDepth(exp2(prevReflections.a), nearPlane, farPlane);
+            float depthWeight     = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.01);
 
-            float velocityWeight = 1.0 - (saturate(length(velocity.xy * viewSize)) * 0.5 + 0.5);
+            float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isReflectingSky ? 0.8 : 0.5);
 
-            weight *= centerWeight * velocityWeight;
+            weight *= depthWeight * velocityWeight;
             weight  = saturate(weight);
-            weight *= float(saturate(prevPosition.xy) == prevPosition.xy);
+            weight *= float(saturate(prevPositionReflected.xy) == prevPositionReflected.xy);
+            weight *= float(material.id != WATER_ID);
 
-            reflections = max0(mix(reflections, prevReflections, weight));
+            reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
+            reflections.a   = log2(prevPosition.z);
         }
         
     #endif

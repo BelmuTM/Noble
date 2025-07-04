@@ -30,17 +30,10 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
         
         #if defined WORLD_OVERWORLD && CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-            vec3 cloudsBuffer;
-
-            if (saturate(hitCoords) == hitCoords) {
-                cloudsBuffer = texture(CLOUDS_BUFFER, hitCoords).rgb;
-            } else {
-                #if CLOUDMAP == 1
-                    cloudsBuffer = textureLodLinearRGB(CLOUDMAP_BUFFER, saturate(coords * CLOUDMAP_SCALE), ivec2(textureSize(CLOUDMAP_BUFFER, 0)), 0).rgb;
-                #else
-                    cloudsBuffer = vec3(0.0, 0.0, 1.0);
-                #endif
-            }
+            vec3 cloudsBuffer = vec3(0.0, 0.0, 1.0);
+            #if CLOUDMAP == 1
+                cloudsBuffer = textureBicubic(CLOUDMAP_BUFFER, saturate(coords * CLOUDMAP_SCALE - bayer32(gl_FragCoord.xy) * 1e-3)).rgb;
+            #endif
 
             clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;
             clouds.a   = cloudsBuffer.b;

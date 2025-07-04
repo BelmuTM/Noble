@@ -190,7 +190,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
     vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
-    if (dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e35);
+    if (dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e9);
 
     float jitter      = animated ? temporalBlueNoise(gl_FragCoord.xy) : bayer64(gl_FragCoord.xy);
     float stepSize    = (dists.y - dists.x) / layer.steps;
