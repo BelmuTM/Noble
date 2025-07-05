@@ -29,7 +29,7 @@
 
 #if defined WORLD_OVERWORLD || defined WORLD_END
     #include "/include/utility/phase.glsl"
-	#include "/include/atmospherics/atmosphere.glsl"
+    #include "/include/atmospherics/atmosphere.glsl"
 #endif
 
 #if defined STAGE_VERTEX
@@ -50,15 +50,15 @@
         textureCoords  = gl_Vertex.xy;
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
-		#if defined WORLD_OVERWORLD || defined WORLD_END
-			directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
+        #if defined WORLD_OVERWORLD || defined WORLD_END
+            directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
 
             #if GI == 0
-			    skyIrradiance = sampleUniformSkyIrradiance();
+                skyIrradiance = sampleUniformSkyIrradiance();
             #endif
 
             uniformSkyIlluminance = evaluateUniformSkyIrradianceApproximation();
-		#endif
+        #endif
     }
 
 #elif defined STAGE_FRAGMENT
@@ -93,7 +93,7 @@
 
         for (int i = 1; i < HIZ_LOD_COUNT; i++) {
             int scale   = int(exp2(i)); 
-	        vec2 coords = (textureCoords - hiZOffsets[i - 1]) * scale;
+            vec2 coords = (textureCoords - hiZOffsets[i - 1]) * scale;
                  tiles += find2x2MinimumDepth(coords, scale);
         }
         return tiles;
@@ -102,7 +102,7 @@
 
     void main() {
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	    if (saturate(fragCoords) != fragCoords) discard;
+        if (saturate(fragCoords) != fragCoords) discard;
 
         Material material = getMaterial(vertexCoords);
 

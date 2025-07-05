@@ -19,7 +19,7 @@
 /********************************************************************************/
 
 /*
-	[References]:
+    [References]:
         Wikipedia. (2025). Circle of confusion. https://en.wikipedia.org/wiki/Circle_of_confusion
 */
 
@@ -88,8 +88,8 @@
 
             #if defined DISTANT_HORIZONS
                 if (depth >= 1.0) {
-					dhFragment = true;
-					depth      = texture(dhDepthTex0, vertexCoords).r;
+                    dhFragment = true;
+                    depth      = texture(dhDepthTex0, vertexCoords).r;
 
                     nearPlane = dhNearPlane;
                     farPlane  = dhFarPlane;

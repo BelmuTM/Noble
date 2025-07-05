@@ -89,10 +89,10 @@ float compress(float dist, float lim, float thr, float pwr) {
 }
 
 void compressionLMT(inout vec3 color) {
-	// Achromatic axis
+    // Achromatic axis
     float achromaticAxis = maxOf(color);
 
-	// Distance from the achromatic axis for each color component aka inverse RGB ratios
+    // Distance from the achromatic axis for each color component aka inverse RGB ratios
     vec3 dist = achromaticAxis == 0.0 ? vec3(0.0) : (achromaticAxis - color) / abs(achromaticAxis);
 
     // Compress distance with parameterized shaper function

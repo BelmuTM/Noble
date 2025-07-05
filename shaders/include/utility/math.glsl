@@ -122,7 +122,7 @@ vec2 sincos(float x) {
 }
 
 vec2 signNonZero(vec2 v) {
-	return vec2((v.x >= 0.0) ? 1.0 : -1.0, (v.y >= 0.0) ? 1.0 : -1.0);
+    return vec2((v.x >= 0.0) ? 1.0 : -1.0, (v.y >= 0.0) ? 1.0 : -1.0);
 }
 
 float cubeLength(vec2 v) {
@@ -167,12 +167,12 @@ float linearStep(float edge0, float edge1, float x) {
 //////////////////////////////////////////////////////////
 
 vec2 intersectSphere(vec3 origin, vec3 direction, float radius) {
-	float b = dot(origin, direction);
-	float c = dot(origin, origin) - radius * radius;
-	float d = b * b - c;
-	if (d < 0.0) return vec2(-1.0, -1.0);
-	d = sqrt(d);
-	return vec2(-b - d, -b + d);
+    float b = dot(origin, direction);
+    float c = dot(origin, origin) - radius * radius;
+    float d = b * b - c;
+    if (d < 0.0) return vec2(-1.0, -1.0);
+    d = sqrt(d);
+    return vec2(-b - d, -b + d);
 }
 
 vec2 intersectSphericalShell(vec3 origin, vec3 direction, float innerSphereRadius, float outerSphereRadius) {
@@ -211,17 +211,17 @@ vec3 unprojectSphere(vec2 coords) {
 //////////////////////////////////////////////////////////
 
 vec3 rotate(vec3 vector, vec3 axis, float angle) {
-	vec2 sc = sincos(radians(angle));
-	return sc.y * vector + sc.x * cross(axis, vector) + (1.0 - sc.y) * dot(axis, vector) * axis;
+    vec2 sc = sincos(radians(angle));
+    return sc.y * vector + sc.x * cross(axis, vector) + (1.0 - sc.y) * dot(axis, vector) * axis;
 }
 
 vec3 rotate(vec3 vector, vec3 from, vec3 to) {
-	float cosTheta = dot(from, to);
-	if (abs(cosTheta) >= 0.9999) { return cosTheta < 0.0 ? -vector : vector; }
-	vec3 axis = normalize(cross(from, to));
+    float cosTheta = dot(from, to);
+    if (abs(cosTheta) >= 0.9999) { return cosTheta < 0.0 ? -vector : vector; }
+    vec3 axis = normalize(cross(from, to));
 
-	vec2 sc = vec2(sqrt(1.0 - cosTheta * cosTheta), cosTheta);
-	return sc.y * vector + sc.x * cross(axis, vector) + (1.0 - sc.y) * dot(axis, vector) * axis;
+    vec2 sc = vec2(sqrt(1.0 - cosTheta * cosTheta), cosTheta);
+    return sc.y * vector + sc.x * cross(axis, vector) + (1.0 - sc.y) * dot(axis, vector) * axis;
 }
 
 //////////////////////////////////////////////////////////
@@ -307,15 +307,15 @@ vec3 decodeRGBE(uint packed) {
 }
 
 vec2 encodeUnitVector(vec3 v) {
-	vec2 encoded = v.xy / (abs(v.x) + abs(v.y) + abs(v.z));
-	     encoded = (v.z <= 0.0) ? ((1.0 - abs(encoded.yx)) * signNonZero(encoded)) : encoded;
+    vec2 encoded = v.xy / (abs(v.x) + abs(v.y) + abs(v.z));
+         encoded = (v.z <= 0.0) ? ((1.0 - abs(encoded.yx)) * signNonZero(encoded)) : encoded;
     
-	return 0.5 * encoded + 0.5;
+    return 0.5 * encoded + 0.5;
 }
 
 vec3 decodeUnitVector(vec2 encoded) {
-	encoded = 2.0 * encoded - 1.0;
-	vec3 v  = vec3(encoded.xy, 1.0 - abs(encoded.x) - abs(encoded.y));
-	if (v.z < 0.0) v.xy = (1.0 - abs(v.yx)) * signNonZero(v.xy);
-	return normalize(v);
+    encoded = 2.0 * encoded - 1.0;
+    vec3 v  = vec3(encoded.xy, 1.0 - abs(encoded.x) - abs(encoded.y));
+    if (v.z < 0.0) v.xy = (1.0 - abs(v.yx)) * signNonZero(v.xy);
+    return normalize(v);
 }

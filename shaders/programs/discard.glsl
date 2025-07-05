@@ -29,7 +29,7 @@
     /* RENDERTARGETS: 9 */
 
     void main() {
-	    discard; return;
+        discard; return;
     }
 
 #endif

@@ -66,40 +66,40 @@
 
         #if RENDER_MODE == 0 && ATROUS_FILTER == 1
 
-			float estimateSpatialVariance(sampler2D tex, vec2 moments) {
-				float sum = moments.r, sqSum = moments.g, totalWeight = 1.0;
+            float estimateSpatialVariance(sampler2D tex, vec2 moments) {
+                float sum = moments.r, sqSum = moments.g, totalWeight = 1.0;
 
-				const float waveletKernel[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
+                const float waveletKernel[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
 
-				vec2 stepSize = 5.0 * texelSize;
+                vec2 stepSize = 5.0 * texelSize;
 
-				for (int x = -1; x <= 1; x++) {
-					for (int y = -1; y <= 1; y++) {
-						if (x == 0 && y == 0) continue;
+                for (int x = -1; x <= 1; x++) {
+                    for (int y = -1; y <= 1; y++) {
+                        if (x == 0 && y == 0) continue;
 
-						vec2 sampleCoords = textureCoords + vec2(x, y) * stepSize;
-						if (saturate(sampleCoords) != sampleCoords) continue;
+                        vec2 sampleCoords = textureCoords + vec2(x, y) * stepSize;
+                        if (saturate(sampleCoords) != sampleCoords) continue;
 
-						float weight    = waveletKernel[abs(x)] * waveletKernel[abs(y)];
-						float luminance = luminance(texture(tex, sampleCoords).rgb);
+                        float weight    = waveletKernel[abs(x)] * waveletKernel[abs(y)];
+                        float luminance = luminance(texture(tex, sampleCoords).rgb);
                     
-						sum   += luminance * weight;
-						sqSum += luminance * luminance * weight;
+                        sum   += luminance * weight;
+                        sqSum += luminance * luminance * weight;
 
-						totalWeight += weight;
-					}
-				}
-				sum   /= totalWeight;
-				sqSum /= totalWeight;
-				return abs(sqSum - sum * sum);
-    		}
+                        totalWeight += weight;
+                    }
+                }
+                sum   /= totalWeight;
+                sqSum /= totalWeight;
+                return abs(sqSum - sum * sum);
+            }
 
-	    #endif
+        #endif
     #endif
 
     void main() {
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	    if (saturate(fragCoords) != fragCoords) { discard; return; }
+        if (saturate(fragCoords) != fragCoords) { discard; return; }
 
         bool  dhFragment = false;
         float depth      = texture(depthtex0, vertexCoords).r;
@@ -149,7 +149,7 @@
                 momentsOut.r = log2(prevPosition.z);
 
                 float linearDepth     = linearizeDepth(prevPosition.z, nearPlane, farPlane);
-			    float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
+                float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
 
                 vec3 prevScenePosition = viewToScene(screenToView(prevPosition, projectionInverse, false));
                 bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;

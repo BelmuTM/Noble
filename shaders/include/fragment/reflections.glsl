@@ -75,7 +75,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         for (int i = 0; i < 1; i++) {
             vec3  microfacetNormal = tbn * sampleGGXVNDF(tangentViewDirection, rand2F(), material.roughness);
             float MdotV            = dot(microfacetNormal, -viewDirection);
-		    vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
+            vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
             float NdotL            = abs(dot(material.normal, rayDirection));
 
             float hit;
@@ -110,10 +110,10 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * energyCompensation * G2 / G1;
 
             rayLength += sampleRayLength;
-	    }
+        }
         rayLength /= ROUGH_REFLECTIONS_SAMPLES;
 
-	    return reflection / ROUGH_REFLECTIONS_SAMPLES;
+        return reflection / ROUGH_REFLECTIONS_SAMPLES;
     }
 
 #elif REFLECTIONS == 2

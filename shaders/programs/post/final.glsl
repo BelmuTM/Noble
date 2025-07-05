@@ -134,7 +134,7 @@ in vec2 textureCoords;
 
     void celShading(inout vec3 color) {
         float luminance = luminance(color);
-	          color    /= luminance / (floor(luminance * CEL_SHADES) / CEL_SHADES);
+              color    /= luminance / (floor(luminance * CEL_SHADES) / CEL_SHADES);
     }
 
 #endif

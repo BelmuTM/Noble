@@ -71,18 +71,18 @@ const mat2x3 hardcodedMetals[] = mat2x3[](
 );
 
 float f0ToIOR(float F0) {
-	F0 = sqrt(F0) * 0.99999;
-	return airIOR * ((1.0 + F0) / (1.0 - F0));
+    F0 = sqrt(F0) * 0.99999;
+    return airIOR * ((1.0 + F0) / (1.0 - F0));
 }
 
 vec3 f0ToIOR(vec3 F0) {
-	F0 = sqrt(F0) * 0.99999;
-	return airIOR * ((1.0 + F0) / (1.0 - F0));
+    F0 = sqrt(F0) * 0.99999;
+    return airIOR * ((1.0 + F0) / (1.0 - F0));
 }
 
 float iorToF0(float ior) {
-	float a = (ior - airIOR) / (ior + airIOR);
-	return a * a;
+    float a = (ior - airIOR) / (ior + airIOR);
+    return a * a;
 }
 
 mat2x3 getHardcodedMetal(Material material) {

@@ -56,7 +56,7 @@ uniform usampler2D colortex11;
 
 void main() {
     vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	if (saturate(fragCoords) != fragCoords) { discard; return; }
+    if (saturate(fragCoords) != fragCoords) { discard; return; }
 
     lighting = vec3(0.0);
 

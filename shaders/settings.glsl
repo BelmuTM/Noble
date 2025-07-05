@@ -347,7 +347,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define BLOOM_STRENGTH 0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #if BLOOM == 1
-	#define BLOOM_ENABLED
+    #define BLOOM_ENABLED
 #endif
 
 #define VIGNETTE             0 // [0 1]
@@ -376,15 +376,15 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE_IGNORE_BRIGHT 0.05
 
 #if EXPOSURE == 2
-	#define HISTOGRAM_BINS 80
+    #define HISTOGRAM_BINS 80
 
-	// Logarithmic scale
-	const float minLogLuminance      = -6.0;
-	const float maxLogLuminance      = 16.0;
-	const float logLuminanceRange    = maxLogLuminance - minLogLuminance;
-	const float rcpLogLuminanceRange = 1.0 / logLuminanceRange;
+    // Logarithmic scale
+    const float minLogLuminance      = -6.0;
+    const float maxLogLuminance      = 16.0;
+    const float logLuminanceRange    = maxLogLuminance - minLogLuminance;
+    const float rcpLogLuminanceRange = 1.0 / logLuminanceRange;
 
-	const vec2 debugHistogramSize = vec2(370, 208);
+    const vec2 debugHistogramSize = vec2(370, 208);
 #endif
 
 #define FOCAL          24 // [1 2 5 10 14 20 24 28 35 50 70 80 85 100 135 200 300 400 500 600]

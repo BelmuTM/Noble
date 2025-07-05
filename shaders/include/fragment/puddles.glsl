@@ -38,8 +38,8 @@ vec3 getPuddleNormals(vec2 position, float strength) {
 
     vec2 steps;
     steps.x = calculatePuddleRipples(position + vec2( dStep, -dStep));
-	steps.y = calculatePuddleRipples(position + vec2(-dStep,  dStep));
-	steps  -= calculatePuddleRipples(position + vec2(-dStep, -dStep));
+    steps.y = calculatePuddleRipples(position + vec2(-dStep,  dStep));
+    steps  -= calculatePuddleRipples(position + vec2(-dStep, -dStep));
     steps  *= strength;
 
     return normalize(vec3(-steps.x, dStep * 2.0, -steps.y));

@@ -81,22 +81,22 @@ float hash13(vec3 p) {
 }
 
 float noise(vec2 uv) {
-	vec2 ip = floor(uv);
-	vec2 u  = fract(uv);
-	u = u * u * (3.0 - 2.0 * u);
+    vec2 ip = floor(uv);
+    vec2 u  = fract(uv);
+    u = u * u * (3.0 - 2.0 * u);
 
-	float res = mix(
-		mix(hash12(ip), hash12(ip + vec2(1.0, 0.0)), u.x),
-		mix(hash12(ip + vec2(0.0, 1.0)), hash12(ip + vec2(1.0, 1.0)), u.x), u.y);
-	return res * res;
+    float res = mix(
+        mix(hash12(ip), hash12(ip + vec2(1.0, 0.0)), u.x),
+        mix(hash12(ip + vec2(0.0, 1.0)), hash12(ip + vec2(1.0, 1.0)), u.x), u.y);
+    return res * res;
 }
 
 float noise(vec3 pos) {
-	vec3 i = floor(pos);
-	vec3 f = fract(pos);
-	vec3 u = f * f * (3.0 - 2.0 * f);
+    vec3 i = floor(pos);
+    vec3 f = fract(pos);
+    vec3 u = f * f * (3.0 - 2.0 * f);
 
-	return mix(mix(mix(hash13(i + vec3(0.0, 0.0, 0.0)), hash13(i + vec3(1.0, 0.0, 0.0)), u.x),
+    return mix(mix(mix(hash13(i + vec3(0.0, 0.0, 0.0)), hash13(i + vec3(1.0, 0.0, 0.0)), u.x),
                    mix(hash13(i + vec3(0.0, 1.0, 0.0)), hash13(i + vec3(1.0, 1.0, 0.0)), u.x), u.y),
                mix(mix(hash13(i + vec3(0.0, 0.0, 1.0)), hash13(i + vec3(1.0, 0.0, 1.0)), u.x),
                    mix(hash13(i + vec3(0.0, 1.0, 1.0)), hash13(i + vec3(1.0, 1.0, 1.0)), u.x), u.y), u.z);

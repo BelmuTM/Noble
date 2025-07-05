@@ -28,26 +28,26 @@
 #include "/include/atmospherics/constants.glsl"
 
 #if defined WORLD_OVERWORLD || defined WORLD_END
-	#include "/include/atmospherics/atmosphere.glsl"
+    #include "/include/atmospherics/atmosphere.glsl"
 #endif
 
 #if defined STAGE_VERTEX
 
-	flat out int blockId;
-	out vec2 lightmapCoords;
+    flat out int blockId;
+    out vec2 lightmapCoords;
     out vec3 vertexNormal;
-	out vec3 scenePosition;
-	out vec3 directIlluminance;
-	out vec4 vertexColor;
+    out vec3 scenePosition;
+    out vec3 directIlluminance;
+    out vec4 vertexColor;
     out mat3[2] skyIlluminanceMat;
 
-	void main() {
-		lightmapCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-		vertexColor    = gl_Color;
-		blockId        = dhMaterialId;
+    void main() {
+        lightmapCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+        vertexColor    = gl_Color;
+        blockId        = dhMaterialId;
 
         vertexNormal = gl_Normal;
-		
+        
         vec3 cameraOffset   = fract(cameraPosition);
         vec3 vertexPosition = floor(gl_Vertex.xyz + cameraOffset + 0.5) - cameraOffset;
 
@@ -55,47 +55,47 @@
 
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
-		#if defined WORLD_OVERWORLD || defined WORLD_END
-			directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
-			skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
-		#endif
-		
-		gl_Position    = transform(gbufferModelView, scenePosition).xyzz * diagonal4(dhProjection) + dhProjection[3];
-		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
+        #if defined WORLD_OVERWORLD || defined WORLD_END
+            directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
+            skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
+        #endif
+        
+        gl_Position    = transform(gbufferModelView, scenePosition).xyzz * diagonal4(dhProjection) + dhProjection[3];
+        gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
-		#if TAA == 1
-			gl_Position.xy += taaJitter(gl_Position);
-		#endif
-	}
+        #if TAA == 1
+            gl_Position.xy += taaJitter(gl_Position);
+        #endif
+    }
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 1,13 */
+    /* RENDERTARGETS: 1,13 */
 
-	layout (location = 0) out uvec4 data;
-	layout (location = 1) out vec4 translucents;
+    layout (location = 0) out uvec4 data;
+    layout (location = 1) out vec4 translucents;
 
-	flat in int blockId;
-	in vec2 lightmapCoords;
+    flat in int blockId;
+    in vec2 lightmapCoords;
     in vec3 vertexNormal;
-	in vec3 scenePosition;
-	in vec3 directIlluminance;
-	in vec4 vertexColor;
+    in vec3 scenePosition;
+    in vec3 directIlluminance;
+    in vec4 vertexColor;
     in mat3[2] skyIlluminanceMat;
 
-	#include "/include/utility/rng.glsl"
-	
-	#include "/include/fragment/brdf.glsl"
+    #include "/include/utility/rng.glsl"
+    
+    #include "/include/fragment/brdf.glsl"
 
-	#if SHADOWS > 0
-		#include "/include/fragment/shadows.glsl"
-	#endif
+    #if SHADOWS > 0
+        #include "/include/fragment/shadows.glsl"
+    #endif
 
-	#include "/include/fragment/gerstner.glsl"
+    #include "/include/fragment/gerstner.glsl"
 
-	void main() {
-		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-		if (saturate(fragCoords) != fragCoords) discard;
+    void main() {
+        vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
+        if (saturate(fragCoords) != fragCoords) discard;
 
         float depth       = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
         float linearDepth = linearizeDepth(depth, near, far);
@@ -104,34 +104,34 @@
     
         if (linearDepth < linearDepthDh && depth < 1.0) { discard; return; }
 
-		Material material;
-		translucents = vec4(0.0);
+        Material material;
+        translucents = vec4(0.0);
 
-		material.lightmap = lightmapCoords;
+        material.lightmap = lightmapCoords;
         material.normal   = vertexNormal;
 
-		// WOTAH
-		if (blockId == DH_BLOCK_WATER) {
+        // WOTAH
+        if (blockId == DH_BLOCK_WATER) {
             material.albedo = vec3(0.0);
 
-			material.F0 = waterF0, material.roughness = 0.0, material.emission = 0.0;
+            material.F0 = waterF0, material.roughness = 0.0, material.emission = 0.0;
 
             vec3 tangent = cross(vertexNormal, vec3(1.0));
-	        mat3 tbn     = mat3(tangent, cross(tangent, vertexNormal), vertexNormal);
+            mat3 tbn     = mat3(tangent, cross(tangent, vertexNormal), vertexNormal);
 
             material.normal = tbn * getWaterNormals(scenePosition + cameraPosition, WATER_OCTAVES);
-		} else {
+        } else {
             material.F0 = 0.0;
 
             material.roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
 
-			if (blockId == DH_BLOCK_ILLUMINATED) material.emission = 1.0;
+            if (blockId == DH_BLOCK_ILLUMINATED) material.emission = 1.0;
 
-			material.albedo = vertexColor.rgb;
+            material.albedo = vertexColor.rgb;
 
-			#if WHITE_WORLD == 1
-	    		material.albedo = vec3(1.0);
-    		#endif
+            #if WHITE_WORLD == 1
+                material.albedo = vec3(1.0);
+            #endif
 
             #if TONEMAP == ACES
                 material.albedo = srgbToAP1Albedo(material.albedo);
@@ -153,20 +153,20 @@
             translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, false, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 
             translucents.a = vertexColor.a;
-		}
+        }
 
-		vec3 labPbrData0 = vec3(1.0, saturate(material.lightmap));
-		vec4 labPbrData1 = vec4(1.0, material.emission, material.F0, 0.0);
-		vec4 labPbrData2 = vec4(vertexColor.rgb, material.roughness);
-		
-		vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
-	
-		uvec4 shiftedLabPbrData0 = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
+        vec3 labPbrData0 = vec3(1.0, saturate(material.lightmap));
+        vec4 labPbrData1 = vec4(1.0, material.emission, material.F0, 0.0);
+        vec4 labPbrData2 = vec4(vertexColor.rgb, material.roughness);
+        
+        vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
+    
+        uvec4 shiftedLabPbrData0 = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
 
-		data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
-		data.y = packUnorm4x8(labPbrData1);
-		data.z = packUnorm4x8(labPbrData2);
-		data.w = packUnorm2x16(encodedNormal);
-	}
+        data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
+        data.y = packUnorm4x8(labPbrData1);
+        data.z = packUnorm4x8(labPbrData2);
+        data.w = packUnorm2x16(encodedNormal);
+    }
 
 #endif

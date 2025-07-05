@@ -26,14 +26,14 @@
     [References]:
         Nishita, T. (1993). Display of the earth taking into account atmospheric scattering. http://nishitalab.org/user/nis/cdrom/sig93_nis.pdf
         Elek, O. (2009). Rendering Parametrizable Planetary Atmospheres with Multiple Scattering in Real-Time. https://old.cescg.org/CESCG-2009/papers/PragueCUNI-Elek-Oskar09.pdf
-		Jimenez et al. (2016). Practical Real-Time Strategies for Accurate Indirect Occlusion. https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf 
+        Jimenez et al. (2016). Practical Real-Time Strategies for Accurate Indirect Occlusion. https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf 
         Mayaux, B. (n.d.). Spherical Harmonics. https://patapom.com/blog/SHPortal/
         Wikipedia. (2023). Table of spherical harmonics. https://en.wikipedia.org/wiki/Table_of_spherical_harmonics
 */
 
 vec3 getAtmosphereDensities(float centerDist) {
-	float altitudeKm = (centerDist - planetRadius) * 1e-3;
-	vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * 1e-3));
+    float altitudeKm = (centerDist - planetRadius) * 1e-3;
+    vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * 1e-3));
 
     // Ozone approximation from Jessie
     float o1 = 25.0 *     exp(( 0.0 - altitudeKm) * rcp(  8.0));
@@ -42,7 +42,7 @@ vec3 getAtmosphereDensities(float centerDist) {
     float o4 = 50.0 * pow(exp((30.0 - altitudeKm) * rcp(150.0)), altitudeKm - 30.0);
     float ozone = (o1 + o2 + o3 + o4) * rcp(134.628);
 
-	return vec3(rayleighMie, ozone);
+    return vec3(rayleighMie, ozone);
 }
 
 vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 attenuationCoefficients) {
@@ -92,8 +92,8 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
                 vec3 airmass          = getAtmosphereDensities(length(rayPosition)) * stepSize;
                 vec3 stepOpticalDepth = atmosphereAttenuationCoefficients * airmass;
             #elif defined WORLD_END
-            	float altitudeKm       = (length(rayPosition) - planetRadius) * 1e-3;
-	            vec3  airmass          = exp(altitudeKm / -(vec3(scaleHeights, 5e3) * 1e-3)) * stepSize;
+                float altitudeKm       = (length(rayPosition) - planetRadius) * 1e-3;
+                vec3  airmass          = exp(altitudeKm / -(vec3(scaleHeights, 5e3) * 1e-3)) * stepSize;
                 vec3  stepOpticalDepth = atmosphereAttenuationCoefficientsEnd * airmass;
             #endif
 
@@ -186,7 +186,7 @@ vec3 evaluateSkylight(vec3 normal, mat3[2] skylight) {
     vec3 positive = saturate(octahedronPoint), negative = saturate(-octahedronPoint);
     
     return skylight[0][0] * positive.x + skylight[0][1] * positive.y + skylight[0][2] * positive.z
-		 + skylight[1][0] * negative.x + skylight[1][1] * negative.y + skylight[1][2] * negative.z;
+         + skylight[1][0] * negative.x + skylight[1][1] * negative.y + skylight[1][2] * negative.z;
 }
 
 vec3 evaluateUniformSkyIrradianceApproximation() {

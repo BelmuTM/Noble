@@ -21,7 +21,7 @@
 const float invShadowMapResolution = 1.0 / shadowMapResolution;
 
 vec3 worldToShadow(vec3 worldPosition) {
-	return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
+    return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
 }
 
 float visibility(sampler2D tex, vec3 samplePos) {
@@ -84,7 +84,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
             return getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5 - selfIntersectionBias);
         }
 
-	    vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
+        vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
 
         for (int i = 0; i < SHADOW_SAMPLES; i++) {
             #if SHADOWS != 3

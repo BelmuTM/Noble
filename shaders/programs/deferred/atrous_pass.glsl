@@ -145,7 +145,7 @@
 
         void main() {
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	        if (saturate(fragCoords) != fragCoords) { discard; return; }
+            if (saturate(fragCoords) != fragCoords) { discard; return; }
 
             bool  dhFragment = false;
             float depth      = texture(depthtex0, vertexCoords).r;

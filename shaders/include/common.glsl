@@ -29,8 +29,8 @@
 
 /*
 const vec2 hiZOffsets[] = vec2[](
-	vec2(0.0, 0.0  ),
-	vec2(0.5, 0.0  ),
+    vec2(0.0, 0.0  ),
+    vec2(0.5, 0.0  ),
     vec2(0.5, 0.25 ),
     vec2(0.5, 0.375)
 );
@@ -47,6 +47,6 @@ float find2x2MinimumDepth(vec2 coords, int scale) {
 }
 
 vec2 getDepthTile(vec2 coords, int lod) {
-	return coords / exp2(lod) + hiZOffsets[lod - 1];
+    return coords / exp2(lod) + hiZOffsets[lod - 1];
 }
 */

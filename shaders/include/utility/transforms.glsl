@@ -19,14 +19,14 @@
 /********************************************************************************/
 
 const vec2 taaOffsets[8] = vec2[8](
-	vec2( 0.125,-0.375),
-	vec2(-0.125, 0.375),
-	vec2( 0.625, 0.125),
-	vec2( 0.375,-0.625),
-	vec2(-0.625, 0.625),
-	vec2(-0.875,-0.125),
-	vec2( 0.375,-0.875),
-	vec2( 0.875, 0.875)
+    vec2( 0.125,-0.375),
+    vec2(-0.125, 0.375),
+    vec2( 0.625, 0.125),
+    vec2( 0.375,-0.625),
+    vec2(-0.625, 0.625),
+    vec2(-0.875,-0.125),
+    vec2( 0.375,-0.875),
+    vec2( 0.875, 0.875)
 );
 
 vec2 taaJitter(vec4 pos) {
@@ -51,17 +51,17 @@ vec3 transform        (mat4 mat, vec3 v) { return mat3(mat)      * v + mat[3].xy
 //////////////////////////////////////////////////////////
 
 float getDistortionFactor(vec2 coords) {
-	return cubeLength(coords) * SHADOW_DISTORTION + (1.0 - SHADOW_DISTORTION);
+    return cubeLength(coords) * SHADOW_DISTORTION + (1.0 - SHADOW_DISTORTION);
 }
 
 vec2 distortShadowSpace(vec2 coords) {
-	return coords / getDistortionFactor(coords);
+    return coords / getDistortionFactor(coords);
 }
 
 vec3 distortShadowSpace(vec3 position) {
-	position.xy = distortShadowSpace(position.xy);
-	position.z *= SHADOW_DEPTH_STRETCH;
-	return position;
+    position.xy = distortShadowSpace(position.xy);
+    position.z *= SHADOW_DEPTH_STRETCH;
+    return position;
 }
 
 //////////////////////////////////////////////////////////
@@ -91,17 +91,17 @@ vec3 distortShadowSpace(vec3 position) {
 //////////////////////////////////////////////////////////
 
 vec3 screenToView(vec3 screenPosition, mat4 projectionInverse, bool unjitter) {
-	screenPosition = screenPosition * 2.0 - 1.0;
+    screenPosition = screenPosition * 2.0 - 1.0;
 
     #if TAA == 1
         if (unjitter) screenPosition.xy -= taaOffsets[framemod] * texelSize;
     #endif
 
-	return projectOrthogonal(projectionInverse, screenPosition) / (projectionInverse[2].w * screenPosition.z + projectionInverse[3].w);
+    return projectOrthogonal(projectionInverse, screenPosition) / (projectionInverse[2].w * screenPosition.z + projectionInverse[3].w);
 }
 
 vec3 viewToScreen(vec3 viewPosition, mat4 projection, bool unjitter) {
-	vec3 ndcPosition = projectOrthogonal(projection, viewPosition) / -viewPosition.z;
+    vec3 ndcPosition = projectOrthogonal(projection, viewPosition) / -viewPosition.z;
 
     #if TAA == 1
         if (unjitter) ndcPosition.xy += taaOffsets[framemod] * texelSize;
@@ -111,17 +111,17 @@ vec3 viewToScreen(vec3 viewPosition, mat4 projection, bool unjitter) {
 }
 
 vec3 sceneToView(vec3 scenePosition) {
-	return transform(gbufferModelView, scenePosition);
+    return transform(gbufferModelView, scenePosition);
 }
 
 vec3 viewToScene(vec3 viewPosition) {
-	return transform(gbufferModelViewInverse, viewPosition);
+    return transform(gbufferModelViewInverse, viewPosition);
 }
 
 mat3 calculateTBN(vec3 normal) {
-	vec3 tangent = normal.y == 1.0 ? vec3(1.0, 0.0, 0.0) : normalize(cross(vec3(0.0, 1.0, 0.0), normal));
-	vec3 bitangent = normalize(cross(tangent, normal));
-	return mat3(tangent, bitangent, normal);
+    vec3 tangent = normal.y == 1.0 ? vec3(1.0, 0.0, 0.0) : normalize(cross(vec3(0.0, 1.0, 0.0), normal));
+    vec3 bitangent = normalize(cross(tangent, normal));
+    return mat3(tangent, bitangent, normal);
 }
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth
@@ -160,7 +160,7 @@ vec3 reproject(vec3 viewPosition, float distanceToFrag, vec3 offset) {
 }
 
 vec3 getClosestFragment(sampler2D depthTex, vec3 position) {
-	vec3 closestFragment = position;
+    vec3 closestFragment = position;
     vec3 currentFragment;
     const int size = 1;
 

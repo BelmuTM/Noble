@@ -21,7 +21,7 @@
 const float g = 9.81; // Earth's gravitational constant
 
 float gerstnerWaves(vec2 coords, float time, float steepness, float amplitude, float lambda, vec2 direction) {
-	float k = TAU / lambda;
+    float k = TAU / lambda;
     float x = fastSqrtN1(g * k) * time - k * dot(direction, coords);
 
     return amplitude * pow(sin(x) * 0.5 + 0.5, steepness);
@@ -37,7 +37,7 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
     float lambda    = WAVE_LENGTH;
 
     const float angle   = radians(155.0);
-	const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+    const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
 
     vec2 direction = vec2(0.2, 0.3);
 
@@ -58,8 +58,8 @@ const vec2 offset = vec2(0.015, 0.0);
 
 vec3 getWaterNormals(vec3 worldPosition, int octaves) {
     float pos0 = calculateWaveHeightGerstner(worldPosition.xz,             octaves);
-	float pos1 = calculateWaveHeightGerstner(worldPosition.xz + offset.xy, octaves);
-	float pos2 = calculateWaveHeightGerstner(worldPosition.xz + offset.yx, octaves);
+    float pos1 = calculateWaveHeightGerstner(worldPosition.xz + offset.xy, octaves);
+    float pos2 = calculateWaveHeightGerstner(worldPosition.xz + offset.yx, octaves);
 
     return vec3(pos0 - pos1, pos0 - pos2, 1.0);
 }
@@ -69,8 +69,8 @@ vec3 getWaterNormals(vec3 worldPosition, float strength, int octaves) {
 
     vec2 steps;
     steps.x = calculateWaveHeightGerstner(worldPosition.xz + vec2( dStep, -dStep), octaves);
-	steps.y = calculateWaveHeightGerstner(worldPosition.xz + vec2(-dStep,  dStep), octaves);
-	steps  -= calculateWaveHeightGerstner(worldPosition.xz + vec2(-dStep, -dStep), octaves);
+    steps.y = calculateWaveHeightGerstner(worldPosition.xz + vec2(-dStep,  dStep), octaves);
+    steps  -= calculateWaveHeightGerstner(worldPosition.xz + vec2(-dStep, -dStep), octaves);
     steps  *= strength;
 
     return normalize(vec3(-steps.x, dStep * 2.0, -steps.y));

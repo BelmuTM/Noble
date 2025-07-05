@@ -86,12 +86,12 @@
             vec3 minColor, maxColor;
             
             minColor  = min(sample_1, min(sample_3, min(sample_4, min(sample_5, sample_7))));
-	        minColor += min(minColor, min(sample_0, min(sample_2, min(sample_6, sample_8))));
-	        minColor *= 0.5;
+            minColor += min(minColor, min(sample_0, min(sample_2, min(sample_6, sample_8))));
+            minColor *= 0.5;
 
-	        maxColor  = max(sample_1, max(sample_3, max(sample_4, max(sample_5, sample_7))));
-	        maxColor += max(minColor, max(sample_0, max(sample_2, max(sample_6, sample_8))));
-	        maxColor *= 0.5;
+            maxColor  = max(sample_1, max(sample_3, max(sample_4, max(sample_5, sample_7))));
+            maxColor += max(minColor, max(sample_0, max(sample_2, max(sample_6, sample_8))));
+            maxColor *= 0.5;
 
             history = toYCoCg(history);
             history = clipAABB(history, minColor, maxColor);

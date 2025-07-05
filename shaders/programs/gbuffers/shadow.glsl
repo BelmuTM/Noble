@@ -51,10 +51,10 @@
 
         worldPosition = transform(shadowModelViewInverse, (gl_ModelViewMatrix * gl_Vertex).xyz);
 
-	    #if RENDER_MODE == 0 && WAVING_PLANTS == 1
+        #if RENDER_MODE == 0 && WAVING_PLANTS == 1
             animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(gl_MultiTexCoord1.y * rcp240));
             gl_Position = project(gl_ProjectionMatrix, transform(shadowModelView, worldPosition));
-	    #else
+        #else
             gl_Position = ftransform();
         #endif
 
@@ -80,12 +80,12 @@
 
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
         float waterCaustics(vec3 oldPos, vec3 normal) {
-	        vec3 newPos = oldPos + refract(shadowLightVector, normal, airIOR / 1.333);
+            vec3 newPos = oldPos + refract(shadowLightVector, normal, airIOR / 1.333);
 
             float oldArea = length(dFdx(oldPos)) * length(dFdy(oldPos));
             float newArea = length(dFdx(newPos)) * length(dFdy(newPos));
             
-	        return saturate(fastInvSqrtN1(oldArea / newArea) * 0.2);
+            return saturate(fastInvSqrtN1(oldArea / newArea) * 0.2);
         }
     #endif
 
@@ -96,7 +96,7 @@
         if (albedoTex.a < 0.102) discard;
 
         #if WHITE_WORLD == 1
-	    	albedoTex.rgb = vec3(1.0);
+            albedoTex.rgb = vec3(1.0);
         #endif
 
         shadowmap = albedoTex;

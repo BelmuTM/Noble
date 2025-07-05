@@ -20,7 +20,7 @@
 
 /*
     [References]:
-		Hellsten, J. (2007). Evaluation of tone mapping operators for use in real time environments. http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
+        Hellsten, J. (2007). Evaluation of tone mapping operators for use in real time environments. http://www.diva-portal.org/smash/get/diva2:24136/FULLTEXT01.pdf
         Lagarde, S. (2014). Moving Frostbite to Physically Based Rendering 3.0. https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
         Guy, R., & Agopian, M. (2019). Physically Based Rendering in Filament. https://google.github.io/filament/Filament.md.html
 */
@@ -56,9 +56,9 @@ void main() {
     color = texture(MAIN_BUFFER, textureCoords).rgb;
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-    	if (all(lessThan(gl_FragCoord.xy, debugHistogramSize)))
+        if (all(lessThan(gl_FragCoord.xy, debugHistogramSize)))
             return;
-	#endif
+    #endif
 
     color = exp2(color) - 1.0;
 

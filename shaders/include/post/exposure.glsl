@@ -19,9 +19,9 @@
 /********************************************************************************/
 
 #if TONEMAP == ACES
-	const float bias = 2.0;
+    const float bias = 2.0;
 #else
-	const float bias = 1.0;
+    const float bias = 1.0;
 #endif
 
 const float minExposure = bias * 3e-5;
@@ -39,13 +39,13 @@ float computeExposureFromEV100(float ev100) {
 }
 
 float computeExposure(float averageLuminance) {
-	#if MANUAL_CAMERA == 1 || EXPOSURE == 0
-		float ev100    = log2(pow2(F_STOPS) / (1.0 / SHUTTER_SPEED) * sensorSensitivity / ISO);
+    #if MANUAL_CAMERA == 1 || EXPOSURE == 0
+        float ev100    = log2(pow2(F_STOPS) / (1.0 / SHUTTER_SPEED) * sensorSensitivity / ISO);
         float exposure = computeExposureFromEV100(ev100);
-	#else
-		float ev100	   = computeEV100fromLuminance(averageLuminance);
-		float exposure = computeExposureFromEV100(ev100);
-	#endif
+    #else
+        float ev100	   = computeEV100fromLuminance(averageLuminance);
+        float exposure = computeExposureFromEV100(ev100);
+    #endif
 
-	return clamp(exposure, minExposure, maxExposure);
+    return clamp(exposure, minExposure, maxExposure);
 }

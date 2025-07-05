@@ -97,8 +97,8 @@ float densityAlter(float altitude, float weatherMap) {
 #define WORLEY_CELLS_COUNT (1.0 / 16.0)
 
 vec2 getCellPoint(ivec2 cell) {
-	vec2 cell_base = cell * WORLEY_CELLS_COUNT;
-	float noise_x  = rand(vec2(cell));
+    vec2 cell_base = cell * WORLEY_CELLS_COUNT;
+    float noise_x  = rand(vec2(cell));
     float noise_y  = rand(vec2(cell.yx));
     return cell_base + (0.5 + 1.5 * vec2(noise_x, noise_y)) * WORLEY_CELLS_COUNT;
 }

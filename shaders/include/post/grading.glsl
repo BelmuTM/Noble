@@ -34,10 +34,10 @@
 //////////////////////////////////////////////////////////
 
 void whitePreservingReinhard(inout vec3 color, float white) {
-	float luminance           = luminance(color);
-	float toneMappedLuminance = luminance * (1.0 + luminance / (white * white)) / (1.0 + luminance);
+    float luminance           = luminance(color);
+    float toneMappedLuminance = luminance * (1.0 + luminance / (white * white)) / (1.0 + luminance);
 
-	color *= toneMappedLuminance / luminance;
+    color *= toneMappedLuminance / luminance;
 }
 
 void reinhardJodie(inout vec3 color) {
@@ -96,18 +96,18 @@ void uchimura(inout vec3 color) {
 }
 
 void uncharted2(inout vec3 color) {
-	const float A = 0.15;
-	const float B = 0.50;
-	const float C = 0.10;
-	const float D = 0.20;
-	const float E = 0.02;
-	const float F = 0.30;
-	const float W = 11.2;
+    const float A = 0.15;
+    const float B = 0.50;
+    const float C = 0.10;
+    const float D = 0.20;
+    const float E = 0.02;
+    const float F = 0.30;
+    const float W = 11.2;
 
     float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
 
-	color  = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
-	color /= white;
+    color  = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
+    color /= white;
 }
 
 void burgess(inout vec3 color) {
@@ -186,17 +186,17 @@ void agxLook(inout vec3 color) {
 //////////////////////////////////////////////////////////
 
 mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
-	vec3 sourceLMS      = source * CONE_RESP_CAT02;
-	vec3 destinationLMS = destination * CONE_RESP_CAT02;
-	vec3 tmp            = destinationLMS / sourceLMS;
+    vec3 sourceLMS      = source * CONE_RESP_CAT02;
+    vec3 destinationLMS = destination * CONE_RESP_CAT02;
+    vec3 tmp            = destinationLMS / sourceLMS;
 
-	mat3 vonKries = mat3(
-		tmp.x, 0.0, 0.0,
-		0.0, tmp.y, 0.0,
-		0.0, 0.0, tmp.z
-	);
+    mat3 vonKries = mat3(
+        tmp.x, 0.0, 0.0,
+        0.0, tmp.y, 0.0,
+        0.0, 0.0, tmp.z
+    );
 
-	return (CONE_RESP_CAT02 * vonKries) * inverse(CONE_RESP_CAT02);
+    return (CONE_RESP_CAT02 * vonKries) * inverse(CONE_RESP_CAT02);
 }
 
 void whiteBalance(inout vec3 color) {

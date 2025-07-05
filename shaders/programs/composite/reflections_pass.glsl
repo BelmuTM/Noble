@@ -76,13 +76,13 @@
 
         void main() {
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-	        if (saturate(fragCoords) != fragCoords) { discard; return; }
+            if (saturate(fragCoords) != fragCoords) { discard; return; }
 
             bool  dhFragment = false;
             float depth      = texture(depthtex0, vertexCoords).r;
 
-			mat4 projection        = gbufferProjection;
-			mat4 projectionInverse = gbufferProjectionInverse;
+            mat4 projection        = gbufferProjection;
+            mat4 projectionInverse = gbufferProjectionInverse;
 
             float nearPlane = near;
             float farPlane  = far;

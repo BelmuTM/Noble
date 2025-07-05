@@ -25,90 +25,90 @@
 
 #if defined STAGE_VERTEX
 
-	flat out int blockId;
-	out vec2 lightmapCoords;
-	out vec3 vertexNormal;
-	out vec3 scenePosition;
-	out vec4 vertexColor;
+    flat out int blockId;
+    out vec2 lightmapCoords;
+    out vec3 vertexNormal;
+    out vec3 scenePosition;
+    out vec4 vertexColor;
 
-	void main() {
-		lightmapCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-		vertexColor    = gl_Color;
-		blockId        = dhMaterialId;
+    void main() {
+        lightmapCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+        vertexColor    = gl_Color;
+        blockId        = dhMaterialId;
 
-		vertexNormal = gl_Normal;
+        vertexNormal = gl_Normal;
 
         vec3 cameraOffset   = fract(cameraPosition);
         vec3 vertexPosition = floor(gl_Vertex.xyz + cameraOffset + 0.5) - cameraOffset;
 
         vec3 viewPosition = transform(gl_ModelViewMatrix, vertexPosition);
 
-		scenePosition = transform(gbufferModelViewInverse, viewPosition);
+        scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
-		gl_Position    = dhProjection * vec4(viewPosition, 1.0);
-		gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
+        gl_Position    = dhProjection * vec4(viewPosition, 1.0);
+        gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
-		#if TAA == 1
-			gl_Position.xy += taaJitter(gl_Position);
-		#endif
-	}
+        #if TAA == 1
+            gl_Position.xy += taaJitter(gl_Position);
+        #endif
+    }
 
 #elif defined STAGE_FRAGMENT
 
-	/* RENDERTARGETS: 1,3 */
+    /* RENDERTARGETS: 1,3 */
 
-	layout (location = 0) out uvec4 data0;
-	layout (location = 1) out vec2  data1;
+    layout (location = 0) out uvec4 data0;
+    layout (location = 1) out vec2  data1;
 
-	flat in int blockId;
-	in vec2 lightmapCoords;
-	in vec3 vertexNormal;
-	in vec3 scenePosition;
-	in vec4 vertexColor;
+    flat in int blockId;
+    in vec2 lightmapCoords;
+    in vec3 vertexNormal;
+    in vec3 scenePosition;
+    in vec4 vertexColor;
 
-	void main() {
-		vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-		if (saturate(fragCoords) != fragCoords) discard;
+    void main() {
+        vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
+        if (saturate(fragCoords) != fragCoords) discard;
 
-		float fragDistance = length(scenePosition);
-    	if (fragDistance < 0.5 * far) { discard; return; }
+        float fragDistance = length(scenePosition);
+        if (fragDistance < 0.5 * far) { discard; return; }
 
-		vec4 albedoTex = vertexColor;
+        vec4 albedoTex = vertexColor;
 
-		#if WHITE_WORLD == 1
-	    	albedoTex.rgb = vec3(1.0);
-    	#endif
-
-		float roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0);
-
-		float emission = 0.0;
-
-		#if HARDCODED_EMISSION == 1
-			if (blockId == DH_BLOCK_ILLUMINATED && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
-		#endif
-
-		float subsurface = 0.0;
-
-		#if HARDCODED_SSS == 1
-			if (subsurface <= EPS) {
-            	if (blockId == DH_BLOCK_LEAVES || blockId == DH_BLOCK_SNOW || blockId == DH_BLOCK_SAND) subsurface = HARDCODED_SSS_VAL;
-			}
+        #if WHITE_WORLD == 1
+            albedoTex.rgb = vec3(1.0);
         #endif
 
-		vec3 labPbrData0 = vec3(1.0, saturate(lightmapCoords));
-		vec4 labPbrData1 = vec4(1.0, emission, 0.0, subsurface);
-		vec4 labPbrData2 = vec4(albedoTex.rgb, roughness);
+        float roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0);
 
-		vec2 encodedNormal = encodeUnitVector(normalize(vertexNormal));
-	
-		uvec4 shiftedLabPbrData0 = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
+        float emission = 0.0;
 
-		data0.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
-		data0.y = packUnorm4x8(labPbrData1);
-		data0.z = packUnorm4x8(labPbrData2);
-		data0.w = packUnorm2x16(encodedNormal);
+        #if HARDCODED_EMISSION == 1
+            if (blockId == DH_BLOCK_ILLUMINATED && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
+        #endif
 
-		data1 = encodedNormal;
-	}
+        float subsurface = 0.0;
+
+        #if HARDCODED_SSS == 1
+            if (subsurface <= EPS) {
+                if (blockId == DH_BLOCK_LEAVES || blockId == DH_BLOCK_SNOW || blockId == DH_BLOCK_SAND) subsurface = HARDCODED_SSS_VAL;
+            }
+        #endif
+
+        vec3 labPbrData0 = vec3(1.0, saturate(lightmapCoords));
+        vec4 labPbrData1 = vec4(1.0, emission, 0.0, subsurface);
+        vec4 labPbrData2 = vec4(albedoTex.rgb, roughness);
+
+        vec2 encodedNormal = encodeUnitVector(normalize(vertexNormal));
+    
+        uvec4 shiftedLabPbrData0 = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
+
+        data0.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
+        data0.y = packUnorm4x8(labPbrData1);
+        data0.z = packUnorm4x8(labPbrData2);
+        data0.w = packUnorm2x16(encodedNormal);
+
+        data1 = encodedNormal;
+    }
 
 #endif

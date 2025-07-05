@@ -19,11 +19,11 @@
 /********************************************************************************/
 
 /*
-	[Credits]
-		Null (https://github.com/null511)
-		ninjamike1211
-			
-		Thanks to them for their help!
+    [Credits]
+        Null (https://github.com/null511)
+        ninjamike1211
+            
+        Thanks to them for their help!
 */
 
 const float layerHeight = 1.0 / float(POM_LAYERS);
@@ -51,30 +51,30 @@ vec2 atlasToLocal(vec2 atlasCoords) {
 }
 
 #if POM == 1
-	float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
-		wrapCoordinates(coords);
-		return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
-	}
+    float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
+        wrapCoordinates(coords);
+        return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
+    }
 #else
-	#include "/include/utility/sampling.glsl"
+    #include "/include/utility/sampling.glsl"
 
-	float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
-		wrapCoordinates(coords);
+    float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
+        wrapCoordinates(coords);
 
-		vec2 uv[4];
-		vec2 f = getLinearCoords(atlasToLocal(coords), texSize * atlasSize, uv);
+        vec2 uv[4];
+        vec2 f = getLinearCoords(atlasToLocal(coords), texSize * atlasSize, uv);
 
-		uv[0] = localToAtlas(uv[0]);
-		uv[1] = localToAtlas(uv[1]);
-		uv[2] = localToAtlas(uv[2]);
-		uv[3] = localToAtlas(uv[3]);
+        uv[0] = localToAtlas(uv[0]);
+        uv[1] = localToAtlas(uv[1]);
+        uv[2] = localToAtlas(uv[2]);
+        uv[3] = localToAtlas(uv[3]);
 
-    	return 1.0 - textureGradLinear(normals, uv, texDeriv, f, 3);
-	}
+        return 1.0 - textureGradLinear(normals, uv, texDeriv, f, 3);
+    }
 #endif
 
 vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out vec2 shadowCoords, out float traceDistance) {
-	vec3 tangentDirection = normalize(viewToScene(viewPosition)) * tbn;
+    vec3 tangentDirection = normalize(viewToScene(viewPosition)) * tbn;
     traceDistance = 0.0;
 
     vec2 increment = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize * layerHeight;
@@ -88,30 +88,30 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
         traceDistance += layerHeight;
     }
 
-	vec2 prevCoords = currCoords + increment;
+    vec2 prevCoords = currCoords + increment;
 
-	#if POM == 1
-		height       = traceDistance;
-		shadowCoords = prevCoords;
-		return currCoords;
-	#else
-	    float afterHeight  = currFragHeight - traceDistance;
-		float beforeHeight = sampleHeightMap(prevCoords, texDeriv) - traceDistance + layerHeight;
-		float heightDelta  = afterHeight - beforeHeight;
-		float weight       = heightDelta <= 0.0 ? 0.0 : afterHeight / (afterHeight - beforeHeight);
+    #if POM == 1
+        height       = traceDistance;
+        shadowCoords = prevCoords;
+        return currCoords;
+    #else
+        float afterHeight  = currFragHeight - traceDistance;
+        float beforeHeight = sampleHeightMap(prevCoords, texDeriv) - traceDistance + layerHeight;
+        float heightDelta  = afterHeight - beforeHeight;
+        float weight       = heightDelta <= 0.0 ? 0.0 : afterHeight / (afterHeight - beforeHeight);
 
-		vec2 smoothenedCoords = mix(currCoords, prevCoords, weight);
+        vec2 smoothenedCoords = mix(currCoords, prevCoords, weight);
 
-		height       = sampleHeightMap(smoothenedCoords, texDeriv);
-		shadowCoords = smoothenedCoords;
-		return smoothenedCoords;
-	#endif
+        height       = sampleHeightMap(smoothenedCoords, texDeriv);
+        shadowCoords = smoothenedCoords;
+        return smoothenedCoords;
+    #endif
 }
 
 #if POM_SHADOWING == 1
 
     float parallaxShadowing(vec2 parallaxCoords, float height, mat2 texDeriv) {
-	    vec3  tangentDirection = shadowLightVector * tbn;
+        vec3  tangentDirection = shadowLightVector * tbn;
         float currLayerHeight  = height;
 
         vec2 increment = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize * layerHeight;
@@ -120,13 +120,13 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
         float currFragHeight = 1.0;
 
         for (int i = 0; i < POM_LAYERS; i++) {
-		    if (currLayerHeight >= currFragHeight) return 0.0;
+            if (currLayerHeight >= currFragHeight) return 0.0;
 
             currCoords      += increment;
             currFragHeight   = sampleHeightMap(currCoords, texDeriv);
             currLayerHeight -= layerHeight;
         }
- 	    return 1.0;
+         return 1.0;
     }
-	
+    
 #endif

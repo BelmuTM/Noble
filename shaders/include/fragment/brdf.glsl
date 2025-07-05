@@ -225,7 +225,7 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
     float RdotL = 2.0 * NdotL * NdotV - VdotL;
     if (RdotL >= radiusCos) {
         newNdotL = 2.0 * NdotV - NdotV;
-		newVdotL = 2.0 * NdotV * NdotV - 1.0;
+        newVdotL = 2.0 * NdotV * NdotV - 1.0;
         return 1.0;
     }
 
