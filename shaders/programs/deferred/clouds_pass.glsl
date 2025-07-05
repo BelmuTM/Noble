@@ -119,7 +119,9 @@
             clouds.b  = layer0.b  * layer1.b;
 
             /* Aerial Perspective */
-            clouds.rgb = mix(vec3(0.0, 0.0, 1.0), clouds.rgb, quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-5 * distanceToClouds)))));
+            float distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-5 * distanceToClouds))));
+
+            clouds.rgb = mix(vec3(0.0, 0.0, 1.0), clouds.rgb, distanceFalloff);
             clouds.a   = distanceToClouds;
 
             /* Reprojection */
@@ -129,14 +131,17 @@
             if (saturate(prevPosition.xy) == prevPosition.xy && prevDepth >= handDepth) {
                 vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition.xy).rgb);
 
-                const float centerWeightStrength = CLOUDS_SCALE == 100 ? 0.6 : 0.2;
+                const float centerWeightStrength = 0.6;
 
                 vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
-                
-                float velocityWeight = saturate(exp(-1.0 * length(cameraPosition - previousCameraPosition)));
 
-                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.9);
+                distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-4 * distanceToClouds))));
+                centerWeight    = mix(0.8, centerWeight, distanceFalloff);
+                
+                float velocityWeight = saturate(exp(-0.5 * length(cameraPosition - previousCameraPosition)));
+
+                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.97);
 
                 clouds.rgb = max0(mix(clouds.rgb, history, weight));
             }

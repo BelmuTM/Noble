@@ -37,7 +37,11 @@
     out vec2 textureCoords;
     out vec2 vertexCoords;
     out vec3 directIlluminance;
-    out vec3[9] skyIrradiance;
+
+    #if GI == 0
+        out vec3[9] skyIrradiance;
+    #endif
+
     out vec3 uniformSkyIlluminance;
 
     void main() {
@@ -68,7 +72,11 @@
     in vec2 textureCoords;
     in vec2 vertexCoords;
     in vec3 directIlluminance;
-    in vec3[9] skyIrradiance;
+
+    #if GI == 0
+        in vec3[9] skyIrradiance;
+    #endif
+
     in vec3 uniformSkyIlluminance;
 
     #if defined WORLD_OVERWORLD && SHADOWS > 0
@@ -114,16 +122,12 @@
             #endif
 
             if (receivesSkylight) {
-                #if GI == 0
-                    vec4 ao;
-                    #if AO == 1 || AO == 3
-                        vec3 aoBuffer = texture(AO_BUFFER, vertexCoords).rgb;
+                #if GI == 0 && AO > 0
+                    vec3 aoBuffer = texture(AO_BUFFER, vertexCoords).rgb;
 
-                        ao.xyz = decodeUnitVector(aoBuffer.xy);
-                        ao.w   = aoBuffer.z;
-                    #else
-                        ao = vec4(mat3(gbufferModelViewInverse) * material.normal, 1.0);
-                    #endif
+                    vec4 ao;
+                    ao.xyz = decodeUnitVector(aoBuffer.xy);
+                    ao.w   = aoBuffer.z;
 
                     skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, max0(ao.xyz), ao.w));
                 #else

@@ -33,6 +33,7 @@
 #if AO == 0 || GI == 1
 	#include "/programs/discard.glsl"
 #else
+
 	#if defined STAGE_VERTEX
 		#include "/programs/vertex_taau.glsl"
 
@@ -56,7 +57,7 @@
 				return visibility / (albedo * visibility + (1.0 - albedo)); 
  			}
 
-			float findMaximumHorizon(bool dhFragment, vec3 viewPosition, vec3 viewDirection, vec3 normal, vec3 sliceDir, vec2 radius, mat4 projectionInverse) {
+			float findMaximumHorizon(bool dhFragment, mat4 projectionInverse, vec3 viewPosition, vec3 viewDirection, vec3 normal, vec3 sliceDir, vec2 radius) {
 				float horizonCos = -1.0;
 
 				vec2 stepSize    = radius * rcp(GTAO_HORIZON_STEPS);
@@ -67,17 +68,19 @@
 					ivec2 coords = ivec2(rayPosition * viewSize * RENDER_SCALE);
 					float depth  = dhFragment ? texelFetch(dhDepthTex0, coords, 0).r : texelFetch(depthtex0, coords, 0).r;
 
-					if (saturate(rayPosition) != rayPosition || depth == 1.0 || depth < handDepth) continue;
+					if (saturate(rayPosition) != rayPosition || depth == 1.0 || depth < handDepth) 
+						continue;
 
 					vec3 horizonVec = screenToView(vec3(rayPosition, depth), projectionInverse, true) - viewPosition;
 					float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(2.0, 3.0, lengthSqr(horizonVec)));
 		
 					horizonCos = max(horizonCos, cosTheta);
 				}
+
 				return fastAcos(horizonCos);
 			}
 
-			float GTAO(bool dhFragment, vec3 viewPosition, vec3 normal, mat4 projectionInverse, out vec3 bentNormal) {
+			float GTAO(bool dhFragment, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
 				float visibility = 0.0;
 
 				float rcpViewLength = fastRcpLength(viewPosition);
@@ -100,8 +103,8 @@
 					float gamma    = sgnGamma * fastAcos(cosGamma);
 
 					vec2 horizons;
-					horizons.x = -findMaximumHorizon(dhFragment, viewPosition, viewDirection, normal,-sliceDir, radius, projectionInverse);
-					horizons.y =  findMaximumHorizon(dhFragment, viewPosition, viewDirection, normal, sliceDir, radius, projectionInverse);
+					horizons.x = -findMaximumHorizon(dhFragment, projectionInverse, viewPosition, viewDirection, normal,-sliceDir, radius);
+					horizons.y =  findMaximumHorizon(dhFragment, projectionInverse, viewPosition, viewDirection, normal, sliceDir, radius);
 					horizons   =  gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
 			
 					vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
@@ -110,14 +113,17 @@
 					float bentAngle = dot(horizons, vec2(0.5));
 					bentNormal 	   += viewDirection * cos(bentAngle) + orthoDir * sin(bentAngle);
 				}
-				bentNormal = normalize(normalize(bentNormal) - 0.5 * viewDirection);
+
+				bentNormal = normalize(bentNormal) - 0.5 * viewDirection;
+
 				return multiBounceApprox(visibility * rcp(GTAO_SLICES));
 			}
 
 		#elif AO == 2
 
-			float SSAO(bool dhFragment, mat4 projection, vec3 viewPosition, vec3 normal, mat4 projectionInverse) {
-				float occlusion = 0.0;
+			float SSAO(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+				float occlusion        = 0.0;
+				float visibilityWeight = 0.0;
 
 				for (int i = 0; i < SSAO_SAMPLES; i++) {
 					vec3 rayDirection = generateCosineVector(normal, rand2F());
@@ -134,10 +140,18 @@
 
 					float rayDepth = screenToView(vec3(sampleCoords, sampleDepth), projectionInverse, true).z;
 
-					if (rayDepth >= rayPosition.z + EPS) {
-						occlusion += quinticStep(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
-					}
+					float contribution  = step(rayPosition.z + EPS, rayDepth);
+						  contribution *= quinticStep(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
+					
+					occlusion += contribution;
+
+					float visibility  = 1.0 - contribution;
+					bentNormal       += rayDirection * visibility;
+					visibilityWeight += visibility;
 		    	}
+
+				bentNormal = visibilityWeight > 0.0 ? bentNormal / visibilityWeight : normal;
+
 		    	return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
 	    	}
 
@@ -167,7 +181,7 @@
 					}
 					occlusion -= rcp(RTAO_SAMPLES);
 				}
-				bentNormal = normalize(bentNormal);
+
 				return saturate(occlusion);
 			}
 
@@ -210,14 +224,17 @@
 			vec3 bentNormal = vec3(0.0);
 
 			#if AO == 1
-				ao.b = GTAO(dhFragment, viewPosition, normal, projectionInverse, bentNormal);
+				ao.b = GTAO(dhFragment, projectionInverse, viewPosition, normal, bentNormal);
 			#elif AO == 2
-				ao.b = SSAO(dhFragment, projection, viewPosition, normal, projectionInverse);
+				ao.b = SSAO(dhFragment, projection, projectionInverse, viewPosition, normal, bentNormal);
 			#elif AO == 3
 				ao.b = RTAO(dhFragment, projection, viewPosition, normal, bentNormal);
 			#endif
 
+			bentNormal = normalize(bentNormal);
+
 			#if AO_FILTER == 1
+
 				vec3 currFragment = vec3(textureCoords, depth);
 
 			    vec3 closestFragment;
@@ -230,25 +247,25 @@
 				vec2 prevCoords = vertexCoords + getVelocity(closestFragment, projectionInverse).xy * RENDER_SCALE;
 
 				if (clamp(prevCoords, 0.0, RENDER_SCALE) == prevCoords) {
-					vec3 prevAO = texture(AO_BUFFER, prevCoords).rgb;
+					vec3 prevAO         = texture(AO_BUFFER, prevCoords).rgb;
+					vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
 			
 					float weight = saturate(1.0 / max(texture(ACCUMULATION_BUFFER, prevCoords).a, 1.0));
 
-					#if AO == 1 || AO == 3
-						vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
-
-						ao.xy = encodeUnitVector(mix(prevBentNormal, bentNormal, weight));
-					#endif
-
-					ao.b = mix(prevAO.b, ao.b, weight);
+					ao.xy = encodeUnitVector(mix(prevBentNormal, bentNormal, weight));
+					ao.b  = mix(prevAO.b, ao.b, weight);
 				} else {
 					ao = vec3(encodeUnitVector(normal), 1.0);
 				}
+
+			#else
+				ao.xy = encodeUnitVector(bentNormal);
 			#endif
 
 			ao = saturate(ao);
 		}
 		
 	#endif
+
 #endif
 	

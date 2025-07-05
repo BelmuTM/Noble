@@ -163,7 +163,7 @@ float linearStep(float edge0, float edge1, float x) {
 }
 
 //////////////////////////////////////////////////////////
-/*------------------- INTERSECTIONS --------------------*/
+/*-------------------- INTERSECTION --------------------*/
 //////////////////////////////////////////////////////////
 
 vec2 intersectSphere(vec3 origin, vec3 direction, float radius) {
@@ -207,7 +207,7 @@ vec3 unprojectSphere(vec2 coords) {
 }
 
 //////////////////////////////////////////////////////////
-/*--------------------- ROTATIONS ----------------------*/
+/*---------------------- ROTATION ----------------------*/
 //////////////////////////////////////////////////////////
 
 vec3 rotate(vec3 vector, vec3 axis, float angle) {
@@ -245,8 +245,9 @@ vec3 generateConeVector(vec3 vector, vec2 xy, float angle) {
     return rotate(sphereCap, vec3(0.0, 0.0, 1.0), vector);
 }
 
-float coneAngleToSolidAngle(float x) { return TAU * (1.0 - cos(x));      }
-float solidAngleToConeAngle(float x) { return fastAcos(1.0 - (x) / TAU); }
+float coneAngleToSolidAngle(float x) { 
+    return TAU * (1.0 - cos(x));
+}
 
 vec3 sphericalToCartesian(float azimuth, float altitude) {
     float phi   = radians(azimuth);

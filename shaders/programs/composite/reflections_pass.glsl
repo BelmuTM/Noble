@@ -131,15 +131,20 @@
 
             vec4 prevReflections = texture(REFLECTIONS_BUFFER, prevPositionReflected.xy);
 
-            float weight = 0.99;
+            bool isHand = depth < handDepth;
+
+            float weight = isHand ? 0.9 : 0.975;
 
             float linearDepth     = linearizeDepth(prevPosition.z         , nearPlane, farPlane);
             float linearPrevDepth = linearizeDepth(exp2(prevReflections.a), nearPlane, farPlane);
             float depthWeight     = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.01);
 
-            float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isReflectingSky ? 0.8 : 0.5);
+            float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isHand ? 1.0 : (isReflectingSky ? 0.8 : 0.5));
 
-            weight *= depthWeight * velocityWeight;
+            vec2  pixelCenterDist = 1.0 - abs(fract(prevPosition.xy * viewSize) * 2.0 - 1.0);
+            float centerWeight    = isHand ? sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 : 1.0;
+
+            weight *= depthWeight * velocityWeight * centerWeight;
             weight  = saturate(weight);
             weight *= float(saturate(prevPositionReflected.xy) == prevPositionReflected.xy);
             weight *= float(material.id != WATER_ID);

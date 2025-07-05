@@ -33,7 +33,6 @@
     out vec2 textureCoords;
 
     #if MANUAL_CAMERA == 0 && DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
-        flat out int medianBin;
         flat out vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
     #endif
 
@@ -66,7 +65,7 @@
                     pdf[getBinFromLuminance(luminance)]++;
                 }
             }
-            for (int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] *= tileSize.x * tileSize.y;
+            // for (int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] *= tileSize.x * tileSize.y;
             return pdf;
         }
 
@@ -80,6 +79,45 @@
                 closestBinToMedian = distToMedian < closestBinToMedian.y ? vec2(i, distToMedian) : closestBinToMedian;
             }
             return int(closestBinToMedian.x);
+        }
+
+        float getGeometricMeanLuminance(float[HISTOGRAM_BINS] pdf) {
+            const float totalSamples = float(tiles.x * tiles.y);
+
+            float cumulativeDensity = 0.0;
+
+            int lowerBound = 0;
+            int upperBound = HISTOGRAM_BINS - 1;
+
+            float minDensity = EXPOSURE_IGNORE_DARK           * totalSamples;
+            float maxDensity = (1.0 - EXPOSURE_IGNORE_BRIGHT) * totalSamples;
+
+            for (int i = 0; i < HISTOGRAM_BINS; i++, cumulativeDensity += pdf[i]) {
+                if (cumulativeDensity >= minDensity) { lowerBound = i; break; }
+            }
+
+            cumulativeDensity = 0.0;
+
+            for (int i = 0; i < HISTOGRAM_BINS; i++, cumulativeDensity += pdf[i]) {
+                if (cumulativeDensity >= maxDensity) { upperBound = i; break; }
+            }
+
+            upperBound = max(upperBound, lowerBound);
+
+            float logStep = logLuminanceRange / float(HISTOGRAM_BINS);
+
+            float weightedSum = 0.0;
+            float densitySum  = 0.0;
+
+            for (int i = lowerBound; i <= upperBound; i++) {
+                float binDensity = pdf[i];
+                float logCenter  = minLogLuminance + (float(i) + 0.5) * logStep;
+
+                weightedSum += binDensity * logCenter;
+                densitySum  += binDensity;
+            }
+
+            return exp(weightedSum / densitySum);
         }
 
     #endif
@@ -96,11 +134,10 @@
                 int closestBinToMedian    = getClosestBinToMedian(pdf);
 
                 #if DEBUG_HISTOGRAM == 1
-                    medianBin = closestBinToMedian;
                     for (int i = 0; i < HISTOGRAM_BINS; i++) luminanceHistogram[i >> 2][i & 3] = pdf[i];
                 #endif
 
-                avgLuminance = getLuminanceFromBin(closestBinToMedian);
+                avgLuminance = getGeometricMeanLuminance(pdf);
             #endif
 
             float prevLuminance = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
@@ -123,7 +160,6 @@
 
         layout (rgba16f) uniform image2D colorimg0;
 
-        flat in int medianBin;
         flat in vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
 
     #else
@@ -158,9 +194,8 @@
                     vec2 coords = gl_FragCoord.xy * rcp(debugHistogramSize);
     		        int index   = int(HISTOGRAM_BINS * coords.x);
 
-                    bool isBin = luminanceHistogram[index >> 2][index & 3] > coords.y * 0.8;
-
-                    vec3 histogram = isBin ? vec3(1.0, 0.0, 0.0) * max0(1.0 - abs(index - medianBin)) : vec3(1.0);
+                    bool isBin     = luminanceHistogram[index >> 2][index & 3] > coords.y * 0.8;
+                    vec3 histogram = vec3(1.0) * float(isBin);
                     
                     imageStore(colorimg0, ivec2(gl_FragCoord.xy), vec4(histogram, 0.0));
     	        }

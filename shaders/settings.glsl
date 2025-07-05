@@ -379,12 +379,15 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE_GROWTH 2.00
 #define EXPOSURE_DECAY  0.50
 
+#define EXPOSURE_IGNORE_DARK   0.60
+#define EXPOSURE_IGNORE_BRIGHT 0.05
+
 #if EXPOSURE == 2
 	#define HISTOGRAM_BINS 80
 
 	// Logarithmic scale
-	const float minLogLuminance      = -5.0;
-	const float maxLogLuminance      =  10.0;
+	const float minLogLuminance      = -6.0;
+	const float maxLogLuminance      = 16.0;
 	const float logLuminanceRange    = maxLogLuminance - minLogLuminance;
 	const float rcpLogLuminanceRange = 1.0 / logLuminanceRange;
 
