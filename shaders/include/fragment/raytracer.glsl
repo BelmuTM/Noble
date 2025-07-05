@@ -95,8 +95,8 @@ bool raytrace(
         float thickDepth = thickenDepth(depth, zThickness, projection);
 
         /*
-            Intersection check, taking account of the depth sample's thickness and avoiding
-            player hand fragments
+            Intersection check, taking account of the depth sample's thickness, and avoiding
+            player hand fragments and sky fragments
         */
         intersected = maxZ >= depth && minZ <= thickDepth && depth < 1.0 && depth >= handDepth;
 

@@ -174,8 +174,8 @@ void main() {
 
             weight *= step(abs(linearDepth - linearSampleDepth) / max(linearDepth, linearSampleDepth), 0.1);
             
-            scattering    += decodeRGBE(packedFog.r) * weight;
-            transmittance += decodeRGBE(packedFog.g) * weight;
+            scattering    += decodeRGBE(packedFog[0]) * weight;
+            transmittance += decodeRGBE(packedFog[1]) * weight;
 
             totalWeight += weight;
         }

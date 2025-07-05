@@ -284,21 +284,21 @@ uint encodeRGBE(vec3 color) {
     float exponent = ceil(log2(maxChannel));
     float scale    = exp2(-exponent) * 255.0;
 
-    uvec4 rgbe;
-    rgbe.r = uint(clamp(color.r * scale, 0.0, 255.0));
-    rgbe.g = uint(clamp(color.g * scale, 0.0, 255.0));
-    rgbe.b = uint(clamp(color.b * scale, 0.0, 255.0));
-    rgbe.a = uint(exponent + 128.0);
+    uvec4 encoded;
+    encoded.r = uint(clamp(color.r * scale, 0.0, 255.0));
+    encoded.g = uint(clamp(color.g * scale, 0.0, 255.0));
+    encoded.b = uint(clamp(color.b * scale, 0.0, 255.0));
+    encoded.a = uint(exponent + 128.0);
 
-    return (rgbe.r << 0u) | (rgbe.g << 8u) | (rgbe.b << 16u) | (rgbe.a << 24u);
+    return (encoded.r << 0u) | (encoded.g << 8u) | (encoded.b << 16u) | (encoded.a << 24u);
 }
 
-vec3 decodeRGBE(uint packed) {
+vec3 decodeRGBE(uint packedColor) {
     uvec4 encoded;
-    encoded.r = packed >>  0u & 0xFFu;
-    encoded.g = packed >>  8u & 0xFFu;
-    encoded.b = packed >> 16u & 0xFFu;
-    encoded.a = packed >> 24u & 0xFFu;
+    encoded.r = packedColor >>  0u & 0xFFu;
+    encoded.g = packedColor >>  8u & 0xFFu;
+    encoded.b = packedColor >> 16u & 0xFFu;
+    encoded.a = packedColor >> 24u & 0xFFu;
 
     float exponent = float(int(encoded.a) - 128);
     float scale    = exp2(exponent) / 255.0;
