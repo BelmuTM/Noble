@@ -25,6 +25,7 @@ const float aerialPerspectiveMult = 1.0;
 #if defined WORLD_OVERWORLD
     
     #if defined IS_IRIS
+
         vec3 airFogAttenuationCoefficients = mix(vec3(airFogExtinctionCoefficient), vec3(0.24, 0.28, 0.36), biome_may_sandstorm);
         vec3 airFogScatteringCoefficients  = mix(vec3(airFogScatteringCoefficient), vec3(0.80, 0.55, 0.36), biome_may_sandstorm);
 
@@ -35,7 +36,9 @@ const float aerialPerspectiveMult = 1.0;
         vec2  fogShapeFactors = mix(vec2(1.5, 0.4), vec2(2.0, 0.4), biome_may_sandstorm);
         float densityFactor   = wetness;
         float densityMult     = mix(0.2, 0.7, biome_may_sandstorm);
+
     #else
+
         vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
         vec3 airFogScatteringCoefficients  = vec3(airFogScatteringCoefficient);
 
@@ -45,6 +48,7 @@ const float aerialPerspectiveMult = 1.0;
         const vec2  fogShapeFactors = vec2(1.5, 0.4);
               float densityFactor   = wetness;
         const float densityMult     = 0.2;
+
     #endif
 
 #elif defined WORLD_NETHER
@@ -256,6 +260,7 @@ float calculateAirFogPhase(float cosTheta) {
             }
 
             #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
+
                 float heightFalloffAerial = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08);
 
                 float airmassAerial      = rayLength * heightFalloffAerial * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * 20.0;
@@ -268,6 +273,7 @@ float calculateAirFogPhase(float cosTheta) {
                 stepScatteringIndirect += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * skyIlluminance    * visibleScatteringAerial;
 
                 stepTransmittance *= stepTransmittanceAerial;
+
             #endif
 
             #if defined WORLD_OVERWORLD

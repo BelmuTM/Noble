@@ -65,20 +65,7 @@
                     pdf[getBinFromLuminance(luminance)]++;
                 }
             }
-            // for (int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] *= tileSize.x * tileSize.y;
             return pdf;
-        }
-
-        int getClosestBinToMedian(float[HISTOGRAM_BINS] pdf) {
-            float cumulativeDensity = 0.0;
-            vec2 closestBinToMedian = vec2(0.0, 1.0); // vec2(bin, dist)
-
-            // Binary search to find the closest bin to the median (CDF = 0.5)
-            for (int i = 0; i < HISTOGRAM_BINS; i++, cumulativeDensity += pdf[i]) {
-                float distToMedian = distance(cumulativeDensity, 0.5);
-                closestBinToMedian = distToMedian < closestBinToMedian.y ? vec2(i, distToMedian) : closestBinToMedian;
-            }
-            return int(closestBinToMedian.x);
         }
 
         float getGeometricMeanLuminance(float[HISTOGRAM_BINS] pdf) {
@@ -127,17 +114,22 @@
         textureCoords = gl_Vertex.xy;
 
         #if MANUAL_CAMERA == 0 && EXPOSURE > 0
+
             #if EXPOSURE == 1
                 avgLuminance = luminance(texture(IRRADIANCE_BUFFER, vec2(0.25)).rgb);
             #else
+
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
-                int closestBinToMedian    = getClosestBinToMedian(pdf);
 
                 #if DEBUG_HISTOGRAM == 1
-                    for (int i = 0; i < HISTOGRAM_BINS; i++) luminanceHistogram[i >> 2][i & 3] = pdf[i];
+                    for (int i = 0; i < HISTOGRAM_BINS; i++) {
+                        // Normalizing the PDF
+                        luminanceHistogram[i >> 2][i & 3] = pdf[i] * tileSize.x * tileSize.y;
+                    }
                 #endif
 
                 avgLuminance = getGeometricMeanLuminance(pdf);
+
             #endif
 
             float prevLuminance = texelFetch(HISTORY_BUFFER, ivec2(0), 0).a;
@@ -147,6 +139,7 @@
             float exposureSpeed = avgLuminance < prevLuminance ? EXPOSURE_GROWTH : EXPOSURE_DECAY;
             
             avgLuminance = mix(avgLuminance, prevLuminance, exp(-exposureSpeed * frameTime));
+            
         #endif
     }
 
