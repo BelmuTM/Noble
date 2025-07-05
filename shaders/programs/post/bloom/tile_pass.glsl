@@ -74,7 +74,13 @@ const float lodFactor = exp2(-lod);
 		#endif
 
 		vec3 sampleBloomBuffer(vec2 coords) {
-			return textureLod(BLOOM_SAMPLER, coords, 0).rgb;
+			vec3 tile = textureLod(BLOOM_SAMPLER, coords, 0).rgb;
+
+			#if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
+				tile = exp2(tile) - 1.0;
+			#endif
+
+			return tile;
 		}
 
 	#elif defined BLOOM_UPSAMPLE_PASS

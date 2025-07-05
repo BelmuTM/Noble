@@ -175,7 +175,7 @@
             
         #endif
 
-        color = max0(color);
+        color = max0(log2(color + 1.0));
     }
     
 #endif

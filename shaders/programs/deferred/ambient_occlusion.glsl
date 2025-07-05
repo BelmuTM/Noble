@@ -159,20 +159,21 @@
 
 			#include "/include/fragment/raytracer.glsl"
 
-			float RTAO(bool dhFragment, mat4 projection, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+			float RTAO(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
 				vec3 rayPosition = viewPosition + normal * 1e-2;
 				float occlusion  = 1.0;
 
 				vec3 hitPosition = vec3(0.0);
+				float rayLength;
 
 				for (int i = 0; i < RTAO_SAMPLES; i++) {
 					vec3 rayDirection = generateCosineVector(normal, rand2F());
 
 					bool hit;
 					if (dhFragment) {
-						hit = raytrace(dhDepthTex0, projection, rayPosition, rayDirection, RTAO_STEPS, randF(), RENDER_SCALE, hitPosition);
+						hit = raytrace(dhDepthTex0, projection, projectionInverse, rayPosition, rayDirection, RTAO_STRIDE, randF(), RENDER_SCALE, hitPosition, rayLength);
 					} else {
-						hit = raytrace(depthtex0, projection, rayPosition, rayDirection, RTAO_STEPS, randF(), RENDER_SCALE, hitPosition);
+						hit = raytrace(depthtex0, projection, projectionInverse, rayPosition, rayDirection, RTAO_STRIDE, randF(), RENDER_SCALE, hitPosition, rayLength);
 					}
 
 					if (!hit) {
@@ -228,7 +229,7 @@
 			#elif AO == 2
 				ao.b = SSAO(dhFragment, projection, projectionInverse, viewPosition, normal, bentNormal);
 			#elif AO == 3
-				ao.b = RTAO(dhFragment, projection, viewPosition, normal, bentNormal);
+				ao.b = RTAO(dhFragment, projection, projectionInverse, viewPosition, normal, bentNormal);
 			#endif
 
 			bentNormal = normalize(bentNormal);

@@ -199,13 +199,13 @@ value.RTAO_SAMPLES.6 = §e6
 value.RTAO_SAMPLES.8 = §68
 value.RTAO_SAMPLES.10 = §c10
 
-option.RTAO_STEPS = RTAO 步数
-option.RTAO_STEPS.comment = 影响 §bRTAO§r 的精确度. §c更高的值会有更好的结果, 但会降低 §c性能.
-value.RTAO_STEPS.16 = §216
-value.RTAO_STEPS.24 = §a24
-value.RTAO_STEPS.32 = §e32
-value.RTAO_STEPS.40 = §640
-value.RTAO_STEPS.64 = §c64
+option.RTAO_STRIDE = RTAO 步数
+option.RTAO_STRIDE.comment = 影响 §bRTAO§r 的精确度. §c更高的值会有更好的结果, 但会降低 §c性能.
+value.RTAO_STRIDE.16 = §216
+value.RTAO_STRIDE.24 = §a24
+value.RTAO_STRIDE.32 = §e32
+value.RTAO_STRIDE.40 = §640
+value.RTAO_STRIDE.64 = §c64
 
 option.GTAO_SLICES = GTAO 切片数
 option.GTAO_SLICES.comment = 影响 §bGTAO§r 的精确度. §c更高的值会有更好的结果, 但会降低 §c性能.
@@ -303,11 +303,6 @@ value.SKY_CONTRIBUTION.0 = §c关
 value.SKY_CONTRIBUTION.1 = §c开
 
 ### RAY TRACING
-
-option.BINARY_REFINEMENT = 二值细化
-option.BINARY_REFINEMENT.comment = 调节光线追踪命中位置来使其更精确. §c更高的值会有更好的结果, 但会降低 §c性能.
-value.BINARY_REFINEMENT.0 = §c关
-value.BINARY_REFINEMENT.1 = §c开
 
 option.SSR_REPROJECTION = 重投影屏幕空间反射
 option.SSR_REPROJECTION.comment = 反射最后帧来使光线无限反弹. §a不影响性能.

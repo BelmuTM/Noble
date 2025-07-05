@@ -171,7 +171,7 @@
     #endif
 
     void main() {
-        history.rgb = texture(MAIN_BUFFER, textureCoords).rgb;
+        history.rgb = exp2(texture(MAIN_BUFFER, textureCoords).rgb) - 1.0;
 
         #if TAA == 1
             history.rgb *= computeExposure(avgLuminance);

@@ -18,75 +18,96 @@
 /*                                                                              */
 /********************************************************************************/
 
-#if defined BINARY_REFINEMENT
-    void binarySearch(sampler2D depthTexture, inout vec3 rayPosition, vec3 rayDirection, float scale) {
-        for (int i = 0; i < BINARY_COUNT; i++) {
-            rayPosition  += sign(texelFetch(depthTexture, ivec2(rayPosition.xy * viewSize * scale), 0).r - rayPosition.z) * rayDirection;
-            rayDirection *= 0.5;
-        }
-    }
-#endif
+/*
+    [References]:
+        McGuire, M., & Mara, M. (2014). Efficient GPU Screen-Space Ray Tracing. https://jcgt.org/published/0003/04/04/paper.pdf
+*/
 
-bool raytrace(sampler2D depthTexture, mat4 projection, vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter, float scale, out vec3 rayPosition) {
-    if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) return false;
-
-    rayPosition   = viewToScreen(viewPosition, projection, true);
-    rayDirection  = normalize(viewToScreen(viewPosition + rayDirection, projection, true) - rayPosition);
-    rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection) * rcp(stepCount);
-    rayPosition  += rayDirection * jitter;
-
-    float depthLenience = max(abs(rayDirection.z) * 3.0, 0.02 / pow2(viewPosition.z)); // Provided by DrDesten
-
-    bool intersect = false;
-
-    for (int i = 0; i < stepCount && !intersect; i++) {
-        if (saturate(rayPosition.xy) != rayPosition.xy) return false;
-
-        float depth = texelFetch(depthTexture, ivec2(rayPosition.xy * viewSize * scale), 0).r;
-        intersect   = abs(depthLenience - (rayPosition.z - depth)) < depthLenience && depth >= handDepth;
-
-        rayPosition += rayDirection;
-    }
-
-    #if defined BINARY_REFINEMENT
-        if (intersect) binarySearch(depthTexture, rayPosition, rayDirection, scale);
-    #endif
-
-    return intersect;
+float thickenDepth(float depth, float zThickness, mat4 projection) {
+	depth = 1.0 - 2.0 * depth;
+	depth = (depth + projection[2].z * zThickness) / (1.0 + zThickness);
+	return 0.5 - 0.5 * depth;
 }
 
-bool raytrace(sampler2D depthTexture, mat4 projection, vec3 viewPosition, vec3 rayDirection, int stepCount, float jitter, float scale, out vec3 rayPosition, out float rayLength) {
+bool raytrace(
+    sampler2D depthTexture,
+    mat4 projection,
+    mat4 projectionInverse,
+    vec3 viewPosition,
+    vec3 rayDirection,
+    float stride,
+    float jitter,
+    float scale,
+    out vec3 rayPosition,
+    out float rayLength
+) {
+    // Scaling the jitter to the stride in pixel size
+    jitter *= stride;
+
     rayLength = 0.0;
 
-    if (rayDirection.z > 0.0 && rayDirection.z >= -viewPosition.z) return false;
-
+    // DDA setup (McGuire & Mara, 2014)
     rayPosition   = viewToScreen(viewPosition, projection, true);
-    rayDirection  = normalize(viewToScreen(viewPosition + rayDirection, projection, true) - rayPosition);
-    rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection) * rcp(stepCount);
-    rayPosition  += rayDirection * jitter;
+	rayDirection  = viewPosition + abs(viewPosition.z) * rayDirection;
+	rayDirection  = viewToScreen(rayDirection, projection, true) - rayPosition;
+	rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);
+
+    vec2 resolution = viewSize * scale;
+
+	rayPosition.xy  *= resolution;
+	rayDirection.xy *= resolution;
+
+    // Normalising the DDA ray step to walk a fixed amount of pixels per step
+	rayDirection /= maxOf(abs(rayDirection.xy));
 
     float initialDepth = rayPosition.z;
 
-    float depthLenience = max(abs(rayDirection.z) * 3.0, 0.02 / pow2(viewPosition.z)); // Provided by DrDesten
+    // Upper screen-space bounds are XY = resolution - 1.0 and Z = 1.0
+    vec3 startPosition = rayPosition;
+    vec3 endPosition   = step(0.0, rayDirection) * vec3(resolution - 1.0, 1.0);
 
-    bool intersect = false;
+    // Computing the minimal amount of steps to reach an upper bound on any axis
+    vec3 stepsToEndPosition    = (endPosition - startPosition) / rayDirection;
+    // Extending the upper bound to guarantee full coverage of the far plane
+	     stepsToEndPosition.z += stride;
 
-    for (int i = 0; i < stepCount && !intersect; i++) {
-        if (saturate(rayPosition.xy) != rayPosition.xy) break;
+    // Clamping to the resolution to avoid marching forever
+    float tMax = min(minOf(stepsToEndPosition), maxOf(resolution));
+    float t    = jitter;
 
-        float depth = texelFetch(depthTexture, ivec2(rayPosition.xy * viewSize * scale), 0).r;
-        intersect   = abs(depthLenience - (rayPosition.z - depth)) < depthLenience && depth >= handDepth;
+    /*
+        Thickening each depth sample by a factor to prevent false positives during
+        intersection checks, this makes each depth sample equivalent to a frustum-shaped voxel
+        (McGuire & Mara, 2014)
+    */
+    float zThickness = max(log2(stride), 1.0) * stride * texelSize.y * projectionInverse[1].y;
 
-        rayPosition += rayDirection;
-    }
+    bool intersected = false;
 
-    #if defined BINARY_REFINEMENT
-        if (intersect) binarySearch(depthTexture, rayPosition, rayDirection, scale);
-    #endif
+    // Marching until we reach the edge or intersect something
+	while (t < tMax && !intersected) {
+        rayPosition = startPosition + rayDirection * t;
 
-    if (intersect) {
+		float maxZ = rayPosition.z;
+		float minZ = rayPosition.z - (t == jitter ? jitter : stride) * abs(rayDirection.z);
+
+		float depth      = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
+		float thickDepth = thickenDepth(depth, zThickness, projection);
+
+        /*
+            Intersection check, taking account of the depth sample's thickness and avoiding
+            player hand fragments
+        */
+		intersected = maxZ >= depth && minZ <= thickDepth && depth < 1.0 && depth >= handDepth;
+
+		t += stride;
+	}
+
+    if (intersected) {
         rayLength = abs(rayPosition.z - initialDepth);
     }
 
-    return intersect;
+    rayPosition.xy /= resolution;
+
+    return intersected;
 }

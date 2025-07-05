@@ -55,11 +55,11 @@ void pathtraceDiffuse(bool dhFragment, mat4 projection, mat4 projectionInverse, 
 
             vec3 tracePosition = screenToView(rayPosition, projectionInverse, true) + material.normal * 1e-3;
              
-            bool hit;
+            bool hit; float rayLength;
             if (dhFragment) {
-                hit = raytrace(dhDepthTex0, projection, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
+                hit = raytrace(dhDepthTex0, projection, projectionInverse, tracePosition, rayDirection, GI_STRIDE, randF(), 1.0, rayPosition, rayLength);
             } else {
-                hit = raytrace(depthtex0, projection, tracePosition, rayDirection, MAX_GI_STEPS, randF(), 1.0, rayPosition);
+                hit = raytrace(depthtex0, projection, projectionInverse, tracePosition, rayDirection, GI_STRIDE, randF(), 1.0, rayPosition, rayLength);
             }
 
             if (!hit) {

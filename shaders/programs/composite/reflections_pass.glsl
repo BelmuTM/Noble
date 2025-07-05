@@ -109,9 +109,9 @@
             float rayLength;
                     
             #if REFLECTIONS == 1
-                reflections.rgb = computeRoughReflections(dhFragment, projection, viewPosition, material, rayLength);
+                reflections.rgb = computeRoughReflections(dhFragment, projection, projectionInverse, viewPosition, material, rayLength);
             #elif REFLECTIONS == 2
-                reflections.rgb = computeSmoothReflections(dhFragment, projection, viewPosition, material, rayLength);
+                reflections.rgb = computeSmoothReflections(dhFragment, projection, projectionInverse, viewPosition, material, rayLength);
             #endif
 
             vec3 velocity     = getVelocity(vec3(textureCoords, depth), projectionInverse);

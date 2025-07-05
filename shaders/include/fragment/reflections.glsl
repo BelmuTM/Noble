@@ -57,7 +57,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
     /*------------------ ROUGH REFLECTIONS -----------------*/
     //////////////////////////////////////////////////////////
 
-    vec3 computeRoughReflections(bool dhFragment, mat4 projection, vec3 viewPosition, Material material, out float rayLength) {
+    vec3 computeRoughReflections(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition, Material material, out float rayLength) {
         float alphaSq = maxEps(material.roughness * material.roughness);
 
         float skylight = getSkylightFalloff(material.lightmap.y);
@@ -72,7 +72,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
         vec3 reflection = vec3(0.0);
 
-        for (int i = 0; i < ROUGH_REFLECTIONS_SAMPLES; i++) {
+        for (int i = 0; i < 1; i++) {
             vec3  microfacetNormal = tbn * sampleGGXVNDF(tangentViewDirection, rand2F(), material.roughness);
             float MdotV            = dot(microfacetNormal, -viewDirection);
 		    vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
@@ -84,9 +84,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
             if (NdotL > 0.0) {
                 if (dhFragment) {
-                    hit = float(raytrace(dhDepthTex0, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition, sampleRayLength));
+                    hit = float(raytrace(dhDepthTex0, projection, projectionInverse, viewPosition, rayDirection, REFLECTIONS_STRIDE, jitter, RENDER_SCALE, hitPosition, sampleRayLength));
                 } else {
-                    hit = float(raytrace(depthtex0, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition, sampleRayLength));
+                    hit = float(raytrace(depthtex0, projection, projectionInverse, viewPosition, rayDirection, REFLECTIONS_STRIDE, jitter, RENDER_SCALE, hitPosition, sampleRayLength));
                 }
             }
 
@@ -122,7 +122,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
     /*------------------ SMOOTH REFLECTIONS ----------------*/
     //////////////////////////////////////////////////////////
 
-    vec3 computeSmoothReflections(bool dhFragment, mat4 projection, vec3 viewPosition, Material material, out float rayLength) {
+    vec3 computeSmoothReflections(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition, Material material, out float rayLength) {
 
         float alphaSq = maxEps(material.roughness * material.roughness);
 
@@ -138,9 +138,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
         if (NdotL > 0.0) {
             if (dhFragment) {
-                hit = float(raytrace(dhDepthTex0, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition, rayLength));
+                hit = float(raytrace(dhDepthTex0, projection, projectionInverse, viewPosition, rayDirection, REFLECTIONS_STRIDE, jitter, RENDER_SCALE, hitPosition, rayLength));
             } else {
-                hit = float(raytrace(depthtex0, projection, viewPosition, rayDirection, REFLECTIONS_STEPS, jitter, RENDER_SCALE, hitPosition, rayLength));
+                hit = float(raytrace(depthtex0, projection, projectionInverse, viewPosition, rayDirection, REFLECTIONS_STRIDE, jitter, RENDER_SCALE, hitPosition, rayLength));
             }
         }
 

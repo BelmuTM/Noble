@@ -194,13 +194,16 @@ value.RTAO_SAMPLES.6 = §e6
 value.RTAO_SAMPLES.8 = §68
 value.RTAO_SAMPLES.10 = §c10
 
-option.RTAO_STEPS = RTAO Steps
-option.RTAO_STEPS.comment = Influences §bRTAO§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
-value.RTAO_STEPS.16 = §216
-value.RTAO_STEPS.24 = §a24
-value.RTAO_STEPS.32 = §e32
-value.RTAO_STEPS.40 = §640
-value.RTAO_STEPS.64 = §c64
+option.RTAO_STRIDE = RTAO Stride
+option.RTAO_STRIDE.comment = Influences §bRTAO§r's pixel accuracy. §cLower value gives better results, but reduces §cperformance.
+value.RTAO_STRIDE.1 = §41
+value.RTAO_STRIDE.4 = §c4
+value.RTAO_STRIDE.8 = §68
+value.RTAO_STRIDE.16 = §e16
+value.RTAO_STRIDE.24 = §a24
+value.RTAO_STRIDE.32 = §232
+value.RTAO_STRIDE.48 = §348
+value.RTAO_STRIDE.64 = §b64
 
 option.GTAO_SLICES = GTAO Slices
 option.GTAO_SLICES.comment = Influences §bGTAO§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
@@ -227,13 +230,16 @@ value.REFLECTIONS.0 = §cOFF
 value.REFLECTIONS.1 = §e§lRough
 value.REFLECTIONS.2 = §e§lSmooth
 
-option.REFLECTIONS_STEPS = Reflections Steps
-option.REFLECTIONS_STEPS.comment = Influences §bReflections§r' accuracy. §cHigher value gives better results, but reduces §cperformance.
-value.REFLECTIONS_STEPS.8 = §28
-value.REFLECTIONS_STEPS.16 = §a16
-value.REFLECTIONS_STEPS.32 = §e32
-value.REFLECTIONS_STEPS.64 = §664
-value.REFLECTIONS_STEPS.128 = §c128
+option.REFLECTIONS_STRIDE = Reflections Stride
+option.REFLECTIONS_STRIDE.comment = Influences §bReflections§r' pixel accuracy. §cLower value gives better results, but reduces §cperformance.
+value.REFLECTIONS_STRIDE.1 = §41
+value.REFLECTIONS_STRIDE.4 = §c4
+value.REFLECTIONS_STRIDE.8 = §68
+value.REFLECTIONS_STRIDE.16 = §e16
+value.REFLECTIONS_STRIDE.24 = §a24
+value.REFLECTIONS_STRIDE.32 = §232
+value.REFLECTIONS_STRIDE.48 = §348
+value.REFLECTIONS_STRIDE.64 = §b64
 
 option.ROUGH_REFLECTIONS_SAMPLES = Rough Reflections Samples
 option.ROUGH_REFLECTIONS_SAMPLES.comment = Influences §bRough Reflections§r' quality. §cHigher value gives better results, but reduces §cperformance.
