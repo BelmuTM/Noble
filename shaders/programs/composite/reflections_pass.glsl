@@ -66,11 +66,9 @@
         #include "/include/atmospherics/constants.glsl"
 
         #include "/include/utility/phase.glsl"
+        #include "/include/utility/sampling.glsl"
 
         #include "/include/fragment/brdf.glsl"
-    
-        #include "/include/atmospherics/celestial.glsl"
-
         #include "/include/fragment/raytracer.glsl"
         #include "/include/fragment/reflections.glsl"
 

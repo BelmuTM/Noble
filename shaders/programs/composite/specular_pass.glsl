@@ -37,12 +37,13 @@ uniform usampler2D colortex11;
 #include "/include/atmospherics/constants.glsl"
 
 #include "/include/utility/phase.glsl"
+#include "/include/utility/sampling.glsl"
 
 #include "/include/fragment/brdf.glsl"
 #include "/include/fragment/raytracer.glsl"
 #include "/include/fragment/shadows.glsl"
 
-#include "/include/utility/sampling.glsl"
+#include "/include/atmospherics/celestial.glsl"
 
 #if REFRACTIONS == 1
     #include "/include/fragment/refractions.glsl"
@@ -86,14 +87,17 @@ void main() {
         }
     #endif
 
+    vec3 viewPosition0 = screenToView(vec3(textureCoords, depth), projectionInverse, true);
+
+    // Terrain Fragments
     if (depth != 1.0) {
+
         Material material = getMaterial(vertexCoords);
 
         if (material.F0 * maxFloat8 <= 229.5) {
             lighting = texture(MAIN_BUFFER, vertexCoords).rgb;
         }
 
-        vec3 viewPosition0 = screenToView(vec3(textureCoords, material.depth0), projectionInverse, true);
         vec3 viewPosition1 = screenToView(vec3(textureCoords, material.depth1), projectionInverse, true);
 
         vec3 directIlluminance = vec3(0.0);
@@ -137,8 +141,12 @@ void main() {
         #if REFLECTIONS > 0
             envSpecular = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
         #endif
+
     } else {
-        lighting = texture(MAIN_BUFFER, vertexCoords).rgb;
+    // Sky Fragments
+
+        lighting  = texture(MAIN_BUFFER, vertexCoords).rgb;
+        lighting += renderCelestialBodies(vertexCoords, viewPosition0);
     }
 
     //////////////////////////////////////////////////////////

@@ -56,9 +56,9 @@
     #include "/include/atmospherics/constants.glsl"
 
     #include "/include/utility/phase.glsl"
+    #include "/include/utility/sampling.glsl"
 
     #include "/include/fragment/brdf.glsl"
-    #include "/include/atmospherics/celestial.glsl"
 
     #if GI == 1
         #include "/include/fragment/raytracer.glsl"

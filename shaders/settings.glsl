@@ -333,34 +333,53 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 /*------------------- POST-PROCESSING ------------------*/
 //////////////////////////////////////////////////////////
 
-#define EIGHT_BITS_FILTER 0 // [0 1]
-
-#define PALETTE 0 // [0 1 2 3 4 5 6 7 8 9 10]
-
+// Depth of Field
 #define DOF           0 // [0 1]
 #define DOF_RADIUS 20.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0]
 #define DOF_DEPTH     0 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 128 256 512 1024]
 #define DOF_SAMPLES  12 // [4 6 8 10 12 14 16]
 #define DOF_ANGLE_SAMPLES (3 * DOF_SAMPLES)
 
+// Bloom
 #define BLOOM             1 // [0 1]
 #define BLOOM_STRENGTH 0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
-#if BLOOM == 1
-    #define BLOOM_ENABLED
-#endif
+// Lens Flares
+#define LENS_FLARES 0 // [0 1]
 
+#define LENS_FLARES_STRENGTH 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+
+#define LENS_FLARES_GHOSTS                  6
+#define LENS_FLARES_GHOSTS_MIN_SPACING   0.30
+#define LENS_FLARES_GHOSTS_MAX_SPACING   0.40
+#define LENS_FLARES_GHOSTS_SPACING_SIGMA 0.40
+
+#define LENS_FLARES_HALO          1 // [0 1]
+#define LENS_FLARES_HALO_RADIUS 0.6 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+
+#define LENS_FLARES_ABERRATION_STRENGTH 20.0
+
+// Vignette
 #define VIGNETTE             0 // [0 1]
 #define VIGNETTE_STRENGTH 0.25 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50]
 
+// Film Grain
 #define FILM_GRAIN            0 // [0 1]
 #define FILM_GRAIN_STRENGTH 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
+// Sharpen
 #define SHARPEN             1 // [0 1]
 #define SHARPEN_STRENGTH 1.00 // [0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
 
+// Cel Shading
 #define CEL_SHADING 0 // [0 1]
 #define CEL_SHADES  8 // [4 8 12 16 20 24 28 32]
+
+// 8-Bits Filter
+#define EIGHT_BITS_FILTER 0 // [0 1]
+
+// Palette
+#define PALETTE 0 // [0 1 2 3 4 5 6 7 8 9 10]
 
 //////////////////////////////////////////////////////////
 /*------------------ CAMERA SETTINGS -------------------*/

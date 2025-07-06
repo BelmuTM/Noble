@@ -64,18 +64,6 @@ vec3 getWaterNormals(vec3 worldPosition, int octaves) {
     return vec3(pos0 - pos1, pos0 - pos2, 1.0);
 }
 
-vec3 getWaterNormals(vec3 worldPosition, float strength, int octaves) {
-    const float dStep = 0.02;
-
-    vec2 steps;
-    steps.x = calculateWaveHeightGerstner(worldPosition.xz + vec2( dStep, -dStep), octaves);
-    steps.y = calculateWaveHeightGerstner(worldPosition.xz + vec2(-dStep,  dStep), octaves);
-    steps  -= calculateWaveHeightGerstner(worldPosition.xz + vec2(-dStep, -dStep), octaves);
-    steps  *= strength;
-
-    return normalize(vec3(-steps.x, dStep * 2.0, -steps.y));
-}
-
 vec2 parallaxMappingWater(vec2 coords, vec3 tangentDirection, int octaves) {
     const float layerHeight = 1.0 / WATER_PARALLAX_LAYERS;
 

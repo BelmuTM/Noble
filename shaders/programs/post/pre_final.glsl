@@ -49,6 +49,10 @@ in vec2 textureCoords;
     #include "/include/post/aces/odt.glsl"
 #endif
 
+#include "/include/utility/sampling.glsl"
+
+#include "/include/post/lens_flares.glsl"
+
 #include "/include/post/exposure.glsl"
 #include "/include/post/grading.glsl"
 
@@ -73,6 +77,10 @@ void main() {
 
     #if PURKINJE == 1
         scotopicVisionApproximation(color);
+    #endif
+
+    #if LENS_FLARES == 1
+        lensFlares(color, textureCoords);
     #endif
 
     color *= exposure;

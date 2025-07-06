@@ -62,6 +62,7 @@ screen.COLOR_GRADING           = Color Grading
 screen.POST_PROCESSING         = Post-Processing
 screen.DEPTH_OF_FIELD          = Depth of Field
 screen.BLOOM                   = Bloom
+screen.LENS_FLARES             = Lens Flares
 screen.SHARPEN                 = Sharpen
 screen.VIGNETTE                = Vignette
 screen.FILM_GRAIN              = Film Grain
@@ -674,7 +675,7 @@ option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher val
 ### POM
 
 option.POM = POM
-option.POM.comment = §bParallax Occlusion Mapping. §rGives depth to a material by creating 3D definition from its heightmap. §aSteep§r POM is pixelated. §aSmooth§r POM filters the heightmap to de-pixelate it.
+option.POM.comment = §bParallax Occlusion Mapping. §rGives depth to a material by creating 3D definition from its heightmap. §aSteep§r POM is pixelated. §aSmooth§r POM filters the heightmap to smoothen it.
 value.POM.0 = §cOFF
 value.POM.1 = §e§lSteep
 value.POM.2 = §e§lSmooth
@@ -827,7 +828,9 @@ value.TAA.1 = §aON
 option.TAA_STRENGTH = Strength
 option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§r's strength.
 
-##################### DEPTH OF FIELD #####################
+##################### POST-PROCESSING #####################
+
+### DEPTH OF FIELD
 
 option.DOF = Depth of Field (DOF)
 option.DOF.comment = Blurs objects that are out of focus. Influenced by the §eaperture§r and §efocal length§r in the camera settings.
@@ -851,12 +854,82 @@ option.DOF_DEPTH = DOF Focus Depth
 option.DOF_DEPTH.comment = Adjusts §bDepth of Field§r's depth at which it focuses. It is measured in blocks.
 value.DOF_DEPTH.0 = §eAuto-Focus
 
-##################### POST-PROCESSING #####################
+### BLOOM
+
+option.BLOOM = Bloom
+option.BLOOM.comment = Allows bright areas to glow.
+value.BLOOM.0 = §cOFF
+value.BLOOM.1 = §aON
+
+option.BLOOM_STRENGTH = Bloom Strength
+option.BLOOM_STRENGTH.comment = Adjusts §bBloom§r's intensity.
+
+### LENS FLARES
+
+option.LENS_FLARES = Lens Flares
+option.LENS_FLARES.comment = Visual artifacts caused by strong light hitting the camera lens.
+value.LENS_FLARES.0 = §cOFF
+value.LENS_FLARES.1 = §aON
+
+option.LENS_FLARES_STRENGTH = Strength
+option.LENS_FLARES_STRENGTH.comment = Adjusts §bLens Flares§r' intensity.
+
+option.LENS_FLARES_HALO = Halo
+option.LENS_FLARES_HALO.comment = The halo that is formed by the circular shape of the camera objective.
+value.LENS_FLARES_HALO.0 = §cOFF
+value.LENS_FLARES_HALO.1 = §aON
+
+option.LENS_FLARES_HALO_RADIUS = Halo Radius
+option.LENS_FLARES_HALO_RADIUS.comment = Adjusts the radius of the halo.
+
+### SHARPEN
+
+option.SHARPEN = Sharpen Filter
+option.SHARPEN.comment = Accentuates colors to make them look sharper.
+value.SHARPEN.0 = §cOFF
+value.SHARPEN.1 = §aON
+
+option.SHARPEN_STRENGTH = Sharpen Strength
+option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§r's intensity.
+
+### VIGNETTE
+
+option.VIGNETTE = Vignette
+option.VIGNETTE.comment = Makes screen edges darker.
+value.VIGNETTE.0 = §cOFF
+value.VIGNETTE.1 = §aON
+
+option.VIGNETTE_STRENGTH = Vignette Strength
+option.VIGNETTE_STRENGTH.comment = Adjusts §bVignette§r's intensity.
+
+### FILM GRAIN
+
+option.FILM_GRAIN = Film Grain
+option.FILM_GRAIN.comment = Moving granularity (noise) displayed on top of the screen to mimick old movies look.
+value.FILM_GRAIN.0 = §cOFF
+value.FILM_GRAIN.1 = §aON
+
+option.FILM_GRAIN_STRENGTH = Film Grain Strength
+option.FILM_GRAIN_STRENGTH.comment = Adjusts §bFilm Grain§r's intensity.
+
+### CEL SHADING
+
+option.CEL_SHADING = Cel Shading
+option.CEL_SHADING.comment = Flattens the shading and colors to make the display look like a cartoon.
+value.CEL_SHADING.0 = §cOFF
+value.CEL_SHADING.1 = §aON
+
+option.CEL_SHADES = Cel Shades
+option.CEL_SHADES.comment = Adjusts the amount of shades possible for §bCel Shading§r.
+
+### 8-BITS FILTER
 
 option.EIGHT_BITS_FILTER = 8-Bits Filter
 option.EIGHT_BITS_FILTER.comment = Makes the game look like a vintage 8-bits game.
 value.EIGHT_BITS_FILTER.0 = §cOFF
 value.EIGHT_BITS_FILTER.1 = §aON
+
+### PALETTE
 
 option.PALETTE = Color Palette
 option.PALETTE.comment = Applies a color palette in post-processing.
@@ -871,46 +944,6 @@ value.PALETTE.7 = §eTil§6a-A§clit
 value.PALETTE.8 = §8Gothic Bit
 value.PALETTE.9 = §6Halloween §5Candy
 value.PALETTE.10 = §bBerry §dNebula
-
-option.BLOOM = Bloom
-option.BLOOM.comment = Allows bright areas to glow.
-value.BLOOM.0 = §cOFF
-value.BLOOM.1 = §aON
-
-option.BLOOM_STRENGTH = Bloom Strength
-option.BLOOM_STRENGTH.comment = Adjusts §bBloom§r's intensity.
-
-option.SHARPEN = Sharpen Filter
-option.SHARPEN.comment = Accentuates colors to make them look sharper.
-value.SHARPEN.0 = §cOFF
-value.SHARPEN.1 = §aON
-
-option.SHARPEN_STRENGTH = Sharpen Strength
-option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§r's intensity.
-
-option.VIGNETTE = Vignette
-option.VIGNETTE.comment = Makes screen edges darker.
-value.VIGNETTE.0 = §cOFF
-value.VIGNETTE.1 = §aON
-
-option.VIGNETTE_STRENGTH = Vignette Strength
-option.VIGNETTE_STRENGTH.comment = Adjusts §bVignette§r's intensity.
-
-option.FILM_GRAIN = Film Grain
-option.FILM_GRAIN.comment = Moving granularity displaying on top of the screen to mimick old movies look.
-value.FILM_GRAIN.0 = §cOFF
-value.FILM_GRAIN.1 = §aON
-
-option.FILM_GRAIN_STRENGTH = Film Grain Strength
-option.FILM_GRAIN_STRENGTH.comment = Adjusts §bFilm Grain§r's intensity.
-
-option.CEL_SHADING = Cel Shading
-option.CEL_SHADING.comment = Flattens the shading and colors to make the display look like a cartoon.
-value.CEL_SHADING.0 = §cOFF
-value.CEL_SHADING.1 = §aON
-
-option.CEL_SHADES = Cel Shades
-option.CEL_SHADES.comment = Adjusts the amount of shades possible for §bCel Shading§r.
 
 ##################### DEBUG #####################
 

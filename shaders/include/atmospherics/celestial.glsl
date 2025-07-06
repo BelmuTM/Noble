@@ -20,8 +20,6 @@
 
 uniform vec3 upPosition;
 
-#include "/include/utility/sampling.glsl"
-
 float computeStarfield(vec3 viewPosition, vec3 lightVector) {
     vec3 sceneDirection = normalize(viewToScene(viewPosition));
          sceneDirection = rotate(sceneDirection, lightVector, vec3(0.0, 0.0, 1.0));
@@ -91,9 +89,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
                 clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;
                 clouds.a   = cloudsBuffer.b;
             #endif
-
-            sky += physicalSun (sceneDirection);
-            sky += physicalMoon(sceneDirection);
+            
         #elif defined WORLD_END
             sky += physicalStar(sceneDirection);
         #endif
@@ -108,4 +104,16 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
     #else
         return vec3(0.0);
     #endif
+}
+
+vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
+    vec3 sceneDirection = normalize(viewToScene(viewPosition));
+
+    float cloudsTransmittance = 0.0;
+
+    #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
+        cloudsTransmittance = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).b;
+    #endif
+
+    return (physicalSun(sceneDirection) + physicalMoon(sceneDirection)) * cloudsTransmittance;
 }
