@@ -100,7 +100,10 @@
 
             if (depth == 1.0) { discard; return; }
 
-            Material material   = getMaterial(vertexCoords);
+            Material material = getMaterial(vertexCoords);
+
+            if (material.F0 <= EPS) return;
+
             vec3 screenPosition = vec3(textureCoords, depth);
             vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
 

@@ -18,17 +18,10 @@
 /*                                                                              */
 /********************************************************************************/
 
-/*
-    [Credits]:
-        Inigo Quilez - palette function for thin film (https://iquilezles.org/articles/palettes/)
-    
+/*  
     [References]:
         gelami. (2023). Lens Flare Post-Processing. https://www.shadertoy.com/view/mtVSRd
 */
-
-vec3 palette(float x) {
-    return 0.5 + 0.5 * cos(TAU * (x + vec3(0, 0.25, 0.5)));
-}
 
 float ghostSpacing(int i) {
     float x = i / float(LENS_FLARES_GHOSTS - 1) - 0.5;

@@ -63,10 +63,12 @@ screen.POST_PROCESSING         = Post-Processing
 screen.DEPTH_OF_FIELD          = Depth of Field
 screen.BLOOM                   = Bloom
 screen.LENS_FLARES             = Lens Flares
+screen.GLARE                   = Glare
 screen.SHARPEN                 = Sharpen
 screen.VIGNETTE                = Vignette
 screen.FILM_GRAIN              = Film Grain
 screen.CEL_SHADING             = Cel Shading
+screen.MISC                    = 8-Bit Filter & Palette
 screen.DEBUG                   = Debug
 
 ##################### LIGHTING #####################
@@ -273,9 +275,10 @@ value.REFLECTIONS_SCALE.95 = 0.95
 value.REFLECTIONS_SCALE.100 = 1.00
 
 option.REFRACTIONS = Refractions
-option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen.
+option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen. §aRaytraced§r refractions are precise but cost more performance. §aApproximation§r refractions are less precise but cost less performance.
 value.REFRACTIONS.0 = §cOFF
-value.REFRACTIONS.1 = §aON
+value.REFRACTIONS.1 = §e§lRaytraced
+value.REFRACTIONS.2 = §e§lApproximation
 
 ##################### GLOBAL ILLUMINATION #####################
 
@@ -677,8 +680,8 @@ option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher val
 option.POM = POM
 option.POM.comment = §bParallax Occlusion Mapping. §rGives depth to a material by creating 3D definition from its heightmap. §aSteep§r POM is pixelated. §aSmooth§r POM filters the heightmap to smoothen it.
 value.POM.0 = §cOFF
-value.POM.1 = §e§lSteep
-value.POM.2 = §e§lSmooth
+value.POM.1 = §e§lSmooth
+value.POM.2 = §e§lSteep
 
 option.POM_LAYERS = Layers
 option.POM_LAYERS.comment = Adjusts §bPOM§r's quality, the more layers there are, the more detailed it will be. §cHigher value gives better results, but reduces §cperformance.
@@ -868,7 +871,7 @@ option.BLOOM_STRENGTH.comment = Adjusts §bBloom§r's intensity.
 ### LENS FLARES
 
 option.LENS_FLARES = Lens Flares
-option.LENS_FLARES.comment = Visual artifacts caused by strong light hitting the camera lens.
+option.LENS_FLARES.comment = Visual artifacts caused by strong light reflecting inside the camera lens.
 value.LENS_FLARES.0 = §cOFF
 value.LENS_FLARES.1 = §aON
 
@@ -907,6 +910,23 @@ suffix.LENS_FLARES_HALO_STRETCH_X = x
 option.LENS_FLARES_HALO_STRETCH_Y = Halo Stretch Y
 option.LENS_FLARES_HALO_STRETCH_Y.comment = Adjusts how much the halo is stretched on the Y axis.
 suffix.LENS_FLARES_HALO_STRETCH_Y = x
+
+### GLARE
+
+option.GLARE = Glare
+option.GLARE.comment = A form of lens flare caused by particular light interactions inside the camera lens.
+value.GLARE.0 = §cOFF
+value.GLARE.1 = §aON
+
+option.GLARE_STRENGTH = Strength
+option.GLARE_STRENGTH.comment = Adjusts §bGlare§r's intensity.
+suffix.GLARE_STRENGTH = x
+
+option.GLARE_BLADES = Blades
+option.GLARE_BLADES.comment = Adjusts the amount of blades that form the §bGlare§r's shape.
+
+option.GLARE_BLADES_SIZE = Blades Size
+option.GLARE_BLADES_SIZE.comment = Adjusts the size of the §bGlare§r's blades.
 
 ### SHARPEN
 

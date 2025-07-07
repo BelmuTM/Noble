@@ -143,6 +143,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
 
     vec3 diffuse;
     if (isMetal) {
+        // Lambert
         diffuse = vec3(max0(dot(material.normal, lightDirection)) * RCP_PI);
     } else {
         diffuse = hammonDiffuse(material, viewDirection, lightDirection);
@@ -185,8 +186,17 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
 // Pathtracing shenanigans
 
 vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material material, vec3 directIlluminance) {
+    bool isMetal = material.F0 * maxFloat8 > labPBRMetals;
+
+    vec3 diffuse;
+    if (isMetal) {
+        // Lambert
+        diffuse = vec3(max0(dot(material.normal, wo)) * RCP_PI);
+    } else {
+        diffuse = hammonDiffuse(material, wi, wo);
+    }
+
     vec4 shadowmap = texture(SHADOWMAP_BUFFER, max(hitPosition, texelSize));
-    vec3 diffuse   = hammonDiffuse(material, wi, wo);
 
     #if SUBSURFACE_SCATTERING == 1
         diffuse += subsurfaceScatteringApprox(material, wi, wo, shadowmap.a) * float(material.lightmap.y > EPS);

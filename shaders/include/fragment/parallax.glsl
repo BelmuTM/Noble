@@ -29,6 +29,7 @@
 const float layerHeight = 1.0 / float(POM_LAYERS);
 
 #if POM_DEPTH_WRITE == 1
+
     float projectDepth(float depth) {
         return (-gbufferProjection[2].z * depth + gbufferProjection[3].z) / depth * 0.5 + 0.5;
     }
@@ -36,6 +37,7 @@ const float layerHeight = 1.0 / float(POM_LAYERS);
     float unprojectDepth(float depth) {
         return gbufferProjection[3].z / (gbufferProjection[2].z + depth * 2.0 - 1.0);
     }
+
 #endif
 
 void wrapCoordinates(inout vec2 coords) {
@@ -51,11 +53,7 @@ vec2 atlasToLocal(vec2 atlasCoords) {
 }
 
 #if POM == 1
-    float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
-        wrapCoordinates(coords);
-        return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
-    }
-#else
+
     #include "/include/utility/sampling.glsl"
 
     float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
@@ -71,6 +69,14 @@ vec2 atlasToLocal(vec2 atlasCoords) {
 
         return 1.0 - textureGradLinear(normals, uv, texDeriv, f, 3);
     }
+
+#elif POM == 2
+
+    float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
+        wrapCoordinates(coords);
+        return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
+    }
+
 #endif
 
 vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out vec2 shadowCoords, out float traceDistance) {
@@ -91,10 +97,7 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
     vec2 prevCoords = currCoords + increment;
 
     #if POM == 1
-        height       = traceDistance;
-        shadowCoords = prevCoords;
-        return currCoords;
-    #else
+
         float afterHeight  = currFragHeight - traceDistance;
         float beforeHeight = sampleHeightMap(prevCoords, texDeriv) - traceDistance + layerHeight;
         float heightDelta  = afterHeight - beforeHeight;
@@ -105,6 +108,13 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
         height       = sampleHeightMap(smoothenedCoords, texDeriv);
         shadowCoords = smoothenedCoords;
         return smoothenedCoords;
+
+    #elif POM == 2
+
+        height       = traceDistance;
+        shadowCoords = prevCoords;
+        return currCoords;
+
     #endif
 }
 

@@ -32,7 +32,7 @@
 
 #define REFLECTIONS_BUFFER    colortex2
 #define SHADOWMAP_BUFFER      colortex3
-#define ACCUMULATION_BUFFER   colortex4
+#define DEFERRED_BUFFER       colortex4
 
 #define IRRADIANCE_BUFFER     colortex5
 #define ATMOSPHERE_BUFFER     colortex6
@@ -54,9 +54,10 @@
 /*----------------- OPTIFINE CONSTANTS -----------------*/
 //////////////////////////////////////////////////////////
 
-const float sunPathRotation     = -40.0; // [-90.0 -85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0 90.0]
-const int   shadowMapResolution =  3072; // [512 1024 2048 3072 4096 6144 8192 10240]
-const float shadowDistance      =  128 ; // [64 128 256 512 1024 2048 4096]
+const float sunPathRotation         = -40.0; // [-90.0 -85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0 90.0]
+const int   shadowMapResolution     =  3072; // [512 1024 2048 3072 4096 6144 8192 10240]
+const float shadowDistance          =  128 ; // [64 128 256 512 1024 2048 4096]
+const float shadowDistanceRenderMul = 1.0;
 
 //////////////////////////////////////////////////////////
 /*---------------------- LIGHTING ----------------------*/
@@ -134,7 +135,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define REFLECTIONS_SKY_FALLBACK
 
-#define REFRACTIONS 1 // [0 1]
+#define REFRACTIONS          1 // [0 1 2]
+#define REFRACTIONS_STRIDE 8.0
 
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/
@@ -362,6 +364,14 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define LENS_FLARES_HALO_RADIUS    0.6 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define LENS_FLARES_HALO_STRETCH_X 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define LENS_FLARES_HALO_STRETCH_Y 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+
+// Glare
+#define GLARE            0 // [0 1]
+#define GLARE_STEPS     32
+#define GLARE_STRENGTH 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+
+#define GLARE_BLADES        3 // [1 2 3 4]
+#define GLARE_BLADES_SIZE 2.0 // [1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10.0]
 
 // Vignette
 #define VIGNETTE             0 // [0 1]

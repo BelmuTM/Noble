@@ -121,6 +121,7 @@
 
             material.normal = tbn * getWaterNormals(scenePosition + cameraPosition, WATER_OCTAVES);
         } else {
+
             material.F0 = 0.0;
 
             material.roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
@@ -147,25 +148,27 @@
                     shadowmap.rgb = abs(calculateShadowMapping(scenePosition, vertexNormal, shadowmap.a));
                 #endif
 
-                if (material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(vertexNormal, skyIlluminanceMat);
+                if (material.lightmap.y > EPS)
+                    skyIlluminance = evaluateSkylight(vertexNormal, skyIlluminanceMat);
             #endif
 
             translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, false, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 
             translucents.a = vertexColor.a;
+
         }
 
-        vec3 labPbrData0 = vec3(1.0, saturate(material.lightmap));
-        vec4 labPbrData1 = vec4(1.0, material.emission, material.F0, 0.0);
-        vec4 labPbrData2 = vec4(vertexColor.rgb, material.roughness);
+        vec3 labPBRData0 = vec3(1.0, saturate(material.lightmap));
+        vec4 labPBRData1 = vec4(1.0, material.emission, material.F0, 0.0);
+        vec4 labPBRData2 = vec4(vertexColor.rgb, material.roughness);
         
         vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
     
-        uvec4 shiftedLabPbrData0 = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
+        uvec4 shiftedLabPbrData0 = uvec4(round(labPBRData0 * labPBRData0Range), blockId) << uvec4(0, 1, 14, 26);
 
         data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
-        data.y = packUnorm4x8(labPbrData1);
-        data.z = packUnorm4x8(labPbrData2);
+        data.y = packUnorm4x8(labPBRData1);
+        data.z = packUnorm4x8(labPBRData2);
         data.w = packUnorm2x16(encodedNormal);
     }
 

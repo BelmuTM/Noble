@@ -61,7 +61,7 @@ void rainPuddles(vec3 scenePosition, vec3 geometricNormal, vec2 lightmapCoords, 
 
     vec3 surfaceNormal = mix(geometricNormal, getPuddleNormals(puddleCoords, 0.1), 0.035 * rainStrength);
 
-    F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, 229.5 * rcpMaxFloat8, float(F0 * maxFloat8 <= 229.5)));
+    F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, labPBRMetals * rcpMaxFloat8, float(F0 * maxFloat8 <= labPBRMetals)));
     roughness = mix(roughness, 0.0, puddle);
     normal    = mix(normal, surfaceNormal, puddle);
 }

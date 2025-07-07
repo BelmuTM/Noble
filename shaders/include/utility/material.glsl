@@ -24,7 +24,7 @@
         Zombye     - skylight falloff function (https://github.com/zombye)
 */
 
-const vec3 labPbrData0Range = vec3(1.0, 8191.0, 4095.0);
+const vec3 labPBRData0Range = vec3(1.0, 8191.0, 4095.0);
 
 struct Material {
     float F0;
@@ -86,7 +86,7 @@ float iorToF0(float ior) {
 }
 
 mat2x3 getHardcodedMetal(Material material) {
-    int metalID = int(material.F0 * 255.0 - 229.5);
+    int metalID = int(material.F0 * 255.0 - labPBRMetals);
     return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(f0ToIOR(material.albedo), vec3(0.0));
 }
 
@@ -116,7 +116,7 @@ Material getMaterial(vec2 coords) {
         material.albedo = srgbToLinear(material.albedo);
     #endif
 
-    if (material.F0 * maxFloat8 > 229.5) {
+    if (material.F0 * maxFloat8 > labPBRMetals) {
         mat2x3 hcm = getHardcodedMetal(material);
         material.N = hcm[0], material.K = hcm[1];
     } else {

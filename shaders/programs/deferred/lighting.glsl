@@ -135,7 +135,7 @@
         #if AO > 0 && AO_FILTER == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
 
             vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth), projectionInverse) * RENDER_SCALE;
-            vec4 history      = texture(ACCUMULATION_BUFFER, prevPosition.xy);
+            vec4 history      = texture(DEFERRED_BUFFER, prevPosition.xy);
 
             color.a  = history.a;
             color.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
@@ -176,7 +176,7 @@
 
         Material material = getMaterial(vertexCoords);
 
-        bool isMetal = material.F0 * maxFloat8 > 229.5;
+        bool isMetal = material.F0 * maxFloat8 > labPBRMetals;
 
         #if GI == 0
         
@@ -215,7 +215,7 @@
                     momentsOut.gb = mix(momentsOut.gb, moments, weight);
 
                     if (color.a < VARIANCE_STABILIZATION_THRESHOLD) {
-                        momentsOut.a = estimateSpatialVariance(ACCUMULATION_BUFFER, moments);
+                        momentsOut.a = estimateSpatialVariance(DEFERRED_BUFFER, moments);
                     } else { 
                         momentsOut.a = abs(momentsOut.b - momentsOut.g * momentsOut.g);
                     }

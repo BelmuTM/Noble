@@ -300,17 +300,17 @@
             emission   *= flickering;
         }
 
-        vec3 labPbrData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
-        vec4 labPbrData1 = vec4(ao, emission, F0, subsurface);
-        vec4 labPbrData2 = vec4(albedoTex.rgb, roughness);
+        vec3 labPBRData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
+        vec4 labPBRData1 = vec4(ao, emission, F0, subsurface);
+        vec4 labPBRData2 = vec4(albedoTex.rgb, roughness);
 
         vec2 encodedNormal = encodeUnitVector(normalize(normal));
     
-        uvec4 shiftedLabPbrData0 = uvec4(round(labPbrData0 * labPbrData0Range), id) << uvec4(0, 1, 14, 26);
+        uvec4 shiftedLabPbrData0 = uvec4(round(labPBRData0 * labPBRData0Range), id) << uvec4(0, 1, 14, 26);
 
         data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
-        data.y = packUnorm4x8(labPbrData1);
-        data.z = packUnorm4x8(labPbrData2);
+        data.y = packUnorm4x8(labPBRData1);
+        data.z = packUnorm4x8(labPBRData2);
         data.w = packUnorm2x16(encodedNormal);
 
         geometricNormal = encodeUnitVector(normalize(tbn[2]));

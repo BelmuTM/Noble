@@ -19,7 +19,7 @@
 /********************************************************************************/
 
 vec3 sampleHitColor(vec2 hitCoords) {
-    return texture(ACCUMULATION_BUFFER, hitCoords * RENDER_SCALE).rgb;
+    return texture(MAIN_BUFFER, hitCoords * RENDER_SCALE).rgb;
 }
 
 vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
@@ -30,6 +30,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
         
         #if defined WORLD_OVERWORLD && CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
+
             vec3 cloudsBuffer = vec3(0.0, 0.0, 1.0);
             #if CLOUDMAP == 1
                 cloudsBuffer = textureBicubic(CLOUDMAP_BUFFER, saturate(coords * CLOUDMAP_SCALE - bayer32(gl_FragCoord.xy) * 1e-3)).rgb;
@@ -37,6 +38,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
 
             clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;
             clouds.a   = cloudsBuffer.b;
+
         #endif
 
         return max0((atmosphere * clouds.a + clouds.rgb) * skylight);

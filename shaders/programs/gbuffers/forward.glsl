@@ -197,7 +197,9 @@
                 bool shadeTranslucents = material.F0 <= EPS;
             #endif
 
-            if (material.F0 * maxFloat8 <= 229.5 && shadeTranslucents) {
+            bool isMetal = material.F0 * maxFloat8 > labPBRMetals;
+
+            if (!isMetal && shadeTranslucents) {
                 #if TONEMAP == ACES
                     material.albedo = srgbToAP1Albedo(material.albedo);
                 #else
@@ -210,14 +212,16 @@
                 vec3 skyIlluminance = vec3(0.0);
 
                 #if defined WORLD_OVERWORLD || defined WORLD_END
-                    if (material.lightmap.y > EPS) skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
+                    if (material.lightmap.y > EPS)
+                        skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
                 #endif
 
                 #if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT && !defined PROGRAM_SPIDEREYES
-                    bool isMetal = material.F0 * maxFloat8 > 229.5;
 
                     translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, isMetal, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+
                 #else
+
                     vec3 diffuse = vec3(RCP_PI);
 
                     diffuse *= directIlluminance * shadowmap.rgb;
@@ -242,23 +246,24 @@
                     diffuse += emissiveness;
 
                     translucents.rgb = material.albedo * diffuse;
+    
                 #endif
 
                 translucents.a = albedoTex.a;
             }
         }
 
-        vec3 labPbrData0 = vec3(1.0, saturate(material.lightmap));
-        vec4 labPbrData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
-        vec4 labPbrData2 = vec4(material.albedo, material.roughness);
+        vec3 labPBRData0 = vec3(1.0, saturate(material.lightmap));
+        vec4 labPBRData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
+        vec4 labPBRData2 = vec4(material.albedo, material.roughness);
 
         vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
     
-        uvec4 shiftedLabPbrData0 = uvec4(round(labPbrData0 * labPbrData0Range), blockId) << uvec4(0, 1, 14, 26);
+        uvec4 shiftedLabPbrData0 = uvec4(round(labPBRData0 * labPBRData0Range), blockId) << uvec4(0, 1, 14, 26);
 
         data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
-        data.y = packUnorm4x8(labPbrData1);
-        data.z = packUnorm4x8(labPbrData2);
+        data.y = packUnorm4x8(labPBRData1);
+        data.z = packUnorm4x8(labPBRData2);
         data.w = packUnorm2x16(encodedNormal);
     }
     

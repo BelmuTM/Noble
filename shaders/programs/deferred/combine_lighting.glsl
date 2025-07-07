@@ -88,7 +88,7 @@
 
         #if GI == 0
 
-            lighting = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
+            lighting = texture(DEFERRED_BUFFER, vertexCoords).rgb;
 
         #else
 

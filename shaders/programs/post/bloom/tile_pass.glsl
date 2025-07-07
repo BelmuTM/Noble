@@ -80,7 +80,7 @@ const float lodFactor = exp2(-lod);
                 tile = exp2(tile) - 1.0;
             #endif
 
-            return tile;
+            return max0(tile);
         }
 
     #elif defined BLOOM_UPSAMPLE_PASS

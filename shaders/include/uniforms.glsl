@@ -109,6 +109,8 @@ uniform mat4 gbufferPreviousProjection;
 
 const int noiseTextureResolution = 256;
 
+const float labPBRMetals = 229.5;
+
 // Maximum values for x amount of bits and their inverses (2^x - 1)
 const float maxFloat8     = 255.0;
 const float maxFloat16    = 65535.0;

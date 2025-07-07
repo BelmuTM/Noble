@@ -24,27 +24,43 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
     return 1.0 - quinticStep(edgeFactor, 0.0, minOf(pos));
 }
 
-vec3 computeRefractions(mat4 projection, vec3 viewPosition0, vec3 viewPosition1, Material material, inout vec3 refractedPosition) {
+vec3 computeRefractions(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition0, vec3 viewPosition1, Material material, inout vec3 refractedPosition) {
     vec3 n1 = vec3(airIOR), n2 = material.N;
     if (isEyeInWater == 1) {
         n1 = vec3(1.333);
         n2 = vec3(airIOR);
     }
 
-    vec3 scenePosition0 = viewToScene(viewPosition0);
-    vec3 scenePosition1 = viewToScene(viewPosition1);
+    vec3 viewDirection      = normalize(viewPosition0);
+    vec3 refractedDirection = refract(viewDirection, material.normal, n1.r / n2.r);
 
-    vec3  refractedDirection = mat3(gbufferModelViewInverse) * refract(normalize(viewPosition0), material.normal, n1.r / n2.r);
-    float refractedDistance  = distance(scenePosition0, scenePosition1);
+    bool hit = true;
 
-    refractedPosition = viewToScreen(sceneToView(scenePosition0 + refractedDirection * refractedDistance), projection, true);
-    
-    if (refractedPosition.z < material.depth0 || saturate(refractedPosition.xy) != refractedPosition.xy) {
-        refractedPosition = vec3(textureCoords, material.depth1);
-    }
+    #if REFRACTIONS == 1
 
-    refractedPosition.xy = mix(textureCoords, refractedPosition.xy, kneemundAttenuation(refractedPosition.xy, 0.03));
+        float jitter = temporalBlueNoise(gl_FragCoord.xy);
+        float rayLength;
 
+        if (dhFragment) {
+            hit = raytrace(dhDepthTex1, projection, projectionInverse, viewPosition0, refractedDirection, REFRACTIONS_STRIDE, jitter, RENDER_SCALE, refractedPosition, rayLength);
+        } else {
+            hit = raytrace(depthtex1, projection, projectionInverse, viewPosition0, refractedDirection, REFRACTIONS_STRIDE, jitter, RENDER_SCALE, refractedPosition, rayLength);
+        }
+
+    #elif REFRACTIONS == 2
+
+        refractedDirection = mat3(gbufferModelViewInverse) * refractedDirection;
+
+        vec3 scenePosition0 = viewToScene(viewPosition0);
+        vec3 scenePosition1 = viewToScene(viewPosition1);
+
+        float refractedDistance = distance(scenePosition0, scenePosition1);
+
+        refractedPosition = viewToScreen(sceneToView(scenePosition0 + refractedDirection * refractedDistance), projection, true);
+
+    #endif
+
+    refractedPosition.xy  = mix(textureCoords, refractedPosition.xy, kneemundAttenuation(refractedPosition.xy, 0.03));
     refractedPosition.xy *= RENDER_SCALE;
 
     float depth0 = texture(depthtex0, refractedPosition.xy).r;
@@ -63,17 +79,13 @@ vec3 computeRefractions(mat4 projection, vec3 viewPosition0, vec3 viewPosition1,
         }
     #endif
         
-    if (depth1 - depth0 < EPS || depth1 < handDepth) {
+    if (!hit || depth1 < material.depth0 || depth1 - depth0 < EPS || depth1 < handDepth) {
         refractedPosition.xy = vertexCoords;
     }
 
-    vec3 fresnel = fresnelDielectricDielectric_T(dot(material.normal, -normalize(viewPosition0)), n1, n2);
+    vec3 fresnel = fresnelDielectricDielectric_T(dot(material.normal, -viewDirection), n1, n2);
 
-    #if GI == 1
-        vec3 sampledColor = texture(MAIN_BUFFER, refractedPosition.xy).rgb;
-    #else
-        vec3 sampledColor = texture(ACCUMULATION_BUFFER, refractedPosition.xy).rgb;
-    #endif
+    vec3 sampledColor = texture(MAIN_BUFFER, refractedPosition.xy).rgb;
 
     float density = 0.0;
 

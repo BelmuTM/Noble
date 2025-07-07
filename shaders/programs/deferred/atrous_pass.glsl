@@ -42,7 +42,7 @@
     #elif defined STAGE_FRAGMENT
 
         #if ATROUS_PASS_INDEX <= 0
-            #define INPUT_BUFFER ACCUMULATION_BUFFER
+            #define INPUT_BUFFER DEFERRED_BUFFER
         #else
             #define INPUT_BUFFER MAIN_BUFFER
         #endif
@@ -98,7 +98,7 @@
             uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(gl_FragCoord.xy), 0);
             vec3  normal      = mat3(gbufferModelView) * decodeUnitVector(vec2(dataTexture.w & 65535u, (dataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
 
-            float accumulatedSamples = texture(ACCUMULATION_BUFFER, coords).a;
+            float accumulatedSamples = texture(DEFERRED_BUFFER, coords).a;
             float frameWeight        = float(accumulatedSamples > MIN_FRAMES_LUMINANCE_WEIGHT);
 
             float linearDepth   = linearizeDepth(depth, nearPlane, farPlane);

@@ -20,7 +20,8 @@
 
 /*
     [Credits]:
-        Jessie - providing blackbody radiation function (https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl)
+        Jessie       - providing blackbody radiation function (https://github.com/Jessie-LC/open-source-utility-code/blob/main/advanced/blackbody.glsl)
+        Inigo Quilez - palette function for thin film (https://iquilezles.org/articles/palettes/)
 
     [References]:
         Uchimura, H. (2017). HDR Theory and practice. https://www.slideshare.net/nikuque/hdr-theory-and-practicce-jp
@@ -198,6 +199,10 @@ mat3 toXYZ(mat3 mat) {
     #else
         return mat * SRGB_2_XYZ_MAT;
     #endif
+}
+
+vec3 palette(float x) {
+    return 0.5 + 0.5 * cos(TAU * (x + vec3(0.0, 0.25, 0.5)));
 }
 
 vec3 reinhard(vec3 color) {

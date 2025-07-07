@@ -51,7 +51,13 @@ in vec2 textureCoords;
 
 #include "/include/utility/sampling.glsl"
 
-#include "/include/post/lens_flares.glsl"
+#if LENS_FLARES == 1
+    #include "/include/post/lens_flares.glsl"
+#endif
+
+#if GLARE == 1
+    #include "/include/post/glare.glsl"
+#endif
 
 #include "/include/post/exposure.glsl"
 #include "/include/post/grading.glsl"
@@ -81,6 +87,10 @@ void main() {
 
     #if LENS_FLARES == 1
         lensFlares(color, textureCoords);
+    #endif
+
+    #if GLARE == 1
+        glare(color, textureCoords);
     #endif
 
     color *= exposure;

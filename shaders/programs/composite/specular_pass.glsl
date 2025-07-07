@@ -45,7 +45,7 @@ uniform usampler2D colortex11;
 
 #include "/include/atmospherics/celestial.glsl"
 
-#if REFRACTIONS == 1
+#if REFRACTIONS > 0
     #include "/include/fragment/refractions.glsl"
 #endif
 
@@ -94,7 +94,7 @@ void main() {
 
         Material material = getMaterial(vertexCoords);
 
-        if (material.F0 * maxFloat8 <= 229.5) {
+        if (material.F0 * maxFloat8 <= labPBRMetals) {
             lighting = texture(MAIN_BUFFER, vertexCoords).rgb;
         }
 
@@ -114,9 +114,9 @@ void main() {
         /*-------------------- REFRACTIONS ---------------------*/
         //////////////////////////////////////////////////////////
 
-        #if REFRACTIONS == 1
-            if (viewPosition0.z != viewPosition1.z && material.F0 > EPS) {
-                lighting = computeRefractions(projection, viewPosition0, viewPosition1, material, coords);
+        #if REFRACTIONS > 0
+            if (material.depth0 != material.depth1 && material.F0 > EPS) {
+                lighting = computeRefractions(dhFragment, projection, projectionInverse, viewPosition0, viewPosition1, material, coords);
             }
         #endif
 
@@ -133,7 +133,7 @@ void main() {
 
             if (material.id == WATER_ID) visibility = material.albedo;
 
-            if (visibility != vec3(0.0)) {
+            if (visibility != vec3(0.0) && material.F0 > EPS) {
                 sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowVec) * visibility * directIlluminance;
             }    
         #endif
