@@ -827,6 +827,7 @@ value.TAA.1 = §aON
 
 option.TAA_STRENGTH = Strength
 option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§r's strength.
+suffix.TAA_STRENGTH = x
 
 ##################### POST-PROCESSING #####################
 
@@ -873,6 +874,23 @@ value.LENS_FLARES.1 = §aON
 
 option.LENS_FLARES_STRENGTH = Strength
 option.LENS_FLARES_STRENGTH.comment = Adjusts §bLens Flares§r' intensity.
+suffix.LENS_FLARES_STRENGTH = x
+
+option.LENS_FLARES_GHOSTS_THIN_FILM = Ghosts Thin Film
+option.LENS_FLARES_GHOSTS_THIN_FILM.comment = Simulates thin film interference on lens ghosts (rainbow color patterns).
+value.LENS_FLARES_GHOSTS_THIN_FILM.0 = §cOFF
+value.LENS_FLARES_GHOSTS_THIN_FILM.1 = §aON
+
+option.LENS_FLARES_GHOSTS_ABERRATION = Ghosts Chromatic Aberration
+option.LENS_FLARES_GHOSTS_ABERRATION.comment = Splits the RGB color of the lens ghosts to simulate the chromatic aberration of a camera.
+value.LENS_FLARES_GHOSTS_ABERRATION.0 = §cOFF
+value.LENS_FLARES_GHOSTS_ABERRATION.1 = §aON
+
+option.LENS_FLARES_GHOSTS_MIN_SPACING = Ghosts Min. Spacing
+option.LENS_FLARES_GHOSTS_MIN_SPACING.comment = Adjusts the minimum spacing between lens ghosts.
+
+option.LENS_FLARES_GHOSTS_MAX_SPACING = Ghosts Max. Spacing
+option.LENS_FLARES_GHOSTS_MAX_SPACING.comment = Adjusts the maximum spacing between lens ghosts.
 
 option.LENS_FLARES_HALO = Halo
 option.LENS_FLARES_HALO.comment = The halo that is formed by the circular shape of the camera objective.
@@ -881,6 +899,14 @@ value.LENS_FLARES_HALO.1 = §aON
 
 option.LENS_FLARES_HALO_RADIUS = Halo Radius
 option.LENS_FLARES_HALO_RADIUS.comment = Adjusts the radius of the halo.
+
+option.LENS_FLARES_HALO_STRETCH_X = Halo Stretch X
+option.LENS_FLARES_HALO_STRETCH_X.comment = Adjusts how much the halo is stretched on the X axis.
+suffix.LENS_FLARES_HALO_STRETCH_X = x
+
+option.LENS_FLARES_HALO_STRETCH_Y = Halo Stretch Y
+option.LENS_FLARES_HALO_STRETCH_Y.comment = Adjusts how much the halo is stretched on the Y axis.
+suffix.LENS_FLARES_HALO_STRETCH_Y = x
 
 ### SHARPEN
 
@@ -911,6 +937,7 @@ value.FILM_GRAIN.1 = §aON
 
 option.FILM_GRAIN_STRENGTH = Film Grain Strength
 option.FILM_GRAIN_STRENGTH.comment = Adjusts §bFilm Grain§r's intensity.
+suffix.FILM_GRAIN_STRENGTH = x
 
 ### CEL SHADING
 

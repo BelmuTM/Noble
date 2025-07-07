@@ -48,7 +48,11 @@ void lensFlares(inout vec3 color, vec2 coords) {
     vec2 invertedCoords = 1.0 - coords;
     vec2 ghostDirection = 0.5 - invertedCoords;
 
-    float caOffset = texelSize.y * LENS_FLARES_ABERRATION_STRENGTH;
+    #if LENS_FLARES_GHOSTS_ABERRATION == 1
+        float caOffset = texelSize.y * LENS_FLARES_GHOSTS_ABERRATION_STRENGTH;
+    #else
+        float caOffset = 0.0;
+    #endif
 
     const float k = length(vec2(0.5));
           float d = length(ghostDirection) / k;
@@ -67,10 +71,14 @@ void lensFlares(inout vec3 color, vec2 coords) {
             texture(IRRADIANCE_BUFFER, fract(ghostCoords + ghostOffset * caOffset) * 0.5).b
         );
 
-        float thinFilmNoise = texture(noisetex, fract(ghostCoords) * 0.3).b;
-        vec3  thinFilm      = palette(thinFilmNoise * 3.0);
+        #if LENS_FLARES_GHOSTS_THIN_FILM == 1
+            float thinFilmNoise = texture(noisetex, fract(ghostCoords) * 0.3).b;
+            vec3  thinFilm      = palette(thinFilmNoise * 3.0);
 
-        flares      += ghostSample * thinFilm * weight;
+            ghostSample *= thinFilm;
+        #endif
+
+        flares      += ghostSample * weight;
         totalWeight += weight;
     }
 
@@ -80,7 +88,9 @@ void lensFlares(inout vec3 color, vec2 coords) {
 
     #if LENS_FLARES_HALO == 1
 
-        vec2 haloCoords    = (invertedCoords - 0.5) * vec2(aspectRatio, 1.0) + 0.5;
+        const vec2 stretch = vec2(LENS_FLARES_HALO_STRETCH_Y, LENS_FLARES_HALO_STRETCH_X);
+
+        vec2 haloCoords    = (invertedCoords - 0.5) * vec2(aspectRatio, 1.0) * stretch + 0.5;
         vec2 haloDirection = normalize(0.5 - haloCoords) * LENS_FLARES_HALO_RADIUS;
 
         float dist   = length(0.5 - (haloCoords + haloDirection)) / k;
