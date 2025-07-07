@@ -23,15 +23,20 @@
         gelami. (2023). Lens Flare Post-Processing. https://www.shadertoy.com/view/mtVSRd
 */
 
+const float inv_sqrt2 = 1.0 / sqrt(2.0);
+
 const vec2 bladeDirections[4] = vec2[4](
-    vec2( 1.0, 1.0),
-    vec2(-1.0, 1.0),
-    vec2( 1.0, 0.0),
-    vec2( 0.0, 1.0)
+    vec2( inv_sqrt2, inv_sqrt2),
+    vec2(-inv_sqrt2, inv_sqrt2),
+    vec2( 1.0      , 0.0      ),
+    vec2( 0.0      , 1.0      )
 );
 
 void glare(inout vec3 color, vec2 coords) {
     const float sigma = GLARE_STEPS * GLARE_BLADES_SIZE * 0.45;
+
+    float angle   = radians(GLARE_BLADES_ANGLE);
+    mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
 
     vec3 glare = vec3(0.0);
     float totalWeight = 0.0;
@@ -46,19 +51,19 @@ void glare(inout vec3 color, vec2 coords) {
         vec2 scale = texelSize * d;
 
         #if GLARE_BLADES >= 1
-            glare += texture(IRRADIANCE_BUFFER, (coords + bladeDirections[0] * scale) * 0.5).rgb * thinFilm * weight;
+            glare += texture(IRRADIANCE_BUFFER, (coords + bladeDirections[0] * rotation * scale) * 0.5).rgb * thinFilm * weight;
         #endif
 
         #if GLARE_BLADES >= 2
-            glare += texture(IRRADIANCE_BUFFER, (coords + bladeDirections[1] * scale) * 0.5).rgb * thinFilm * weight;
+            glare += texture(IRRADIANCE_BUFFER, (coords + bladeDirections[1] * rotation * scale) * 0.5).rgb * thinFilm * weight;
         #endif
 
         #if GLARE_BLADES >= 3
-            glare += texture(IRRADIANCE_BUFFER, (coords + bladeDirections[2] * scale) * 0.5).rgb * thinFilm * weight;
+            glare += texture(IRRADIANCE_BUFFER, (coords + bladeDirections[2] * rotation * scale) * 0.5).rgb * thinFilm * weight;
         #endif
 
         #if GLARE_BLADES >= 4
-            glare += texture(IRRADIANCE_BUFFER, (coords + bladeDirections[3] * scale) * 0.5).rgb * thinFilm * weight;
+            glare += texture(IRRADIANCE_BUFFER, (coords + bladeDirections[3] * rotation * scale) * 0.5).rgb * thinFilm * weight;
         #endif
 
         totalWeight += weight;

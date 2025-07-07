@@ -372,6 +372,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define GLARE_BLADES        3 // [1 2 3 4]
 #define GLARE_BLADES_SIZE 2.0 // [1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10.0]
+#define GLARE_BLADES_ANGLE  0 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180]
 
 // Vignette
 #define VIGNETTE             0 // [0 1]

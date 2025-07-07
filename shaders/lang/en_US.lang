@@ -928,6 +928,10 @@ option.GLARE_BLADES.comment = Adjusts the amount of blades that form the §bGlar
 option.GLARE_BLADES_SIZE = Blades Size
 option.GLARE_BLADES_SIZE.comment = Adjusts the size of the §bGlare§r's blades.
 
+option.GLARE_BLADES_ANGLE = Blades Angle
+option.GLARE_BLADES_ANGLE.comment = Adjusts the angle of the §bGlare§r's blades.
+suffix.GLARE_BLADES_ANGLE = °
+
 ### SHARPEN
 
 option.SHARPEN = Sharpen Filter
