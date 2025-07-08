@@ -46,7 +46,11 @@ void glare(inout vec3 color, vec2 coords) {
         
         float weight = gaussianDistribution1D(d, sigma);
 
-        vec3 thinFilm = palette((float(i) / GLARE_STEPS) * 3.0) * 0.9 + 0.1;
+        #if GLARE_THIN_FILM == 1
+            vec3 thinFilm = paletteFunction((float(i) / GLARE_STEPS) * 3.0) * 0.9 + 0.1;
+        #else
+            vec3 thinFilm = vec3(1.0);
+        #endif
 
         vec2 scale = texelSize * d;
 

@@ -66,7 +66,7 @@ void lensFlares(inout vec3 color, vec2 coords) {
 
         #if LENS_FLARES_GHOSTS_THIN_FILM == 1
             float thinFilmNoise = texture(noisetex, fract(ghostCoords) * 0.3).b;
-            vec3  thinFilm      = palette(thinFilmNoise * 3.0);
+            vec3  thinFilm      = paletteFunction(thinFilmNoise * 3.0);
 
             ghostSample *= thinFilm;
         #endif

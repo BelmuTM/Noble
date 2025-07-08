@@ -201,7 +201,7 @@ mat3 toXYZ(mat3 mat) {
     #endif
 }
 
-vec3 palette(float x) {
+vec3 paletteFunction(float x) {
     return 0.5 + 0.5 * cos(TAU * (x + vec3(0.0, 0.25, 0.5)));
 }
 

@@ -922,6 +922,11 @@ option.GLARE_STRENGTH = Strength
 option.GLARE_STRENGTH.comment = Adjusts §bGlare§r's intensity.
 suffix.GLARE_STRENGTH = x
 
+option.GLARE_THIN_FILM = Thin Film
+option.GLARE_THIN_FILM.comment = Simulates thin film interference on lens §bGlare§r (rainbow color patterns).
+value.GLARE_THIN_FILM.0 = §cOFF
+value.GLARE_THIN_FILM.1 = §aON
+
 option.GLARE_BLADES = Blades
 option.GLARE_BLADES.comment = Adjusts the amount of blades that form the §bGlare§r's shape.
 
