@@ -114,14 +114,14 @@
 
     void main() {
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) discard;
+        if (saturate(fragCoords) != fragCoords) { discard; return; }
 
         #if defined PROGRAM_HAND && DISCARD_HAND == 1
-            discard;
+            discard; return;
         #endif
 
         vec4 albedoTex = texture(gtexture, textureCoords);
-        if (albedoTex.a < 0.102) discard;
+        if (albedoTex.a < 0.102) { discard; return; }
 
         vec4 normalTex   = vec4(0.0);
         vec4 specularTex = vec4(0.0);

@@ -63,7 +63,7 @@
 
     void main() {
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) discard;
+        if (saturate(fragCoords) != fragCoords) { discard; return; }
 
         vec4 albedoTex = texture(gtexture, textureCoords);
 
@@ -71,12 +71,12 @@
             color = vec4(albedoTex.rgb, 0.0);
         #elif defined PROGRAM_DAMAGED_BLOCK
 
-            if (albedoTex.a < 0.102) discard;
+            if (albedoTex.a < 0.102) { discard; return; }
 
             color = vec4(albedoTex.rgb, 0.05);
 
         #else
-            if (albedoTex.a < 0.102) discard;
+            if (albedoTex.a < 0.102) { discard; return; }
 
             albedoTex.rgb *= vertexColor.rgb;
 

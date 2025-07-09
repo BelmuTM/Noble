@@ -95,7 +95,7 @@
 
     void main() {
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) discard;
+        if (saturate(fragCoords) != fragCoords) { discard; return; }
 
         float depth       = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
         float linearDepth = linearizeDepth(depth, near, far);

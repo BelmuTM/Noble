@@ -68,7 +68,7 @@
 
     void main() {
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) discard;
+        if (saturate(fragCoords) != fragCoords) { discard; return; }
 
         float fragDistance = length(scenePosition);
         if (fragDistance < 0.5 * far) { discard; return; }

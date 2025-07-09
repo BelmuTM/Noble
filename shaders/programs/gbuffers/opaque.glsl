@@ -168,15 +168,17 @@
 
     void main() {
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) discard;
+        if (saturate(fragCoords) != fragCoords) { discard; return; }
 
         #if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
-            discard;
+            discard; return;
         #endif
 
         vec2 coords = textureCoords;
 
         float parallaxSelfShadowing = 1.0;
+
+        bool disc = false;
 
         #if POM > 0 && defined PROGRAM_TERRAIN
             mat2 texDeriv = mat2(dFdx(coords), dFdy(coords));
@@ -189,7 +191,9 @@
                 float height = 1.0, traceDistance = 0.0;
                 vec2  shadowCoords = vec2(0.0);
 
-                if (texture(normals, textureCoords).a < 1e-3 || texture(gtexture, textureCoords).a < 0.102) discard;
+                if (texture(normals, textureCoords).a < 1e-3 || texture(gtexture, textureCoords).a < 0.102) {
+                    discard; return;
+                }
 
                 coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
 
@@ -206,7 +210,7 @@
         #endif
 
         vec4 albedoTex = texture(gtexture, coords) * vertexColor;
-        if (albedoTex.a < 0.102) discard;
+        if (albedoTex.a < 0.102) { discard; return; }
 
         vec4 normalTex = texture(normals, coords);
 
@@ -235,7 +239,7 @@
         #endif
 
         #if defined PROGRAM_BEACONBEAM
-            if (albedoTex.a < 0.999) discard;
+            if (albedoTex.a < 0.999) { discard; return; }
             emission   = 1.0;
             lightmap.x = 1.0;
         #endif

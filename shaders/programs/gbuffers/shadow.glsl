@@ -95,7 +95,7 @@
         vec4 albedoTex = texture(gtexture, textureCoords);
         albedoTex.rgb *= vertexColor.rgb;
 
-        if (albedoTex.a < 0.102) discard;
+        if (albedoTex.a < 0.102) { discard; return; }
 
         #if WHITE_WORLD == 1
             albedoTex.rgb = vec3(1.0);
