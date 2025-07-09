@@ -145,6 +145,7 @@
     uniform int heldBlockLightValue2;
 
     #if DIRECTIONAL_LIGHTMAP == 1 && GI == 0 && !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
+
         vec2 computeLightmap(vec3 scenePosition, vec3 textureNormal) {
             // Thanks ninjamike1211 for the help
             vec2 lightmap = lightmapCoords;
@@ -164,6 +165,7 @@
         
             return any(isnan(lightmap)) || any(lessThan(lightmap, vec2(0.0))) ? lightmapCoords : lightmap;
         }
+
     #endif
 
     void main() {
@@ -181,6 +183,7 @@
         bool disc = false;
 
         #if POM > 0 && defined PROGRAM_TERRAIN
+
             mat2 texDeriv = mat2(dFdx(coords), dFdy(coords));
 
             #if POM_DEPTH_WRITE == 1
@@ -207,6 +210,7 @@
                     gl_FragDepth = projectDepth(unprojectDepth(gl_FragCoord.z) + traceDistance * POM_DEPTH);
                 #endif
             }
+
         #endif
 
         vec4 albedoTex = texture(gtexture, coords) * vertexColor;
@@ -246,6 +250,7 @@
 
         vec3 normal = tbn[2];
         #if !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
+
             if (all(greaterThan(normalTex, vec4(EPS)))) {
                 normal.xy = normalTex.xy * 2.0 - 1.0;
                 normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
@@ -255,6 +260,7 @@
                     lightmap = computeLightmap(scenePosition, normalize(normal));
                 #endif
             }
+
         #endif
 
         #if defined PROGRAM_SPIDEREYES

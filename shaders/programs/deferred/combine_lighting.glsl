@@ -99,7 +99,7 @@
             #if ATROUS_FILTER == 1
                 vec3 irradianceDiffuse = texture(MAIN_BUFFER, vertexCoords).rgb;
             #else
-                vec3 irradianceDiffuse = texture(ACCUMULATION_BUFFER, vertexCoords).rgb;
+                vec3 irradianceDiffuse = texture(DEFERRED_BUFFER, vertexCoords).rgb;
             #endif
         
             lighting = material.albedo * (irradianceDiffuse + directDiffuse);

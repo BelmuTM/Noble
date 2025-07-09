@@ -28,6 +28,8 @@
 void pathtraceDiffuse(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 directIlluminance, bool isMetal, out vec3 irradiance, in vec3 screenPosition) {
     vec3 viewPosition = screenToView(screenPosition, projectionInverse, true);
 
+    irradiance = vec3(0.0);
+
     for (int i = 0; i < GI_SAMPLES; i++) {
 
         vec3 rayPosition  = screenPosition; 
@@ -73,6 +75,7 @@ void pathtraceDiffuse(bool dhFragment, mat4 projection, mat4 projectionInverse, 
 
             throughput *= (isMetal ? material.albedo : phase);
         }
+        
         irradiance += max0(estimate) * rcp(GI_SAMPLES);
     }
 }

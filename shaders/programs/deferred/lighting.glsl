@@ -61,6 +61,7 @@
     #include "/include/fragment/brdf.glsl"
 
     #if GI == 1
+
         #include "/include/fragment/raytracer.glsl"
         #include "/include/fragment/pathtracer.glsl"
 
@@ -95,6 +96,7 @@
             }
 
         #endif
+
     #endif
 
     void main() {
