@@ -62,6 +62,8 @@
     uniform sampler2D gtexture;
 
     void main() {
+        color = vec4(0.0);
+
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
         if (saturate(fragCoords) != fragCoords) { discard; return; }
 

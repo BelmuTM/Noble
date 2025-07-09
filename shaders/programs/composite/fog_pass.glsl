@@ -70,6 +70,8 @@
     #include "/include/atmospherics/fog.glsl"
 
     void main() {
+        fog = uvec2(0);
+
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
         if (saturate(fragCoords) != fragCoords) { discard; return; }
 

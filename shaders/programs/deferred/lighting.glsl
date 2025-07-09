@@ -100,6 +100,8 @@
     #endif
 
     void main() {
+        color = vec4(0.0);
+
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
         if (saturate(fragCoords) != fragCoords) { discard; return; }
 
@@ -125,7 +127,7 @@
             }
         #endif
 
-        if (depth == 1.0) return;
+        if (depth == 1.0) { discard; return; }
 
         vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 

@@ -113,6 +113,8 @@
     uniform sampler2D specular;
 
     void main() {
+        translucents = vec4(0.0);
+
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
         if (saturate(fragCoords) != fragCoords) { discard; return; }
 
