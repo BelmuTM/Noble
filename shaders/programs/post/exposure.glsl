@@ -55,7 +55,7 @@
             float lod = ceil(log2(maxOf(viewSize * tileSize)));
 
             float[HISTOGRAM_BINS] pdf;
-            for (int i = 0; i < HISTOGRAM_BINS; i++) pdf[i] = 0.0;
+            for (int bin = 0; bin < HISTOGRAM_BINS; bin++) pdf[bin] = 0.0;
 
             for (int x = 0; x < tiles.x; x++) {
                 for (int y = 0; y < tiles.y; y++) {
@@ -79,14 +79,14 @@
             float minDensity = EXPOSURE_IGNORE_DARK           * totalSamples;
             float maxDensity = (1.0 - EXPOSURE_IGNORE_BRIGHT) * totalSamples;
 
-            for (int i = 0; i < HISTOGRAM_BINS; i++, cumulativeDensity += pdf[i]) {
-                if (cumulativeDensity >= minDensity) { lowerBound = i; break; }
+            for (int bin = 0; bin < HISTOGRAM_BINS; bin++, cumulativeDensity += pdf[bin]) {
+                if (cumulativeDensity >= minDensity) { lowerBound = bin; break; }
             }
 
             cumulativeDensity = 0.0;
 
-            for (int i = 0; i < HISTOGRAM_BINS; i++, cumulativeDensity += pdf[i]) {
-                if (cumulativeDensity >= maxDensity) { upperBound = i; break; }
+            for (int bin = 0; bin < HISTOGRAM_BINS; bin++, cumulativeDensity += pdf[bin]) {
+                if (cumulativeDensity >= maxDensity) { upperBound = bin; break; }
             }
 
             upperBound = max(upperBound, lowerBound);
@@ -96,9 +96,9 @@
             float weightedSum = 0.0;
             float densitySum  = 0.0;
 
-            for (int i = lowerBound; i <= upperBound; i++) {
-                float binDensity = pdf[i];
-                float logCenter  = minLogLuminance + (float(i) + 0.5) * logStep;
+            for (int bin = lowerBound; bin <= upperBound; bin++) {
+                float binDensity = pdf[bin];
+                float logCenter  = minLogLuminance + (float(bin) + 0.5) * logStep;
 
                 weightedSum += binDensity * logCenter;
                 densitySum  += binDensity;

@@ -18,9 +18,6 @@
 /*                                                                              */
 /********************************************************************************/
 
-uniform vec3 sunPosition;
-uniform vec3 moonPosition;
-uniform vec3 shadowLightPosition;
 uniform vec3 shadowVec;
 uniform vec3 sunVector;
 uniform vec3 moonVector;

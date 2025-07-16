@@ -403,7 +403,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 //////////////////////////////////////////////////////////
 
 #define EXPOSURE 2 // [0 1 2]
-#define PURKINJE 1 // [0 1]
 
 #define EXPOSURE_GROWTH 2.00
 #define EXPOSURE_DECAY  0.50
@@ -438,6 +437,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define LUT     0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 
 #define AGX_LOOK 0
+
+#define PURKINJE 1 // [0 1]
 
 #define WHITE_POINT   6500
 #define WHITE_BALANCE 6500 // [5000 5100 5200 5300 5400 5500 5600 5700 5800 5900 6000 6100 6200 6300 6400 6500 6600 6700 6800 6900 7000 7100 7200 7300 7400 7500 7600 7700 7800 7900 8000 8100 8200 8300 8400 8500 8600 8700 8800 8900 9000 9100 9200 9300 9400 9500 9600 9700 9800 9900 10000]

@@ -23,7 +23,7 @@
 ##################### MISC #####################
 
 option.ABOUT = §6§lNoble
-option.ABOUT.comment = §r§lTwitter: §r§7@Belmu_. §r§lDiscord: §r§7belmu. §r§lPatreon: §r§bhttps://www.patreon.com/Belmu. §r§lGithub: §r§bhttps://www.github.com/BelmuTM.
+option.ABOUT.comment = §r§lTwitter: §r§7@belmu_. §r§lDiscord: §r§7belmu. §r§lPatreon: §r§bhttps://www.patreon.com/Belmu. §r§lGithub: §r§bhttps://www.github.com/BelmuTM.
 value.ABOUT.0 = §f§lby §6§lBelmu
 value.ABOUT.1 = §b§lBoop!
 

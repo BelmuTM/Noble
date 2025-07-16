@@ -18,6 +18,11 @@
 /*                                                                              */
 /********************************************************************************/
 
+/*
+    [References]:
+        spolsh. (2017). Crystal Drops. https://www.shadertoy.com/view/XlSBRW
+*/
+
 out vec3 colorOut;
 
 in vec2 textureCoords;
@@ -87,11 +92,6 @@ in vec2 textureCoords;
 #endif
 
 #if SHARPEN == 1
-
-    /*
-        SOURCES / CREDITS:
-        spolsh: https://www.shadertoy.com/view/XlSBRW
-    */
 
     void sharpeningFilter(inout vec3 color, vec2 coords) {
         float avgLuma = 0.0, weight = 0.0;

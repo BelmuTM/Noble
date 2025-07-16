@@ -22,35 +22,47 @@
 #include "/include/taau_scale.glsl"
 #include "/include/common.glsl"
 
-#include "/include/utility/phase.glsl"
-#include "/include/atmospherics/constants.glsl"
-#include "/include/atmospherics/atmosphere.glsl"
-
-layout (rgba32f) uniform image2D colorimg5;
-
-layout (local_size_x = 10, local_size_y = 1) in;
-
 const ivec3 workGroups = ivec3(1, 1, 1);
 
-shared vec3 skyIlluminance[9];
+#if defined WORLD_OVERWORLD || defined WORLD_END
 
-void main() {
-    uint x = gl_LocalInvocationID.x;
+    #include "/include/utility/phase.glsl"
+    #include "/include/atmospherics/constants.glsl"
+    #include "/include/atmospherics/atmosphere.glsl"
 
-    if (x == 1) {
-        evaluateUniformSkyIrradiance(skyIlluminance);
+    layout (rgba32f) uniform image2D colorimg5;
+
+    layout (local_size_x = 10, local_size_y = 1, local_size_z = 1) in;
+
+    shared vec3 skyIlluminance[9];
+
+    void main() {
+        uint x = gl_LocalInvocationID.x;
+
+        if (x == 1) {
+            evaluateUniformSkyIrradiance(skyIlluminance);
+        }
+
+        memoryBarrierShared();
+        barrier();
+
+        vec3 illuminance = vec3(0.0);
+
+        if (x == 0) {
+            illuminance = evaluateDirectIlluminance();
+        } else if (x > 0 && x < 10) {
+            illuminance = skyIlluminance[x - 1];
+        }
+
+        imageStore(colorimg5, ivec2(x, 0), vec4(illuminance, 0.0));
     }
 
-    memoryBarrierShared();
-    barrier();
+#else
 
-    vec3 illuminance = vec3(0.0);
+    layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-    if (x == 0) {
-        illuminance = evaluateDirectIlluminance();
-    } else if (x > 0 && x < 10) {
-        illuminance = skyIlluminance[x - 1];
+    void main() {
+        return;
     }
 
-    imageStore(colorimg5, ivec2(x, 0), vec4(illuminance, 0.0));
-}
+#endif

@@ -34,7 +34,7 @@ vec2 taaJitter(vec4 pos) {
 }
 
 //////////////////////////////////////////////////////////
-/*--------------- MATRICES OPERATIONS ------------------*/
+/*----------------- MATRIX OPERATIONS ------------------*/
 //////////////////////////////////////////////////////////
 
 vec2 diagonal2(mat4 mat) { return vec2(mat[0].x, mat[1].y); 		   }
@@ -47,7 +47,7 @@ vec3 projectOrthogonal(mat4 mat, vec3 v) { return diagonal3(mat) * v + mat[3].xy
 vec3 transform        (mat4 mat, vec3 v) { return mat3(mat)      * v + mat[3].xyz;  }
 
 //////////////////////////////////////////////////////////
-/*--------------------- SHADOWS ------------------------*/
+/*---------------------- SHADOWS -----------------------*/
 //////////////////////////////////////////////////////////
 
 float getDistortionFactor(vec2 coords) {
@@ -65,7 +65,7 @@ vec3 distortShadowSpace(vec3 position) {
 }
 
 //////////////////////////////////////////////////////////
-/*----------------- CLOUDS SHADOWS ---------------------*/
+/*------------------- CLOUDS SHADOWS -------------------*/
 //////////////////////////////////////////////////////////
 
 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
@@ -87,7 +87,7 @@ vec3 distortShadowSpace(vec3 position) {
 #endif
 
 //////////////////////////////////////////////////////////
-/*--------------- SPACE CONVERSIONS --------------------*/
+/*----------------- SPACE CONVERSIONS ------------------*/
 //////////////////////////////////////////////////////////
 
 vec3 screenToView(vec3 screenPosition, mat4 projectionInverse, bool unjitter) {
@@ -130,7 +130,7 @@ float linearizeDepth(float depth, float nearPlane, float farPlane) {
 }
 
 //////////////////////////////////////////////////////////
-/*------------------ REPROJECTION ----------------------*/
+/*-------------------- REPROJECTION --------------------*/
 //////////////////////////////////////////////////////////
 
 vec3 getVelocity(vec3 currPosition, mat4 projectionInverse) {
