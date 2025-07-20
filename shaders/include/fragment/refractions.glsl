@@ -83,6 +83,13 @@ vec3 computeRefractions(bool dhFragment, mat4 projection, mat4 projectionInverse
         refractedPosition.xy = vertexCoords;
     }
 
+    #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
+        if (depth1 == 1.0) {
+            float distanceToClouds = texture(CLOUDMAP_BUFFER, vertexCoords).a;
+            refractedPosition.xy   = viewToScreen(viewPosition0 + refractedDirection * distanceToClouds, projection, true).xy;
+        }
+    #endif
+
     vec3 fresnel = fresnelDielectricDielectric_T(dot(material.normal, -viewDirection), n1, n2);
 
     vec3 sampledColor = texture(MAIN_BUFFER, refractedPosition.xy).rgb;

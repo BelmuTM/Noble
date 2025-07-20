@@ -135,7 +135,7 @@
                         #if WATER_FOG == 0
                             computeWaterFogApproximation(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                         #else
-                            bool skyTranslucents = texture(depthtex1, vertexCoords).r == 1.0;
+                            bool skyTranslucents = material.depth1 == 1.0;
                             computeVolumetricWaterFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight, skyTranslucents);
                         #endif
                     #endif

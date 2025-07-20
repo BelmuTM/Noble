@@ -81,10 +81,9 @@ const float aerialPerspectiveMult = 1.0;
 
 float fogDensity = saturate(FOG_DENSITY + densityFactor) * 0.4;
 
-#if defined WORLD_OVERWORLD
-    uniform ivec2 eyeBrightness;
-    uniform float rcp240;
-#endif
+uniform ivec2 eyeBrightness;
+uniform vec2 eyeBrightnessSmooth;
+uniform float rcp240;
 
 float calculateAirFogPhase(float cosTheta) {
     float forwardsLobe  = henyeyGreensteinPhase(cosTheta, airFogForwardsLobe);
@@ -109,10 +108,9 @@ float calculateAirFogPhase(float cosTheta) {
         vec3 transmittanceAerial = vec3(1.0);
 
         #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
+            float farPlane = far;
             #if defined DISTANT_HORIZONS
-                float farPlane = far * 2.0;
-            #else
-                float farPlane = far;
+                farPlane *= 2.0;
             #endif
 
             float airmassAerial      = quinticStep(0.0, farPlane, length(viewPosition.xz)) * aerialPerspectiveMult * AERIAL_PERSPECTIVE_DENSITY;
@@ -320,7 +318,17 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
              shadowIncrement = diagonal3(shadowProjection) * shadowIncrement;
         vec3 shadowPosition  = worldToShadow(worldPosition - cameraPosition);
 
-        float rayLength = sky ? far : length(worldIncrement);
+        #if defined DISTANT_HORIZONS
+            float farPlane = dhFarPlane;
+        #else
+            float farPlane = far;
+        #endif
+
+        float rayLength = sky ? farPlane : length(worldIncrement);
+
+        float eyeSkylight = saturate(eyeBrightnessSmooth.y * rcp240);
+
+        float phase = henyeyGreensteinPhase(VdotL, 0.5);
 
         vec3 stepTransmittance = exp(-waterExtinctionCoefficients * rayLength);
 
@@ -342,8 +350,8 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
 
             vec3 directTransmittance = shadow * exp(-waterExtinctionCoefficients * distanceThroughWater);
 
-            scattering += transmittance * directIlluminance * directTransmittance;
-            scattering += transmittance * skyIlluminance    * isotropicPhase * skylight;
+            scattering += transmittance * directIlluminance * phase          * directTransmittance;
+            scattering += transmittance * skyIlluminance    * isotropicPhase * eyeSkylight;
             
             transmittance *= stepTransmittance;
         }
