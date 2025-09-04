@@ -58,7 +58,7 @@
 float glowFwd(float ycIn, float glowGainIn, float glowMid) {
     if (ycIn <= 2.0 / 3.0 * glowMid) { return glowGainIn;                          }
     else if (ycIn >= 2.0 * glowMid)  { return 0.0;                                 } 
-    else                            { return glowGainIn * (glowMid / ycIn - 0.5); }
+    else                             { return glowGainIn * (glowMid / ycIn - 0.5); }
 }
 
 float centerHue(float hue, float centerHue) {

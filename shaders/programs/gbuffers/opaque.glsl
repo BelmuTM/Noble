@@ -180,8 +180,6 @@
 
         float parallaxSelfShadowing = 1.0;
 
-        bool disc = false;
-
         #if POM > 0 && defined PROGRAM_TERRAIN
 
             mat2 texDeriv = mat2(dFdx(coords), dFdy(coords));
@@ -292,9 +290,9 @@
 
         #if defined PROGRAM_ENTITY
             // Handling lightning bolts, end crystal and end crystal beams
-            if (entityId == 10000) id = LIGHTNING_BOLT_ID;
+            if (entityId == 1000) id = LIGHTNING_BOLT_ID;
 
-            if (entityId == 10001 || entityId == 10002) {
+            if (entityId == 1001 || entityId == 1002) {
                 emission = 1.0;
                 lightmap = vec2(1.0);
             }
