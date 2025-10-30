@@ -19,7 +19,7 @@
 /********************************************************************************/
 
 vec3 sampleHitColor(vec2 hitCoords) {
-    return texture(MAIN_BUFFER, hitCoords * RENDER_SCALE).rgb;
+    return exp2(texture(MAIN_BUFFER, hitCoords * RENDER_SCALE).rgb) - 1.0;
 }
 
 vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {

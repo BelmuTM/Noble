@@ -251,6 +251,8 @@
     
                 #endif
 
+                translucents.rgb = max0(log2(translucents.rgb + 1.0));
+
                 translucents.a = albedoTex.a;
             }
         }

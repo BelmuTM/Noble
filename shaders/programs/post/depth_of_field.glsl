@@ -59,18 +59,27 @@
             float totalWeight = EPS;
 
             float distFromCenter = distance(coords, vec2(0.5));
-            vec2  caOffset       = vec2(distFromCenter) * coc / weight;
+
+            #if DOF_ABERRATION == 1
+                vec2 caOffset = vec2(distFromCenter) * DOF_ABERRATION_STRENGTH * 0.5 * coc / weight;
+            #endif
 
             for (float angle = 0.0; angle < TAU; angle += TAU / DOF_ANGLE_SAMPLES) {
                 for (int i = 0; i < DOF_SAMPLES; i++) {
                     vec2 sampleCoords = coords + vec2(cos(angle), sin(angle)) * i * coc * texelSize;
                     if (saturate(sampleCoords) != sampleCoords) continue;
 
-                    vec3 sampleColor  = vec3(
-                        texture(tex, sampleCoords + caOffset).r,
-                        texture(tex, sampleCoords           ).g,
-                        texture(tex, sampleCoords - caOffset).b
-                    );
+                    #if DOF_ABERRATION == 1
+                        vec3 sampleColor = vec3(
+                            texture(tex, sampleCoords + caOffset).r,
+                            texture(tex, sampleCoords           ).g,
+                            texture(tex, sampleCoords - caOffset).b
+                        );
+                    #else
+                        vec3 sampleColor = texture(tex, sampleCoords).rgb;
+                    #endif
+
+                    sampleColor = exp2(sampleColor) - 1.0;
 
                     color       += sampleColor * weight;
                     totalWeight += weight;
@@ -108,10 +117,7 @@
 
             depthOfField(color, MAIN_BUFFER, vertexCoords, getCoC(depth, targetDepth));
 
-            #if TAA == 1
-                color = color * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
-                color = reinhard(color);
-            #endif
+            color = max0(log2(color + 1.0));
         }
         
     #endif

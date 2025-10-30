@@ -1,4 +1,4 @@
 #version 400 compatibility
 
-#define STAGE_VERTEX
-#include "/programs/post/anti_aliasing.glsl"
+#include "/include/taau_scale.glsl"
+#include "/programs/vertex_taau.glsl"

@@ -845,7 +845,7 @@ option.DOF.comment = Blurs objects that are out of focus. Influenced by the §ea
 value.DOF.0 = §cOFF
 value.DOF.1 = §aON
 
-option.DOF_SAMPLES = DOF Samples
+option.DOF_SAMPLES = Samples
 option.DOF_SAMPLES.comment = Adjusts how much time §bDepth of Field§r is sampled. §cHigher value gives better results, but reduces §cperformance.
 value.DOF_SAMPLES.4 = §b4
 value.DOF_SAMPLES.6 = §36
@@ -855,12 +855,21 @@ value.DOF_SAMPLES.12 = §e12
 value.DOF_SAMPLES.14 = §614
 value.DOF_SAMPLES.16 = §c16
 
-option.DOF_RADIUS = DOF Radius
+option.DOF_RADIUS = Radius
 option.DOF_RADIUS.comment = Adjusts §bDepth of Field§r's intensity.
 
-option.DOF_DEPTH = DOF Focus Depth
+option.DOF_DEPTH = Focus Depth
 option.DOF_DEPTH.comment = Adjusts §bDepth of Field§r's depth at which it focuses. It is measured in blocks.
 value.DOF_DEPTH.0 = §eAuto-Focus
+
+option.DOF_ABERRATION = Chromatic Aberration
+option.DOF_ABERRATION.comment = Splits the RGB color of the DOF blur to simulate the chromatic aberration of a camera.
+value.DOF_ABERRATION.0 = §cOFF
+value.DOF_ABERRATION.1 = §aON
+
+option.DOF_ABERRATION_STRENGTH = Chromatic Aberration Strength
+option.DOF_ABERRATION_STRENGTH.comment = Adjusts §bChromatic Aberration§r's intensity.
+suffix.DOF_ABERRATION_STRENGTH = x
 
 ### BLOOM
 

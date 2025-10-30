@@ -259,7 +259,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
 
-                float heightFalloffAerial = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08);
+                float heightFalloffAerial = sky ? 0.0 : exp(-max0(rayPosition.y - cameraPosition.y) * 0.08);
 
                 float airmassAerial      = rayLength * heightFalloffAerial * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * 20.0;
                 vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);

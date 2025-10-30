@@ -51,7 +51,7 @@ uniform usampler2D colortex11;
 
 #include "/include/post/exposure.glsl"
 
-#if TAA == 1 && DOF == 0
+#if TAA == 1
     #include "/include/post/grading.glsl"
 #endif
 
@@ -95,7 +95,7 @@ void main() {
         Material material = getMaterial(vertexCoords);
 
         if (material.F0 * maxFloat8 <= labPBRMetals) {
-            lighting = texture(MAIN_BUFFER, vertexCoords).rgb;
+            lighting = exp2(texture(MAIN_BUFFER, vertexCoords).rgb) - 1.0;
         }
 
         vec3 viewPosition1 = screenToView(vec3(textureCoords, material.depth1), projectionInverse, true);
@@ -145,7 +145,7 @@ void main() {
     } else {
     // Sky Fragments
 
-        lighting  = texture(MAIN_BUFFER, vertexCoords).rgb;
+        lighting  = exp2(texture(MAIN_BUFFER, vertexCoords).rgb) - 1.0;
         lighting += renderCelestialBodies(vertexCoords, viewPosition0);
     }
 
@@ -229,7 +229,7 @@ void main() {
     /*---------------- TAA PRE-TONEMAPPING -----------------*/
     //////////////////////////////////////////////////////////
 
-    #if TAA == 1 && DOF == 0
+    #if TAA == 1
         lighting = lighting * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
         lighting = reinhard(lighting);
     #endif

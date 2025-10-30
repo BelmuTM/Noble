@@ -82,7 +82,7 @@
         vec3 viewPosition   = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
         if (depth == 1.0) {
-            lighting = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance);
+            lighting = max0(log2(renderAtmosphere(vertexCoords, viewPosition, directIlluminance, skyIlluminance) + 1.0));
             return;
         }
 
@@ -105,6 +105,8 @@
             lighting = material.albedo * (irradianceDiffuse + directDiffuse);
             
         #endif
+
+        lighting = max0(log2(lighting + 1.0));
     }
     
 #endif

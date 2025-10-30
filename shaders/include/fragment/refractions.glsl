@@ -85,7 +85,7 @@ vec3 computeRefractions(bool dhFragment, mat4 projection, mat4 projectionInverse
 
     vec3 fresnel = fresnelDielectricDielectric_T(dot(material.normal, -viewDirection), n1, n2);
 
-    vec3 sampledColor = texture(MAIN_BUFFER, refractedPosition.xy).rgb;
+    vec3 sampledColor = exp2(texture(MAIN_BUFFER, refractedPosition.xy).rgb) - 1.0;
 
     float density = 0.0;
 
