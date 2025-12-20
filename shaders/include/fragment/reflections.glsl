@@ -24,8 +24,10 @@ vec3 sampleHitColor(vec2 hitCoords) {
 
 vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        vec2 coords     = projectSphere(normalize(mat3(gbufferModelViewInverse) * reflected));
-        vec3 atmosphere = texture(ATMOSPHERE_BUFFER, saturate(coords)).rgb;
+        vec3 sceneDirection = normalize(mat3(gbufferModelViewInverse) * reflected);
+        vec2 coords         = projectSphere(sceneDirection);
+
+        vec3 atmosphere = sampleAtmosphere(sceneDirection, true, false);
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
         
@@ -33,7 +35,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
 
             vec3 cloudsBuffer = vec3(0.0, 0.0, 1.0);
             #if CLOUDMAP == 1
-                cloudsBuffer = textureBicubic(CLOUDMAP_BUFFER, saturate(coords * CLOUDMAP_SCALE - bayer32(gl_FragCoord.xy) * 1e-3)).rgb;
+                cloudsBuffer = textureCubic(CLOUDMAP_BUFFER, saturate(coords * CLOUDMAP_SCALE - bayer32(gl_FragCoord.xy) * 1e-3)).rgb;
             #endif
 
             clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;

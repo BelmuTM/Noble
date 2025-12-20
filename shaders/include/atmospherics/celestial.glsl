@@ -74,12 +74,27 @@ vec3 physicalStar(vec3 sceneDirection) {
     return dot(sceneDirection, starVector) < cos(starAngularRadius) ? vec3(0.0) : starRadiance * RCP_PI;
 }
 
+vec3 sampleAtmosphere(vec3 direction, bool jitter, bool interpolate) {
+    vec2 coords = projectSphere(direction);
+
+    if (jitter) {
+        float jitter = interleavedGradientNoise(gl_FragCoord.xy);
+        coords += jitter * texelSize;
+    }
+
+    if (interpolate) {
+        return textureBicubic(ATMOSPHERE_BUFFER, saturate(coords)).rgb;
+    } else {
+        return texture(ATMOSPHERE_BUFFER, saturate(coords)).rgb;
+    }
+}
+
 vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, vec3 skyIlluminance) {
     #if defined WORLD_OVERWORLD || defined WORLD_END
         float jitter = interleavedGradientNoise(gl_FragCoord.xy);
 
         vec3 sceneDirection = normalize(viewToScene(viewPosition));
-        vec3 sky            = textureBicubic(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDirection) + jitter * texelSize)).rgb;
+        vec3 sky            = sampleAtmosphere(sceneDirection, true, true);
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
         #if defined WORLD_OVERWORLD

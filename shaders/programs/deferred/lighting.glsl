@@ -158,7 +158,7 @@
                 vec3 prevScenePosition = viewToScene(screenToView(prevPosition, projectionInverse, false));
                 bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
 
-                float depthWeight = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.1);
+                float depthWeight = exp(-abs(linearDepth - linearPrevDepth) * 6.0); //step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.05);
 
                 color.a *= (closeToCamera ? depthWeight : 1.0);
 

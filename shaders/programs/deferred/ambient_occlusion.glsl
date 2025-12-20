@@ -251,12 +251,12 @@
                     vec3 prevAO         = texture(AO_BUFFER, prevCoords).rgb;
                     vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
             
-                    float weight = saturate(1.0 / max(texture(DEFERRED_BUFFER, prevCoords).a, 1.0));
+                    float weight = saturate(1.0 / max(texture(DEFERRED_BUFFER, prevCoords).a * 0.75, 1.0));
 
                     ao.xy = encodeUnitVector(mix(prevBentNormal, bentNormal, weight));
                     ao.b  = mix(prevAO.b, ao.b, weight);
                 } else {
-                    ao = vec3(encodeUnitVector(normal), 1.0);
+                    ao = vec3(encodeUnitVector(normal), ao.b);
                 }
 
             #else

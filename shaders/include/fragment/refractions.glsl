@@ -26,6 +26,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
 
 vec3 computeRefractions(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition0, vec3 viewPosition1, Material material, inout vec3 refractedPosition) {
     vec3 n1 = vec3(airIOR), n2 = material.N;
+    
     if (isEyeInWater == 1) {
         n1 = vec3(1.333);
         n2 = vec3(airIOR);

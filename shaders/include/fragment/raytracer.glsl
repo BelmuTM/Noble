@@ -88,8 +88,9 @@ bool raytrace(
     while (t < tMax && !intersected) {
         rayPosition = startPosition + rayDirection * t;
 
-        float maxZ = rayPosition.z;
-        float minZ = rayPosition.z - (t == jitter ? jitter : stride) * abs(rayDirection.z);
+        float stepT = (t == jitter ? jitter : stride);
+        float maxZ  = rayPosition.z;
+        float minZ  = rayPosition.z - stepT * abs(rayDirection.z);
 
         float depth      = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
         float thickDepth = thickenDepth(depth, zThickness, projection);
@@ -98,7 +99,10 @@ bool raytrace(
             Intersection check, taking account of the depth sample's thickness, and avoiding
             player hand fragments and sky fragments
         */
-        intersected = maxZ >= depth && minZ <= thickDepth && depth >= handDepth;
+        if (maxZ >= depth && minZ <= thickDepth && depth >= handDepth) {
+            intersected = true;
+            break;
+        }
 
         t += stride;
     }

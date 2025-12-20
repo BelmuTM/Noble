@@ -58,7 +58,6 @@ vec4 textureBicubic(sampler2D tex, vec2 coords) {
     return mix(mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
 }
 
-/*
 // https://iquilezles.org/articles/texture/
 vec4 textureCubic(sampler2D tex, vec2 coords) {
     coords = coords * viewSize + 0.5;
@@ -67,7 +66,6 @@ vec4 textureCubic(sampler2D tex, vec2 coords) {
     coords = (coords - 0.5) * texelSize;
     return texture(tex, coords);
 }
-*/
 
 /*
     Texture CatmullRom taken from TheRealMJP (https://github.com/TheRealMJP)
