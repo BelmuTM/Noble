@@ -28,12 +28,20 @@
 #if defined STAGE_VERTEX
 
     out vec2 textureCoords;
-    out vec3 directIlluminance;
+    out vec3 skyIlluminance;
+
+    #if defined WORLD_OVERWORLD || defined WORLD_END
+        #include "/include/utility/phase.glsl"
+
+        #include "/include/atmospherics/constants.glsl"
+        #include "/include/atmospherics/atmosphere.glsl"
+    #endif
 
     void main() {
         textureCoords = gl_MultiTexCoord0.xy;
 
-        directIlluminance = max(texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb, vec3(MIN_RAIN_BRIGHTNESS));
+        // Boosted sky illuminance by 10x for stylization
+        skyIlluminance = evaluateUniformSkyIrradianceApproximation() * 10.0;
 
         vec3 scenePosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
 
@@ -57,14 +65,14 @@
     layout (location = 0) out vec4 color;
 
     in vec2 textureCoords;
-    in vec3 directIlluminance;
+    in vec3 skyIlluminance;
 
     uniform sampler2D gtexture;
 
     vec4 computeRainColor() {
         const float density               = 1.0;
         const float scatteringCoefficient = 0.1;
-        const float alpha                 = 0.1;
+        const float alpha                 = 0.2;
 
         #if TONEMAP == ACES
             const vec3 attenuationCoefficients = vec3(0.338675, 0.0493852, 0.00218174) * SRGB_2_AP1_ALBEDO;
@@ -90,10 +98,12 @@
         if (isRain) {
             color = computeRainColor();
         } else {
-            color = vec4(1.0, 1.0, 1.0, 0.1);
+            color = vec4(1.0, 1.0, 1.0, 0.3);
         }
 
-        color.rgb *= directIlluminance;
+        color.rgb *= skyIlluminance;
+
+        color.rgb = max0(log2(color.rgb + 1.0));
     }
     
 #endif

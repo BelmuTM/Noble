@@ -145,9 +145,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
     float weatherMap = isUpperCloudLayer ? weitherMapLayer1 : weitherMapLayer0;
           weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
     
-    #if defined IS_IRIS
-        weatherMap = mix(weatherMap, 0.0, biome_arid);
-    #endif
+    weatherMap = mix(weatherMap, 0.0, biome_arid);
 
     if (weatherMap < EPS) return 0.0;
     weatherMap = saturate(weatherMap);

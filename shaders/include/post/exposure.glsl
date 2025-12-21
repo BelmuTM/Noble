@@ -25,7 +25,7 @@
 #endif
 
 const float minExposure = bias * 3e-5;
-const float maxExposure = bias * 3e-2;
+const float maxExposure = bias * 6e-2;
 
 const float calibration       = 12.5;  // Light meter calibration
 const float sensorSensitivity = 100.0; // Sensor sensitivity

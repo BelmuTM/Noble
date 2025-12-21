@@ -55,9 +55,7 @@ void rainPuddles(vec3 scenePosition, vec3 geometricNormal, vec2 lightmapCoords, 
           puddle *= wetness;
           puddle  = saturate(puddle);
           
-    #if defined IS_IRIS
-        puddle *= biome_may_rain;
-    #endif
+    puddle *= biome_may_rain;
 
     vec3 surfaceNormal = mix(geometricNormal, getPuddleNormals(puddleCoords, 0.1), 0.035 * rainStrength);
 

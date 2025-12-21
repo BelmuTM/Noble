@@ -23,33 +23,20 @@ float dither = interleavedGradientNoise(gl_FragCoord.xy);
 const float aerialPerspectiveMult = 1.0;
 
 #if defined WORLD_OVERWORLD
+
+    const vec3 sandFogExtinctionCoefficients = vec3(0.24, 0.28, 0.36);
+    const vec3 sandFogScatteringCoefficients = vec3(0.80, 0.55, 0.36);
+
+    vec3 airFogAttenuationCoefficients = mix(vec3(airFogExtinctionCoefficient), sandFogExtinctionCoefficients, biome_may_sandstorm);
+    vec3 airFogScatteringCoefficients  = mix(vec3(airFogScatteringCoefficient), sandFogScatteringCoefficients, biome_may_sandstorm);
+
+    const float fogAltitude  = FOG_ALTITUDE;
+    const float fogThickness = FOG_THICKNESS;
     
-    #if defined IS_IRIS
-
-        vec3 airFogAttenuationCoefficients = mix(vec3(airFogExtinctionCoefficient), vec3(0.24, 0.28, 0.36), biome_may_sandstorm);
-        vec3 airFogScatteringCoefficients  = mix(vec3(airFogScatteringCoefficient), vec3(0.80, 0.55, 0.36), biome_may_sandstorm);
-
-        const float fogAltitude  = FOG_ALTITUDE;
-        const float fogThickness = FOG_THICKNESS;
-        
-        float fogFrequency    = mix(0.7, 1.0, biome_may_sandstorm);
-        vec2  fogShapeFactors = mix(vec2(1.5, 0.4), vec2(2.0, 0.4), biome_may_sandstorm);
-        float densityFactor   = wetness;
-        float densityMult     = mix(0.2, 0.7, biome_may_sandstorm);
-
-    #else
-
-        vec3 airFogAttenuationCoefficients = vec3(airFogExtinctionCoefficient);
-        vec3 airFogScatteringCoefficients  = vec3(airFogScatteringCoefficient);
-
-        const float fogAltitude     = FOG_ALTITUDE;
-        const float fogThickness    = FOG_THICKNESS;
-        const float fogFrequency    = 0.7;
-        const vec2  fogShapeFactors = vec2(1.5, 0.4);
-              float densityFactor   = wetness;
-        const float densityMult     = 0.2;
-
-    #endif
+    float fogFrequency    = mix(0.7, 1.0, biome_may_sandstorm);
+    vec2  fogShapeFactors = mix(vec2(1.5, 0.4), vec2(2.0, 0.4), biome_may_sandstorm);
+    float densityFactor   = wetness;
+    float densityMult     = mix(0.2, 0.7, biome_may_sandstorm);
 
 #elif defined WORLD_NETHER
 

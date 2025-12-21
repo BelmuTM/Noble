@@ -47,13 +47,8 @@ const vec3 mieScatteringCoefficientsSunny      = vec3(22e-6);
 const vec3 rayleighScatteringCoefficientsRain = vec3(6.42e-5, 6.98e-5, 8.9e-5);
 const vec3 mieScatteringCoefficientsRain      = vec3(1e-5);
 
-#if defined IS_IRIS
-    vec3 rayleighScatteringCoefficients = mix(rayleighScatteringCoefficientsSunny, rayleighScatteringCoefficientsRain, wetness * biome_may_rain);
-    vec3 mieScatteringCoefficients      = mix(mieScatteringCoefficientsSunny, mieScatteringCoefficientsRain, wetness * biome_may_rain);
-#else
-    vec3 rayleighScatteringCoefficients = mix(rayleighScatteringCoefficientsSunny, rayleighScatteringCoefficientsRain, wetness);
-    vec3 mieScatteringCoefficients      = mix(mieScatteringCoefficientsSunny, mieScatteringCoefficientsRain, wetness);
-#endif
+vec3 rayleighScatteringCoefficients = mix(rayleighScatteringCoefficientsSunny, rayleighScatteringCoefficientsRain, wetness * biome_may_rain);
+vec3 mieScatteringCoefficients      = mix(mieScatteringCoefficientsSunny, mieScatteringCoefficientsRain, wetness * biome_may_rain);
 
 const vec3 ozoneExtinctionCoefficients = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * ozoneNumberDensity * ozoneUnitConversion;
 
