@@ -121,6 +121,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
 
             transmittance *= stepTransmittance;
         }
+        
         multipleScattering *= skyIlluminance * isotropicPhase;
 
         #if defined WORLD_OVERWORLD

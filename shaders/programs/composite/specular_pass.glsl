@@ -207,8 +207,8 @@ void main() {
 
     vec4 basic = texture(GBUFFERS_BASIC_BUFFER, vertexCoords);
 
-    bool isEnchantmentGlint = basic.a == 0.0;
-    bool isDamageOverlay    = basic.a > 0.0 && basic.a < 1e-1;
+    bool isEnchantmentGlint = basic.a >= 0.0 && basic.a <= 0.05;
+    bool isDamageOverlay    = basic.a > 0.05 && basic.a <= 0.1;
 
     bool isHand = depth < handDepth;
 
@@ -218,7 +218,9 @@ void main() {
         exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
     if (isEnchantmentGlint) {
-        lighting.rgb += basic.rgb / exposure;
+        if ((isHand && basic.a > 0.0 && basic.a <= 0.05) || (!isHand && basic.a == 0.0)) {
+            lighting.rgb += basic.rgb / exposure;
+        }
     } else if (isDamageOverlay) {
         if (!isHand) lighting.rgb = 2.0 * basic.rgb * lighting.rgb;
     } else {

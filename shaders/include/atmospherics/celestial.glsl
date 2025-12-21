@@ -130,5 +130,5 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
         cloudsTransmittance = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).b;
     #endif
 
-    return (physicalSun(sceneDirection) + physicalMoon(sceneDirection)) * cloudsTransmittance;
+    return (physicalSun(sceneDirection) + physicalMoon(sceneDirection)) * pow5(cloudsTransmittance) * sampleAtmosphere(sceneDirection, false, false);
 }

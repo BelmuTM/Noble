@@ -71,11 +71,16 @@
 
         #if defined PROGRAM_ARMOR_GLINT
             color = vec4(albedoTex.rgb, 0.0);
+
+            if (gl_FragDepth < handDepth) {
+                color.a = 0.02;
+            }
+            
         #elif defined PROGRAM_DAMAGED_BLOCK
 
             if (albedoTex.a < 0.102) { discard; return; }
 
-            color = vec4(albedoTex.rgb, 0.05);
+            color = vec4(albedoTex.rgb, 0.1);
 
         #else
             if (albedoTex.a < 0.102) { discard; return; }
