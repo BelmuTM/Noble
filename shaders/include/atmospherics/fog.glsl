@@ -36,7 +36,7 @@ const float aerialPerspectiveMult = 1.0;
     float fogFrequency    = mix(0.7, 1.0, biome_may_sandstorm);
     vec2  fogShapeFactors = mix(vec2(1.5, 0.4), vec2(2.0, 0.4), biome_may_sandstorm);
     float densityFactor   = wetness;
-    float densityMult     = mix(0.2, 0.7, biome_may_sandstorm);
+    float densityMult     = mix(0.1, 0.7, biome_may_sandstorm);
 
 #elif defined WORLD_NETHER
 
@@ -96,8 +96,9 @@ float calculateAirFogPhase(float cosTheta) {
 
         #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
             float farPlane = far;
+
             #if defined DISTANT_HORIZONS
-                farPlane *= 2.0;
+                farPlane = dhFarPlane;
             #endif
 
             float airmassAerial      = quinticStep(0.0, farPlane, length(viewPosition.xz)) * aerialPerspectiveMult * AERIAL_PERSPECTIVE_DENSITY;
@@ -171,12 +172,12 @@ float calculateAirFogPhase(float cosTheta) {
     }
 
     float getFogTransmittance(vec3 rayOrigin, vec3 lightDir) {
-        const float stepSize = 1.0 / 16.0;
+        const float stepSize = 1.0 / AIR_FOG_TRANSMITTANCE_STEPS;
         vec3 increment   = lightDir * stepSize;
         vec3 rayPosition = rayOrigin + increment * 0.5;
 
         float accumAirmass = 0.0;
-        for (int i = 0; i < 16; i++, rayPosition += increment) {
+        for (int i = 0; i < AIR_FOG_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
             accumAirmass += getAirFogDensity(rayPosition) * stepSize;
         }
         return exp(-airFogExtinctionCoefficient * accumAirmass);
@@ -206,7 +207,7 @@ float calculateAirFogPhase(float cosTheta) {
         float phaseFog    = calculateAirFogPhase(VdotL);
         vec2  phaseAerial = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
-        float distanceFalloffAerial = linearStep(0.0, far, length(endPosition.xz));
+        float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
 
         for (int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
             #if defined WORLD_OVERWORLD
@@ -294,7 +295,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
 
 #else
 
-    void computeVolumetricWaterFog(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight, bool sky) {
+    void computeVolumetricWaterFog(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, float farPlane, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight, bool sky) {
         const float stepSize = 1.0 / WATER_FOG_STEPS;
 
         vec3 worldIncrement = (endPosition - startPosition) * stepSize;
@@ -304,12 +305,6 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         vec3 shadowIncrement = mat3(shadowModelView)       * worldIncrement;
              shadowIncrement = diagonal3(shadowProjection) * shadowIncrement;
         vec3 shadowPosition  = worldToShadow(worldPosition - cameraPosition);
-
-        #if defined DISTANT_HORIZONS
-            float farPlane = dhFarPlane;
-        #else
-            float farPlane = far;
-        #endif
 
         float rayLength = sky ? farPlane : length(worldIncrement);
 

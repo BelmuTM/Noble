@@ -250,6 +250,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
 
         distanceToClouds = min((i + jitter) * stepSize + dists.x, distanceToClouds);
     }
+    
     transmittance = linearStep(cloudsTransmitThreshold, 1.0, transmittance);
 
     return vec4(scattering, transmittance, distanceToClouds);
@@ -270,5 +271,6 @@ float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer, int stepCoun
     for (int i = 0; i < stepCount; i++, rayPosition += increment) {
         opticalDepth += calculateCloudsDensity(rayPosition, layer);
     }
+
     return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);
 }

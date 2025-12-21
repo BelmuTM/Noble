@@ -40,8 +40,10 @@
     void main() {
         textureCoords = gl_MultiTexCoord0.xy;
 
-        // Boosted sky illuminance by 10x for stylization
-        skyIlluminance = evaluateUniformSkyIrradianceApproximation() * 10.0;
+        #if defined WORLD_OVERWORLD || defined WORLD_END
+            // Boosted sky illuminance by 10x for stylization
+            skyIlluminance = evaluateUniformSkyIrradianceApproximation() * 10.0;
+        #endif
 
         vec3 scenePosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
 
@@ -86,24 +88,31 @@
     void main() {
         color = vec4(0.0);
 
-        vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) { discard; return; }
+        #if defined WORLD_OVERWORLD || defined WORLD_END
 
-        vec4 albedo = texture(gtexture, textureCoords);
+            vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
+            if (saturate(fragCoords) != fragCoords) { discard; return; }
 
-        if (albedo.a < 0.102) { discard; return; }
+            vec4 albedo = texture(gtexture, textureCoords);
 
-        bool isRain = (abs(albedo.r - albedo.b) > EPS);
+            if (albedo.a < 0.102) { discard; return; }
 
-        if (isRain) {
-            color = computeRainColor();
-        } else {
-            color = vec4(1.0, 1.0, 1.0, 0.3);
-        }
+            bool isRain = (abs(albedo.r - albedo.b) > EPS);
 
-        color.rgb *= skyIlluminance;
+            if (isRain) {
+                color = computeRainColor();
+            } else {
+                color = vec4(1.0, 1.0, 1.0, 0.3);
+            }
 
-        color.rgb = max0(log2(color.rgb + 1.0));
+            color.rgb *= skyIlluminance;
+
+            color.rgb = max0(log2(color.rgb + 1.0));
+
+        #else
+            discard;
+            return;
+        #endif
     }
     
 #endif

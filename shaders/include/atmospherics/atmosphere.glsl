@@ -145,6 +145,7 @@ vec3 evaluateDirectIlluminance() {
     #elif defined WORLD_END
         directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, starVector, atmosphereAttenuationCoefficientsEnd) * starIrradiance;
     #endif
+
     return max0(directIlluminance);
 }
 
@@ -157,7 +158,7 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
         for (int x = 0; x < samples.x; x++) {
             for (int y = 0; y < samples.y; y++) {
                 vec3 direction  = generateUnitVector((vec2(x, y) + 0.5) / samples);
-                vec3 atmoSample = texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
+                vec3 atmoSample = vec3(luminance(texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb));
 
                 skyIlluminance[0][0] += atmoSample * saturate( direction.x);
                 skyIlluminance[0][1] += atmoSample * saturate( direction.y);
@@ -235,7 +236,7 @@ void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
         for (int x = 0; x < samples.x; x++) {
             for (int y = 0; y < samples.y; y++) {
                 vec3     direction      = generateUnitVector((vec2(x, y) + 0.5) / samples);
-                vec3     radiance       = texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
+                vec3     radiance       = vec3(luminance(texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb));
                 float[9] shCoefficients = calculateSphericalHarmonicsCoefficients(direction);
 
                 for (int n = 0; n < irradiance.length(); n++) irradiance[n] += radiance * shCoefficients[n];

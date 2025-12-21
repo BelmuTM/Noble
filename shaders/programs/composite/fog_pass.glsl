@@ -82,9 +82,9 @@
         mat4 projectionInverse = gbufferProjectionInverse;
 
         #if defined DISTANT_HORIZONS
-            if (texture(depthtex0, vertexCoords).r >= 1.0) {
-                farPlane = dhFarPlane;
+            farPlane = dhFarPlane;
 
+            if (texture(depthtex0, vertexCoords).r >= 1.0) {
                 projectionInverse = dhProjectionInverse;
             }
         #endif
@@ -136,7 +136,7 @@
                             computeWaterFogApproximation(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                         #else
                             bool skyTranslucents = material.depth1 == 1.0;
-                            computeVolumetricWaterFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight, skyTranslucents);
+                            computeVolumetricWaterFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight, skyTranslucents);
                         #endif
                     #endif
                 } else {
@@ -160,7 +160,7 @@
                 #if WATER_FOG == 0
                     computeWaterFogApproximation(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                 #else
-                    computeVolumetricWaterFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight, sky);
+                    computeVolumetricWaterFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight, sky);
                 #endif
             #endif
         } else {
