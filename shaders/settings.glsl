@@ -92,6 +92,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define SHADOW_DISTORTION    0.85
 #define SHADOW_DEPTH_STRETCH 0.25
 
+#define CONTACT_SHADOWS        1 // [0 1]
+#define CONTACT_SHADOWS_STEPS  8 // [4 8 16 32]
+#define CONTACT_SHADOWS_STRIDE 6
+
 #define NORMAL_SHADOW_PENUMBRA 1.0
 #define MIN_SHADOW_PENUMBRA    0.5
 
@@ -135,8 +139,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define REFLECTIONS_SKY_FALLBACK
 
-#define REFRACTIONS          1 // [0 1 2]
-#define REFRACTIONS_STRIDE 8.0
+#define REFRACTIONS        1 // [0 1 2]
+#define REFRACTIONS_STRIDE 8
 
 //////////////////////////////////////////////////////////
 /*---------------- GLOBAL ILLUMINATION -----------------*/
@@ -440,7 +444,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define TONEMAP 0 // [-1 0 1 2 3 4 5 6]
 #define LUT     0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 
-#define AGX_LOOK 0
+#define AGX_LOOK 2
 
 #define PURKINJE 1 // [0 1]
 

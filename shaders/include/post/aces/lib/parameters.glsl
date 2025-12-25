@@ -62,17 +62,17 @@ const float RRT_GLOW_GAIN = 0.05;
 const float RRT_GLOW_MID  = 0.08;
 
 // Red modifier constants
-const float RRT_RED_SCALE =  0.82;
-const float RRT_RED_PIVOT =  0.03;
-const float RRT_RED_HUE   =   0.0;
+const float RRT_RED_SCALE = 0.82;
+const float RRT_RED_PIVOT = 0.03;
+const float RRT_RED_HUE   = 0.0;
 const float RRT_RED_WIDTH = 135.0;
 
 const float RRT_SAT_FACTOR = 0.96;
 const float ODT_SAT_FACTOR = 0.93;
 
 const float DIM_SURROUND_GAMMA = 0.9811;
-const float ODT_DISPGAMMA      =    2.4;
-const float ODT_GAMMA_OFFSET   =  0.055;
+const float ODT_DISPGAMMA      = 2.4;
+const float ODT_GAMMA_OFFSET   = 0.055;
 
 const float ODT_CINEMA_WHITE = 48.0;
 const float ODT_CINEMA_BLACK = (ODT_CINEMA_WHITE / 2400.0);

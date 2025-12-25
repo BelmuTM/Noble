@@ -24,7 +24,15 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
     return 1.0 - quinticStep(edgeFactor, 0.0, minOf(pos));
 }
 
-vec3 computeRefractions(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition0, vec3 viewPosition1, Material material, inout vec3 refractedPosition) {
+vec3 computeRefractions(
+    bool dhFragment,
+    mat4 projection,
+    mat4 projectionInverse,
+    vec3 viewPosition0,
+    vec3 viewPosition1,
+    Material material,
+    inout vec3 refractedPosition
+) {
     vec3 n1 = vec3(airIOR), n2 = material.N;
     
     if (isEyeInWater == 1) {
@@ -43,9 +51,31 @@ vec3 computeRefractions(bool dhFragment, mat4 projection, mat4 projectionInverse
         float rayLength;
 
         if (dhFragment) {
-            hit = raytrace(dhDepthTex1, projection, projectionInverse, viewPosition0, refractedDirection, REFRACTIONS_STRIDE, jitter, RENDER_SCALE, refractedPosition, rayLength);
+            hit = raytrace(
+                dhDepthTex1,
+                projection,
+                projectionInverse,
+                viewPosition0,
+                refractedDirection,
+                float(REFRACTIONS_STRIDE),
+                jitter,
+                RENDER_SCALE,
+                refractedPosition,
+                rayLength
+            );
         } else {
-            hit = raytrace(depthtex1, projection, projectionInverse, viewPosition0, refractedDirection, REFRACTIONS_STRIDE, jitter, RENDER_SCALE, refractedPosition, rayLength);
+            hit = raytrace(
+                depthtex1,
+                projection,
+                projectionInverse,
+                viewPosition0,
+                refractedDirection,
+                float(REFRACTIONS_STRIDE),
+                jitter,
+                RENDER_SCALE,
+                refractedPosition,
+                rayLength
+            );
         }
 
     #elif REFRACTIONS == 2

@@ -140,6 +140,18 @@ suffix.shadowMapResolution = x
 option.shadowDistance = Shadow Distance
 option.shadowDistance.comment = Adjusts §bShadows§r maximum render distance.
 
+option.CONTACT_SHADOWS = Contact Shadows
+option.CONTACT_SHADOWS.comment = Traces shadows over a short distance to rectify shadowmapping's weaknesses.
+value.CONTACT_SHADOWS.0 = §cOFF
+value.CONTACT_SHADOWS.1 = §aON
+
+option.CONTACT_SHADOWS_STEPS = Steps
+option.CONTACT_SHADOWS_STEPS.comment = Adjusts §bContact Shadows§r quality. §cHigher value gives better results, but reduces §cperformance.
+value.CONTACT_SHADOWS_STEPS.4 = §24
+value.CONTACT_SHADOWS_STEPS.8 = §a8
+value.CONTACT_SHADOWS_STEPS.16 = §e16
+value.CONTACT_SHADOWS_STEPS.32 = §632
+
 ##################### AMBIENT OCCLUSION #####################
 
 option.AO = Ambient Occlusion (AO)

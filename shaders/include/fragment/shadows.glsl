@@ -20,6 +20,70 @@
 
 const float invShadowMapResolution = 1.0 / shadowMapResolution;
 
+#if CONTACT_SHADOWS == 1
+
+    float traceContactShadows(
+        sampler2D depthTexture,
+        mat4 projection,
+        mat4 projectionInverse,
+        vec3 viewPosition,
+        float scale
+    ) {
+        float jitter = randF();
+
+        // DDA setup (McGuire & Mara, 2014)
+        vec3 rayPosition;
+        vec3 rayDirection;
+        rayPosition   = viewToScreen(viewPosition, projection, true);
+        rayDirection  = viewPosition + abs(viewPosition.z) * shadowVec;
+        rayDirection  = viewToScreen(rayDirection, projection, true) - rayPosition;
+        rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);
+        
+        vec2 resolution = viewSize * scale;
+
+        rayPosition.xy  *= resolution;
+        rayDirection.xy *= resolution;
+
+        // Normalise the DDA ray step to walk a fixed amount of pixels per step
+        rayDirection /= maxOf(abs(rayDirection.xy));
+        // Scale it to the stride (in pixels)
+        rayDirection *= float(CONTACT_SHADOWS_STRIDE);
+
+        // Jitter the first step
+        rayPosition += rayDirection * jitter;
+
+        bool intersected = false;
+
+        for (int i = 0; i < CONTACT_SHADOWS_STEPS; i++) {
+            float depth = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
+
+            float linearDepth    = linearizeDepth(depth        , near, far);
+            float linearRayDepth = linearizeDepth(rayPosition.z, near, far);
+
+            float relativeGap = abs(linearRayDepth - linearDepth) / linearRayDepth;
+
+            // Check if the ray and the fragment are near enough for contact shadows
+            if (relativeGap < 0.025) {
+                float maxZ  = rayPosition.z;
+                float minZ  = rayPosition.z - float(CONTACT_SHADOWS_STRIDE) / linearDepth;
+                
+                // Intersection check, avoid player hand fragments
+                if(depth < rayPosition.z && maxZ >= depth && minZ <= depth && depth >= handDepth){
+                    intersected = true;
+                    break;
+                } 
+            } else {
+                break;
+            }
+
+            rayPosition += rayDirection;
+        }
+
+        return float(!intersected);
+    }
+
+#endif
+
 vec3 worldToShadow(vec3 worldPosition) {
     return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
 }

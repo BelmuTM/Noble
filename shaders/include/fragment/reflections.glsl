@@ -61,7 +61,16 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
     /*------------------ ROUGH REFLECTIONS -----------------*/
     //////////////////////////////////////////////////////////
 
-    vec3 computeRoughReflections(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition, Material material, out float rayLength) {
+    vec3 computeRoughReflections(
+        bool dhFragment,
+        mat4 projection,
+        mat4 projectionInverse,
+        vec3 viewPosition,
+        Material material,
+        out float rayLength
+    ) {
+        viewPosition += material.normal * 1e-2;
+
         float alphaSq = maxEps(material.roughness * material.roughness);
 
         float skylight = getSkylightFalloff(material.lightmap.y);
@@ -88,9 +97,31 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
             if (NdotL > 0.0) {
                 if (dhFragment) {
-                    hit = float(raytrace(dhDepthTex0, projection, projectionInverse, viewPosition, rayDirection, REFLECTIONS_STRIDE, jitter, RENDER_SCALE, hitPosition, sampleRayLength));
+                    hit = float(raytrace(
+                        dhDepthTex0,
+                        projection,
+                        projectionInverse,
+                        viewPosition,
+                        rayDirection,
+                        float(REFLECTIONS_STRIDE),
+                        jitter,
+                        RENDER_SCALE,
+                        hitPosition,
+                        sampleRayLength
+                    ));
                 } else {
-                    hit = float(raytrace(depthtex0, projection, projectionInverse, viewPosition, rayDirection, REFLECTIONS_STRIDE, jitter, RENDER_SCALE, hitPosition, sampleRayLength));
+                    hit = float(raytrace(
+                        depthtex0,
+                        projection,
+                        projectionInverse,
+                        viewPosition,
+                        rayDirection,
+                        float(REFLECTIONS_STRIDE),
+                        jitter,
+                        RENDER_SCALE,
+                        hitPosition,
+                        sampleRayLength
+                    ));
                 }
             }
 
@@ -126,7 +157,15 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
     /*------------------ SMOOTH REFLECTIONS ----------------*/
     //////////////////////////////////////////////////////////
 
-    vec3 computeSmoothReflections(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition, Material material, out float rayLength) {
+    vec3 computeSmoothReflections(
+        bool dhFragment,
+        mat4 projection,
+        mat4 projectionInverse,
+        vec3 viewPosition,
+        Material material,
+        out float rayLength
+    ) {
+        viewPosition += material.normal * 1e-2;
 
         float alphaSq = maxEps(material.roughness * material.roughness);
 
@@ -142,9 +181,31 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
         if (NdotL > 0.0) {
             if (dhFragment) {
-                hit = float(raytrace(dhDepthTex0, projection, projectionInverse, viewPosition, rayDirection, REFLECTIONS_STRIDE, jitter, RENDER_SCALE, hitPosition, rayLength));
+                hit = float(raytrace(
+                    dhDepthTex0,
+                    projection,
+                    projectionInverse,
+                    viewPosition,
+                    rayDirection,
+                    float(REFLECTIONS_STRIDE),
+                    jitter,
+                    RENDER_SCALE,
+                    hitPosition,
+                    rayLength
+                ));
             } else {
-                hit = float(raytrace(depthtex0, projection, projectionInverse, viewPosition, rayDirection, REFLECTIONS_STRIDE, jitter, RENDER_SCALE, hitPosition, rayLength));
+                hit = float(raytrace(
+                    depthtex0,
+                    projection,
+                    projectionInverse,
+                    viewPosition,
+                    rayDirection,
+                    float(REFLECTIONS_STRIDE),
+                    jitter,
+                    RENDER_SCALE,
+                    hitPosition,
+                    rayLength
+                ));
             }
         }
 

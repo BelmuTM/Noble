@@ -68,6 +68,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
         vec3 rayPosition = atmosphereRayPosition + increment * 0.5;
 
         #if defined WORLD_OVERWORLD
+
             vec2 VdotL = vec2(dot(rayDirection, sunVector), dot(rayDirection, moonVector));
             vec4 phase = vec4(
                 vec2(rayleighPhase(VdotL.x), kleinNishinaPhase(VdotL.x, mieAnisotropyFactor)), 
@@ -76,12 +77,15 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
 
             mat2x3 scatteringCoefficients  = atmosphereScatteringCoefficients;
             mat3x3 attenuationCoefficients = atmosphereAttenuationCoefficients;
+
         #elif defined WORLD_END
+
             float VdotL = dot(rayDirection, starVector);
             vec2  phase = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
             mat2x3 scatteringCoefficients  = atmosphereScatteringCoefficientsEnd;
             mat3x3 attenuationCoefficients = atmosphereAttenuationCoefficientsEnd;
+
         #endif
 
         mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
@@ -101,15 +105,19 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
             vec3 visibleScattering  = transmittance * saturate((stepTransmittance - 1.0) / -stepOpticalDepth);
 
             #if defined WORLD_OVERWORLD
+
                 vec3 sunStepScattering  = scatteringCoefficients * (airmass.xy * phase.xy) * visibleScattering;
                 vec3 moonStepScattering = scatteringCoefficients * (airmass.xy * phase.zw) * visibleScattering;
 
                 scattering[0] += sunStepScattering  * evaluateAtmosphereTransmittance(rayPosition, sunVector , attenuationCoefficients);
                 scattering[1] += moonStepScattering * evaluateAtmosphereTransmittance(rayPosition, moonVector, attenuationCoefficients);
+
             #elif defined WORLD_END
+
                 vec3 starStepScattering = scatteringCoefficients * (airmass.xy * phase) * visibleScattering;
                 
                 scattering[0] += starStepScattering * evaluateAtmosphereTransmittance(rayPosition, starVector, attenuationCoefficients);
+
             #endif
 
             vec3 stepScattering    = scatteringCoefficients * airmass.xy;
@@ -125,10 +133,14 @@ vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 atten
         multipleScattering *= skyIlluminance * isotropicPhase;
 
         #if defined WORLD_OVERWORLD
+
             scattering[0] *= sunIrradiance;
             scattering[1] *= moonIrradiance;
+
         #elif defined WORLD_END
+
             scattering[0] *= starIrradiance;
+
         #endif
     
         return scattering[0] + scattering[1] + multipleScattering;
@@ -140,46 +152,97 @@ vec3 evaluateDirectIlluminance() {
     vec3 directIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD
+
         directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, sunVector , atmosphereAttenuationCoefficients) * sunIrradiance;
         directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, moonVector, atmosphereAttenuationCoefficients) * moonIrradiance;
+
     #elif defined WORLD_END
+
         directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, starVector, atmosphereAttenuationCoefficientsEnd) * starIrradiance;
+
     #endif
 
     return max0(directIlluminance);
+}
+
+vec3 evaluateUniformSkyIrradianceApproximation() {
+    vec3 skyIlluminance = vec3(0.0);
+
+    #if defined WORLD_OVERWORLD || defined WORLD_END
+
+        const ivec2 samples        = ivec2(32);
+        const float invSampleCount = 1.0 / float(samples.x * samples.y);
+
+        for (int x = 0; x < samples.x; x++) {
+            for (int y = 0; y < samples.y; y++) {
+                vec2 uv = (vec2(x,y) + 0.5) / samples;
+
+                float phi   = TAU * uv.x;
+                float theta = 0.5 * PI * uv.y;
+
+                float cosTheta = cos(theta);
+                float sinTheta = sin(theta);
+
+                vec3 radiance = texture(ATMOSPHERE_BUFFER, uv).rgb;
+
+                skyIlluminance += radiance * cosTheta * sinTheta;
+            }
+        }
+
+        skyIlluminance *= PI * PI * invSampleCount;
+
+    #endif
+
+    return max0(skyIlluminance);
 }
 
 mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
     mat3[2] skyIlluminance = mat3[2](mat3(0.0), mat3(0.0));
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        const ivec2 samples = ivec2(8, 8);
+
+        const ivec2 samples        = ivec2(16);
+        const float invSampleCount = 1.0 / float(samples.x * samples.y);
 
         for (int x = 0; x < samples.x; x++) {
             for (int y = 0; y < samples.y; y++) {
-                vec3 direction  = generateUnitVector((vec2(x, y) + 0.5) / samples);
-                vec3 atmoSample = vec3(luminance(texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb));
+                vec2 uv = (vec2(x, y) + 0.5) / samples;
 
-                skyIlluminance[0][0] += atmoSample * saturate( direction.x);
-                skyIlluminance[0][1] += atmoSample * saturate( direction.y);
-                skyIlluminance[0][2] += atmoSample * saturate( direction.z);
-                skyIlluminance[1][0] += atmoSample * saturate(-direction.x);
-                skyIlluminance[1][2] += atmoSample * saturate(-direction.z);
+                float phi   = TAU      * uv.x;
+                float theta = 0.5 * PI * uv.y;
+
+                float cosTheta = cos(theta);
+                float sinTheta = sin(theta);
+
+                vec3 direction = vec3(
+                    sin(phi) * sinTheta,
+                    cosTheta,
+                    cos(phi) * sinTheta
+                );
+
+                vec3 radiance = texture(ATMOSPHERE_BUFFER, vec2(uv.x, 0.5 * uv.y)).rgb;
+
+                vec3 contribution = radiance * cosTheta * sinTheta;
+
+                // Positive lobes
+                skyIlluminance[0][0] += contribution * max(direction.x, 0.0);
+                skyIlluminance[0][1] += contribution * max(direction.y, 0.0);
+                skyIlluminance[0][2] += contribution * max(direction.z, 0.0);
+
+                // Negative lobes
+                skyIlluminance[1][0] += contribution * max(-direction.x, 0.0);
+                skyIlluminance[1][1] += contribution * max(-direction.y, 0.0);
+                skyIlluminance[1][2] += contribution * max(-direction.z, 0.0);
             }
         }
-        const float sampleWeight = TAU / (samples.x * samples.y);
-        skyIlluminance[0][0] *= sampleWeight;
-        skyIlluminance[0][1] *= sampleWeight;
-        skyIlluminance[0][2] *= sampleWeight;
-        skyIlluminance[1][0] *= sampleWeight;
-        skyIlluminance[1][2] *= sampleWeight;
 
-        skyIlluminance[0][0] += skyIlluminance[0][1] * 0.5;
-        skyIlluminance[0][2] += skyIlluminance[0][1] * 0.5;
-        skyIlluminance[1][0] += skyIlluminance[0][1] * 0.5;
-        skyIlluminance[1][1] += skyIlluminance[0][1] * 0.6;
-        skyIlluminance[1][2] += skyIlluminance[0][1] * 0.5;
+        const float normalization = PI * PI * invSampleCount;
+
+        skyIlluminance[0] *= normalization;
+        skyIlluminance[1] *= normalization;
+
     #endif
+
     return skyIlluminance;
 }
 
@@ -191,58 +254,55 @@ vec3 evaluateSkylight(vec3 normal, mat3[2] skylight) {
          + skylight[1][0] * negative.x + skylight[1][1] * negative.y + skylight[1][2] * negative.z;
 }
 
-vec3 evaluateUniformSkyIrradianceApproximation() {
-    vec3 skyIlluminance = vec3(0.0);
-
-    #if defined WORLD_OVERWORLD || defined WORLD_END
-        const ivec2 samples = ivec2(32);
-
-        for (int x = 0; x < samples.x; x++) {
-            for (int y = 0; y < samples.y; y++) {
-                vec3 direction  = generateUnitVector((vec2(x, y) + 0.5) / samples);
-                skyIlluminance += texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb;
-            }
-        }
-        skyIlluminance *= PI / (samples.x * samples.y);
-    #endif
-    return max0(skyIlluminance);
-}
-
 // Spherical Harmonics Coefficients for 2 orders
 float[9] calculateSphericalHarmonicsCoefficients(vec3 wi) {
-    const float r  = 1.0;
-    const float r2 = r * r;
-
     return float[9](
         0.28209479,
-        0.48860251 * (wi.x / r),
-        0.48860251 * (wi.z / r),
-        0.48860251 * (wi.y / r),
-        1.09254843 * ((wi.y * wi.x) / r2),
-        1.09254843 * ((wi.y * wi.z) / r2),
-        0.31539156 * (3.0 * wi.z * wi.z - r2),
-        1.09254843 * ((wi.x * wi.z) / r2),
-        0.54627421 * ((wi.x * wi.x - wi.y * wi.y) / r2)
+
+        0.48860251 * wi.y,
+        0.48860251 * wi.z,
+        0.48860251 * wi.x,
+
+        1.09254843 * wi.x * wi.y,
+        1.09254843 * wi.y * wi.z,
+        0.31539156 * (3.0 * wi.z * wi.z - 1.0),
+        1.09254843 * wi.x * wi.z,
+        0.54627421 * (wi.x * wi.x - wi.y * wi.y)
     );
 }
 
 void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
-    
-    for (int n = 0; n < irradiance.length(); n++) irradiance[n] = vec3(0.0);
+    for (int i = 0; i < 9; i++) irradiance[i] = vec3(0.0);
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
-        const ivec2 samples = ivec2(8, 8);
+
+        const ivec2 samples        = ivec2(16);
+        const float invSampleCount = 1.0 / float(samples.x * samples.y);
 
         for (int x = 0; x < samples.x; x++) {
             for (int y = 0; y < samples.y; y++) {
-                vec3     direction      = generateUnitVector((vec2(x, y) + 0.5) / samples);
-                vec3     radiance       = vec3(luminance(texture(ATMOSPHERE_BUFFER, projectSphere(direction)).rgb));
-                float[9] shCoefficients = calculateSphericalHarmonicsCoefficients(direction);
+                vec2 uv = (vec2(x, y) + 0.5) / samples;
 
-                for (int n = 0; n < irradiance.length(); n++) irradiance[n] += radiance * shCoefficients[n];
+                float phi   = TAU * uv.x;
+                float theta = PI  * uv.y;
+
+                float sinTheta = sin(theta);
+
+                vec3 direction = vec3(sin(phi) * sinTheta, cos(theta), cos(phi) * sinTheta);
+
+                vec3 radiance = texture(ATMOSPHERE_BUFFER, uv).rgb;
+
+                float[9] sh = calculateSphericalHarmonicsCoefficients(direction);
+
+                for (int i = 0; i < 9; i++)
+                    irradiance[i] += radiance * sh[i] * sinTheta;
             }
         }
-        for (int n = 0; n < irradiance.length(); n++) irradiance[n] *= TAU / (samples.x * samples.y);
+
+        const float normalization = 2.0 * PI * PI * invSampleCount;
+
+        for (int i = 0; i < 9; i++) irradiance[i] *= normalization;
+
     #endif
 }
 
@@ -260,24 +320,17 @@ vec3[9] sampleUniformSkyIrradiance() {
     );
 }
 
-vec3 evaluateDirectionalSkyIrradiance(vec3[9] irradiance, vec3 wi, float visibility) {
-    const int n0 = 1, n1 = 3, n2 = 5;
-    const vec3 normalization = sqrt(2.0 * TAU / vec3(n0, n1, n2));
+vec3 evaluateDirectionalSkyIrradiance(vec3[9] irradiance, vec3 bentNormal, float visibility) {
+    float[9] sh = calculateSphericalHarmonicsCoefficients(bentNormal);
 
-    float[3] zonalHarmonicsCoefficients;
-             zonalHarmonicsCoefficients[0] = 0.88622692 * visibility;
-             zonalHarmonicsCoefficients[1] = 1.02332670 * (1.0 - sqrt(1.0 - visibility)) * (2.0 - visibility);
-             zonalHarmonicsCoefficients[2] = 0.24770795 * visibility * (2.0 + 6.0 * (1.0 - visibility));
+    // Lambertian convolution
+    const float A0 = PI;
+    const float A1 = TAU / 3.0;
+    const float A2 = PI  / 4.0;
 
-    float[9] shCoefficients = calculateSphericalHarmonicsCoefficients(wi);
+    vec3 result = irradiance[0] * A0 * sh[0]
+                + (irradiance[1] * sh[1] + irradiance[2] * sh[2] + irradiance[3] * sh[3]) * A1
+                + (irradiance[4] * sh[4] + irradiance[5] * sh[5] + irradiance[6] * sh[6] + irradiance[7] * sh[7] + irradiance[8] * sh[8]) * A2;
 
-    return normalization[0] * zonalHarmonicsCoefficients[0] * shCoefficients[0] * irradiance[0]
-         + normalization[1] * zonalHarmonicsCoefficients[1] * shCoefficients[1] * irradiance[1] // 1st order
-         + normalization[1] * zonalHarmonicsCoefficients[1] * shCoefficients[2] * irradiance[2]
-         + normalization[1] * zonalHarmonicsCoefficients[1] * shCoefficients[3] * irradiance[3]
-         + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[4] * irradiance[4] // 2nd order
-         + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[5] * irradiance[5]
-         + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[6] * irradiance[6]
-         + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[7] * irradiance[7]
-         + normalization[2] * zonalHarmonicsCoefficients[2] * shCoefficients[8] * irradiance[8];
+    return result * visibility;
 }

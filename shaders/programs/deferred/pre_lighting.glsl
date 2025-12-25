@@ -154,6 +154,8 @@
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS > 0
+                bool dhFragment = false;
+
                 mat4 projection        = gbufferProjection;
                 mat4 projectionInverse = gbufferProjectionInverse;
 
@@ -162,6 +164,8 @@
 
                 #if defined DISTANT_HORIZONS
                     if (texture(depthtex0, vertexCoords).r >= 1.0) {
+                        dhFragment = true;
+
                         projection        = dhProjection;
                         projectionInverse = dhProjectionInverse;
 
@@ -179,6 +183,23 @@
 
                 #if POM > 0 && POM_SHADOWING == 1
                     shadowmap.rgb *= material.parallaxSelfShadowing;
+                #endif
+
+                #if CONTACT_SHADOWS == 1
+                    float contactShadows = 1.0;
+
+                    viewPosition += geometricNormal * 1e-2;
+
+                    if (dhFragment) {
+                        contactShadows = traceContactShadows(dhDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE);
+                    } else {
+                        contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, RENDER_SCALE);
+                    }
+
+                    // Apply contact shadows if the shadowmap is insufficient (out of bounds or lacks precision)
+                    if (shadowmap.rgb != vec3(1.0) && luminance(shadowmap.rgb) > contactShadows || shadowmap.rgb == vec3(1.0)) {
+                        shadowmap.rgb *= contactShadows;
+                    }
                 #endif
             #endif
 

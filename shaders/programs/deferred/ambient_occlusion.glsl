@@ -57,7 +57,15 @@
                 return visibility / (albedo * visibility + (1.0 - albedo)); 
              }
 
-            float findMaximumHorizon(bool dhFragment, mat4 projectionInverse, vec3 viewPosition, vec3 viewDirection, vec3 normal, vec3 sliceDir, vec2 radius) {
+            float findMaximumHorizon(
+                bool dhFragment,
+                mat4 projectionInverse,
+                vec3 viewPosition,
+                vec3 viewDirection,
+                vec3 normal,
+                vec3 sliceDir,
+                vec2 radius
+            ) {
                 float horizonCos = -1.0;
 
                 vec2 stepSize    = radius * rcp(GTAO_HORIZON_STEPS);
@@ -169,11 +177,35 @@
                 for (int i = 0; i < RTAO_SAMPLES; i++) {
                     vec3 rayDirection = generateCosineVector(normal, rand2F());
 
+                    float jitter = randF();
+
                     bool hit;
                     if (dhFragment) {
-                        hit = raytrace(dhDepthTex0, projection, projectionInverse, rayPosition, rayDirection, RTAO_STRIDE, randF(), RENDER_SCALE, hitPosition, rayLength);
+                        hit = raytrace(
+                            dhDepthTex0,
+                            projection,
+                            projectionInverse,
+                            rayPosition,
+                            rayDirection,
+                            float(RTAO_STRIDE),
+                            jitter,
+                            RENDER_SCALE,
+                            hitPosition,
+                            rayLength
+                        );
                     } else {
-                        hit = raytrace(depthtex0, projection, projectionInverse, rayPosition, rayDirection, RTAO_STRIDE, randF(), RENDER_SCALE, hitPosition, rayLength);
+                        hit = raytrace(
+                            depthtex0,
+                            projection,
+                            projectionInverse,
+                            rayPosition,
+                            rayDirection,
+                            float(RTAO_STRIDE),
+                            jitter,
+                            RENDER_SCALE,
+                            hitPosition,
+                            rayLength
+                        );
                     }
 
                     if (!hit) {

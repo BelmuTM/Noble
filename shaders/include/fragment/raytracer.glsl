@@ -41,7 +41,7 @@ bool raytrace(
     out vec3 rayPosition,
     out float rayLength
 ) {
-    // Scaling the jitter to the stride in pixel size
+    // Scale the jitter to the stride in pixel size
     jitter *= stride;
 
     rayLength = 0.0;
@@ -57,7 +57,7 @@ bool raytrace(
     rayPosition.xy  *= resolution;
     rayDirection.xy *= resolution;
 
-    // Normalising the DDA ray step to walk a fixed amount of pixels per step
+    // Normalise the DDA ray step to walk a fixed amount of pixels per step
     rayDirection /= maxOf(abs(rayDirection.xy));
 
     float initialDepth = rayPosition.z;
@@ -66,17 +66,17 @@ bool raytrace(
     vec3 startPosition = rayPosition;
     vec3 endPosition   = step(0.0, rayDirection) * vec3(resolution - 1.0, 1.0);
 
-    // Computing the minimal amount of steps to reach an upper bound on any axis
+    // Compute the minimal amount of steps to reach an upper bound on any axis
     vec3 stepsToEndPosition    = (endPosition - startPosition) / rayDirection;
-    // Extending the upper bound to guarantee full coverage of the far plane
+    // Extend the upper bound to guarantee full coverage of the far plane
          stepsToEndPosition.z += stride;
 
-    // Clamping to the resolution to avoid marching forever
+    // Clamp to the resolution to avoid marching forever
     float tMax = min(minOf(stepsToEndPosition), maxOf(resolution));
     float t    = jitter;
 
     /*
-        Thickening each depth sample by a factor to prevent false positives during
+        Thicken each depth sample by a factor to prevent false positives during
         intersection checks, this makes each depth sample equivalent to a frustum-shaped voxel
         (McGuire & Mara, 2014)
     */
@@ -84,7 +84,7 @@ bool raytrace(
 
     bool intersected = false;
 
-    // Marching until we reach the edge or intersect something
+    // March until we reach the edge or intersect something
     while (t < tMax && !intersected) {
         rayPosition = startPosition + rayDirection * t;
 
@@ -96,7 +96,7 @@ bool raytrace(
         float thickDepth = thickenDepth(depth, zThickness, projection);
 
         /*
-            Intersection check, taking account of the depth sample's thickness, and avoiding
+            Intersection check, take account of the depth sample's thickness, and avoid
             player hand fragments and sky fragments
         */
         if (maxZ >= depth && minZ <= thickDepth && depth >= handDepth) {

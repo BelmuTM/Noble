@@ -162,7 +162,7 @@ void agxLook(inout vec3 color) {
         // Default
         const vec3  slope      = vec3(1.0);
         const vec3  power      = vec3(1.0);
-        const float saturation = 1.2;
+        const float saturation = 1.0;
     #elif AGX_LOOK == 1
         // Golden
         const vec3  slope      = vec3(1.0, 0.9, 0.5);
@@ -171,8 +171,8 @@ void agxLook(inout vec3 color) {
     #elif AGX_LOOK == 2
         // Punchy
         const vec3  slope      = vec3(1.0);
-        const vec3  power      = vec3(1.35);
-        const float saturation = 1.4;
+        const vec3  power      = vec3(1.1);
+        const float saturation = 1.2;
     #endif
 
     float luma = luminance(color);
