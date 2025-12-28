@@ -1,16 +1,16 @@
-![Noble](images/branding/noble_banner.png)
-
 # Noble
+
+![Noble](images/branding/noble_banner.png)
 
 Noble finds the perfect balance between performance and realism.  
 This Minecraft shader pack uses clever lighting techniques and powerful customization to create immersive, clean, and enjoyable visuals.
 
 ### Socials (click the banners)
 
-<a href="https://discord.gg/jjRrhpkH9e"><img src="images/branding/discord_banner.png" title="Discord Server" width="35%" height="35%"></a>
-<a href="https://patreon.com/Belmu"><img src="images/branding/patreon_banner.png" title="Patreon Page" width="35%" height="35%"></a>
-<a href="https://modrinth.com/shader/noble"><img src="images/branding/modrinth_banner.png" title="Modrinth Page" width="35%" height="35%"></a>
-<a href="https://www.curseforge.com/minecraft/shaders/noble-shaders"><img src="images/branding/curseforge_banner.png" title="Curseforge Page" width="35%" height="35%"></a>
+<a href="https://discord.gg/jjRrhpkH9e"><img src="images/branding/discord_banner.png" title="Discord Server" width="25%" height="25%"></a>
+<a href="https://patreon.com/Belmu"><img src="images/branding/patreon_banner.png" title="Patreon Page" width="25%" height="25%"></a>
+<a href="https://modrinth.com/shader/noble"><img src="images/branding/modrinth_banner.png" title="Modrinth Page" width="25%" height="25%"></a>
+<a href="https://www.curseforge.com/minecraft/shaders/noble-shaders"><img src="images/branding/curseforge_banner.png" title="Curseforge Page" width="25%" height="25%"></a>
 
 ## Releases
 
