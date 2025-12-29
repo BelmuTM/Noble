@@ -28,6 +28,23 @@ hope you enjoy the result!
 
 Feel free to report bugs or discuss ideas on the [Discord server](https://discord.gg/jjRrhpkH9e).
 
+## Supported Mods
+
+<p align="left">
+  <a href="https://modrinth.com/mod/distanthorizons">
+  <img
+    src="https://gitlab.com/distant-horizons-team/distant-horizons-core/-/raw/main/_Misc%20Files/logo%20files/new/SVG/Distant-Horizons.svg"
+    title="Distant Horizons Download Page"
+    width="360px"
+  ></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://modrinth.com/mod/voxy">
+  <img src="https://cdn.modrinth.com/data/fxxUqruK/2a4159b1ff6ecba43bf895d6abee6f724a0e03c0_96.webp"
+    title="Voxy Download Page"
+    width="120px"
+  ></a>
+</p>
+
 ## Requirements
 
 > [!IMPORTANT]
