@@ -220,7 +220,7 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
                     cos(phi) * sinTheta
                 );
 
-                vec3 radiance = texture(ATMOSPHERE_BUFFER, vec2(uv.x, 0.5 * uv.y)).rgb;
+                vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, vec2(uv.x, 0.5 * uv.y)).rgb));
 
                 vec3 contribution = radiance * cosTheta * sinTheta;
 
@@ -290,7 +290,7 @@ void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
 
                 vec3 direction = vec3(sin(phi) * sinTheta, cos(theta), cos(phi) * sinTheta);
 
-                vec3 radiance = texture(ATMOSPHERE_BUFFER, uv).rgb;
+                vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
 
                 float[9] sh = calculateSphericalHarmonicsCoefficients(direction);
 
