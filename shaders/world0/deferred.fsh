@@ -3,4 +3,4 @@
 #define STAGE_FRAGMENT
 #define WORLD_OVERWORLD
 
-#include "/programs/deferred/atmosphere_pass.glsl"
+#include "/programs/deferred/atmosphere_write.glsl"

@@ -106,8 +106,6 @@
             
         #endif
 
-        //lighting = exp2(texture(colortex0, vertexCoords).rgb) - 1.0;
-
         lighting = max0(log2(lighting + 1.0));
     }
     

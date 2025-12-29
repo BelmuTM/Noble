@@ -84,14 +84,18 @@
         float emission = 0.0;
 
         #if HARDCODED_EMISSION == 1
-            if (blockId == DH_BLOCK_ILLUMINATED) emission = HARDCODED_EMISSION_VAL;
+            if (blockId == DH_BLOCK_ILLUMINATED) {
+                emission = HARDCODED_EMISSION_VAL;
+            }
         #endif
 
         float subsurface = 0.0;
 
         #if HARDCODED_SSS == 1
             if (subsurface <= EPS) {
-                if (blockId == DH_BLOCK_LEAVES || blockId == DH_BLOCK_SNOW || blockId == DH_BLOCK_SAND) subsurface = HARDCODED_SSS_VAL;
+                if (blockId == DH_BLOCK_LEAVES || blockId == DH_BLOCK_SNOW || blockId == DH_BLOCK_SAND) {
+                    subsurface = HARDCODED_SSS_VAL;
+                }
             }
         #endif
 

@@ -3,4 +3,4 @@
 #define STAGE_FRAGMENT
 #define WORLD_END
 
-#include "/programs/deferred/clouds_pass.glsl"
+#include "/programs/deferred/clouds_write.glsl"

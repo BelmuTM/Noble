@@ -87,7 +87,7 @@
     #endif
 
     void main() {
-        shadowmap   = vec4(0.0);
+        shadowmap   = vec4(1.0, 1.0, 1.0, 0.0);
         illuminance = vec4(0.0);
 
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
@@ -159,7 +159,11 @@
                 vec3 viewPosition    = screenToView(screenPosition, projectionInverse, true);
                 vec3 scenePosition   = viewToScene(viewPosition);
 
-                shadowmap.rgb = abs(calculateShadowMapping(scenePosition, geometricNormal, material.depth0, shadowmap.a));
+                vec3 shadowmapResult = calculateShadowMapping(scenePosition, geometricNormal, material.depth0, shadowmap.a);
+
+                float NdotL = dot(geometricNormal, shadowLightVectorWorld);
+
+                shadowmap.rgb = abs(shadowmapResult);
 
                 #if POM > 0 && POM_SHADOWING == 1
                     shadowmap.rgb *= material.parallaxSelfShadowing;
@@ -170,14 +174,21 @@
 
                     viewPosition += geometricNormal * 1e-2;
 
+                    float subsurfaceDepth = 0.0;
+
                     if (modFragment) {
-                        contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE);
+                        contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
                     } else {
-                        contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, RENDER_SCALE);
+                        contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
+                    }
+
+                    // Use the subsurface depth from contact shadows if the one from shadow mapping is undefined/invalid
+                    if (subsurfaceDepth > 0.0 && shadowmap.a < EPS && length(scenePosition) >= shadowDistance) {
+                        shadowmap.a = subsurfaceDepth;
                     }
 
                     // Apply contact shadows if the shadowmap is insufficient (out of bounds or lacks precision)
-                    if (shadowmap.rgb != vec3(1.0) && luminance(shadowmap.rgb) > contactShadows || shadowmap.rgb == vec3(1.0)) {
+                    if (shadowmap.rgb == vec3(1.0) || luminance(shadowmap.rgb) > contactShadows) {
                         shadowmap.rgb *= contactShadows;
                     }
                 #endif

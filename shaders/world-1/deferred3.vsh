@@ -3,4 +3,4 @@
 #define STAGE_VERTEX
 #define WORLD_NETHER
 
-#include "/programs/deferred/pre_lighting.glsl"
+#include "/programs/deferred/shadows_and_skylight.glsl"

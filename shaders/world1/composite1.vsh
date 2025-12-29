@@ -3,4 +3,4 @@
 #define STAGE_VERTEX
 #define WORLD_END
 
-#include "/programs/composite/fog_pass.glsl"
+#include "/programs/composite/fog_write.glsl"

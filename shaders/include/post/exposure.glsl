@@ -18,13 +18,9 @@
 /*                                                                              */
 /********************************************************************************/
 
-#if TONEMAP == ACES
-    const float bias = 2.0;
-#else
-    const float bias = 1.0;
-#endif
+const float bias = 1.0;
 
-const float minExposure = bias * 4e-5;
+const float minExposure = bias * 6e-5;
 const float maxExposure = bias * 6e-2;
 
 const float calibration       = 12.5;  // Light meter calibration

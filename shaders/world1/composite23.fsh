@@ -5,4 +5,4 @@
 #define BLOOM_UPSAMPLE_PASS
 #define BLOOM_UPSAMPLE_PASS_INDEX 0
 
-#include "/programs/post/bloom/tile_pass.glsl"
+#include "/programs/post/bloom/tile_write.glsl"

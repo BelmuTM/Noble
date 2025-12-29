@@ -55,13 +55,17 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     float emission = 0.0;
 
     #if HARDCODED_EMISSION == 1
-        if (blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
+        if (blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) {
+            emission = HARDCODED_EMISSION_VAL;
+        }
     #endif
 
     float subsurface = 0.0;
 
     #if HARDCODED_SSS == 1
-        if (blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID) subsurface = HARDCODED_SSS_VAL;
+        if (blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID) {
+            subsurface = 1.0;
+        }
     #endif
 
     uint  axis = voxyParameters.face >> 1u;

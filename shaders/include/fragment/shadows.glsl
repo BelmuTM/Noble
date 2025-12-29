@@ -27,7 +27,8 @@ const float invShadowMapResolution = 1.0 / shadowMapResolution;
         mat4 projection,
         mat4 projectionInverse,
         vec3 viewPosition,
-        float scale
+        float scale,
+        out float subsurfaceDepth
     ) {
         float jitter = randF();
 
@@ -44,10 +45,14 @@ const float invShadowMapResolution = 1.0 / shadowMapResolution;
         rayPosition.xy  *= resolution;
         rayDirection.xy *= resolution;
 
+        vec3 startPosition = rayPosition;
+
         // Normalise the DDA ray step to walk a fixed amount of pixels per step
         rayDirection /= maxOf(abs(rayDirection.xy));
         // Scale it to the stride (in pixels)
         rayDirection *= float(CONTACT_SHADOWS_STRIDE);
+
+        float initialDepth = rayPosition.z;
 
         // Jitter the first step
         rayPosition += rayDirection * jitter;
@@ -72,11 +77,13 @@ const float invShadowMapResolution = 1.0 / shadowMapResolution;
                     intersected = true;
                     break;
                 } 
-            } else {
-                break;
             }
 
             rayPosition += rayDirection;
+        }
+
+        if (intersected) {
+            subsurfaceDepth = distance(startPosition, rayPosition);
         }
 
         return float(!intersected);
@@ -88,16 +95,16 @@ vec3 worldToShadow(vec3 worldPosition) {
     return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
 }
 
-float visibility(sampler2D tex, vec3 samplePos) {
-    return step(samplePos.z, texelFetch(tex, ivec2(samplePos.xy * shadowMapResolution), 0).r);
+float visibility(sampler2D tex, vec3 samplePosition) {
+    return step(samplePosition.z, texelFetch(tex, ivec2(samplePosition.xy * shadowMapResolution), 0).r);
 }
 
-vec3 getShadowColor(vec3 samplePos) {
-    if (saturate(samplePos) != samplePos) return vec3(1.0);
+vec3 getShadowColor(vec3 samplePosition) {
+    if (saturate(samplePosition) != samplePosition) return vec3(1.0);
 
-    float shadowDepth0 = visibility(shadowtex0, samplePos);
-    float shadowDepth1 = visibility(shadowtex1, samplePos);
-    vec4  shadowColor  = texelFetch(shadowcolor0, ivec2(samplePos.xy * shadowMapResolution), 0);
+    float shadowDepth0 = visibility(shadowtex0, samplePosition);
+    float shadowDepth1 = visibility(shadowtex1, samplePosition);
+    vec4  shadowColor  = texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0);
     
     #if TONEMAP == ACES
         shadowColor.rgb = srgbToAP1Albedo(shadowColor.rgb);
@@ -134,6 +141,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
                 subsurfaceDepthSum += max0(shadowDepth - depth);
             }
+            
             // Subsurface depth calculation from sixthsurge
             // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
             subsurfaceDepth = (-shadowProjectionInverse[2].z * subsurfaceDepthSum) / (SHADOW_DEPTH_STRETCH * BLOCKER_SEARCH_SAMPLES);
@@ -155,8 +163,9 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
                 offset = sampleDisk(i, SHADOW_SAMPLES, rng) * penumbraSize * invShadowMapResolution;
             #endif
 
-            vec3 samplePos = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;
-            shadowResult  += getShadowColor(samplePos - selfIntersectionBias);
+            vec3 samplePosition = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;
+
+            shadowResult += getShadowColor(samplePosition - selfIntersectionBias);
         }
         return shadowResult * rcp(SHADOW_SAMPLES);
     }
@@ -182,12 +191,14 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
         if (depth < handDepth) selfIntersectionBias = vec3(0.0, 0.0, 1e-3);
 
         #if SHADOWS == 1
-            vec3  shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
-            float avgBlockerDepth  = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
+            vec3 shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
 
-            if (avgBlockerDepth < EPS) {
-                subsurfaceDepth = 1.0;
-                //return vec3(-1.0);
+            if (saturate(shadowPosDistort) != shadowPosDistort) return vec3(1.0);
+
+            float avgBlockerDepth = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
+
+            if (avgBlockerDepth < 0.0) {
+                return vec3(-1.0);
             }
 
             if (NdotL < EPS) return vec3(0.0);

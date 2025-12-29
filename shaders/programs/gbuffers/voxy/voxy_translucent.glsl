@@ -100,7 +100,9 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         material.roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
 
         #if HARDCODED_EMISSION == 1
-            if (blockId >= LAVA_ID && blockId < SSS_ID) material.emission = HARDCODED_EMISSION_VAL;
+            if (blockId >= LAVA_ID && blockId < SSS_ID) {
+                material.emission = HARDCODED_EMISSION_VAL;
+            }
         #endif
 
         material.albedo = voxyParameters.sampledColour.rgb * voxyParameters.tinting.rgb;

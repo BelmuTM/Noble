@@ -274,11 +274,15 @@
         #endif
 
         #if HARDCODED_EMISSION == 1
-            if (blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
+            if (blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) {
+                emission = HARDCODED_EMISSION_VAL;
+            }
         #endif
         
         #if HARDCODED_SSS == 1
-            if (blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID && subsurface <= EPS) subsurface = HARDCODED_SSS_VAL;
+            if (blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID && subsurface <= EPS) {
+                subsurface = HARDCODED_SSS_VAL;
+            }
         #endif
 
         float handLight  = min(float(heldBlockLightValue + heldBlockLightValue2), 15.0) / 15.0;

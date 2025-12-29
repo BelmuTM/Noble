@@ -188,7 +188,8 @@
         
             color.rgb = vec3(0.0);
 
-            float cloudsShadows = 1.0; vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
+            float cloudsShadows = 1.0; 
+            vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
             #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                 cloudsShadows = getCloudsShadows(viewToScene(viewPosition));

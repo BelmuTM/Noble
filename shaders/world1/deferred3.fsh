@@ -3,4 +3,4 @@
 #define STAGE_FRAGMENT
 #define WORLD_END
 
-#include "/programs/deferred/pre_lighting.glsl"
+#include "/programs/deferred/shadows_and_skylight.glsl"
