@@ -188,4 +188,6 @@ void main() {
             colorOut += bayer8(gl_FragCoord.xy) * rcpMaxFloat8;
         #endif
     #endif
+
+    //colorOut = vec3(1.0 / linearizeDepth(texture(depthMipmapSampler, textureCoords).r, near, far));
 }

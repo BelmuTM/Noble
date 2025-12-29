@@ -25,7 +25,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
 }
 
 vec3 computeRefractions(
-    bool dhFragment,
+    bool modFragment,
     mat4 projection,
     mat4 projectionInverse,
     vec3 viewPosition0,
@@ -50,9 +50,9 @@ vec3 computeRefractions(
         float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float rayLength;
 
-        if (dhFragment) {
+        if (modFragment) {
             hit = raytrace(
-                dhDepthTex1,
+                modDepthTex1,
                 projection,
                 projectionInverse,
                 viewPosition0,
@@ -100,13 +100,13 @@ vec3 computeRefractions(
     float nearPlane = near;
     float farPlane  = far;
 
-    #if defined DISTANT_HORIZONS
+    #if defined CHUNK_LOADER_MOD_ENABLED
         if (depth0 >= 1.0) {
-            depth0 = texture(dhDepthTex0, refractedPosition.xy).r;
-            depth1 = texture(dhDepthTex1, refractedPosition.xy).r;
+            depth0 = texture(modDepthTex0, refractedPosition.xy).r;
+            depth1 = texture(modDepthTex1, refractedPosition.xy).r;
 
-            nearPlane = dhNearPlane;
-            farPlane  = dhFarPlane;
+            nearPlane = modNearPlane;
+            farPlane  = modFarPlane;
         }
     #endif
         
@@ -118,15 +118,23 @@ vec3 computeRefractions(
 
     vec3 sampledColor = exp2(texture(MAIN_BUFFER, refractedPosition.xy).rgb) - 1.0;
 
+    // Water absorption is handled individually
+    if (isWater(material.id)) {
+        return sampledColor * fresnel;
+    }
+
+    // Approximate absorption for other materials
     float density = 0.0;
 
-    switch (material.id) {
-        case WATER_ID:         return sampledColor * fresnel;
-        case NETHER_PORTAL_ID: density = 3.0;
-        default: {
-            density = clamp(distance(linearizeDepth(depth1, nearPlane, farPlane), linearizeDepth(material.depth0, nearPlane, farPlane)), 0.0, 2.0);
-            break;
-        }
+    if (material.id == NETHER_PORTAL_ID) {
+        density = 3.0;
+    } else {
+        density = distance(
+            linearizeDepth(depth1,          nearPlane, farPlane),
+            linearizeDepth(material.depth0, nearPlane, farPlane)
+        );
+
+        density = clamp(density, 0.0, 2.0);
     }
 
     vec3 absorption = exp(-(1.0 - material.albedo) * density);

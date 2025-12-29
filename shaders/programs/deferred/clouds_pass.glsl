@@ -69,15 +69,15 @@
 
             clouds = vec4(0.0, 0.0, 1.0, 0.0);
 
-            bool  dhFragment = false;
-            float depth      = texture(depthtex0, vertexCoords).r;
+            bool  modFragment = false;
+            float depth       = texture(depthtex0, vertexCoords).r;
 
             mat4 projectionInverse = gbufferProjectionInverse;
 
-            #if defined DISTANT_HORIZONS
+            #if defined CHUNK_LOADER_MOD_ENABLED
                 if (depth >= 1.0) {
-                    dhFragment        = true;
-                    projectionInverse = dhProjectionInverse;
+                    modFragment        = true;
+                    projectionInverse = modProjectionInverse;
                 }
             #endif
 
@@ -93,8 +93,8 @@
                 }
             #endif
 
-            if (dhFragment) {
-                if (find4x4MaximumDepth(dhDepthTex0, vertexCoords) < 1.0) return;
+            if (modFragment) {
+                if (find4x4MaximumDepth(modDepthTex0, vertexCoords) < 1.0) return;
             } else {
                 if (find4x4MaximumDepth(depthtex0, vertexCoords) < 1.0) return;
             }

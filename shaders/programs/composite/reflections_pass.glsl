@@ -81,25 +81,27 @@
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
             if (saturate(fragCoords) != fragCoords) { discard; return; }
 
-            bool  dhFragment = false;
-            float depth      = texture(depthtex0, vertexCoords).r;
+            bool  modFragment = false;
+            float depth       = texture(depthtex0, vertexCoords).r;
 
-            mat4 projection        = gbufferProjection;
-            mat4 projectionInverse = gbufferProjectionInverse;
+            mat4 projection         = gbufferProjection;
+            mat4 projectionInverse  = gbufferProjectionInverse;
+            mat4 projectionPrevious = gbufferPreviousProjection;
 
             float nearPlane = near;
             float farPlane  = far;
 
-            #if defined DISTANT_HORIZONS
+            #if defined CHUNK_LOADER_MOD_ENABLED
                 if (depth >= 1.0) {
-                    dhFragment = true;
-                    depth      = texture(dhDepthTex0, vertexCoords).r;
+                    modFragment = true;
+                    depth       = texture(modDepthTex0, vertexCoords).r;
                     
-                    projection        = dhProjection;
-                    projectionInverse = dhProjectionInverse;
+                    projection         = modProjection;
+                    projectionInverse  = modProjectionInverse;
+                    projectionPrevious = modProjectionPrevious;
 
-                    nearPlane = dhNearPlane;
-                    farPlane  = dhFarPlane;
+                    nearPlane = modNearPlane;
+                    farPlane  = modFarPlane;
                 }
             #endif
 
@@ -115,12 +117,12 @@
             float rayLength;
                     
             #if REFLECTIONS == 1
-                reflections.rgb = computeRoughReflections(dhFragment, projection, projectionInverse, viewPosition, material, rayLength);
+                reflections.rgb = computeRoughReflections(modFragment, projection, projectionInverse, viewPosition, material, rayLength);
             #elif REFLECTIONS == 2
-                reflections.rgb = computeSmoothReflections(dhFragment, projection, projectionInverse, viewPosition, material, rayLength);
+                reflections.rgb = computeSmoothReflections(modFragment, projection, projectionInverse, viewPosition, material, rayLength);
             #endif
 
-            vec3 velocity     = getVelocity(vec3(textureCoords, depth), projectionInverse);
+            vec3 velocity     = getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious);
             vec3 prevPosition = vec3(vertexCoords, depth);
 
             float reprojectionDepth;
@@ -132,7 +134,7 @@
                 reprojectionDepth = depth + (material.roughness > 0.1 ? 0.0 : rayLength);
             }
 
-            vec3 velocityReflected     = getVelocity(vec3(textureCoords, reprojectionDepth), projectionInverse);
+            vec3 velocityReflected     = getVelocity(vec3(textureCoords, reprojectionDepth), projectionInverse, projectionPrevious);
             vec3 prevPositionReflected = vec3(vertexCoords, reprojectionDepth) + velocityReflected;
 
             vec4 prevReflections = texture(REFLECTIONS_BUFFER, prevPositionReflected.xy);
@@ -153,7 +155,7 @@
             weight *= depthWeight * velocityWeight * centerWeight;
             weight  = saturate(weight);
             weight *= float(saturate(prevPositionReflected.xy) == prevPositionReflected.xy);
-            weight *= float(material.id != WATER_ID);
+            weight *= float(isWater(material.id));
 
             reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
             reflections.a   = log2(prevPosition.z);

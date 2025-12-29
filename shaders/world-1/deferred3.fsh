@@ -1,4 +1,4 @@
-#version 460 compatibility
+#version 400 compatibility
 
 #define STAGE_FRAGMENT
 #define WORLD_NETHER

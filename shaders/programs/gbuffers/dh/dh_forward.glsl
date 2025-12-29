@@ -60,7 +60,7 @@
             skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
         #endif
         
-        gl_Position    = transform(gbufferModelView, scenePosition).xyzz * diagonal4(dhProjection) + dhProjection[3];
+        gl_Position    = transform(gbufferModelView, scenePosition).xyzz * diagonal4(modProjection) + modProjection[3];
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
         #if TAA == 1
@@ -70,7 +70,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 1,13 */
+    /* RENDERTARGETS: 1,0 */
 
     layout (location = 0) out uvec4 data;
     layout (location = 1) out vec4 translucents;
@@ -102,28 +102,32 @@
         float depth       = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
         float linearDepth = linearizeDepth(depth, near, far);
 
-        float linearDepthDh = linearizeDepth(gl_FragCoord.z, dhNearPlane, dhFarPlane);
+        float linearDepthDh = linearizeDepth(gl_FragCoord.z, modNearPlane, modFarPlane);
     
         if (linearDepth < linearDepthDh && depth < 1.0) { discard; return; }
 
         Material material;
-        translucents = vec4(0.0);
 
         material.lightmap = lightmapCoords;
         material.normal   = vertexNormal;
 
+        material.ao = 1.0;
+
         // WOTAH
         if (blockId == DH_BLOCK_WATER) {
-            material.albedo = vec3(0.0);
+            material.F0        = waterF0;
+            material.roughness = 0.0;
+            material.emission  = 0.0;
+            material.albedo    = vec3(0.0);
 
-            material.F0 = waterF0, material.roughness = 0.0, material.emission = 0.0;
+            const mat3 tbn = mat3(
+                vec3(1.0, 0.0, 0.0),
+                vec3(0.0, 0.0, 1.0),
+                vec3(0.0, 1.0, 0.0)
+            );
 
-            vec3 tangent = cross(vertexNormal, vec3(1.0));
-            mat3 tbn     = mat3(tangent, cross(tangent, vertexNormal), vertexNormal);
-
-            material.normal = tbn * getWaterNormals(scenePosition + cameraPosition, WATER_OCTAVES);
+            material.normal = tbn * getWaterNormal(scenePosition + cameraPosition, WATER_OCTAVES);
         } else {
-
             material.F0 = 0.0;
 
             material.roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
@@ -142,22 +146,27 @@
                 material.albedo = srgbToLinear(material.albedo);
             #endif
 
+            material.N = vec3(f0ToIOR(material.F0));
+            material.K = vec3(0.0);
+
             vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
             vec3 skyIlluminance = vec3(0.0);
 
             #if defined WORLD_OVERWORLD || defined WORLD_END
                 #if defined WORLD_OVERWORLD && SHADOWS > 0
-                    shadowmap.rgb = abs(calculateShadowMapping(scenePosition, vertexNormal, shadowmap.a));
+                    shadowmap.rgb = abs(calculateShadowMapping(scenePosition, vertexNormal, gl_FragDepth, shadowmap.a));
                 #endif
 
-                if (material.lightmap.y > EPS)
+                if (material.lightmap.y > EPS) {
                     skyIlluminance = evaluateSkylight(vertexNormal, skyIlluminanceMat);
+                }
             #endif
 
-            translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, false, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+            translucents.rgb = computeDiffuse(scenePosition, shadowLightVectorWorld, material, false, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+
+            translucents.rgb = max0(log2(translucents.rgb + 1.0));
 
             translucents.a = vertexColor.a;
-
         }
 
         vec3 labPBRData0 = vec3(1.0, saturate(material.lightmap));

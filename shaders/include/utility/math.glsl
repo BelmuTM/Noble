@@ -58,11 +58,6 @@ vec2  saturate(vec2 x)  { return clamp(x, vec2(0.0), vec2(1.0)); }
 vec3  saturate(vec3 x)  { return clamp(x, vec3(0.0), vec3(1.0)); }
 vec4  saturate(vec4 x)  { return clamp(x, vec4(0.0), vec4(1.0)); }
 
-float clamp16(float x) { return clamp(x, 0.0, maxFloat16);             }
-vec2  clamp16(vec2 x)  { return clamp(x, vec2(0.0), vec2(maxFloat16)); }
-vec3  clamp16(vec3 x)  { return clamp(x, vec3(0.0), vec3(maxFloat16)); }
-vec4  clamp16(vec4 x)  { return clamp(x, vec4(0.0), vec4(maxFloat16)); }
-
 float pow2(float x) { return x*x; }
 vec2  pow2(vec2 x)  { return x*x; }
 vec3  pow2(vec3 x)  { return x*x; }

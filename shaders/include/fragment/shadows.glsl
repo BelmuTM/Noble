@@ -35,7 +35,7 @@ const float invShadowMapResolution = 1.0 / shadowMapResolution;
         vec3 rayPosition;
         vec3 rayDirection;
         rayPosition   = viewToScreen(viewPosition, projection, true);
-        rayDirection  = viewPosition + abs(viewPosition.z) * shadowVec;
+        rayDirection  = viewPosition + abs(viewPosition.z) * shadowLightVector;
         rayDirection  = viewToScreen(rayDirection, projection, true) - rayPosition;
         rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);
         
@@ -166,7 +166,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float depth, out float subsurfaceDepth) {
     #if SHADOWS > 0
         vec3  shadowPosition = worldToShadow(scenePosition);
-        float NdotL          = dot(geometricNormal, shadowLightVector);
+        float NdotL          = dot(geometricNormal, shadowLightVectorWorld);
 
         // Shadow bias implementation from Emin and concept from gri573
         float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.35;

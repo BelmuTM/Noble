@@ -65,8 +65,8 @@ void main() {
 
     vec3 sunSpecular = vec3(0.0), envSpecular = vec3(0.0);
 
-    bool  dhFragment = false;
-    float depth      = texture(depthtex0, vertexCoords).r;
+    bool  modFragment = false;
+    float depth       = texture(depthtex0, vertexCoords).r;
 
     mat4 projection        = gbufferProjection;
     mat4 projectionInverse = gbufferProjectionInverse;
@@ -74,16 +74,16 @@ void main() {
     float nearPlane = near;
     float farPlane  = far;
 
-    #if defined DISTANT_HORIZONS
+    #if defined CHUNK_LOADER_MOD_ENABLED
         if (depth >= 1.0) {
-            dhFragment = true;
-            depth      = texture(dhDepthTex0, vertexCoords).r;
+            modFragment = true;
+            depth       = texture(modDepthTex0, vertexCoords).r;
                     
-            projection        = dhProjection;
-            projectionInverse = dhProjectionInverse;
+            projection        = modProjection;
+            projectionInverse = modProjectionInverse;
         
-            nearPlane = dhNearPlane;
-            farPlane  = dhFarPlane;
+            nearPlane = modNearPlane;
+            farPlane  = modFarPlane;
         }
     #endif
 
@@ -116,7 +116,7 @@ void main() {
 
         #if REFRACTIONS > 0
             if (material.depth0 != material.depth1 && material.F0 > EPS) {
-                lighting = computeRefractions(dhFragment, projection, projectionInverse, viewPosition0, viewPosition1, material, coords);
+                lighting = computeRefractions(modFragment, projection, projectionInverse, viewPosition0, viewPosition1, material, coords);
             }
         #endif
 
@@ -125,16 +125,20 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if SPECULAR == 1
-            vec3 visibility = texture(SHADOWMAP_BUFFER, max(coords.xy, texelSize)).rgb;
+            vec3 visibility = vec3(1.0);
+
+            if (!modFragment) {
+                visibility = texture(SHADOWMAP_BUFFER, max(coords.xy, texelSize)).rgb;
+
+                if (material.id == WATER_ID) visibility = material.albedo;
+            }
 
             #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                 visibility *= getCloudsShadows(viewToScene(viewPosition0));
             #endif
 
-            if (material.id == WATER_ID) visibility = material.albedo;
-
             if (visibility != vec3(0.0) && material.F0 > EPS) {
-                sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowVec) * visibility * directIlluminance;
+                sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowLightVector) * visibility * directIlluminance;
             }    
         #endif
 
@@ -156,6 +160,7 @@ void main() {
     vec3 scattering    = vec3(0.0);
     vec3 transmittance = vec3(0.0);
 
+    /*
     float totalWeight = 0.0;
     const int filterSize = 2;
 
@@ -169,9 +174,9 @@ void main() {
             float linearDepth;
             float linearSampleDepth;
 
-            if (dhFragment) {
-                linearDepth       = texture(dhDepthTex1, coords.xy).r;
-                linearSampleDepth = texture(dhDepthTex1, sampleCoords).r;
+            if (modFragment) {
+                linearDepth       = texture(modDepthTex1, coords.xy).r;
+                linearSampleDepth = texture(modDepthTex1, sampleCoords).r;
             } else {
                 linearDepth       = texture(depthtex1, coords.xy).r;
                 linearSampleDepth = texture(depthtex1, sampleCoords).r;
@@ -190,6 +195,10 @@ void main() {
     }
     scattering    /= totalWeight;
     transmittance /= totalWeight;
+    */
+
+    scattering    = decodeRGBE(texture(FOG_BUFFER, coords.xy).r);
+    transmittance = decodeRGBE(texture(FOG_BUFFER, coords.xy).g);
     
     if (isEyeInWater == 1) {
         lighting += sunSpecular;

@@ -24,6 +24,8 @@
         Zombye     - skylight falloff function (https://github.com/zombye)
 */
 
+const float labPBRMetals = 229.5;
+
 const vec3 labPBRData0Range = vec3(1.0, 8191.0, 4095.0);
 
 struct Material {
@@ -90,8 +92,17 @@ mat2x3 getHardcodedMetal(Material material) {
     return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(f0ToIOR(material.albedo), vec3(0.0));
 }
 
+bool isWater(int materialID) {
+    #if defined DISTANT_HORIZONS
+        return materialID == WATER_ID || materialID == DH_BLOCK_WATER;
+    #else
+        return materialID == WATER_ID;
+    #endif
+}
+
 Material getMaterial(vec2 coords) {
     coords *= viewSize;
+    
     uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(coords), 0);
 
     vec4 data1 = unpackUnorm4x8(dataTexture.y);
@@ -134,10 +145,10 @@ Material getMaterial(vec2 coords) {
     material.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
     material.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;
 
-    #if defined DISTANT_HORIZONS
+    #if defined CHUNK_LOADER_MOD_ENABLED
         if (material.depth0 >= 1.0) {
-            material.depth0 = texelFetch(dhDepthTex0, ivec2(coords), 0).r;
-            material.depth1 = texelFetch(dhDepthTex1, ivec2(coords), 0).r;
+            material.depth0 = texelFetch(modDepthTex0, ivec2(coords), 0).r;
+            material.depth1 = texelFetch(modDepthTex1, ivec2(coords), 0).r;
         }
     #endif
 

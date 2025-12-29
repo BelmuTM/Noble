@@ -62,7 +62,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
     //////////////////////////////////////////////////////////
 
     vec3 computeRoughReflections(
-        bool dhFragment,
+        bool modFragment,
         mat4 projection,
         mat4 projectionInverse,
         vec3 viewPosition,
@@ -96,9 +96,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             float sampleRayLength;
 
             if (NdotL > 0.0) {
-                if (dhFragment) {
+                if (modFragment) {
                     hit = float(raytrace(
-                        dhDepthTex0,
+                        modDepthTex0,
                         projection,
                         projectionInverse,
                         viewPosition,
@@ -130,9 +130,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             #else
                 vec3 fallback = vec3(0.0);
             #endif
-
+            
             vec3 fresnel;
-            if (isEyeInWater == 1 || material.id == WATER_ID) {
+            if (isEyeInWater == 1 || isWater(material.id)) {
                 fresnel = fresnelDielectricDielectric_R(MdotV, vec3(airIOR), vec3(1.333));
             } else {
                 fresnel = fresnelDielectricConductor(MdotV, material.N / airIOR, material.K / airIOR);
@@ -158,7 +158,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
     //////////////////////////////////////////////////////////
 
     vec3 computeSmoothReflections(
-        bool dhFragment,
+        bool modFragment,
         mat4 projection,
         mat4 projectionInverse,
         vec3 viewPosition,
@@ -180,9 +180,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         vec3 hitPosition;
 
         if (NdotL > 0.0) {
-            if (dhFragment) {
+            if (modFragment) {
                 hit = float(raytrace(
-                    dhDepthTex0,
+                    modDepthTex0,
                     projection,
                     projectionInverse,
                     viewPosition,
@@ -216,7 +216,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         #endif
 
         vec3 fresnel;
-        if (isEyeInWater == 1 || material.id == WATER_ID) {
+        if (isEyeInWater == 1 || isWater(material.id)) {
             fresnel = fresnelDielectricDielectric_R(NdotV, vec3(airIOR), vec3(1.333));
         } else {
             fresnel = fresnelDielectricConductor(NdotL, material.N / airIOR, material.K / airIOR);

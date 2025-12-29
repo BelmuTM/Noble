@@ -1,0 +1,78 @@
+{
+    "version": 1,
+    "excludeLodsFromVanillaDepth": true,
+    "unusedString": "
+        #include "/settings.glsl"
+        #include "/include/taau_scale.glsl"
+    ",
+    "useViewportDims": true,
+    "renderScale": [RENDER_SCALE, RENDER_SCALE],
+    "opaqueDrawBuffers": [
+        1,
+        3
+    ],
+    "translucentDrawBuffers": [
+        1,
+        0
+    ],
+    "blending": {
+        "-1": "off",
+        "1": "SRC_ALPHA ONE_MINUS_SRC_ALPHA ONE_MINUS_DST_ALPHA ONE"
+    },
+    "uniforms": [
+        "sunVector",
+        "moonVector",
+        "shadowLightVector",
+        "shadowLightVectorWorld",
+        "cameraPosition",
+        "previousCameraPosition",
+        "viewWidth",
+        "viewHeight",
+        "viewSize",
+        "texelSize",
+        "framemod",
+        "frameCounter",
+        "frameTimeCounter",
+        "wetness",
+        "sunAngle",
+        "biome_may_rain",
+        "near",
+        "far",
+        "gbufferModelView",
+        "gbufferModelViewInverse",
+        "gbufferPreviousModelView",
+        "gbufferPreviousProjection",
+        "shadowModelView",
+        "shadowModelViewInverse",
+        "shadowProjection",
+        "shadowProjectionInverse",
+        "vxModelViewInv",
+        "vxProjInv"
+    ],
+    "samplers": {
+        "noisetex": "sampler2D",
+        "colortex5": "sampler2D",
+        "colortex6": "sampler2D",
+        "depthtex0": "sampler2D",
+        "depthtex1": "sampler2D",
+        "shadowtex0": "sampler2D",
+        "shadowtex1": "sampler2D",
+        "shadowcolor0": "sampler2D"
+    },
+#if TAA == 1
+    "taaOffset": "{
+        const vec2 taaOffsets[8] = vec2[8](
+            vec2( 0.125,-0.375),
+            vec2(-0.125, 0.375),
+            vec2( 0.625, 0.125),
+            vec2( 0.375,-0.625),
+            vec2(-0.625, 0.625),
+            vec2(-0.875,-0.125),
+            vec2( 0.375,-0.875),
+            vec2( 0.875, 0.875)
+        );
+
+        return taaOffsets[framemod] * texelSize;
+    }"
+#endif
+}

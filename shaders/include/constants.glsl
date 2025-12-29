@@ -18,51 +18,14 @@
 /*                                                                              */
 /********************************************************************************/
 
-#include "/include/constants.glsl"
+const int noiseTextureResolution = 256;
 
-#include "/include/uniforms.glsl"
-#include "/include/uniforms_mods.glsl"
+// Maximum values for x amount of bits and their inverses (2^x - 1)
+const float maxFloat8     = 255.0;
+const float maxFloat16    = 65535.0;
+const float rcpMaxFloat8  = 1.0 / maxFloat8;
+const float rcpMaxFloat12 = 1.0 / (pow(2.0, 12.0) - 1.0);
+const float rcpMaxFloat13 = 1.0 / (pow(2.0, 13.0) - 1.0);
+const float rcpMaxFloat16 = 1.0 / maxFloat16;
 
-#include "/include/utility/math.glsl"
-#include "/include/utility/color.glsl"
-
-#include "/include/utility/transforms.glsl"
-
-#include "/include/utility/material.glsl"
-
-/*
-#define HIZ_LOD_COUNT 5
-
-const vec2 hiZOffsets[] = vec2[](
-    vec2(0.0, 0.0  ),
-    vec2(0.5, 0.0  ),
-    vec2(0.5, 0.25 ),
-    vec2(0.5, 0.375)
-);
-
-float find2x2MinimumDepth(vec2 coords, int scale) {
-    coords *= viewSize;
-
-    return minOf(vec4(
-        texelFetch(depthtex0, ivec2(coords)                      , 0).r,
-        texelFetch(depthtex0, ivec2(coords) + ivec2(1, 0) * scale, 0).r,
-        texelFetch(depthtex0, ivec2(coords) + ivec2(0, 1) * scale, 0).r,
-        texelFetch(depthtex0, ivec2(coords) + ivec2(1, 1) * scale, 0).r
-    ));
-}
-
-vec2 getDepthTile(vec2 coords, int lod) {
-    return lod == 0 ? coords : coords / exp2(lod) + hiZOffsets[lod - 1];
-}
-
-float computeLowerHiZDepthLevels() {
-    float tiles = 0.0;
-
-    for (int i = 1; i < HIZ_LOD_COUNT; i++) {
-        int scale   = int(exp2(i)); 
-        vec2 coords = (textureCoords - hiZOffsets[i - 1]) * scale;
-                tiles += find2x2MinimumDepth(coords, scale);
-    }
-    return tiles;
-}
-*/
+const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;

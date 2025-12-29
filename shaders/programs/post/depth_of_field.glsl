@@ -89,19 +89,19 @@
         }
 
         void main() {
-            bool  dhFragment = false;
-            float depth      = texture(depthtex0, vertexCoords).r;
+            bool  modFragment = false;
+            float depth       = texture(depthtex0, vertexCoords).r;
 
             float nearPlane = near;
             float farPlane  = far;
 
-            #if defined DISTANT_HORIZONS
+            #if defined CHUNK_LOADER_MOD_ENABLED
                 if (depth >= 1.0) {
-                    dhFragment = true;
-                    depth      = texture(dhDepthTex0, vertexCoords).r;
+                    modFragment = true;
+                    depth       = texture(modDepthTex0, vertexCoords).r;
 
-                    nearPlane = dhNearPlane;
-                    farPlane  = dhFarPlane;
+                    nearPlane = modNearPlane;
+                    farPlane  = modFarPlane;
                 }
             #endif
 
@@ -109,7 +109,7 @@
 
             #if DOF_DEPTH == 0
                 vec2  centerCoords = vec2(RENDER_SCALE * 0.5);
-                float centerDepth  = dhFragment ? texture(dhDepthTex0, centerCoords).r : texture(depthtex0, centerCoords).r;
+                float centerDepth  = modFragment ? texture(modDepthTex0, centerCoords).r : texture(depthtex0, centerCoords).r;
                 float targetDepth  = linearizeDepth(centerDepth, nearPlane, farPlane);
             #else
                 float targetDepth = float(DOF_DEPTH);

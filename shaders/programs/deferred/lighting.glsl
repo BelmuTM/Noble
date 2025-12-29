@@ -105,25 +105,27 @@
         vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
         if (saturate(fragCoords) != fragCoords) { discard; return; }
 
-        bool  dhFragment = false;
-        float depth      = texture(depthtex0, vertexCoords).r;
+        bool  modFragment = false;
+        float depth       = texture(depthtex0, vertexCoords).r;
 
-        mat4 projection        = gbufferProjection;
-        mat4 projectionInverse = gbufferProjectionInverse;
+        mat4 projection         = gbufferProjection;
+        mat4 projectionInverse  = gbufferProjectionInverse;
+        mat4 projectionPrevious = gbufferPreviousProjection;
 
         float nearPlane = near;
         float farPlane  = far;
 
-        #if defined DISTANT_HORIZONS
+        #if defined CHUNK_LOADER_MOD_ENABLED
             if (depth >= 1.0) {
-                dhFragment = true;
-                depth      = texture(dhDepthTex0, vertexCoords).r;
+                modFragment = true;
+                depth       = texture(modDepthTex0, vertexCoords).r;
 
-                projection        = dhProjection;
-                projectionInverse = dhProjectionInverse;
+                projection         = modProjection;
+                projectionInverse  = modProjectionInverse;
+                projectionPrevious = modProjectionPrevious;
 
-                nearPlane = dhNearPlane;
-                farPlane  = dhFarPlane;
+                nearPlane = modNearPlane;
+                farPlane  = modFarPlane;
             }
         #endif
 
@@ -138,7 +140,7 @@
 
         #if AO > 0 && AO_FILTER == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
 
-            vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth), projectionInverse) * RENDER_SCALE;
+            vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious) * RENDER_SCALE;
             vec4 history      = texture(DEFERRED_BUFFER, prevPosition.xy);
 
             color.a  = history.a;
@@ -201,11 +203,11 @@
                 ao = texture(AO_BUFFER, vertexCoords).b;
             #endif
 
-            color.rgb = computeDiffuse(viewPosition, shadowVec, material, isMetal, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
+            color.rgb = computeDiffuse(viewPosition, shadowLightVector, material, isMetal, shadowmap, directIlluminance, skyIlluminance, ao, cloudsShadows);
 
         #else
 
-            pathtraceDiffuse(dhFragment, projection, projectionInverse, directIlluminance, isMetal, color.rgb, vec3(vertexCoords, depth));
+            pathtraceDiffuse(modFragment, projection, projectionInverse, directIlluminance, isMetal, color.rgb, vec3(vertexCoords, depth));
 
             #if TEMPORAL_ACCUMULATION == 1
 

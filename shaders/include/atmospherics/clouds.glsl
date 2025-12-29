@@ -197,7 +197,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
 
     float distanceToClouds = dists.y;
 
-    float VdotL = dot(rayDirection, shadowLightVector);
+    float VdotL = dot(rayDirection, shadowLightVectorWorld);
     float VdotU = dot(rayDirection, up);
     
     float bouncedLight = abs(-VdotU) * RCP_PI * 0.5 * isotropicPhase;
@@ -214,7 +214,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
         float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
         float stepTransmittance = exp(-stepOpticalDepth);
 
-        float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition, shadowLightVector, 8, layer, animated);
+        float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition, shadowLightVectorWorld, 8, layer, animated);
         float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition,-up,                1, layer, animated);
         float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition, up,                2, layer, animated);
 
@@ -260,11 +260,11 @@ float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer, int stepCoun
     float cloudsLowerBound = planetRadius     + layer.altitude;
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
-    vec2 dists = intersectSphericalShell(shadowPosition, shadowLightVector, cloudsLowerBound, cloudsUpperBound);
+    vec2 dists = intersectSphericalShell(shadowPosition, shadowLightVectorWorld, cloudsLowerBound, cloudsUpperBound);
 
     float stepSize    = (dists.y - dists.x) * rcp(stepCount);
-    vec3  increment   = shadowLightVector * stepSize;
-    vec3  rayPosition = shadowPosition + shadowLightVector * (dists.x + stepSize * 0.5);
+    vec3  increment   = shadowLightVectorWorld * stepSize;
+    vec3  rayPosition = shadowPosition + shadowLightVectorWorld * (dists.x + stepSize * 0.5);
 
     float opticalDepth = 0.0;
 

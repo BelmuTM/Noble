@@ -19,55 +19,104 @@
 /********************************************************************************/
 
 #if AO == 1 || GI == 1
-     const float ambientOcclusionLevel = 0.0;
+    const float ambientOcclusionLevel = 0.0;
 #else
-     const float ambientOcclusionLevel = 1.0;
+    const float ambientOcclusionLevel = 1.0;
 #endif
 
 /*
-const int  shadowcolor0Format      = RGBA16F;
 
-const int  colortex0Format         = RGBA16F;           // Main
-const bool colortex0Clear          = false;
-const int  colortex1Format         = RGBA32UI;          // Gbuffer data
+// ============================================================================
+// SHADOW MAP TEXTURES / SHADOW BUFFER
+// ============================================================================
+
+const int shadowcolor0Format = RGBA16F;
+
+const int colortex3Format = RGBA16F;                // Shadow map
+
+// ============================================================================
+// MAIN COLOR / GBUFFERS
+// ============================================================================
+
+const int  colortex0Format = RGBA16F;               // Main color
+const bool colortex0Clear  = false;
+
+const int  colortex1Format = RGBA32UI;              // GBuffer data:
+                                                    // [R] parallax self shadowing | lightmap XY coordinates
+                                                    // [G] material AO | emission | F0 | subsurface
+                                                    // [B] albedo RGB | roughness
+                                                    // [A] encoded XY material normals
+
+const int colortex15Format = RGBA8;                 // Alpha blended GBuffer data (albedo)
+
+// ============================================================================
+// REFLECTIONS
+// ============================================================================
 
 #if REFLECTIONS > 0
-    const int  colortex2Format     = RGBA16F;           // Reflections
-    const bool colortex2Clear      = false;
+    const int  colortex2Format = RGBA16F;           // Reflections
+    const bool colortex2Clear  = false;
 #endif
 
-const int  colortex3Format         = RGBA16F;           // Shadowmap
-const int  colortex4Format         = RGBA16F;           // Deferred Lighting
-const bool colortex4Clear          = false;
-const int  colortex5Format         = RGBA32F;           // Irradiance | Clouds Shadows | Bloom
-const int  colortex6Format         = R11F_G11F_B10F;    // Atmosphere
-const bool colortex6Clear          = false;
+// ============================================================================
+// DEFERRED LIGHTING
+// ============================================================================
+
+const int  colortex4Format = RGBA16F;               // Deferred lighting
+const bool colortex4Clear  = false;
+
+// ============================================================================
+// IRRADIANCE / CLOUDS SHADOWS / BLOOM
+// ============================================================================
+
+const int colortex5Format = RGBA32F;                // Irradiance | Clouds shadows | Bloom
+
+// ============================================================================
+// ATMOSPHERE
+// ============================================================================
+
+const int  colortex6Format = R11F_G11F_B10F;        // Atmosphere
+const bool colortex6Clear  = false;
+
+// ============================================================================
+// CLOUDS
+// ============================================================================
 
 #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-    const int colortex7Format      = RGBA16F;           // Clouds
-    const bool colortex7Clear      = false;
-#endif
-
-const int  colortex8Format         = RGBA16F;           // History
-const bool colortex8Clear          = false;
-
-#if RENDER_MODE == 0 && GI == 1 && TEMPORAL_ACCUMULATION == 1 && ATROUS_FILTER == 1
-    const int colortex10Format     = RGBA16F;           // Moments | Previous Frame Depth
-#else
-    const int colortex10Format     = R16F;              // Previous Frame Depth
-#endif
-const bool colortex10Clear         = false;
-
-const int colortex11Format         = RG32UI;            // Fog
-
-#if AO == 1
-    const int  colortex12Format    = RGB16F;            // Ambient occlusion
-    const bool colortex12Clear     = false;
+    const int  colortex7Format = RGBA16F;           // Clouds
+    const bool colortex7Clear  = false;
 #endif
 
 #if CLOUDMAP == 1
-    const int colortex14Format     = R11F_G11F_B10F;    // Cloudmap
+    const int colortex14Format = R11F_G11F_B10F;    // Cloud map (low resolution)
 #endif
 
-const int colortex15Format         = RGBA8;             // Gbuffer data
+// ============================================================================
+// TEMPORAL DATA / HISTORY
+// ============================================================================
+
+const int  colortex8Format = RGBA16F;               // [RGB] Previous color | [A] Average luminance
+const bool colortex8Clear  = false;
+
+#if RENDER_MODE == 0 && GI == 1 && TEMPORAL_ACCUMULATION == 1 && ATROUS_FILTER == 1
+    const int colortex10Format = RGBA16F;           // [R] Previous frame depth | [GBA] Moments
+#else
+    const int colortex10Format = R16F;              // Previous frame Depth
+#endif
+const bool colortex10Clear = false;
+
+// ============================================================================
+// FOG
+// ============================================================================
+
+const int colortex11Format = RG32UI;                // Fog
+
+// ============================================================================
+// AMBIENT OCCLUSION
+// ============================================================================
+#if AO == 1
+    const int  colortex12Format = RGB16F;           // Ambient occlusion
+    const bool colortex12Clear  = false;
+#endif
+
 */

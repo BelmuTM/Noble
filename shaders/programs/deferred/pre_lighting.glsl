@@ -67,7 +67,6 @@
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec4 illuminance;
-    //layout (location = 2) out vec4 depth;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -87,19 +86,6 @@
         #include "/include/atmospherics/clouds.glsl"
     #endif
 
-    /*
-    float computeLowerHiZDepthLevels() {
-        float tiles = 0.0;
-
-        for (int i = 1; i < HIZ_LOD_COUNT; i++) {
-            int scale   = int(exp2(i)); 
-            vec2 coords = (textureCoords - hiZOffsets[i - 1]) * scale;
-                 tiles += find2x2MinimumDepth(coords, scale);
-        }
-        return tiles;
-    }
-    */
-
     void main() {
         shadowmap   = vec4(0.0);
         illuminance = vec4(0.0);
@@ -109,7 +95,7 @@
 
         Material material = getMaterial(vertexCoords);
 
-        //depth.a = computeLowerHiZDepthLevels();
+        //imageStore(depthMipmap, ivec2(gl_FragCoord.xy), vec4(computeLowerHiZDepthLevels(), 0.0, 0.0, 0.0));
 
         //////////////////////////////////////////////////////////
         /*--------------------- IRRADIANCE ---------------------*/
@@ -154,23 +140,17 @@
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS > 0
-                bool dhFragment = false;
+                bool modFragment = false;
 
                 mat4 projection        = gbufferProjection;
                 mat4 projectionInverse = gbufferProjectionInverse;
 
-                float nearPlane = near;
-                float farPlane  = far;
-
-                #if defined DISTANT_HORIZONS
+                #if defined CHUNK_LOADER_MOD_ENABLED
                     if (texture(depthtex0, vertexCoords).r >= 1.0) {
-                        dhFragment = true;
+                        modFragment = true;
 
-                        projection        = dhProjection;
-                        projectionInverse = dhProjectionInverse;
-
-                        nearPlane = dhNearPlane;
-                        farPlane  = dhFarPlane;
+                        projection        = modProjection;
+                        projectionInverse = modProjectionInverse;
                     }
                 #endif
 
@@ -190,8 +170,8 @@
 
                     viewPosition += geometricNormal * 1e-2;
 
-                    if (dhFragment) {
-                        contactShadows = traceContactShadows(dhDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE);
+                    if (modFragment) {
+                        contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE);
                     } else {
                         contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, RENDER_SCALE);
                     }

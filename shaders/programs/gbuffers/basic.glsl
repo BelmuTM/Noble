@@ -19,12 +19,9 @@
 /********************************************************************************/
 
 #include "/settings.glsl"
-#include "/include/uniforms.glsl"
-
 #include "/include/taau_scale.glsl"
 
-#include "/include/utility/math.glsl"
-#include "/include/utility/transforms.glsl"
+#include "/include/common.glsl"
 
 #if defined STAGE_VERTEX
 

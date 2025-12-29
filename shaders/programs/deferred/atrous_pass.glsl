@@ -91,8 +91,8 @@
             return (varianceSum / totalWeight) * 10.0;
         }
 
-        void aTrousFilter(bool dhFragment, float nearPlane, float farPlane, vec2 coords, inout vec3 irradiance, inout vec3 moments) {
-            float depth = dhFragment ? texture(dhDepthTex0, coords).r : texture(depthtex0, coords).r;
+        void aTrousFilter(bool modFragment, float nearPlane, float farPlane, vec2 coords, inout vec3 irradiance, inout vec3 moments) {
+            float depth = modFragment ? texture(modDepthTex0, coords).r : texture(depthtex0, coords).r;
             if (depth == 1.0) return;
 
             uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(gl_FragCoord.xy), 0);
@@ -121,7 +121,7 @@
 
                     uvec4 sampleDataTexture = texture(GBUFFERS_DATA, sampleCoords);
                     vec3  sampleNormal      = mat3(gbufferModelView) * decodeUnitVector(vec2(sampleDataTexture.w & 65535u, (sampleDataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
-                    float sampleDepth       = dhFragment ? texture(dhDepthTex0, sampleCoords).r : texture(depthtex0, sampleCoords).r;
+                    float sampleDepth       = modFragment ? texture(modDepthTex0, sampleCoords).r : texture(depthtex0, sampleCoords).r;
                           sampleDepth       = linearizeDepth(sampleDepth, nearPlane, farPlane);
 
                     vec3  sampleIrradiance = texture(INPUT_BUFFER  , sampleCoords).rgb;
@@ -150,18 +150,18 @@
             vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
             if (saturate(fragCoords) != fragCoords) { discard; return; }
 
-            bool  dhFragment = false;
-            float depth      = texture(depthtex0, vertexCoords).r;
+            bool  modFragment = false;
+            float depth       = texture(depthtex0, vertexCoords).r;
 
             float nearPlane = near;
             float farPlane  = far;
 
-            #if defined DISTANT_HORIZONS
+            #if defined CHUNK_LOADER_MOD_ENABLED
                 if (depth >= 1.0) {
-                    dhFragment = true;
+                    modFragment = true;
 
-                    nearPlane = dhNearPlane;
-                    farPlane  = dhFarPlane;
+                    nearPlane = modNearPlane;
+                    farPlane  = modFarPlane;
                 }
             #endif
 
@@ -171,7 +171,7 @@
 
             irradiance = texelFetch(INPUT_BUFFER  , texelCoords, 0);
             moments    = texelFetch(MOMENTS_BUFFER, texelCoords, 0);
-            aTrousFilter(dhFragment, nearPlane, farPlane, vertexCoords, irradiance.rgb, moments.gba);
+            aTrousFilter(modFragment, nearPlane, farPlane, vertexCoords, irradiance.rgb, moments.gba);
         }
         
     #endif

@@ -18,51 +18,59 @@
 /*                                                                              */
 /********************************************************************************/
 
-#include "/include/constants.glsl"
+// Perspective uniforms for chunk loader mods support (Distant Horizons, Voxy)
 
-#include "/include/uniforms.glsl"
-#include "/include/uniforms_mods.glsl"
+#if defined DISTANT_HORIZONS
 
-#include "/include/utility/math.glsl"
-#include "/include/utility/color.glsl"
+    uniform float dhNearPlane;
+    uniform float dhFarPlane;
 
-#include "/include/utility/transforms.glsl"
+    uniform sampler2D dhDepthTex0;
+    uniform sampler2D dhDepthTex1;
 
-#include "/include/utility/material.glsl"
+    uniform mat4 dhProjection;
+    uniform mat4 dhProjectionInverse;
+    uniform mat4 dhProjectionPrevious;
 
-/*
-#define HIZ_LOD_COUNT 5
+    #define modNearPlane dhNearPlane
+    #define modFarPlane  dhFarPlane
 
-const vec2 hiZOffsets[] = vec2[](
-    vec2(0.0, 0.0  ),
-    vec2(0.5, 0.0  ),
-    vec2(0.5, 0.25 ),
-    vec2(0.5, 0.375)
-);
+    #define modDepthTex0 dhDepthTex0
+    #define modDepthTex1 dhDepthTex1
 
-float find2x2MinimumDepth(vec2 coords, int scale) {
-    coords *= viewSize;
+    #define modProjection         dhProjection
+    #define modProjectionInverse  dhProjectionInverse
+    #define modProjectionPrevious gbufferPreviousProjection
 
-    return minOf(vec4(
-        texelFetch(depthtex0, ivec2(coords)                      , 0).r,
-        texelFetch(depthtex0, ivec2(coords) + ivec2(1, 0) * scale, 0).r,
-        texelFetch(depthtex0, ivec2(coords) + ivec2(0, 1) * scale, 0).r,
-        texelFetch(depthtex0, ivec2(coords) + ivec2(1, 1) * scale, 0).r
-    ));
-}
+#elif defined VOXY
 
-vec2 getDepthTile(vec2 coords, int lod) {
-    return lod == 0 ? coords : coords / exp2(lod) + hiZOffsets[lod - 1];
-}
+    uniform sampler2D vxDepthTexOpaque;
+    uniform sampler2D vxDepthTexTrans;
 
-float computeLowerHiZDepthLevels() {
-    float tiles = 0.0;
+    uniform mat4 vxProj;
+    uniform mat4 vxProjInv;
+    uniform mat4 vxProjPrev;
 
-    for (int i = 1; i < HIZ_LOD_COUNT; i++) {
-        int scale   = int(exp2(i)); 
-        vec2 coords = (textureCoords - hiZOffsets[i - 1]) * scale;
-                tiles += find2x2MinimumDepth(coords, scale);
-    }
-    return tiles;
-}
-*/
+    #define modNearPlane near
+    #define modFarPlane  far
+
+    #define modDepthTex0 vxDepthTexTrans
+    #define modDepthTex1 vxDepthTexOpaque
+
+    #define modProjection         vxProj
+    #define modProjectionInverse  vxProjInv
+    #define modProjectionPrevious vxProjPrev
+
+#else
+
+    #define modNearPlane near
+    #define modFarPlane  far
+
+    #define modDepthTex0 depthtex0
+    #define modDepthTex1 depthtex1
+
+    #define modProjection         gbufferProjection
+    #define modProjectionInverse  gbufferProjectionInverse
+    #define modProjectionPrevious gbufferPreviousProjection
+
+#endif

@@ -25,7 +25,7 @@
         Thanks to them for helping me understand the basics of path tracing when I was beginning
 */
 
-void pathtraceDiffuse(bool dhFragment, mat4 projection, mat4 projectionInverse, vec3 directIlluminance, bool isMetal, out vec3 irradiance, in vec3 screenPosition) {
+void pathtraceDiffuse(bool modFragment, mat4 projection, mat4 projectionInverse, vec3 directIlluminance, bool isMetal, out vec3 irradiance, in vec3 screenPosition) {
     vec3 viewPosition = screenToView(screenPosition, projectionInverse, true);
 
     irradiance = vec3(0.0);
@@ -50,7 +50,7 @@ void pathtraceDiffuse(bool dhFragment, mat4 projection, mat4 projectionInverse, 
                 
             material = getMaterial(rayPosition.xy);
 
-            vec3 brdf  = material.albedo * evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowVec, material, directIlluminance);
+            vec3 brdf  = material.albedo * evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowLightVector, material, directIlluminance);
             vec3 phase = sampleMicrosurfaceOpaquePhase(estimate, rayDirection, material);
 
             if (dot(material.normal, rayDirection) <= 0.0) break;
@@ -58,8 +58,8 @@ void pathtraceDiffuse(bool dhFragment, mat4 projection, mat4 projectionInverse, 
             vec3 tracePosition = screenToView(rayPosition, projectionInverse, true) + material.normal * 1e-3;
              
             bool hit; float rayLength;
-            if (dhFragment) {
-                hit = raytrace(dhDepthTex0, projection, projectionInverse, tracePosition, rayDirection, GI_STRIDE, randF(), 1.0, rayPosition, rayLength);
+            if (modFragment) {
+                hit = raytrace(modDepthTex0, projection, projectionInverse, tracePosition, rayDirection, GI_STRIDE, randF(), 1.0, rayPosition, rayLength);
             } else {
                 hit = raytrace(depthtex0, projection, projectionInverse, tracePosition, rayDirection, GI_STRIDE, randF(), 1.0, rayPosition, rayLength);
             }

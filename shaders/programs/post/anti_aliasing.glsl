@@ -106,31 +106,33 @@
         color = texture(MAIN_BUFFER, vertexCoords).rgb;
 
         #if TAA == 1
+        
+            bool  modFragment = false;
+            float depth       = texture(depthtex0, vertexCoords).r;
 
-            bool  dhFragment = false;
-            float depth      = texture(depthtex0, vertexCoords).r;
+            mat4 projectionInverse  = gbufferProjectionInverse;
+            mat4 projectionPrevious = gbufferPreviousProjection;
 
-            mat4 projectionInverse = gbufferProjectionInverse;
-
-            #if defined DISTANT_HORIZONS
+            #if defined CHUNK_LOADER_MOD_ENABLED
                 if (depth >= 1.0) {
-                    dhFragment = true;
-                    depth      = texture(dhDepthTex0, vertexCoords).r;
+                    modFragment = true;
+                    depth       = texture(modDepthTex0, vertexCoords).r;
 
-                    projectionInverse = dhProjectionInverse;
+                    projectionInverse  = modProjectionInverse;
+                    projectionPrevious = modProjectionPrevious;
                 }
             #endif
 
             vec3 currFragment = vec3(textureCoords, depth);
 
             vec3 closestFragment;
-            if (dhFragment) {
-                closestFragment = getClosestFragment(dhDepthTex0, currFragment);
+            if (modFragment) {
+                closestFragment = getClosestFragment(modDepthTex0, currFragment);
             } else {
                 closestFragment = getClosestFragment(depthtex0, currFragment);
             }
 
-            vec2 velocity   = getVelocity(vec3(textureCoords, depth), projectionInverse).xy;
+            vec2 velocity   = getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious).xy;
             vec2 prevCoords = textureCoords + velocity;
 
             if (saturate(prevCoords) == prevCoords) {

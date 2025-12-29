@@ -80,11 +80,11 @@
         #include "/include/fragment/gerstner.glsl"
 
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
-        float waterCaustics(vec3 oldPos, vec3 normal) {
-            vec3 newPos = oldPos + refract(shadowLightVector, normal, airIOR / 1.333);
+        float waterCaustics(vec3 oldPosition, vec3 normal) {
+            vec3 newPosition = oldPosition + refract(shadowLightVectorWorld, normal, airIOR / 1.333);
 
-            float oldArea = length(dFdx(oldPos)) * length(dFdy(oldPos));
-            float newArea = length(dFdx(newPos)) * length(dFdy(newPos));
+            float oldArea = length(dFdx(oldPosition)) * length(dFdy(oldPosition));
+            float newArea = length(dFdx(newPosition)) * length(dFdy(newPosition));
             
             return saturate(fastInvSqrtN1(oldArea / newArea) * 0.2);
         }
@@ -107,7 +107,7 @@
             shadowmap.rgb = vec3(1.0);
 
             #if WATER_CAUSTICS == 1
-                vec3  waterNormals = getWaterNormals(worldPosition, 1.0, 3);
+                vec3  waterNormals = getWaterNormal(worldPosition, 1.0, 3);
                 float caustics     = waterCaustics(worldPosition, waterNormals) * WATER_CAUSTICS_STRENGTH;
 
                 shadowmap.rgb += max0(caustics);

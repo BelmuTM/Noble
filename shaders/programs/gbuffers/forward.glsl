@@ -136,7 +136,6 @@
         albedoTex *= vertexColor;
 
         Material material;
-        translucents = vec4(0.0);
 
         material.lightmap = lightmapCoords;
 
@@ -148,7 +147,11 @@
 
         // WOTAH
         if (blockId == WATER_ID) { 
-            material.F0 = waterF0, material.roughness = 0.0, material.ao = 1.0, material.emission = 0.0, material.subsurface = 0.0;
+            material.F0         = waterF0;
+            material.roughness  = 0.0;
+            material.ao         = 1.0;
+            material.emission   = 0.0;
+            material.subsurface = 0.0;
 
             vec3 scenePositionWater = scenePosition + cameraPosition;
 
@@ -160,7 +163,7 @@
             #endif
 
             material.albedo = shadowmap.rgb;
-            material.normal = tbn * getWaterNormals(scenePositionWater, WATER_OCTAVES);
+            material.normal = tbn * getWaterNormal(scenePositionWater, WATER_OCTAVES);
         
         } else {
             #if defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT
@@ -214,13 +217,14 @@
                 vec3 skyIlluminance = vec3(0.0);
 
                 #if defined WORLD_OVERWORLD || defined WORLD_END
-                    if (material.lightmap.y > EPS)
+                    if (material.lightmap.y > EPS) {
                         skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
+                    }
                 #endif
 
                 #if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT && !defined PROGRAM_SPIDEREYES
 
-                    translucents.rgb = computeDiffuse(scenePosition, shadowLightVector, material, isMetal, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+                    translucents.rgb = computeDiffuse(scenePosition, shadowLightVectorWorld, material, isMetal, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 
                 #else
 

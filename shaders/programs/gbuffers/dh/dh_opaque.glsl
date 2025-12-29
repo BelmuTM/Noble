@@ -45,7 +45,7 @@
 
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
-        gl_Position    = dhProjection * vec4(viewPosition, 1.0);
+        gl_Position    = modProjection * vec4(viewPosition, 1.0);
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
         #if TAA == 1
@@ -84,7 +84,7 @@
         float emission = 0.0;
 
         #if HARDCODED_EMISSION == 1
-            if (blockId == DH_BLOCK_ILLUMINATED && emission <= EPS) emission = HARDCODED_EMISSION_VAL;
+            if (blockId == DH_BLOCK_ILLUMINATED) emission = HARDCODED_EMISSION_VAL;
         #endif
 
         float subsurface = 0.0;

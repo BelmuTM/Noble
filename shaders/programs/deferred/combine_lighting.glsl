@@ -70,11 +70,11 @@
 
         mat4 projectionInverse = gbufferProjectionInverse;
 
-        #if defined DISTANT_HORIZONS
+        #if defined CHUNK_LOADER_MOD_ENABLED
             if (depth >= 1.0) {
-                depth = texture(dhDepthTex0, vertexCoords).r;
+                depth = texture(modDepthTex0, vertexCoords).r;
 
-                projectionInverse = dhProjectionInverse;
+                projectionInverse = modProjectionInverse;
             }
         #endif
 
@@ -94,7 +94,7 @@
 
             Material material = getMaterial(vertexCoords);
 
-            vec3 directDiffuse = evaluateMicrosurfaceOpaque(vertexCoords, -normalize(viewPosition), shadowVec, material, directIlluminance);
+            vec3 directDiffuse = evaluateMicrosurfaceOpaque(vertexCoords, -normalize(viewPosition), shadowLightVector, material, directIlluminance);
 
             #if ATROUS_FILTER == 1
                 vec3 irradianceDiffuse = texture(MAIN_BUFFER, vertexCoords).rgb;
@@ -105,6 +105,8 @@
             lighting = material.albedo * (irradianceDiffuse + directDiffuse);
             
         #endif
+
+        //lighting = exp2(texture(colortex0, vertexCoords).rgb) - 1.0;
 
         lighting = max0(log2(lighting + 1.0));
     }

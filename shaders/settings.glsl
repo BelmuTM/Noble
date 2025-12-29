@@ -22,6 +22,11 @@
 
 #define RENDER_MODE 0 // [0 1]
 
+// Chunk loader mods support (Distant Horizons, Voxy)
+#if defined DISTANT_HORIZONS || defined VOXY
+    #define CHUNK_LOADER_MOD_ENABLED
+#endif
+
 //////////////////////////////////////////////////////////
 /*---------------------- BUFFERS -----------------------*/
 //////////////////////////////////////////////////////////

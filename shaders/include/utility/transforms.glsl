@@ -133,19 +133,11 @@ float linearizeDepth(float depth, float nearPlane, float farPlane) {
 /*-------------------- REPROJECTION --------------------*/
 //////////////////////////////////////////////////////////
 
-vec3 getVelocity(vec3 currPosition, mat4 projectionInverse) {
+vec3 getVelocity(vec3 currPosition, mat4 projectionInverse, mat4 projectionPrevious) {
     vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(currPosition.z >= handDepth);
 
-    mat4 previousProjection = gbufferPreviousProjection;
-
-    #if defined DISTANT_HORIZONS
-        if (currPosition.z >= 1.0) {
-            previousProjection = dhPreviousProjection;
-        }
-    #endif
-
     vec3 prevPosition = transform(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPosition, projectionInverse, false)));
-         prevPosition = (projectOrthogonal(previousProjection, prevPosition) / -prevPosition.z) * 0.5 + 0.5;
+         prevPosition = (projectOrthogonal(projectionPrevious, prevPosition) / -prevPosition.z) * 0.5 + 0.5;
 
     return prevPosition - currPosition;
 }

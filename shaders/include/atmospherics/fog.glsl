@@ -69,7 +69,7 @@ const float aerialPerspectiveMult = 1.0;
 float fogDensity = saturate(FOG_DENSITY + densityFactor) * 0.4;
 
 uniform ivec2 eyeBrightness;
-uniform vec2 eyeBrightnessSmooth;
+uniform ivec2 eyeBrightnessSmooth;
 uniform float rcp240;
 
 float calculateAirFogPhase(float cosTheta) {
@@ -97,8 +97,8 @@ float calculateAirFogPhase(float cosTheta) {
         #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
             float farPlane = far;
 
-            #if defined DISTANT_HORIZONS
-                farPlane = dhFarPlane;
+            #if defined CHUNK_LOADER_MOD_ENABLED
+                farPlane = modFarPlane;
             #endif
 
             float airmassAerial      = quinticStep(0.0, farPlane, length(viewPosition.xz)) * aerialPerspectiveMult * AERIAL_PERSPECTIVE_DENSITY;
@@ -129,6 +129,7 @@ float calculateAirFogPhase(float cosTheta) {
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
 
         #if defined WORLD_END
+        
             float movementSpeed = frameTimeCounter * 10.0;
 
             position.y -= 60.0;
@@ -137,6 +138,7 @@ float calculateAirFogPhase(float cosTheta) {
             position    = rotate(position, vec3(0.0, 1.0, 0.0), movementSpeed);
             position.xz = -position.xz;
             position.y -= movementSpeed;
+
         #endif
 
         #if defined WORLD_NETHER
@@ -154,6 +156,7 @@ float calculateAirFogPhase(float cosTheta) {
             //fogDensity *= mix(1.2, 1.0, sqrt(quinticStep(0.0, 1.0, min(125.0, position.y) / 125.0)));
 
         #elif defined WORLD_END
+
             float innerRadius    = 30.0;
             float outerRingStart = 70.0;
             float outerRingEnd   = 160.0;

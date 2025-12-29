@@ -81,11 +81,11 @@
 
         mat4 projectionInverse = gbufferProjectionInverse;
 
-        #if defined DISTANT_HORIZONS
-            farPlane = dhFarPlane;
+        #if defined CHUNK_LOADER_MOD_ENABLED
+            farPlane = modFarPlane;
 
             if (texture(depthtex0, vertexCoords).r >= 1.0) {
-                projectionInverse = dhProjectionInverse;
+                projectionInverse = modProjectionInverse;
             }
         #endif
 
@@ -99,7 +99,7 @@
             vec3 tmp = normalize(scenePosition0 - gbufferModelViewInverse[3].xyz);
 
             #if defined WORLD_OVERWORLD
-                float VdotL = dot(tmp, shadowLightVector);
+                float VdotL = dot(tmp, shadowLightVectorWorld);
             #elif defined WORLD_END
                 float VdotL = dot(tmp, starVector);
             #endif
@@ -130,7 +130,7 @@
 
                 vec3 scenePosition1 = viewToScene(viewPosition1);
 
-                if (isEyeInWater != 1 && material.id == WATER_ID) {
+                if (isEyeInWater != 1 && isWater(material.id)) {
                     #if defined WORLD_OVERWORLD || defined WORLD_END
                         #if WATER_FOG == 0
                             computeWaterFogApproximation(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
