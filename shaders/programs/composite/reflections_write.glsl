@@ -155,7 +155,7 @@
             weight *= depthWeight * velocityWeight * centerWeight;
             weight  = saturate(weight);
             weight *= float(saturate(prevPositionReflected.xy) == prevPositionReflected.xy);
-            weight *= float(isWater(material.id));
+            weight *= float(!isWater(material.id));
 
             reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
             reflections.a   = log2(prevPosition.z);

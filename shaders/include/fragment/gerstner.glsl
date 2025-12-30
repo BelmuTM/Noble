@@ -46,9 +46,9 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
 
         height += gerstnerWaves(position + vec2(noise, -noise) * fastSqrtN1(lambda), time, steepness, amplitude, lambda, direction) - noise * amplitude;
 
-        steepness *= 0.99;
-        amplitude *= 0.90;
-        lambda    *= 0.85;
+        steepness *= 1.05;
+        amplitude *= 0.92;
+        lambda    *= 0.90;
         direction *= rotation;
     }
     return height;
