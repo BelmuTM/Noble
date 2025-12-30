@@ -170,7 +170,7 @@ vec3 evaluateUniformSkyIrradianceApproximation() {
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
 
-        const ivec2 samples        = ivec2(32);
+        const ivec2 samples        = ivec2(16);
         const float invSampleCount = 1.0 / float(samples.x * samples.y);
 
         for (int x = 0; x < samples.x; x++) {
@@ -201,7 +201,7 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
 
-        const ivec2 samples        = ivec2(16);
+        const ivec2 samples        = ivec2(8);
         const float invSampleCount = 1.0 / float(samples.x * samples.y);
 
         for (int x = 0; x < samples.x; x++) {
@@ -220,7 +220,7 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
                     cos(phi) * sinTheta
                 );
 
-                vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, vec2(uv.x, 0.5 * uv.y)).rgb));
+                vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
 
                 vec3 contribution = radiance * cosTheta * sinTheta;
 
@@ -276,16 +276,17 @@ void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
 
-        const ivec2 samples        = ivec2(16);
+        const ivec2 samples        = ivec2(8);
         const float invSampleCount = 1.0 / float(samples.x * samples.y);
 
         for (int x = 0; x < samples.x; x++) {
             for (int y = 0; y < samples.y; y++) {
                 vec2 uv = (vec2(x, y) + 0.5) / samples;
 
-                float phi   = TAU * uv.x;
-                float theta = PI  * uv.y;
+                float phi   = TAU      * uv.x;
+                float theta = 0.5 * PI * uv.y;
 
+                float cosTheta = cos(theta);
                 float sinTheta = sin(theta);
 
                 vec3 direction = vec3(sin(phi) * sinTheta, cos(theta), cos(phi) * sinTheta);
@@ -295,11 +296,11 @@ void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
                 float[9] sh = calculateSphericalHarmonicsCoefficients(direction);
 
                 for (int i = 0; i < 9; i++)
-                    irradiance[i] += radiance * sh[i] * sinTheta;
+                    irradiance[i] += radiance * sh[i] * cosTheta * sinTheta;
             }
         }
 
-        const float normalization = 2.0 * PI * PI * invSampleCount;
+        const float normalization = PI * PI * invSampleCount;
 
         for (int i = 0; i < 9; i++) irradiance[i] *= normalization;
 

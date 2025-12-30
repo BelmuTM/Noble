@@ -169,7 +169,6 @@
             return history;
         }
 
-
     #endif
 
     void main() {
@@ -240,22 +239,15 @@
                 color.a *= (closeToCamera ? depthWeight : 1.0);
 
                 #if GI == 0
-                    vec2 pixelCenterDist = 1.0 - abs(fract(prevPosition.xy * viewSize) * 2.0 - 1.0);
-                         color.a        *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
-
-                    color.a = min(color.a + 1.0, 60.0);
+                    color.a = min(color.a + 1.0, MAX_ACCUMULATED_FRAMES);
                 #else
                     bool rejectHistory;
                     history = filterHistory(DEFERRED_BUFFER, prevPosition.xy, material.normal, linearizeDepth(prevPosition.z, nearPlane, farPlane), rejectHistory);
 
                     color.a = history.a;
 
-                    #if FAST_HISTORY_CLAMPING == 1
-                        //historyClamping(RADIANCE_FAST_HISTORY_BUFFER, prevPosition.xy, radianceOut.rgb);
-                    #endif
-
                     if (!rejectHistory) {
-                        color.a = min(color.a + 1.0, 60.0);
+                        color.a = min(color.a + 1.0, MAX_ACCUMULATED_FRAMES);
                     } else {
                         color.a = 0.0;
                     }

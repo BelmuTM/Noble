@@ -87,6 +87,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define SUNLIGHT_LEAKING_FIX
 
+#define MAX_ACCUMULATED_FRAMES 60.0
+
 //////////////////////////////////////////////////////////
 /*---------------------- SHADOWS -----------------------*/
 //////////////////////////////////////////////////////////
@@ -153,12 +155,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define GI 0 // [0 1]
 
-#define GI_RENDER_DISTANCE 160.0
+#define GI_RENDER_DISTANCE 150.0 // Distance in blocks
 
 #define ATROUS_FILTER         1 // [0 1]
 #define TEMPORAL_ACCUMULATION 1 // [0 1]
-
-#define FAST_HISTORY_CLAMPING 1
 
 #define VARIANCE_STABILIZATION_THRESHOLD 4.0
 #define MIN_FRAMES_LUMINANCE_WEIGHT      4.0
