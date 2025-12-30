@@ -67,6 +67,7 @@
             for (float angle = 0.0; angle < TAU; angle += TAU / DOF_ANGLE_SAMPLES) {
                 for (int i = 0; i < DOF_SAMPLES; i++) {
                     vec2 sampleCoords = coords + vec2(cos(angle), sin(angle)) * i * coc * texelSize;
+                    
                     if (saturate(sampleCoords) != sampleCoords) continue;
 
                     #if DOF_ABERRATION == 1

@@ -189,5 +189,23 @@ void main() {
         #endif
     #endif
 
-    //colorOut = vec3(1.0 / linearizeDepth(texture(depthMipmapSampler, textureCoords).r, near, far));
+    bool modFragment = false;
+    float depth = texture(depthtex0, textureCoords).r;
+
+    float nearPlane = near;
+    float farPlane  = far;
+
+    #if defined CHUNK_LOADER_MOD_ENABLED
+        if (depth >= 1.0) {
+            modFragment = true;
+            depth = texture(modDepthTex0, textureCoords).r;
+
+            nearPlane = modNearPlane;
+            farPlane  = modFarPlane;
+        }
+    #endif
+
+    depth = (nearPlane * farPlane) / (depth * (nearPlane - farPlane) + farPlane);
+
+    // colorOut = vec3(1.0 / log2(max0(depth + 1.0)));
 }

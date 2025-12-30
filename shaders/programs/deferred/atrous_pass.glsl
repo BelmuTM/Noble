@@ -59,6 +59,8 @@
 
         const float waveletKernel[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
 
+        const float stepSize = ATROUS_STEP_SIZE * pow(0.5, 4 - ATROUS_PASS_INDEX);
+
         float calculateATrousNormalWeight(vec3 normal, vec3 sampleNormal) {   
             return pow(max0(dot(normal, sampleNormal)), NORMAL_WEIGHT_SIGMA);
         }
@@ -68,19 +70,21 @@
         }
 
         float calculateATrousLuminanceWeight(float luminance, float sampleLuminance, float variance) {
-            return exp(-abs(luminance - sampleLuminance) / maxEps(LUMINANCE_WEIGHT_SIGMA * sqrt(variance) + 0.1));
+            return exp(-abs(luminance - sampleLuminance) / maxEps(LUMINANCE_WEIGHT_SIGMA * sqrt(variance) + 0.01));
         }
 
-        float gaussianVariance(vec2 coords, vec3 normal, float depth, vec2 depthGradient) {
+        float gaussianVariance(vec2 coords) {
             float varianceSum = 0.0, totalWeight = EPS;
+
+            const float gaussianKernel[3] = float[3](0.25, 0.125, 0.0625);
             
             for (int x = -1; x <= 1; x++) {
                 for (int y = -1; y <= 1; y++) {
                     vec2  offset       = vec2(x, y) * texelSize;
-                    vec2  sampleCoords = coords + offset;
+                    vec2  sampleCoords = textureCoords + offset;
 
                     if (saturate(sampleCoords) == sampleCoords) {
-                        float weight   = gaussianDistribution2D(vec2(x, y), 1.0);
+                        float weight   = gaussianKernel[abs(x)] * gaussianKernel[abs(y)];
                         float variance = texture(MOMENTS_BUFFER, sampleCoords).a;
 
                         varianceSum += variance * weight;
@@ -105,16 +109,15 @@
             vec2  depthGradient = vec2(dFdx(linearDepth), dFdy(linearDepth));
 
             float centerLuminance  = luminance(irradiance);
-            float filteredVariance = gaussianVariance(coords, normal, depth, depthGradient);
+            float filteredVariance = gaussianVariance(coords);
 
-            vec2  stepSize    = ATROUS_STEP_SIZE * pow(0.5, 4 - ATROUS_PASS_INDEX) * texelSize;
             float totalWeight = 1.0;
 
             for (int x = -1; x <= 1; x++) {
                 for (int y = -1; y <= 1; y++) {
                     if (x == 0 && y == 0) continue;
 
-                    vec2 offset       = vec2(x, y) * stepSize;
+                    vec2 offset       = vec2(x, y) * stepSize * texelSize;
                     vec2 sampleCoords = coords + offset;
 
                     if (saturate(sampleCoords) != sampleCoords) continue;
@@ -165,12 +168,11 @@
                 }
             #endif
 
-            if (depth == 1.0) { discard; return; }
-
             ivec2 texelCoords = ivec2(gl_FragCoord.xy);
 
-            irradiance = texelFetch(INPUT_BUFFER  , texelCoords, 0);
-            moments    = texelFetch(MOMENTS_BUFFER, texelCoords, 0);
+            irradiance = texture(INPUT_BUFFER  , vertexCoords);
+            moments    = texture(MOMENTS_BUFFER, vertexCoords);
+
             aTrousFilter(modFragment, nearPlane, farPlane, vertexCoords, irradiance.rgb, moments.gba);
         }
         

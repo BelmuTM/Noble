@@ -99,7 +99,7 @@ const int  colortex8Format = RGBA16F;               // [RGB] Previous color | [A
 const bool colortex8Clear  = false;
 
 #if RENDER_MODE == 0 && GI == 1 && TEMPORAL_ACCUMULATION == 1 && ATROUS_FILTER == 1
-    const int colortex10Format = RGBA16F;           // [R] Previous frame depth | [GBA] Moments
+    const int colortex10Format = RGBA32F;           // [R] Previous frame depth | [GBA] Moments
 #else
     const int colortex10Format = R16F;              // Previous frame Depth
 #endif

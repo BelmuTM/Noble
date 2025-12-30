@@ -92,6 +92,7 @@ uniform sampler2D colortex7;
 uniform sampler2D colortex8;
 uniform sampler2D colortex10;
 uniform sampler2D colortex12;
+uniform sampler2D colortex13;
 uniform sampler2D colortex14;
 uniform sampler2D colortex15;
 

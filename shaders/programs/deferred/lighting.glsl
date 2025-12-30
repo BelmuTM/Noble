@@ -61,41 +61,114 @@
     #include "/include/fragment/brdf.glsl"
 
     #if GI == 1
-
         #include "/include/fragment/raytracer.glsl"
         #include "/include/fragment/pathtracer.glsl"
+    #endif
 
-        #if RENDER_MODE == 0 && ATROUS_FILTER == 1
+    #if RENDER_MODE == 0 && ATROUS_FILTER == 1
+    
+        float estimateSpatialVariance(sampler2D tex, vec2 moments) {
+            float sum = moments.r, sqSum = moments.g, totalWeight = 1.0;
 
-            float estimateSpatialVariance(sampler2D tex, vec2 moments) {
-                float sum = moments.r, sqSum = moments.g, totalWeight = 1.0;
+            const float waveletKernel[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
+            
+            vec2 stepSize = texelSize;
 
-                const float waveletKernel[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    if (x == 0 && y == 0) continue;
 
-                vec2 stepSize = 5.0 * texelSize;
+                    vec2 sampleCoords = textureCoords + vec2(x, y) * stepSize;
+                    if (saturate(sampleCoords) != sampleCoords) continue;
 
-                for (int x = -1; x <= 1; x++) {
-                    for (int y = -1; y <= 1; y++) {
-                        if (x == 0 && y == 0) continue;
+                    float weight    = waveletKernel[abs(x)] * waveletKernel[abs(y)];
+                    float luminance = luminance(texture(tex, sampleCoords).rgb);
+                
+                    sum   += luminance             * weight;
+                    sqSum += luminance * luminance * weight;
 
-                        vec2 sampleCoords = textureCoords + vec2(x, y) * stepSize;
-                        if (saturate(sampleCoords) != sampleCoords) continue;
-
-                        float weight    = waveletKernel[abs(x)] * waveletKernel[abs(y)];
-                        float luminance = luminance(texture(tex, sampleCoords).rgb);
-                    
-                        sum   += luminance * weight;
-                        sqSum += luminance * luminance * weight;
-
-                        totalWeight += weight;
-                    }
+                    totalWeight += weight;
                 }
-                sum   /= totalWeight;
-                sqSum /= totalWeight;
-                return abs(sqSum - sum * sum);
+            }
+            sum   /= totalWeight;
+            sqSum /= totalWeight;
+            return max0(sqSum - sum * sum);
+        }
+
+    #endif
+    
+    #if RENDER_MODE == 0 && TEMPORAL_ACCUMULATION == 1
+
+        float cubic(float x) {
+            x = abs(x);
+            int segment = int(x);
+            x = fract(x);
+
+            switch (segment) {
+                case 0:  return 1.0 + x * x * (3.0 * x - 5.0) * 0.5;
+                case 1:  return x * (x * (2.0 - x) - 1.0) * 0.5;
+                default: return 0.0;
+            }
+        }
+
+        vec2 cubic(vec2 coords) {
+            return vec2(cubic(coords.x), cubic(coords.y));
+        }
+
+        vec4 filterHistory(sampler2D tex, vec2 coords, vec3 normal, float depth, out bool rejectHistory) {
+            vec2 resolution = floor(viewSize);
+
+            coords = coords * resolution - 0.5;
+
+            ivec2 fragCoords = ivec2(floor(coords));
+
+            coords = fract(coords);
+
+            vec4  history     = vec4(0.0);
+            float totalWeight = 0.0;
+
+            vec4 minColor = vec4(1e9), maxColor = vec4(-1e9);
+
+            float centerLuminance = 0.0;
+            float luminanceSum    = 0.0;
+
+            for (int x = -1; x <= 2; x++) {
+                for (int y = -1; y <= 2; y++) {
+                    ivec2 sampleCoords = fragCoords + ivec2(x, y);
+
+                    if (clamp(sampleCoords, ivec2(0), ivec2(resolution)) != sampleCoords) continue;
+
+                    float sampleDepth = linearizeDepth(exp2(texelFetch(MOMENTS_BUFFER, sampleCoords, 0).r), near, far);
+                    float depthWeight = pow(exp(-abs(sampleDepth - depth)), 8.0);
+
+                    vec2 cubicWeights = cubic(abs(vec2(x, y) - coords));
+
+                    float weight = saturate(cubicWeights.x * cubicWeights.y * depthWeight);
+
+                    vec4 sampleColor = texelFetch(tex, sampleCoords, 0);
+
+                    float sampleLuminance = luminance(sampleColor.rgb);
+
+                    if (x == 0 && y == 0) centerLuminance = sampleLuminance;
+                    else                  luminanceSum   += sampleLuminance * weight;
+
+                    history     += sampleColor * weight;
+                    totalWeight += weight;
+
+                    minColor = min(minColor, sampleColor);
+                    maxColor = max(maxColor, sampleColor);
+                }
             }
 
-        #endif
+            history = clamp(history / totalWeight, minColor, maxColor);
+
+            bool fireflyRejection = distance(centerLuminance, luminanceSum / totalWeight) > 200.0;
+
+            rejectHistory = totalWeight <= 1e-3;
+            
+            return history;
+        }
+
 
     #endif
 
@@ -138,6 +211,8 @@
             skyIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
         #endif
 
+        Material material = getMaterial(vertexCoords);
+
         #if AO > 0 && AO_FILTER == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
 
             vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious) * RENDER_SCALE;
@@ -160,27 +235,40 @@
                 vec3 prevScenePosition = viewToScene(screenToView(prevPosition, projectionInverse, false));
                 bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
 
-                float depthWeight = exp(-abs(linearDepth - linearPrevDepth) * 6.0); //step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.05);
+                float depthWeight = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.1);
 
                 color.a *= (closeToCamera ? depthWeight : 1.0);
 
                 #if GI == 0
                     vec2 pixelCenterDist = 1.0 - abs(fract(prevPosition.xy * viewSize) * 2.0 - 1.0);
                          color.a        *= sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 + 0.7;
+
+                    color.a = min(color.a + 1.0, 60.0);
                 #else
+                    bool rejectHistory;
+                    history = filterHistory(DEFERRED_BUFFER, prevPosition.xy, material.normal, linearizeDepth(prevPosition.z, nearPlane, farPlane), rejectHistory);
+
+                    color.a = history.a;
+
+                    #if FAST_HISTORY_CLAMPING == 1
+                        //historyClamping(RADIANCE_FAST_HISTORY_BUFFER, prevPosition.xy, radianceOut.rgb);
+                    #endif
+
+                    if (!rejectHistory) {
+                        color.a = min(color.a + 1.0, 60.0);
+                    } else {
+                        color.a = 0.0;
+                    }
+
                     color.a *= float(depth >= handDepth);
                 #endif
-
-                color.a = min(color.a, 60.0);
             #else
                 color.a *= float(hideGUI);
-            #endif
 
-            color.a++;
+                color.a++;
+            #endif
             
         #endif
-
-        Material material = getMaterial(vertexCoords);
 
         bool isMetal = material.F0 * maxFloat8 > labPBRMetals;
 
@@ -208,26 +296,32 @@
 
         #else
 
+            if (length(viewToScene(viewPosition)) > GI_RENDER_DISTANCE) return; 
+
             pathtraceDiffuse(modFragment, projection, projectionInverse, directIlluminance, isMetal, color.rgb, vec3(vertexCoords, depth));
 
             #if TEMPORAL_ACCUMULATION == 1
 
-                float weight = 1.0 / max(color.a, 1.0);
+                float weight = saturate(1.0 / max(color.a, 1.0));
                 color.rgb = mix(history.rgb, color.rgb, weight);
 
-                #if RENDER_MODE == 0 && ATROUS_FILTER == 1
-                    float luminance = luminance(color.rgb);
-                    vec2  moments   = vec2(luminance, luminance * luminance);
+            #endif
 
+            #if ATROUS_FILTER == 1
+
+                float luminance = luminance(color.rgb);
+                vec2  moments   = vec2(luminance, luminance * luminance);
+
+                #if TEMPORAL_ACCUMULATION == 1
                     momentsOut.gb = mix(momentsOut.gb, moments, weight);
-
-                    if (color.a < VARIANCE_STABILIZATION_THRESHOLD) {
-                        momentsOut.a = estimateSpatialVariance(DEFERRED_BUFFER, moments);
-                    } else { 
-                        momentsOut.a = abs(momentsOut.b - momentsOut.g * momentsOut.g);
-                    }
                 #endif
 
+                if (color.a < VARIANCE_STABILIZATION_THRESHOLD) {
+                    momentsOut.a = estimateSpatialVariance(DEFERRED_BUFFER, moments);
+                } else { 
+                    momentsOut.a = max0(momentsOut.b - momentsOut.g * momentsOut.g);
+                }
+        
             #endif
 
         #endif
