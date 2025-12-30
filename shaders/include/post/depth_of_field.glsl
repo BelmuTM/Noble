@@ -18,6 +18,11 @@
 /*                                                                              */
 /********************************************************************************/
 
+/*
+	[Credits]:
+		DrDesten - Providing a tool to generate Vogel disk samples (https://drdesten.github.io/web/tools/vogel_disk/)
+*/
+
 #if DOF_SAMPLES == 4
 
 const vec2 vogelDisk[4] = vec2[](
