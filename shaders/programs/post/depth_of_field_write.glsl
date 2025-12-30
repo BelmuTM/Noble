@@ -48,70 +48,38 @@
             #include "/include/post/grading.glsl"
         #endif
 
-        float getCoC(float fragDepth, float targetDepth) {
-            return fragDepth <= handDepth ? 0.0 : abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
-        }
-
-        void depthOfField(inout vec3 color, sampler2D tex, vec2 coords, float coc) {
-            color = vec3(0.0);
-
-            float weight      = pow2(DOF_SAMPLES);
-            float totalWeight = EPS;
-
-            float distFromCenter = distance(coords, vec2(0.5));
-
-            #if DOF_ABERRATION == 1
-                vec2 caOffset = vec2(distFromCenter) * DOF_ABERRATION_STRENGTH * 0.5 * coc / weight;
-            #endif
-
-            for (float angle = 0.0; angle < TAU; angle += TAU / DOF_ANGLE_SAMPLES) {
-                for (int i = 0; i < DOF_SAMPLES; i++) {
-                    vec2 sampleCoords = coords + vec2(cos(angle), sin(angle)) * i * coc * texelSize;
-                    
-                    if (saturate(sampleCoords) != sampleCoords) continue;
-
-                    #if DOF_ABERRATION == 1
-                        vec3 sampleColor = vec3(
-                            texture(tex, sampleCoords + caOffset).r,
-                            texture(tex, sampleCoords           ).g,
-                            texture(tex, sampleCoords - caOffset).b
-                        );
-                    #else
-                        vec3 sampleColor = texture(tex, sampleCoords).rgb;
-                    #endif
-
-                    sampleColor = exp2(sampleColor) - 1.0;
-
-                    color       += sampleColor * weight;
-                    totalWeight += weight;
-                }
-            }
-            color /= totalWeight;
-        }
+        #include "/include/post/depth_of_field.glsl"
 
         void main() {
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;
 
-            float nearPlane = near;
-            float farPlane  = far;
+            mat4 projectionInverse = gbufferProjectionInverse;
 
             #if defined CHUNK_LOADER_MOD_ENABLED
                 if (depth >= 1.0) {
                     modFragment = true;
                     depth       = texture(modDepthTex0, vertexCoords).r;
 
-                    nearPlane = modNearPlane;
-                    farPlane  = modFarPlane;
+                    projectionInverse = modProjectionInverse;
                 }
             #endif
 
-            depth = linearizeDepth(depth, nearPlane, farPlane);
+            depth = linearizeDepthFromInverseProjection(depth, projectionInverse);
 
             #if DOF_DEPTH == 0
                 vec2  centerCoords = vec2(RENDER_SCALE * 0.5);
-                float centerDepth  = modFragment ? texture(modDepthTex0, centerCoords).r : texture(depthtex0, centerCoords).r;
-                float targetDepth  = linearizeDepth(centerDepth, nearPlane, farPlane);
+                float centerDepth  = texture(depthtex0, centerCoords).r;
+
+                #if defined CHUNK_LOADER_MOD_ENABLED
+                    if (modFragment) {
+                        projectionInverse = gbufferProjectionInverse;
+                    }
+                #endif
+
+                centerDepth = linearizeDepthFromInverseProjection(centerDepth, projectionInverse);
+
+                float targetDepth  = centerDepth;
             #else
                 float targetDepth = float(DOF_DEPTH);
             #endif

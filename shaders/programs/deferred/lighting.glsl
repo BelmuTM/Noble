@@ -67,7 +67,7 @@
 
     #if RENDER_MODE == 0 && ATROUS_FILTER == 1
     
-        float estimateSpatialVariance(sampler2D tex, vec2 moments) {
+        float estimateSpatialVariance(sampler2D colorTex, vec2 moments) {
             float sum = moments.r, sqSum = moments.g, totalWeight = 1.0;
 
             const float waveletKernel[3] = float[3](1.0, 2.0 / 3.0, 1.0 / 6.0);
@@ -82,7 +82,7 @@
                     if (saturate(sampleCoords) != sampleCoords) continue;
 
                     float weight    = waveletKernel[abs(x)] * waveletKernel[abs(y)];
-                    float luminance = luminance(texture(tex, sampleCoords).rgb);
+                    float luminance = luminance(texture(colorTex, sampleCoords).rgb);
                 
                     sum   += luminance             * weight;
                     sqSum += luminance * luminance * weight;
@@ -115,7 +115,7 @@
             return vec2(cubic(coords.x), cubic(coords.y));
         }
 
-        vec4 filterHistory(sampler2D tex, vec2 coords, vec3 normal, float depth, out bool rejectHistory) {
+        vec4 filterHistory(sampler2D colorTex, vec2 coords, vec3 normal, float depth, out bool rejectHistory) {
             vec2 resolution = floor(viewSize);
 
             coords = coords * resolution - 0.5;
@@ -145,7 +145,7 @@
 
                     float weight = saturate(cubicWeights.x * cubicWeights.y * depthWeight);
 
-                    vec4 sampleColor = texelFetch(tex, sampleCoords, 0);
+                    vec4 sampleColor = texelFetch(colorTex, sampleCoords, 0);
 
                     float sampleLuminance = luminance(sampleColor.rgb);
 

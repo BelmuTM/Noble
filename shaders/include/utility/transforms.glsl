@@ -129,6 +129,10 @@ float linearizeDepth(float depth, float nearPlane, float farPlane) {
     return (nearPlane * farPlane) / (depth * (nearPlane - farPlane) + farPlane);
 }
 
+float linearizeDepthFromInverseProjection(float depth, mat4 projectionInverse) {
+    return 1.0 / (depth * projectionInverse[2][3] + projectionInverse[3][3]);
+}
+
 //////////////////////////////////////////////////////////
 /*-------------------- REPROJECTION --------------------*/
 //////////////////////////////////////////////////////////

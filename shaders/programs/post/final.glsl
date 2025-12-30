@@ -123,9 +123,9 @@ in vec2 textureCoords;
         color += (bayer2(gl_FragCoord.xy) - 0.5) * quantizationPeriod;
     }
 
-    vec4 samplePixelatedBuffer(sampler2D tex, vec2 coords, int size) {
+    vec4 samplePixelatedBuffer(sampler2D colorTex, vec2 coords, int size) {
         vec2 aspectCorrectedSize = size * vec2(aspectRatio, 1.0);
-        return texelFetch(tex, ivec2((floor(coords * aspectCorrectedSize) / aspectCorrectedSize) * viewSize), 0);
+        return texelFetch(colorTex, ivec2((floor(coords * aspectCorrectedSize) / aspectCorrectedSize) * viewSize), 0);
     }
 
 #endif
@@ -138,6 +138,10 @@ in vec2 textureCoords;
     }
 
 #endif
+
+float getCoC(float fragDepth, float targetDepth) {
+    return fragDepth <= handDepth ? 0.0 : abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
+}
 
 void main() {
     vec2 distortCoords = textureCoords;
@@ -189,23 +193,42 @@ void main() {
         #endif
     #endif
 
-    bool modFragment = false;
-    float depth = texture(depthtex0, textureCoords).r;
+    bool  modFragment = false;
+    float depth       = texture(depthtex0, textureCoords).r;
 
-    float nearPlane = near;
-    float farPlane  = far;
+    vec2  centerCoords = vec2(RENDER_SCALE * 0.5);
+    float centerDepth  = texture(depthtex0, centerCoords).r;
+
+    mat4 projectionInverse = gbufferProjectionInverse;
 
     #if defined CHUNK_LOADER_MOD_ENABLED
         if (depth >= 1.0) {
             modFragment = true;
-            depth = texture(modDepthTex0, textureCoords).r;
+            depth       = texture(modDepthTex0, textureCoords).r;
 
-            nearPlane = modNearPlane;
-            farPlane  = modFarPlane;
+            projectionInverse = modProjectionInverse;
         }
     #endif
 
-    depth = (nearPlane * farPlane) / (depth * (nearPlane - farPlane) + farPlane);
+    depth = linearizeDepthFromInverseProjection(depth, projectionInverse);
 
-    // colorOut = vec3(1.0 / log2(max0(depth + 1.0)));
+    #if defined CHUNK_LOADER_MOD_ENABLED
+        if (modFragment && centerDepth < 1.0) {
+            modFragment = true;
+            centerDepth = texture(modDepthTex0, centerCoords).r;
+
+            projectionInverse = gbufferProjectionInverse;
+        } else {
+            centerDepth = texture(modDepthTex0, centerCoords).r;
+
+            projectionInverse = gbufferProjectionInverse;
+        }
+    #endif
+
+    centerDepth = linearizeDepthFromInverseProjection(centerDepth, projectionInverse);
+
+    //colorOut = vec3(1.0 / log2(max0(centerDepth + 1.0)));
+
+    //colorOut = vec3(getCoC(depth, targetDepth));
+    
 }

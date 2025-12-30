@@ -95,8 +95,8 @@ vec3 worldToShadow(vec3 worldPosition) {
     return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
 }
 
-float visibility(sampler2D tex, vec3 samplePosition) {
-    return step(samplePosition.z, texelFetch(tex, ivec2(samplePosition.xy * shadowMapResolution), 0).r);
+float visibility(sampler2D shadowTex, vec3 samplePosition) {
+    return step(samplePosition.z, texelFetch(shadowTex, ivec2(samplePosition.xy * shadowMapResolution), 0).r);
 }
 
 vec3 getShadowColor(vec3 samplePosition) {

@@ -858,14 +858,12 @@ value.DOF.0 = §cOFF
 value.DOF.1 = §aON
 
 option.DOF_SAMPLES = Samples
-option.DOF_SAMPLES.comment = Adjusts how much time §bDepth of Field§r is sampled. §cHigher value gives better results, but reduces §cperformance.
-value.DOF_SAMPLES.4 = §b4
-value.DOF_SAMPLES.6 = §36
-value.DOF_SAMPLES.8 = §28
-value.DOF_SAMPLES.10 = §a10
-value.DOF_SAMPLES.12 = §e12
-value.DOF_SAMPLES.14 = §614
-value.DOF_SAMPLES.16 = §c16
+option.DOF_SAMPLES.comment = Adjusts §bDepth of Field§r's quality. §cHigher value gives better results, but reduces §cperformance.
+value.DOF_SAMPLES.4 = §24
+value.DOF_SAMPLES.8 = §a8
+value.DOF_SAMPLES.16 = §e16
+value.DOF_SAMPLES.32 = §632
+value.DOF_SAMPLES.64 = §c64
 
 option.DOF_RADIUS = Radius
 option.DOF_RADIUS.comment = Adjusts §bDepth of Field§r's intensity.
