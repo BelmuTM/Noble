@@ -258,7 +258,7 @@
                     color.a = history.a;
 
                     if (!rejectHistory) {
-                        color.a = min(color.a + 1.0, MAX_ACCUMULATED_FRAMES);
+                        color.a = min(color.a + 1.0, MAX_GI_ACCUMULATED_FRAMES);
                     } else {
                         color.a = 0.0;
                     }
@@ -275,20 +275,18 @@
 
         bool isMetal = material.F0 * maxFloat8 > labPBRMetals;
 
+        float cloudsShadows = 1.0; 
+        vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
+
+        #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+            cloudsShadows = getCloudsShadows(viewToScene(viewPosition));
+        #endif
+
+        #if SHADOWS > 0
+            shadowmap = textureCubic(SHADOWMAP_BUFFER, vertexCoords);
+        #endif
+
         #if GI == 0
-        
-            color.rgb = vec3(0.0);
-
-            float cloudsShadows = 1.0; 
-            vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
-
-            #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                cloudsShadows = getCloudsShadows(viewToScene(viewPosition));
-            #endif
-
-            #if SHADOWS > 0
-                shadowmap = textureBicubic(SHADOWMAP_BUFFER, vertexCoords);
-            #endif
 
             float ao = 1.0;
             #if AO > 0
@@ -299,7 +297,10 @@
 
         #else
 
-            if (length(viewToScene(viewPosition)) > GI_RENDER_DISTANCE) return; 
+            if (length(viewToScene(viewPosition)) > GI_RENDER_DISTANCE) {
+                color.rgb = computeDiffuse(viewPosition, shadowLightVector, material, isMetal, shadowmap, directIlluminance, skyIlluminance, 1.0, cloudsShadows);
+                return;
+            }
 
             pathtraceDiffuse(modFragment, projection, projectionInverse, directIlluminance, isMetal, color.rgb, vec3(vertexCoords, depth));
 

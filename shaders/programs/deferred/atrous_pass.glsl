@@ -83,7 +83,7 @@
                     vec2  offset       = vec2(x, y) * texelSize;
                     vec2  sampleCoords = textureCoords + offset;
 
-                    if (!insideScreenBounds(sampleCoords, RENDER_SCALE)) continue; 
+                    //if (!insideScreenBounds(sampleCoords, RENDER_SCALE)) continue; 
 
                     float weight   = gaussianKernel[abs(x)] * gaussianKernel[abs(y)];
                     float variance = texture(MOMENTS_BUFFER, sampleCoords).a;
@@ -121,7 +121,7 @@
                     vec2 offset       = vec2(x, y) * stepSize * texelSize;
                     vec2 sampleCoords = coords + offset;
 
-                    if (!insideScreenBounds(sampleCoords, RENDER_SCALE)) continue;
+                    //if (!insideScreenBounds(sampleCoords, 1.0)) continue;
 
                     uvec4 sampleDataTexture = texture(GBUFFERS_DATA, sampleCoords);
                     vec3  sampleNormal      = mat3(gbufferModelView) * decodeUnitVector(vec2(sampleDataTexture.w & 65535u, (sampleDataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
