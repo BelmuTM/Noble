@@ -116,7 +116,12 @@
             #if defined CHUNK_LOADER_MOD_ENABLED
                 if (depth >= 1.0) {
                     modFragment = true;
-                    depth       = texture(modDepthTex0, vertexCoords).r;
+                    
+                    #if defined VOXY
+                        depth = texture(modDepthTex0, textureCoords).r;
+                    #else
+                        depth = texture(modDepthTex0, vertexCoords).r;
+                    #endif
 
                     projectionInverse  = modProjectionInverse;
                     projectionPrevious = modProjectionPrevious;
@@ -135,7 +140,7 @@
             vec2 velocity   = getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious).xy;
             vec2 prevCoords = textureCoords + velocity;
 
-            if (saturate(prevCoords) == prevCoords) {
+            if (insideScreenBounds(prevCoords, 1.0)) {
                 vec2 jitteredCoords = depth == 1.0 ? vertexCoords : vertexCoords + taaOffsets[framemod] * texelSize;
 
                 vec3 currColor = max0(textureCatmullRom(MAIN_BUFFER, jitteredCoords).rgb);

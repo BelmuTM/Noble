@@ -87,7 +87,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define SUNLIGHT_LEAKING_FIX
 
-#define MAX_ACCUMULATED_FRAMES 60.0
+#define MAX_ACCUMULATED_FRAMES 20.0
 
 //////////////////////////////////////////////////////////
 /*---------------------- SHADOWS -----------------------*/

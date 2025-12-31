@@ -38,7 +38,7 @@
     attribute vec3 at_midBlock;
     attribute vec3 mc_Entity;
 
-    flat out int blockId;
+    flat out uint blockId;
     out vec2 textureCoords;
     out vec2 lightmapCoords;
     out vec3 scenePosition;
@@ -65,7 +65,7 @@
         tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
         tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
 
-        blockId = int((mc_Entity.x - 1000.0) + 0.25);
+        blockId = uint((mc_Entity.x - 1000.0) + 0.25);
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
             directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
@@ -89,7 +89,7 @@
     layout (location = 0) out uvec4 data;
     layout (location = 1) out vec4 translucents;
 
-    flat in int blockId;
+    flat in uint blockId;
     in vec2 textureCoords;
     in vec2 lightmapCoords;
     in vec3 scenePosition;
@@ -115,8 +115,10 @@
     void main() {
         translucents = vec4(0.0);
 
-        vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) { discard; return; }
+        #if DOWNSCALED_RENDERING == 1
+            vec2 fragCoords = gl_FragCoord.xy * texelSize;
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+        #endif
 
         #if defined PROGRAM_HAND && DISCARD_HAND == 1
             discard; return;
@@ -152,6 +154,7 @@
             material.ao         = 1.0;
             material.emission   = 0.0;
             material.subsurface = 0.0;
+            albedoTex.rgb       = shadowmap.rgb;
 
             vec3 scenePositionWater = scenePosition + cameraPosition;
 
@@ -162,7 +165,6 @@
                 }
             #endif
 
-            material.albedo = shadowmap.rgb;
             material.normal = tbn * getWaterNormal(scenePositionWater, WATER_OCTAVES);
         
         } else {
@@ -180,7 +182,9 @@
                 material.subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
             #endif
 
-            if (blockId == NETHER_PORTAL_ID) material.emission = 1.0;
+            if (blockId == NETHER_PORTAL_ID) {
+                material.emission = 1.0;
+            }
 
             material.albedo = albedoTex.rgb;
 
@@ -261,18 +265,20 @@
             }
         }
 
-        vec3 labPBRData0 = vec3(1.0, saturate(material.lightmap));
-        vec4 labPBRData1 = vec4(material.ao, material.emission, material.F0, material.subsurface);
-        vec4 labPBRData2 = vec4(material.albedo, material.roughness);
-
         vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
-    
-        uvec4 shiftedLabPbrData0 = uvec4(round(labPBRData0 * labPBRData0Range), blockId) << uvec4(0, 1, 14, 26);
 
-        data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
-        data.y = packUnorm4x8(labPBRData1);
-        data.z = packUnorm4x8(labPBRData2);
-        data.w = packUnorm2x16(encodedNormal);
+        data = storeMaterial(
+            material.F0,
+            material.roughness,
+            material.ao,
+            material.emission,
+            material.subsurface,
+            albedoTex.rgb,
+            encodedNormal,
+            material.lightmap,
+            1.0,
+            blockId
+        );
     }
     
 #endif

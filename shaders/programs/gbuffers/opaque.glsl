@@ -33,7 +33,7 @@
     attribute vec3 mc_Entity;
     attribute vec2 mc_midTexCoord;
 
-    flat out int blockId;
+    flat out uint blockId;
     out vec2 textureCoords;
     out vec2 lightmapCoords;
 
@@ -82,7 +82,7 @@
         tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
         tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
 
-        blockId = int((mc_Entity.x - 1000.0) + 0.25);
+        blockId = uint((mc_Entity.x - 1000.0) + 0.25);
     
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
@@ -105,9 +105,9 @@
     /* RENDERTARGETS: 1,3 */
 
     layout (location = 0) out uvec4 data;
-    layout (location = 1) out vec2  geometricNormal;
+    layout (location = 1) out vec2 geometricNormal;
 
-    flat in int blockId;
+    flat in uint blockId;
     in vec2 textureCoords;
     in vec2 lightmapCoords;
 
@@ -169,11 +169,13 @@
     #endif
 
     void main() {
-        vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) { discard; return; }
-
         #if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
             discard; return;
+        #endif
+
+        #if DOWNSCALED_RENDERING == 1
+            vec2 fragCoords = gl_FragCoord.xy * texelSize;
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
         #endif
 
         vec2 coords = textureCoords;
@@ -290,7 +292,7 @@
 
         lightmap.x = max(handLight, lightmap.x);
 
-        int id = blockId;
+        uint id = blockId;
 
         #if defined PROGRAM_ENTITY
             // Handling lightning bolts, end crystal and end crystal beams
@@ -312,18 +314,20 @@
             emission   *= flickering;
         }
 
-        vec3 labPBRData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
-        vec4 labPBRData1 = vec4(ao, emission, F0, subsurface);
-        vec4 labPBRData2 = vec4(albedoTex.rgb, roughness);
-
         vec2 encodedNormal = encodeUnitVector(normalize(normal));
-    
-        uvec4 shiftedLabPbrData0 = uvec4(round(labPBRData0 * labPBRData0Range), id) << uvec4(0, 1, 14, 26);
 
-        data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
-        data.y = packUnorm4x8(labPBRData1);
-        data.z = packUnorm4x8(labPBRData2);
-        data.w = packUnorm2x16(encodedNormal);
+        data = storeMaterial(
+            F0,
+            roughness,
+            ao,
+            emission,
+            subsurface,
+            albedoTex.rgb,
+            encodedNormal,
+            lightmap,
+            parallaxSelfShadowing,
+            id
+        );
 
         geometricNormal = encodeUnitVector(normalize(tbn[2]));
     }

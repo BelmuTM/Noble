@@ -35,17 +35,20 @@
     #define modNearPlane dhNearPlane
     #define modFarPlane  dhFarPlane
 
-    #define modDepthTex0 dhDepthTex0
-    #define modDepthTex1 dhDepthTex1
-
     #define modProjection         dhProjection
     #define modProjectionInverse  dhProjectionInverse
     #define modProjectionPrevious gbufferPreviousProjection
+
+    #define modDepthTex0 dhDepthTex0
+    #define modDepthTex1 dhDepthTex1
 
 #elif defined VOXY
 
     uniform sampler2D vxDepthTexOpaque;
     uniform sampler2D vxDepthTexTrans;
+
+    uniform mat4 vxModelView;
+    uniform mat4 vxModelViewInv;
 
     uniform mat4 vxProj;
     uniform mat4 vxProjInv;
@@ -54,23 +57,23 @@
     #define modNearPlane near
     #define modFarPlane  far
 
-    #define modDepthTex0 vxDepthTexTrans
-    #define modDepthTex1 vxDepthTexOpaque
-
     #define modProjection         vxProj
     #define modProjectionInverse  vxProjInv
     #define modProjectionPrevious vxProjPrev
+
+    #define modDepthTex0 vxDepthTexTrans
+    #define modDepthTex1 vxDepthTexOpaque
 
 #else
 
     #define modNearPlane near
     #define modFarPlane  far
 
-    #define modDepthTex0 depthtex0
-    #define modDepthTex1 depthtex1
-
     #define modProjection         gbufferProjection
     #define modProjectionInverse  gbufferProjectionInverse
     #define modProjectionPrevious gbufferPreviousProjection
+
+    #define modDepthTex0 depthtex0
+    #define modDepthTex1 depthtex1
 
 #endif

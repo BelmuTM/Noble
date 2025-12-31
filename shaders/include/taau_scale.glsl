@@ -19,3 +19,5 @@
 /********************************************************************************/
 
 #define RENDER_SCALE 1.00 // [0.25 0.50 0.75 1.00]
+
+#define DOWNSCALED_RENDERING (RENDER_SCALE == 0.75 || RENDER_SCALE == 0.50 || RENDER_SCALE == 0.25)

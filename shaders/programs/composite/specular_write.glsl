@@ -25,8 +25,6 @@ layout (location = 0) out vec3 lighting;
 in vec2 textureCoords;
 in vec2 vertexCoords;
 
-uniform usampler2D colortex11;
-
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 
@@ -58,8 +56,10 @@ uniform usampler2D colortex11;
 void main() {
     lighting = vec3(0.0);
 
-    vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-    if (saturate(fragCoords) != fragCoords) { discard; return; }
+    #if DOWNSCALED_RENDERING == 1
+        vec2 fragCoords = gl_FragCoord.xy * texelSize;
+        if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+    #endif
 
     vec3 coords = vec3(vertexCoords, 0.0);
 
@@ -77,7 +77,12 @@ void main() {
     #if defined CHUNK_LOADER_MOD_ENABLED
         if (depth >= 1.0) {
             modFragment = true;
-            depth       = texture(modDepthTex0, vertexCoords).r;
+
+            #if defined VOXY
+                depth = texture(modDepthTex0, textureCoords).r;
+            #else
+                depth = texture(modDepthTex0, vertexCoords).r;
+            #endif
                     
             projection        = modProjection;
             projectionInverse = modProjectionInverse;
@@ -89,13 +94,15 @@ void main() {
 
     vec3 viewPosition0 = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
+    vec4 blendedLighting = texture(MAIN_BUFFER, vertexCoords);
+
     // Terrain Fragments
-    if (depth != 1.0) {
+    if (depth < 1.0) {
 
         Material material = getMaterial(vertexCoords);
 
         if (material.F0 * maxFloat8 <= labPBRMetals) {
-            lighting = exp2(texture(MAIN_BUFFER, vertexCoords).rgb) - 1.0;
+            lighting = exp2(blendedLighting.rgb) - 1.0;
         }
 
         vec3 viewPosition1 = screenToView(vec3(textureCoords, material.depth1), projectionInverse, true);
@@ -130,7 +137,9 @@ void main() {
             if (!modFragment) {
                 visibility = texture(SHADOWMAP_BUFFER, max(coords.xy, texelSize)).rgb;
 
-                if (material.id == WATER_ID) visibility = material.albedo;
+                if (material.id == WATER_ID) {
+                    visibility = material.albedo;
+                }
             }
 
             #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
@@ -138,8 +147,8 @@ void main() {
             #endif
 
             if (visibility != vec3(0.0) && material.F0 > EPS) {
-                sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowLightVector) * visibility * directIlluminance;
-            }    
+                sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowLightVector) * directIlluminance;
+            }
         #endif
 
         #if REFLECTIONS > 0
@@ -147,9 +156,9 @@ void main() {
         #endif
 
     } else {
-    // Sky Fragments
+        // Sky Fragments
 
-        lighting  = exp2(texture(MAIN_BUFFER, vertexCoords).rgb) - 1.0;
+        lighting  = exp2(blendedLighting.rgb) - 1.0;
         lighting += renderCelestialBodies(vertexCoords, viewPosition0);
     }
 
@@ -203,9 +212,9 @@ void main() {
     if (isEyeInWater == 1) {
         lighting += sunSpecular;
         lighting += envSpecular;
-        lighting  = lighting * transmittance + scattering;
+        lighting  = mix(lighting * transmittance + scattering, lighting, blendedLighting.a);
     } else {
-        lighting  = lighting * transmittance + scattering;
+        lighting  = mix(lighting * transmittance + scattering, lighting, blendedLighting.a);
         lighting += sunSpecular;
         lighting += envSpecular;
     }

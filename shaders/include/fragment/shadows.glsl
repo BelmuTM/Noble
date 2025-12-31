@@ -100,7 +100,7 @@ float visibility(sampler2D shadowTex, vec3 samplePosition) {
 }
 
 vec3 getShadowColor(vec3 samplePosition) {
-    if (saturate(samplePosition) != samplePosition) return vec3(1.0);
+    if (!insideScreenBounds(samplePosition, 1.0)) return vec3(1.0);
 
     float shadowDepth0 = visibility(shadowtex0, samplePosition);
     float shadowDepth1 = visibility(shadowtex1, samplePosition);
@@ -129,7 +129,7 @@ vec3 getShadowColor(vec3 samplePosition) {
                 vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, jitter) * invShadowMapResolution;
                 vec2 sampleCoords = distortShadowSpace(shadowCoords + offset) * 0.5 + 0.5;
                 
-                if (saturate(sampleCoords) != sampleCoords) return -1.0;
+                if (!insideScreenBounds(sampleCoords, 1.0)) return -1.0;
 
                 float depth  = texelFetch(shadowtex0, ivec2(sampleCoords * shadowMapResolution), 0).r;
                 float weight = step(depth, shadowDepth);
@@ -191,7 +191,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
         #if SHADOWS == 1
             vec3 shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
 
-            if (saturate(shadowPosDistort) != shadowPosDistort) return vec3(1.0);
+            if (!insideScreenBounds(shadowPosDistort, 1.0)) return vec3(1.0);
 
             float avgBlockerDepth = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
 

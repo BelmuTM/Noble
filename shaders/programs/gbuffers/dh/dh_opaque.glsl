@@ -25,7 +25,7 @@
 
 #if defined STAGE_VERTEX
 
-    flat out int blockId;
+    flat out uint blockId;
     out vec2 lightmapCoords;
     out vec3 vertexNormal;
     out vec3 scenePosition;
@@ -34,7 +34,7 @@
     void main() {
         lightmapCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
         vertexColor    = gl_Color;
-        blockId        = dhMaterialId;
+        blockId        = uint(dhMaterialId);
 
         vertexNormal = gl_Normal;
 
@@ -57,26 +57,28 @@
 
     /* RENDERTARGETS: 1,3 */
 
-    layout (location = 0) out uvec4 data0;
-    layout (location = 1) out vec2  data1;
+    layout (location = 0) out uvec4 data;
+    layout (location = 1) out vec2 geometricNormal;
 
-    flat in int blockId;
+    flat in uint blockId;
     in vec2 lightmapCoords;
     in vec3 vertexNormal;
     in vec3 scenePosition;
     in vec4 vertexColor;
 
     void main() {
-        vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) { discard; return; }
+        #if DOWNSCALED_RENDERING == 1
+            vec2 fragCoords = gl_FragCoord.xy * texelSize;
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+        #endif
 
         float fragDistance = length(scenePosition);
         if (fragDistance < 0.5 * far) { discard; return; }
 
-        vec4 albedoTex = vertexColor;
+        vec3 albedo = vertexColor.rgb;
 
         #if WHITE_WORLD == 1
-            albedoTex.rgb = vec3(1.0);
+            albedo = vec3(1.0);
         #endif
 
         float roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0);
@@ -99,20 +101,22 @@
             }
         #endif
 
-        vec3 labPBRData0 = vec3(1.0, saturate(lightmapCoords));
-        vec4 labPBRData1 = vec4(1.0, emission, 0.0, subsurface);
-        vec4 labPBRData2 = vec4(albedoTex.rgb, roughness);
-
         vec2 encodedNormal = encodeUnitVector(normalize(vertexNormal));
-    
-        uvec4 shiftedLabPbrData0 = uvec4(round(labPBRData0 * labPBRData0Range), blockId) << uvec4(0, 1, 14, 26);
 
-        data0.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
-        data0.y = packUnorm4x8(labPBRData1);
-        data0.z = packUnorm4x8(labPBRData2);
-        data0.w = packUnorm2x16(encodedNormal);
+        data = storeMaterial(
+            0.0,
+            roughness,
+            1.0,
+            emission,
+            subsurface,
+            albedo,
+            encodedNormal,
+            lightmapCoords,
+            1.0,
+            blockId
+        );
 
-        data1 = encodedNormal;
+        geometricNormal = encodedNormal;
     }
 
 #endif

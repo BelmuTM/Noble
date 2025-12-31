@@ -212,15 +212,20 @@ float calculateAirFogPhase(float cosTheta) {
 
         float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
 
-        for (int i = 0; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
+        vec3 shadow = vec3(1.0);
+
+        for (uint i = 0u; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
+            // Early exit if transmittance is too low
+            if (maxOf(transmittanceOut) < EPS) break;
+
             #if defined WORLD_OVERWORLD
-                vec3 shadowColor = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
+                if ((i & 3u) == 0u) {
+                    shadow = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
+                }
 
                 #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                    shadowColor *= getCloudsShadows(rayPosition);
+                    shadow *= getCloudsShadows(rayPosition);
                 #endif
-            #else
-                vec3 shadowColor = vec3(1.0);
             #endif
 
             float densityFog = 0.0;
@@ -242,7 +247,7 @@ float calculateAirFogPhase(float cosTheta) {
                 vec3 stepTransmittanceFog = exp(-opticalDepthFog);
                 vec3 visibleScatteringFog = transmittanceOut * saturate((stepTransmittanceFog - 1.0) / -opticalDepthFog);
 
-                stepScatteringDirect   += airFogScatteringCoefficients * airmassFog * phaseFog       * directIlluminance * visibleScatteringFog * shadowColor;
+                stepScatteringDirect   += airFogScatteringCoefficients * airmassFog * phaseFog       * directIlluminance * visibleScatteringFog * shadow;
                 stepScatteringIndirect += airFogScatteringCoefficients * airmassFog * isotropicPhase * skyIlluminance    * visibleScatteringFog;
 
                 stepTransmittance *= stepTransmittanceFog;
@@ -250,7 +255,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
 
-                float heightFalloffAerial = sky ? 0.0 : exp(-max0(rayPosition.y - cameraPosition.y) * 0.08);
+                float heightFalloffAerial = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08) * float(!sky);
 
                 float airmassAerial      = rayLength * heightFalloffAerial * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * 20.0;
                 vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
@@ -258,7 +263,7 @@ float calculateAirFogPhase(float cosTheta) {
                 vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
                 vec3 visibleScatteringAerial = transmittanceOut * saturate((stepTransmittanceAerial - 1.0) / -opticalDepthAerial);
 
-                stepScatteringDirect   += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * directIlluminance * visibleScatteringAerial * shadowColor;
+                stepScatteringDirect   += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * directIlluminance * visibleScatteringAerial * shadow;
                 stepScatteringIndirect += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * skyIlluminance    * visibleScatteringAerial;
 
                 stepTransmittance *= stepTransmittanceAerial;
@@ -320,12 +325,20 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         vec3 scattering    = vec3(0.0); 
         vec3 transmittance = vec3(1.0);
 
-        for (int i = 0; i < WATER_FOG_STEPS; i++, worldPosition += worldIncrement, shadowPosition += shadowIncrement) {
+        vec3 shadow = vec3(1.0);
+
+        for (uint i = 0u; i < WATER_FOG_STEPS; i++, worldPosition += worldIncrement, shadowPosition += shadowIncrement) {
+            // Early exit if transmittance is too low
+            if (maxOf(transmittanceOut) < EPS) break;
+
             vec3  shadowScreenPosition = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
             ivec2 shadowTexel          = ivec2(shadowScreenPosition.xy * shadowMapResolution);
 
             float shadowDepth0 = texelFetch(shadowtex0, shadowTexel, 0).r;
-            vec3  shadow       = getShadowColor(shadowScreenPosition);
+
+            if ((i & 3u) == 0u) {
+                shadow = getShadowColor(shadowScreenPosition);
+            }
 
             float distanceThroughWater = abs(shadowDepth0 - shadowScreenPosition.z) * -shadowProjectionInverse[2].z / SHADOW_DEPTH_STRETCH;
 

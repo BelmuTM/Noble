@@ -76,10 +76,12 @@
 
             for (int x = -1; x <= 1; x++) {
                 for (int y = -1; y <= 1; y++) {
+                    // Discard center pixel
                     if (x == 0 && y == 0) continue;
 
                     vec2 sampleCoords = textureCoords + vec2(x, y) * stepSize;
-                    if (saturate(sampleCoords) != sampleCoords) continue;
+                    
+                    if (!insideScreenBounds(sampleCoords, RENDER_SCALE)) continue;
 
                     float weight    = waveletKernel[abs(x)] * waveletKernel[abs(y)];
                     float luminance = luminance(texture(colorTex, sampleCoords).rgb);
@@ -174,8 +176,10 @@
     void main() {
         color = vec4(0.0);
 
-        vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) { discard; return; }
+        #if DOWNSCALED_RENDERING == 1
+            vec2 fragCoords = gl_FragCoord.xy * texelSize;
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+        #endif
 
         bool  modFragment = false;
         float depth       = texture(depthtex0, vertexCoords).r;
@@ -190,7 +194,12 @@
         #if defined CHUNK_LOADER_MOD_ENABLED
             if (depth >= 1.0) {
                 modFragment = true;
-                depth       = texture(modDepthTex0, vertexCoords).r;
+
+                #if defined VOXY
+                    depth = texture(modDepthTex0, textureCoords).r;
+                #else
+                    depth = texture(modDepthTex0, vertexCoords).r;
+                #endif
 
                 projection         = modProjection;
                 projectionInverse  = modProjectionInverse;
@@ -218,7 +227,7 @@
             vec4 history      = texture(DEFERRED_BUFFER, prevPosition.xy);
 
             color.a  = history.a;
-            color.a *= float(clamp(prevPosition.xy, 0.0, RENDER_SCALE) == prevPosition.xy);
+            color.a *= float(insideScreenBounds(prevPosition.xy, RENDER_SCALE));
             color.a *= float(depth >= handDepth);
 
             momentsOut = texture(MOMENTS_BUFFER, prevPosition.xy);
@@ -234,7 +243,9 @@
                 vec3 prevScenePosition = viewToScene(screenToView(prevPosition, projectionInverse, false));
                 bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
 
-                float depthWeight = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.1);
+                //float depthWeight = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.1);
+
+                float depthWeight = pow(exp(-abs(linearDepth - linearPrevDepth)), 8.0);
 
                 color.a *= (closeToCamera ? depthWeight : 1.0);
 

@@ -83,13 +83,13 @@
                     vec2  offset       = vec2(x, y) * texelSize;
                     vec2  sampleCoords = textureCoords + offset;
 
-                    if (saturate(sampleCoords) == sampleCoords) {
-                        float weight   = gaussianKernel[abs(x)] * gaussianKernel[abs(y)];
-                        float variance = texture(MOMENTS_BUFFER, sampleCoords).a;
+                    if (!insideScreenBounds(sampleCoords, RENDER_SCALE)) continue; 
 
-                        varianceSum += variance * weight;
-                        totalWeight += weight;
-                    }
+                    float weight   = gaussianKernel[abs(x)] * gaussianKernel[abs(y)];
+                    float variance = texture(MOMENTS_BUFFER, sampleCoords).a;
+
+                    varianceSum += variance * weight;
+                    totalWeight += weight;
                 }
             }
             return (varianceSum / totalWeight) * 10.0;
@@ -115,12 +115,13 @@
 
             for (int x = -1; x <= 1; x++) {
                 for (int y = -1; y <= 1; y++) {
+                    // Discard center pixel
                     if (x == 0 && y == 0) continue;
 
                     vec2 offset       = vec2(x, y) * stepSize * texelSize;
                     vec2 sampleCoords = coords + offset;
 
-                    if (saturate(sampleCoords) != sampleCoords) continue;
+                    if (!insideScreenBounds(sampleCoords, RENDER_SCALE)) continue;
 
                     uvec4 sampleDataTexture = texture(GBUFFERS_DATA, sampleCoords);
                     vec3  sampleNormal      = mat3(gbufferModelView) * decodeUnitVector(vec2(sampleDataTexture.w & 65535u, (sampleDataTexture.w >> 16u) & 65535u) * rcpMaxFloat16);
@@ -150,8 +151,10 @@
             irradiance = vec4(0.0);
             moments    = vec4(0.0);
 
-            vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-            if (saturate(fragCoords) != fragCoords) { discard; return; }
+            #if DOWNSCALED_RENDERING == 1
+                vec2 fragCoords = gl_FragCoord.xy * texelSize;
+                if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+            #endif
 
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;

@@ -33,7 +33,7 @@
         Wikipedia. (2022). Rodrigues' rotation formula. https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
 */
 
-const float EPS = 1e-4;
+const float EPS = 1e-3;
 
 const float PI      = radians(180.0);
 const float HALF_PI = PI * 0.5;
@@ -101,6 +101,17 @@ float rcp(float x) { return 1.0 / x;        }
 vec2  rcp(vec2 x)  { return 1.0 / x;        }
 vec3  rcp(vec3 x)  { return 1.0 / x;        }
 vec4  rcp(vec4 x)  { return 1.0 / x;        }
+
+bool insideScreenBounds(vec2 coords, float scale) {
+    return all(greaterThanEqual(coords, vec2(0.0)))
+        && all(lessThanEqual(coords, vec2(scale)));
+}
+
+bool insideScreenBounds(vec3 position, float scale) {
+    return all(greaterThanEqual(position.xy, vec2(0.0)))
+        && all(lessThanEqual(position.xy, vec2(scale)))
+        && position.z > 0.0 && position.z < 1.0;
+}
 
 // max absolute error 9.0x10^-3
 // Eberly's polynomial degree 1 - respect bounds

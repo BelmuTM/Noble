@@ -20,7 +20,7 @@
 
 const float bias = 1.0;
 
-const float minExposure = bias * 6e-5;
+const float minExposure = bias * 5e-5;
 const float maxExposure = bias * 1.5e-1;
 
 const float calibration       = 12.5;  // Light meter calibration

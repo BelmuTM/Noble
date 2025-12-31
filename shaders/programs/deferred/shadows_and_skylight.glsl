@@ -90,8 +90,10 @@
         shadowmap   = vec4(1.0, 1.0, 1.0, 0.0);
         illuminance = vec4(0.0);
 
-        vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords)  { discard; return; }
+        #if DOWNSCALED_RENDERING == 1
+            vec2 fragCoords = gl_FragCoord.xy * texelSize;
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+        #endif
 
         Material material = getMaterial(vertexCoords);
 
@@ -120,7 +122,7 @@
 
                     skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, max0(ao.xyz), ao.w));
                 #else
-                    skyIlluminance = uniformSkyIlluminance;
+                    skyIlluminance = vec3(luminance(uniformSkyIlluminance));
                 #endif
             }
         #endif
@@ -172,7 +174,8 @@
                 #if CONTACT_SHADOWS == 1
                     float contactShadows = 1.0;
 
-                    viewPosition += sceneToView(geometricNormal) * 1e-2;
+                    geometricNormal = mat3(gbufferModelView) * (geometricNormal);
+                    viewPosition   += geometricNormal * 1e-2;
 
                     float subsurfaceDepth = 0.0;
 

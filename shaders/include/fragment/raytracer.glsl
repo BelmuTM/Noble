@@ -101,7 +101,6 @@ bool raytrace(
         */
         if (maxZ >= depth && minZ <= thickDepth && depth >= handDepth) {
             intersected = true;
-            break;
         }
 
         t += stride;

@@ -73,6 +73,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
         float alphaSq = maxEps(material.roughness * material.roughness);
 
+        vec3 eta  = material.N / airIOR;
+        vec3 etaK = material.K / airIOR;
+
         float skylight = getSkylightFalloff(material.lightmap.y);
 
         vec3  viewDirection = normalize(viewPosition);
@@ -85,7 +88,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
         vec3 reflection = vec3(0.0);
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < ROUGH_REFLECTIONS_SAMPLES; i++) {
             vec3  microfacetNormal = tbn * sampleGGXVNDF(tangentViewDirection, rand2F(), material.roughness);
             float MdotV            = dot(microfacetNormal, -viewDirection);
             vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
@@ -126,7 +129,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             }
 
             #if defined REFLECTIONS_SKY_FALLBACK
-                vec3 fallback = hitPosition.z >= handDepth ? sampleSkyColor(hitPosition.xy, rayDirection, skylight) : vec3(0.0);
+                vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
             #else
                 vec3 fallback = vec3(0.0);
             #endif
@@ -135,7 +138,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             if (isEyeInWater == 1 || isWater(material.id)) {
                 fresnel = fresnelDielectricDielectric_R(MdotV, vec3(airIOR), vec3(1.333));
             } else {
-                fresnel = fresnelDielectricConductor(MdotV, material.N / airIOR, material.K / airIOR);
+                fresnel = fresnelDielectricConductor(MdotV, eta, etaK);
             }
 
             float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
@@ -146,6 +149,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
             rayLength += sampleRayLength;
         }
+        
         rayLength /= ROUGH_REFLECTIONS_SAMPLES;
 
         return reflection / ROUGH_REFLECTIONS_SAMPLES;
@@ -168,6 +172,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         viewPosition += material.normal * 1e-2;
 
         float alphaSq = maxEps(material.roughness * material.roughness);
+
+        vec3 eta  = material.N / airIOR;
+        vec3 etaK = material.K / airIOR;
 
         float skylight = getSkylightFalloff(material.lightmap.y);
 
@@ -219,7 +226,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         if (isEyeInWater == 1 || isWater(material.id)) {
             fresnel = fresnelDielectricDielectric_R(NdotV, vec3(airIOR), vec3(1.333));
         } else {
-            fresnel = fresnelDielectricConductor(NdotL, material.N / airIOR, material.K / airIOR);
+            fresnel = fresnelDielectricConductor(NdotV, eta, etaK);
         }
 
         float G1 = G1_Smith_GGX(NdotV, alphaSq);

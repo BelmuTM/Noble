@@ -82,7 +82,7 @@
             #endif
 
             #if CLOUDMAP == 1
-                if (clamp(textureCoords, vec2(0.0), vec2(CLOUDMAP_SCALE)) == textureCoords) {
+                if (insideScreenBounds(textureCoords, CLOUDMAP_SCALE)) {
                     vec3 cloudsCoords   = normalize(unprojectSphere(textureCoords * rcp(CLOUDMAP_SCALE)));
                     vec4 cloudmapLayer0 = estimateCloudsScattering(cloudLayer0, cloudsCoords, false);
                     vec4 cloudmapLayer1 = estimateCloudsScattering(cloudLayer1, cloudsCoords, false);
@@ -128,12 +128,12 @@
             vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy;
             float prevDepth    = texture(depthtex0, prevPosition.xy).r;
 
-            if (saturate(prevPosition.xy) == prevPosition.xy && prevDepth >= handDepth) {
-                vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition.xy).rgb);
+            if (insideScreenBounds(prevPosition, 1.0) && prevDepth >= handDepth) {
+                vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevPosition).rgb);
 
                 const float centerWeightStrength = 0.6;
 
-                vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition.xy * viewSize) - 1.0);
+                vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevPosition * viewSize) - 1.0);
                 float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
 
                 distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-4 * distanceToClouds))));

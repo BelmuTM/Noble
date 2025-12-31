@@ -177,7 +177,7 @@ const vec2 vogelDisk[64] = vec2[](
 float getCoC(float fragDepth, float targetDepth) {
     if (fragDepth <= handDepth) return 0.0;
 
-    const float maxCoC = 10.0;
+    const float maxCoC = 2.0;
 
     return clamp(abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5, 0.0, maxCoC);
 }
@@ -190,31 +190,33 @@ void depthOfField(inout vec3 color, sampler2D colorTex, vec2 coords, float coc) 
     float distFromCenter = distance(coords, vec2(0.5));
 
     #if DOF_ABERRATION == 1
-        vec2 caOffset = vec2(distFromCenter) * DOF_ABERRATION_STRENGTH * 15.0 * coc * texelSize;
+        vec2 caOffset = vec2(distFromCenter) * DOF_ABERRATION_STRENGTH * 10.0 * coc * texelSize;
     #endif
 
     for (int i = 0; i < DOF_SAMPLES; i++) {
         vec2 offset       = vogelDisk[i] * DOF_RADIUS * coc * texelSize;
         vec2 sampleCoords = coords + offset;
 
-        if (saturate(sampleCoords) != sampleCoords) continue;
+        if (insideScreenBounds(sampleCoords, 1.0)) {
 
-        #if DOF_ABERRATION == 1
-            vec3 sampleColor = vec3(
-                texture(colorTex, sampleCoords + caOffset).r,
-                texture(colorTex, sampleCoords           ).g,
-                texture(colorTex, sampleCoords - caOffset).b
-            );
-        #else
-            vec3 sampleColor = texture(colorTex, sampleCoords).rgb;
-        #endif
+			#if DOF_ABERRATION == 1
+				vec3 sampleColor = vec3(
+					texture(colorTex, sampleCoords + caOffset).r,
+					texture(colorTex, sampleCoords           ).g,
+					texture(colorTex, sampleCoords - caOffset).b
+				);
+			#else
+				vec3 sampleColor = texture(colorTex, sampleCoords).rgb;
+			#endif
 
-        sampleColor = exp2(sampleColor) - 1.0;
+			sampleColor = exp2(sampleColor) - 1.0;
 
-        float weight = mix(0.3, 1.0, smoothstep(0.2, 1.0, luminance(sampleColor)));
+			float weight = mix(0.3, 1.0, smoothstep(0.2, 1.0, luminance(sampleColor)));
 
-        color       += sampleColor * weight;
-        totalWeight += weight;
+			color       += sampleColor * weight;
+			totalWeight += weight;
+
+		}
     }
 
     color /= totalWeight;
@@ -237,22 +239,23 @@ void depthOfField_deprecated(inout vec3 color, sampler2D colorTex, vec2 coords, 
         for (int i = 0; i < 3 * DOF_SAMPLES; i++) {
             vec2 sampleCoords = coords + vec2(cos(angle), sin(angle)) * i * coc * texelSize;
             
-            if (saturate(sampleCoords) != sampleCoords) continue;
+            if (insideScreenBounds(sampleCoords, 1.0)) {
 
-            #if DOF_ABERRATION == 1
-                vec3 sampleColor = vec3(
-                    texture(colorTex, sampleCoords + caOffset).r,
-                    texture(colorTex, sampleCoords           ).g,
-                    texture(colorTex, sampleCoords - caOffset).b
-                );
-            #else
-                vec3 sampleColor = texture(colorTex, sampleCoords).rgb;
-            #endif
+				#if DOF_ABERRATION == 1
+					vec3 sampleColor = vec3(
+						texture(colorTex, sampleCoords + caOffset).r,
+						texture(colorTex, sampleCoords           ).g,
+						texture(colorTex, sampleCoords - caOffset).b
+					);
+				#else
+					vec3 sampleColor = texture(colorTex, sampleCoords).rgb;
+				#endif
 
-            sampleColor = exp2(sampleColor) - 1.0;
+				sampleColor = exp2(sampleColor) - 1.0;
 
-            color       += sampleColor * weight;
-            totalWeight += weight;
+				color       += sampleColor * weight;
+				totalWeight += weight;
+			}
         }
     }
     color /= totalWeight;

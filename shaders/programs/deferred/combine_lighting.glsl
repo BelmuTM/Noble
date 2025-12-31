@@ -72,7 +72,11 @@
 
         #if defined CHUNK_LOADER_MOD_ENABLED
             if (depth >= 1.0) {
-                depth = texture(modDepthTex0, vertexCoords).r;
+                #if defined VOXY
+                    depth = texture(modDepthTex0, textureCoords).r;
+                #else
+                    depth = texture(modDepthTex0, vertexCoords).r;
+                #endif
 
                 projectionInverse = modProjectionInverse;
             }

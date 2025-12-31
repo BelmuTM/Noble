@@ -38,8 +38,8 @@ uniform sampler2D vxDepthTexTrans;
 
 #include "/include/utility/material.glsl"
 
-layout (location = 0) out uvec4 data0;
-layout (location = 1) out vec2  data1;
+layout (location = 0) out uvec4 data;
+layout (location = 1) out vec2 geometricNormal;
 
 void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     uint blockId = max(0u, voxyParameters.customId - 1000u);
@@ -75,18 +75,20 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         bvec3(axis == 2u, axis == 0u, axis == 1u)
     );
 
-    vec3 labPBRData0 = vec3(1.0, saturate(voxyParameters.lightMap));
-    vec4 labPBRData1 = vec4(1.0, emission, 0.0, subsurface);
-    vec4 labPBRData2 = vec4(albedo, roughness);
-
     vec2 encodedNormal = encodeUnitVector(normalize(normal));
 
-    uvec4 shiftedLabPbrData0 = uvec4(round(labPBRData0 * labPBRData0Range), blockId) << uvec4(0, 1, 14, 26);
+    data = storeMaterial(
+        0.0,
+        roughness,
+        1.0,
+        emission,
+        subsurface,
+        albedo,
+        encodedNormal,
+        voxyParameters.lightMap,
+        1.0,
+        blockId
+    );
 
-    data0.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
-    data0.y = packUnorm4x8(labPBRData1);
-    data0.z = packUnorm4x8(labPBRData2);
-    data0.w = packUnorm2x16(encodedNormal);
-
-    data1 = encodedNormal;
+    geometricNormal = encodedNormal;
 }

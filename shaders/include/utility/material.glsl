@@ -38,13 +38,14 @@ struct Material {
     vec3 albedo;
     vec3 normal;
 
+    vec2 lightmap;
+
     vec3 N;
     vec3 K;
 
     float parallaxSelfShadowing;
 
-    int id;
-    vec2 lightmap;
+    uint id;
 
     float depth0;
     float depth1;
@@ -92,7 +93,7 @@ mat2x3 getHardcodedMetal(Material material) {
     return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(f0ToIOR(material.albedo), vec3(0.0));
 }
 
-bool isWater(int materialID) {
+bool isWater(uint materialID) {
     #if defined DISTANT_HORIZONS
         return materialID == WATER_ID || materialID == DH_BLOCK_WATER;
     #else
@@ -100,15 +101,57 @@ bool isWater(int materialID) {
     #endif
 }
 
+uvec4 storeMaterial(
+    float F0,
+    float roughness,
+    float ao,
+    float emission,
+    float subsurface,
+
+    vec3 albedo,
+    vec2 encodedNormal,
+
+    vec2 lightmap,
+
+    float parallaxSelfShadowing,
+
+    uint id
+) {
+    vec3 labPBRData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
+    vec4 labPBRData1 = vec4(ao, emission, F0, subsurface);
+    vec4 labPBRData2 = vec4(albedo, roughness);
+
+    uvec4 shiftedLabPbrData0 = uvec4(round(labPBRData0 * labPBRData0Range), id) << uvec4(0, 1, 14, 26);
+
+    uvec4 data = uvec4(0);
+    data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
+    data.y = packUnorm4x8(labPBRData1);
+    data.z = packUnorm4x8(labPBRData2);
+    data.w = packUnorm2x16(encodedNormal);
+
+    return data;
+}
+
 Material getMaterial(vec2 coords) {
     coords *= viewSize;
+
+    Material material;
+
+    material.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
+    material.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;
+
+    #if defined CHUNK_LOADER_MOD_ENABLED
+        if (material.depth0 >= 1.0) {
+            material.depth0 = texelFetch(modDepthTex0, ivec2(coords), 0).r;
+            material.depth1 = texelFetch(modDepthTex1, ivec2(coords), 0).r;
+        }
+    #endif
     
     uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(coords), 0);
 
     vec4 data1 = unpackUnorm4x8(dataTexture.y);
     vec4 data2 = unpackUnorm4x8(dataTexture.z);
 
-    Material material;
     material.roughness  = data2.w * data2.w;
     material.ao         = data1.x;
     material.emission   = data1.y;
@@ -137,20 +180,10 @@ Material getMaterial(vec2 coords) {
 
     material.parallaxSelfShadowing = float(dataTexture.x & 1u);
 
-    material.normal = sceneToView(decodeUnitVector(unpackUnorm2x16(dataTexture.w)));
+    material.normal = mat3(gbufferModelView) * decodeUnitVector(unpackUnorm2x16(dataTexture.w));
 
     material.id       = int(dataTexture.x >> 26u & 63u);
     material.lightmap = vec2(dataTexture.x >> 1u & 8191u, dataTexture.x >> 14u & 4095u) * vec2(rcpMaxFloat13, rcpMaxFloat12);
-
-    material.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
-    material.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;
-
-    #if defined CHUNK_LOADER_MOD_ENABLED
-        if (material.depth0 >= 1.0) {
-            material.depth0 = texelFetch(modDepthTex0, ivec2(coords), 0).r;
-            material.depth1 = texelFetch(modDepthTex1, ivec2(coords), 0).r;
-        }
-    #endif
 
     return material;
 }

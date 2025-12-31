@@ -78,8 +78,10 @@
         void main() {
             reflections = vec4(0.0);
 
-            vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-            if (saturate(fragCoords) != fragCoords) { discard; return; }
+            #if DOWNSCALED_RENDERING == 1
+                vec2 fragCoords = gl_FragCoord.xy * texelSize;
+                if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+            #endif
 
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;
@@ -94,7 +96,12 @@
             #if defined CHUNK_LOADER_MOD_ENABLED
                 if (depth >= 1.0) {
                     modFragment = true;
-                    depth       = texture(modDepthTex0, vertexCoords).r;
+                    
+                    #if defined VOXY
+                        depth = texture(modDepthTex0, textureCoords).r;
+                    #else
+                        depth = texture(modDepthTex0, vertexCoords).r;
+                    #endif
                     
                     projection         = modProjection;
                     projectionInverse  = modProjectionInverse;
@@ -154,7 +161,7 @@
 
             weight *= depthWeight * velocityWeight * centerWeight;
             weight  = saturate(weight);
-            weight *= float(saturate(prevPositionReflected.xy) == prevPositionReflected.xy);
+            weight *= float(insideScreenBounds(prevPositionReflected.xy, RENDER_SCALE));
             weight *= float(!isWater(material.id));
 
             reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));

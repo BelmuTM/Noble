@@ -46,7 +46,7 @@ in vec2 textureCoords;
             WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
         );
 
-        if (saturate(distortion) == distortion) {
+        if (insideScreenBounds(distortion, 1.0)) {
             coords = distortion;
         }
     }
@@ -192,43 +192,4 @@ void main() {
             colorOut += bayer8(gl_FragCoord.xy) * rcpMaxFloat8;
         #endif
     #endif
-
-    bool  modFragment = false;
-    float depth       = texture(depthtex0, textureCoords).r;
-
-    vec2  centerCoords = vec2(RENDER_SCALE * 0.5);
-    float centerDepth  = texture(depthtex0, centerCoords).r;
-
-    mat4 projectionInverse = gbufferProjectionInverse;
-
-    #if defined CHUNK_LOADER_MOD_ENABLED
-        if (depth >= 1.0) {
-            modFragment = true;
-            depth       = texture(modDepthTex0, textureCoords).r;
-
-            projectionInverse = modProjectionInverse;
-        }
-    #endif
-
-    depth = linearizeDepthFromInverseProjection(depth, projectionInverse);
-
-    #if defined CHUNK_LOADER_MOD_ENABLED
-        if (modFragment && centerDepth < 1.0) {
-            modFragment = true;
-            centerDepth = texture(modDepthTex0, centerCoords).r;
-
-            projectionInverse = gbufferProjectionInverse;
-        } else {
-            centerDepth = texture(modDepthTex0, centerCoords).r;
-
-            projectionInverse = gbufferProjectionInverse;
-        }
-    #endif
-
-    centerDepth = linearizeDepthFromInverseProjection(centerDepth, projectionInverse);
-
-    //colorOut = vec3(1.0 / log2(max0(centerDepth + 1.0)));
-
-    //colorOut = vec3(getCoC(depth, targetDepth));
-    
 }

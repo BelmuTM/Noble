@@ -137,7 +137,9 @@ vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 ligh
 }
 
 vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, bool isMetal, vec4 shadowmap, vec3 directIlluminance, vec3 skyIlluminance, float ao, float cloudsShadows) {
-    if (material.id == LIGHTNING_BOLT_ID) return vec3(1e7);
+    if (material.id == LIGHTNING_BOLT_ID) {
+        return vec3(1e7);
+    }
 
     viewDirection = normalize(-viewDirection);
 

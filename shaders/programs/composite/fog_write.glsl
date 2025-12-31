@@ -72,10 +72,15 @@
     void main() {
         fog = uvec2(0);
 
-        vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-        if (saturate(fragCoords) != fragCoords) { discard; return; }
+        #if DOWNSCALED_RENDERING == 1
+            vec2 fragCoords = gl_FragCoord.xy * texelSize;
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+        #endif
 
         Material material = getMaterial(vertexCoords);
+
+        float depth0 = texture(depthtex0, vertexCoords).r;
+        float depth1 = texture(depthtex1, vertexCoords).r;
 
         float farPlane = far;
 
@@ -84,13 +89,21 @@
         #if defined CHUNK_LOADER_MOD_ENABLED
             farPlane = modFarPlane;
 
-            if (texture(depthtex0, vertexCoords).r >= 1.0) {
+            if ((isEyeInWater == 0 && depth1 >= 1.0) || (isEyeInWater == 1 && depth0 >= 0.0)) {
+                #if defined VOXY
+                    depth0 = texture(modDepthTex0, textureCoords).r;
+                    depth1 = texture(modDepthTex1, textureCoords).r;
+                #else
+                    depth0 = texture(modDepthTex0, vertexCoords).r;
+                    depth1 = texture(modDepthTex1, vertexCoords).r;
+                #endif
+                
                 projectionInverse = modProjectionInverse;
             }
         #endif
 
-        vec3 viewPosition0  = screenToView(vec3(textureCoords, material.depth0), projectionInverse, true);
-        vec3 viewPosition1  = screenToView(vec3(textureCoords, material.depth1), projectionInverse, true);
+        vec3 viewPosition0  = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
+        vec3 viewPosition1  = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
         vec3 scenePosition0 = viewToScene(viewPosition0);
 
         vec3 directIlluminanceFinal = directIlluminance;
@@ -108,7 +121,9 @@
             float VdotL = 0.0;
         #endif
 
-        bool  sky      = material.depth0 == 1.0;
+        bool  sky             = depth0 == 1.0;
+        bool  skyTranslucents = depth1 == 1.0;
+
         float skylight = 0.0;
 
         vec3 scatteringLayer0    = vec3(0.0);
@@ -135,13 +150,12 @@
                         #if WATER_FOG == 0
                             computeWaterFogApproximation(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                         #else
-                            bool skyTranslucents = material.depth1 == 1.0;
                             computeVolumetricWaterFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight, skyTranslucents);
                         #endif
                     #endif
                 } else {
                     #if AIR_FOG == 1
-                        computeVolumetricAirFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, sky);
+                        computeVolumetricAirFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skyTranslucents);
                     #elif AIR_FOG == 2
                         computeAirFogApproximation(scatteringLayer0, transmittanceLayer0, viewPosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                     #endif
@@ -174,7 +188,7 @@
         vec3 scattering    = scatteringLayer0    * transmittanceLayer1 + scatteringLayer1 * transmittanceLayer2 + scatteringLayer2;
         vec3 transmittance = transmittanceLayer0 * transmittanceLayer1 * transmittanceLayer2;
 
-        if (scattering != vec3(0.0)) fog.x = encodeRGBE(scattering   );
+        if (scattering != vec3(0.0)) fog.x = encodeRGBE(scattering);
         if (scattering != vec3(1.0)) fog.y = encodeRGBE(transmittance);
     }
 

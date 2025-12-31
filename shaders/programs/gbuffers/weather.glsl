@@ -90,8 +90,10 @@
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            vec2 fragCoords = gl_FragCoord.xy * texelSize / RENDER_SCALE;
-            if (saturate(fragCoords) != fragCoords) { discard; return; }
+            #if DOWNSCALED_RENDERING == 1
+                vec2 fragCoords = gl_FragCoord.xy * texelSize;
+                if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+            #endif
 
             vec4 albedo = texture(gtexture, textureCoords);
 
