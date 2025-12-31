@@ -1,7 +1,7 @@
 /********************************************************************************/
 /*                                                                              */
 /*    Noble Shaders                                                             */
-/*    Copyright (C) 2025  Belmu                                                 */
+/*    Copyright (C) 2026  Belmu                                                 */
 /*                                                                              */
 /*    This program is free software: you can redistribute it and/or modify      */
 /*    it under the terms of the GNU General Public License as published by      */
@@ -96,8 +96,8 @@ bool raytrace(
         float thickDepth = thickenDepth(depth, zThickness, projection);
 
         /*
-            Intersection check, take account of the depth sample's thickness, and avoid
-            player hand fragments and sky fragments
+            Intersection check, take account of the depth sample's thickness,
+            and avoid player hand fragments
         */
         if (maxZ >= depth && minZ <= thickDepth && depth >= handDepth) {
             intersected = true;

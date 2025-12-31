@@ -1,7 +1,7 @@
 /********************************************************************************/
 /*                                                                              */
 /*    Noble Shaders                                                             */
-/*    Copyright (C) 2025  Belmu                                                 */
+/*    Copyright (C) 2026  Belmu                                                 */
 /*                                                                              */
 /*    This program is free software: you can redistribute it and/or modify      */
 /*    it under the terms of the GNU General Public License as published by      */
@@ -137,7 +137,7 @@ Material getMaterial(vec2 coords) {
 
     material.parallaxSelfShadowing = float(dataTexture.x & 1u);
 
-    material.normal = mat3(gbufferModelView) * decodeUnitVector(unpackUnorm2x16(dataTexture.w));
+    material.normal = sceneToView(decodeUnitVector(unpackUnorm2x16(dataTexture.w)));
 
     material.id       = int(dataTexture.x >> 26u & 63u);
     material.lightmap = vec2(dataTexture.x >> 1u & 8191u, dataTexture.x >> 14u & 4095u) * vec2(rcpMaxFloat13, rcpMaxFloat12);

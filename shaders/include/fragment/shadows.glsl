@@ -1,7 +1,7 @@
 /********************************************************************************/
 /*                                                                              */
 /*    Noble Shaders                                                             */
-/*    Copyright (C) 2025  Belmu                                                 */
+/*    Copyright (C) 2026  Belmu                                                 */
 /*                                                                              */
 /*    This program is free software: you can redistribute it and/or modify      */
 /*    it under the terms of the GNU General Public License as published by      */
@@ -20,6 +20,8 @@
 
 const float invShadowMapResolution = 1.0 / shadowMapResolution;
 
+float jitter = interleavedGradientNoise(gl_FragCoord.xy);
+
 #if CONTACT_SHADOWS == 1
 
     float traceContactShadows(
@@ -30,8 +32,6 @@ const float invShadowMapResolution = 1.0 / shadowMapResolution;
         float scale,
         out float subsurfaceDepth
     ) {
-        float jitter = randF();
-
         // DDA setup (McGuire & Mara, 2014)
         vec3 rayPosition;
         vec3 rayDirection;
@@ -73,7 +73,7 @@ const float invShadowMapResolution = 1.0 / shadowMapResolution;
                 float minZ  = rayPosition.z - float(CONTACT_SHADOWS_STRIDE) / linearDepth;
                 
                 // Intersection check, avoid player hand fragments
-                if(depth < rayPosition.z && maxZ >= depth && minZ <= depth && depth >= handDepth){
+                if(maxZ >= depth && minZ <= depth && depth >= handDepth) {
                     intersected = true;
                     break;
                 } 
@@ -115,8 +115,6 @@ vec3 getShadowColor(vec3 samplePosition) {
     return mix(vec3(shadowDepth0), shadowColor.rgb * (1.0 - shadowColor.a), saturate(shadowDepth1 - shadowDepth0));
 }
 
-float rng = interleavedGradientNoise(gl_FragCoord.xy);
-
 #if SHADOWS > 0
 
     #if SHADOWS == 1
@@ -128,7 +126,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
             float weightSum = 0.0;
 
             for (int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-                vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, rng) * invShadowMapResolution;
+                vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, jitter) * invShadowMapResolution;
                 vec2 sampleCoords = distortShadowSpace(shadowCoords + offset) * 0.5 + 0.5;
                 
                 if (saturate(sampleCoords) != sampleCoords) return -1.0;
@@ -160,7 +158,7 @@ float rng = interleavedGradientNoise(gl_FragCoord.xy);
 
         for (int i = 0; i < SHADOW_SAMPLES; i++) {
             #if SHADOWS != 3
-                offset = sampleDisk(i, SHADOW_SAMPLES, rng) * penumbraSize * invShadowMapResolution;
+                offset = sampleDisk(i, SHADOW_SAMPLES, jitter) * penumbraSize * invShadowMapResolution;
             #endif
 
             vec3 samplePosition = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;
