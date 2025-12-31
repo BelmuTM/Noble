@@ -283,7 +283,7 @@
         #endif
 
         #if SHADOWS > 0
-            shadowmap = textureCubic(SHADOWMAP_BUFFER, vertexCoords);
+            shadowmap = textureBicubic(SHADOWMAP_BUFFER, vertexCoords);
         #endif
 
         #if GI == 0
