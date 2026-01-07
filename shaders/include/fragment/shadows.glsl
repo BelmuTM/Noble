@@ -95,15 +95,15 @@ vec3 worldToShadow(vec3 worldPosition) {
     return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
 }
 
-float visibility(sampler2D shadowTex, vec3 samplePosition) {
+float shadowVisibility(sampler2D shadowTex, vec3 samplePosition) {
     return step(samplePosition.z, texelFetch(shadowTex, ivec2(samplePosition.xy * shadowMapResolution), 0).r);
 }
 
 vec3 getShadowColor(vec3 samplePosition) {
     if (!insideScreenBounds(samplePosition, 1.0)) return vec3(1.0);
 
-    float shadowDepth0 = visibility(shadowtex0, samplePosition);
-    float shadowDepth1 = visibility(shadowtex1, samplePosition);
+    float shadowDepth0 = shadowVisibility(shadowtex0, samplePosition);
+    float shadowDepth1 = shadowVisibility(shadowtex1, samplePosition);
     vec4  shadowColor  = texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0);
     
     #if TONEMAP == ACES
@@ -117,37 +117,33 @@ vec3 getShadowColor(vec3 samplePosition) {
 
 #if SHADOWS > 0
 
-    #if SHADOWS == 1
+    float findBlockerDepth(vec2 shadowCoords, float shadowDepth, out float subsurfaceDepth) {
+        float blockerDepthSum    = 0.0;
+        float subsurfaceDepthSum = 0.0;
 
-        float findBlockerDepth(vec2 shadowCoords, float shadowDepth, out float subsurfaceDepth) {
-            float blockerDepthSum    = 0.0;
-            float subsurfaceDepthSum = 0.0;
+        float weightSum = 0.0;
 
-            float weightSum = 0.0;
-
-            for (int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-                vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, jitter) * invShadowMapResolution;
-                vec2 sampleCoords = distortShadowSpace(shadowCoords + offset) * 0.5 + 0.5;
-                
-                if (!insideScreenBounds(sampleCoords, 1.0)) return -1.0;
-
-                float depth  = texelFetch(shadowtex0, ivec2(sampleCoords * shadowMapResolution), 0).r;
-                float weight = step(depth, shadowDepth);
-
-                blockerDepthSum += depth * weight;
-                weightSum       += weight;
-
-                subsurfaceDepthSum += max0(shadowDepth - depth);
-            }
+        for (int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
+            vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, jitter) * invShadowMapResolution;
+            vec2 sampleCoords = distortShadowSpace(shadowCoords + offset) * 0.5 + 0.5;
             
-            // Subsurface depth calculation from sixthsurge
-            // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
-            subsurfaceDepth = (-shadowProjectionInverse[2].z * subsurfaceDepthSum) / (SHADOW_DEPTH_STRETCH * BLOCKER_SEARCH_SAMPLES);
+            if (!insideScreenBounds(sampleCoords, 1.0)) return -1.0;
 
-            return weightSum == 0.0 ? -1.0 : blockerDepthSum / weightSum;
+            float depth  = texelFetch(shadowtex0, ivec2(sampleCoords * shadowMapResolution), 0).r;
+            float weight = step(depth, shadowDepth);
+
+            blockerDepthSum += depth * weight;
+            weightSum       += weight;
+
+            subsurfaceDepthSum += max0(shadowDepth - depth);
         }
+        
+        // Subsurface depth calculation from sixthsurge
+        // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
+        subsurfaceDepth = (-shadowProjectionInverse[2].z * maxEps(subsurfaceDepthSum)) / (SHADOW_DEPTH_STRETCH * BLOCKER_SEARCH_SAMPLES);
 
-    #endif
+        return weightSum == 0.0 ? -1.0 : blockerDepthSum / weightSum;
+    }
 
     vec3 PCF(vec3 shadowPosition, float penumbraSize, vec3 selfIntersectionBias) {
         if (penumbraSize < EPS) {
@@ -188,19 +184,19 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
 
         if (depth < handDepth) selfIntersectionBias = vec3(0.0, 0.0, 1e-3);
 
+        vec3 shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
+
+        if (!insideScreenBounds(shadowPosDistort, 1.0)) return vec3(1.0);
+
+        float avgBlockerDepth = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
+
+        if (avgBlockerDepth < 0.0) {
+            return vec3(-1.0);
+        }
+
+        if (NdotL < EPS) return vec3(0.0);
+
         #if SHADOWS == 1
-            vec3 shadowPosDistort = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
-
-            if (!insideScreenBounds(shadowPosDistort, 1.0)) return vec3(1.0);
-
-            float avgBlockerDepth = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
-
-            if (avgBlockerDepth < 0.0) {
-                return vec3(-1.0);
-            }
-
-            if (NdotL < EPS) return vec3(0.0);
-
             penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * (shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
         #endif
 

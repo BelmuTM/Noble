@@ -121,7 +121,7 @@ vec3 hemisphericalAlbedo(vec3 n) {
 vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 lightDirection, float distThroughMedium) {
     if (material.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
-    vec3 beer      = saturate(exp((material.albedo * 0.5 - 1.0) * max0(distThroughMedium) / material.subsurface));
+    vec3 beer      = saturate(exp((material.albedo * 0.5 - 1.0) * maxEps(distThroughMedium) / material.subsurface));
     float cosTheta = -dot(lightDirection, viewDirection);
 
     // Phase function specifically made for leaves
@@ -207,7 +207,7 @@ vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material mat
     return diffuse * shadowmap.rgb * directIlluminance;
 }
 
-vec3 sampleMicrosurfaceOpaquePhase(inout vec3 estimate, inout vec3 wr, Material material) {
+vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
     mat3 tbn        = calculateTBN(material.normal);
     vec3 microfacet = tbn * sampleGGXVNDF(-wr * tbn, rand2F(), material.roughness);
     vec3 fresnel    = fresnelDielectricConductor(dot(microfacet, -wr), material.N, material.K);
@@ -217,11 +217,10 @@ vec3 sampleMicrosurfaceOpaquePhase(inout vec3 estimate, inout vec3 wr, Material 
     vec3 energyConservationFactor = 1.0 - hemisphericalAlbedo(material.N);
 
     vec3 phase = vec3(0.0);
-    phase     = 1.0 - fresnel;
-    phase    /= abs(energyConservationFactor);
-    phase    *= material.albedo * material.ao;
-    estimate += material.albedo * EMISSIVE_INTENSITY * material.emission;
-    phase    *= fresnelDielectricDielectric_T(dot(microfacet, wr), vec3(airIOR), material.N);
+    phase  = 1.0 - fresnel;
+    phase /= abs(energyConservationFactor);
+    phase *= material.albedo * material.ao;
+    phase *= fresnelDielectricDielectric_T(dot(microfacet, wr), vec3(airIOR), material.N);
     
     return phase;
 }

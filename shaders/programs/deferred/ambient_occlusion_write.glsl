@@ -31,7 +31,9 @@
 #include "/include/taau_scale.glsl"
 
 #if AO == 0 || GI == 1
+
     #include "/programs/discard.glsl"
+    
 #else
 
     #if defined STAGE_VERTEX
@@ -99,13 +101,23 @@
 
             vec3 bentNormal = vec3(0.0);
 
-            #if AO == 1
-                ao.b = GTAO(modFragment, projectionInverse, viewPosition, normal, bentNormal);
-            #elif AO == 2
-                ao.b = SSAO(modFragment, projection, projectionInverse, viewPosition, normal, bentNormal);
-            #elif AO == 3
-                ao.b = RTAO(modFragment, projection, projectionInverse, viewPosition, normal, bentNormal);
-            #endif
+            if (modFragment) {
+                #if AO == 1
+                    ao.b = GTAO(modDepthTex0, projectionInverse, viewPosition, normal, bentNormal);
+                #elif AO == 2
+                    ao.b = SSAO(modDepthTex0, projection, projectionInverse, viewPosition, normal, bentNormal);
+                #elif AO == 3
+                    ao.b = RTAO(modDepthTex0, projection, projectionInverse, viewPosition, normal, bentNormal);
+                #endif
+            } else {
+                #if AO == 1
+                    ao.b = GTAO(depthtex0, projectionInverse, viewPosition, normal, bentNormal);
+                #elif AO == 2
+                    ao.b = SSAO(depthtex0, projection, projectionInverse, viewPosition, normal, bentNormal);
+                #elif AO == 3
+                    ao.b = RTAO(depthtex0, projection, projectionInverse, viewPosition, normal, bentNormal);
+                #endif  
+            }
 
             bentNormal = normalize(bentNormal);
 

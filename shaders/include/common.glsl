@@ -30,39 +30,39 @@
 
 #include "/include/utility/material.glsl"
 
-/*
 #define HIZ_LOD_COUNT 5
 
-const vec2 hiZOffsets[] = vec2[](
-    vec2(0.0, 0.0  ),
-    vec2(0.5, 0.0  ),
-    vec2(0.5, 0.25 ),
-    vec2(0.5, 0.375)
+const vec2 depthMipsOffsets[] = vec2[](
+    vec2(exp2(-0.0)),
+    vec2(exp2(-1.0)),
+    vec2(exp2(-2.0)),
+    vec2(exp2(-3.0))
 );
 
-float find2x2MinimumDepth(vec2 coords, int scale) {
+float find2x2MinimumDepth(sampler2D depthTex, vec2 coords, int scale) {
     coords *= viewSize;
 
     return minOf(vec4(
-        texelFetch(depthtex0, ivec2(coords)                      , 0).r,
-        texelFetch(depthtex0, ivec2(coords) + ivec2(1, 0) * scale, 0).r,
-        texelFetch(depthtex0, ivec2(coords) + ivec2(0, 1) * scale, 0).r,
-        texelFetch(depthtex0, ivec2(coords) + ivec2(1, 1) * scale, 0).r
+        texelFetch(depthTex, ivec2(coords)                      , 0).r,
+        texelFetch(depthTex, ivec2(coords) + ivec2(1, 0) * scale, 0).r,
+        texelFetch(depthTex, ivec2(coords) + ivec2(0, 1) * scale, 0).r,
+        texelFetch(depthTex, ivec2(coords) + ivec2(1, 1) * scale, 0).r
     ));
 }
 
-vec2 getDepthTile(vec2 coords, int lod) {
-    return lod == 0 ? coords : coords / exp2(lod) + hiZOffsets[lod - 1];
-}
-
-float computeLowerHiZDepthLevels() {
+float computeDepthMips(sampler2D depthTex, vec2 coords) {
     float tiles = 0.0;
 
-    for (int i = 1; i < HIZ_LOD_COUNT; i++) {
-        int scale   = int(exp2(i)); 
-        vec2 coords = (textureCoords - hiZOffsets[i - 1]) * scale;
-                tiles += find2x2MinimumDepth(coords, scale);
+    for (int lod = 1; lod < HIZ_LOD_COUNT; lod++) {
+        int scale = int(exp2(lod)); 
+
+        vec2 sampleCoords = (coords - depthMipsOffsets[lod - 1]) * scale;
+
+        tiles += find2x2MinimumDepth(depthTex, sampleCoords, scale);
     }
     return tiles;
 }
-*/
+
+vec2 getDepthMip(vec2 coords, int lod) {
+    return lod == 0 ? coords : clamp(coords, vec2(2e-2), vec2(1.0 - 3e-2)) / int(exp2(lod)) + depthMipsOffsets[lod - 1];
+}

@@ -76,8 +76,9 @@ const CloudLayer cloudLayer1 = CloudLayer(
 );
 
 const vec3 up = vec3(0.0, 1.0, 0.0);
-vec3 windDir  = vec3(sincos(-0.785398), 0.0).xzy;
-vec3 wind     = CLOUDS_WIND_SPEED * frameTimeCounter * windDir;
+
+vec3 windDirection = vec3(sincos(-0.785398), 0.0).xzy;
+vec3 wind          = CLOUDS_WIND_SPEED * frameTimeCounter * windDirection;
 
 float heightAlter(float altitude, float weatherMap) {
     float stopHeight = saturate(weatherMap + 0.12);
@@ -247,6 +248,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
 
                 cloudsPhase = calculateCloudsPhase(VdotL, mieAnisotropyFactors);
             }
+            
             float scatteringIntegral = (1.0 - stepTransmittance) * rcp(cloudsScatteringCoefficient);
 
             scattering    += stepScattering * scatteringIntegral * transmittance;

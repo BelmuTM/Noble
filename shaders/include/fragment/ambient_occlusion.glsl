@@ -23,10 +23,10 @@
     float multiBounceApprox(float visibility) { 
         const float albedo = 0.2; 
         return visibility / (albedo * visibility + (1.0 - albedo)); 
-        }
+    }
 
     float findMaximumHorizon(
-        bool modFragment,
+        sampler2D depthTex,
         mat4 projectionInverse,
         vec3 viewPosition,
         vec3 viewDirection,
@@ -42,12 +42,12 @@
 
         for (int i = 0; i < GTAO_HORIZON_STEPS; i++) {
             ivec2 coords = ivec2(rayPosition * viewSize * RENDER_SCALE);
-            float depth  = modFragment ? texelFetch(modDepthTex0, coords, 0).r : texelFetch(depthtex0, coords, 0).r;
+            float depth  = texelFetch(depthTex, coords, 0).r;
 
             if (insideScreenBounds(rayPosition, RENDER_SCALE) && depth < 1.0 || depth >= handDepth) {
 
                 vec3 horizonVec = screenToView(vec3(rayPosition, depth), projectionInverse, true) - viewPosition;
-                float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(2.0, 3.0, lengthSqr(horizonVec)));
+                float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(1.0, 2.0, lengthSqr(horizonVec)));
     
                 horizonCos = max(horizonCos, cosTheta);
 
@@ -58,7 +58,7 @@
         return fastAcos(horizonCos);
     }
 
-    float GTAO(bool modFragment, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+    float GTAO(sampler2D depthTex, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
         float visibility = 0.0;
 
         float rcpViewLength = fastRcpLength(viewPosition);
@@ -82,8 +82,8 @@
             float gamma      = sgnGamma * fastAcos(cosGamma);
 
             vec2 horizons;
-            horizons.x = -findMaximumHorizon(modFragment, projectionInverse, viewPosition, viewDirection, normal,-sliceDir, radius);
-            horizons.y =  findMaximumHorizon(modFragment, projectionInverse, viewPosition, viewDirection, normal, sliceDir, radius);
+            horizons.x = -findMaximumHorizon(depthTex, projectionInverse, viewPosition, viewDirection, normal,-sliceDir, radius);
+            horizons.y =  findMaximumHorizon(depthTex, projectionInverse, viewPosition, viewDirection, normal, sliceDir, radius);
             horizons   =  gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
     
             vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
@@ -100,7 +100,7 @@
 
 #elif AO == 2
 
-    float SSAO(bool modFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+    float SSAO(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
         float occlusion        = 0.0;
         float visibilityWeight = 0.0;
 
@@ -112,12 +112,7 @@
 
             ivec2 coords = ivec2(sampleCoords * viewSize * RENDER_SCALE);
 
-            float sampleDepth;
-            if (modFragment) {
-                sampleDepth = texelFetch(modDepthTex0, ivec2(coords), 0).r;
-            } else {
-                sampleDepth = texelFetch(depthtex0, ivec2(coords), 0).r;
-            }
+            float sampleDepth = texelFetch(depthTex, ivec2(coords), 0).r;
 
             float rayDepth = screenToView(vec3(sampleCoords, sampleDepth), projectionInverse, true).z;
 
@@ -140,7 +135,7 @@
 
     #include "/include/fragment/raytracer.glsl"
 
-    float RTAO(bool modFragment, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+    float RTAO(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
         float occlusion = 1.0;
 
         vec3 hitPosition = vec3(0.0);
@@ -151,34 +146,18 @@
 
             float jitter = randF();
 
-            bool hit;
-            if (modFragment) {
-                hit = raytrace(
-                    modDepthTex0,
-                    projection,
-                    projectionInverse,
-                    viewPosition,
-                    rayDirection,
-                    float(RTAO_STRIDE),
-                    jitter,
-                    RENDER_SCALE,
-                    hitPosition,
-                    rayLength
-                );
-            } else {
-                hit = raytrace(
-                    depthtex0,
-                    projection,
-                    projectionInverse,
-                    viewPosition,
-                    rayDirection,
-                    float(RTAO_STRIDE),
-                    jitter,
-                    RENDER_SCALE,
-                    hitPosition,
-                    rayLength
-                );
-            }
+            bool hit = raytrace(
+                depthTex,
+                projection,
+                projectionInverse,
+                viewPosition,
+                rayDirection,
+                float(RTAO_STRIDE),
+                jitter,
+                RENDER_SCALE,
+                hitPosition,
+                rayLength
+            );
 
             float h = float(hit);
 

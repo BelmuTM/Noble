@@ -48,6 +48,8 @@
             #include "/include/post/grading.glsl"
         #endif
 
+        #include "/include/utility/sampling.glsl"
+
         #include "/include/post/depth_of_field.glsl"
 
         void main() {
@@ -69,6 +71,13 @@
                     projectionInverse = modProjectionInverse;
                 }
             #endif
+
+            if (depth < handDepth) {
+                color = texture(MAIN_BUFFER, vertexCoords).rgb;
+                return;
+            }
+
+            //depth = textureBicubic(DEPTH_MIPMAP_BUFFER, getDepthMip(textureCoords, 4)).r;
 
             depth = linearizeDepthFromInverseProjection(depth, projectionInverse);
 

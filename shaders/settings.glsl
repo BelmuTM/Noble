@@ -50,6 +50,8 @@
 
 #define AO_BUFFER             colortex12
 
+#define DEPTH_MIPMAP_BUFFER   colortex13
+
 #define CLOUDMAP_BUFFER       colortex14
 
 #define LUT_BUFFER            colortex6
@@ -118,7 +120,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define AO          1 // [0 1 2 3]
 #define MATERIAL_AO 1 // [0 1]
 #define AO_FILTER   1 // [0 1]
-#define AO_SCALE  100 // [25 50 75 100]
+#define AO_SCALE   75 // [25 50 75 100]
 
 #define SSAO_SAMPLES   12 // [4 8 12 16 20]
 #define SSAO_RADIUS   0.7 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]

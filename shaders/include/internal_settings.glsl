@@ -44,10 +44,12 @@ const bool colortex0Clear  = false;
 const int  colortex1Format = RGBA32UI;              // GBuffer data:
                                                     // [R] parallax self shadowing | lightmap XY coordinates
                                                     // [G] material AO | emission | F0 | subsurface
-                                                    // [B] albedo RGB | roughness
+                                                    // [B] texture albedo RGB | roughness
                                                     // [A] encoded XY material normals
 
 const int colortex15Format = RGBA8;                 // Alpha blended GBuffer data (albedo)
+
+const int colortex13Format = R32F;                  // Depth tiles
 
 // ============================================================================
 // REFLECTIONS

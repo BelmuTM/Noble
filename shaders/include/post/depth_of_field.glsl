@@ -175,8 +175,6 @@ const vec2 vogelDisk[64] = vec2[](
 #endif
 
 float getCoC(float fragDepth, float targetDepth) {
-    if (fragDepth <= handDepth) return 0.0;
-
     const float maxCoC = 2.0;
 
     return clamp(abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5, 0.0, maxCoC);

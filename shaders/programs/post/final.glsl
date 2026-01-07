@@ -53,6 +53,8 @@ in vec2 textureCoords;
     
 #endif
 
+#include "/include/utility/sampling.glsl"
+
 #if LUT > 0
 
     #include "/include/utility/sampling.glsl"
@@ -192,4 +194,6 @@ void main() {
             colorOut += bayer8(gl_FragCoord.xy) * rcpMaxFloat8;
         #endif
     #endif
+
+    //colorOut = vec3(1.0 / linearizeDepth(textureBicubic(colortex13, getDepthMip(textureCoords, 4)).r, near, far));
 }

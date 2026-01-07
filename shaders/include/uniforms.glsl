@@ -45,10 +45,12 @@ uniform float frameTimeCounter;
 
 uniform int isEyeInWater;
 uniform int hideGUI;
+
 uniform float centerDepthSmooth;
 uniform float rainStrength;
 uniform float wetness;
 uniform float sunAngle;
+
 uniform int renderStage;
 
 uniform int biome_category;
@@ -93,6 +95,7 @@ uniform sampler2D colortex8;
 uniform sampler2D colortex10;
 uniform usampler2D colortex11;
 uniform sampler2D colortex12;
+uniform sampler2D colortex13;
 uniform sampler2D colortex14;
 uniform sampler2D colortex15;
 

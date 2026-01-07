@@ -233,27 +233,30 @@
             momentsOut = texture(MOMENTS_BUFFER, prevPosition.xy);
 
             #if RENDER_MODE == 0
+
                 float prevDepth = exp2(momentsOut.r);
                 
                 momentsOut.r = log2(prevPosition.z);
 
-                float linearDepth     = linearizeDepth(prevPosition.z, nearPlane, farPlane);
-                float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
-
-                vec3 prevScenePosition = viewToScene(screenToView(prevPosition, projectionInverse, false));
-                bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
-
-                //float depthWeight = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.1);
-
-                float depthWeight = pow(exp(-abs(linearDepth - linearPrevDepth)), 8.0);
-
-                color.a *= (closeToCamera ? depthWeight : 1.0);
+                float linearDepth = linearizeDepth(prevPosition.z, nearPlane, farPlane);
 
                 #if GI == 0
+
+                    float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
+
+                    vec3 prevScenePosition = viewToScene(screenToView(prevPosition, projectionInverse, false));
+                    bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
+
+                    float depthWeight = pow(exp(-abs(linearDepth - linearPrevDepth)), 2.0);
+
+                    color.a *= (closeToCamera ? depthWeight : 1.0);
+
                     color.a = min(color.a + 1.0, MAX_ACCUMULATED_FRAMES);
+
                 #else
+
                     bool rejectHistory;
-                    history = filterHistory(DEFERRED_BUFFER, prevPosition.xy, material.normal, linearizeDepth(prevPosition.z, nearPlane, farPlane), rejectHistory);
+                    history = filterHistory(DEFERRED_BUFFER, prevPosition.xy, material.normal, linearDepth, rejectHistory);
 
                     color.a = history.a;
 
@@ -264,11 +267,15 @@
                     }
 
                     color.a *= float(depth >= handDepth);
+
                 #endif
+
             #else
+
                 color.a *= float(hideGUI);
 
                 color.a++;
+
             #endif
             
         #endif
@@ -289,6 +296,7 @@
         #if GI == 0
 
             float ao = 1.0;
+            
             #if AO > 0
                 ao = texture(AO_BUFFER, vertexCoords).b;
             #endif

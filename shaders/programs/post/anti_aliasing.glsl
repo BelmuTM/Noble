@@ -108,7 +108,7 @@
         #if TAA == 1
         
             bool  modFragment = false;
-            float depth       = texture(depthtex0, vertexCoords).r;
+            float depth       = texture(depthtex1, vertexCoords).r;
 
             mat4 projectionInverse  = gbufferProjectionInverse;
             mat4 projectionPrevious = gbufferPreviousProjection;
@@ -118,9 +118,9 @@
                     modFragment = true;
                     
                     #if defined VOXY
-                        depth = texture(modDepthTex0, textureCoords).r;
+                        depth = texture(modDepthTex1, textureCoords).r;
                     #else
-                        depth = texture(modDepthTex0, vertexCoords).r;
+                        depth = texture(modDepthTex1, vertexCoords).r;
                     #endif
 
                     projectionInverse  = modProjectionInverse;
@@ -132,9 +132,9 @@
 
             vec3 closestFragment;
             if (modFragment) {
-                closestFragment = getClosestFragment(modDepthTex0, currFragment);
+                closestFragment = getClosestFragment(modDepthTex1, currFragment);
             } else {
-                closestFragment = getClosestFragment(depthtex0, currFragment);
+                closestFragment = getClosestFragment(depthtex1, currFragment);
             }
 
             vec2 velocity   = getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious).xy;

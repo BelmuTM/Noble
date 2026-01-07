@@ -39,6 +39,8 @@ void pathtraceDiffuse(bool modFragment, mat4 projection, mat4 projectionInverse,
         vec3 throughput = vec3(1.0);
         vec3 estimate   = vec3(0.0);
 
+        vec3 lastEmitter = vec3(0.0);
+
         for (int j = 0; j < MAX_GI_BOUNCES; j++) {
 
             /* Russian Roulette */
@@ -51,7 +53,14 @@ void pathtraceDiffuse(bool modFragment, mat4 projection, mat4 projectionInverse,
             material = getMaterial(rayPosition.xy);
 
             vec3 brdf  = material.albedo * evaluateMicrosurfaceOpaque(rayPosition.xy, -rayDirection, shadowLightVector, material, directIlluminance);
-            vec3 phase = sampleMicrosurfaceOpaquePhase(estimate, rayDirection, material);
+            vec3 phase = sampleMicrosurfaceOpaquePhase(rayDirection, material);
+
+            estimate += material.albedo * EMISSIVE_INTENSITY * material.emission;
+            estimate += material.lightmap.x * lastEmitter;
+            
+            if (material.emission > EPS) {
+                lastEmitter = material.albedo * EMISSIVE_INTENSITY * material.emission;
+            }
 
             if (dot(material.normal, rayDirection) <= 0.0) break;
 

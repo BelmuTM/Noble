@@ -76,7 +76,7 @@
 
             #if defined CHUNK_LOADER_MOD_ENABLED
                 if (depth >= 1.0) {
-                    modFragment        = true;
+                    modFragment       = true;
                     projectionInverse = modProjectionInverse;
                 }
             #endif
@@ -125,7 +125,7 @@
             clouds.a   = distanceToClouds;
 
             /* Reprojection */
-            vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDir).xy;
+            vec2  prevPosition = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDirection).xy;
             float prevDepth    = texture(depthtex0, prevPosition.xy).r;
 
             if (insideScreenBounds(prevPosition, 1.0) && prevDepth >= handDepth) {

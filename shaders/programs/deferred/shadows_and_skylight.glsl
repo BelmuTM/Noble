@@ -63,10 +63,11 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,5 */
+    /* RENDERTARGETS: 3,5,13 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec4 illuminance;
+    layout (location = 2) out float depthTiles;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -97,7 +98,21 @@
 
         Material material = getMaterial(vertexCoords);
 
-        //imageStore(depthMipmap, ivec2(gl_FragCoord.xy), vec4(computeLowerHiZDepthLevels(), 0.0, 0.0, 0.0));
+        float depth = texture(depthtex0, vertexCoords).r;
+
+        bool modFragment = false;
+
+        #if defined CHUNK_LOADER_MOD_ENABLED
+            if (depth >= 1.0) {
+                modFragment = true;
+            }
+        #endif
+
+        if (modFragment) {
+            depthTiles = computeDepthMips(modDepthTex0, vertexCoords);
+        } else {
+            depthTiles = computeDepthMips(depthtex0, vertexCoords);
+        }
 
         //////////////////////////////////////////////////////////
         /*--------------------- IRRADIANCE ---------------------*/
@@ -142,15 +157,11 @@
             
         #if defined WORLD_OVERWORLD
             #if SHADOWS > 0
-                bool modFragment = false;
-
                 mat4 projection        = gbufferProjection;
                 mat4 projectionInverse = gbufferProjectionInverse;
 
                 #if defined CHUNK_LOADER_MOD_ENABLED
-                    if (texture(depthtex0, vertexCoords).r >= 1.0) {
-                        modFragment = true;
-
+                    if (modFragment) {
                         projection        = modProjection;
                         projectionInverse = modProjectionInverse;
                     }
@@ -186,7 +197,7 @@
                     }
 
                     // Use the subsurface depth from contact shadows if the one from shadow mapping is undefined/invalid
-                    if (subsurfaceDepth > 0.0 && shadowmap.a < EPS && length(scenePosition) >= shadowDistance) {
+                    if (subsurfaceDepth > 0.0 && length(scenePosition) >= shadowDistance) {
                         shadowmap.a = subsurfaceDepth;
                     }
 
