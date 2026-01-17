@@ -94,9 +94,9 @@
             #endif
 
             if (modFragment) {
-                if (find4x4MaximumDepth(modDepthTex0, vertexCoords) < 1.0) return;
+                if (find4x4MaximumDepth(modDepthTex0, vertexCoords) < 1.0) { return; }
             } else {
-                if (find4x4MaximumDepth(depthtex0, vertexCoords) < 1.0) return;
+                if (find4x4MaximumDepth(depthtex0, vertexCoords) < 1.0) { return; }
             }
 
             vec3 viewPosition       = screenToView(vec3(textureCoords, 1.0), projectionInverse, false);

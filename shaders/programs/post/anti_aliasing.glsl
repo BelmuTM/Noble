@@ -141,7 +141,9 @@
             vec2 prevCoords = textureCoords + velocity;
 
             if (insideScreenBounds(prevCoords, 1.0)) {
-                vec2 jitteredCoords = depth == 1.0 ? vertexCoords : vertexCoords + taaOffsets[framemod] * texelSize;
+                bool isSky = depth == 1.0;
+
+                vec2 jitteredCoords = isSky ? vertexCoords : vertexCoords + taaOffsets[framemod] * texelSize;
 
                 vec3 currColor = max0(textureCatmullRom(MAIN_BUFFER, jitteredCoords).rgb);
 
@@ -153,16 +155,19 @@
                 float velocityWeightMult = 0.2;
                 float luminanceWeight    = 1.0;
 
-                if (depth == 1.0 || depth < handDepth) {
+                if (isSky || depth < handDepth) {
                     velocityWeightMult = 1.0;
-                } else {
-                    #if RENDER_MODE == 0
-                        luminanceWeight = 1.0 + pow2(distance(history, currColor) / luminance(history));
-                    #endif
                 }
 
+                luminanceWeight = 1.0 + pow2(distance(history, currColor) / luminance(history));
+
                 float weight = (1.0 - TAA_STRENGTH + velocityWeight * velocityWeightMult) / luminanceWeight;
-                      weight = saturate(weight);
+
+                if (isSky) {
+                    weight *= 0.5;
+                }
+
+                weight = saturate(weight);
 
                 color = mix(history, currColor, weight);
             }

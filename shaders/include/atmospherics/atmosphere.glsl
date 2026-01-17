@@ -170,26 +170,27 @@ vec3 evaluateUniformSkyIrradianceApproximation() {
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
 
-        const ivec2 samples        = ivec2(16);
+        const ivec2 samples        = ivec2(16, 8);
         const float invSampleCount = 1.0 / float(samples.x * samples.y);
 
         for (int x = 0; x < samples.x; x++) {
             for (int y = 0; y < samples.y; y++) {
-                vec2 uv = (vec2(x,y) + 0.5) / samples;
+                vec2 uv = (vec2(x, y) + 0.5) / vec2(samples.x, samples.y * 2);
 
-                float phi   = TAU * uv.x;
-                float theta = 0.5 * PI * uv.y;
+                vec3 direction = unprojectSphere(uv);
+                vec3 radiance  = texture(ATMOSPHERE_BUFFER, uv).rgb;
 
+                float theta    = uv.y * PI;
                 float cosTheta = cos(theta);
                 float sinTheta = sin(theta);
-
-                vec3 radiance = texture(ATMOSPHERE_BUFFER, uv).rgb;
 
                 skyIlluminance += radiance * cosTheta * sinTheta;
             }
         }
 
-        skyIlluminance *= PI * PI * invSampleCount;
+        const float normalization = PI * PI * invSampleCount;
+
+        skyIlluminance *= normalization;
 
     #endif
 
@@ -206,21 +207,14 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
 
         for (int x = 0; x < samples.x; x++) {
             for (int y = 0; y < samples.y; y++) {
-                vec2 uv = (vec2(x, y) + 0.5) / samples;
+                vec2 uv = (vec2(x, y) + 0.5) / vec2(samples.x, samples.y * 2);
 
-                float phi   = TAU      * uv.x;
-                float theta = 0.5 * PI * uv.y;
+                vec3 direction = unprojectSphere(uv);
+                vec3 radiance  = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
 
+                float theta    = uv.y * PI;
                 float cosTheta = cos(theta);
                 float sinTheta = sin(theta);
-
-                vec3 direction = vec3(
-                    sin(phi) * sinTheta,
-                    cosTheta,
-                    cos(phi) * sinTheta
-                );
-
-                vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
 
                 vec3 contribution = radiance * cosTheta * sinTheta;
 
@@ -281,17 +275,14 @@ void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
 
         for (int x = 0; x < samples.x; x++) {
             for (int y = 0; y < samples.y; y++) {
-                vec2 uv = (vec2(x, y) + 0.5) / samples;
+                vec2 uv = (vec2(x, y) + 0.5) / vec2(samples.x, samples.y * 2);
 
-                float phi   = TAU      * uv.x;
-                float theta = 0.5 * PI * uv.y;
+                vec3 direction = unprojectSphere(uv);
+                vec3 radiance  = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
 
+                float theta    = uv.y * PI;
                 float cosTheta = cos(theta);
                 float sinTheta = sin(theta);
-
-                vec3 direction = vec3(sin(phi) * sinTheta, cos(theta), cos(phi) * sinTheta);
-
-                vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
 
                 float[9] sh = calculateSphericalHarmonicsCoefficients(direction);
 
