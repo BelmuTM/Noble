@@ -331,10 +331,9 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
             // Early exit if transmittance is too low
             if (maxOf(transmittanceOut) < EPS) break;
 
-            vec3  shadowScreenPosition = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
-            ivec2 shadowTexel          = ivec2(shadowScreenPosition.xy * shadowMapResolution);
+            vec3 shadowScreenPosition = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
 
-            float shadowDepth0 = texelFetch(shadowtex0, shadowTexel, 0).r;
+            float shadowDepth0 = texture(shadowtex0, shadowScreenPosition.xy).r;
 
             if ((i & 3u) == 0u) {
                 shadow = getShadowColor(shadowScreenPosition);
