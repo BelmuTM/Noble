@@ -6,7 +6,7 @@
         #include "/include/taau_scale.glsl"
     ",
     "useViewportDims": true,
-    "renderScale": [RENDER_SCALE, RENDER_SCALE],
+    "renderScale": [RENDER_SCALE_VOXY, RENDER_SCALE_VOXY],
     "opaqueDrawBuffers": [
         1,
         3
