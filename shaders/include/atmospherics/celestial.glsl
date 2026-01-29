@@ -124,7 +124,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
     vec3 sceneDirection = normalize(viewToScene(viewPosition));
 
-    float cloudsTransmittance = 0.0;
+    float cloudsTransmittance = 1.0;
 
     #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
         cloudsTransmittance = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).b;

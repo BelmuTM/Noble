@@ -155,8 +155,24 @@ vec3 evaluateDirectIlluminance() {
 
     #if defined WORLD_OVERWORLD
 
-        directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, sunVector , atmosphereAttenuationCoefficients) * sunIrradiance;
-        directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, moonVector, atmosphereAttenuationCoefficients) * moonIrradiance;
+        vec3 sunDirection  = sunVector;
+        vec3 moonDirection = moonVector;
+
+        #if !defined IS_IRIS
+            // Sun position code from builderb0y
+            const vec2 sunRotationData = vec2(cos(sunPathRotation * 0.01745329251994), -sin(sunPathRotation * 0.01745329251994));
+
+            float angle = fract(worldTime / 24000.0 - 0.25);
+                  angle = (angle + (cos(angle * PI) * -0.5 + 0.5 - angle) / 3.0) * TAU;
+
+            sunDirection = normalize(vec3(-sin(angle), cos(angle) * sunRotationData));
+
+            moonDirection = -sunDirection;
+
+        #endif
+
+        directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, sunDirection , atmosphereAttenuationCoefficients) * sunIrradiance;
+        directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, moonDirection, atmosphereAttenuationCoefficients) * moonIrradiance;
 
     #elif defined WORLD_END
 
