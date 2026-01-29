@@ -33,9 +33,13 @@ profile.LIGHT   = §a§lLight
 profile.POTATO  = §b§lPotato
 profile.comment = §5§lRender§r profile transforms Noble into a renderer by boosting certain settings, §lstart rendering by pressing F1 to hide GUI and stop moving§r. §c§lDISCLAIMER: RENDER MODE MIGHT HEAVILY AFFECT §c§lTHE PERFORMANCE.
 
-option.RENDER_SCALE = Render Scale
-option.RENDER_SCALE.comment = Adjusts the overall rendering scale of Noble. §cHigher value gives better results, but reduces §cperformance.
-suffix.RENDER_SCALE = x
+option.RENDER_SCALE_OPTION = Render Scale
+option.RENDER_SCALE_OPTION.comment = Adjusts the overall rendering scale of Noble. §cHigher value gives better results, but reduces §cperformance.
+suffix.RENDER_SCALE_OPTION = %
+value.RENDER_SCALE_OPTION.25 = 25
+value.RENDER_SCALE_OPTION.50 = 50
+value.RENDER_SCALE_OPTION.75 = 75
+value.RENDER_SCALE_OPTION.100 = 100
 
 ##################### SCREENS #####################
 

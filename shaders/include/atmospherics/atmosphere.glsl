@@ -45,15 +45,17 @@ vec3 getAtmosphereDensities(float centerDist) {
     return vec3(rayleighMie, ozone);
 }
 
-vec3 evaluateAtmosphereTransmittance(vec3 rayOrigin, vec3 lightDir, mat3x3 attenuationCoefficients) {
-    float stepSize   = intersectSphere(rayOrigin, lightDir, atmosphereUpperRadius).y * rcp(ATMOSPHERE_TRANSMITTANCE_STEPS);
-    vec3 increment   = lightDir * stepSize;
-    vec3 rayPosition = rayOrigin + increment * 0.5;
+vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 attenuationCoefficients) {
+    float stepSize   = intersectSphere(origin, lightDirection, atmosphereUpperRadius).y * rcp(ATMOSPHERE_TRANSMITTANCE_STEPS);
+    vec3 increment   = lightDirection * stepSize;
+    vec3 rayPosition = origin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
+    
     for (int i = 0; i < ATMOSPHERE_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
         accumAirmass += getAtmosphereDensities(length(rayPosition)) * stepSize;
     }
+
     return exp(-attenuationCoefficients * accumAirmass);
 }
 

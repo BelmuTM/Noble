@@ -18,6 +18,10 @@
 /*                                                                              */
 /********************************************************************************/
 
-#define RENDER_SCALE 1.00 // [0.25 0.50 0.75 1.00]
+#define RENDER_SCALE_OPTION 100 // [25 50 75 100]
 
-#define DOWNSCALED_RENDERING (RENDER_SCALE == 0.75 || RENDER_SCALE == 0.50 || RENDER_SCALE == 0.25)
+const float RENDER_SCALE = RENDER_SCALE_OPTION * 0.01;
+
+#if RENDER_SCALE_OPTION != 100 
+    #define DOWNSCALED_RENDERING
+#endif
