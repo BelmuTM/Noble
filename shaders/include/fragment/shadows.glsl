@@ -30,7 +30,7 @@ float jitter = interleavedGradientNoise(gl_FragCoord.xy);
         mat4 projectionInverse,
         vec3 viewPosition,
         float scale,
-        out float subsurfaceDepth
+        inout float subsurfaceDepth
     ) {
         // DDA setup (McGuire & Mara, 2014)
         vec3 rayPosition;
