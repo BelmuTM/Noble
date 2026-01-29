@@ -156,7 +156,9 @@
         if (material.depth0 == 1.0) return;
             
         #if defined WORLD_OVERWORLD
+
             #if SHADOWS > 0
+
                 mat4 projection        = gbufferProjection;
                 mat4 projectionInverse = gbufferProjectionInverse;
 
@@ -183,6 +185,7 @@
                 #endif
 
                 #if CONTACT_SHADOWS == 1
+
                     float contactShadows = 1.0;
 
                     geometricNormal = mat3(gbufferModelView) * (geometricNormal);
@@ -205,12 +208,15 @@
                     if (shadowmap.rgb == vec3(1.0) || luminance(shadowmap.rgb) > contactShadows) {
                         shadowmap.rgb *= contactShadows;
                     }
+
                 #endif
+                
             #endif
 
             #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                 illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), cloudLayer0, 20);
             #endif
+
         #endif
     }
     
