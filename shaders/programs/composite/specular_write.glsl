@@ -212,9 +212,9 @@ void main() {
     if (isEyeInWater == 1) {
         lighting += sunSpecular;
         lighting += envSpecular;
-        lighting  = mix(lighting * transmittance + scattering, lighting, saturate(blendedLighting.a));
+        lighting  = lighting * transmittance + scattering;
     } else {
-        lighting  = mix(lighting * transmittance + scattering, lighting, saturate(blendedLighting.a));
+        lighting  = lighting * transmittance + scattering;
         lighting += sunSpecular;
         lighting += envSpecular;
     }
