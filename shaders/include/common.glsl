@@ -64,5 +64,6 @@ float computeDepthMips(sampler2D depthTex, vec2 coords) {
 }
 
 vec2 getDepthMip(vec2 coords, int lod) {
-    return lod == 0 ? coords : clamp(coords, vec2(2e-2), vec2(1.0 - 3e-2)) / int(exp2(lod)) + depthMipsOffsets[lod - 1];
+    if (lod == 0) return coords;
+    return clamp(coords, vec2(2e-2), vec2(1.0 - 3e-2)) / int(exp2(lod)) + depthMipsOffsets[lod - 1];
 }

@@ -115,8 +115,16 @@
 
             float distanceToClouds = min(layer0.a, layer1.a);
 
-            clouds.rg = layer0.rg + layer1.rg * layer0.b;
-            clouds.b  = layer0.b  * layer1.b;
+            float s = step(layer0.a, layer1.a);
+
+            vec3  C_front = mix(layer1.rgb, layer0.rgb, s);
+            float T_front = mix(layer1.b,   layer0.b,   s);
+
+            vec3  C_back  = mix(layer0.rgb, layer1.rgb, s);
+            float T_back  = mix(layer0.b,   layer1.b,   s);
+
+            clouds.rgb = C_front + T_front * C_back;
+            clouds.b   = T_front * T_back;
 
             /* Aerial Perspective */
             float distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-5 * distanceToClouds))));

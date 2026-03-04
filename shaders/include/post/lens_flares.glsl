@@ -31,7 +31,7 @@ float ghostSpacing(int i) {
     return mix(LENS_FLARES_GHOSTS_MIN_SPACING, LENS_FLARES_GHOSTS_MAX_SPACING, distribution);
 }
 
-void lensFlares(inout vec3 color, vec2 coords) {
+void lensFlares(inout vec3 color, sampler2D colorTex, vec2 coords) {
     const float attenuationFactor = 1e-3;
 
     vec3 flares = vec3(0.0);
@@ -59,9 +59,9 @@ void lensFlares(inout vec3 color, vec2 coords) {
         float weight = pow(max0(1.0 - d), 8.0);
 
         vec3 ghostSample = vec3(
-            texture(IRRADIANCE_BUFFER, fract(ghostCoords - ghostOffset * caOffset) * 0.5).r,
-            texture(IRRADIANCE_BUFFER, fract(ghostCoords                         ) * 0.5).g,
-            texture(IRRADIANCE_BUFFER, fract(ghostCoords + ghostOffset * caOffset) * 0.5).b
+            texture(colorTex, fract(ghostCoords - ghostOffset * caOffset) * 0.5).r,
+            texture(colorTex, fract(ghostCoords                         ) * 0.5).g,
+            texture(colorTex, fract(ghostCoords + ghostOffset * caOffset) * 0.5).b
         );
 
         #if LENS_FLARES_GHOSTS_THIN_FILM == 1
@@ -91,9 +91,9 @@ void lensFlares(inout vec3 color, vec2 coords) {
 
         if (weight > 0.0) {
             vec3 haloSample = vec3(
-                texture(IRRADIANCE_BUFFER, (haloCoords + haloDirection * 1.01) * 0.5).r,
-                texture(IRRADIANCE_BUFFER, (haloCoords + haloDirection       ) * 0.5).g,
-                texture(IRRADIANCE_BUFFER, (haloCoords + haloDirection * 0.99) * 0.5).b
+                texture(colorTex, (haloCoords + haloDirection * 1.01) * 0.5).r,
+                texture(colorTex, (haloCoords + haloDirection       ) * 0.5).g,
+                texture(colorTex, (haloCoords + haloDirection * 0.99) * 0.5).b
             );
 
             flares += haloSample * weight;

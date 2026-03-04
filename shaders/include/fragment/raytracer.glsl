@@ -29,6 +29,81 @@ float thickenDepth(float depth, float zThickness, mat4 projection) {
     return 0.5 - 0.5 * depth;
 }
 
+vec2 getCellCount(int mipLevel) {
+    return vec2(ceil(viewSize * exp2(-mipLevel)));
+}
+
+vec2 getCellIndex(vec2 position, vec2 cellCount) {
+    return vec2(floor(position * cellCount));
+}
+
+float intersectCell(vec3 origin, vec3 invDirection, vec2 cellIndex, vec2 cellCount, vec2 crossStep) {
+    vec2 boundary = (cellIndex + crossStep) / cellCount;
+    vec2 dists    = (boundary - origin.xy) * invDirection.xy;
+
+    return min(dists.x, dists.y);
+}
+
+bool raytraceHiZ(
+    sampler2D depthTexture,
+    mat4 projection,
+    mat4 projectionInverse,
+    vec3 viewPosition,
+    vec3 rayDirection,
+    float jitter,
+    float scale,
+    int stepCount,
+    out vec3 rayPosition,
+    out float rayLength
+) {
+    rayLength = 0.0;
+
+    // DDA setup (McGuire & Mara, 2014)
+    rayPosition   = viewToScreen(viewPosition, projection, true);
+    rayDirection  = viewPosition + abs(viewPosition.z) * rayDirection;
+    rayDirection  = viewToScreen(rayDirection, projection, true) - rayPosition;
+    rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);
+
+    vec3 origin       = rayPosition;
+    vec3 direction    = rayDirection;
+    vec3 invDirection = rcp(direction);
+
+    vec2 crossStep = sign(direction.xy) * texelSize;
+
+    bool isBackwardRay = direction.z > 0.0;
+
+    float minZ   = origin.z;
+    float maxZ   = origin.z + direction.z;
+    float deltaZ = maxZ - minZ;
+
+    int level = HIZ_LOD_COUNT;
+
+    float t = 0.0;
+
+    vec2 cellCount = getCellCount(level);
+    vec2 cellIndex = getCellIndex(origin.xy, cellCount);
+
+    rayPosition += direction * intersectCell(origin, invDirection, cellIndex, cellCount, crossStep);
+
+    bool intersected = false;
+
+    for (uint i = 0; i < stepCount && !intersected; i++) {
+        cellCount = getCellCount(level);
+        cellIndex = getCellIndex(rayPosition.xy, cellCount);
+
+        ivec2 depthMipCoords = ivec2(cellIndex + depthMipsOffsets[level - 1]);
+
+        float cellMinZ = texelFetch(DEPTH_MIPMAP_BUFFER, depthMipCoords, 0).r;
+
+    }
+
+    if (intersected) {
+        rayLength = abs(rayPosition.z - minZ);
+    }
+
+    return intersected;
+}
+
 bool raytrace(
     sampler2D depthTexture,
     mat4 projection,

@@ -65,7 +65,7 @@
         vec2  radius  		= GTAO_RADIUS * rcpViewLength * rcp(vec2(1.0, aspectRatio));
         vec3  viewDirection = viewPosition * -rcpViewLength;
 
-        float dither = interleavedGradientNoise(gl_FragCoord.xy);
+        float dither = temporalBlueNoise(gl_FragCoord.xy);
 
         for (int i = 0; i < GTAO_SLICES; i++) {
             float sliceAngle = PI * rcp(GTAO_SLICES) * (i + dither);

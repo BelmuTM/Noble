@@ -121,7 +121,7 @@ vec3 hemisphericalAlbedo(vec3 n) {
 vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 lightDirection, float distThroughMedium) {
     if (material.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
-    vec3 beer      = saturate(exp((material.albedo * 0.5 - 1.0) * maxEps(distThroughMedium) / material.subsurface));
+    vec3  beer     = saturate(exp((material.albedo * 0.5 - 1.0) * maxEps(distThroughMedium) / material.subsurface));
     float cosTheta = -dot(lightDirection, viewDirection);
 
     // Phase function specifically made for leaves

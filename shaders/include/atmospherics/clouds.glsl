@@ -49,30 +49,46 @@ struct CloudLayer {
     float swirl;
 };
 
-const CloudLayer cloudLayer0 = CloudLayer(
+#define PARSE_CLOUD_LAYER_SETTINGS( \
+    SCATTERING_STEPS, OCTAVES, SCALE, DETAILSCALE, FREQUENCY, DENSITY, ALTITUDE, THICKNESS, COVERAGE, SWIRL \
+) \
+    CloudLayer(                      \
+        SCATTERING_STEPS,            \
+        OCTAVES,                     \
+        1e-5 + SCALE       * 9.9e-6, \
+        1e-5 + DETAILSCALE * 9.9e-6, \
+        FREQUENCY,                   \
+        DENSITY            * 0.01,   \
+        ALTITUDE,                    \
+        THICKNESS,                   \
+        COVERAGE           * 0.01,   \
+        SWIRL              * 0.01    \
+    )
+
+const CloudLayer cloudLayer0 = PARSE_CLOUD_LAYER_SETTINGS(
     CLOUDS_LAYER0_SCATTERING_STEPS,
     CLOUDS_LAYER0_OCTAVES,
-    1e-5 + CLOUDS_LAYER0_SCALE       * 9.9e-6,
-    1e-5 + CLOUDS_LAYER0_DETAILSCALE * 9.9e-6,
+    CLOUDS_LAYER0_SCALE,
+    CLOUDS_LAYER0_DETAILSCALE,
     CLOUDS_LAYER0_FREQUENCY,
-    CLOUDS_LAYER0_DENSITY            * 0.01,
+    CLOUDS_LAYER0_DENSITY,
     CLOUDS_LAYER0_ALTITUDE,
     CLOUDS_LAYER0_THICKNESS,
-    CLOUDS_LAYER0_COVERAGE           * 0.01,
-    CLOUDS_LAYER0_SWIRL              * 0.01
+    CLOUDS_LAYER0_COVERAGE,
+    CLOUDS_LAYER0_SWIRL
 );
 
-const CloudLayer cloudLayer1 = CloudLayer(
+const CloudLayer cloudLayer1 = PARSE_CLOUD_LAYER_SETTINGS(
     CLOUDS_LAYER1_SCATTERING_STEPS,
     CLOUDS_LAYER1_OCTAVES,
-    1e-5 + CLOUDS_LAYER1_SCALE       * 9.9e-6,
-    1e-5 + CLOUDS_LAYER1_DETAILSCALE * 9.9e-6,
+    CLOUDS_LAYER1_SCALE,
+    CLOUDS_LAYER1_DETAILSCALE,
     CLOUDS_LAYER1_FREQUENCY,
-    CLOUDS_LAYER1_DENSITY            * 0.01,
+    CLOUDS_LAYER1_DENSITY,
     CLOUDS_LAYER1_ALTITUDE,
     CLOUDS_LAYER1_THICKNESS,
-    CLOUDS_LAYER1_COVERAGE           * 0.01,
-    CLOUDS_LAYER1_SWIRL              * 0.01
+    CLOUDS_LAYER1_COVERAGE,
+    CLOUDS_LAYER1_SWIRL
 );
 
 const vec3 up = vec3(0.0, 1.0, 0.0);
@@ -207,7 +223,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
     float transmittance = 1.0;
 
     // Adaptive steps
-    int steps = int(mix(layer.steps * 0.25, layer.steps, saturate(dists.x / dists.y)));
+    int steps = int(mix(layer.steps * 0.25, float(layer.steps), saturate(dists.x / dists.y)));
     
     for (int i = 0; i < steps; i++, rayPosition += increment) {
         if (transmittance <= cloudsTransmitThreshold) break;

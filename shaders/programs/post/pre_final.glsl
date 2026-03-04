@@ -36,8 +36,6 @@ in vec2 textureCoords;
 
 #include "/include/common.glsl"
 
-#include "/include/atmospherics/constants.glsl"
-
 #if TONEMAP == ACES
     #include "/include/post/aces/lib/parameters.glsl"
 
@@ -48,8 +46,6 @@ in vec2 textureCoords;
     #include "/include/post/aces/rrt.glsl"
     #include "/include/post/aces/odt.glsl"
 #endif
-
-#include "/include/utility/sampling.glsl"
 
 #if LENS_FLARES == 1
     #include "/include/post/lens_flares.glsl"
@@ -86,11 +82,11 @@ void main() {
     #endif
 
     #if LENS_FLARES == 1
-        lensFlares(color, textureCoords);
+        lensFlares(color, IRRADIANCE_BUFFER, textureCoords);
     #endif
 
     #if GLARE == 1
-        glare(color, textureCoords);
+        glare(color, IRRADIANCE_BUFFER, textureCoords);
     #endif
 
     color *= exposure;
