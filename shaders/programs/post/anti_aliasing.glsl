@@ -30,9 +30,47 @@
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 
-#include "/include/common.glsl"
+#if defined STAGE_COMPUTE
 
-#if defined STAGE_VERTEX
+    #if TAA == 1
+
+        layout (rgba16f) uniform image2D colorimg0;
+
+        layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
+
+        const vec2 workGroupsRender = vec2(RENDER_SCALE, RENDER_SCALE);
+
+        #include "/include/common.glsl"
+
+        #include "/include/post/exposure.glsl"
+        #include "/include/post/grading.glsl"
+
+        void main() {
+            ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+
+            if (coords.x > viewWidth || coords.y > viewHeight) return;
+
+            vec3 color = imageLoad(colorimg0, coords).rgb;
+
+            color *= computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+            color  = reinhard(color);
+
+            imageStore(colorimg0, coords, vec4(color, 0.0));
+        }
+
+    #else
+
+        layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+        const ivec3 workGroups = ivec3(1, 1, 1);
+
+        void main() {
+            return;
+        }
+
+    #endif
+
+#elif defined STAGE_VERTEX
 
     out vec2 textureCoords;
     out vec2 vertexCoords;
@@ -51,6 +89,8 @@
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
+
+    #include "/include/common.glsl"
 
     #if TAA == 1
 

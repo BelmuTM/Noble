@@ -49,10 +49,6 @@ in vec2 vertexCoords;
 
 #include "/include/post/exposure.glsl"
 
-#if TAA == 1
-    #include "/include/post/grading.glsl"
-#endif
-
 void main() {
     lighting = vec3(0.0);
 
@@ -244,13 +240,4 @@ void main() {
     } else {
         if (!isHand) lighting.rgb = mix(lighting.rgb, basic.rgb / exposure, basic.a);
     }
-
-    //////////////////////////////////////////////////////////
-    /*---------------- TAA PRE-TONEMAPPING -----------------*/
-    //////////////////////////////////////////////////////////
-
-    #if TAA == 1
-        lighting = lighting * computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
-        lighting = reinhard(lighting);
-    #endif
 }
