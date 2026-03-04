@@ -18,11 +18,6 @@
 /*                                                                              */
 /********************************************************************************/
 
-/*
-    [References]:
-        Wikipedia. (2025). Circle of confusion. https://en.wikipedia.org/wiki/Circle_of_confusion
-*/
-
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 

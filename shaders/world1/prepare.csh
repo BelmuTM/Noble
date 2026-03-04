@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #define WORLD_END
-#include "/programs/prepare/illuminance.glsl"
+#include "/programs/prepare/illuminance_write.glsl"

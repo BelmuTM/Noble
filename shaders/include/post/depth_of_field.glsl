@@ -21,6 +21,9 @@
 /*
 	[Credits]:
 		DrDesten - Providing a tool to generate Vogel disk samples (https://drdesten.github.io/web/tools/vogel_disk/)
+
+    [References]:
+        Wikipedia. (2025). Circle of confusion. https://en.wikipedia.org/wiki/Circle_of_confusion
 */
 
 #if DOF_SAMPLES == 4
