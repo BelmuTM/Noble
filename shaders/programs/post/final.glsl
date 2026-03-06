@@ -53,8 +53,6 @@ in vec2 textureCoords;
     
 #endif
 
-#include "/include/utility/sampling.glsl"
-
 #if LUT > 0
 
     #include "/include/utility/sampling.glsl"
