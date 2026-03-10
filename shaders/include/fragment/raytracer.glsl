@@ -39,9 +39,8 @@ vec2 getCellIndex(vec2 position, vec2 cellCount) {
 
 float intersectCell(vec3 origin, vec3 invDirection, vec2 cellIndex, vec2 cellCount, vec2 crossStep) {
     vec2 boundary = (cellIndex + crossStep) / cellCount;
-    vec2 dists    = (boundary - origin.xy) * invDirection.xy;
 
-    return min(dists.x, dists.y);
+    return minOf((boundary - origin.xy) * invDirection.xy);
 }
 
 bool raytraceHiZ(
@@ -68,33 +67,72 @@ bool raytraceHiZ(
     vec3 direction    = rayDirection;
     vec3 invDirection = rcp(direction);
 
-    vec2 crossStep = sign(direction.xy) * texelSize;
-
-    bool isBackwardRay = direction.z > 0.0;
+    vec2 crossStep   = step(0.0, direction.xy);
+    vec2 crossOffset = signNonZero(direction.xy) * texelSize / 128.0;
 
     float minZ   = origin.z;
     float maxZ   = origin.z + direction.z;
-    float deltaZ = maxZ - minZ;
+    float deltaZ = direction.z;
 
-    int level = HIZ_LOD_COUNT;
+    const int startLevel = HIZ_LOD_COUNT - 1;
+    const int stopLevel  = 0;
 
-    float t = 0.0;
-
-    vec2 cellCount = getCellCount(level);
+    vec2 cellCount = getCellCount(startLevel);
     vec2 cellIndex = getCellIndex(origin.xy, cellCount);
 
-    rayPosition += direction * intersectCell(origin, invDirection, cellIndex, cellCount, crossStep);
+    float t = intersectCell(origin, invDirection, cellIndex, cellCount, crossStep);
+    
+    rayPosition = origin + direction * t + vec3(crossOffset * 64.0, 0.0);
 
+    bool isBackwardRay = direction.z < 0.0;
+
+    float zThickness = max(log2(float(stepCount)), 1.0) * texelSize.x * abs(projectionInverse[1][1]);
+
+    int  level       = startLevel;
     bool intersected = false;
 
-    for (uint i = 0; i < stepCount && !intersected; i++) {
+    float cellMinZ = 0.0;
+
+    for (int i = 0; i < stepCount && !intersected; i++) {
+        if (!insideScreenBounds(rayPosition.xy, scale)) break;
+
         cellCount = getCellCount(level);
-        cellIndex = getCellIndex(rayPosition.xy, cellCount);
 
-        ivec2 depthMipCoords = ivec2(cellIndex + depthMipsOffsets[level - 1]);
+        vec2 oldCellIndex = getCellIndex(rayPosition.xy, cellCount);
 
-        float cellMinZ = texelFetch(DEPTH_MIPMAP_BUFFER, depthMipCoords, 0).r;
+        if (level == 0) {
+            cellMinZ = texture(depthTexture, rayPosition.xy).r;
+        } else {
+            vec2 cellCenterUV = (oldCellIndex + 0.5) / cellCount;
+            cellMinZ = texture(DEPTH_MIPMAP_BUFFER, getDepthMip(cellCenterUV, level)).r;
+        }
 
+        vec3 nextRayPosition = rayPosition;
+        
+        if (!isBackwardRay && cellMinZ > rayPosition.z) {
+            nextRayPosition = origin + direction * (cellMinZ - minZ) / maxEps(deltaZ);
+        }
+
+        vec2 newCellIndex = getCellIndex(nextRayPosition.xy, cellCount);
+
+        float thickness = (level == stopLevel) ? max0(rayPosition.z - cellMinZ) : 0.0;
+
+        bool crossed = (isBackwardRay && cellMinZ > rayPosition.z)
+                    || any(notEqual(oldCellIndex, newCellIndex))
+                    || (thickness > zThickness);
+
+        if (crossed) {
+            t = intersectCell(origin, invDirection, oldCellIndex, cellCount, crossStep);
+
+            rayPosition = origin + direction * t + vec3(crossOffset, 0.0);
+            
+            level = startLevel;
+        } else {
+            rayPosition = nextRayPosition;
+            level--;
+        }
+
+        intersected = (cellMinZ >= handDepth) && (level < stopLevel);
     }
 
     if (intersected) {

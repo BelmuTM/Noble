@@ -30,13 +30,14 @@
 
 #include "/include/utility/material.glsl"
 
-#define HIZ_LOD_COUNT 5
+#define HIZ_LOD_COUNT 6
 
 const vec2 depthMipsOffsets[] = vec2[](
     vec2(exp2(-0.0)),
     vec2(exp2(-1.0)),
     vec2(exp2(-2.0)),
-    vec2(exp2(-3.0))
+    vec2(exp2(-3.0)),
+    vec2(exp2(-4.0))
 );
 
 float find2x2MinimumDepth(sampler2D depthTex, vec2 coords, int scale) {
@@ -64,6 +65,5 @@ float computeDepthMips(sampler2D depthTex, vec2 coords) {
 }
 
 vec2 getDepthMip(vec2 coords, int lod) {
-    if (lod == 0) return coords;
-    return clamp(coords, vec2(2e-2), vec2(1.0 - 3e-2)) / int(exp2(lod)) + depthMipsOffsets[lod - 1];
+    return coords / int(exp2(lod)) + depthMipsOffsets[lod - 1];
 }
