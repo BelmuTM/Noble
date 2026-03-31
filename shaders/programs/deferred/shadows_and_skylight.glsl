@@ -200,7 +200,13 @@
                     }
 
                     // Use the subsurface depth from contact shadows if the one from shadow mapping is undefined/invalid
-                    if (subsurfaceDepth > 0.0 && length(scenePosition) >= shadowDistance) {
+                    #if defined VOXY
+                        bool outsideShadowBounds = length(scenePosition) >= shadowDistance - 32;
+                    #else
+                        bool outsideShadowBounds = length(scenePosition) >= shadowDistance;
+                    #endif
+
+                    if (subsurfaceDepth > 0.0 && outsideShadowBounds) {
                         shadowmap.a = subsurfaceDepth;
                     }
 
