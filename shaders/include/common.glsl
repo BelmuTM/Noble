@@ -34,16 +34,17 @@
 
 const vec2 depthMipsOffsets[] = vec2[](
     vec2(exp2(-0.0)),
+    vec2(exp2(-0.5)),
     vec2(exp2(-1.0)),
+    vec2(exp2(-1.5)),
     vec2(exp2(-2.0)),
-    vec2(exp2(-3.0)),
-    vec2(exp2(-4.0))
+    vec2(exp2(-2.5))
 );
 
 float find2x2MinimumDepth(sampler2D depthTex, vec2 coords, int scale) {
     coords *= viewSize;
 
-    return minOf(vec4(
+    return maxOf(vec4(
         texelFetch(depthTex, ivec2(coords)                      , 0).r,
         texelFetch(depthTex, ivec2(coords) + ivec2(1, 0) * scale, 0).r,
         texelFetch(depthTex, ivec2(coords) + ivec2(0, 1) * scale, 0).r,
@@ -54,14 +55,15 @@ float find2x2MinimumDepth(sampler2D depthTex, vec2 coords, int scale) {
 float computeDepthMips(sampler2D depthTex, vec2 coords) {
     float tiles = 0.0;
 
-    for (int lod = 1; lod < HIZ_LOD_COUNT; lod++) {
+    for (int lod = 1; lod <= HIZ_LOD_COUNT; lod++) {
         int scale = int(exp2(lod)); 
 
         vec2 sampleCoords = (coords - depthMipsOffsets[lod - 1]) * scale;
 
         tiles += find2x2MinimumDepth(depthTex, sampleCoords, scale);
     }
-    return tiles;
+
+    return log2(tiles);
 }
 
 vec2 getDepthMip(vec2 coords, int lod) {

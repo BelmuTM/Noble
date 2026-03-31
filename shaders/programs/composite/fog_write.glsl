@@ -95,7 +95,7 @@
                 float modDepth1 = texture(modDepthTex1, vertexCoords).r;
             #endif
 
-            if (depth1 >= 1.0 && ((isEyeInWater == 0) || (isEyeInWater == 1 && modDepth1 < 1.0))) {
+            if (depth1 >= 1.0 && ((isEyeInWater == 0) || (isEyeInWater == 1 && modDepth1 < 1.0)) && (depth1 >= 1.0 && depth0 >= 1.0)) {
                 #if defined VOXY
                     depth0 = texture(modDepthTex0, textureCoords).r;
                     depth1 = modDepth1;

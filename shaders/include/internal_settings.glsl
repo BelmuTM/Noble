@@ -49,7 +49,7 @@ const int  colortex1Format = RGBA32UI;              // GBuffer data:
 
 const int colortex15Format = RGBA8;                 // Alpha blended GBuffer data (albedo)
 
-const int colortex13Format = R32F;                  // Depth tiles
+const int colortex13Format = R16F;                  // Depth tiles
 
 // ============================================================================
 // REFLECTIONS

@@ -113,15 +113,15 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
                         sampleRayLength
                     ));
                 } else {
-                    hit = float(raytraceHiZ(
+                    hit = float(raytrace(
                         depthtex0,
                         projection,
                         projectionInverse,
                         viewPosition,
                         rayDirection,
+                        float(REFLECTIONS_STRIDE),
                         jitter,
                         RENDER_SCALE,
-                        64,
                         hitPosition,
                         sampleRayLength
                     ));
@@ -201,6 +201,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
                     rayLength
                 ));
             } else {
+                /*
                 hit = float(raytraceHiZ(
                     depthtex0,
                     projection,
@@ -209,12 +210,12 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
                     rayDirection,
                     jitter,
                     RENDER_SCALE,
-                    64,
+                    128,
                     hitPosition,
                     rayLength
                 ));
+                */
 
-                /*
                 hit = float(raytrace(
                     depthtex0,
                     projection,
@@ -227,7 +228,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
                     hitPosition,
                     rayLength
                 ));
-                */
+                
             }
         }
 

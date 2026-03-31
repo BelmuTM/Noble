@@ -30,15 +30,15 @@ float thickenDepth(float depth, float zThickness, mat4 projection) {
 }
 
 vec2 getCellCount(int mipLevel) {
-    return vec2(ceil(viewSize * exp2(-mipLevel)));
+    return vec2(max(vec2(1.0), floor(viewSize * exp2(-mipLevel))));
 }
 
 vec2 getCellIndex(vec2 position, vec2 cellCount) {
     return vec2(floor(position * cellCount));
 }
 
-float intersectCell(vec3 origin, vec3 invDirection, vec2 cellIndex, vec2 cellCount, vec2 crossStep) {
-    vec2 boundary = (cellIndex + crossStep) / cellCount;
+float intersectCell(vec3 origin, vec3 invDirection, vec2 cellIndex, vec2 cellCount, vec2 crossStep, vec2 crossOffset) {
+    vec2 boundary = (cellIndex + crossStep) / cellCount + crossOffset;
 
     return minOf((boundary - origin.xy) * invDirection.xy);
 }
@@ -55,6 +55,9 @@ bool raytraceHiZ(
     out vec3 rayPosition,
     out float rayLength
 ) {
+    const int startLevel = HIZ_LOD_COUNT - 1;
+    const int stopLevel  = 0;
+
     rayLength = 0.0;
 
     // DDA setup (McGuire & Mara, 2014)
@@ -63,54 +66,47 @@ bool raytraceHiZ(
     rayDirection  = viewToScreen(rayDirection, projection, true) - rayPosition;
     rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);
 
-    vec3 origin       = rayPosition;
-    vec3 direction    = rayDirection;
-    vec3 invDirection = rcp(direction);
+    vec3 origin = rayPosition;
 
-    vec2 crossStep   = step(0.0, direction.xy);
-    vec2 crossOffset = signNonZero(direction.xy) * texelSize / 128.0;
+    vec3 invDirection = rcp(rayDirection);
 
-    float minZ   = origin.z;
-    float maxZ   = origin.z + direction.z;
-    float deltaZ = direction.z;
+    vec2 crossStep   = step(0.0, rayDirection.xy);
+    vec2 crossOffset = (crossStep * 2.0 - 1.0) * texelSize;
 
-    const int startLevel = HIZ_LOD_COUNT - 1;
-    const int stopLevel  = 0;
-
-    vec2 cellCount = getCellCount(startLevel);
+    vec2 cellCount = getCellCount(0);
     vec2 cellIndex = getCellIndex(origin.xy, cellCount);
 
-    float t = intersectCell(origin, invDirection, cellIndex, cellCount, crossStep);
+    float t = intersectCell(origin, invDirection, cellIndex, cellCount, crossStep, crossOffset * 4.0);
     
-    rayPosition = origin + direction * t + vec3(crossOffset * 64.0, 0.0);
+    //rayPosition = origin + rayDirection * t;
 
-    bool isBackwardRay = direction.z < 0.0;
+    bool isBackwardRay = rayDirection.z < 0.0;
 
     float zThickness = max(log2(float(stepCount)), 1.0) * texelSize.x * abs(projectionInverse[1][1]);
+
+    float minZ     = origin.z;
+    float cellMinZ = 0.0;
 
     int  level       = startLevel;
     bool intersected = false;
 
-    float cellMinZ = 0.0;
-
     for (int i = 0; i < stepCount && !intersected; i++) {
         if (!insideScreenBounds(rayPosition.xy, scale)) break;
 
-        cellCount = getCellCount(level);
-
+        vec2 cellCount    = getCellCount(level);
         vec2 oldCellIndex = getCellIndex(rayPosition.xy, cellCount);
 
         if (level == 0) {
             cellMinZ = texture(depthTexture, rayPosition.xy).r;
         } else {
             vec2 cellCenterUV = (oldCellIndex + 0.5) / cellCount;
-            cellMinZ = texture(DEPTH_MIPMAP_BUFFER, getDepthMip(cellCenterUV, level)).r;
+            cellMinZ = exp2(texture(DEPTH_MIPMAP_BUFFER, getDepthMip(cellCenterUV, level)).r);
         }
 
         vec3 nextRayPosition = rayPosition;
         
         if (!isBackwardRay && cellMinZ > rayPosition.z) {
-            nextRayPosition = origin + direction * (cellMinZ - minZ) / maxEps(deltaZ);
+            nextRayPosition = origin + rayDirection * (cellMinZ - minZ) / abs(rayDirection.z);
         }
 
         vec2 newCellIndex = getCellIndex(nextRayPosition.xy, cellCount);
@@ -122,11 +118,11 @@ bool raytraceHiZ(
                     || (thickness > zThickness);
 
         if (crossed) {
-            t = intersectCell(origin, invDirection, oldCellIndex, cellCount, crossStep);
+            float t = intersectCell(origin, invDirection, oldCellIndex, cellCount, crossStep, crossOffset);
 
-            rayPosition = origin + direction * t + vec3(crossOffset, 0.0);
+            rayPosition = origin + rayDirection * t;
             
-            level = startLevel;
+            level = min(level + 2, startLevel);
         } else {
             rayPosition = nextRayPosition;
             level--;
@@ -193,7 +189,7 @@ bool raytrace(
         intersection checks, this makes each depth sample equivalent to a frustum-shaped voxel
         (McGuire & Mara, 2014)
     */
-    float zThickness = max(log2(stride), 1.0) * stride * texelSize.y * projectionInverse[1].y;
+    float zThickness = max(log2(stride), 1.0) * stride * texelSize.x * projectionInverse[1].y;
 
     bool intersected = false;
 

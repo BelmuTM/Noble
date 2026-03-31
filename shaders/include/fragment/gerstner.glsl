@@ -101,3 +101,4 @@ vec2 parallaxMappingWater(vec2 coords, vec3 tangentDirection, int octaves) {
 
     return mix(coords, prevCoords, weight);
 }
+

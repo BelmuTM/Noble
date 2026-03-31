@@ -193,5 +193,5 @@ void main() {
         #endif
     #endif
 
-    //colorOut = vec3(1.0 / linearizeDepth(textureBicubic(colortex13, getDepthMip(textureCoords, 4)).r, near, far));
+    //colorOut = vec3(1.0 / linearizeDepth(texture(colortex13, textureCoords).r, near, far));
 }
