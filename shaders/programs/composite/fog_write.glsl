@@ -87,8 +87,6 @@
         mat4 projectionInverse = gbufferProjectionInverse;
 
         #if defined CHUNK_LOADER_MOD_ENABLED
-            farPlane = modFarPlane;
-
             #if defined VOXY
                 float modDepth1 = texture(modDepthTex1, textureCoords).r;
             #else
@@ -96,6 +94,8 @@
             #endif
 
             if (depth1 >= 1.0 && ((isEyeInWater == 0) || (isEyeInWater == 1 && modDepth1 < 1.0)) && (depth1 >= 1.0 && depth0 >= 1.0)) {
+                farPlane = modFarPlane;
+
                 #if defined VOXY
                     depth0 = texture(modDepthTex0, textureCoords).r;
                     depth1 = modDepth1;
@@ -127,8 +127,8 @@
             float VdotL = 0.0;
         #endif
 
-        bool  sky             = depth0 == 1.0;
-        bool  skyTranslucents = depth1 == 1.0;
+        bool  sky             = abs(depth0 - 1.0) < EPS;
+        bool  skyTranslucents = abs(depth1 - 1.0) < EPS;
 
         float skylight = 0.0;
 
