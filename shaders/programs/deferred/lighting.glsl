@@ -221,7 +221,7 @@
 
         Material material = getMaterial(vertexCoords);
 
-        #if AO > 0 && AO_FILTER == 1 && GI == 0 || GI == 1 && TEMPORAL_ACCUMULATION == 1
+        #if (AO > 0 && AO_FILTER == 1 && GI == 0) || (GI == 1 && TEMPORAL_ACCUMULATION == 1)
 
             vec3 prevPosition = vec3(vertexCoords, depth) + getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious) * RENDER_SCALE;
             vec4 history      = texture(DEFERRED_BUFFER, prevPosition.xy);
@@ -319,7 +319,7 @@
 
             #endif
 
-            #if ATROUS_FILTER == 1
+            #if RENDER_MODE == 0 && ATROUS_FILTER == 1
 
                 float luminance = luminance(color.rgb);
                 vec2  moments   = vec2(luminance, luminance * luminance);

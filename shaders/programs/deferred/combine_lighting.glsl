@@ -100,7 +100,7 @@
 
             vec3 directDiffuse = evaluateMicrosurfaceOpaque(vertexCoords, -normalize(viewPosition), shadowLightVector, material, directIlluminance);
 
-            #if ATROUS_FILTER == 1
+            #if RENDER_MODE == 0 && ATROUS_FILTER == 1
                 vec3 irradianceDiffuse = texture(MAIN_BUFFER, vertexCoords).rgb;
             #else
                 vec3 irradianceDiffuse = texture(DEFERRED_BUFFER, vertexCoords).rgb;
