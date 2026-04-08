@@ -20,7 +20,8 @@
 
 const float invShadowMapResolution = 1.0 / shadowMapResolution;
 
-float jitter = interleavedGradientNoise(gl_FragCoord.xy);
+float jitter0 = temporalBlueNoise(gl_FragCoord.xy);
+float jitter1 = temporalBlueNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize * 0.3));
 
 #if CONTACT_SHADOWS == 1
 
@@ -55,7 +56,7 @@ float jitter = interleavedGradientNoise(gl_FragCoord.xy);
         float initialDepth = rayPosition.z;
 
         // Jitter the first step
-        rayPosition += rayDirection * jitter;
+        rayPosition += rayDirection * jitter0;
 
         bool intersected = false;
 
@@ -124,7 +125,7 @@ vec3 getShadowColor(vec3 samplePosition) {
         float weightSum = 0.0;
 
         for (int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
-            vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, jitter) * invShadowMapResolution;
+            vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, jitter0, jitter1) * invShadowMapResolution;
             vec2 sampleCoords = distortShadowSpace(shadowCoords + offset) * 0.5 + 0.5;
             
             if (!insideScreenBounds(sampleCoords, 1.0)) return -1.0;
@@ -150,18 +151,20 @@ vec3 getShadowColor(vec3 samplePosition) {
             return getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5 - selfIntersectionBias);
         }
 
-        vec3 shadowResult = vec3(0.0); vec2 offset = vec2(0.0);
+        vec3 shadows = vec3(0.0);
+        vec2 offset  = vec2(0.0);
 
         for (int i = 0; i < SHADOW_SAMPLES; i++) {
             #if SHADOWS != 3
-                offset = sampleDisk(i, SHADOW_SAMPLES, jitter) * penumbraSize * invShadowMapResolution;
+                offset = sampleDisk(i, SHADOW_SAMPLES, jitter0, jitter1) * penumbraSize * invShadowMapResolution;
             #endif
 
             vec3 samplePosition = distortShadowSpace(shadowPosition + vec3(offset, 0.0)) * 0.5 + 0.5;
 
-            shadowResult += getShadowColor(samplePosition - selfIntersectionBias);
+            shadows += getShadowColor(samplePosition - selfIntersectionBias);
         }
-        return shadowResult * rcp(SHADOW_SAMPLES);
+
+        return shadows * rcp(SHADOW_SAMPLES);
     }
 
 #endif

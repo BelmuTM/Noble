@@ -266,9 +266,9 @@ vec3 sphericalToCartesian(float azimuth, float altitude) {
 /*-------------------- DISTRIBUTION --------------------*/
 //////////////////////////////////////////////////////////
 
-vec2 sampleDisk(float i, float n, float phi) {
-    float theta = (i + phi) / n; 
-    return sincos(theta * TAU * n * GOLDEN_ANGLE) * sqrt(phi);
+vec2 sampleDisk(int i, int n, float radiusOffset, float angleOffset) {
+    float r = sqrt((i + radiusOffset) / n);
+    return r * sincos(i * GOLDEN_ANGLE + TAU * angleOffset).yx;
 }
 
 float gaussianDistribution1D(float x, float sigma) {
