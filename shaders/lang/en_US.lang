@@ -35,10 +35,10 @@ profile.comment = §5§lRender§r profile transforms Noble into a renderer by bo
 
 option.RENDER_SCALE_OPTION = Render Scale
 option.RENDER_SCALE_OPTION.comment = Adjusts the overall rendering scale of Noble. §cHigher value gives better results, but reduces §cperformance.
-value.RENDER_SCALE_OPTION.25 = 25%
-value.RENDER_SCALE_OPTION.50 = 50%
-value.RENDER_SCALE_OPTION.75 = 75%
-value.RENDER_SCALE_OPTION.100 = 100%
+value.RENDER_SCALE_OPTION.25 = §a25%
+value.RENDER_SCALE_OPTION.50 = §a50%
+value.RENDER_SCALE_OPTION.75 = §a75%
+value.RENDER_SCALE_OPTION.100 = §a100%
 
 ##################### SCREENS #####################
 
