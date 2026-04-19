@@ -61,13 +61,19 @@ vec3 physicalSun(vec3 sceneDirection) {
 vec3 physicalMoon(vec3 sceneDirection) {
     vec2 sphere = intersectSphere(-moonVector, sceneDirection, moonAngularRadius);
 
-    Material moonMaterial;
-    moonMaterial.normal    = normalize(sceneDirection * sphere.x - moonVector);
-    moonMaterial.albedo    = vec3(moonAlbedo);
-    moonMaterial.roughness = moonRoughness;
-    moonMaterial.F0		   = 0.0;
+    if (sphere.y >= 0.0) {
+        vec3 moonNormal = normalize(sceneDirection * sphere.x - moonVector);
 
-    return sphere.y < 0.0 ? vec3(0.0) : moonMaterial.albedo * hammonDiffuse(moonMaterial, -sceneDirection, sunVector) * sunIrradiance;
+        const vec3  moonAlbedo = vec3(moonAlbedo);
+        const float moonAlpha  = moonRoughness * moonRoughness;
+        const float moonF0     = 0.02;
+
+        vec3 moonN = vec3(f0ToIOR(moonF0));
+
+        return moonAlbedo * hammonDiffuse(-sceneDirection, sunVector, moonAlbedo, moonNormal, moonN, moonF0, moonAlpha) * sunIrradiance;
+    } else {
+        return vec3(0.0);
+    }
 }
 
 vec3 physicalStar(vec3 sceneDirection) {

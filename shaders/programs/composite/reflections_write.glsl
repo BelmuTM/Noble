@@ -114,9 +114,17 @@
 
             if (depth == 1.0) { discard; return; }
 
-            Material material = getMaterial(vertexCoords);
+            uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 
-            if (material.F0 <= EPS) return;
+            float F0 = unpackF0(dataTexture.y);
+
+            if (F0 <= EPS) return;
+
+            vec3 albedo = unpackAlbedo(dataTexture.z);
+
+            float alpha = unpackAlpha(dataTexture.z);
+
+            bool isWater = isWater(unpackId(dataTexture.x));
 
             vec3 screenPosition = vec3(textureCoords, depth);
             vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
@@ -124,9 +132,21 @@
             float rayLength;
                     
             #if REFLECTIONS == 1
-                reflections.rgb = computeRoughReflections(modFragment, projection, projectionInverse, viewPosition, material, rayLength);
+
+                reflections.rgb = computeRoughReflections(
+                    modFragment, projection, projectionInverse, viewPosition,
+                    unpackNormal(dataTexture.w), getN(albedo, F0), getK(albedo, F0), alpha, unpackLightmap(dataTexture.x).y, isWater,
+                    rayLength
+                );
+
             #elif REFLECTIONS == 2
-                reflections.rgb = computeSmoothReflections(modFragment, projection, projectionInverse, viewPosition, material, rayLength);
+
+                reflections.rgb = computeSmoothReflections(
+                    modFragment, projection, projectionInverse, viewPosition,
+                    unpackNormal(dataTexture.w), getN(albedo, F0), getK(albedo, F0), alpha, unpackLightmap(dataTexture.x).y, isWater,
+                    rayLength
+                );
+
             #endif
 
             vec3 velocity     = getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious);
@@ -138,7 +158,7 @@
                 reprojectionDepth = texture(CLOUDMAP_BUFFER, textureCoords).a;
                 isReflectingSky   = true;
             } else {
-                reprojectionDepth = depth + (material.roughness > 0.1 ? 0.0 : rayLength);
+                reprojectionDepth = depth + (alpha > 0.1 ? 0.0 : rayLength);
             }
 
             vec3 velocityReflected     = getVelocity(vec3(textureCoords, reprojectionDepth), projectionInverse, projectionPrevious);
@@ -162,7 +182,7 @@
             weight *= depthWeight * velocityWeight * centerWeight;
             weight  = saturate(weight);
             weight *= float(insideScreenBounds(prevPositionReflected.xy, RENDER_SCALE));
-            weight *= float(!isWater(material.id));
+            weight *= float(!isWater);
 
             reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
             reflections.a   = log2(prevPosition.z);

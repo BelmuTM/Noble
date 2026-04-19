@@ -86,7 +86,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     // WOTAH
     if (blockId == WATER_ID) {
         material.F0        = waterF0;
-        material.roughness = 0.0;
+        material.alpha     = 0.0;
         material.emission  = 0.0;
         albedo             = vec3(0.0);
 
@@ -100,7 +100,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     } else {
         material.F0 = 0.0;
 
-        material.roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
+        material.alpha = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
 
         #if HARDCODED_EMISSION == 1
             if (blockId >= LAVA_ID && blockId < SSS_ID) {
@@ -141,7 +141,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
     data = storeMaterial(
         material.F0,
-        material.roughness,
+        material.alpha,
         material.ao,
         material.emission,
         material.subsurface,

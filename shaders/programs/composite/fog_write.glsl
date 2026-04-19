@@ -77,8 +77,6 @@
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
         #endif
 
-        Material material = getMaterial(vertexCoords);
-
         float depth0 = texture(depthtex0, vertexCoords).r;
         float depth1 = texture(depthtex1, vertexCoords).r;
 
@@ -124,7 +122,7 @@
                 float VdotL = dot(tmp, starVector);
             #endif
         #else
-            directIlluminanceFinal = getBlockLightColor(material);
+            directIlluminanceFinal = getBlockLightColor();
             float VdotL = 0.0;
         #endif
 
@@ -143,7 +141,9 @@
         vec3 transmittanceLayer2 = vec3(1.0);
 
         if (!sky) {
-            skylight = getSkylightFalloff(material.lightmap.y);
+            uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
+
+            skylight = getSkylightFalloff(unpackLightmap(dataTexture.x).y);
 
             if (viewPosition0.z != viewPosition1.z) {
                 //////////////////////////////////////////////////////////
@@ -152,7 +152,7 @@
 
                 vec3 scenePosition1 = viewToScene(viewPosition1);
 
-                if (isEyeInWater != 1 && isWater(material.id)) {
+                if (isEyeInWater != 1 && isWater(unpackId(dataTexture.x))) {
                     #if defined WORLD_OVERWORLD || defined WORLD_END
                         #if WATER_FOG == 0
                             computeWaterFogApproximation(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);

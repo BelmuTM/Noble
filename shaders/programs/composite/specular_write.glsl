@@ -61,8 +61,10 @@ void main() {
 
     vec3 sunSpecular = vec3(0.0), envSpecular = vec3(0.0);
 
-    bool  modFragment = false;
-    float depth       = texture(depthtex0, vertexCoords).r;
+    bool modFragment = false;
+
+    float depth0 = texture(depthtex0, vertexCoords).r;
+    float depth1 = texture(depthtex1, vertexCoords).r;
 
     mat4 projection        = gbufferProjection;
     mat4 projectionInverse = gbufferProjectionInverse;
@@ -75,9 +77,11 @@ void main() {
             modFragment = true;
 
             #if defined VOXY
-                depth = texture(modDepthTex0, textureCoords).r;
+                depth0 = texture(modDepthTex0, textureCoords).r;
+                depth1 = texture(modDepthTex1, textureCoords).r;
             #else
-                depth = texture(modDepthTex0, vertexCoords).r;
+                depth0 = texture(modDepthTex0, vertexCoords).r;
+                depth1 = texture(modDepthTex1, vertexCoords).r;
             #endif
                     
             projection        = modProjection;
@@ -88,12 +92,12 @@ void main() {
         }
     #endif
 
-    vec3 viewPosition0 = screenToView(vec3(textureCoords, depth), projectionInverse, true);
+    vec3 viewPosition0 = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
 
     vec4 blendedLighting = texture(MAIN_BUFFER, vertexCoords);
 
     // Terrain Fragments
-    if (depth < 1.0) {
+    if (depth0 < 1.0) {
 
         Material material = getMaterial(vertexCoords);
 
@@ -101,7 +105,7 @@ void main() {
             lighting = exp2(blendedLighting.rgb) - 1.0;
         }
 
-        vec3 viewPosition1 = screenToView(vec3(textureCoords, material.depth1), projectionInverse, true);
+        vec3 viewPosition1 = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
 
         vec3 directIlluminance = vec3(0.0);
     
@@ -118,7 +122,7 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if REFRACTIONS > 0
-            if (material.depth0 != material.depth1 && material.F0 > EPS) {
+            if (depth0 != depth1 && material.F0 > EPS) {
                 lighting = computeRefractions(modFragment, projection, projectionInverse, viewPosition0, viewPosition1, material, coords);
             }
         #endif
@@ -143,7 +147,7 @@ void main() {
             #endif
 
             if (visibility != vec3(0.0) && material.F0 > EPS) {
-                sunSpecular = computeSpecular(material, -normalize(viewPosition0), shadowLightVector) * directIlluminance;
+                sunSpecular = computeSpecular(-normalize(viewPosition0), shadowLightVector, material.normal, material.N, material.K, material.alpha) * directIlluminance;
             }
         #endif
 
@@ -224,7 +228,7 @@ void main() {
     bool isEnchantmentGlint = basic.a >= 0.0 && basic.a <= 0.05;
     bool isDamageOverlay    = basic.a > 0.05 && basic.a <= 0.1;
 
-    bool isHand = depth < handDepth;
+    bool isHand = depth0 < handDepth;
 
     float exposure = 1.0;
 

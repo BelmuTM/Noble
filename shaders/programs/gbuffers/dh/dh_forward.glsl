@@ -121,7 +121,7 @@
         // WOTAH
         if (blockId == DH_BLOCK_WATER) {
             material.F0        = waterF0;
-            material.roughness = 0.0;
+            material.alpha     = 0.0;
             material.emission  = 0.0;
             albedo             = vec3(0.0);
 
@@ -135,7 +135,7 @@
         } else {
             material.F0 = 0.0;
 
-            material.roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
+            material.alpha = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
 
             if (blockId == DH_BLOCK_ILLUMINATED) {
                 material.emission = 1.0;
@@ -178,7 +178,7 @@
 
         data = storeMaterial(
             material.F0,
-            material.roughness,
+            material.alpha,
             material.ao,
             material.emission,
             material.subsurface,

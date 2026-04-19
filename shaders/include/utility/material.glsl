@@ -29,16 +29,16 @@ const float labPBRMetals = 229.5;
 const vec3 labPBRData0Range = vec3(1.0, 8191.0, 4095.0);
 
 struct Material {
-    float F0;
-    float roughness;
-    float ao;
-    float emission;
-    float subsurface;
-
     vec3 albedo;
     vec3 normal;
 
     vec2 lightmap;
+
+    float F0;
+    float alpha;
+    float ao;
+    float emission;
+    float subsurface;
 
     vec3 N;
     vec3 K;
@@ -46,9 +46,6 @@ struct Material {
     float parallaxSelfShadowing;
 
     uint id;
-
-    float depth0;
-    float depth1;
 };
 
 const float airIOR  = 1.00029;
@@ -88,9 +85,9 @@ float iorToF0(float ior) {
     return a * a;
 }
 
-mat2x3 getHardcodedMetal(Material material) {
-    int metalID = int(material.F0 * 255.0 - labPBRMetals);
-    return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(f0ToIOR(material.albedo), vec3(0.0));
+mat2x3 getHardcodedMetal(vec3 albedo, float F0) {
+    int metalID = int(F0 * 255.0 - labPBRMetals);
+    return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(f0ToIOR(albedo), vec3(0.0));
 }
 
 bool isWater(uint materialID) {
@@ -119,11 +116,11 @@ uvec4 storeMaterial(
 ) {
     vec3 labPBRData0 = vec3(parallaxSelfShadowing, saturate(lightmap));
     vec4 labPBRData1 = vec4(ao, emission, F0, subsurface);
-    vec4 labPBRData2 = vec4(albedo, roughness);
+    vec4 labPBRData2 = vec4(albedo, roughness * roughness);
 
     uvec4 shiftedLabPbrData0 = uvec4(round(labPBRData0 * labPBRData0Range), id) << uvec4(0, 1, 14, 26);
 
-    uvec4 data = uvec4(0);
+    uvec4 data;
     data.x = shiftedLabPbrData0.x | shiftedLabPbrData0.y | shiftedLabPbrData0.z | shiftedLabPbrData0.w;
     data.y = packUnorm4x8(labPBRData1);
     data.z = packUnorm4x8(labPBRData2);
@@ -133,36 +130,24 @@ uvec4 storeMaterial(
 }
 
 Material getMaterial(vec2 coords) {
-    coords *= viewSize;
+    uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(coords * viewSize), 0);
+
+    vec4 data0 = unpackUnorm4x8(dataTexture.y);
+    vec4 data1 = unpackUnorm4x8(dataTexture.z);
 
     Material material;
 
-    material.depth0 = texelFetch(depthtex0, ivec2(coords), 0).r;
-    material.depth1 = texelFetch(depthtex1, ivec2(coords), 0).r;
-
-    #if defined CHUNK_LOADER_MOD_ENABLED
-        if (material.depth0 >= 1.0) {
-            material.depth0 = texelFetch(modDepthTex0, ivec2(coords), 0).r;
-            material.depth1 = texelFetch(modDepthTex1, ivec2(coords), 0).r;
-        }
-    #endif
-    
-    uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(coords), 0);
-
-    vec4 data1 = unpackUnorm4x8(dataTexture.y);
-    vec4 data2 = unpackUnorm4x8(dataTexture.z);
-
-    material.roughness  = data2.w * data2.w;
-    material.ao         = data1.x;
-    material.emission   = data1.y;
-    material.F0         = data1.z;
-    material.subsurface = data1.w;
+    material.alpha      = data1.w;
+    material.ao         = data0.x;
+    material.emission   = data0.y;
+    material.F0         = data0.z;
+    material.subsurface = data0.w;
 
     #if MATERIAL_AO == 0
         material.ao = 1.0;
     #endif
 
-    material.albedo = data2.rgb;
+    material.albedo = data1.rgb;
 
     #if TONEMAP == ACES
         material.albedo = srgbToAP1Albedo(material.albedo);
@@ -171,7 +156,7 @@ Material getMaterial(vec2 coords) {
     #endif
 
     if (material.F0 * maxFloat8 > labPBRMetals) {
-        mat2x3 hcm = getHardcodedMetal(material);
+        mat2x3 hcm = getHardcodedMetal(material.albedo, material.F0);
         material.N = hcm[0], material.K = hcm[1];
     } else {
         material.N = vec3(f0ToIOR(material.F0));
@@ -188,7 +173,67 @@ Material getMaterial(vec2 coords) {
     return material;
 }
 
-vec3 getBlockLightColor(Material material) {
+vec3 unpackAlbedo(uint packedData) {
+    #if TONEMAP == ACES
+        return srgbToAP1Albedo(unpackUnorm4x8(packedData).rgb);
+    #else
+        return srgbToLinear(unpackUnorm4x8(packedData).rgb);
+    #endif
+}
+
+vec3 unpackNormal(uint packedData) {
+    return normalize(mat3(gbufferModelView) * decodeUnitVector(unpackUnorm2x16(packedData)));
+}
+
+float unpackF0(uint packedData) {
+    return unpackUnorm4x8(packedData).z;
+}
+
+float unpackAO(uint packedData) {
+    return unpackUnorm4x8(packedData).x;
+}
+
+float unpackAlpha(uint packedData) {
+    return unpackUnorm4x8(packedData).w;
+}
+
+float unpackEmission(uint packedData) {
+    return unpackUnorm4x8(packedData).y;
+}
+
+float unpackSubsurface(uint packedData) {
+    return unpackUnorm4x8(packedData).w;
+}
+
+float unpackParallaxSelfShadowing(uint packedData) {
+    return float(packedData & 1u);
+}
+
+vec2 unpackLightmap(uint packedData) {
+    return vec2(packedData >> 1u & 8191u, packedData >> 14u & 4095u) * vec2(rcpMaxFloat13, rcpMaxFloat12);
+}
+
+int unpackId(uint packedData) {
+    return int(packedData >> 26u & 63u);
+}
+
+vec3 getN(vec3 albedo, float F0) {
+    if (F0 * maxFloat8 > labPBRMetals) {
+        return getHardcodedMetal(albedo, F0)[0];
+    } else {
+        return vec3(f0ToIOR(F0));
+    }
+}
+
+vec3 getK(vec3 albedo, float F0) {
+    if (F0 * maxFloat8 > labPBRMetals) {
+        return getHardcodedMetal(albedo, F0)[1];
+    } else {
+        return vec3(0.0);
+    }
+}
+
+vec3 getBlockLightColor() {
     return blackbody(BLOCKLIGHT_TEMPERATURE) * EMISSIVE_INTENSITY;
 }
 

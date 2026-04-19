@@ -84,29 +84,28 @@ vec3 sampleGGXVNDF(vec3 viewDirection, vec2 xi, float alpha) {
 /*----------------------- DIFFUSE ----------------------*/
 //////////////////////////////////////////////////////////
 
-vec3 hammonDiffuse(Material material, vec3 viewDirection, vec3 lightDirection) {
-    float NdotL = dot(material.normal, lightDirection);
+vec3 hammonDiffuse(vec3 viewDirection, vec3 lightDirection, vec3 albedo, vec3 normal, vec3 N, float F0, float alpha) {
+    float NdotL = dot(normal, lightDirection);
     if (NdotL <= 0.0) return vec3(0.0);
 
     vec3 halfway = normalize(viewDirection + lightDirection);
-    float NdotV  = saturate(dot(material.normal, viewDirection));
+    float NdotV  = saturate(dot(normal, viewDirection));
     float VdotL  = dot(viewDirection, lightDirection);
-    float NdotH  = dot(material.normal, halfway);
-
-    vec3 F0 = vec3(material.F0);
+    float NdotH  = dot(normal, halfway);
 
     float facing    = 0.5 + 0.5 * VdotL;
     float roughSurf = facing * (0.9 - 0.4 * facing) * (fastInvSqrtN1(NdotH * NdotH + 1e-2) + 2.0);
 
-    vec3 energyConservationFactor = 1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * rcp(9.0);
-    vec3 fresnelL = fresnelDielectricDielectric_T(NdotL, vec3(airIOR), material.N);
-    vec3 fresnelV = fresnelDielectricDielectric_T(NdotV, vec3(airIOR), material.N);
+    vec3 energyConservationFactor = vec3(1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * rcp(9.0));
+
+    vec3 fresnelL = fresnelDielectricDielectric_T(NdotL, vec3(airIOR), N);
+    vec3 fresnelV = fresnelDielectricDielectric_T(NdotV, vec3(airIOR), N);
 
     vec3 smoothSurf = (fresnelL * fresnelV) / energyConservationFactor;
-    vec3 single     = mix(smoothSurf, vec3(roughSurf), material.roughness) * RCP_PI;
-    float multi     = 0.1159 * material.roughness;
+    vec3 single     = mix(smoothSurf, vec3(roughSurf),alpha) * RCP_PI;
+    float multi     = 0.1159 * alpha;
 
-    return NdotL * (material.albedo * multi + single);
+    return NdotL * (albedo * multi + single);
 }
 
 vec3 hemisphericalAlbedo(vec3 n) {
@@ -118,14 +117,14 @@ vec3 hemisphericalAlbedo(vec3 n) {
     return saturate(1.0 - 0.5 * (T_1 + T_2));
 }
 
-vec3 subsurfaceScatteringApprox(Material material, vec3 viewDirection, vec3 lightDirection, float distThroughMedium) {
-    if (material.subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
+vec3 subsurfaceScatteringApprox(vec3 viewDirection, vec3 lightDirection, vec3 albedo, float subsurface, float distThroughMedium, uint id) {
+    if (subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
-    vec3  beer     = saturate(exp((material.albedo * 0.5 - 1.0) * maxEps(distThroughMedium) / material.subsurface));
+    vec3  beer     = saturate(exp((albedo * 0.5 - 1.0) * maxEps(distThroughMedium) / subsurface));
     float cosTheta = -dot(lightDirection, viewDirection);
 
     // Phase function specifically made for leaves
-    if (material.id == LEAVES_ID) {
+    if (id == LEAVES_ID) {
         return beer * biLambertianPlatePhase(0.3, cosTheta);
     }
 
@@ -148,7 +147,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
         // Lambert
         diffuse = vec3(max0(dot(material.normal, lightDirection)) * RCP_PI);
     } else {
-        diffuse = hammonDiffuse(material, viewDirection, lightDirection);
+        diffuse = hammonDiffuse(viewDirection, lightDirection, material.albedo, material.normal, material.N, material.F0, material.alpha);
     }
 
     diffuse *= shadowmap.rgb * cloudsShadows;
@@ -157,7 +156,8 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
 
     #if SUBSURFACE_SCATTERING == 1
         if (!isMetal) {
-            diffuse += subsurfaceScatteringApprox(material, viewDirection, lightDirection, shadowmap.a) * cloudsShadows * skylightFalloff;
+            diffuse += subsurfaceScatteringApprox(viewDirection, lightDirection, material.albedo, material.subsurface, shadowmap.a, material.id) 
+                     * cloudsShadows * skylightFalloff;
         }
     #endif
 
@@ -169,7 +169,7 @@ vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, 
         skylight *= skylightFalloff;
     #endif
 
-    vec3 blocklightColor = getBlockLightColor(material);
+    vec3 blocklightColor = getBlockLightColor();
     vec3 blocklight      = blocklightColor * getBlocklightFalloff(material.lightmap.x);
     vec3 emissiveness    = material.emission * blocklightColor;
 
@@ -195,13 +195,14 @@ vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material mat
         // Lambert
         diffuse = vec3(max0(dot(material.normal, wo)) * RCP_PI);
     } else {
-        diffuse = hammonDiffuse(material, wi, wo);
+        diffuse = hammonDiffuse(wi, wo, material.albedo, material.normal, material.N, material.F0, material.alpha);
     }
 
     vec4 shadowmap = texture(SHADOWMAP_BUFFER, max(hitPosition, texelSize));
 
     #if SUBSURFACE_SCATTERING == 1
-        diffuse += subsurfaceScatteringApprox(material, wi, wo, shadowmap.a) * float(material.lightmap.y > EPS);
+        diffuse += subsurfaceScatteringApprox(wi, wo, material.albedo, material.subsurface, shadowmap.a, material.id) 
+                 * float(material.lightmap.y > EPS);
     #endif
 
     return diffuse * shadowmap.rgb * directIlluminance;
@@ -209,7 +210,7 @@ vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material mat
 
 vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
     mat3 tbn        = calculateTBN(material.normal);
-    vec3 microfacet = tbn * sampleGGXVNDF(-wr * tbn, rand2F(), material.roughness);
+    vec3 microfacet = tbn * sampleGGXVNDF(-wr * tbn, rand2F(), material.alpha);
     vec3 fresnel    = fresnelDielectricConductor(dot(microfacet, -wr), material.N, material.K);
 
     wr = generateCosineVector(microfacet, rand2F());
@@ -266,14 +267,14 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
     return saturate(NdotH * NdotH / HdotH);
 }
 
-vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection) {
-    float NdotL = dot(material.normal, lightDirection);
+vec3 computeSpecular(vec3 viewDirection, vec3 lightDirection, vec3 normal, vec3 N, vec3 K, float alpha) {
+    float NdotL = dot(normal, lightDirection);
     if (NdotL <= 0.0) return vec3(0.0);
 
-    float alphaSq = maxEps(material.roughness * material.roughness);
+    float alphaSq = maxEps(alpha * alpha);
 
-    float NdotV = dot(material.normal, viewDirection);
-    float VdotL = dot(viewDirection,   lightDirection);
+    float NdotV = dot(normal       , viewDirection);
+    float VdotL = dot(viewDirection, lightDirection);
 
     float NdotHSq = NdotHSquared(shadowLightAngularRadius, NdotL, NdotV, VdotL, NdotL, VdotL);
     float VdotH   = (VdotL + 1.0) * fastInvSqrtN1(2.0 * VdotL + 2.0);
@@ -281,7 +282,7 @@ vec3 computeSpecular(Material material, vec3 viewDirection, vec3 lightDirection)
     NdotV = abs(NdotV);
     
     float D  = distribution_GGX(sqrt(NdotHSq), alphaSq);
-    vec3  F  = fresnelDielectricConductor(VdotH, material.N, material.K);
+    vec3  F  = fresnelDielectricConductor(VdotH, N, K);
     float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
         
     return NdotL * D * F * G2 / maxEps(4.0 * NdotL * NdotV);

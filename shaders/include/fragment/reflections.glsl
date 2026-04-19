@@ -66,21 +66,26 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         mat4 projection,
         mat4 projectionInverse,
         vec3 viewPosition,
-        Material material,
+        vec3 normal,
+        vec3 N,
+        vec3 K,
+        float alpha,
+        float lightmapY,
+        bool isWater,
         out float rayLength
     ) {
-        viewPosition += material.normal * 1e-2;
+        viewPosition += normal * 1e-2;
 
-        float alphaSq = maxEps(material.roughness * material.roughness);
+        float alphaSq = maxEps(alpha * alpha);
 
-        vec3 eta  = material.N / airIOR;
-        vec3 etaK = material.K / airIOR;
+        vec3 eta  = N / airIOR;
+        vec3 etaK = K / airIOR;
 
-        float skylight = getSkylightFalloff(material.lightmap.y);
+        float skylight = getSkylightFalloff(lightmapY);
 
         vec3  viewDirection = normalize(viewPosition);
-        mat3  tbn           = calculateTBN(material.normal);
-        float NdotV         = dot(material.normal, -viewDirection);
+        mat3  tbn           = calculateTBN(normal);
+        float NdotV         = dot(normal, -viewDirection);
 
         float G1 = G1_Smith_GGX(NdotV, alphaSq);
 
@@ -89,10 +94,10 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         vec3 reflection = vec3(0.0);
 
         for (int i = 0; i < ROUGH_REFLECTIONS_SAMPLES; i++) {
-            vec3  microfacetNormal = tbn * sampleGGXVNDF(tangentViewDirection, rand2F(), material.roughness);
+            vec3  microfacetNormal = tbn * sampleGGXVNDF(tangentViewDirection, rand2F(), alpha);
             float MdotV            = dot(microfacetNormal, -viewDirection);
             vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
-            float NdotL            = abs(dot(material.normal, rayDirection));
+            float NdotL            = abs(dot(normal, rayDirection));
 
             float hit;
             vec3 hitPosition;
@@ -135,7 +140,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             #endif
             
             vec3 fresnel;
-            if (isEyeInWater == 1 || isWater(material.id)) {
+            if (isEyeInWater == 1 || isWater) {
                 fresnel = fresnelDielectricDielectric_R(MdotV, vec3(airIOR), vec3(1.333));
             } else {
                 fresnel = fresnelDielectricConductor(MdotV, eta, etaK);
@@ -166,22 +171,27 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         mat4 projection,
         mat4 projectionInverse,
         vec3 viewPosition,
-        Material material,
+        vec3 normal,
+        vec3 N,
+        vec3 K,
+        float alpha,
+        float lightmapY,
+        bool isWater,
         out float rayLength
     ) {
-        viewPosition += material.normal * 1e-2;
+        viewPosition += normal * 1e-2;
 
-        float alphaSq = maxEps(material.roughness * material.roughness);
+        float alphaSq = maxEps(alpha * alpha);
 
-        vec3 eta  = material.N / airIOR;
-        vec3 etaK = material.K / airIOR;
+        vec3 eta  = N / airIOR;
+        vec3 etaK = K / airIOR;
 
-        float skylight = getSkylightFalloff(material.lightmap.y);
+        float skylight = getSkylightFalloff(lightmapY);
 
         vec3  viewDirection = normalize(viewPosition);
-        float NdotV         = dot(material.normal, -viewDirection);
-        vec3  rayDirection  = viewDirection + 2.0 * NdotV * material.normal; 
-        float NdotL         = abs(dot(material.normal, rayDirection));
+        float NdotV         = dot(normal, -viewDirection);
+        vec3  rayDirection  = viewDirection + 2.0 * NdotV * normal; 
+        float NdotL         = abs(dot(normal, rayDirection));
 
         float hit;
         vec3 hitPosition;
@@ -239,7 +249,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         #endif
 
         vec3 fresnel;
-        if (isEyeInWater == 1 || isWater(material.id)) {
+        if (isEyeInWater == 1 || isWater) {
             fresnel = fresnelDielectricDielectric_R(NdotV, vec3(airIOR), vec3(1.333));
         } else {
             fresnel = fresnelDielectricConductor(NdotV, eta, etaK);

@@ -110,7 +110,7 @@ vec3 computeRefractions(
         }
     #endif
         
-    if (!hit || depth1 < material.depth0 || depth1 - depth0 < EPS || depth1 < handDepth) {
+    if (!hit || depth1 < depth0 || depth1 - depth0 < EPS || depth1 < handDepth) {
         refractedPosition.xy = vertexCoords;
     }
 
@@ -130,8 +130,8 @@ vec3 computeRefractions(
         density = 3.0;
     } else {
         density = distance(
-            linearizeDepth(depth1,          nearPlane, farPlane),
-            linearizeDepth(material.depth0, nearPlane, farPlane)
+            linearizeDepth(depth1, nearPlane, farPlane),
+            linearizeDepth(depth0, nearPlane, farPlane)
         );
 
         density = clamp(density, 0.0, 2.0);
@@ -139,7 +139,7 @@ vec3 computeRefractions(
 
     vec3 absorption = exp(-(1.0 - material.albedo) * density);
 
-    vec3 blocklightColor = getBlockLightColor(material);
+    vec3 blocklightColor = getBlockLightColor();
     vec3 emissiveness    = material.emission * blocklightColor;
 
     return sampledColor * fresnel * absorption + emissiveness * material.albedo;

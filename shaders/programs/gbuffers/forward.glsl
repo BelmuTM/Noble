@@ -150,7 +150,7 @@
         // WOTAH
         if (blockId == WATER_ID) { 
             material.F0         = waterF0;
-            material.roughness  = 0.0;
+            material.alpha      = 0.0;
             material.ao         = 1.0;
             material.emission   = 0.0;
             material.subsurface = 0.0;
@@ -170,13 +170,13 @@
         } else {
             #if defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT
                 material.F0         = 0.0;
-                material.roughness  = 1.0;
+                material.alpha  = 1.0;
                 material.ao         = 1.0;
                 material.emission   = 0.0;
                 material.subsurface = 0.0;
             #else
                 material.F0         = specularTex.y;
-                material.roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
+                material.alpha  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
                 material.ao         = normalTex.z;
                 material.emission   = specularTex.w * maxFloat8 < 254.5 ? specularTex.w : 0.0;
                 material.subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
@@ -242,7 +242,7 @@
                         skylight *= getSkylightFalloff(material.lightmap.y);
                     #endif
 
-                    vec3 blocklightColor = getBlockLightColor(material);
+                    vec3 blocklightColor = getBlockLightColor();
                     vec3 blocklight      = blocklightColor * getBlocklightFalloff(material.lightmap.x);
                     vec3 emissiveness    = material.emission * blocklightColor;
 
@@ -269,7 +269,7 @@
 
         data = storeMaterial(
             material.F0,
-            material.roughness,
+            material.alpha,
             material.ao,
             material.emission,
             material.subsurface,

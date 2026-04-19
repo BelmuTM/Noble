@@ -96,16 +96,16 @@
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
         #endif
 
-        Material material = getMaterial(vertexCoords);
-
         float depth = texture(depthtex0, vertexCoords).r;
 
         bool modFragment = false;
 
         #if defined CHUNK_LOADER_MOD_ENABLED
+        
             if (depth >= 1.0) {
                 modFragment = true;
             }
+
         #endif
 
         if (modFragment) {
@@ -113,6 +113,8 @@
         } else {
             depthTiles = computeDepthMips(depthtex0, vertexCoords);
         }
+
+        uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 
         //////////////////////////////////////////////////////////
         /*--------------------- IRRADIANCE ---------------------*/
@@ -124,7 +126,7 @@
             bool receivesSkylight = true;
 
             #if defined WORLD_OVERWORLD
-                receivesSkylight = material.lightmap.y > EPS;
+                receivesSkylight = unpackLightmap(dataTexture.x).y > EPS;
             #endif
 
             if (receivesSkylight) {
@@ -153,7 +155,7 @@
         /*----------------- SHADOW MAPPING ---------------------*/
         //////////////////////////////////////////////////////////
 
-        if (material.depth0 == 1.0) return;
+        if (depth == 1.0) return;
             
         #if defined WORLD_OVERWORLD
 
@@ -170,18 +172,18 @@
                 #endif
 
                 vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
-                vec3 screenPosition  = vec3(textureCoords, material.depth0);
+                vec3 screenPosition  = vec3(textureCoords, depth);
                 vec3 viewPosition    = screenToView(screenPosition, projectionInverse, true);
                 vec3 scenePosition   = viewToScene(viewPosition);
 
-                vec3 shadowmapResult = calculateShadowMapping(scenePosition, geometricNormal, material.depth0, shadowmap.a);
+                vec3 shadowmapResult = calculateShadowMapping(scenePosition, geometricNormal, depth, shadowmap.a);
 
                 float NdotL = dot(geometricNormal, shadowLightVectorWorld);
 
                 shadowmap.rgb = abs(shadowmapResult);
 
                 #if POM > 0 && POM_SHADOWING == 1
-                    shadowmap.rgb *= material.parallaxSelfShadowing;
+                    shadowmap.rgb *= unpackParallaxSelfShadowing(dataTexture.x);
                 #endif
 
                 #if CONTACT_SHADOWS == 1
