@@ -100,7 +100,7 @@
 
     #include "/include/utility/rng.glsl"
     
-    #include "/include/fragment/brdf.glsl"
+    #include "/include/material/brdf.glsl"
 
     #if SHADOWS > 0
         #include "/include/fragment/shadows.glsl"

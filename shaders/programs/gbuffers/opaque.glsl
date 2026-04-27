@@ -44,7 +44,6 @@
 
     out vec3 viewPosition;
     out vec3 scenePosition;
-    out vec3 midBlock;
     out vec4 vertexColor;
     out mat3 tbn;
 
@@ -90,8 +89,6 @@
             animate(scenePosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
         #endif
 
-        midBlock = at_midBlock;
-    
         gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
@@ -118,7 +115,6 @@
 
     in vec3 viewPosition;
     in vec3 scenePosition;
-    in vec3 midBlock;
     in vec4 vertexColor;
     in mat3 tbn;
 
@@ -132,7 +128,7 @@
         #endif
 
         #if RAIN_PUDDLES == 1
-            #include "/include/fragment/puddles.glsl"
+            #include "/include/material/puddles.glsl"
         #endif
     #endif
 

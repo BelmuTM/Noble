@@ -62,7 +62,7 @@
     #include "/include/utility/phase.glsl"
     #include "/include/utility/sampling.glsl"
 
-    #include "/include/fragment/brdf.glsl"
+    #include "/include/material/brdf.glsl"
     #include "/include/atmospherics/celestial.glsl"
 
     void main() {

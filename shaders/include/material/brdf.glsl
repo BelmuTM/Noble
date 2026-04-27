@@ -29,7 +29,7 @@
         Dupuy, J., & Benyoub, A. (2024). Sampling Visible GGX Normals with Spherical Caps. https://arxiv.org/pdf/2306.05044.pdf
 */
 
-#include "/include/fragment/fresnel.glsl"
+#include "/include/material/fresnel.glsl"
 
 //////////////////////////////////////////////////////////
 /*------------------ GGX DISTRIBUTION ------------------*/

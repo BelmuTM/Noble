@@ -28,7 +28,7 @@
 
 #include "/include/utility/transforms.glsl"
 
-#include "/include/utility/material.glsl"
+#include "/include/material/material.glsl"
 
 #define HIZ_LOD_COUNT 6
 
