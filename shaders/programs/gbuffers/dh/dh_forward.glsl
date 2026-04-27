@@ -98,7 +98,7 @@
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
-            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
         float depth       = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
@@ -106,7 +106,7 @@
 
         float linearDepthDh = linearizeDepth(gl_FragCoord.z, dhNearPlane, dhFarPlane);
     
-        if (linearDepth < linearDepthDh && depth < 1.0) { discard; return; }
+        if (linearDepth < linearDepthDh && depth < 1.0) { return; }
 
         vec3 albedo = vertexColor.rgb;
 

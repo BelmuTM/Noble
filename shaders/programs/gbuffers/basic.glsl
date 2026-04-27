@@ -63,7 +63,7 @@
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
-            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
         vec4 albedoTex = texture(gtexture, textureCoords);
@@ -77,12 +77,12 @@
             
         #elif defined PROGRAM_DAMAGED_BLOCK
 
-            if (albedoTex.a < 0.102) { discard; return; }
+            if (albedoTex.a < 0.102) { return; }
 
             color = vec4(albedoTex.rgb, 0.1);
 
         #else
-            if (albedoTex.a < 0.102) { discard; return; }
+            if (albedoTex.a < 0.102) { return; }
 
             albedoTex.rgb *= vertexColor.rgb;
 

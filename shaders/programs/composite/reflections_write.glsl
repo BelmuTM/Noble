@@ -80,7 +80,7 @@
 
             #if DOWNSCALED_RENDERING == 1
                 vec2 fragCoords = gl_FragCoord.xy * texelSize;
-                if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+                if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
             #endif
 
             bool  modFragment = false;
@@ -112,7 +112,7 @@
                 }
             #endif
 
-            if (depth == 1.0) { discard; return; }
+            if (depth == 1.0) { return; }
 
             uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 

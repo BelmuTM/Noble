@@ -92,12 +92,12 @@
 
             #if DOWNSCALED_RENDERING == 1
                 vec2 fragCoords = gl_FragCoord.xy * texelSize;
-                if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+                if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
             #endif
 
             vec4 albedo = texture(gtexture, textureCoords);
 
-            if (albedo.a < 0.102) { discard; return; }
+            if (albedo.a < 0.102) { return; }
 
             bool isRain = (abs(albedo.r - albedo.b) > EPS);
 
@@ -110,10 +110,7 @@
             color.rgb *= skyIlluminance;
 
             color.rgb = max0(log2(color.rgb + 1.0));
-
-        #else
-            discard;
-            return;
+            
         #endif
     }
     

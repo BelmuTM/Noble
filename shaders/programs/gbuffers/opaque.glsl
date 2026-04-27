@@ -166,12 +166,12 @@
 
     void main() {
         #if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
-            discard; return;
+            return;
         #endif
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
-            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
         vec2 coords = textureCoords;
@@ -191,7 +191,7 @@
                 vec2  shadowCoords = vec2(0.0);
 
                 if (texture(normals, textureCoords).a < 1e-3 || texture(gtexture, textureCoords).a < 0.102) {
-                    discard; return;
+                    return;
                 }
 
                 coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
@@ -210,7 +210,7 @@
         #endif
 
         vec4 albedoTex = texture(gtexture, coords) * vertexColor;
-        if (albedoTex.a < 0.102) { discard; return; }
+        if (albedoTex.a < 0.102) { return; }
 
         vec4 normalTex = texture(normals, coords);
 
@@ -239,7 +239,7 @@
         #endif
 
         #if defined PROGRAM_BEACONBEAM
-            if (albedoTex.a < 0.999) { discard; return; }
+            if (albedoTex.a < 0.999) { return; }
             emission   = 1.0;
             lightmap.x = 1.0;
         #endif

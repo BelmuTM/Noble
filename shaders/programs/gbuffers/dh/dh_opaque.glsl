@@ -69,11 +69,11 @@
     void main() {
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
-            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
         float fragDistance = length(scenePosition);
-        if (fragDistance < 0.5 * far) { discard; return; }
+        if (fragDistance < 0.5 * far) { return; }
 
         vec3 albedo = vertexColor.rgb;
 

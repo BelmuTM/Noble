@@ -117,15 +117,15 @@
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
-            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { discard; return; }
+            if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
         #if defined PROGRAM_HAND && DISCARD_HAND == 1
-            discard; return;
+            return;
         #endif
 
         vec4 albedoTex = texture(gtexture, textureCoords);
-        if (albedoTex.a < 0.102) { discard; return; }
+        if (albedoTex.a < 0.102) { return; }
 
         vec4 normalTex   = vec4(0.0);
         vec4 specularTex = vec4(0.0);
