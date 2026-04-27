@@ -206,11 +206,11 @@ vec3 paletteFunction(float x) {
 }
 
 vec3 reinhard(vec3 color) {
-    return color / (1.0 + luminance(color));
+    return max0(color / (1.0 + luminance(color)));
 }
 
 vec3 inverseReinhard(vec3 color) {
-    return color / (1.0 - luminance(color));
+    return max0(color / (1.0 - luminance(color)));
 }
 
 vec3 plancks(float temperature, vec3 lambda) {

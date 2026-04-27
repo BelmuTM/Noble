@@ -36,7 +36,7 @@
 
         layout (rgba16f) uniform image2D colorimg0;
 
-        layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
+        layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
         const vec2 workGroupsRender = vec2(RENDER_SCALE, RENDER_SCALE);
 
