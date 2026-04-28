@@ -49,7 +49,7 @@ uniform sampler2D vxDepthTexTrans;
 
 #include "/include/utility/rng.glsl"
 
-#include "/include/fragment/brdf.glsl"
+#include "/include/material/brdf.glsl"
 
 #include "/include/fragment/gerstner.glsl"
 
