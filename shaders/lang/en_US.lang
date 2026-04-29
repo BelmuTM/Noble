@@ -1020,6 +1020,18 @@ value.PALETTE.10 = §bBerry §dNebula
 #------------------------- DEBUG ------------------------#
 #////////////////////////////////////////////////////////#
 
+option.DEBUG_ALBEDO = Display Albedo
+value.DEBUG_ALBEDO.0 = §cOFF
+value.DEBUG_ALBEDO.1 = §aON
+
+option.DEBUG_NORMALS = Display Normals
+value.DEBUG_NORMALS.0 = §cOFF
+value.DEBUG_NORMALS.1 = §aON
+
+option.DEBUG_AO = Display Ambient Occlusion
+value.DEBUG_AO.0 = §cOFF
+value.DEBUG_AO.1 = §aON
+
 option.DEBUG_HISTOGRAM = Display Histogram
 value.DEBUG_HISTOGRAM.0 = §cOFF
 value.DEBUG_HISTOGRAM.1 = §aON

@@ -139,8 +139,14 @@ in vec2 textureCoords;
 
 #endif
 
-float getCoC(float fragDepth, float targetDepth) {
-    return fragDepth <= handDepth ? 0.0 : abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5;
+void debugOutput(inout vec3 color) {
+    #if DEBUG_ALBEDO == 1
+        color = unpackUnorm4x8(texture(GBUFFERS_DATA, textureCoords * RENDER_SCALE).z).rgb;
+    #elif DEBUG_NORMALS == 1
+        color = decodeUnitVector(unpackUnorm2x16(texture(GBUFFERS_DATA, textureCoords * RENDER_SCALE).w)) * 0.5 + 0.5;
+    #elif DEBUG_AO == 1
+        color = vec3(texture(AO_BUFFER, textureCoords * RENDER_SCALE).b);
+    #endif
 }
 
 void main() {
@@ -194,4 +200,6 @@ void main() {
     #endif
 
     //colorOut = vec3(1.0 / linearizeDepth(texture(colortex13, textureCoords).r, near, far));
+
+    debugOutput(colorOut);
 }

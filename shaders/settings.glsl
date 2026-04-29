@@ -475,5 +475,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 /*----------------------- DEBUG ------------------------*/
 //////////////////////////////////////////////////////////
 
+#define DEBUG_ALBEDO  0 // [0 1]
+#define DEBUG_NORMALS 0 // [0 1]
+
+#define DEBUG_AO 0 // [0 1]
+
 #define DEBUG_HISTOGRAM 0 // [0 1]
 #define DEBUG_LUT       0 // [0 1]
