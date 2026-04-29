@@ -170,13 +170,13 @@
         } else {
             #if defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT
                 material.F0         = 0.0;
-                material.alpha  = 1.0;
+                material.alpha      = 1.0;
                 material.ao         = 1.0;
                 material.emission   = 0.0;
                 material.subsurface = 0.0;
             #else
                 material.F0         = specularTex.y;
-                material.alpha  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
+                material.alpha      = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
                 material.ao         = normalTex.z;
                 material.emission   = specularTex.w * maxFloat8 < 254.5 ? specularTex.w : 0.0;
                 material.subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));

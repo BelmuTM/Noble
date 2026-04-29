@@ -763,7 +763,7 @@ suffix.SHUTTER_SPEED = s
 #////////////////////////////////////////////////////////#
 
 option.TONEMAP = Tone Mapping
-option.TONEMAP.comment = Applies a color correction filter.
+option.TONEMAP.comment = Applies a color correction filter for HDR lighting.
 value.TONEMAP.-1 = §cOFF
 value.TONEMAP.0 = AgX
 value.TONEMAP.1 = ACES

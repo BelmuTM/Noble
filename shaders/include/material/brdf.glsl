@@ -94,7 +94,7 @@ vec3 hammonDiffuse(vec3 viewDirection, vec3 lightDirection, vec3 albedo, vec3 no
     float NdotH  = dot(normal, halfway);
 
     float facing    = 0.5 + 0.5 * VdotL;
-    float roughSurf = facing * (0.9 - 0.4 * facing) * (fastInvSqrtN1(NdotH * NdotH + 1e-2) + 2.0);
+    float roughSurf = facing * (0.9 - 0.4 * facing) * (fastInvSqrtN1(NdotH * NdotH + EPS) + 2.0);
 
     vec3 energyConservationFactor = vec3(1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * rcp(9.0));
 
@@ -102,7 +102,7 @@ vec3 hammonDiffuse(vec3 viewDirection, vec3 lightDirection, vec3 albedo, vec3 no
     vec3 fresnelV = fresnelDielectricDielectric_T(NdotV, vec3(airIOR), N);
 
     vec3 smoothSurf = (fresnelL * fresnelV) / energyConservationFactor;
-    vec3 single     = mix(smoothSurf, vec3(roughSurf),alpha) * RCP_PI;
+    vec3 single     = mix(smoothSurf, vec3(roughSurf), alpha) * RCP_PI;
     float multi     = 0.1159 * alpha;
 
     return NdotL * (albedo * multi + single);
@@ -135,12 +135,12 @@ vec3 subsurfaceScatteringApprox(vec3 viewDirection, vec3 lightDirection, vec3 al
     return mix(isotropicLobe, mix(forwardsLobe, backwardsLobe, 0.3), 0.6);
 }
 
-vec3 computeDiffuse(vec3 viewDirection, vec3 lightDirection, Material material, bool isMetal, vec4 shadowmap, vec3 directIlluminance, vec3 skyIlluminance, float ao, float cloudsShadows) {
+vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, bool isMetal, vec4 shadowmap, vec3 directIlluminance, vec3 skyIlluminance, float ao, float cloudsShadows) {
     if (material.id == LIGHTNING_BOLT_ID) {
         return vec3(1e7);
     }
 
-    viewDirection = normalize(-viewDirection);
+    vec3 viewDirection = normalize(-fragPosition);
 
     vec3 diffuse;
     if (isMetal) {
