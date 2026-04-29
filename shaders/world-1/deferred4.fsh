@@ -3,4 +3,4 @@
 #define STAGE_FRAGMENT
 #define WORLD_NETHER
 
-#include "/programs/deferred/lighting.glsl"
+#include "/programs/deferred/diffuse_lighting.glsl"

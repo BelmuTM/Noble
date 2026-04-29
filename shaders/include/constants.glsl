@@ -29,3 +29,5 @@ const float rcpMaxFloat13 = 1.0 / (pow(2.0, 13.0) - 1.0);
 const float rcpMaxFloat16 = 1.0 / maxFloat16;
 
 const float handDepth = MC_HAND_DEPTH * 0.5 + 0.5;
+
+const float alphaTestThreshold = 0.102;

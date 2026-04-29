@@ -190,8 +190,8 @@
                 float height = 1.0, traceDistance = 0.0;
                 vec2  shadowCoords = vec2(0.0);
 
-                if (texture(normals, textureCoords).a < 1e-3 || texture(gtexture, textureCoords).a < 0.102) {
-                    return;
+                if (texture(normals, textureCoords).a < 1e-3 || texture(gtexture, textureCoords).a < alphaTestThreshold) {
+                    discard; return;
                 }
 
                 coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
@@ -210,7 +210,7 @@
         #endif
 
         vec4 albedoTex = texture(gtexture, coords) * vertexColor;
-        if (albedoTex.a < 0.102) { return; }
+        if (albedoTex.a < alphaTestThreshold) { discard; return; }
 
         vec4 normalTex = texture(normals, coords);
 

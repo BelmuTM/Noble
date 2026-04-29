@@ -3,4 +3,4 @@
 #define STAGE_VERTEX
 #define WORLD_OVERWORLD
 
-#include "/programs/deferred/lighting.glsl"
+#include "/programs/deferred/diffuse_lighting.glsl"

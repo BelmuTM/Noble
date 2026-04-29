@@ -77,12 +77,12 @@
             
         #elif defined PROGRAM_DAMAGED_BLOCK
 
-            if (albedoTex.a < 0.102) { return; }
+            if (albedoTex.a < alphaTestThreshold) { discard; return; }
 
             color = vec4(albedoTex.rgb, 0.1);
 
         #else
-            if (albedoTex.a < 0.102) { return; }
+            if (albedoTex.a < alphaTestThreshold) { discard; return; }
 
             albedoTex.rgb *= vertexColor.rgb;
 
