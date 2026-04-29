@@ -18,8 +18,6 @@
 #                                                                              #
 ################################################################################
 
-##################### MISC #####################
-
 option.ABOUT = §6§lNoble
 option.ABOUT.comment = §r§lTwitter: §r§7@belmu_. §r§lDiscord: §r§7belmu. §r§lPatreon: §r§bhttps://www.patreon.com/Belmu. §r§lGithub: §r§bhttps://www.github.com/BelmuTM.
 value.ABOUT.0 = §f§lby §6§lBelmu
@@ -40,7 +38,9 @@ value.RENDER_SCALE_OPTION.50 = §a50%
 value.RENDER_SCALE_OPTION.75 = §a75%
 value.RENDER_SCALE_OPTION.100 = §a100%
 
-##################### SCREENS #####################
+#////////////////////////////////////////////////////////#
+#------------------------ SCREENS -----------------------#
+#////////////////////////////////////////////////////////#
 
 screen.LIGHTING                = Lighting
 screen.SHADOWS                 = Shadows
@@ -76,7 +76,9 @@ screen.CEL_SHADING             = Cel Shading
 screen.MISC                    = 8-Bit Filter & Palette
 screen.DEBUG                   = Debug
 
-##################### LIGHTING #####################
+#////////////////////////////////////////////////////////#
+#----------------------- LIGHTING -----------------------#
+#////////////////////////////////////////////////////////#
 
 option.DIRECTIONAL_LIGHTMAP = Directional Lightmap
 option.DIRECTIONAL_LIGHTMAP.comment = Makes Minecraft's lightmap depend on the direction to the light source. §cMight produce visual bugs.
@@ -106,7 +108,9 @@ option.EMISSIVE_INTENSITY = Emissive Intensity
 option.EMISSIVE_INTENSITY.comment = Adjusts the intensity of emitted blocklight (in Lumens).
 suffix.EMISSIVE_INTENSITY = lumens
 
-##################### SHADOWS #####################
+#////////////////////////////////////////////////////////#
+#------------------------ SHADOWS -----------------------#
+#////////////////////////////////////////////////////////#
 
 option.SHADOWS = Shadows
 option.SHADOWS.comment = §aSoft§r shadows get blurrier the farther they are from the blocker. §aNormal§r shadows are shadows with uniformly blurred edges. §aSharp§r shadows have very sharp edges.
@@ -152,7 +156,9 @@ value.CONTACT_SHADOWS_STEPS.8 = §a8
 value.CONTACT_SHADOWS_STEPS.16 = §e16
 value.CONTACT_SHADOWS_STEPS.32 = §632
 
-##################### AMBIENT OCCLUSION #####################
+#////////////////////////////////////////////////////////#
+#------------------- AMBIENT OCCLUSION ------------------#
+#////////////////////////////////////////////////////////#
 
 option.AO = Ambient Occlusion (AO)
 option.AO.comment = §rFeatures pseudo-shadows that enhance a scene's depth perception. §aGTAO §7-> §rGround Truth Ambient Occlusion. §aSSAO §7-> §rScreen Space Ambient Occlusion. §aRTAO §7-> §rRay Traced Ambient Occlusion.
@@ -173,24 +179,9 @@ value.AO_FILTER.1 = §aON
 
 option.AO_SCALE = Render Scale
 option.AO_SCALE.comment = Adjusts §bAO§r's rendering scale. §cHigher value gives better results, but reduces §cperformance.
-value.AO_SCALE.10 = 10%
-value.AO_SCALE.15 = 15%
-value.AO_SCALE.20 = 20%
 value.AO_SCALE.25 = 25%
-value.AO_SCALE.30 = 30%
-value.AO_SCALE.35 = 35%
-value.AO_SCALE.40 = 40%
-value.AO_SCALE.45 = 45%
 value.AO_SCALE.50 = 50%
-value.AO_SCALE.55 = 55%
-value.AO_SCALE.60 = 60%
-value.AO_SCALE.65 = 65%
-value.AO_SCALE.70 = 70%
 value.AO_SCALE.75 = 75%
-value.AO_SCALE.80 = 80%
-value.AO_SCALE.85 = 85%
-value.AO_SCALE.90 = 90%
-value.AO_SCALE.95 = 95%
 value.AO_SCALE.100 = 100%
 
 option.SSAO_SAMPLES = SSAO Samples
@@ -235,7 +226,9 @@ value.GTAO_SLICES.6 = §46
 option.GTAO_RADIUS = GTAO Radius
 option.GTAO_RADIUS.comment = Adjusts §bGTAO§r's radius.
 
-##################### REFLECTIONS | REFRACTIONS #####################
+#////////////////////////////////////////////////////////#
+#----------------------- SPECULAR -----------------------#
+#////////////////////////////////////////////////////////#
 
 option.SPECULAR = Sun Reflections
 option.SPECULAR.comment = Adds solar specular reflections.
@@ -268,24 +261,9 @@ value.ROUGH_REFLECTIONS_SAMPLES.4 = §c4
 
 option.REFLECTIONS_SCALE = Reflections Render Scale
 option.REFLECTIONS_SCALE.comment = Adjusts §bReflections§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
-value.REFLECTIONS_SCALE.10 = 10%
-value.REFLECTIONS_SCALE.15 = 15%
-value.REFLECTIONS_SCALE.20 = 20%
 value.REFLECTIONS_SCALE.25 = 25%
-value.REFLECTIONS_SCALE.30 = 30%
-value.REFLECTIONS_SCALE.35 = 35%
-value.REFLECTIONS_SCALE.40 = 40%
-value.REFLECTIONS_SCALE.45 = 45%
 value.REFLECTIONS_SCALE.50 = 50%
-value.REFLECTIONS_SCALE.55 = 55%
-value.REFLECTIONS_SCALE.60 = 60%
-value.REFLECTIONS_SCALE.65 = 65%
-value.REFLECTIONS_SCALE.70 = 70%
 value.REFLECTIONS_SCALE.75 = 75%
-value.REFLECTIONS_SCALE.80 = 80%
-value.REFLECTIONS_SCALE.85 = 85%
-value.REFLECTIONS_SCALE.90 = 90%
-value.REFLECTIONS_SCALE.95 = 95%
 value.REFLECTIONS_SCALE.100 = 100%
 
 option.REFRACTIONS = Refractions
@@ -294,7 +272,9 @@ value.REFRACTIONS.0 = §cOFF
 value.REFRACTIONS.1 = §e§lRaytraced
 value.REFRACTIONS.2 = §e§lApproximation
 
-##################### GLOBAL ILLUMINATION #####################
+#////////////////////////////////////////////////////////#
+#------------------ GLOBAL ILLUMINATION -----------------#
+#////////////////////////////////////////////////////////#
 
 option.GI = Global Illumination (GI)
 option.GI.comment = Simulates light bounces, §7§l§oexample: the color of a §7§l§ogreen wall will cast onto an object next to it. §cCan only sample what's being displayed §con your screen.
@@ -313,15 +293,19 @@ value.TEMPORAL_ACCUMULATION.1 = §aON
 
 option.ATROUS_STEP_SIZE = Blur Size
 option.ATROUS_STEP_SIZE.comment = Adjusts the size of the blur used for À-Trous filtering.
+suffix.ATROUS_STEP_SIZE = x
 
 option.NORMAL_WEIGHT_SIGMA = Normal Weight Strength
 option.NORMAL_WEIGHT_SIGMA.comment = Adjusts the strength of the normal weight used for À-Trous filtering.
+suffix.NORMAL_WEIGHT_SIGMA = x
 
 option.DEPTH_WEIGHT_SIGMA = Depth Weight Strength
 option.DEPTH_WEIGHT_SIGMA.comment = Adjusts the strength of the depth weight used for À-Trous filtering.
+suffix.DEPTH_WEIGHT_SIGMA = x
 
 option.LUMINANCE_WEIGHT_SIGMA = Luminance Weight Strength
 option.LUMINANCE_WEIGHT_SIGMA.comment = Adjusts the strength of the luminance weight used for À-Trous filtering.
+suffix.LUMINANCE_WEIGHT_SIGMA = x
 
 option.GI_SAMPLES = GI Samples
 option.GI_SAMPLES.comment = Adjusts the amount of samples taken to calculate §bGlobal Illumination§r. §cHigher value gives better results, but reduces §cperformance.
@@ -340,7 +324,9 @@ option.RENDER_ENTITIES.comment = Lets you choose wether or not you want to displ
 value.RENDER_ENTITIES.0 = §cOFF
 value.RENDER_ENTITIES.1 = §aON
 
-##################### ATMOSPHERICS #####################
+#////////////////////////////////////////////////////////#
+#--------------------- ATMOSPHERICS ---------------------#
+#////////////////////////////////////////////////////////#
 
 option.sunPathRotation = Celestial Path Rotation
 option.sunPathRotation.comment = Adjusts the sun's / the moon's path rotation.
@@ -617,7 +603,9 @@ option.WEATHER_TILT.comment = Tilts the weather (rain, snow) by an angle to look
 value.WEATHER_TILT.0 = §cOFF
 value.WEATHER_TILT.1 = §aON
 
-##################### TERRAIN #####################
+#////////////////////////////////////////////////////////#
+#------------------------ TERRAIN -----------------------#
+#////////////////////////////////////////////////////////#
 
 ### WATER
 
@@ -740,7 +728,9 @@ option.RAIN_PUDDLES_SIZE = Rain Puddles Size
 option.RAIN_PUDDLES_SIZE.comment = Adjusts §bRain Puddles§r' size.
 suffix.RAIN_PUDDLES_SIZE = %
 
-##################### CAMERA SETTINGS #####################
+#////////////////////////////////////////////////////////#
+#------------------------ CAMERA ------------------------#
+#////////////////////////////////////////////////////////#
 
 option.EXPOSURE = Exposure
 option.EXPOSURE.comment = §aManual§r exposure lets you tweak the camera settings manually to adjust the exposure. §aAverage§r exposure tweaks the camera exposure automatically depending on the average screen brightness. §aHistogram§r exposure tweaks the camera exposure automatically depending on the median of an average screen brightness histogram.
@@ -768,7 +758,9 @@ option.SHUTTER_SPEED.comment = A measurement of the time the camera's shutter is
 prefix.SHUTTER_SPEED = 1/
 suffix.SHUTTER_SPEED = s
 
-##################### COLOR GRADING #####################
+#////////////////////////////////////////////////////////#
+#--------------------- COLOR GRADING --------------------#
+#////////////////////////////////////////////////////////#
 
 option.TONEMAP = Tone Mapping
 option.TONEMAP.comment = Applies a color correction filter.
@@ -833,7 +825,9 @@ option.GAIN.comment = Adjusts the white level (highlights), brighter colors beco
 option.LIFT = Lift
 option.LIFT.comment = Adjusts the image's black level (dark tones or shadows).
 
-##################### ANTI-ALIASING #####################
+#////////////////////////////////////////////////////////#
+#--------------------- ANTI-ALIASING --------------------#
+#////////////////////////////////////////////////////////#
 
 option.TAA = TAA
 option.TAA.comment = §bTemporal Anti-Aliasing. §rA form of anti-aliasing which blends previous frames to reduce the aliasing.
@@ -844,7 +838,9 @@ option.TAA_STRENGTH = Strength
 option.TAA_STRENGTH.comment = Adjusts §bTemporal Anti-Aliasing§r's strength.
 suffix.TAA_STRENGTH = x
 
-##################### POST-PROCESSING #####################
+#////////////////////////////////////////////////////////#
+#-------------------- POST-PROCESSING -------------------#
+#////////////////////////////////////////////////////////#
 
 ### DEPTH OF FIELD
 
@@ -1020,7 +1016,9 @@ value.PALETTE.8 = §8Gothic Bit
 value.PALETTE.9 = §6Halloween §5Candy
 value.PALETTE.10 = §bBerry §dNebula
 
-##################### DEBUG #####################
+#////////////////////////////////////////////////////////#
+#------------------------- DEBUG ------------------------#
+#////////////////////////////////////////////////////////#
 
 option.DEBUG_HISTOGRAM = Display Histogram
 value.DEBUG_HISTOGRAM.0 = §cOFF
