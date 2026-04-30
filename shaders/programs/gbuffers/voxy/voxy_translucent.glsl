@@ -37,7 +37,7 @@ uniform sampler2D vxDepthTexTrans;
 
 #include "/include/utility/transforms.glsl"
 
-#include "/include/utility/material.glsl"
+#include "/include/material/material.glsl"
 
 #include "/include/utility/phase.glsl"
 

@@ -36,7 +36,7 @@ uniform sampler2D vxDepthTexTrans;
 
 #include "/include/utility/transforms.glsl"
 
-#include "/include/utility/material.glsl"
+#include "/include/material/material.glsl"
 
 layout (location = 0) out uvec4 data;
 layout (location = 1) out vec2 geometricNormal;
