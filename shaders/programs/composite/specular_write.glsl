@@ -73,6 +73,7 @@ void main() {
     float farPlane  = far;
 
     #if defined CHUNK_LOADER_MOD_ENABLED
+
         if (depth >= 1.0) {
             modFragment = true;
 
@@ -90,6 +91,7 @@ void main() {
             nearPlane = modNearPlane;
             farPlane  = modFarPlane;
         }
+        
     #endif
 
     vec3 viewPosition0 = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
@@ -122,9 +124,11 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if REFRACTIONS > 0
+        
             if (depth0 != depth1 && material.F0 > EPS) {
                 lighting = computeRefractions(modFragment, projection, projectionInverse, viewPosition0, viewPosition1, material, coords);
             }
+
         #endif
 
         //////////////////////////////////////////////////////////

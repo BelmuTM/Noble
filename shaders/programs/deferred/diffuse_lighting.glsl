@@ -192,6 +192,7 @@
         float farPlane  = far;
 
         #if defined CHUNK_LOADER_MOD_ENABLED
+
             if (depth >= 1.0) {
                 modFragment = true;
 
@@ -208,6 +209,7 @@
                 nearPlane = modNearPlane;
                 farPlane  = modFarPlane;
             }
+            
         #endif
 
         if (depth == 1.0) { return; }

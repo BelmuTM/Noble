@@ -165,10 +165,12 @@
                 mat4 projectionInverse = gbufferProjectionInverse;
 
                 #if defined CHUNK_LOADER_MOD_ENABLED
+
                     if (modFragment) {
                         projection        = modProjection;
                         projectionInverse = modProjectionInverse;
                     }
+                    
                 #endif
 
                 vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);

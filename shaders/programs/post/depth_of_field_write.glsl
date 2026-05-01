@@ -54,6 +54,7 @@
             mat4 projectionInverse = gbufferProjectionInverse;
 
             #if defined CHUNK_LOADER_MOD_ENABLED
+
                 if (depth >= 1.0) {
                     modFragment = true;
 
@@ -65,6 +66,7 @@
 
                     projectionInverse = modProjectionInverse;
                 }
+
             #endif
 
             if (depth < handDepth) {
@@ -81,9 +83,11 @@
                 float centerDepth  = texture(depthtex0, centerCoords).r;
 
                 #if defined CHUNK_LOADER_MOD_ENABLED
+
                     if (modFragment) {
                         projectionInverse = gbufferProjectionInverse;
                     }
+                    
                 #endif
 
                 centerDepth = linearizeDepthFromInverseProjection(centerDepth, projectionInverse);

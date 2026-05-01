@@ -85,6 +85,7 @@
         mat4 projectionInverse = gbufferProjectionInverse;
 
         #if defined CHUNK_LOADER_MOD_ENABLED
+
             farPlane = modFarPlane;
 
             #if defined VOXY
@@ -105,6 +106,7 @@
                 
                 projectionInverse = modProjectionInverse;
             }
+            
         #endif
 
         vec3 viewPosition0  = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
@@ -114,6 +116,7 @@
         vec3 directIlluminanceFinal = directIlluminance;
         
         #if defined WORLD_OVERWORLD || defined WORLD_END
+
             vec3 tmp = normalize(scenePosition0 - gbufferModelViewInverse[3].xyz);
 
             #if defined WORLD_OVERWORLD
@@ -121,9 +124,12 @@
             #elif defined WORLD_END
                 float VdotL = dot(tmp, starVector);
             #endif
+
         #else
+
             directIlluminanceFinal = getBlockLightColor();
             float VdotL = 0.0;
+            
         #endif
 
         bool  sky             = depth0 == 1.0;
@@ -145,7 +151,8 @@
 
             skylight = getSkylightFalloff(unpackLightmap(dataTexture.x).y);
 
-            if (viewPosition0.z != viewPosition1.z) {
+            if (viewPosition0.z != viewPosition1.z && texture(MAIN_BUFFER, textureCoords).a < 0.99) {
+
                 //////////////////////////////////////////////////////////
                 /*---------------- FRONT TO BACK FOG -------------------*/
                 //////////////////////////////////////////////////////////
@@ -153,20 +160,27 @@
                 vec3 scenePosition1 = viewToScene(viewPosition1);
 
                 if (isEyeInWater != 1 && isWater(unpackId(dataTexture.x))) {
+
                     #if defined WORLD_OVERWORLD || defined WORLD_END
+
                         #if WATER_FOG == 0
                             computeWaterFogApproximation(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                         #else
                             computeVolumetricWaterFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight, skyTranslucents);
                         #endif
+
                     #endif
+
                 } else {
+
                     #if AIR_FOG == 1
                         computeVolumetricAirFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skyTranslucents);
                     #elif AIR_FOG == 2
-                        computeAirFogApproximation(scatteringLayer0, transmittanceLayer0, viewPosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                        computeAirFogApproximation(scatteringLayer0, transmittanceLayer0, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                     #endif
+
                 }
+
             }
         } else {
             skylight = 1.0;
@@ -177,19 +191,25 @@
         //////////////////////////////////////////////////////////
 
         if (isEyeInWater == 1) {
+
             #if defined WORLD_OVERWORLD || defined WORLD_END
+
                 #if WATER_FOG == 0
                     computeWaterFogApproximation(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                 #else
                     computeVolumetricWaterFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight, sky);
                 #endif
+
             #endif
+
         } else {
+
             #if AIR_FOG == 1
                 computeVolumetricAirFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, sky);
             #elif AIR_FOG == 2
-                computeAirFogApproximation(scatteringLayer1, transmittanceLayer1, viewPosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                computeAirFogApproximation(scatteringLayer1, transmittanceLayer1, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
             #endif
+
         }
 
         vec3 scattering    = scatteringLayer0    * transmittanceLayer1 + scatteringLayer1 * transmittanceLayer2 + scatteringLayer2;

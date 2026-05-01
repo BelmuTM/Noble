@@ -164,12 +164,14 @@
             float farPlane  = far;
 
             #if defined CHUNK_LOADER_MOD_ENABLED
+
                 if (depth >= 1.0) {
                     modFragment = true;
 
                     nearPlane = modNearPlane;
                     farPlane  = modFarPlane;
                 }
+                
             #endif
 
             ivec2 texelCoords = ivec2(gl_FragCoord.xy);

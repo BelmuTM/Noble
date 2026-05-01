@@ -61,6 +61,8 @@
         lightmapCoords = gl_MultiTexCoord1.xy * rcp240;
         vertexColor    = gl_Color;
 
+        blockId = uint((mc_Entity.x - 1000.0) + 0.25);
+
         #if defined PROGRAM_ENTITY
             // Thanks Kneemund for the nametag fix (https://github.com/Kneemund)
             if (vertexColor.a >= 0.24 && vertexColor.a < 0.255) {
@@ -77,11 +79,13 @@
 
         viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
-        tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+        bool isBillboardPlant = blockId == PLANTS_ID || blockId == DOUBLE_PLANTS_LOWER_ID || blockId == DOUBLE_PLANTS_UPPER_ID;
+
+        vec3 vertexNormal = isBillboardPlant ? vec3(0.0, 1.0, 0.0) : gl_Normal;
+
+        tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * vertexNormal);
         tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
         tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
-
-        blockId = uint((mc_Entity.x - 1000.0) + 0.25);
     
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
@@ -209,46 +213,47 @@
 
         #endif
 
-        vec4 albedoTex = texture(gtexture, coords) * vertexColor;
-        if (albedoTex.a < alphaTestThreshold) { discard; return; }
+        vec4 albedoTexture = texture(gtexture, coords) * vertexColor;
+        if (albedoTexture.a < alphaTestThreshold) { discard; return; }
 
-        vec4 normalTex = texture(normals, coords);
+        vec4 normalTexture = texture(normals, coords);
 
         #if !defined PROGRAM_TEXTURED
-            vec4 specularTex = texture(specular, coords);
+            vec4 specularTexture = texture(specular, coords);
         #else
-            vec4 specularTex = vec4(0.0);
+            vec4 specularTexture = vec4(0.0);
         #endif
 
         vec2 lightmap = lightmapCoords;
 
-        float F0 		 = specularTex.y;
-        float ao 		 = normalTex.z;
-        float roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
-        float emission   = specularTex.w * maxFloat8 < 254.5 ? specularTex.w : 0.0;
-        float subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
+        float F0 		 = specularTexture.y;
+        float ao 		 = normalTexture.z;
+        float roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTexture.x);
+        float emission   = specularTexture.w * maxFloat8 < 254.5 ? specularTexture.w : 0.0;
+        float subsurface = saturate(specularTexture.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
 
         #if WHITE_WORLD == 1
-            albedoTex.rgb = vec3(1.0);
+            albedoTexture.rgb = vec3(1.0);
         #endif
 
         #if defined PROGRAM_ENTITY
-            albedoTex.rgb = mix(albedoTex.rgb, entityColor.rgb, entityColor.a);
+            albedoTexture.rgb = mix(albedoTexture.rgb, entityColor.rgb, entityColor.a);
             
-            ao = all(lessThanEqual(normalTex.rgb, vec3(EPS))) ? 1.0 : ao;
+            ao = all(lessThanEqual(normalTexture.rgb, vec3(EPS))) ? 1.0 : ao;
         #endif
 
         #if defined PROGRAM_BEACONBEAM
-            if (albedoTex.a < 0.999) { return; }
+            if (albedoTexture.a < 0.999) { return; }
             emission   = 1.0;
             lightmap.x = 1.0;
         #endif
 
         vec3 normal = tbn[2];
+        
         #if !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 
-            if (all(greaterThan(normalTex, vec4(EPS)))) {
-                normal.xy = normalTex.xy * 2.0 - 1.0;
+            if (all(greaterThan(normalTexture, vec4(EPS)))) {
+                normal.xy = normalTexture.xy * 2.0 - 1.0;
                 normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
                 normal    = tbn * normal;
 
@@ -265,7 +270,7 @@
 
         #if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
             if (wetness > 0.0 && isEyeInWater == 0) {
-                float porosity = saturate(specularTex.z * (maxFloat8 / 64.0));
+                float porosity = saturate(specularTexture.z * (maxFloat8 / 64.0));
                 
                 rainPuddles(scenePosition, tbn[2], lightmapCoords, porosity, F0, roughness, normal);
             }
@@ -291,6 +296,7 @@
         uint id = blockId;
 
         #if defined PROGRAM_ENTITY
+
             // Handling lightning bolts, end crystal and end crystal beams
             if (entityId == 1000) id = LIGHTNING_BOLT_ID;
 
@@ -298,6 +304,7 @@
                 emission = 1.0;
                 lightmap = vec2(1.0);
             }
+
         #endif
 
         // Flickering fire-powered light sources
@@ -318,7 +325,7 @@
             ao,
             emission,
             subsurface,
-            albedoTex.rgb,
+            albedoTexture.rgb,
             encodedNormal,
             lightmap,
             parallaxSelfShadowing,

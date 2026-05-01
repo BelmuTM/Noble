@@ -70,6 +70,7 @@
             mat4 projectionPrevious = gbufferPreviousProjection;
 
             #if defined CHUNK_LOADER_MOD_ENABLED
+
                 if (depth >= 1.0) {
                     modFragment = true;
 
@@ -83,6 +84,7 @@
                     projectionInverse  = modProjectionInverse;
                     projectionPrevious = modProjectionPrevious;
                 }
+                
             #endif
 
             if (depth == 1.0) { return; }

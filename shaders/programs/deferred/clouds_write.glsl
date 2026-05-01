@@ -75,10 +75,12 @@
             mat4 projectionInverse = gbufferProjectionInverse;
 
             #if defined CHUNK_LOADER_MOD_ENABLED
+
                 if (depth >= 1.0) {
                     modFragment       = true;
                     projectionInverse = modProjectionInverse;
                 }
+                
             #endif
 
             #if CLOUDMAP == 1

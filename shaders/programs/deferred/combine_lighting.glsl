@@ -71,6 +71,7 @@
         mat4 projectionInverse = gbufferProjectionInverse;
 
         #if defined CHUNK_LOADER_MOD_ENABLED
+
             if (depth >= 1.0) {
                 #if defined VOXY
                     depth = texture(modDepthTex0, textureCoords).r;
@@ -80,6 +81,7 @@
 
                 projectionInverse = modProjectionInverse;
             }
+            
         #endif
 
         vec3 screenPosition = vec3(vertexCoords, depth);

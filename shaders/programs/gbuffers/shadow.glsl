@@ -92,16 +92,16 @@
     #endif
 
     void main() {
-        vec4 albedoTex = texture(gtexture, textureCoords);
-        albedoTex.rgb *= vertexColor.rgb;
+        vec4 albedoTexture = texture(gtexture, textureCoords);
+        albedoTexture.rgb *= vertexColor.rgb;
 
-        if (albedoTex.a < alphaTestThreshold) { discard; return; }
+        if (albedoTexture.a < alphaTestThreshold) { discard; return; }
 
         #if WHITE_WORLD == 1
-            albedoTex.rgb = vec3(1.0);
+            albedoTexture.rgb = vec3(1.0);
         #endif
 
-        shadowmap = albedoTex;
+        shadowmap = albedoTexture;
 
         if (blockId == WATER_ID) {
             shadowmap.rgb = vec3(1.0);

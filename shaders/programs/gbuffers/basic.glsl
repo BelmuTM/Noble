@@ -66,10 +66,10 @@
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
-        vec4 albedoTex = texture(gtexture, textureCoords);
+        vec4 albedoTexture = texture(gtexture, textureCoords);
 
         #if defined PROGRAM_ARMOR_GLINT
-            color = vec4(albedoTex.rgb, 0.0);
+            color = vec4(albedoTexture.rgb, 0.0);
 
             if (gl_FragDepth < handDepth) {
                 color.a = 0.02;
@@ -77,16 +77,16 @@
             
         #elif defined PROGRAM_DAMAGED_BLOCK
 
-            if (albedoTex.a < alphaTestThreshold) { discard; return; }
+            if (albedoTexture.a < alphaTestThreshold) { discard; return; }
 
-            color = vec4(albedoTex.rgb, 0.1);
+            color = vec4(albedoTexture.rgb, 0.1);
 
         #else
-            if (albedoTex.a < alphaTestThreshold) { discard; return; }
+            if (albedoTexture.a < alphaTestThreshold) { discard; return; }
 
-            albedoTex.rgb *= vertexColor.rgb;
+            albedoTexture.rgb *= vertexColor.rgb;
 
-            color = albedoTex;
+            color = albedoTexture;
         #endif
     }
     

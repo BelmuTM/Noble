@@ -175,7 +175,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
         float NdotL          = dot(geometricNormal, shadowLightVectorWorld);
 
         // Shadow bias implementation from Emin and concept from gri573
-        float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.35;
+        float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.1;
         shadowPosition  += mat3(shadowProjection) * (mat3(shadowModelView) * geometricNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
         shadowPosition  *= 1.0002;
 

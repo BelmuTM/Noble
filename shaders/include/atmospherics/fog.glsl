@@ -82,7 +82,16 @@ float calculateAirFogPhase(float cosTheta) {
 
 #if AIR_FOG == 2
 
-    void computeAirFogApproximation(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 viewPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
+    void computeAirFogApproximation(
+        out vec3 scatteringOut,
+        out vec3 transmittanceOut,
+        vec3 viewPosition,
+        float farPlane,
+        float VdotL,
+        vec3 directIlluminance,
+        vec3 skyIlluminance,
+        float skylight
+    ) {
         float airmassFog = quinticStep(0.0, far, length(viewPosition.xz)) * fogDensity * densityMult;
 
         vec3 transmittanceFog = exp(-airFogAttenuationCoefficients * airmassFog * 10.0);
@@ -95,11 +104,6 @@ float calculateAirFogPhase(float cosTheta) {
         vec3 transmittanceAerial = vec3(1.0);
 
         #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
-            float farPlane = far;
-
-            #if defined CHUNK_LOADER_MOD_ENABLED
-                farPlane = modFarPlane;
-            #endif
 
             float airmassAerial      = quinticStep(0.0, farPlane, length(viewPosition.xz)) * aerialPerspectiveMult * AERIAL_PERSPECTIVE_DENSITY;
             vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
@@ -112,6 +116,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             scatteringAerial  = atmosphereScatteringCoefficients * vec2(phaseAerial * airmassAerial) * visibleScatteringAerial;
             scatteringAerial *= directIlluminance * skyIlluminance * eyeBrightness.y * rcp240;
+
         #endif
         
         scatteringOut    = scatteringFog    + scatteringAerial;
@@ -186,7 +191,18 @@ float calculateAirFogPhase(float cosTheta) {
         return exp(-airFogExtinctionCoefficient * accumAirmass);
     }
 
-    void computeVolumetricAirFog(inout vec3 scatteringOut, inout vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, vec3 viewPosition, float farPlane, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, bool sky) {
+    void computeVolumetricAirFog(
+        inout vec3 scatteringOut,
+        inout vec3 transmittanceOut,
+        vec3 startPosition,
+        vec3 endPosition,
+        vec3 viewPosition,
+        float farPlane,
+        float VdotL,
+        vec3 directIlluminance,
+        vec3 skyIlluminance,
+        bool sky
+    ) {
         #if defined WORLD_NETHER && NETHER_FOG == 0
             return;
         #endif
@@ -293,7 +309,16 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
 
 #if WATER_FOG == 0
 
-    void computeWaterFogApproximation(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight) {
+    void computeWaterFogApproximation(
+        out vec3 scatteringOut,
+        out vec3 transmittanceOut,
+        vec3 startPosition,
+        vec3 endPosition,
+        float VdotL,
+        vec3 directIlluminance,
+        vec3 skyIlluminance,
+        float skylight
+    ) {
         transmittanceOut = exp(-waterAbsorptionCoefficients * distance(startPosition, endPosition));
 
         scatteringOut  = skyIlluminance    * isotropicPhase * skylight;
@@ -303,7 +328,18 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
 
 #else
 
-    void computeVolumetricWaterFog(out vec3 scatteringOut, out vec3 transmittanceOut, vec3 startPosition, vec3 endPosition, float farPlane, float VdotL, vec3 directIlluminance, vec3 skyIlluminance, float skylight, bool sky) {
+    void computeVolumetricWaterFog(
+        out vec3 scatteringOut,
+        out vec3 transmittanceOut,
+        vec3 startPosition,
+        vec3 endPosition,
+        float farPlane,
+        float VdotL,
+        vec3 directIlluminance,
+        vec3 skyIlluminance,
+        float skylight,
+        bool sky
+    ) {
         const float stepSize = 1.0 / WATER_FOG_STEPS;
 
         vec3 worldIncrement = (endPosition - startPosition) * stepSize;

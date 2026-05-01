@@ -50,7 +50,7 @@
     uniform float rcp240;
 
     void main() {
-        #if defined PROGRAM_HAND && DISCARD_HAND == 1
+        #if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
             gl_Position = vec4(1.0);
             return;
         #endif
@@ -112,6 +112,11 @@
     uniform sampler2D normals;
     uniform sampler2D specular;
 
+    #if defined PROGRAM_ENTITY
+        uniform int entityId;
+        uniform vec4 entityColor;
+    #endif
+
     void main() {
         translucents = vec4(0.0);
 
@@ -120,24 +125,26 @@
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
-        #if defined PROGRAM_HAND && DISCARD_HAND == 1
+        #if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
             return;
         #endif
 
-        vec4 albedoTex = texture(gtexture, textureCoords);
-        if (albedoTex.a < alphaTestThreshold) { discard; return; }
+        vec4 albedoTexture = texture(gtexture, textureCoords);
+        if (albedoTexture.a < alphaTestThreshold) { discard; return; }
 
-        vec4 normalTex   = vec4(0.0);
-        vec4 specularTex = vec4(0.0);
+        vec4 normalTexture   = vec4(0.0);
+        vec4 specularTexture = vec4(0.0);
 
         #if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT
-            normalTex   = texture(normals,  textureCoords);
-            specularTex = texture(specular, textureCoords);
+            normalTexture   = texture(normals,  textureCoords);
+            specularTexture = texture(specular, textureCoords);
         #endif
 
-        albedoTex *= vertexColor;
+        albedoTexture *= vertexColor;
 
         Material material;
+
+        material.id = blockId;
 
         material.lightmap = lightmapCoords;
 
@@ -154,7 +161,7 @@
             material.ao         = 1.0;
             material.emission   = 0.0;
             material.subsurface = 0.0;
-            albedoTex.rgb       = shadowmap.rgb;
+            albedoTexture.rgb       = shadowmap.rgb;
 
             vec3 scenePositionWater = scenePosition + cameraPosition;
 
@@ -175,18 +182,36 @@
                 material.emission   = 0.0;
                 material.subsurface = 0.0;
             #else
-                material.F0         = specularTex.y;
-                material.alpha      = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTex.x);
-                material.ao         = normalTex.z;
-                material.emission   = specularTex.w * maxFloat8 < 254.5 ? specularTex.w : 0.0;
-                material.subsurface = saturate(specularTex.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
+                material.F0         = specularTexture.y;
+                material.alpha      = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTexture.x);
+                material.ao         = normalTexture.z;
+                material.emission   = specularTexture.w * maxFloat8 < 254.5 ? specularTexture.w : 0.0;
+                material.subsurface = saturate(specularTexture.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
             #endif
 
-            if (blockId == NETHER_PORTAL_ID) {
-                material.emission = 1.0;
-            }
+            #if defined PROGRAM_ENTITY
 
-            material.albedo = albedoTex.rgb;
+                albedoTexture.rgb = mix(albedoTexture.rgb, entityColor.rgb, entityColor.a);
+                
+                material.ao = all(lessThanEqual(normalTexture.rgb, vec3(EPS))) ? 1.0 : material.ao;
+        
+                // Handling lightning bolts, end crystal and end crystal beams
+                if (entityId == 1000) material.id = LIGHTNING_BOLT_ID;
+
+                if (entityId == 1001 || entityId == 1002) {
+                    material.emission = 1.0;
+                    material.lightmap = vec2(1.0);
+                }
+
+            #else
+
+                if (blockId == NETHER_PORTAL_ID) {
+                    material.emission = 1.0;
+                }
+
+            #endif
+
+            material.albedo = albedoTexture.rgb;
 
             #if WHITE_WORLD == 1
                 material.albedo = vec3(1.0);
@@ -194,8 +219,8 @@
 
             material.normal = tbn[2];
 
-            if (all(greaterThan(normalTex, vec4(EPS)))) {
-                material.normal.xy = normalTex.xy * 2.0 - 1.0;
+            if (all(greaterThan(normalTexture, vec4(EPS)))) {
+                material.normal.xy = normalTexture.xy * 2.0 - 1.0;
                 material.normal.z  = sqrt(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
                 material.normal    = tbn * material.normal;
             }
@@ -261,7 +286,7 @@
 
                 translucents.rgb = max0(log2(translucents.rgb + 1.0));
 
-                translucents.a = albedoTex.a;
+                translucents.a = albedoTexture.a;
             }
         }
 
@@ -273,7 +298,7 @@
             material.ao,
             material.emission,
             material.subsurface,
-            albedoTex.rgb,
+            albedoTexture.rgb,
             encodedNormal,
             material.lightmap,
             1.0,

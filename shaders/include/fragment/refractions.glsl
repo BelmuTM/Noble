@@ -101,6 +101,7 @@ vec3 computeRefractions(
     float farPlane  = far;
 
     #if defined CHUNK_LOADER_MOD_ENABLED
+
         if (depth0 >= 1.0) {
             depth0 = texture(modDepthTex0, refractedPosition.xy).r;
             depth1 = texture(modDepthTex1, refractedPosition.xy).r;
@@ -108,6 +109,7 @@ vec3 computeRefractions(
             nearPlane = modNearPlane;
             farPlane  = modFarPlane;
         }
+        
     #endif
         
     if (!hit || depth1 < depth0 || depth1 - depth0 < EPS || depth1 < handDepth) {
