@@ -21,7 +21,7 @@
 uniform vec3 upPosition;
 
 float computeStarfield(vec3 viewPosition, vec3 lightVector) {
-    vec3 sceneDirection = normalize(viewToScene(viewPosition));
+    vec3 sceneDirection = normalize(viewToWorld(viewPosition));
          sceneDirection = rotate(sceneDirection, lightVector, vec3(0.0, 0.0, 1.0));
 
     vec3  position = sceneDirection * STARS_SCALE;
@@ -99,7 +99,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
     #if defined WORLD_OVERWORLD || defined WORLD_END
         float jitter = interleavedGradientNoise(gl_FragCoord.xy);
 
-        vec3 sceneDirection = normalize(viewToScene(viewPosition));
+        vec3 sceneDirection = normalize(viewToWorld(viewPosition));
         vec3 sky            = sampleAtmosphere(sceneDirection, true, true);
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
@@ -128,7 +128,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 }
 
 vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
-    vec3 sceneDirection = normalize(viewToScene(viewPosition));
+    vec3 sceneDirection = normalize(viewToWorld(viewPosition));
 
     float cloudsTransmittance = 1.0;
 

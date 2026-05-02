@@ -64,6 +64,22 @@ vec3 distortShadowSpace(vec3 position) {
     return position;
 }
 
+vec3 worldToShadowClip(vec3 worldPosition) {
+    return projectOrthogonal(shadowProjection, transform(shadowModelView, worldPosition));
+}
+
+vec3 worldToShadowScreen(vec3 worldPosition) {
+    return distortShadowSpace(worldToShadowClip(worldPosition)) * 0.5 + 0.5;
+}
+
+vec2 shadowClipToShadowScreen(vec2 shadowClipCoords) {
+    return distortShadowSpace(shadowClipCoords) * 0.5 + 0.5;
+}
+
+vec3 shadowClipToShadowScreen(vec3 shadowClipPosition) {
+    return distortShadowSpace(shadowClipPosition) * 0.5 + 0.5;
+}
+
 //////////////////////////////////////////////////////////
 /*------------------- CLOUDS SHADOWS -------------------*/
 //////////////////////////////////////////////////////////
@@ -110,11 +126,11 @@ vec3 viewToScreen(vec3 viewPosition, mat4 projection, bool unjitter) {
     return ndcPosition * 0.5 + 0.5;
 }
 
-vec3 sceneToView(vec3 scenePosition) {
-    return transform(gbufferModelView, scenePosition);
+vec3 worldToView(vec3 worldPosition) {
+    return transform(gbufferModelView, worldPosition);
 }
 
-vec3 viewToScene(vec3 viewPosition) {
+vec3 viewToWorld(vec3 viewPosition) {
     return transform(gbufferModelViewInverse, viewPosition);
 }
 
@@ -140,7 +156,7 @@ float linearizeDepthFromInverseProjection(float depth, mat4 projectionInverse) {
 vec3 getVelocity(vec3 currPosition, mat4 projectionInverse, mat4 projectionPrevious) {
     vec3 cameraOffset = (cameraPosition - previousCameraPosition) * float(currPosition.z >= handDepth);
 
-    vec3 prevPosition = transform(gbufferPreviousModelView, cameraOffset + viewToScene(screenToView(currPosition, projectionInverse, false)));
+    vec3 prevPosition = transform(gbufferPreviousModelView, cameraOffset + viewToWorld(screenToView(currPosition, projectionInverse, false)));
          prevPosition = (projectOrthogonal(projectionPrevious, prevPosition) / -prevPosition.z) * 0.5 + 0.5;
 
     return prevPosition - currPosition;

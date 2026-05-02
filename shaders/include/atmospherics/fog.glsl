@@ -217,8 +217,8 @@ float calculateAirFogPhase(float cosTheta) {
         vec3 rayPosition  = startPosition + increment * dither;
              rayPosition += cameraPosition;
 
-        vec3 shadowStartPosition = worldToShadow(startPosition);
-        vec3 shadowIncrement     = (worldToShadow(endPosition) - shadowStartPosition) * stepSize;
+        vec3 shadowStartPosition = worldToShadowClip(startPosition);
+        vec3 shadowIncrement     = (worldToShadowClip(endPosition) - shadowStartPosition) * stepSize;
         vec3 shadowPosition      = shadowStartPosition + shadowIncrement * dither;
 
         float rayLength = length(increment);
@@ -236,7 +236,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             #if defined WORLD_OVERWORLD
                 if ((i & 3u) == 0u) {
-                    shadow = getShadowColor(distortShadowSpace(shadowPosition) * 0.5 + 0.5);
+                    shadow = getShadowColor(shadowClipToShadowScreen(shadowPosition));
                 }
 
                 #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
@@ -348,7 +348,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
 
         vec3 shadowIncrement = mat3(shadowModelView)       * worldIncrement;
              shadowIncrement = diagonal3(shadowProjection) * shadowIncrement;
-        vec3 shadowPosition  = worldToShadow(worldPosition - cameraPosition);
+        vec3 shadowPosition  = worldToShadowClip(worldPosition - cameraPosition);
 
         float rayLength = sky ? farPlane : length(worldIncrement);
 
@@ -367,7 +367,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
             // Early exit if transmittance is too low
             if (maxOf(transmittanceOut) < EPS) break;
 
-            vec3 shadowScreenPosition = distortShadowSpace(shadowPosition) * 0.5 + 0.5;
+            vec3 shadowScreenPosition = shadowClipToShadowScreen(shadowPosition);
 
             float shadowDepth0 = texture(shadowtex0, shadowScreenPosition.xy).r;
 

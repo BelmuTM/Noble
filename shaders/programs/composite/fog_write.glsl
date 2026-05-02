@@ -111,7 +111,7 @@
 
         vec3 viewPosition0  = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
         vec3 viewPosition1  = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
-        vec3 scenePosition0 = viewToScene(viewPosition0);
+        vec3 scenePosition0 = viewToWorld(viewPosition0);
 
         vec3 directIlluminanceFinal = directIlluminance;
         
@@ -157,7 +157,7 @@
                 /*---------------- FRONT TO BACK FOG -------------------*/
                 //////////////////////////////////////////////////////////
 
-                vec3 scenePosition1 = viewToScene(viewPosition1);
+                vec3 scenePosition1 = viewToWorld(viewPosition1);
 
                 if (isEyeInWater != 1 && isWater(unpackId(dataTexture.x))) {
 

@@ -244,9 +244,9 @@
 
                 #if GI == 0
 
-                    float linearPrevDepth = linearizeDepth(prevDepth     , nearPlane, farPlane);
+                    float linearPrevDepth = linearizeDepth(prevDepth, nearPlane, farPlane);
 
-                    vec3 prevScenePosition = viewToScene(screenToView(prevPosition, projectionInverse, false));
+                    vec3 prevScenePosition = viewToWorld(screenToView(prevPosition, projectionInverse, false));
                     bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
 
                     float depthWeight = pow(exp(-abs(linearDepth - linearPrevDepth)), 2.0);
@@ -288,7 +288,7 @@
         vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
         #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-            cloudsShadows = getCloudsShadows(viewToScene(viewPosition));
+            cloudsShadows = getCloudsShadows(viewToWorld(viewPosition));
         #endif
 
         #if SHADOWS > 0
@@ -307,7 +307,7 @@
 
         #else
 
-            if (length(viewToScene(viewPosition)) > GI_RENDER_DISTANCE) {
+            if (length(viewToWorld(viewPosition)) > GI_RENDER_DISTANCE) {
                 color.rgb = computeDiffuse(viewPosition, shadowLightVector, material, isMetal, shadowmap, directIlluminance, skyIlluminance, 1.0, cloudsShadows);
                 return;
             }

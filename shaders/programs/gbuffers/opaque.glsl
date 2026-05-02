@@ -74,16 +74,18 @@
         #endif
 
         #if POM > 0 && defined PROGRAM_TERRAIN
+
             vec2 halfSize = abs(textureCoords - mc_midTexCoord);
             texSize       = halfSize * 2.0;
             botLeft       = mc_midTexCoord - halfSize;
+
         #endif
 
         viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
         bool isBillboardPlant = blockId == PLANTS_ID || blockId == DOUBLE_PLANTS_LOWER_ID || blockId == DOUBLE_PLANTS_UPPER_ID;
 
-        vec3 vertexNormal = isBillboardPlant ? vec3(0.0, 1.0, 0.0) : gl_Normal;
+        vec3 vertexNormal = gl_Normal;
 
         tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * vertexNormal);
         tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
@@ -92,7 +94,9 @@
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
         #if RENDER_MODE == 0 && defined PROGRAM_TERRAIN && WAVING_PLANTS == 1
+
             animate(scenePosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
+
         #endif
 
         gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
@@ -129,6 +133,7 @@
     uniform sampler2D specular;
 
     #if defined PROGRAM_TERRAIN
+
         #if POM > 0
             #include "/include/fragment/parallax.glsl"
         #endif
@@ -136,6 +141,7 @@
         #if RAIN_PUDDLES == 1
             #include "/include/material/puddles.glsl"
         #endif
+        
     #endif
 
     #if defined PROGRAM_ENTITY

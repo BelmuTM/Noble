@@ -176,7 +176,7 @@
                 vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
                 vec3 screenPosition  = vec3(textureCoords, depth);
                 vec3 viewPosition    = screenToView(screenPosition, projectionInverse, true);
-                vec3 scenePosition   = viewToScene(viewPosition);
+                vec3 scenePosition   = viewToWorld(viewPosition);
 
                 vec3 shadowmapResult = calculateShadowMapping(scenePosition, geometricNormal, depth, shadowmap.a);
 

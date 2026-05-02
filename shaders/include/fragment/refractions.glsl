@@ -82,12 +82,12 @@ vec3 computeRefractions(
 
         refractedDirection = mat3(gbufferModelViewInverse) * refractedDirection;
 
-        vec3 scenePosition0 = viewToScene(viewPosition0);
-        vec3 scenePosition1 = viewToScene(viewPosition1);
+        vec3 scenePosition0 = viewToWorld(viewPosition0);
+        vec3 scenePosition1 = viewToWorld(viewPosition1);
 
         float refractedDistance = distance(scenePosition0, scenePosition1);
 
-        refractedPosition = viewToScreen(sceneToView(scenePosition0 + refractedDirection * refractedDistance), projection, true);
+        refractedPosition = viewToScreen(worldToView(scenePosition0 + refractedDirection * refractedDistance), projection, true);
 
     #endif
 

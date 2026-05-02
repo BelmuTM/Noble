@@ -80,7 +80,7 @@ vec2 atlasToLocal(vec2 atlasCoords) {
 #endif
 
 vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out vec2 shadowCoords, out float traceDistance) {
-    vec3 tangentDirection = normalize(viewToScene(viewPosition)) * tbn;
+    vec3 tangentDirection = normalize(viewToWorld(viewPosition)) * tbn;
     traceDistance = 0.0;
 
     vec2 increment = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize * layerHeight;

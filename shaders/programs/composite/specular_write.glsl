@@ -101,6 +101,8 @@ void main() {
     // Terrain Fragments
     if (depth0 < 1.0) {
 
+        bool isOpaque = abs(depth0 - depth1) < 1e-6;
+
         Material material = getMaterial(vertexCoords);
 
         if (material.F0 * maxFloat8 <= labPBRMetals) {
@@ -136,23 +138,35 @@ void main() {
         //////////////////////////////////////////////////////////
 
         #if SPECULAR == 1
+
             vec3 visibility = vec3(1.0);
 
-            if (!modFragment) {
-                visibility = texture(SHADOWMAP_BUFFER, max(coords.xy, texelSize)).rgb;
+            vec3 scenePosition0 = viewToWorld(viewPosition0);
 
-                if (material.id == WATER_ID) {
-                    visibility = material.albedo;
-                }
-            }
+            #if defined WORLD_OVERWORLD
 
-            #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                visibility *= getCloudsShadows(viewToScene(viewPosition0));
+                #if SHADOWS > 0
+
+                    if (!modFragment) {
+                        if (isOpaque) {
+                            visibility = texture(SHADOWMAP_BUFFER, max(coords.xy, texelSize)).rgb;
+                        } else {
+                            visibility = vec3(shadowVisibility(shadowtex0, worldToShadowScreen(scenePosition0) - vec3(0.0, 0.0, 1e-3)));
+                        }
+                    }
+
+                #endif
+
+                #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+                    visibility *= getCloudsShadows(scenePosition0);
+                #endif
+
             #endif
 
-            if (visibility != vec3(0.0) && material.F0 > EPS) {
+            if (any(greaterThan(visibility, vec3(EPS))) && material.F0 > EPS) {
                 sunSpecular = computeSpecular(-normalize(viewPosition0), shadowLightVector, material.normal, material.N, material.K, material.alpha) * directIlluminance;
             }
+
         #endif
 
         #if REFLECTIONS > 0

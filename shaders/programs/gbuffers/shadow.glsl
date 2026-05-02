@@ -52,10 +52,14 @@
         worldPosition = transform(shadowModelViewInverse, (gl_ModelViewMatrix * gl_Vertex).xyz);
 
         #if RENDER_MODE == 0 && WAVING_PLANTS == 1
+
             animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(gl_MultiTexCoord1.y * rcp240));
             gl_Position = project(gl_ProjectionMatrix, transform(shadowModelView, worldPosition));
+
         #else
+
             gl_Position = ftransform();
+            
         #endif
 
         worldPosition  += cameraPosition;
