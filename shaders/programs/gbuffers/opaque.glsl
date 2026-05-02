@@ -85,7 +85,7 @@
 
         bool isBillboardPlant = blockId == PLANTS_ID || blockId == DOUBLE_PLANTS_LOWER_ID || blockId == DOUBLE_PLANTS_UPPER_ID;
 
-        vec3 vertexNormal = gl_Normal;
+        vec3 vertexNormal = isBillboardPlant ? vec3(0.0, 1.0, 0.0) : gl_Normal;
 
         tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * vertexNormal);
         tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
