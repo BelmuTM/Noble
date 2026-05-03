@@ -94,7 +94,7 @@ vec3 hammonDiffuse(vec3 viewDirection, vec3 lightDirection, vec3 albedo, vec3 no
     float NdotH  = dot(normal, halfway);
 
     float facing    = 0.5 + 0.5 * VdotL;
-    float roughSurf = facing * (0.9 - 0.4 * facing) * (fastInvSqrtN1(NdotH * NdotH + EPS) + 2.0);
+    float roughSurf = facing * (0.9 - 0.4 * facing) * (fastInvSqrtN1(NdotH * NdotH + 1e-2) + 2.0);
 
     vec3 energyConservationFactor = vec3(1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * rcp(9.0));
 
@@ -264,6 +264,7 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
 
     float NdotH = NdotV + newNdotL;
     float HdotH = 2.0 * newVdotL + 2.0;
+    
     return saturate(NdotH * NdotH / HdotH);
 }
 
