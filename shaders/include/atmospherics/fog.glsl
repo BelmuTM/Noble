@@ -150,7 +150,7 @@ float calculateAirFogPhase(float cosTheta) {
             //fogShapeFactors = mix(vec2(2.5, 0.6), fogShapeFactors, sqrt(quinticStep(0.0, 1.0, min(125.0, position.y) / 125.0)));
         #endif
         
-        vec4  shapeTex   = texture(depthtex2, position * FOG_SHAPE_SCALE * 1e-3);
+        vec4  shapeTex   = texture(depthtex2, position * FOG_SHAPE_SCALE * km_to_m);
         float shapeNoise = remap(pow(shapeTex.r, 1.4), -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
               shapeNoise = (shapeNoise * shapeAlter - (2.0 * shapeAlter * altitude * 0.5 + 0.5)) * fogShapeFactors.x - fogShapeFactors.y;
 

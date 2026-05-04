@@ -38,7 +38,7 @@
     out vec3 vertexNormal;
     out vec3 scenePosition;
     out vec4 vertexColor;
-    out vec3 directIlluminance;
+    flat out vec3 directIlluminance;
     out mat3[2] skyIlluminanceMat;
 
     void main() {
@@ -80,7 +80,7 @@
     in vec3 vertexNormal;
     in vec3 scenePosition;
     in vec4 vertexColor;
-    in vec3 directIlluminance;
+    flat in vec3 directIlluminance;
     in mat3[2] skyIlluminanceMat;
 
     #include "/include/utility/rng.glsl"

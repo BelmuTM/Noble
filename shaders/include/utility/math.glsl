@@ -43,6 +43,10 @@ const float TAU     = PI * 2.0;
 const float GOLDEN_ANGLE = PI * (3.0 - sqrt(5.0));
 const float GOLDEN_RATIO = sqrt(5.0) * 0.5 + 0.5;
 
+const float km_to_m = 1e-3;
+
+const float degrees_to_radians = 0.01745329251994;
+
 //////////////////////////////////////////////////////////
 /*--------------------- FAST MATH ----------------------*/
 //////////////////////////////////////////////////////////

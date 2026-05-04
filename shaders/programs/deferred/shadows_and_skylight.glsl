@@ -36,13 +36,13 @@
 
     out vec2 textureCoords;
     out vec2 vertexCoords;
-    out vec3 directIlluminance;
+    flat out vec3 directIlluminance;
 
     #if GI == 0
-        out vec3[9] skyIrradiance;
+        flat out vec3[9] skyIrradiance;
     #endif
 
-    out vec3 uniformSkyIlluminance;
+    flat out vec3 uniformSkyIlluminance;
 
     void main() {
         gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
@@ -71,13 +71,13 @@
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
-    in vec3 directIlluminance;
+    flat in vec3 directIlluminance;
 
     #if GI == 0
-        in vec3[9] skyIrradiance;
+        flat in vec3[9] skyIrradiance;
     #endif
 
-    in vec3 uniformSkyIlluminance;
+    flat in vec3 uniformSkyIlluminance;
 
     #if defined WORLD_OVERWORLD && SHADOWS > 0
         #include "/include/fragment/shadows.glsl"

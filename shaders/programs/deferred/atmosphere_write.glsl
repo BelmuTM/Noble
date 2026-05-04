@@ -32,7 +32,7 @@
     #if defined STAGE_VERTEX
 
         out vec2 textureCoords;
-        out vec3 skyIlluminance;
+        flat out vec3 skyIlluminance;
 
         void main() {
             gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
@@ -48,7 +48,7 @@
         layout (location = 0) out vec3 sky;
 
         in vec2 textureCoords;
-        in vec3 skyIlluminance;
+        flat in vec3 skyIlluminance;
 
         void main() {
             vec3 skyRay = normalize(unprojectSphere(textureCoords));

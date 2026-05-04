@@ -30,8 +30,8 @@
         out vec2 textureCoords;
         out vec2 vertexCoords;
         
-        out vec3 directIlluminance;
-        out vec3 skyIlluminance;
+        flat out vec3 directIlluminance;
+        flat out vec3 skyIlluminance;
 
         uniform sampler2D colortex5;
 
@@ -56,8 +56,8 @@
         in vec2 textureCoords;
         in vec2 vertexCoords;
 
-        in vec3 directIlluminance;
-        in vec3 skyIlluminance;
+        flat in vec3 directIlluminance;
+        flat in vec3 skyIlluminance;
 
         #include "/include/common.glsl"
 

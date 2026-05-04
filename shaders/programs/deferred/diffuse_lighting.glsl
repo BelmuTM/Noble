@@ -27,7 +27,7 @@
 
     out vec2 textureCoords;
     out vec2 vertexCoords;
-    out vec3 directIlluminance;
+    flat out vec3 directIlluminance;
 
     void main() {
         gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
@@ -49,7 +49,7 @@
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
-    in vec3 directIlluminance;
+    flat in vec3 directIlluminance;
 
     #include "/include/utility/rng.glsl"
 

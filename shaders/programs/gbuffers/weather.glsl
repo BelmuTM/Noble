@@ -28,7 +28,7 @@
 #if defined STAGE_VERTEX
 
     out vec2 textureCoords;
-    out vec3 skyIlluminance;
+    flat out vec3 skyIlluminance;
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
         #include "/include/utility/phase.glsl"
@@ -67,7 +67,7 @@
     layout (location = 0) out vec4 color;
 
     in vec2 textureCoords;
-    in vec3 skyIlluminance;
+    flat in vec3 skyIlluminance;
 
     uniform sampler2D gtexture;
 

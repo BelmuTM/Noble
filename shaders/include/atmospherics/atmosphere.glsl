@@ -32,8 +32,8 @@
 */
 
 vec3 getAtmosphereDensities(float centerDist) {
-    float altitudeKm = (centerDist - planetRadius) * 1e-3;
-    vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * 1e-3));
+    float altitudeKm = (centerDist - planetRadius) * km_to_m;
+    vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * km_to_m));
 
     // Ozone approximation from Jessie
     float o1 = 25.0 *     exp(( 0.0 - altitudeKm) * rcp(  8.0));
@@ -98,8 +98,8 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
                 vec3 airmass          = getAtmosphereDensities(length(rayPosition)) * stepSize;
                 vec3 stepOpticalDepth = atmosphereAttenuationCoefficients * airmass;
             #elif defined WORLD_END
-                float altitudeKm       = (length(rayPosition) - planetRadius) * 1e-3;
-                vec3  airmass          = exp(altitudeKm / -(vec3(scaleHeights, 5e3) * 1e-3)) * stepSize;
+                float altitudeKm       = (length(rayPosition) - planetRadius) * km_to_m;
+                vec3  airmass          = exp(altitudeKm / -(vec3(scaleHeights, 5e3) * km_to_m)) * stepSize;
                 vec3  stepOpticalDepth = atmosphereAttenuationCoefficientsEnd * airmass;
             #endif
 
@@ -160,7 +160,7 @@ vec3 evaluateDirectIlluminance() {
 
         #if !defined IS_IRIS
             // Sun position code from builderb0y
-            const vec2 sunRotationData = vec2(cos(sunPathRotation * 0.01745329251994), -sin(sunPathRotation * 0.01745329251994));
+            const vec2 sunRotationData = vec2(cos(sunPathRotation * degrees_to_radians), -sin(sunPathRotation * degrees_to_radians));
 
             float angle = fract(worldTime / 24000.0 - 0.25);
                   angle = (angle + (cos(angle * PI) * -0.5 + 0.5 - angle) / 3.0) * TAU;

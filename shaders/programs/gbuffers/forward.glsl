@@ -42,7 +42,7 @@
     out vec2 textureCoords;
     out vec2 lightmapCoords;
     out vec3 scenePosition;
-    out vec3 directIlluminance;
+    flat out vec3 directIlluminance;
     out vec4 vertexColor;
     out mat3[2] skyIlluminanceMat;
     out mat3 tbn;
@@ -93,7 +93,7 @@
     in vec2 textureCoords;
     in vec2 lightmapCoords;
     in vec3 scenePosition;
-    in vec3 directIlluminance;
+    flat in vec3 directIlluminance;
     in vec4 vertexColor;
     in mat3[2] skyIlluminanceMat;
     in mat3 tbn;
