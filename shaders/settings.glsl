@@ -432,6 +432,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define EXPOSURE_IGNORE_BRIGHT 0.05
 
 #if EXPOSURE == 2
+
     #define HISTOGRAM_BINS 80
 
     // Logarithmic scale
@@ -441,6 +442,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
     const float rcpLogLuminanceRange = 1.0 / logLuminanceRange;
 
     const vec2 debugHistogramSize = vec2(370, 208);
+
 #endif
 
 #define FOCAL          24 // [1 2 5 10 14 20 24 28 35 50 70 80 85 100 135 200 300 400 500 600]

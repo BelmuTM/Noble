@@ -38,8 +38,10 @@
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
+
             directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb;
             skyIlluminance    = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 1), 0).rgb;
+            
         #endif
     }
 

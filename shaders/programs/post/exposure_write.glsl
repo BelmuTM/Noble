@@ -32,11 +32,11 @@
     flat out float avgLuminance;
     out vec2 textureCoords;
 
-    #if MANUAL_CAMERA == 0 && DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         flat out vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
     #endif
 
-    #if MANUAL_CAMERA == 0 && EXPOSURE == 2
+    #if EXPOSURE == 2
 
         ivec2 tiles    = ivec2(floor(32.0 * vec2(1.0, aspectRatio)));
         vec2  tileSize = 1.0 / tiles;
@@ -113,7 +113,7 @@
         gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
         textureCoords = gl_Vertex.xy;
 
-        #if MANUAL_CAMERA == 0 && EXPOSURE > 0
+        #if EXPOSURE > 0
 
             #if EXPOSURE == 1
                 avgLuminance = luminance(texture(IRRADIANCE_BUFFER, vec2(0.25)).rgb);
@@ -145,7 +145,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    #if MANUAL_CAMERA == 0 && DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
 
         /* RENDERTARGETS: 8 */
 
@@ -178,7 +178,7 @@
             history.rgb  = reinhard(history.rgb);
         #endif
 
-        #if MANUAL_CAMERA == 0 && EXPOSURE > 0
+        #if EXPOSURE > 0
             history.a = avgLuminance;
 
             #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2

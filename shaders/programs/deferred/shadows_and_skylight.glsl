@@ -123,6 +123,7 @@
         vec3 skyIlluminance = vec3(0.0);
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
+        
             bool receivesSkylight = true;
 
             #if defined WORLD_OVERWORLD
@@ -130,18 +131,21 @@
             #endif
 
             if (receivesSkylight) {
+
                 #if GI == 0 && AO > 0
                     vec3 aoBuffer = texture(AO_BUFFER, vertexCoords).rgb;
 
                     vec4 ao;
-                    ao.xyz = decodeUnitVector(aoBuffer.xy);
+                    ao.xyz = max0(decodeUnitVector(aoBuffer.xy));
                     ao.w   = aoBuffer.z;
 
-                    skyIlluminance = max0(evaluateDirectionalSkyIrradiance(skyIrradiance, max0(ao.xyz), ao.w));
+                    skyIlluminance = evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w);
                 #else
                     skyIlluminance = vec3(luminance(uniformSkyIlluminance));
                 #endif
+
             }
+
         #endif
 
         if (ivec2(gl_FragCoord.xy) == ivec2(0, 0))

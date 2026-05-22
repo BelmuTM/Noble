@@ -342,5 +342,5 @@ vec3 evaluateDirectionalSkyIrradiance(vec3[9] irradiance, vec3 bentNormal, float
                 + (irradiance[1] * sh[1] + irradiance[2] * sh[2] + irradiance[3] * sh[3]) * A1
                 + (irradiance[4] * sh[4] + irradiance[5] * sh[5] + irradiance[6] * sh[6] + irradiance[7] * sh[7] + irradiance[8] * sh[8]) * A2;
 
-    return result * visibility;
+    return max0(result * visibility);
 }

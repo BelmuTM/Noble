@@ -111,17 +111,14 @@ float densityAlter(float altitude, float weatherMap) {
     return densityAlter;
 }
 
-#define WORLEY_CELLS_COUNT (1.0 / 16.0)
+const float WORLEY_CELLS_COUNT = 1.0 / 16.0;
 
 vec2 getCellPoint(ivec2 cell) {
-    vec2 cell_base = cell * WORLEY_CELLS_COUNT;
-    float noise_x  = rand(vec2(cell));
-    float noise_y  = rand(vec2(cell.yx));
-    return cell_base + (0.5 + 1.5 * vec2(noise_x, noise_y)) * WORLEY_CELLS_COUNT;
+    return (cell + hash22(cell)) * WORLEY_CELLS_COUNT;
 }
 
 float worley(vec2 coords) {
-    ivec2 cell = ivec2(coords / WORLEY_CELLS_COUNT);
+    ivec2 cell = ivec2(floor(coords / WORLEY_CELLS_COUNT));
     float dist = 1.0;
 
     const int neighbourhoodSize = 2;
@@ -131,6 +128,7 @@ float worley(vec2 coords) {
             dist = min(dist, distance(getCellPoint(cell + ivec2(x, y)), coords));
         }
     }
+    
     return 1.0 - dist / length(vec2(WORLEY_CELLS_COUNT));
 }
 

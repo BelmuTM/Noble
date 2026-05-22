@@ -384,24 +384,15 @@ value.ATMOSPHERE_TRANSMITTANCE_STEPS.32 = §432
 
 option.CLOUDS_SCALE = Render Scale
 option.CLOUDS_SCALE.comment = Adjusts the §bClouds§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
-value.CLOUDS_SCALE.10 = 10%
-value.CLOUDS_SCALE.15 = 15%
-value.CLOUDS_SCALE.20 = 20%
 value.CLOUDS_SCALE.25 = 25%
 value.CLOUDS_SCALE.30 = 30%
-value.CLOUDS_SCALE.35 = 35%
 value.CLOUDS_SCALE.40 = 40%
-value.CLOUDS_SCALE.45 = 45%
 value.CLOUDS_SCALE.50 = 50%
-value.CLOUDS_SCALE.55 = 55%
 value.CLOUDS_SCALE.60 = 60%
-value.CLOUDS_SCALE.65 = 65%
 value.CLOUDS_SCALE.70 = 70%
 value.CLOUDS_SCALE.75 = 75%
 value.CLOUDS_SCALE.80 = 80%
-value.CLOUDS_SCALE.85 = 85%
 value.CLOUDS_SCALE.90 = 90%
-value.CLOUDS_SCALE.95 = 95%
 value.CLOUDS_SCALE.100 = 100%
 
 option.CLOUDS_WIND_SPEED = Wind Speed
@@ -880,7 +871,7 @@ option.BLOOM.comment = Allows bright areas to glow.
 value.BLOOM.0 = §cOFF
 value.BLOOM.1 = §aON
 
-option.BLOOM_STRENGTH = Bloom Strength
+option.BLOOM_STRENGTH = Strength
 option.BLOOM_STRENGTH.comment = Adjusts §bBloom§r's intensity.
 
 ### LENS FLARES
