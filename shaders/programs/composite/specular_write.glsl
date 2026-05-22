@@ -187,7 +187,6 @@ void main() {
     vec3 scattering    = vec3(0.0);
     vec3 transmittance = vec3(0.0);
 
-    /*
     float totalWeight = 0.0;
     const int filterSize = 2;
 
@@ -222,10 +221,9 @@ void main() {
     }
     scattering    /= totalWeight;
     transmittance /= totalWeight;
-    */
 
-    scattering    = decodeRGBE(texture(FOG_BUFFER, coords.xy).r);
-    transmittance = decodeRGBE(texture(FOG_BUFFER, coords.xy).g);
+    //scattering    = decodeRGBE(texture(FOG_BUFFER, coords.xy).r);
+    //transmittance = decodeRGBE(texture(FOG_BUFFER, coords.xy).g);
     
     if (isEyeInWater == 1) {
         lighting += sunSpecular;

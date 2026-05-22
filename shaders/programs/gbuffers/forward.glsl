@@ -161,15 +161,17 @@
             material.ao         = 1.0;
             material.emission   = 0.0;
             material.subsurface = 0.0;
-            albedoTexture.rgb       = shadowmap.rgb;
+            albedoTexture.rgb   = shadowmap.rgb;
 
             vec3 scenePositionWater = scenePosition + cameraPosition;
 
             #if WATER_PARALLAX == 1
+            
                 if (length(scenePosition) < WATER_PARALLAX_DISTANCE) {
                     vec3 tangentDirection = normalize(scenePosition) * tbn;
                     scenePositionWater.xz = parallaxMappingWater(scenePositionWater.xz, tangentDirection, WATER_OCTAVES);
                 }
+
             #endif
 
             material.normal = tbn * getWaterNormal(scenePositionWater, WATER_OCTAVES);

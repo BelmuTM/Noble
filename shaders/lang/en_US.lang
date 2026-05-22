@@ -272,6 +272,10 @@ value.REFRACTIONS.0 = §cOFF
 value.REFRACTIONS.1 = §e§lRaytraced
 value.REFRACTIONS.2 = §e§lApproximation
 
+option.REFRACTIONS_BORDER_FADE = Refractions Border Fade
+option.REFRACTIONS_BORDER_FADE.comment = Fades the borders of §bRefractions§r to hide the screen-space cutoff.
+suffix.REFRACTIONS_BORDER_FADE = x
+
 #////////////////////////////////////////////////////////#
 #------------------ GLOBAL ILLUMINATION -----------------#
 #////////////////////////////////////////////////////////#

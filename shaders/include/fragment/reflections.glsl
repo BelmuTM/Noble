@@ -49,10 +49,6 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
     #endif
 }
 
-float energyCompensationFactor(float NdotV, float NdotL, float alphaSq) {
-    return 1.0 / (1.0 + lambda_Smith(NdotV, alphaSq) + lambda_Smith(NdotL, alphaSq));
-}
-
 float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
 #if REFLECTIONS == 1
@@ -103,34 +99,32 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             vec3 hitPosition;
             float sampleRayLength;
 
-            if (NdotL > 0.0) {
-                if (modFragment) {
-                    hit = float(raytrace(
-                        modDepthTex0,
-                        projection,
-                        projectionInverse,
-                        viewPosition,
-                        rayDirection,
-                        float(REFLECTIONS_STRIDE),
-                        jitter,
-                        RENDER_SCALE,
-                        hitPosition,
-                        sampleRayLength
-                    ));
-                } else {
-                    hit = float(raytrace(
-                        depthtex0,
-                        projection,
-                        projectionInverse,
-                        viewPosition,
-                        rayDirection,
-                        float(REFLECTIONS_STRIDE),
-                        jitter,
-                        RENDER_SCALE,
-                        hitPosition,
-                        sampleRayLength
-                    ));
-                }
+            if (modFragment) {
+                hit = float(raytrace(
+                    modDepthTex0,
+                    projection,
+                    projectionInverse,
+                    viewPosition,
+                    rayDirection,
+                    float(REFLECTIONS_STRIDE),
+                    jitter,
+                    RENDER_SCALE,
+                    hitPosition,
+                    sampleRayLength
+                ));
+            } else {
+                hit = float(raytrace(
+                    depthtex0,
+                    projection,
+                    projectionInverse,
+                    viewPosition,
+                    rayDirection,
+                    float(REFLECTIONS_STRIDE),
+                    jitter,
+                    RENDER_SCALE,
+                    hitPosition,
+                    sampleRayLength
+                ));
             }
 
             #if defined REFLECTIONS_SKY_FALLBACK
@@ -147,10 +141,8 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             }
 
             float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
-            
-            float energyCompensation = energyCompensationFactor(NdotV, NdotL, alphaSq);
 
-            reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * energyCompensation * G2 / G1;
+            reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * G2 / G1;
 
             rayLength += sampleRayLength;
         }

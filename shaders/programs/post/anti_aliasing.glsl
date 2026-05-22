@@ -112,15 +112,15 @@
             ivec2 coords = ivec2(gl_FragCoord.xy * RENDER_SCALE);
 
             // Left to right, top to bottom
-            vec3 sample_0 = toYCoCg(texelFetch(currTex, coords + ivec2(-1,  1), 0).rgb);
-            vec3 sample_1 = toYCoCg(texelFetch(currTex, coords + ivec2( 0,  1), 0).rgb);
-            vec3 sample_2 = toYCoCg(texelFetch(currTex, coords + ivec2( 1,  1), 0).rgb);
-            vec3 sample_3 = toYCoCg(texelFetch(currTex, coords + ivec2(-1,  0), 0).rgb);
+            vec3 sample_0 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2(-1,  1)).rgb);
+            vec3 sample_1 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 0,  1)).rgb);
+            vec3 sample_2 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 1,  1)).rgb);
+            vec3 sample_3 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2(-1,  0)).rgb);
             vec3 sample_4 = toYCoCg(currColor);
-            vec3 sample_5 = toYCoCg(texelFetch(currTex, coords + ivec2( 1,  0), 0).rgb);
-            vec3 sample_6 = toYCoCg(texelFetch(currTex, coords + ivec2(-1, -1), 0).rgb);
-            vec3 sample_7 = toYCoCg(texelFetch(currTex, coords + ivec2( 0, -1), 0).rgb);
-            vec3 sample_8 = toYCoCg(texelFetch(currTex, coords + ivec2( 1, -1), 0).rgb);
+            vec3 sample_5 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 1,  0)).rgb);
+            vec3 sample_6 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2(-1, -1)).rgb);
+            vec3 sample_7 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 0, -1)).rgb);
+            vec3 sample_8 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 1, -1)).rgb);
 
             // Min and max nearest 5 + nearest 9
             vec3 minColor, maxColor;

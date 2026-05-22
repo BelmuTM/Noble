@@ -18,7 +18,7 @@
 /*                                                                              */
 /********************************************************************************/
 
-float dither = interleavedGradientNoise(gl_FragCoord.xy);
+float dither = temporalBlueNoise(gl_FragCoord.xy);
 
 const float aerialPerspectiveMult = 1.0;
 
@@ -181,13 +181,16 @@ float calculateAirFogPhase(float cosTheta) {
 
     float getFogTransmittance(vec3 rayOrigin, vec3 lightDir) {
         const float stepSize = 1.0 / AIR_FOG_TRANSMITTANCE_STEPS;
+
         vec3 increment   = lightDir * stepSize;
         vec3 rayPosition = rayOrigin + increment * 0.5;
 
         float accumAirmass = 0.0;
+        
         for (int i = 0; i < AIR_FOG_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
             accumAirmass += getAirFogDensity(rayPosition) * stepSize;
         }
+
         return exp(-airFogExtinctionCoefficient * accumAirmass);
     }
 

@@ -37,13 +37,13 @@ in vec2 textureCoords;
 #if UNDERWATER_DISTORTION == 1
 
     void underwaterDistortion(inout vec2 coords) {
-        float speed   = frameTimeCounter * WATER_DISTORTION_SPEED;
+        float speed   = frameTimeCounter * UNDERWATER_DISTORTION_SPEED;
         float offsetX = coords.x * 25.0 + speed;
         float offsetY = coords.y * 25.0 + speed;
 
         vec2 distortion = coords + vec2(
-            WATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
-            WATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
+            UNDERWATER_DISTORTION_AMPLITUDE * cos(offsetX + offsetY) * 0.01 * cos(offsetY),
+            UNDERWATER_DISTORTION_AMPLITUDE * sin(offsetX - offsetY) * 0.01 * sin(offsetY)
         );
 
         if (insideScreenBounds(distortion, 1.0)) {
@@ -142,10 +142,13 @@ in vec2 textureCoords;
 void debugOutput(inout vec3 color) {
     #if DEBUG_ALBEDO == 1
         color = unpackUnorm4x8(texture(GBUFFERS_DATA, textureCoords * RENDER_SCALE).z).rgb;
+
     #elif DEBUG_NORMALS == 1
         color = decodeUnitVector(unpackUnorm2x16(texture(GBUFFERS_DATA, textureCoords * RENDER_SCALE).w)) * 0.5 + 0.5;
+
     #elif DEBUG_AO == 1
         color = vec3(texture(AO_BUFFER, textureCoords * RENDER_SCALE).b);
+
     #endif
 }
 
@@ -153,7 +156,11 @@ void main() {
     vec2 distortCoords = textureCoords;
 
     #if UNDERWATER_DISTORTION == 1
-        if (isEyeInWater == 1) underwaterDistortion(distortCoords);
+
+        if (isEyeInWater == 1) {
+            underwaterDistortion(distortCoords);
+        }
+
     #endif
 
     #if EIGHT_BITS_FILTER == 0
@@ -175,8 +182,10 @@ void main() {
     #endif
 
     #if VIGNETTE == 1
+
         vec2 coords = textureCoords * (1.0 - textureCoords.yx);
         colorOut   *= pow(coords.x * coords.y * 15.0, VIGNETTE_STRENGTH);
+        
     #endif
 
     #if CEL_SHADING == 1
@@ -188,15 +197,19 @@ void main() {
     #endif
 
     #if EIGHT_BITS_FILTER == 1
+
         const int   colorPaletteSize   = 2;
         const float quantizationPeriod = 1.0 / colorPaletteSize;
 
         ditherColor  (colorOut, quantizationPeriod);
         quantizeColor(colorOut, quantizationPeriod);
+
     #else
+
         #if CEL_SHADING == 0
             colorOut += bayer8(gl_FragCoord.xy) * rcpMaxFloat8;
         #endif
+
     #endif
 
     //colorOut = vec3(1.0 / linearizeDepth(texture(colortex13, textureCoords).r, near, far));

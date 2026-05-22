@@ -57,7 +57,7 @@ float bayer2(vec2 a) {
 #endif
 
 float temporalBlueNoise(vec2 uv) {
-    return fract(texelFetch(noisetex, ivec2(uv) % noiseTextureResolution, 0).rgb + GOLDEN_RATIO * frameCounter).r;
+    return fract(texelFetch(noisetex, ivec2(uv) % noiseTextureResolution, 0).r + GOLDEN_RATIO * frameCounter);
 }
 
 float interleavedGradientNoise(vec2 uv) {

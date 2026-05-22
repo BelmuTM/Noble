@@ -20,6 +20,8 @@
 
 // Kneemund's border attenuation (https://github.com/Kneemund)
 float kneemundAttenuation(vec2 pos, float edgeFactor) {
+    if (edgeFactor < EPS) return 1.0;
+
     pos *= 1.0 - pos;
     return 1.0 - quinticStep(edgeFactor, 0.0, minOf(pos));
 }
@@ -91,8 +93,12 @@ vec3 computeRefractions(
 
     #endif
 
-    refractedPosition.xy  = mix(textureCoords, refractedPosition.xy, kneemundAttenuation(refractedPosition.xy, 0.03));
+    refractedPosition.xy  = mix(textureCoords, refractedPosition.xy, kneemundAttenuation(refractedPosition.xy, REFRACTIONS_BORDER_FADE));
     refractedPosition.xy *= RENDER_SCALE;
+
+    if (!hit || !insideScreenBounds(refractedPosition.xy, 1.0)) {
+        refractedPosition.xy = vertexCoords;
+    }
 
     float depth0 = texture(depthtex0, refractedPosition.xy).r;
     float depth1 = texture(depthtex1, refractedPosition.xy).r;
@@ -111,12 +117,12 @@ vec3 computeRefractions(
         }
         
     #endif
-        
-    if (!hit || depth1 < depth0 || depth1 - depth0 < EPS || depth1 < handDepth) {
+
+    if (depth1 < handDepth) {
         refractedPosition.xy = vertexCoords;
     }
 
-    vec3 fresnel = fresnelDielectricDielectric_T(dot(material.normal, -viewDirection), n1, n2);
+    vec3 fresnel = fresnelDielectricDielectric_T(abs(dot(material.normal, -viewDirection)), n1, n2);
 
     vec3 sampledColor = exp2(texture(MAIN_BUFFER, refractedPosition.xy).rgb) - 1.0;
 

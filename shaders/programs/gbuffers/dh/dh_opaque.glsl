@@ -55,10 +55,9 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 1,3 */
+    /* RENDERTARGETS: 1 */
 
     layout (location = 0) out uvec4 data;
-    layout (location = 1) out vec2 geometricNormal;
 
     flat in uint blockId;
     in vec2 lightmapCoords;
@@ -115,8 +114,6 @@
             1.0,
             blockId
         );
-
-        geometricNormal = encodedNormal;
     }
 
 #endif

@@ -63,11 +63,11 @@
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 3,5,13 */
+    /* RENDERTARGETS: 3,5 */
 
     layout (location = 0) out vec4 shadowmap;
     layout (location = 1) out vec4 illuminance;
-    layout (location = 2) out float depthTiles;
+    //layout (location = 2) out float depthTiles;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -108,11 +108,13 @@
 
         #endif
 
+        /*
         if (modFragment) {
             depthTiles = computeDepthMips(modDepthTex0, vertexCoords);
         } else {
             depthTiles = computeDepthMips(depthtex0, vertexCoords);
         }
+        */
 
         uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 
@@ -133,15 +135,16 @@
             if (receivesSkylight) {
 
                 #if GI == 0 && AO > 0
-                    vec3 aoBuffer = texture(AO_BUFFER, vertexCoords).rgb;
 
-                    vec4 ao;
-                    ao.xyz = max0(decodeUnitVector(aoBuffer.xy));
-                    ao.w   = aoBuffer.z;
+                    vec3 aoBuffer    = texture(AO_BUFFER, vertexCoords).rgb;
+                    vec3 bentNormals = max0(decodeUnitVector(aoBuffer.xy));
 
-                    skyIlluminance = evaluateDirectionalSkyIrradiance(skyIrradiance, ao.xyz, ao.w);
+                    skyIlluminance = evaluateDirectionalSkyIrradiance(skyIrradiance, bentNormals, aoBuffer.z);
+
                 #else
+
                     skyIlluminance = vec3(luminance(uniformSkyIlluminance));
+
                 #endif
 
             }
@@ -177,14 +180,13 @@
                     
                 #endif
 
-                vec3 geometricNormal = decodeUnitVector(texture(SHADOWMAP_BUFFER, vertexCoords).rg);
-                vec3 screenPosition  = vec3(textureCoords, depth);
-                vec3 viewPosition    = screenToView(screenPosition, projectionInverse, true);
-                vec3 scenePosition   = viewToWorld(viewPosition);
+                vec3 normal = decodeUnitVector(unpackUnorm2x16(dataTexture.w));
 
-                vec3 shadowmapResult = calculateShadowMapping(scenePosition, geometricNormal, depth, shadowmap.a);
+                vec3 screenPosition = vec3(textureCoords, depth);
+                vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
+                vec3 scenePosition  = viewToWorld(viewPosition);
 
-                float NdotL = dot(geometricNormal, shadowLightVectorWorld);
+                vec3 shadowmapResult = calculateShadowMapping(scenePosition, normal, depth, shadowmap.a);
 
                 shadowmap.rgb = abs(shadowmapResult);
 
@@ -196,8 +198,8 @@
 
                     float contactShadows = 1.0;
 
-                    geometricNormal = mat3(gbufferModelView) * (geometricNormal);
-                    viewPosition   += geometricNormal * 1e-2;
+                    normal        = mat3(gbufferModelView) * normal;
+                    viewPosition += normal * 1e-2;
 
                     float subsurfaceDepth = 0.0;
 

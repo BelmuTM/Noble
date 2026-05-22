@@ -217,6 +217,7 @@
         vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
         vec3 skyIlluminance = vec3(0.0);
+        
         #if defined WORLD_OVERWORLD || defined WORLD_END
             skyIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
         #endif

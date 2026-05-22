@@ -71,10 +71,16 @@ void main() {
     float exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
     #if BLOOM == 1
+
         vec3  bloom         = texture(IRRADIANCE_BUFFER, textureCoords * 0.5).rgb;
         float bloomStrength = exp2(exposure + BLOOM_STRENGTH - 3.0);
 
+        if (isEyeInWater == 1) {
+            bloom *= UNDERWATER_BLOOM_BOOST;
+        }
+
         color += bloom * bloomStrength;
+
     #endif
 
     #if PURKINJE == 1

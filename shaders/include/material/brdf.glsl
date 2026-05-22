@@ -155,10 +155,12 @@ vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, b
     float skylightFalloff = getSkylightFalloff(material.lightmap.y);
 
     #if SUBSURFACE_SCATTERING == 1
+    
         if (!isMetal) {
             diffuse += subsurfaceScatteringApprox(viewDirection, lightDirection, material.albedo, material.subsurface, shadowmap.a, material.id) 
                      * cloudsShadows * skylightFalloff;
         }
+
     #endif
 
     diffuse *= directIlluminance;
