@@ -228,7 +228,15 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
                 vec2 uv = (vec2(x, y) + 0.5) / vec2(samples.x, samples.y * 2);
 
                 vec3 direction = unprojectSphere(uv);
-                vec3 radiance  = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
+                
+                #if defined WORLD_OVERWORLD
+                    // Monochrome radiance
+                    vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
+
+                #elif defined WORLD_END
+                    vec3 radiance = texture(ATMOSPHERE_BUFFER, uv).rgb;
+
+                #endif
 
                 float theta    = uv.y * PI;
                 float cosTheta = cos(theta);
@@ -296,7 +304,15 @@ void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
                 vec2 uv = (vec2(x, y) + 0.5) / vec2(samples.x, samples.y * 2);
 
                 vec3 direction = unprojectSphere(uv);
-                vec3 radiance  = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
+
+                #if defined WORLD_OVERWORLD
+                    // Monochrome radiance
+                    vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
+
+                #elif defined WORLD_END
+                    vec3 radiance = texture(ATMOSPHERE_BUFFER, uv).rgb;
+
+                #endif
 
                 float theta    = uv.y * PI;
                 float cosTheta = cos(theta);

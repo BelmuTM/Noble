@@ -128,15 +128,23 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 }
 
 vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
-    vec3 sceneDirection = normalize(viewToWorld(viewPosition));
+    #if defined WORLD_OVERWORLD
 
-    float cloudsTransmittance = 1.0;
+        vec3 sceneDirection = normalize(viewToWorld(viewPosition));
 
-    #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
-        cloudsTransmittance = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).b;
+        float cloudsTransmittance = 1.0;
+
+        #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
+            cloudsTransmittance = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).b;
+        #endif
+
+        vec3 fakeAtmosphereAbsorption = exp(-sampleAtmosphere(sceneDirection, false, false) * 0.01);
+
+        return (physicalSun(sceneDirection) + physicalMoon(sceneDirection)) * pow5(cloudsTransmittance) * fakeAtmosphereAbsorption;
+
+    #else
+
+        return vec3(0.0);
+
     #endif
-
-    vec3 fakeAtmosphereAbsorption = exp(-sampleAtmosphere(sceneDirection, false, false) * 0.01);
-
-    return (physicalSun(sceneDirection) + physicalMoon(sceneDirection)) * pow5(cloudsTransmittance) * fakeAtmosphereAbsorption;
 }
