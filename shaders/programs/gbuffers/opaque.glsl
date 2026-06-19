@@ -194,15 +194,18 @@
             mat2 texDeriv = mat2(dFdx(coords), dFdy(coords));
 
             #if POM_DEPTH_WRITE == 1
+            
                 gl_FragDepth = gl_FragCoord.z;
+
             #endif
 
             if (length(scenePosition) < POM_DISTANCE) {
+
                 float height = 1.0, traceDistance = 0.0;
                 vec2  shadowCoords = vec2(0.0);
 
-                if (texture(normals, textureCoords).a < 1e-3 || texture(gtexture, textureCoords).a < alphaTestThreshold) {
-                    discard; return;
+                if (texture(normals, textureCoords).a < EPS || texture(gtexture, textureCoords).a < alphaTestThreshold) {
+                    return;
                 }
 
                 coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
@@ -210,17 +213,22 @@
                 if (saturate(coords) != coords) return;
 
                 #if POM_SHADOWING == 1
+
                     parallaxSelfShadowing = parallaxShadowing(shadowCoords, height, texDeriv);
+
                 #endif
 
                 #if POM_DEPTH_WRITE == 1
+
                     gl_FragDepth = projectDepth(unprojectDepth(gl_FragCoord.z) + traceDistance * POM_DEPTH);
+
                 #endif
             }
 
         #endif
 
         vec4 albedoTexture = texture(gtexture, coords) * vertexColor;
+
         if (albedoTexture.a < alphaTestThreshold) { discard; return; }
 
         vec4 normalTexture = texture(normals, coords);

@@ -956,6 +956,7 @@ value.SHARPEN.1 = §aON
 
 option.SHARPEN_STRENGTH = Sharpen Strength
 option.SHARPEN_STRENGTH.comment = Adjusts §bSharpening Filter§r's intensity.
+suffix.SHARPEN_STRENGTH = x
 
 ### VIGNETTE
 
@@ -1022,6 +1023,10 @@ value.DEBUG_ALBEDO.1 = §aON
 option.DEBUG_NORMALS = Display Normals
 value.DEBUG_NORMALS.0 = §cOFF
 value.DEBUG_NORMALS.1 = §aON
+
+option.DEBUG_DEPTH = Display Depth
+value.DEBUG_DEPTH.0 = §cOFF
+value.DEBUG_DEPTH.1 = §aON
 
 option.DEBUG_AO = Display Ambient Occlusion
 value.DEBUG_AO.0 = §cOFF

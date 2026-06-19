@@ -148,7 +148,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
 
     float worley = worley(scaledCoords * 0.06);
 
-    float weitherMapLayer0  = FBM(scaledCoords * 2.0, layer.octaves, layer.frequency);
+    float weitherMapLayer0  = FBM(scaledCoords * 4.0, layer.octaves, layer.frequency);
           weitherMapLayer0 *= weitherMapLayer0;
           weitherMapLayer0 *= sqrt(texture(noisetex, scaledCoords).g);
           weitherMapLayer0 += worley * worley * worley * (1.0 + wetnessFactor);

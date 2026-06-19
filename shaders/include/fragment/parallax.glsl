@@ -49,7 +49,7 @@ vec2 localToAtlas(vec2 localCoords) {
 }
 
 vec2 atlasToLocal(vec2 atlasCoords) {
-    return (atlasCoords - botLeft) / texSize;
+    return max0(atlasCoords - botLeft) / texSize;
 }
 
 #if POM == 1
@@ -67,14 +67,14 @@ vec2 atlasToLocal(vec2 atlasCoords) {
         uv[2] = localToAtlas(uv[2]);
         uv[3] = localToAtlas(uv[3]);
 
-        return 1.0 - textureGradLinear(normals, uv, texDeriv, f, 3);
+        return saturate(1.0 - textureGradLinear(normals, uv, texDeriv, f, 3));
     }
 
 #elif POM == 2
 
     float sampleHeightMap(inout vec2 coords, mat2 texDeriv) {
         wrapCoordinates(coords);
-        return 1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a;
+        return saturate(1.0 - textureGrad(normals, coords, texDeriv[0], texDeriv[1]).a);
     }
 
 #endif

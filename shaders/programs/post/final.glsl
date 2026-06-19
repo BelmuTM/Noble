@@ -146,6 +146,9 @@ void debugOutput(inout vec3 color) {
     #elif DEBUG_NORMALS == 1
         color = decodeUnitVector(unpackUnorm2x16(texture(GBUFFERS_DATA, textureCoords * RENDER_SCALE).w)) * 0.5 + 0.5;
 
+    #elif DEBUG_DEPTH == 1
+        color = vec3(linearizeDepth(texture(depthtex0, textureCoords * RENDER_SCALE).r, near, far) / far);
+
     #elif DEBUG_AO == 1
         color = vec3(texture(AO_BUFFER, textureCoords * RENDER_SCALE).b);
 

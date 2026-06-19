@@ -170,7 +170,7 @@
 
             bool isHand = depth < handDepth;
 
-            float weight = isHand ? 0.9 : 0.975;
+            float weight = 0.975;
 
             float linearDepth     = linearizeDepth(prevPosition.z         , nearPlane, farPlane);
             float linearPrevDepth = linearizeDepth(exp2(prevReflections.a), nearPlane, farPlane);
@@ -178,10 +178,10 @@
 
             float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isHand ? 1.0 : (isReflectingSky ? 0.8 : 0.5));
 
-            vec2  pixelCenterDist = 1.0 - abs(fract(prevPosition.xy * viewSize) * 2.0 - 1.0);
-            float centerWeight    = isHand ? sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 : 1.0;
+            vec2  pixelCenterDist  = 1.0 - abs(fract(prevPosition.xy * viewSize) * 2.0 - 1.0);
+            float centerWeightHand = isHand ? sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 : 1.0;
 
-            weight *= depthWeight * velocityWeight * centerWeight;
+            weight *= depthWeight * velocityWeight * centerWeightHand;
             weight  = saturate(weight);
             weight *= float(insideScreenBounds(prevPositionReflected.xy, RENDER_SCALE));
             weight *= float(!isWater);

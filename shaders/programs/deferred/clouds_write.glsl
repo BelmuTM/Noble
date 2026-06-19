@@ -145,8 +145,8 @@
 
                 const float centerWeightStrength = 0.6;
 
-                vec2 pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
-                float centerWeight   = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
+                vec2  pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
+                float centerWeight    = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
 
                 distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-4 * distanceToClouds))));
                 centerWeight    = mix(0.8, centerWeight, distanceFalloff);

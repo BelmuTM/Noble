@@ -162,7 +162,7 @@ void agxLook(inout vec3 color) {
         // Default
         const vec3  slope      = vec3(1.0);
         const vec3  power      = vec3(1.0);
-        const float saturation = 1.0;
+        const float saturation = 1.3;
     #elif AGX_LOOK == 1
         // Golden
         const vec3  slope      = vec3(1.0, 0.9, 0.5);

@@ -306,7 +306,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // POM
 
-#define POM           1 // [0 1 2]
+#define POM           0 // [0 1 2]
 #define POM_LAYERS   32 // [32 64 128 256 512]
 #define POM_DEPTH   0.4 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define POM_DISTANCE 32 // [16 32 48 64 80 96 112 128 144 160 176 192 208 224 240 256 512]
@@ -414,7 +414,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // Sharpen
 #define SHARPEN             1 // [0 1]
-#define SHARPEN_STRENGTH 1.00 // [0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
+#define SHARPEN_STRENGTH 0.75 // [0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
 
 // Cel Shading
 #define CEL_SHADING 0 // [0 1]
@@ -466,7 +466,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define TONEMAP 0 // [-1 0 1 2 3 4 5 6]
 #define LUT     0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 
-#define AGX_LOOK 2
+#define AGX_LOOK 0
 
 #define PURKINJE 1 // [0 1]
 
@@ -486,6 +486,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define DEBUG_ALBEDO  0 // [0 1]
 #define DEBUG_NORMALS 0 // [0 1]
+#define DEBUG_DEPTH   0 // [0 1]
 
 #define DEBUG_AO 0 // [0 1]
 
