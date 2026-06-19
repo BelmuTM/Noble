@@ -109,7 +109,7 @@
 
             color.rgb *= skyIlluminance;
 
-            color.rgb = max0(log2(color.rgb + 1.0));
+            color.rgb = encodeLog(color.rgb);
             
         #endif
     }

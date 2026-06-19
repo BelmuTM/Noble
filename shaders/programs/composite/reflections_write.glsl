@@ -21,9 +21,14 @@
 #include "/settings.glsl"
 
 #if REFLECTIONS == 0
+
     #include "/programs/discard.glsl"
+
 #else
+
     #include "/include/taau_scale.glsl"
+
+    #include "/include/common.glsl"
 
     #if defined STAGE_VERTEX
 
@@ -33,17 +38,17 @@
         flat out vec3 directIlluminance;
         flat out vec3 skyIlluminance;
 
-        uniform sampler2D colortex5;
-
         void main() {
             gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
             gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w; + (RENDER_SCALE - 1.0);
             textureCoords  = gl_Vertex.xy;
             vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
-            #if defined WORLD_OVERWORLD && CLOUDS_LAYER0_ENABLED == 1 || defined WORLD_OVERWORLD && CLOUDS_LAYER1_ENABLED == 1
-                directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb;
+            #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
+
+                directIlluminance = decodeLog(texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb);
                 skyIlluminance    = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 1), 0).rgb;
+
             #endif
         }
 
@@ -58,8 +63,6 @@
 
         flat in vec3 directIlluminance;
         flat in vec3 skyIlluminance;
-
-        #include "/include/common.glsl"
 
         #include "/include/utility/rng.glsl"
 
@@ -172,8 +175,8 @@
 
             float weight = 0.975;
 
-            float linearDepth     = linearizeDepth(prevPosition.z         , nearPlane, farPlane);
-            float linearPrevDepth = linearizeDepth(exp2(prevReflections.a), nearPlane, farPlane);
+            float linearDepth     = linearizeDepth(prevPosition.z              , nearPlane, farPlane);
+            float linearPrevDepth = linearizeDepth(decodeLog(prevReflections.a), nearPlane, farPlane);
             float depthWeight     = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.01);
 
             float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isHand ? 1.0 : (isReflectingSky ? 0.8 : 0.5));
@@ -187,7 +190,7 @@
             weight *= float(!isWater);
 
             reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
-            reflections.a   = log2(prevPosition.z);
+            reflections.a   = encodeLog(prevPosition.z);
         }
         
     #endif

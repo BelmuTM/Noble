@@ -21,6 +21,8 @@
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 
+#include "/include/common.glsl"
+
 #if defined STAGE_VERTEX
 
     out vec2 textureCoords;
@@ -28,8 +30,6 @@
     
     flat out vec3 directIlluminance;
     flat out vec3 skyIlluminance;
-
-    uniform sampler2D colortex5;
 
     void main() {
         gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
@@ -39,7 +39,7 @@
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb;
+            directIlluminance = decodeLog(texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb);
             skyIlluminance    = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 1), 0).rgb;
             
         #endif
@@ -56,8 +56,6 @@
 
     flat in vec3 directIlluminance;
     flat in vec3 skyIlluminance;
-
-    #include "/include/common.glsl"
 
     #include "/include/utility/rng.glsl"
 

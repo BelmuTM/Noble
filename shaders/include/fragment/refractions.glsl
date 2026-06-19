@@ -124,7 +124,7 @@ vec3 computeRefractions(
 
     vec3 fresnel = fresnelDielectricDielectric_T(abs(dot(material.normal, -viewDirection)), n1, n2);
 
-    vec3 sampledColor = exp2(texture(MAIN_BUFFER, refractedPosition.xy).rgb) - 1.0;
+    vec3 sampledColor = decodeLog(texture(MAIN_BUFFER, refractedPosition.xy).rgb);
 
     // Water absorption is handled individually
     if (isWater(material.id)) {

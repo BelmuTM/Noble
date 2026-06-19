@@ -49,7 +49,7 @@ const ivec3 workGroups = ivec3(1, 1, 1);
         vec3 illuminance = vec3(0.0);
 
         if (x == 0) {
-            illuminance = evaluateDirectIlluminance();
+            illuminance = encodeLog(evaluateDirectIlluminance());
         } else if (x > 0 && x < 10) {
             illuminance = skyIlluminance[x - 1];
         }

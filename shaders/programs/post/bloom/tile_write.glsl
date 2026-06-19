@@ -40,7 +40,7 @@ const float lodFactor = exp2(-lod);
 
     /* RENDERTARGETS: 5 */
 
-    layout (location = 0) out vec4 bloom;
+    layout (location = 0) out vec4 bloomOut;
 
     #include "/include/uniforms.glsl"
 
@@ -77,7 +77,9 @@ const float lodFactor = exp2(-lod);
             vec3 tile = textureLod(BLOOM_SAMPLER, coords, 0).rgb;
 
             #if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
-                tile = exp2(tile) - 1.0;
+
+                tile = decodeLog(tile);
+
             #endif
 
             return max0(tile);
@@ -99,47 +101,53 @@ const float lodFactor = exp2(-lod);
         vec2 coords = gl_FragCoord.xy * texelSize;
 
         #if defined BLOOM_DOWNSAMPLE_PASS
+
             #if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
                 coords = coords * 2.0;
             #else
                 coords = coords * 2.0 - 1.0;
             #endif
+            
         #else
             coords = coords * 0.5 + 0.5;
         #endif
 
         #if defined BLOOM_DOWNSAMPLE_PASS
 
-            bloom.rgb  = sampleBloomBuffer(coords).rgb * filterWeights[0];
+            bloomOut.rgb  = sampleBloomBuffer(coords).rgb * filterWeights[0];
 
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[0]  * texelSize) * filterWeights[0];
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[1]  * texelSize) * filterWeights[0];
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[2]  * texelSize) * filterWeights[0];
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[3]  * texelSize) * filterWeights[0];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[0]  * texelSize) * filterWeights[0];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[1]  * texelSize) * filterWeights[0];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[2]  * texelSize) * filterWeights[0];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[3]  * texelSize) * filterWeights[0];
 
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[4]  * texelSize) * filterWeights[1];
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[5]  * texelSize) * filterWeights[1];
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[6]  * texelSize) * filterWeights[1];
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[7]  * texelSize) * filterWeights[1];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[4]  * texelSize) * filterWeights[1];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[5]  * texelSize) * filterWeights[1];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[6]  * texelSize) * filterWeights[1];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[7]  * texelSize) * filterWeights[1];
 
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[8]  * texelSize) * filterWeights[2];
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[9]  * texelSize) * filterWeights[2];
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[10] * texelSize) * filterWeights[2];
-            bloom.rgb += sampleBloomBuffer(coords + filterOffsets[11] * texelSize) * filterWeights[2];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[8]  * texelSize) * filterWeights[2];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[9]  * texelSize) * filterWeights[2];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[10] * texelSize) * filterWeights[2];
+            bloomOut.rgb += sampleBloomBuffer(coords + filterOffsets[11] * texelSize) * filterWeights[2];
 
-            bloom.a = 0.0;
+            bloomOut.a = 0.0;
 
         #elif defined BLOOM_UPSAMPLE_PASS
 
             float normalization = 0.0;
-            for (int tile = 0; tile < 8; tile++) normalization += tileWeight(tile);
+
+            for (int tile = 0; tile < 8; tile++) {
+                normalization += tileWeight(tile);
+            }
+
             normalization = 1.0 / normalization;
 
-            bloom.rgb = textureBicubic(BLOOM_SAMPLER, coords).rgb;
-            bloom.a   = tileWeight(BLOOM_UPSAMPLE_PASS_INDEX) * normalization;
+            bloomOut.rgb = textureBicubic(BLOOM_SAMPLER, coords).rgb;
+            bloomOut.a   = tileWeight(BLOOM_UPSAMPLE_PASS_INDEX) * normalization;
 
             #if BLOOM_UPSAMPLE_PASS_INDEX == 7
-                bloom.rgb *= tileWeight(BLOOM_UPSAMPLE_PASS_INDEX + 1) * normalization;
+                bloomOut.rgb *= tileWeight(BLOOM_UPSAMPLE_PASS_INDEX + 1) * normalization;
             #endif
 
         #endif

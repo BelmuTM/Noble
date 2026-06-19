@@ -30,10 +30,10 @@
 
     /* RENDERTARGETS: 5 */
 
-    layout (location = 0) out vec3 bloom;
+    layout (location = 0) out vec3 bloomOut;
 
     void main() {
-        bloom = vec3(0.0);
+        bloomOut = vec3(0.0);
     }
     
 #endif

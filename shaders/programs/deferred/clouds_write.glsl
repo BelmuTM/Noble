@@ -153,7 +153,7 @@
                 
                 float velocityWeight = saturate(exp(-0.5 * length(cameraPosition - previousCameraPosition)));
 
-                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.97);
+                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.997);
 
                 clouds.rgb = max0(mix(clouds.rgb, history, weight));
             }

@@ -252,15 +252,19 @@
         #endif
 
         #if defined PROGRAM_ENTITY
+
             albedoTexture.rgb = mix(albedoTexture.rgb, entityColor.rgb, entityColor.a);
             
             ao = all(lessThanEqual(normalTexture.rgb, vec3(EPS))) ? 1.0 : ao;
+
         #endif
 
         #if defined PROGRAM_BEACONBEAM
+
             if (albedoTexture.a < 0.999) { return; }
             emission   = 1.0;
             lightmap.x = 1.0;
+        
         #endif
 
         vec3 normal = tbn[2];
@@ -284,11 +288,13 @@
         #endif
 
         #if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
+
             if (wetness > 0.0 && isEyeInWater == 0) {
                 float porosity = saturate(specularTexture.z * (maxFloat8 / 64.0));
                 
                 rainPuddles(scenePosition, tbn[2], lightmapCoords, porosity, F0, roughness, normal);
             }
+
         #endif
 
         #if HARDCODED_EMISSION == 1

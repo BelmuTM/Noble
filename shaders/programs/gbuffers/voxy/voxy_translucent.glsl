@@ -132,7 +132,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
         translucents.rgb = computeDiffuse(scenePosition, shadowLightVectorWorld, material, false, vec4(1.0, 1.0, 1.0, 0.0), directIlluminance, skyIlluminance, 1.0, 1.0);
 
-        translucents.rgb = max0(log2(translucents.rgb + 1.0));
+        translucents.rgb = encodeLog(translucents.rgb);
 
         translucents.a = voxyParameters.sampledColour.a;
     }

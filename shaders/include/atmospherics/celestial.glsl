@@ -103,22 +103,14 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
         vec3 sky            = sampleAtmosphere(sceneDirection, true, true);
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
-        #if defined WORLD_OVERWORLD
-            #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
-                vec3 cloudsBuffer = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).rgb;
 
-                clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;
-                clouds.a   = cloudsBuffer.b;
-            #endif
+        #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
+
+            vec3 cloudsBuffer = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).rgb;
+
+            clouds.rgb = cloudsBuffer.r * directIlluminance + cloudsBuffer.g * skyIlluminance;
+            clouds.a   = cloudsBuffer.b;
             
-        #elif defined WORLD_END
-            sky += physicalStar(sceneDirection);
-        #endif
-
-        #if defined WORLD_OVERWORLD
-            sky += computeStarfield(viewPosition, sunVector);
-        #elif defined WORLD_END
-            sky += computeStarfield(viewPosition, starVector) * 4.0;
         #endif
 
         return sky * clouds.a + clouds.rgb;
@@ -128,9 +120,21 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 }
 
 vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
-    #if defined WORLD_OVERWORLD
+    #if defined WORLD_OVERWORLD || defined WORLD_END
 
         vec3 sceneDirection = normalize(viewToWorld(viewPosition));
+
+        vec3 celestialBodies = vec3(0.0);
+
+        #if defined WORLD_OVERWORLD
+            celestialBodies += physicalSun(sceneDirection) + physicalMoon(sceneDirection);
+            celestialBodies += computeStarfield(viewPosition, sunVector);
+
+        #elif defined WORLD_END
+            celestialBodies += physicalStar(sceneDirection);
+            celestialBodies += computeStarfield(viewPosition, starVector) * 4.0;
+
+        #endif
 
         float cloudsTransmittance = 1.0;
 
@@ -140,7 +144,7 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
 
         vec3 fakeAtmosphereAbsorption = exp(-sampleAtmosphere(sceneDirection, false, false) * 0.01);
 
-        return (physicalSun(sceneDirection) + physicalMoon(sceneDirection)) * pow5(cloudsTransmittance) * fakeAtmosphereAbsorption;
+        return celestialBodies * pow5(cloudsTransmittance) * fakeAtmosphereAbsorption;
 
     #else
 

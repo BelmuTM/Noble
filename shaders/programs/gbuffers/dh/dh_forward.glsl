@@ -169,7 +169,7 @@
 
             translucents.rgb = computeDiffuse(scenePosition, shadowLightVectorWorld, material, false, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
 
-            translucents.rgb = max0(log2(translucents.rgb + 1.0));
+            translucents.rgb = encodeLog(translucents.rgb);
 
             translucents.a = vertexColor.a;
         }

@@ -68,8 +68,10 @@
         blockId = uint((mc_Entity.x - 1000.0) + 0.25);
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
-            directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
+
+            directIlluminance = decodeLog(texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb);
             skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
+            
         #endif
 
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
@@ -287,7 +289,7 @@
     
                 #endif
 
-                translucents.rgb = max0(log2(translucents.rgb + 1.0));
+                translucents.rgb = encodeLog(translucents.rgb);
 
                 translucents.a = albedoTexture.a;
             }

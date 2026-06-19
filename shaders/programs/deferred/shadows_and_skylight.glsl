@@ -36,7 +36,6 @@
 
     out vec2 textureCoords;
     out vec2 vertexCoords;
-    flat out vec3 directIlluminance;
 
     #if GI == 0
         flat out vec3[9] skyIrradiance;
@@ -51,7 +50,6 @@
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
-            directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
 
             #if GI == 0
                 skyIrradiance = sampleUniformSkyIrradiance();
@@ -71,7 +69,6 @@
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
-    flat in vec3 directIlluminance;
 
     #if GI == 0
         flat in vec3[9] skyIrradiance;
@@ -149,14 +146,17 @@
 
             }
 
-        #endif
+            if (ivec2(gl_FragCoord.xy) == ivec2(0, 0)) {
+                illuminance.rgb = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb;
 
-        if (ivec2(gl_FragCoord.xy) == ivec2(0, 0))
-            illuminance.rgb = directIlluminance;
-        else if (ivec2(gl_FragCoord.xy) == ivec2(0, 1))
-            illuminance.rgb = uniformSkyIlluminance;
-        else
-            illuminance.rgb = skyIlluminance;
+            } else if (ivec2(gl_FragCoord.xy) == ivec2(0, 1)) {
+                illuminance.rgb = uniformSkyIlluminance;
+
+            } else {
+                illuminance.rgb = skyIlluminance;
+            }
+
+        #endif
                 
         //////////////////////////////////////////////////////////
         /*----------------- SHADOW MAPPING ---------------------*/

@@ -35,8 +35,10 @@
         textureCoords  = gl_Vertex.xy;
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
-        #if defined WORLD_OVERWORLD
-            directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
+        #if defined WORLD_OVERWORLD || defined WORLD_END
+
+            directIlluminance = decodeLog(texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb);
+
         #endif
     }
 
@@ -140,7 +142,7 @@
 
                     if (clamp(sampleCoords, ivec2(0), ivec2(resolution)) != sampleCoords) continue;
 
-                    float sampleDepth = linearizeDepth(exp2(texelFetch(MOMENTS_BUFFER, sampleCoords, 0).r), near, far);
+                    float sampleDepth = linearizeDepth(decodeLog(texelFetch(MOMENTS_BUFFER, sampleCoords, 0).r), near, far);
                     float depthWeight = pow(exp(-abs(sampleDepth - depth)), 8.0);
 
                     vec2 cubicWeights = cubic(abs(vec2(x, y) - coords));
@@ -237,9 +239,9 @@
 
             #if RENDER_MODE == 0
 
-                float prevDepth = exp2(momentsOut.r);
+                float prevDepth = decodeLog(momentsOut.r);
                 
-                momentsOut.r = log2(prevPosition.z);
+                momentsOut.r = encodeLog(prevPosition.z);
 
                 float linearDepth = linearizeDepth(prevPosition.z, nearPlane, farPlane);
 

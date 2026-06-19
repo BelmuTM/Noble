@@ -76,7 +76,7 @@ const bool colortex4Clear = false;
 // IRRADIANCE / CLOUDS SHADOWS / BLOOM
 // ============================================================================
 
-const int colortex5Format = RGBA32F;                // Irradiance | Clouds shadows | Bloom
+const int colortex5Format = RGBA16F;                // Irradiance | Clouds shadows | Bloom
 
 // ============================================================================
 // ATMOSPHERE

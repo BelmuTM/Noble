@@ -218,7 +218,7 @@
             
         #endif
 
-        color = max0(log2(color + 1.0));
+        color = encodeLog(color);
     }
     
 #endif
