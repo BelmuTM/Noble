@@ -330,16 +330,8 @@ vec3 decodeUnitVector(vec2 encoded) {
     return normalize(v);
 }
 
-float encodeLog(float v) {
-    return max0(log2(v + 1.0));
-}
-
 vec3 encodeLog(vec3 v) {
     return max0(log2(v + vec3(1.0)));
-}
-
-float decodeLog(float encoded) {
-    return exp2(encoded) - 1.0;
 }
 
 vec3 decodeLog(vec3 encoded) {

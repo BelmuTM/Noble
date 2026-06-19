@@ -142,7 +142,7 @@
 
                     if (clamp(sampleCoords, ivec2(0), ivec2(resolution)) != sampleCoords) continue;
 
-                    float sampleDepth = linearizeDepth(decodeLog(texelFetch(MOMENTS_BUFFER, sampleCoords, 0).r), near, far);
+                    float sampleDepth = linearizeDepth(exp2(texelFetch(MOMENTS_BUFFER, sampleCoords, 0).r), near, far);
                     float depthWeight = pow(exp(-abs(sampleDepth - depth)), 8.0);
 
                     vec2 cubicWeights = cubic(abs(vec2(x, y) - coords));
@@ -239,9 +239,9 @@
 
             #if RENDER_MODE == 0
 
-                float prevDepth = decodeLog(momentsOut.r);
+                float prevDepth = exp2(momentsOut.r);
                 
-                momentsOut.r = encodeLog(prevPosition.z);
+                momentsOut.r = log2(prevPosition.z);
 
                 float linearDepth = linearizeDepth(prevPosition.z, nearPlane, farPlane);
 

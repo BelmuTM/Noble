@@ -175,8 +175,8 @@
 
             float weight = 0.975;
 
-            float linearDepth     = linearizeDepth(prevPosition.z              , nearPlane, farPlane);
-            float linearPrevDepth = linearizeDepth(decodeLog(prevReflections.a), nearPlane, farPlane);
+            float linearDepth     = linearizeDepth(prevPosition.z         , nearPlane, farPlane);
+            float linearPrevDepth = linearizeDepth(exp2(prevReflections.a), nearPlane, farPlane);
             float depthWeight     = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.01);
 
             float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isHand ? 1.0 : (isReflectingSky ? 0.8 : 0.5));
@@ -190,7 +190,7 @@
             weight *= float(!isWater);
 
             reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
-            reflections.a   = encodeLog(prevPosition.z);
+            reflections.a   = log2(prevPosition.z);
         }
         
     #endif
