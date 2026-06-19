@@ -250,9 +250,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float G1 = G1_Smith_GGX(NdotV, alphaSq);
         float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
 
-        float energyCompensation = energyCompensationFactor(NdotV, NdotL, alphaSq);
-
-        return mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * energyCompensation * G2 / G1;
+        return mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * G2 / G1;
     }
 
 #endif

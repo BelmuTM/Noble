@@ -118,13 +118,12 @@
 
             uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 
-            float F0 = unpackF0(dataTexture.y);
+            float F0    = unpackF0(dataTexture.y);
+            float alpha = unpackAlpha(dataTexture.z);
 
-            if (F0 <= EPS) return;
+            if (F0 <= EPS || alpha > 0.3) return;
 
             vec3 albedo = unpackAlbedo(dataTexture.z);
-
-            float alpha = unpackAlpha(dataTexture.z);
 
             bool isWater = isWater(unpackId(dataTexture.x));
 
@@ -156,6 +155,7 @@
 
             float reprojectionDepth;
             bool  isReflectingSky = false;
+
             if (rayLength < EPS) {
                 reprojectionDepth = texture(CLOUDMAP_BUFFER, textureCoords).a;
                 isReflectingSky   = true;
