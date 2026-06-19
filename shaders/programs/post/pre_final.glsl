@@ -59,12 +59,14 @@ in vec2 textureCoords;
 #include "/include/post/grading.glsl"
 
 void main() {
+    color = texture(MAIN_BUFFER, textureCoords).rgb;
+
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         if (all(lessThan(gl_FragCoord.xy, debugHistogramSize)))
             return;
     #endif
 
-    color = decodeLog(texture(MAIN_BUFFER, textureCoords).rgb);
+    color = decodeLog(color);
 
     float exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
@@ -101,20 +103,27 @@ void main() {
         agx(color);
         agxLook(color);
         agxEotf(color);
+        
     #elif TONEMAP == ACES      // ACES
         compressionLMT(color);
         rrt(color);
         odt(color);
+
     #elif TONEMAP == 2         // Burgess
         burgess(color);
+
     #elif TONEMAP == 3         // Reinhard-Jodie
         reinhardJodie(color);
+
     #elif TONEMAP == 4         // Lottes
         lottes(color);
+
     #elif TONEMAP == 5         // Uchimura
         uchimura(color);
+
     #elif TONEMAP == 6         // Uncharted 2
         uncharted2(color);
+
     #endif
 
     #if TONEMAP != ACES && TONEMAP != 0

@@ -53,13 +53,15 @@ screen.ATMOSPHERE              = Atmosphere
 screen.CLOUDS                  = Clouds
 screen.CLOUDS_LAYER0           = First Layer
 screen.CLOUDS_LAYER1           = Second Layer
-screen.FOG                     = Air Fog
+screen.FOG                     = Fog
 screen.STARS                   = Stars
-screen.TERRAIN                 = Terrain
+screen.WORLD                   = World
 screen.WATER                   = Water
 screen.WATER_ABSORPTION        = Absorption
 screen.WATER_SCATTERING        = Scattering
 screen.POM                     = POM
+screen.RAIN_PUDDLES            = Rain Puddles
+screen.ANIMATIONS              = Animations
 screen.CAMERA                  = Camera
 screen.CAMERA_SETTINGS         = Camera Settings
 screen.ANTI_ALIASING           = Anti-Aliasing
@@ -599,7 +601,7 @@ value.WEATHER_TILT.0 = §cOFF
 value.WEATHER_TILT.1 = §aON
 
 #////////////////////////////////////////////////////////#
-#------------------------ TERRAIN -----------------------#
+#------------------------- WORLD ------------------------#
 #////////////////////////////////////////////////////////#
 
 ### WATER
@@ -702,17 +704,7 @@ option.POM_DEPTH_WRITE.comment = Writes the depth of §bPOM§r to the depth buff
 value.POM_DEPTH_WRITE.0 = §cOFF
 value.POM_DEPTH_WRITE.1 = §aON
 
-### TERRAIN
-
-option.WHITE_WORLD = White World
-option.WHITE_WORLD.comment = Makes the environment entirely white.
-value.WHITE_WORLD.0 = §cOFF
-value.WHITE_WORLD.1 = §aON
-
-option.WAVING_PLANTS = Waving Plants
-option.WAVING_PLANTS.comment = Makes plants like leaves and flowers wave to the wind.
-value.WAVING_PLANTS.0 = §cOFF
-value.WAVING_PLANTS.1 = §aON
+### RAIN PUDDLES
 
 option.RAIN_PUDDLES = Rain Puddles
 option.RAIN_PUDDLES.comment = Simulates the apparition of puddles on the ground during the rain.
@@ -722,6 +714,22 @@ value.RAIN_PUDDLES.1 = §aON
 option.RAIN_PUDDLES_SIZE = Rain Puddles Size
 option.RAIN_PUDDLES_SIZE.comment = Adjusts §bRain Puddles§r' size.
 suffix.RAIN_PUDDLES_SIZE = %
+
+### ANIMATIONS
+
+option.WAVING_PLANTS = Waving Plants
+option.WAVING_PLANTS.comment = Makes plants like leaves and flowers wave to the wind.
+value.WAVING_PLANTS.0 = §cOFF
+value.WAVING_PLANTS.1 = §aON
+
+option.WAVING_PLANTS_SPEED = Waving Plants Speed
+option.WAVING_PLANTS_SPEED.comment = Adjusts the speed of the waving animation of plants.
+suffix.WAVING_PLANTS_SPEED = x
+
+option.SWINGING_LANTERNS = Swinging Lanterns
+option.SWINGING_LANTERNS.comment = Makes lanterns swing randomly when they're placed on a ceiling.
+value.SWINGING_LANTERNS.0 = §cOFF
+value.SWINGING_LANTERNS.1 = §aON
 
 #////////////////////////////////////////////////////////#
 #------------------------ CAMERA ------------------------#
@@ -1027,6 +1035,11 @@ value.DEBUG_NORMALS.1 = §aON
 option.DEBUG_DEPTH = Display Depth
 value.DEBUG_DEPTH.0 = §cOFF
 value.DEBUG_DEPTH.1 = §aON
+
+option.WHITE_WORLD = White World
+option.WHITE_WORLD.comment = Makes the textures fully white, only leaving the lighting visible.
+value.WHITE_WORLD.0 = §cOFF
+value.WHITE_WORLD.1 = §aON
 
 option.DEBUG_AO = Display Ambient Occlusion
 value.DEBUG_AO.0 = §cOFF

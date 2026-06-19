@@ -221,7 +221,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
     float transmittance = 1.0;
 
     // Adaptive steps
-    int steps = int(mix(layer.steps * 0.25, float(layer.steps), saturate(dists.x / dists.y)));
+    int steps = layer.steps;
     
     for (int i = 0; i < steps; i++, rayPosition += increment) {
         if (transmittance <= cloudsTransmitThreshold) break;
@@ -278,21 +278,25 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
     return vec4(scattering, transmittance, distanceToClouds);
 }
 
-float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer, int stepCount) {
-    float cloudsLowerBound = planetRadius     + layer.altitude;
-    float cloudsUpperBound = cloudsLowerBound + layer.thickness;
+#if CLOUDS_SHADOWS == 1
 
-    vec2 dists = intersectSphericalShell(shadowPosition, shadowLightVectorWorld, cloudsLowerBound, cloudsUpperBound);
+    float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer) {
+        float cloudsLowerBound = planetRadius     + layer.altitude;
+        float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
-    float stepSize    = (dists.y - dists.x) * rcp(stepCount);
-    vec3  increment   = shadowLightVectorWorld * stepSize;
-    vec3  rayPosition = shadowPosition + shadowLightVectorWorld * (dists.x + stepSize * 0.5);
+        vec2 dists = intersectSphericalShell(shadowPosition, shadowLightVectorWorld, cloudsLowerBound, cloudsUpperBound);
 
-    float opticalDepth = 0.0;
+        float stepSize    = (dists.y - dists.x) * rcp(CLOUDS_SHADOWS_STEPS);
+        vec3  increment   = shadowLightVectorWorld * stepSize;
+        vec3  rayPosition = shadowPosition + shadowLightVectorWorld * (dists.x + stepSize * 0.5);
 
-    for (int i = 0; i < stepCount; i++, rayPosition += increment) {
-        opticalDepth += calculateCloudsDensity(rayPosition, layer);
+        float opticalDepth = 0.0;
+
+        for (int i = 0; i < CLOUDS_SHADOWS_STEPS; i++, rayPosition += increment) {
+            opticalDepth += calculateCloudsDensity(rayPosition, layer);
+        }
+
+        return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);
     }
 
-    return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);
-}
+#endif

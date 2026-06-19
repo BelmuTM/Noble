@@ -93,7 +93,7 @@
     
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
-        #if RENDER_MODE == 0 && defined PROGRAM_TERRAIN && WAVING_PLANTS == 1
+        #if RENDER_MODE == 0 && defined PROGRAM_TERRAIN && ANIMATIONS_ENABLED
 
             animate(scenePosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
 

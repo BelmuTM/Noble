@@ -18,49 +18,60 @@
 /*                                                                              */
 /********************************************************************************/
 
-float windSpeed = mix(1.5, 2.5, wetness);
-vec3  windDirection   = windSpeed * frameTimeCounter * vec3(-0.2, 0.35, -1.0);
+float windSpeed     = WAVING_PLANTS_SPEED + (1.75 * wetness);
+vec3  windDirection = windSpeed * frameTimeCounter * vec3(-0.2, 0.35, -1.0);
 
 void wavingLeaves(inout vec3 worldPosition, float skyFalloff) {
-    worldPosition += cameraPosition;
+    #if WAVING_PLANTS == 1
 
-    float rng = 1.0 + FBM(worldPosition * vec3(0.3, 0.5, 0.3), 1, 1.0);
+        worldPosition += cameraPosition;
 
-    vec3 offset  = sin(worldPosition * 1.4 + windDirection * rng * vec3(2.0, 1.5, 2.0)) * vec3(0.04, 0.06, 0.04);
-         offset *= skyFalloff;
+        float rng = 1.0 + FBM(worldPosition * vec3(0.3, 0.5, 0.3), 1, 1.0);
 
-    worldPosition += offset;
-    worldPosition -= cameraPosition;
+        vec3 offset  = sin(worldPosition * 1.4 + windDirection * rng * vec3(2.0, 1.5, 2.0)) * vec3(0.04, 0.06, 0.04);
+            offset *= skyFalloff;
+
+        worldPosition += offset;
+        worldPosition -= cameraPosition;
+
+    #endif
 }
 
 void wavingPlants(inout vec3 worldPosition, float skyFalloff, bool isTopVertex, bool isTopBlock) {
-    worldPosition += cameraPosition;
+    #if WAVING_PLANTS == 1
 
-    float rng = 1.0 + FBM(worldPosition.xz, 1, 1.5);
+        worldPosition += cameraPosition;
 
-    vec2 offset  = sin(worldPosition.xz * 1.4 + rng * windDirection.xz) * 0.1 + vec2(0.06, -0.03);
-         offset *= (isTopBlock ? 1.0 : float(isTopVertex)) * skyFalloff;
+        float rng = 1.0 + FBM(worldPosition.xz, 1, 1.5);
 
-    worldPosition.xz += offset;
-    worldPosition    -= cameraPosition;
+        vec2 offset  = sin(worldPosition.xz * 1.4 + rng * windDirection.xz) * 0.1 + vec2(0.06, -0.03);
+            offset *= (isTopBlock ? 1.0 : float(isTopVertex)) * skyFalloff;
+
+        worldPosition.xz += offset;
+        worldPosition    -= cameraPosition;
+
+    #endif
 }
 
-void swingingLantern(inout vec3 worldPosition, bool isBottomVertex) {
-    worldPosition += cameraPosition;
+void swingingLanterns(inout vec3 worldPosition, bool isBottomVertex) {
+    #if SWINGING_LANTERNS == 1
 
-    vec3 localOrigin   = worldPosition + at_midBlock / 64.0;
-         localOrigin.y = ceil(localOrigin.y);
+        worldPosition += cameraPosition;
 
-    vec2 rng      = vec2(FBM(floor(worldPosition.xz + vec2(150.0)), 1, 5.0), FBM(floor(worldPosition.xz), 1, 10.0)) * 2.0 - 1.0;
-    vec2 rotation = sincos(frameTimeCounter * 1.5) * vec2(7.0 * (rng.y * 2.0 + rng.x * 4.0), 10.0 * (rng.y * 6.0)) * 0.1;
+        vec3 localOrigin   = worldPosition + at_midBlock / 64.0;
+            localOrigin.y = ceil(localOrigin.y);
 
-    worldPosition -= localOrigin;
-    worldPosition  = rotate(worldPosition, vec3(0.0, 0.0, 1.0), rotation.x);
-    worldPosition  = rotate(worldPosition, vec3(1.0, 0.0, 1.0), rotation.y);
-    worldPosition += localOrigin;
+        vec2 rng      = vec2(FBM(floor(worldPosition.xz + vec2(150.0)), 1, 5.0), FBM(floor(worldPosition.xz), 1, 10.0)) * 2.0 - 1.0;
+        vec2 rotation = sincos(frameTimeCounter * 1.5) * vec2(7.0 * (rng.y * 2.0 + rng.x * 4.0), 10.0 * (rng.y * 6.0)) * 0.1;
 
-    worldPosition -= cameraPosition;
+        worldPosition -= localOrigin;
+        worldPosition  = rotate(worldPosition, vec3(0.0, 0.0, 1.0), rotation.x);
+        worldPosition  = rotate(worldPosition, vec3(1.0, 0.0, 1.0), rotation.y);
+        worldPosition += localOrigin;
 
+        worldPosition -= cameraPosition;
+
+    #endif
 }
 
 void animate(inout vec3 worldPosition, bool isTopVertex, float skyFalloff) {
@@ -69,7 +80,7 @@ void animate(inout vec3 worldPosition, bool isTopVertex, float skyFalloff) {
         case DOUBLE_PLANTS_LOWER_ID: wavingPlants(worldPosition, skyFalloff, isTopVertex, false); break;
         case DOUBLE_PLANTS_UPPER_ID: wavingPlants(worldPosition, skyFalloff, isTopVertex, true ); break;
         case PLANTS_ID:              wavingPlants(worldPosition, skyFalloff, isTopVertex, false); break;
-        case HANGING_LANTERN_ID:     swingingLantern(worldPosition, !isTopVertex);                break; 
+        case HANGING_LANTERN_ID:     swingingLanterns(worldPosition, !isTopVertex);               break; 
         default: break;
     }
 }

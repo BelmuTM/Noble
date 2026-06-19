@@ -18,6 +18,8 @@
 /*                                                                              */
 /********************************************************************************/
 
+#include "/block_id_mappings.glsl"
+
 #define ABOUT 0 // [0 1]
 
 #define RENDER_MODE 0 // [0 1]
@@ -200,9 +202,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define CLOUDS_SCALE 50 // [25 30 40 50 60 70 75 80 90 100]
 
-#define CLOUDS_WIND_SPEED 5 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define CLOUDS_WIND_SPEED 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 #define CLOUDS_SHADOWS 			    0 // [0 1]
+#define CLOUDS_SHADOWS_STEPS        8
 #define CLOUDS_SHADOWS_RESOLUTION 256 // [128 256 512 1024 2048]
 
 // CLOUD MAP
@@ -223,7 +226,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define CLOUDS_LAYER0_FREQUENCY 0.6 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0 5.1 5.2 5.3 5.4 5.5 5.6 5.7 5.8 5.9 6.0 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9 7.0 7.1 7.2 7.3 7.4 7.5 7.6 7.7 7.8 7.9 8.0]
 #define CLOUDS_LAYER0_DENSITY   100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 
-#define CLOUDS_LAYER0_ALTITUDE  2000 // [100 200 300 400 500 600 700 800 900 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2500 3000 3500 4000 4500 5000 5500 6000 6500 7000 7500 8000 9500 10000]
+#define CLOUDS_LAYER0_ALTITUDE  1300 // [100 200 300 400 500 600 700 800 900 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2500 3000 3500 4000 4500 5000 5500 6000 6500 7000 7500 8000 9500 10000]
 #define CLOUDS_LAYER0_THICKNESS 1000 // [100 200 300 400 500 600 700 800 900 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000]
 #define CLOUDS_LAYER0_COVERAGE    30 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_LAYER0_SWIRL       10 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
@@ -282,38 +285,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 /*----------------------- TERRAIN ----------------------*/
 //////////////////////////////////////////////////////////
 
-#define WHITE_WORLD 0 // [0 1]
-
-#define WAVING_PLANTS 1 // [0 1]
-
-#define WATER_ID                1
-#define LAVA_ID                 5
-#define FIRE_ID                 6
-#define HANGING_LANTERN_ID      8
-#define NETHER_PORTAL_ID       10
-#define SSS_ID                 11
-#define LEAVES_ID              12
-#define DOUBLE_PLANTS_LOWER_ID 13
-#define DOUBLE_PLANTS_UPPER_ID 14
-#define PLANTS_ID              15
-
-#define LIGHTNING_BOLT_ID 63
-
-#define RAIN_PUDDLES       1 // [0 1]
-#define RAIN_PUDDLES_SIZE 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-
-#define RAIN_DIRECTION vec2(0.60, 0.1)
-
-// POM
-
-#define POM           0 // [0 1 2]
-#define POM_LAYERS   32 // [32 64 128 256 512]
-#define POM_DEPTH   0.4 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define POM_DISTANCE 32 // [16 32 48 64 80 96 112 128 144 160 176 192 208 224 240 256 512]
-
-#define POM_SHADOWING   0 // [0 1]
-#define POM_DEPTH_WRITE 0 // [0 1]
-
 // WATER
 
 #define WATER_PARALLAX             1 // [0 1]
@@ -349,6 +320,32 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define UNDERWATER_DISTORTION_AMPLITUDE 0.15
 
 #define UNDERWATER_BLOOM_BOOST 10.0
+
+// POM
+
+#define POM           0 // [0 1 2]
+#define POM_LAYERS   32 // [32 64 128 256 512]
+#define POM_DEPTH   0.4 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define POM_DISTANCE 32 // [16 32 48 64 80 96 112 128 144 160 176 192 208 224 240 256 512]
+
+#define POM_SHADOWING   0 // [0 1]
+#define POM_DEPTH_WRITE 0 // [0 1]
+
+// ANIMATIONS
+
+#define WAVING_PLANTS         1 // [0 1]
+#define WAVING_PLANTS_SPEED 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+
+#define SWINGING_LANTERNS 1 // [0 1]
+
+#define ANIMATIONS_ENABLED (WAVING_PLANTS == 1 || SWINGING_LANTERNS == 1)
+
+// RAIN
+
+#define RAIN_PUDDLES       1 // [0 1]
+#define RAIN_PUDDLES_SIZE 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+
+#define RAIN_DIRECTION vec2(0.60, 0.1)
 
 //////////////////////////////////////////////////////////
 /*-------------------- ANTI-ALIASING -------------------*/
@@ -487,6 +484,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define DEBUG_ALBEDO  0 // [0 1]
 #define DEBUG_NORMALS 0 // [0 1]
 #define DEBUG_DEPTH   0 // [0 1]
+
+#define WHITE_WORLD 0 // [0 1]
 
 #define DEBUG_AO 0 // [0 1]
 

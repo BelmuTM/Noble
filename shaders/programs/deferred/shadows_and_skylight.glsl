@@ -230,7 +230,9 @@
             #endif
 
             #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), cloudLayer0, 20);
+
+                illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), cloudLayer0);
+
             #endif
 
         #endif

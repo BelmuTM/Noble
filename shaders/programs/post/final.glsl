@@ -215,7 +215,5 @@ void main() {
 
     #endif
 
-    //colorOut = vec3(1.0 / linearizeDepth(texture(colortex13, textureCoords).r, near, far));
-
     debugOutput(colorOut);
 }
