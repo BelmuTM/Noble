@@ -145,6 +145,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define REFLECTIONS         1 // [0 1 2]
 #define REFLECTIONS_SCALE 100 // [25 50 75 100]
 
+#define REFLECTIONS_ROUGHNESS_THRESHOLD 0.5
+
 #define REFLECTIONS_STRIDE 48 // [1 4 8 16 24 32 48 64]
 
 #define ROUGH_REFLECTIONS_SAMPLES 1 // [1 2 3 4]

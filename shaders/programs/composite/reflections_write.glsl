@@ -124,7 +124,7 @@
             float F0    = unpackF0(dataTexture.y);
             float alpha = unpackAlpha(dataTexture.z);
 
-            if (F0 <= EPS || alpha > 0.3) return;
+            if (F0 <= EPS || alpha > REFLECTIONS_ROUGHNESS_THRESHOLD) return;
 
             vec3 albedo = unpackAlbedo(dataTexture.z);
 
