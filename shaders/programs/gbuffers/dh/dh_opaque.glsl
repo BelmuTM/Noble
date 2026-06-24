@@ -26,6 +26,7 @@
 #if defined STAGE_VERTEX
 
     flat out uint blockId;
+    
     out vec2 lightmapCoords;
     out vec3 vertexNormal;
     out vec3 scenePosition;
@@ -60,6 +61,7 @@
     layout (location = 0) out uvec4 data;
 
     flat in uint blockId;
+
     in vec2 lightmapCoords;
     in vec3 vertexNormal;
     in vec3 scenePosition;

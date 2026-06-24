@@ -45,6 +45,7 @@
     out vec3 viewPosition;
     out vec3 scenePosition;
     out vec4 vertexColor;
+
     out mat3 tbn;
 
     uniform float rcp240;
@@ -114,6 +115,7 @@
     layout (location = 0) out uvec4 data;
 
     flat in uint blockId;
+    
     in vec2 textureCoords;
     in vec2 lightmapCoords;
 
@@ -125,6 +127,7 @@
     in vec3 viewPosition;
     in vec3 scenePosition;
     in vec4 vertexColor;
+
     in mat3 tbn;
 
     uniform sampler2D gtexture;
@@ -298,15 +301,19 @@
         #endif
 
         #if HARDCODED_EMISSION == 1
+        
             if (blockId >= LAVA_ID && blockId < SSS_ID && emission <= EPS) {
                 emission = HARDCODED_EMISSION_VAL;
             }
+
         #endif
         
         #if HARDCODED_SSS == 1
+
             if (blockId > NETHER_PORTAL_ID && blockId <= PLANTS_ID && subsurface <= EPS) {
                 subsurface = HARDCODED_SSS_VAL;
             }
+
         #endif
 
         float handLight  = min(float(heldBlockLightValue + heldBlockLightValue2), 15.0) / 15.0;

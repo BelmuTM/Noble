@@ -51,7 +51,7 @@ uniform sampler2D vxDepthTexTrans;
 
 #include "/include/material/brdf.glsl"
 
-#include "/include/fragment/gerstner.glsl"
+#include "/include/fragment/water.glsl"
 
 layout (location = 0) out uvec4 data;
 layout (location = 1) out vec4 translucents;
@@ -85,6 +85,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
     // WOTAH
     if (blockId == WATER_ID) {
+
         material.F0        = waterF0;
         material.alpha     = 0.0;
         material.emission  = 0.0;
@@ -96,8 +97,10 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
             vec3(0.0, 1.0, 0.0)
         );
 
-        material.normal = tbn * getWaterNormal(scenePosition + cameraPosition, WATER_OCTAVES);
+        material.normal = getWaterNormal(scenePosition + cameraPosition, WATER_OCTAVES);
+
     } else {
+
         material.F0 = 0.0;
 
         material.alpha = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
@@ -125,9 +128,11 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         vec3 skyIlluminance = vec3(0.0);
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
+
             if (material.lightmap.y > EPS) {
                 skyIlluminance = evaluateUniformSkyIrradianceApproximation();
             }
+            
         #endif
 
         translucents.rgb = computeDiffuse(scenePosition, shadowLightVectorWorld, material, false, vec4(1.0, 1.0, 1.0, 0.0), directIlluminance, skyIlluminance, 1.0, 1.0);
@@ -135,6 +140,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         translucents.rgb = encodeLog(translucents.rgb);
 
         translucents.a = voxyParameters.sampledColour.a;
+
     }
     
     vec2 encodedNormal = encodeUnitVector(normalize(material.normal));

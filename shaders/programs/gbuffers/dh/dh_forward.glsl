@@ -34,12 +34,14 @@
 #if defined STAGE_VERTEX
 
     flat out uint blockId;
+    
     out vec2 lightmapCoords;
     out vec3 vertexNormal;
     out vec3 scenePosition;
     out vec4 vertexColor;
+
     flat out vec3 directIlluminance;
-    out mat3[2] skyIlluminanceMat;
+    flat out mat3[2] skyIlluminanceMat;
 
     void main() {
         lightmapCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
@@ -56,8 +58,10 @@
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
+
             directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
             skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
+            
         #endif
         
         gl_Position    = modProjection * vec4(viewPosition, 1.0);
@@ -76,12 +80,14 @@
     layout (location = 1) out vec4 translucents;
 
     flat in uint blockId;
+
     in vec2 lightmapCoords;
     in vec3 vertexNormal;
     in vec3 scenePosition;
     in vec4 vertexColor;
+
     flat in vec3 directIlluminance;
-    in mat3[2] skyIlluminanceMat;
+    flat in mat3[2] skyIlluminanceMat;
 
     #include "/include/utility/rng.glsl"
     
@@ -91,7 +97,7 @@
         #include "/include/fragment/shadows.glsl"
     #endif
 
-    #include "/include/fragment/gerstner.glsl"
+    #include "/include/fragment/water.glsl"
 
     void main() {
         translucents = vec4(0.0);
@@ -120,6 +126,7 @@
 
         // WOTAH
         if (blockId == DH_BLOCK_WATER) {
+
             material.F0        = waterF0;
             material.alpha     = 0.0;
             material.emission  = 0.0;
@@ -131,8 +138,10 @@
                 vec3(0.0, 1.0, 0.0)
             );
 
-            material.normal = tbn * getWaterNormal(scenePosition + cameraPosition, WATER_OCTAVES);
+            material.normal = getWaterNormal(scenePosition + cameraPosition, WATER_OCTAVES);
+
         } else {
+
             material.F0 = 0.0;
 
             material.alpha = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
@@ -158,6 +167,7 @@
             vec3 skyIlluminance = vec3(0.0);
 
             #if defined WORLD_OVERWORLD || defined WORLD_END
+
                 #if defined WORLD_OVERWORLD && SHADOWS > 0
                     shadowmap.rgb = abs(calculateShadowMapping(scenePosition, vertexNormal, gl_FragDepth, shadowmap.a));
                 #endif
@@ -165,6 +175,7 @@
                 if (material.lightmap.y > EPS) {
                     skyIlluminance = evaluateSkylight(vertexNormal, skyIlluminanceMat);
                 }
+
             #endif
 
             translucents.rgb = computeDiffuse(scenePosition, shadowLightVectorWorld, material, false, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
@@ -172,6 +183,7 @@
             translucents.rgb = encodeLog(translucents.rgb);
 
             translucents.a = vertexColor.a;
+
         }
         
         vec2 encodedNormal = encodeUnitVector(normalize(material.normal));

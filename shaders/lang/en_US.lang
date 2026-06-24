@@ -606,6 +606,37 @@ value.WEATHER_TILT.1 = §aON
 
 ### WATER
 
+# Water Waves
+
+option.WATER_OCTAVES = Wave Octaves
+option.WATER_OCTAVES.comment = Influences §bWater Waves§r' details. §cHigher value gives better results, but reduces §cperformance.
+value.WATER_OCTAVES.2 = §b2
+value.WATER_OCTAVES.4 = §34
+value.WATER_OCTAVES.6 = §26
+value.WATER_OCTAVES.8 = §a8
+value.WATER_OCTAVES.12 = §e12
+value.WATER_OCTAVES.16 = §616
+value.WATER_OCTAVES.24 = §c24
+value.WATER_OCTAVES.32 = §432
+
+option.WAVE_SPEED = Wave Speed
+option.WAVE_SPEED.comment = Adjusts the speed of water waves.
+suffix.WAVE_SPEED = x
+
+option.WAVE_STEEPNESS = Wave Steepness
+option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of height to width.
+suffix.WAVE_STEEPNESS = x
+
+option.WAVE_AMPLITUDE = Wave Amplitude
+option.WAVE_AMPLITUDE.comment = Adjusts the amplitude of water waves.
+suffix.WAVE_AMPLITUDE = x
+
+option.WAVE_LENGTH = Wave Length
+option.WAVE_LENGTH.comment = Adjusts the length of water waves (in meters).
+suffix.WAVE_LENGTH = m
+
+# Water Caustics
+
 option.WATER_CAUSTICS = Caustics
 option.WATER_CAUSTICS.comment = Caustics provoked by the refraction of light on water. They cast underwater.
 value.WATER_CAUSTICS.0 = §cOFF
@@ -614,25 +645,7 @@ value.WATER_CAUSTICS.1 = §aON
 option.WATER_CAUSTICS_STRENGTH = Caustics Strength
 option.WATER_CAUSTICS_STRENGTH.comment = Adjusts §bWater Caustics§r' intensity.
 
-option.WATER_OCTAVES = Wave Octaves
-option.WATER_OCTAVES.comment = Influences §bWater Waves§r' details. §cHigher value gives better results, but reduces §cperformance.
-value.WATER_OCTAVES.2 = §32
-value.WATER_OCTAVES.4 = §24
-value.WATER_OCTAVES.6 = §a6
-value.WATER_OCTAVES.8 = §e8
-value.WATER_OCTAVES.16 = §616
-value.WATER_OCTAVES.32 = §c32
-value.WATER_OCTAVES.48 = §448
-
-option.WAVE_STEEPNESS = Wave Steepness
-option.WAVE_STEEPNESS.comment = Adjusts the steepness of water waves. Ratio of height to width.
-
-option.WAVE_AMPLITUDE = Wave Amplitude
-option.WAVE_AMPLITUDE.comment = Adjusts the amplitude of water waves.
-
-option.WAVE_LENGTH = Wave Length
-option.WAVE_LENGTH.comment = Adjusts the length of water waves (in meters).
-suffix.WAVE_LENGTH = m
+# Water Parallax
 
 option.WATER_PARALLAX = Water Parallax
 option.WATER_PARALLAX.comment = Applies §bParallax Mapping§r to Water waves.
@@ -641,6 +654,8 @@ value.WATER_PARALLAX.1 = §aON
 
 option.WATER_PARALLAX_DEPTH = Water Parallax Depth
 option.WATER_PARALLAX_DEPTH.comment = Adjusts §bWater Parallax§r's depth.
+
+# Water Fog
 
 option.WATER_FOG = Water Fog
 option.WATER_FOG.comment = Simulates the absorption and scattering of light in water. §aApproximation§r water fog is a semi-accurate way of computing it. §aVolumetric§r water fog uses ray marching and complex calculations to compute it more accurately.

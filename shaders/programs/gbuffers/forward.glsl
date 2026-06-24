@@ -42,10 +42,12 @@
     out vec2 textureCoords;
     out vec2 lightmapCoords;
     out vec3 scenePosition;
-    flat out vec3 directIlluminance;
     out vec4 vertexColor;
-    out mat3[2] skyIlluminanceMat;
+
     out mat3 tbn;
+
+    flat out vec3 directIlluminance;
+    flat out mat3[2] skyIlluminanceMat;
 
     uniform float rcp240;
 
@@ -95,10 +97,12 @@
     in vec2 textureCoords;
     in vec2 lightmapCoords;
     in vec3 scenePosition;
-    flat in vec3 directIlluminance;
     in vec4 vertexColor;
-    in mat3[2] skyIlluminanceMat;
+
     in mat3 tbn;
+
+    flat in vec3 directIlluminance;
+    flat in mat3[2] skyIlluminanceMat;
 
     #include "/include/utility/rng.glsl"
     
@@ -108,7 +112,7 @@
         #include "/include/fragment/shadows.glsl"
     #endif
 
-    #include "/include/fragment/gerstner.glsl"
+    #include "/include/fragment/water.glsl"
 
     uniform sampler2D gtexture;
     uniform sampler2D normals;
@@ -139,8 +143,10 @@
         vec4 specularTexture = vec4(0.0);
 
         #if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT
+
             normalTexture   = texture(normals,  textureCoords);
             specularTexture = texture(specular, textureCoords);
+            
         #endif
 
         albedoTexture *= vertexColor;
@@ -154,11 +160,14 @@
         vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
         #if defined WORLD_OVERWORLD && SHADOWS > 0
+
             shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], gl_FragDepth, shadowmap.a));
+
         #endif
 
         // WOTAH
         if (blockId == WATER_ID) { 
+
             material.F0         = waterF0;
             material.alpha      = 0.0;
             material.ao         = 1.0;
@@ -177,21 +186,26 @@
 
             #endif
 
-            material.normal = tbn * getWaterNormal(scenePositionWater, WATER_OCTAVES);
+            material.normal = getWaterNormal(scenePositionWater, tbn[2], WATER_OCTAVES);
         
         } else {
+
             #if defined PROGRAM_TEXTURED || defined PROGRAM_TEXTURED_LIT
+
                 material.F0         = 0.0;
                 material.alpha      = 1.0;
                 material.ao         = 1.0;
                 material.emission   = 0.0;
                 material.subsurface = 0.0;
+
             #else
+
                 material.F0         = specularTexture.y;
                 material.alpha      = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTexture.x);
                 material.ao         = normalTexture.z;
                 material.emission   = specularTexture.w * maxFloat8 < 254.5 ? specularTexture.w : 0.0;
                 material.subsurface = saturate(specularTexture.z * (maxFloat8 / 190.0) - (65.0 / 190.0));
+
             #endif
 
             #if defined PROGRAM_ENTITY
@@ -239,6 +253,7 @@
             bool isMetal = material.F0 * maxFloat8 > labPBRMetals;
 
             if (!isMetal && shadeTranslucents) {
+
                 #if TONEMAP == ACES
                     material.albedo = srgbToAP1Albedo(material.albedo);
                 #else
@@ -251,9 +266,11 @@
                 vec3 skyIlluminance = vec3(0.0);
 
                 #if defined WORLD_OVERWORLD || defined WORLD_END
+
                     if (material.lightmap.y > EPS) {
                         skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
                     }
+
                 #endif
 
                 #if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT && !defined PROGRAM_SPIDEREYES
@@ -292,7 +309,9 @@
                 translucents.rgb = encodeLog(translucents.rgb);
 
                 translucents.a = albedoTexture.a;
+
             }
+
         }
 
         vec2 encodedNormal = encodeUnitVector(normalize(material.normal));

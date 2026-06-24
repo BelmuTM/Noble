@@ -81,7 +81,7 @@
 
     #if WATER_CAUSTICS == 1
 
-        #include "/include/fragment/gerstner.glsl"
+        #include "/include/fragment/water.glsl"
 
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
         float waterCaustics(vec3 oldPosition, vec3 normal) {
@@ -111,7 +111,7 @@
             shadowmap.rgb = vec3(1.0);
 
             #if WATER_CAUSTICS == 1
-                vec3  waterNormals = getWaterNormal(worldPosition, 1.0, 3);
+                vec3  waterNormals = getWaterNormal(worldPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES, 2.0);
                 float caustics     = waterCaustics(worldPosition, waterNormals) * WATER_CAUSTICS_STRENGTH;
 
                 shadowmap.rgb += max0(caustics);

@@ -399,12 +399,13 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         // Multiple scattering approximation provided by Jessie
         vec3 multipleScatteringFactor = scatteringAlbedo * 0.84;
 
-        int phaseSampleCount = 16;
-        float phaseMultiple  = 0.0;
+        int   phaseSampleCount = 8;
+        float phaseMultiple    = 0.0;
 
         for (int i = 0; i < phaseSampleCount; i++) {
             phaseMultiple += cornetteShanksPhase(VdotL, 0.6 * pow(0.5, phaseSampleCount));
         }
+        
         phaseMultiple /= phaseSampleCount;
 
         scatteringOut  = scattering * phaseMultiple;
