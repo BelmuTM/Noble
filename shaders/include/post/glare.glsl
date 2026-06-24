@@ -34,11 +34,16 @@ const vec2 bladeDirections[4] = vec2[4](
 
 void glare(inout vec3 color, sampler2D colorTex, vec2 coords) {
     const float sigma = GLARE_STEPS * GLARE_BLADES_SIZE * 0.45;
+    
+    vec3 worldForward = mat3(gbufferModelView) * vec3(0.0, 0.0, -1.0);
 
-    float angle   = radians(GLARE_BLADES_ANGLE);
-    mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+    float yawAngle = atan(worldForward.x, worldForward.z);
+
+    float angle    = radians(GLARE_BLADES_ANGLE) - yawAngle;
+    mat2  rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
 
     vec3 glare = vec3(0.0);
+
     float totalWeight = 0.0;
     
     for (int i = -GLARE_STEPS; i <= GLARE_STEPS; i++) {
