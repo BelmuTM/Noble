@@ -97,7 +97,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
             vec3(0.0, 1.0, 0.0)
         );
 
-        material.normal = getWaterNormal(scenePosition + cameraPosition, WATER_OCTAVES);
+        material.normal = getWaterNormal(scenePosition + cameraPosition, material.normal, WATER_OCTAVES);
 
     } else {
 

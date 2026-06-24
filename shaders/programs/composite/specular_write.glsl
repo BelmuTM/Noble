@@ -141,7 +141,7 @@
 
             #if REFRACTIONS > 0
             
-                if (depth0 != depth1 && material.F0 > EPS) {
+                if (!isOpaque && material.F0 > EPS) {
                     lighting = computeRefractions(modFragment, projection, projectionInverse, viewPosition0, viewPosition1, material, coords);
                 }
 

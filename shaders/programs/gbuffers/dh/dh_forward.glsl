@@ -132,13 +132,7 @@
             material.emission  = 0.0;
             albedo             = vec3(0.0);
 
-            const mat3 tbn = mat3(
-                vec3(1.0, 0.0, 0.0),
-                vec3(0.0, 0.0, 1.0),
-                vec3(0.0, 1.0, 0.0)
-            );
-
-            material.normal = getWaterNormal(scenePosition + cameraPosition, WATER_OCTAVES);
+            material.normal = getWaterNormal(scenePosition + cameraPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES);
 
         } else {
 
