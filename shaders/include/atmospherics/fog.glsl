@@ -368,7 +368,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
 
         for (uint i = 0u; i < WATER_FOG_STEPS; i++, worldPosition += worldIncrement, shadowPosition += shadowIncrement) {
             // Early exit if transmittance is too low
-            if (maxOf(transmittanceOut) < EPS) break;
+            if (maxOf(transmittance) < EPS) break;
 
             vec3 shadowScreenPosition = shadowClipToShadowScreen(shadowPosition);
 
