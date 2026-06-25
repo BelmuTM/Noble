@@ -173,8 +173,8 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
 
         // Shadow bias implementation from Emin and concept from gri573
         float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.1;
-        shadowPosition  += mat3(shadowProjection) * (mat3(shadowModelView) * geometricNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
-        shadowPosition  *= 1.0002;
+
+        shadowPosition += mat3(shadowProjection) * (mat3(shadowModelView) * geometricNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
 
         float penumbraSize = NORMAL_SHADOW_PENUMBRA;
 
@@ -194,7 +194,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
             return vec3(-1.0);
         }
 
-        if (NdotL < EPS) return vec3(0.0);
+        if (NdotL < 0.0) return vec3(0.0);
 
         #if SHADOWS == 1
             penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * (shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
