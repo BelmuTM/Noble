@@ -187,7 +187,7 @@
             weight *= depthWeight * velocityWeight * centerWeightHand;
             weight  = saturate(weight);
             weight *= float(insideScreenBounds(prevPositionReflected.xy, RENDER_SCALE));
-            weight *= float(!isWater);
+            weight *= mix(1.0, 0.5, float(isWater));
 
             reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
             reflections.a   = log2(prevPosition.z);

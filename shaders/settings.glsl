@@ -196,7 +196,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // ATMOSPHERE
 
-#define ATMOSPHERE_SCALE              25 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define ATMOSPHERE_SCALE              10 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define ATMOSPHERE_SCATTERING_STEPS   16 // [8 12 16 20 24 28 32]
 #define ATMOSPHERE_TRANSMITTANCE_STEPS 8 // [8 12 16 20 24 28 32]
 
@@ -299,11 +299,11 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define WAVE_SPEED     0.3 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define WAVE_AMPLITUDE 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
-#define WAVE_STEEPNESS 2.5 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
-#define WAVE_LENGTH	   3.5 // [0 0.5 1 1.5 2 2.5 3 3.5 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 9.5 10]
+#define WAVE_STEEPNESS 4.0 // [1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
+#define WAVE_LENGTH	   2.5 // [0 0.5 1 1.5 2 2.5 3 3.5 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 9.5 10]
 
-#define WAVE_STEEPNESS_MULTIPLIER 1.05
-#define WAVE_AMPLITUDE_MULTIPLIER 0.92
+#define WAVE_STEEPNESS_MULTIPLIER 0.98
+#define WAVE_AMPLITUDE_MULTIPLIER 0.93
 #define WAVE_LENGTH_MULTIPLIER    0.90
 
 // Water Caustics
@@ -315,7 +315,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 // Water Parallax
 
 #define WATER_PARALLAX             1 // [0 1]
-#define WATER_PARALLAX_DEPTH     0.5 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define WATER_PARALLAX_DEPTH     0.2 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define WATER_PARALLAX_LAYERS      4
 #define WATER_PARALLAX_DISTANCE 64.0
 

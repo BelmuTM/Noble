@@ -29,9 +29,9 @@
     const float angle   = radians(WAVE_ANGLE);                                   \
     const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)); \
                                                                                  \
-    vec2 direction = vec2(0.2, 0.3);                                             \
+    vec2 direction = vec2(0.1, 0.3);                                             \
                                                                                  \
-    float noise = texture(noisetex, position * 5e-2).a;                          \
+    float noise = texture(noisetex, position * 1e-2).a;                          \
 
 #define WAVE_GERSTNER_PARAMS_FACTOR()        \
     steepness  *= WAVE_STEEPNESS_MULTIPLIER; \
@@ -73,7 +73,7 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
 
         height += gerstnerWaves(
             position,
-            time + noise * 1.0,
+            time + noise * 2.0,
             steepness,
             amplitude,
             wavelength,
@@ -97,7 +97,7 @@ vec2 calculateWaveDerivativeGerstner(vec2 position, int octaves) {
 
         derivative += gerstnerWavesDerivative(
             position,
-            time + noise * 1.0,
+            time + noise * 2.0,
             steepness,
             amplitude,
             wavelength,
