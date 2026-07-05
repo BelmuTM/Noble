@@ -43,10 +43,12 @@ float computeStarfield(vec3 viewPosition, vec3 lightVector) {
     float rng = hash13(index);
 
     float star = 1.0;
+    
     if (VdotU > 0.0) {
         star *= rng;
         star *= hash13(-index + 0.1);
     }
+
     star = saturate(star - (1.0 - STARS_AMOUNT * 0.0025));
 
     float luminosity = STARS_LUMINANCE * luminance(blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rng)));

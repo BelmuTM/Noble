@@ -95,12 +95,16 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
         for (int i = 0; i < ATMOSPHERE_SCATTERING_STEPS; i++, rayPosition += increment) {
 
             #if defined WORLD_OVERWORLD
+
                 vec3 airmass          = getAtmosphereDensities(length(rayPosition)) * stepSize;
                 vec3 stepOpticalDepth = atmosphereAttenuationCoefficients * airmass;
+
             #elif defined WORLD_END
+
                 float altitudeKm       = (length(rayPosition) - planetRadius) * km_to_m;
                 vec3  airmass          = exp(altitudeKm / -(vec3(scaleHeights, 5e3) * km_to_m)) * stepSize;
                 vec3  stepOpticalDepth = atmosphereAttenuationCoefficientsEnd * airmass;
+                
             #endif
 
             vec3 stepTransmittance  = exp(-stepOpticalDepth);
