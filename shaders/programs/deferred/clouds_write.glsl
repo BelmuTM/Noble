@@ -86,8 +86,8 @@
             #if CLOUDMAP == 1
                 if (insideScreenBounds(textureCoords, CLOUDMAP_SCALE)) {
                     vec3 cloudsCoords   = normalize(unprojectSphere(textureCoords * rcp(CLOUDMAP_SCALE)));
-                    vec4 cloudmapLayer0 = estimateCloudsScattering(cloudLayer0, cloudsCoords, false);
-                    vec4 cloudmapLayer1 = estimateCloudsScattering(cloudLayer1, cloudsCoords, false);
+                    vec4 cloudmapLayer0 = estimateCloudsScattering(cloudLayer0, cloudsCoords, true, false);
+                    vec4 cloudmapLayer1 = estimateCloudsScattering(cloudLayer1, cloudsCoords, false, false);
 
                     cloudmap.rg  = cloudmapLayer0.rg + cloudmapLayer1.rg * cloudmapLayer0.b;
                     cloudmap.b   = cloudmapLayer0.b  * cloudmapLayer1.b;
@@ -109,11 +109,11 @@
             vec4 layer1 = vec4(0.0, 0.0, 1.0, 1e9);
 
             #if CLOUDS_LAYER0_ENABLED == 1
-                layer0 = estimateCloudsScattering(cloudLayer0, cloudsRayDirection, true);
+                layer0 = estimateCloudsScattering(cloudLayer0, cloudsRayDirection, true, true);
             #endif
 
             #if CLOUDS_LAYER1_ENABLED == 1
-                layer1 = estimateCloudsScattering(cloudLayer1, cloudsRayDirection, true);
+                layer1 = estimateCloudsScattering(cloudLayer1, cloudsRayDirection, false, true);
             #endif
 
             float distanceToClouds = min(layer0.a, layer1.a);

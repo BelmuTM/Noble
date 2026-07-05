@@ -132,38 +132,43 @@ float worley(vec2 coords) {
     return 1.0 - dist / length(vec2(WORLEY_CELLS_COUNT));
 }
 
-float calculateCloudsDensity(vec3 position, CloudLayer layer) {
+float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer) {
     float altitude = (position.y - (planetRadius + layer.altitude)) * rcp(layer.thickness);
 
     #if RENDER_MODE == 0
         position += wind;
     #endif
 
-    bool  isUpperCloudLayer = layer == cloudLayer1;
-    float wetnessFactor     = isUpperCloudLayer ? 0.0 : 0.13 * max0(1.0 - wetness);
-
     layer.coverage += (0.26 * wetness);
 
     vec2 scaledCoords = position.xz * layer.scale;
 
-    float worley = worley(scaledCoords * 0.06);
+    float weatherMap = 0.0;
 
-    float weitherMapLayer0  = FBM(scaledCoords * 4.0, layer.octaves, layer.frequency);
-          weitherMapLayer0 *= weitherMapLayer0;
-          weitherMapLayer0 *= sqrt(texture(noisetex, scaledCoords).g);
-          weitherMapLayer0 += worley * worley * worley * (1.0 + wetnessFactor);
-          weitherMapLayer0 -= wetnessFactor;
+    if (isLowerLayer) {
 
-    float weitherMapLayer1  = FBM(scaledCoords, layer.octaves, layer.frequency);
-          weitherMapLayer1 *= saturate(texture(noisetex, position.xz * 2e-4).b * 0.8 + 0.5);
+        float wetnessFactor = 0.13 * max0(1.0 - wetness);
 
-    float weatherMap = isUpperCloudLayer ? weitherMapLayer1 : weitherMapLayer0;
-          weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
-    
+        float worley = worley(scaledCoords * 0.06);
+
+        weatherMap  = FBM(scaledCoords * 4.0, layer.octaves, layer.frequency);
+        weatherMap *= weatherMap;
+        weatherMap *= sqrt(texture(noisetex, scaledCoords).g);
+        weatherMap += worley * worley * worley * (1.0 + wetnessFactor);
+        weatherMap -= wetnessFactor;
+
+    } else {
+
+        weatherMap  = FBM(scaledCoords, layer.octaves, layer.frequency);
+        weatherMap *= saturate(texture(noisetex, position.xz * 2e-4).b * 0.8 + 0.5);
+
+    }
+
+    weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
     weatherMap = mix(weatherMap, 0.0, biome_arid);
+    weatherMap = saturate(weatherMap);
 
     if (weatherMap < EPS) return 0.0;
-    weatherMap = saturate(weatherMap);
 
     position *= layer.detailScale;
 
@@ -177,16 +182,17 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer) {
     return saturate(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
 }
 
-float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int stepCount, CloudLayer layer, bool animated) {
+float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int stepCount, CloudLayer layer, bool isLowerLayer, bool animated) {
     float stepSize = 100.0, opticalDepth = 0.0;
 
     float jitter = animated ? randF() : bayer32(gl_FragCoord.xy);
 
     for (int i = 0; i < stepCount; i++) {
-        float density = calculateCloudsDensity(rayPosition + lightDirection * stepSize * jitter, layer);
+        float density = calculateCloudsDensity(rayPosition + lightDirection * stepSize * jitter, layer, isLowerLayer);
         opticalDepth += density * stepSize;
         rayPosition  += lightDirection * stepSize;
     }
+
     return opticalDepth;
 }
 
@@ -198,7 +204,7 @@ float calculateCloudsPhase(float cosTheta, vec3 mieAnisotropyFactors) {
     return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeakWeight);
 }
 
-vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated) {
+vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerLayer, bool animated) {
     float cloudsLowerBound = planetRadius     + layer.altitude;
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
@@ -226,16 +232,16 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
     for (int i = 0; i < steps; i++, rayPosition += increment) {
         if (transmittance <= cloudsTransmitThreshold) break;
 
-        float density = calculateCloudsDensity(rayPosition, layer);
+        float density = calculateCloudsDensity(rayPosition, layer, isLowerLayer);
 
         if (density > EPS) {
 
             float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
             float stepTransmittance = exp(-stepOpticalDepth);
 
-            float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition,  shadowLightVectorWorld, 8, layer, animated);
-            float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition, -up,                     1, layer, animated);
-            float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition,  up,                     2, layer, animated);
+            float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition,  shadowLightVectorWorld, 8, layer, isLowerLayer, animated);
+            float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition, -up,                     1, layer, isLowerLayer, animated);
+            float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition,  up,                     2, layer, isLowerLayer, animated);
 
             float powder    = 6.5 * (1.0 - 0.97 * exp(-8.0 * density));
             float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);
@@ -280,7 +286,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
 
 #if CLOUDS_SHADOWS == 1
 
-    float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer) {
+    float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer, bool isLowerLayer) {
         float cloudsLowerBound = planetRadius     + layer.altitude;
         float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
@@ -293,7 +299,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool animated
         float opticalDepth = 0.0;
 
         for (int i = 0; i < CLOUDS_SHADOWS_STEPS; i++, rayPosition += increment) {
-            opticalDepth += calculateCloudsDensity(rayPosition, layer);
+            opticalDepth += calculateCloudsDensity(rayPosition, layer, isLowerLayer);
         }
 
         return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);
