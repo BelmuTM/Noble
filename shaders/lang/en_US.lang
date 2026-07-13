@@ -110,6 +110,14 @@ option.EMISSIVE_INTENSITY = Emissive Intensity
 option.EMISSIVE_INTENSITY.comment = Adjusts the intensity of emitted blocklight (in Lumens).
 suffix.EMISSIVE_INTENSITY = lumens
 
+option.SUNLIGHT_STRENGTH = Sunlight Strength
+option.SUNLIGHT_STRENGTH.comment = Adjusts the strength of sunlight.
+suffix.SUNLIGHT_STRENGTH = x
+
+option.SKYLIGHT_STRENGTH = Skylight Strength
+option.SKYLIGHT_STRENGTH.comment = Adjusts the strength of skylight.
+suffix.SKYLIGHT_STRENGTH = x
+
 #////////////////////////////////////////////////////////#
 #------------------------ SHADOWS -----------------------#
 #////////////////////////////////////////////////////////#
@@ -169,10 +177,9 @@ value.AO.1 = §e§lGTAO
 value.AO.2 = §e§lSSAO
 value.AO.3 = §e§lRTAO
 
-option.MATERIAL_AO = Material AO
-option.MATERIAL_AO.comment = Adds pseudo-shadows to the textures themselves. §cRequires a LabPBR resource pack!
-value.MATERIAL_AO.0 = §cOFF
-value.MATERIAL_AO.1 = §aON
+option.AO_STRENGTH = Strength
+option.AO_STRENGTH.comment = Adjusts §bAO§r's strength.
+suffix.AO_STRENGTH = x
 
 option.AO_FILTER = Temporal Filter
 option.AO_FILTER.comment = Accumulates §bAmbient Occlusion§r over multiple frames to reduce noise and give a cleaner result.
@@ -186,6 +193,7 @@ value.AO_SCALE.50 = 50%
 value.AO_SCALE.75 = 75%
 value.AO_SCALE.100 = 100%
 
+# SSAO (Screen-Space Ambient Occlusion)
 option.SSAO_SAMPLES = SSAO Samples
 option.SSAO_SAMPLES.comment = Influences §bSSAO§r's quality. §cHigher value gives better results, but reduces §cperformance.
 value.SSAO_SAMPLES.4 = §24
@@ -197,6 +205,7 @@ value.SSAO_SAMPLES.20 = §c20
 option.SSAO_RADIUS = SSAO Radius
 option.SSAO_RADIUS.comment = Adjusts §bSSAO§r's radius.
 
+# RTAO (Ray-Traced Ambient Occlusion)
 option.RTAO_SAMPLES = RTAO Samples
 option.RTAO_SAMPLES.comment = Influences §bRTAO§r's quality. §cHigher value gives better results, but reduces §cperformance.
 value.RTAO_SAMPLES.2 = §22
@@ -216,6 +225,7 @@ value.RTAO_STRIDE.32 = §232
 value.RTAO_STRIDE.48 = §348
 value.RTAO_STRIDE.64 = §b64
 
+# GTAO (Ground-Truth Ambient Occlusion)
 option.GTAO_SLICES = GTAO Slices
 option.GTAO_SLICES.comment = Influences §bGTAO§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
 value.GTAO_SLICES.1 = §21
@@ -227,6 +237,11 @@ value.GTAO_SLICES.6 = §46
 
 option.GTAO_RADIUS = GTAO Radius
 option.GTAO_RADIUS.comment = Adjusts §bGTAO§r's radius.
+
+option.MATERIAL_AO = Material AO
+option.MATERIAL_AO.comment = Adds pseudo-shadows to the textures themselves. §cRequires a LabPBR resource pack!
+value.MATERIAL_AO.0 = §cOFF
+value.MATERIAL_AO.1 = §aON
 
 #////////////////////////////////////////////////////////#
 #----------------------- SPECULAR -----------------------#

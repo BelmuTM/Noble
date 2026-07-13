@@ -163,9 +163,9 @@ vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, b
 
     #endif
 
-    diffuse *= directIlluminance;
+    diffuse *= directIlluminance * SUNLIGHT_STRENGTH;
 
-    vec3 skylight = skyIlluminance;
+    vec3 skylight = skyIlluminance * SKYLIGHT_STRENGTH;
 
     #if defined WORLD_OVERWORLD
         skylight *= skylightFalloff;

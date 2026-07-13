@@ -187,6 +187,12 @@ vec3 evaluateDirectIlluminance() {
     return max0(directIlluminance);
 }
 
+vec3 sampleAtmosphereTexture(vec2 coords, bool monochrome) {
+    vec3 radiance = texture(ATMOSPHERE_BUFFER, coords).rgb;
+
+    return monochrome ? vec3(luminance(radiance)) : radiance;
+}
+
 vec3 evaluateUniformSkyIrradianceApproximation() {
     vec3 skyIlluminance = vec3(0.0);
 
@@ -200,7 +206,7 @@ vec3 evaluateUniformSkyIrradianceApproximation() {
                 vec2 uv = (vec2(x, y) + 0.5) / vec2(samples.x, samples.y * 2);
 
                 vec3 direction = unprojectSphere(uv);
-                vec3 radiance  = texture(ATMOSPHERE_BUFFER, uv).rgb;
+                vec3 radiance  = sampleAtmosphereTexture(uv, false);
 
                 float theta    = uv.y * PI;
                 float cosTheta = cos(theta);
@@ -224,6 +230,12 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
 
+        bool monochrome = false;
+
+        #if defined WORLD_OVERWORLD
+            monochrome = true;
+        #endif
+
         const ivec2 samples        = ivec2(8);
         const float invSampleCount = 1.0 / float(samples.x * samples.y);
 
@@ -232,15 +244,7 @@ mat3[2] evaluateDirectionalSkyIrradianceApproximation() {
                 vec2 uv = (vec2(x, y) + 0.5) / vec2(samples.x, samples.y * 2);
 
                 vec3 direction = unprojectSphere(uv);
-                
-                #if defined WORLD_OVERWORLD
-                    // Monochrome radiance
-                    vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
-
-                #elif defined WORLD_END
-                    vec3 radiance = texture(ATMOSPHERE_BUFFER, uv).rgb;
-
-                #endif
+                vec3 radiance  = sampleAtmosphereTexture(uv, monochrome);
 
                 float theta    = uv.y * PI;
                 float cosTheta = cos(theta);
@@ -300,6 +304,12 @@ void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
 
+        bool monochrome = false;
+
+        #if defined WORLD_OVERWORLD
+            monochrome = true;
+        #endif
+
         const ivec2 samples        = ivec2(8);
         const float invSampleCount = 1.0 / float(samples.x * samples.y);
 
@@ -308,15 +318,7 @@ void evaluateUniformSkyIrradiance(out vec3[9] irradiance) {
                 vec2 uv = (vec2(x, y) + 0.5) / vec2(samples.x, samples.y * 2);
 
                 vec3 direction = unprojectSphere(uv);
-
-                #if defined WORLD_OVERWORLD
-                    // Monochrome radiance
-                    vec3 radiance = vec3(luminance(texture(ATMOSPHERE_BUFFER, uv).rgb));
-
-                #elif defined WORLD_END
-                    vec3 radiance = texture(ATMOSPHERE_BUFFER, uv).rgb;
-
-                #endif
+                vec3 radiance  = sampleAtmosphereTexture(uv, monochrome);
 
                 float theta    = uv.y * PI;
                 float cosTheta = cos(theta);

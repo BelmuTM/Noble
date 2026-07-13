@@ -95,7 +95,11 @@
 
         bentNormal = normalize(bentNormal) - 0.5 * viewDirection;
 
-        return multiBounceApprox(visibility * rcp(GTAO_SLICES));
+        float ao = visibility * rcp(GTAO_SLICES);
+
+        ao = 1.0 - saturate((1.0 - ao) * AO_STRENGTH);
+
+        return multiBounceApprox(ao);
     }
 
 #elif AO == 2
@@ -128,7 +132,7 @@
 
         bentNormal = visibilityWeight > 0.0 ? bentNormal / visibilityWeight : normal;
 
-        return pow(1.0 - occlusion * rcp(SSAO_SAMPLES), SSAO_STRENGTH);
+        return saturate(1.0 - occlusion * rcp(SSAO_SAMPLES) * AO_STRENGTH);
     }
 
 #elif AO == 3
@@ -136,7 +140,7 @@
     #include "/include/fragment/raytracer.glsl"
 
     float RTAO(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
-        float occlusion = 1.0;
+        float visibility = 1.0;
 
         vec3 hitPosition = vec3(0.0);
         float rayLength;
@@ -162,10 +166,10 @@
             float h = float(hit);
 
             bentNormal += rayDirection * (1.0 - h);
-            occlusion  -= rcp(RTAO_SAMPLES) * h;
+            visibility -= rcp(RTAO_SAMPLES) * h * AO_STRENGTH;
         }
 
-        return saturate(occlusion);
+        return saturate(visibility);
     }
 
 #endif
