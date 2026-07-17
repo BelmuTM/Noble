@@ -166,11 +166,16 @@
                         #if SHADOWS > 0
 
                             if (!modFragment) {
+
                                 if (isOpaque) {
                                     visibility = texture(SHADOWMAP_BUFFER, max(coords.xy, texelSize)).rgb;
+
                                 } else {
-                                    visibility = vec3(shadowVisibility(shadowtex0, worldToShadowScreen(scenePosition0) - vec3(0.0, 0.0, 1e-3)));
+                                    vec3 shadowPosition = worldToShadowScreen(scenePosition0) - vec3(0.0, 0.0, 1e-3);
+                                    // Fragments outside of shadow bounds are considered unoccluded
+                                    visibility = insideScreenBounds(shadowPosition, 1.0) ? vec3(shadowVisibility(shadowtex0, shadowPosition)) : vec3(1.0);
                                 }
+
                             }
 
                         #endif
