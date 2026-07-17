@@ -29,7 +29,7 @@
     const float angle   = radians(WAVE_ANGLE);                                   \
     const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)); \
                                                                                  \
-    vec2 direction = vec2(0.1, 0.3);                                             \
+    vec2 direction = vec2(0.1, 0.1);                                             \
                                                                                  \
     float noise = texture(noisetex, position * 1e-2).a;                          \
 
@@ -123,7 +123,7 @@ vec3 getWaterNormal(vec3 worldPosition, vec3 worldNormal, int octaves, float str
 }
 
 vec3 getWaterNormal(vec3 worldPosition, vec3 worldNormal, int octaves) {
-    return getWaterNormal(worldPosition, worldNormal, octaves, WATER_NORMALS_STRENGTH);
+    return getWaterNormal(worldPosition, worldNormal, octaves, WATER_NORMALS_STRENGTH * WATER_NORMALS_STRENGTH_MULTIPLIER);
 }
 
 vec2 parallaxMappingWater(vec2 coords, vec3 tangentDirection, int octaves) {

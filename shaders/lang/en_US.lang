@@ -634,6 +634,10 @@ value.WATER_OCTAVES.16 = §616
 value.WATER_OCTAVES.24 = §c24
 value.WATER_OCTAVES.32 = §432
 
+option.WATER_NORMALS_STRENGTH_MULTIPLIER = Wave Intensity
+option.WATER_NORMALS_STRENGTH_MULTIPLIER.comment = Adjusts the intensity / strength of water waves.
+suffix.WATER_NORMALS_STRENGTH_MULTIPLIER = x
+
 option.WAVE_SPEED = Wave Speed
 option.WAVE_SPEED.comment = Adjusts the speed of water waves.
 suffix.WAVE_SPEED = x

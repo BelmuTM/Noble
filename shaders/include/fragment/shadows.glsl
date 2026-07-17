@@ -101,15 +101,19 @@ vec3 getShadowColor(vec3 samplePosition) {
 
     float shadowDepth0 = shadowVisibility(shadowtex0, samplePosition);
     float shadowDepth1 = shadowVisibility(shadowtex1, samplePosition);
-    vec4  shadowColor  = texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0);
+    vec3  shadowColor  = texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0).rgb;
     
     #if TONEMAP == ACES
-        shadowColor.rgb = srgbToAP1Albedo(shadowColor.rgb);
+        shadowColor = srgbToAP1Albedo(shadowColor);
     #else
-        shadowColor.rgb = srgbToLinear(shadowColor.rgb);
+        shadowColor = srgbToLinear(shadowColor);
     #endif
 
-    return mix(vec3(shadowDepth0), shadowColor.rgb * (1.0 - shadowColor.a), saturate(shadowDepth1 - shadowDepth0));
+    return mix(vec3(shadowDepth0), shadowColor, saturate(shadowDepth1 - shadowDepth0));
+}
+
+float getShadowCaustics(vec3 samplePosition) {
+    return texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0).a * shadowVisibility(shadowtex1, samplePosition);
 }
 
 #if SHADOWS > 0
@@ -200,7 +204,7 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
             penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * (shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
         #endif
 
-        return PCF(shadowPosition, penumbraSize, selfIntersectionBias);
+        return PCF(shadowPosition, penumbraSize, selfIntersectionBias) + getShadowCaustics(shadowPosDistort);
 
     #else
 

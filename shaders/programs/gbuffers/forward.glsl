@@ -174,6 +174,7 @@
             material.emission   = 0.0;
             material.subsurface = 0.0;
             albedoTexture.rgb   = shadowmap.rgb;
+            albedoTexture.a     = 0.0;
 
             vec3 scenePositionWater = scenePosition + cameraPosition;
 

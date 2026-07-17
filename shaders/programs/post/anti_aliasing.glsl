@@ -130,7 +130,7 @@
             minColor *= 0.5;
 
             maxColor  = max(sample_1, max(sample_3, max(sample_4, max(sample_5, sample_7))));
-            maxColor += max(minColor, max(sample_0, max(sample_2, max(sample_6, sample_8))));
+            maxColor += max(maxColor, max(sample_0, max(sample_2, max(sample_6, sample_8))));
             maxColor *= 0.5;
 
             history = toYCoCg(history);
@@ -173,19 +173,19 @@
             vec3 currFragment = vec3(textureCoords, depth);
 
             vec3 closestFragment;
+
             if (modFragment) {
                 closestFragment = getClosestFragment(modDepthTex1, currFragment);
             } else {
                 closestFragment = getClosestFragment(depthtex1, currFragment);
             }
 
-            vec2 velocity   = getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious).xy;
+            vec2 velocity   = getVelocity(closestFragment, projectionInverse, projectionPrevious).xy;
             vec2 prevCoords = textureCoords + velocity;
 
             if (insideScreenBounds(prevCoords, 1.0)) {
-                bool isSky = depth == 1.0;
 
-                vec2 jitteredCoords = isSky ? vertexCoords : vertexCoords + taaOffsets[framemod] * texelSize;
+                vec2 jitteredCoords = vertexCoords + taaOffsets[framemod] * texelSize;
 
                 vec3 currColor = max0(textureCatmullRom(MAIN_BUFFER, jitteredCoords).rgb);
 
@@ -195,23 +195,17 @@
                 float velocityWeight = saturate(length(velocity * viewSize));
 
                 float velocityWeightMult = 0.2;
-                float luminanceWeight    = 1.0;
 
-                if (isSky || depth < handDepth) {
+                if (depth < handDepth) {
                     velocityWeightMult = 1.0;
                 }
 
-                luminanceWeight = 1.0 + pow2(distance(history, currColor) / luminance(history));
+                float luminanceWeight = 1.0 + pow2(distance(history, currColor) / (luminance(history) + luminance(currColor) + EPS));
 
-                float weight = (1.0 - TAA_STRENGTH + velocityWeight * velocityWeightMult) / luminanceWeight;
-
-                if (isSky) {
-                    weight *= 0.5;
-                }
-
-                weight = saturate(weight);
+                float weight = saturate((1.0 - TAA_STRENGTH + velocityWeight * velocityWeightMult) / luminanceWeight);
 
                 color = mix(history, currColor, weight);
+                
             }
 
             color = inverseReinhard(color) / computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);

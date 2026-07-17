@@ -99,6 +99,7 @@ vec3 sampleAtmosphere(vec3 direction, bool jitter, bool interpolate) {
 
 vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, vec3 skyIlluminance) {
     #if defined WORLD_OVERWORLD || defined WORLD_END
+    
         float jitter = interleavedGradientNoise(gl_FragCoord.xy);
 
         vec3 sceneDirection = normalize(viewToWorld(viewPosition));
@@ -116,6 +117,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
         #endif
 
         return sky * clouds.a + clouds.rgb;
+
     #else
         return vec3(0.0);
     #endif

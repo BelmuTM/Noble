@@ -242,5 +242,5 @@ float getBlocklightFalloff(float lightmapX) {
 }
 
 float getSkylightFalloff(float lightmapY) {
-    return lightmapY * exp(5.0 * (lightmapY - 1.0));
+    return lightmapY * exp(3.0 * (lightmapY - 1.0));
 }

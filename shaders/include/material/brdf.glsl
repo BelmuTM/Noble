@@ -284,7 +284,7 @@ vec3 computeSpecular(vec3 viewDirection, vec3 lightDirection, vec3 normal, vec3 
 
     NdotV = abs(NdotV);
     
-    float D  = distribution_GGX(sqrt(NdotHSq), alphaSq);
+    float D  = distribution_GGX(fastSqrtN1(NdotHSq), alphaSq);
     vec3  F  = fresnelDielectricConductor(VdotH, N, K);
     float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
         

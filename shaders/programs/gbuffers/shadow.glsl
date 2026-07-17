@@ -113,9 +113,10 @@
 
             #if WATER_CAUSTICS == 1
 
-                vec3 waterNormals = getWaterNormal(worldPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES, 1.0);
-
-                shadowmap.rgb += waterCaustics(worldPosition, waterNormals) * WATER_CAUSTICS_STRENGTH;
+                shadowmap.a = waterCaustics(
+                    worldPosition,
+                    getWaterNormal(worldPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES, 2.0 * WATER_NORMALS_STRENGTH_MULTIPLIER)
+                ) * WATER_CAUSTICS_STRENGTH;
 
             #endif
             

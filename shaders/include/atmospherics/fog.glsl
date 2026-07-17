@@ -233,6 +233,8 @@ float calculateAirFogPhase(float cosTheta) {
 
         vec3 shadow = vec3(1.0);
 
+        const float minDensity = 0.01;
+
         for (uint i = 0u; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
             // Early exit if transmittance is too low
             if (maxOf(transmittanceOut) < EPS) break;
@@ -249,7 +251,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             float densityFog = 0.0;
 
-            if (fogDensity > 1e-2) {
+            if (fogDensity > minDensity) {
                 float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-1.0 * length(rayPosition - cameraPosition) / farPlane));
 
                 densityFog = getAirFogDensity(rayPosition) * distanceFalloffFog;
@@ -259,7 +261,7 @@ float calculateAirFogPhase(float cosTheta) {
             vec3 stepScatteringIndirect = vec3(0.0);
             vec3 stepTransmittance      = vec3(1.0);
 
-            if (densityFog > 1e-2) {
+            if (densityFog > minDensity) {
                 float airmassFog      = densityFog * rayLength;
                 vec3  opticalDepthFog = airFogAttenuationCoefficients * airmassFog;
 
@@ -308,7 +310,7 @@ float calculateAirFogPhase(float cosTheta) {
     const vec3 waterScatteringCoefficients = vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01;
 #endif
 
-vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterAbsorptionCoefficients);
+vec3 waterExtinctionCoefficients = waterScatteringCoefficients + waterAbsorptionCoefficients;
 
 #if WATER_FOG == 0
 
@@ -336,7 +338,6 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         out vec3 transmittanceOut,
         vec3 startPosition,
         vec3 endPosition,
-        float farPlane,
         float VdotL,
         vec3 directIlluminance,
         vec3 skyIlluminance,
@@ -346,25 +347,23 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
         const float stepSize = 1.0 / WATER_FOG_STEPS;
 
         vec3 worldIncrement = (endPosition - startPosition) * stepSize;
-        vec3 worldPosition  = startPosition + worldIncrement * dither;
+        vec3 worldPosition  = startPosition + worldIncrement * interleavedGradientNoise(gl_FragCoord.xy);
              worldPosition += cameraPosition;
 
         vec3 shadowIncrement = mat3(shadowModelView)       * worldIncrement;
              shadowIncrement = diagonal3(shadowProjection) * shadowIncrement;
         vec3 shadowPosition  = worldToShadowClip(worldPosition - cameraPosition);
 
-        float rayLength = sky ? farPlane : length(worldIncrement);
+        float rayLength = length(worldIncrement);
 
         float eyeSkylight = saturate(eyeBrightnessSmooth.y * rcp240);
 
-        float phase = henyeyGreensteinPhase(VdotL, 0.5);
+        float phase = cornetteShanksPhase(VdotL, 0.5);
 
         vec3 stepTransmittance = exp(-waterExtinctionCoefficients * rayLength);
 
         vec3 scattering    = vec3(0.0); 
         vec3 transmittance = vec3(1.0);
-
-        vec3 shadow = vec3(1.0);
 
         for (uint i = 0u; i < WATER_FOG_STEPS; i++, worldPosition += worldIncrement, shadowPosition += shadowIncrement) {
             // Early exit if transmittance is too low
@@ -373,16 +372,13 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
             vec3 shadowScreenPosition = shadowClipToShadowScreen(shadowPosition);
 
             float shadowDepth0 = texture(shadowtex0, shadowScreenPosition.xy).r;
-
-            if ((i & 3u) == 0u) {
-                shadow = getShadowColor(shadowScreenPosition);
-            }
-
-            float distanceThroughWater = abs(shadowDepth0 - shadowScreenPosition.z) * -shadowProjectionInverse[2].z / SHADOW_DEPTH_STRETCH;
+            vec3  shadow       = getShadowColor(shadowScreenPosition) + getShadowCaustics(shadowScreenPosition);
 
             #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                 shadow *= getCloudsShadows(worldPosition);
             #endif
+
+            float distanceThroughWater = max(5.0, float(!sky) * max0(shadowScreenPosition.z - shadowDepth0) * -shadowProjectionInverse[2].z / SHADOW_DEPTH_STRETCH);
 
             vec3 directTransmittance = shadow * exp(-waterExtinctionCoefficients * distanceThroughWater);
 
@@ -394,7 +390,7 @@ vec3 waterExtinctionCoefficients = saturate(waterScatteringCoefficients + waterA
 
         vec3 scatteringAlbedo = saturate(waterScatteringCoefficients / waterExtinctionCoefficients);
 
-        scattering *= (1.0 - stepTransmittance) * scatteringAlbedo;
+        scattering *= waterScatteringCoefficients * (1.0 - stepTransmittance) / waterExtinctionCoefficients;
 
         // Multiple scattering approximation provided by Jessie
         vec3 multipleScatteringFactor = scatteringAlbedo * 0.84;

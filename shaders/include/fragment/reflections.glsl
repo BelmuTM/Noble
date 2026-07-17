@@ -100,6 +100,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             float sampleRayLength;
 
             if (modFragment) {
+
                 hit = float(raytrace(
                     modDepthTex0,
                     projection,
@@ -112,7 +113,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
                     hitPosition,
                     sampleRayLength
                 ));
+
             } else {
+
                 hit = float(raytrace(
                     depthtex0,
                     projection,
@@ -125,6 +128,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
                     hitPosition,
                     sampleRayLength
                 ));
+
             }
 
             #if defined REFLECTIONS_SKY_FALLBACK
@@ -132,10 +136,12 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             #else
                 vec3 fallback = vec3(0.0);
             #endif
-            
-            vec3 fresnel;
+
+            vec3 fresnel = vec3(0.0);
+
             if (isEyeInWater == 1 || isWater) {
                 fresnel = fresnelDielectricDielectric_R(MdotV, vec3(airIOR), vec3(1.333));
+
             } else {
                 fresnel = fresnelDielectricConductor(MdotV, eta, etaK);
             }
@@ -190,6 +196,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
         if (NdotL > 0.0) {
             if (modFragment) {
+                
                 hit = float(raytrace(
                     modDepthTex0,
                     projection,
@@ -202,7 +209,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
                     hitPosition,
                     rayLength
                 ));
+
             } else {
+
                 /*
                 hit = float(raytraceHiZ(
                     depthtex0,
@@ -240,9 +249,11 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             vec3 fallback = vec3(0.0);
         #endif
 
-        vec3 fresnel;
+        vec3 fresnel = vec3(0.0);
+
         if (isEyeInWater == 1 || isWater) {
             fresnel = fresnelDielectricDielectric_R(NdotV, vec3(airIOR), vec3(1.333));
+
         } else {
             fresnel = fresnelDielectricConductor(NdotV, eta, etaK);
         }

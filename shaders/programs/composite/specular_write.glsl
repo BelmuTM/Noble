@@ -190,6 +190,7 @@
                 #endif
 
                 if (any(greaterThan(visibility, vec3(EPS))) && material.F0 > EPS) {
+
                     sunSpecular = computeSpecular(
                         -normalize(viewPosition0),
                         shadowLightVector,
@@ -197,7 +198,9 @@
                         material.N,
                         material.K,
                         material.alpha
-                    ) * directIlluminanceSpecular;
+                    ) 
+                    * directIlluminanceSpecular;
+
                 }
 
             #endif
