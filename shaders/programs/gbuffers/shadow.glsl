@@ -105,7 +105,8 @@
             albedoTexture.rgb = vec3(1.0);
         #endif
 
-        shadowmap = albedoTexture;
+        shadowmap   = albedoTexture;
+        shadowmap.a = 0.0;
 
         if (blockId == WATER_ID) {
 

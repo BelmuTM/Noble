@@ -113,7 +113,12 @@ vec3 getShadowColor(vec3 samplePosition) {
 }
 
 float getShadowCaustics(vec3 samplePosition) {
-    return texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0).a * shadowVisibility(shadowtex1, samplePosition);
+    if (!insideScreenBounds(samplePosition, 1.0)) return 0.0;
+
+    float shadowDepth0 = shadowVisibility(shadowtex0, samplePosition);
+    float shadowDepth1 = shadowVisibility(shadowtex1, samplePosition);
+
+    return texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0).a * saturate(shadowDepth1 - shadowDepth0);
 }
 
 #if SHADOWS > 0
