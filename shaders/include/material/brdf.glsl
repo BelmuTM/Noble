@@ -108,15 +108,6 @@ vec3 hammonDiffuse(vec3 viewDirection, vec3 lightDirection, vec3 albedo, vec3 no
     return NdotL * (albedo * multi + single);
 }
 
-vec3 hemisphericalAlbedo(vec3 n) {
-    vec3 n2  = pow2(n);
-    vec3 T_1 = (4.0 * (2.0 * n + 1.0)) / (3.0 * pow2(n + 1.0));
-    vec3 T_2 = ((4.0 * pow3(n) * (n2 + 2.0 * n - 1.0)) / (pow2(n2 + 1.0) * (n2 - 1.0))) - 
-               ((2.0 * n2 * (n2 + 1.0) * log(n)) / pow2(n2 - 1.0)) +
-               ((2.0 * n2 * pow2(n2 - 1.0) * log((n * (n + 1.0)) / (n-  1.0))) / pow3(n2 + 1.0));
-    return saturate(1.0 - 0.5 * (T_1 + T_2));
-}
-
 vec3 subsurfaceScatteringApprox(vec3 viewDirection, vec3 lightDirection, vec3 albedo, float subsurface, float distThroughMedium, uint id) {
     if (subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
@@ -197,47 +188,6 @@ vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, b
     diffuse += emissiveness;
 
     return material.albedo * diffuse;
-}
-
-// Pathtracing shenanigans
-
-vec3 evaluateMicrosurfaceOpaque(vec2 hitPosition, vec3 wi, vec3 wo, Material material, vec3 directIlluminance) {
-    bool isMetal = material.F0 * maxFloat8 > labPBRMetals;
-
-    vec3 diffuse;
-    if (isMetal) {
-        // Lambert
-        diffuse = vec3(max0(dot(material.normal, wo)) * RCP_PI);
-    } else {
-        diffuse = hammonDiffuse(wi, wo, material.albedo, material.normal, material.N, material.F0, material.alpha);
-    }
-
-    vec4 shadowmap = texture(SHADOWMAP_BUFFER, max(hitPosition, texelSize));
-
-    #if SUBSURFACE_SCATTERING == 1
-        diffuse += subsurfaceScatteringApprox(wi, wo, material.albedo, material.subsurface, shadowmap.a, material.id) 
-                 * float(material.lightmap.y > EPS);
-    #endif
-
-    return diffuse * shadowmap.rgb * directIlluminance;
-}
-
-vec3 sampleMicrosurfaceOpaquePhase(inout vec3 wr, Material material) {
-    mat3 tbn        = calculateTBN(material.normal);
-    vec3 microfacet = tbn * sampleGGXVNDF(-wr * tbn, rand2F(), material.alpha);
-    vec3 fresnel    = fresnelDielectricConductor(dot(microfacet, -wr), material.N, material.K);
-
-    wr = generateCosineVector(microfacet, rand2F());
-
-    vec3 energyConservationFactor = 1.0 - hemisphericalAlbedo(material.N);
-
-    vec3 phase = vec3(0.0);
-    phase  = 1.0 - fresnel;
-    phase /= abs(energyConservationFactor);
-    phase *= material.albedo * material.ao;
-    phase *= fresnelDielectricDielectric_T(dot(microfacet, wr), vec3(airIOR), material.N);
-    
-    return phase;
 }
 
 //////////////////////////////////////////////////////////

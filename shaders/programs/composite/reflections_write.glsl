@@ -180,7 +180,7 @@
             float linearPrevDepth = linearizeDepth(exp2(prevReflections.a), nearPlane, farPlane);
             float depthWeight     = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.01);
 
-            float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isHand ? 1.0 : (isReflectingSky ? 0.5 : 0.5));
+            float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isHand ? 1.0 : (isReflectingSky ? 0.8 : 0.5));
 
             vec2  pixelCenterDist  = 1.0 - abs(fract(prevPosition.xy * viewSize) * 2.0 - 1.0);
             float centerWeightHand = isHand ? sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 : 1.0;

@@ -113,7 +113,9 @@
         // Atmosphere rendering
 
         if (depth == 1.0) {
-            lightingOut = encodeLog(renderAtmosphere(vertexCoords, viewPosition, directIlluminance, uniformSkyIlluminance));
+            lightingOut  = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, uniformSkyIlluminance);
+            lightingOut += renderCelestialBodies(vertexCoords, viewPosition);
+            lightingOut  = encodeLog(lightingOut);
             return;
         }
 

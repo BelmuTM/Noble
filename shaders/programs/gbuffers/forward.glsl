@@ -267,7 +267,17 @@
 
                 #if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT && !defined PROGRAM_SPIDEREYES
 
-                    translucents.rgb = computeDiffuse(scenePosition, shadowLightVectorWorld, material, isMetal, shadowmap, directIlluminance, skyIlluminance, 1.0, 1.0);
+                    translucents.rgb = computeDiffuse(
+                        scenePosition,
+                        shadowLightVectorWorld,
+                        material,
+                        isMetal,
+                        shadowmap,
+                        directIlluminance,
+                        skyIlluminance,
+                        1.0,
+                        1.0
+                    );
 
                 #else
 

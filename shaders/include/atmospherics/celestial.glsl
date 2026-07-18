@@ -36,7 +36,7 @@ float computeStarfield(vec3 viewPosition, vec3 lightVector) {
         VdotU = saturate(VdotU);
     #endif
 
-    float factor = max0(sqrt(sqrt(VdotU)));
+    float angularFactor = max0(sqrt(sqrt(VdotU)));
 
     float falloff = pow2(quinticStep(0.5, 0.0, radius));
 
@@ -53,7 +53,7 @@ float computeStarfield(vec3 viewPosition, vec3 lightVector) {
 
     float luminosity = STARS_LUMINANCE * luminance(blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rng)));
 
-    return star * factor * falloff * luminosity;
+    return star * angularFactor * falloff * luminosity;
 }
 
 vec3 physicalSun(vec3 sceneDirection) {
@@ -95,6 +95,10 @@ vec3 sampleAtmosphere(vec3 direction, bool jitter, bool interpolate) {
     } else {
         return texture(ATMOSPHERE_BUFFER, saturate(coords)).rgb;
     }
+}
+
+vec3 sampleAtmosphereSimple(vec3 direction) {
+    return texture(ATMOSPHERE_BUFFER, saturate(projectSphere(direction))).rgb;
 }
 
 vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, vec3 skyIlluminance) {
@@ -146,7 +150,7 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
             cloudsTransmittance = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).b;
         #endif
 
-        vec3 fakeAtmosphereAbsorption = exp(-sampleAtmosphere(sceneDirection, false, false) * 0.01);
+        vec3 fakeAtmosphereAbsorption = exp(-sampleAtmosphere(sceneDirection, false, false) * 0.0001);
 
         return celestialBodies * pow5(cloudsTransmittance) * fakeAtmosphereAbsorption;
 

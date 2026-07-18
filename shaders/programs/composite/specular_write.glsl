@@ -133,8 +133,6 @@
                 lightingOut = decodeLog(blendedLighting.rgb);
             }
 
-            vec3 viewPosition1 = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
-
             //////////////////////////////////////////////////////////
             /*-------------------- REFRACTIONS ---------------------*/
             //////////////////////////////////////////////////////////
@@ -142,6 +140,8 @@
             #if REFRACTIONS > 0
             
                 if (!isOpaque && material.F0 > EPS) {
+
+                    vec3 viewPosition1 = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
 
                     lightingOut = computeRefractions(
                         modFragment,
@@ -169,13 +169,13 @@
 
                 vec3 visibility = vec3(1.0);
 
-                vec3 scenePosition0 = viewToWorld(viewPosition0);
-
                 vec3 directIlluminanceSpecular = directIlluminance;
 
                 #if defined WORLD_OVERWORLD || defined WORLD_END
 
                     #if defined WORLD_OVERWORLD
+
+                        vec3 scenePosition0 = viewToWorld(viewPosition0);
 
                         #if SHADOWS > 0
 
@@ -229,10 +229,9 @@
             #endif
 
         } else {
+            
             // Sky Fragments
-
-            lightingOut  = decodeLog(blendedLighting.rgb);
-            lightingOut += renderCelestialBodies(vertexCoords, viewPosition0);
+            lightingOut = decodeLog(blendedLighting.rgb);
         }
 
         //////////////////////////////////////////////////////////
