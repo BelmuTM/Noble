@@ -143,11 +143,23 @@ vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, b
     vec3 viewDirection = normalize(-fragPosition);
 
     vec3 diffuse;
+
     if (isMetal) {
         // Lambert
         diffuse = vec3(max0(dot(material.normal, lightDirection)) * RCP_PI);
+
     } else {
-        diffuse = hammonDiffuse(viewDirection, lightDirection, material.albedo, material.normal, material.N, material.F0, material.alpha);
+
+        diffuse = hammonDiffuse(
+            viewDirection,
+            lightDirection,
+            material.albedo,
+            material.normal,
+            material.N,
+            material.F0,
+            material.alpha
+        );
+
     }
 
     diffuse *= shadowmap.rgb * cloudsShadows;

@@ -142,7 +142,21 @@
             #if REFRACTIONS > 0
             
                 if (!isOpaque && material.F0 > EPS) {
-                    lighting = computeRefractions(modFragment, projection, projectionInverse, viewPosition0, viewPosition1, material, coords);
+
+                    lighting = computeRefractions(
+                        modFragment,
+                        projection,
+                        projectionInverse,
+                        viewPosition0,
+                        viewPosition1,
+                        material.albedo,
+                        material.normal,
+                        material.emission,
+                        material.N,
+                        material.id,
+                        coords
+                    );
+
                 }
 
             #endif
@@ -269,9 +283,9 @@
         if (isEyeInWater == 1) {
             lighting += sunSpecular;
             lighting += envSpecular;
-            lighting  = lighting * transmittance + scattering;
+            lighting  = mix(lighting * transmittance + scattering, lighting, saturate(blendedLighting.a));
         } else {
-            lighting  = lighting * transmittance + scattering;
+            lighting  = mix(lighting * transmittance + scattering, lighting, saturate(blendedLighting.a));
             lighting += sunSpecular;
             lighting += envSpecular;
         }

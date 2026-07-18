@@ -108,6 +108,8 @@
 
         shadowmap = albedoTexture;
 
+        caustics = 0.0;
+
         if (blockId == WATER_ID) {
 
             shadowmap = vec4(1.0, 1.0, 1.0, 0.0);

@@ -32,10 +32,14 @@ vec3 computeRefractions(
     mat4 projectionInverse,
     vec3 viewPosition0,
     vec3 viewPosition1,
-    Material material,
+    vec3 albedo,
+    vec3 normal,
+    float emission,
+    vec3 N,
+    uint id,
     inout vec3 refractedPosition
 ) {
-    vec3 n1 = vec3(airIOR), n2 = material.N;
+    vec3 n1 = vec3(airIOR), n2 = N;
     
     if (isEyeInWater == 1) {
         n1 = vec3(1.333);
@@ -43,7 +47,7 @@ vec3 computeRefractions(
     }
 
     vec3 viewDirection      = normalize(viewPosition0);
-    vec3 refractedDirection = refract(viewDirection, material.normal, n1.r / n2.r);
+    vec3 refractedDirection = refract(viewDirection, normal, n1.r / n2.r);
 
     bool hit = true;
 
@@ -122,19 +126,19 @@ vec3 computeRefractions(
         refractedPosition.xy = vertexCoords;
     }
 
-    vec3 fresnel = fresnelDielectricDielectric_T(abs(dot(material.normal, -viewDirection)), n1, n2);
+    vec3 fresnel = fresnelDielectricDielectric_T(abs(dot(normal, -viewDirection)), n1, n2);
 
     vec3 sampledColor = decodeLog(texture(MAIN_BUFFER, refractedPosition.xy).rgb);
 
     // Water absorption is handled individually
-    if (isWater(material.id)) {
+    if (isWater(id)) {
         return sampledColor * fresnel;
     }
 
     // Approximate absorption for other materials
     float density = 0.0;
 
-    if (material.id == NETHER_PORTAL_ID) {
+    if (id == NETHER_PORTAL_ID) {
         density = 3.0;
     } else {
         density = distance(
@@ -145,10 +149,10 @@ vec3 computeRefractions(
         density = clamp(density, 0.0, 2.0);
     }
 
-    vec3 absorption = exp(-(1.0 - material.albedo) * density);
+    vec3 absorption = exp(-(1.0 - albedo) * density);
 
     vec3 blocklightColor = getBlockLightColor();
-    vec3 emissiveness    = material.emission * blocklightColor;
+    vec3 emissiveness    = emission * blocklightColor;
 
-    return sampledColor * fresnel * absorption + emissiveness * material.albedo;
+    return sampledColor * fresnel * absorption + emissiveness * albedo;
 }

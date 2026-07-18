@@ -240,6 +240,7 @@ float calculateAirFogPhase(float cosTheta) {
             if (maxOf(transmittanceOut) < EPS) break;
 
             #if defined WORLD_OVERWORLD
+            
                 if ((i & 3u) == 0u) {
                     shadow = getShadowColor(shadowClipToShadowScreen(shadowPosition));
                 }
@@ -247,6 +248,7 @@ float calculateAirFogPhase(float cosTheta) {
                 #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                     shadow *= getCloudsShadows(rayPosition);
                 #endif
+
             #endif
 
             float densityFog = 0.0;
