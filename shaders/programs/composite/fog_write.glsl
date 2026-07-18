@@ -143,9 +143,6 @@
         vec3 scatteringLayer1    = vec3(0.0);
         vec3 transmittanceLayer1 = vec3(1.0);
 
-        vec3 scatteringLayer2    = vec3(0.0);
-        vec3 transmittanceLayer2 = vec3(1.0);
-
         if (!sky) {
             uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 
@@ -212,11 +209,8 @@
 
         }
 
-        vec3 scattering    = scatteringLayer0    * transmittanceLayer1 + scatteringLayer1 * transmittanceLayer2 + scatteringLayer2;
-        vec3 transmittance = transmittanceLayer0 * transmittanceLayer1 * transmittanceLayer2;
-
-        if (scattering != vec3(0.0)) fog.x = encodeRGBE(scattering);
-        if (scattering != vec3(1.0)) fog.y = encodeRGBE(transmittance);
+        fog.x = encodeRGBE(scatteringLayer0    * transmittanceLayer1 + scatteringLayer1);
+        fog.y = encodeRGBE(transmittanceLayer0 * transmittanceLayer1);
     }
 
 #endif

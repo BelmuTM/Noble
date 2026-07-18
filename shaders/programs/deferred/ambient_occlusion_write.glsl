@@ -30,7 +30,7 @@
 
 #include "/include/taau_scale.glsl"
 
-#if AO == 0 || GI == 1
+#if AO == 0
 
     #include "/programs/discard.glsl"
     
@@ -152,7 +152,7 @@
                     vec3 prevAO         = texture(AO_BUFFER, prevCoords).rgb;
                     vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
             
-                    float weight = saturate(1.0 / max(texture(DEFERRED_BUFFER, prevCoords).a * 0.75, 1.0));
+                    float weight = saturate(1.0 / max(texture(TEMPORAL_DATA_BUFFER, prevCoords).g * 0.75, 1.0));
 
                     ao.xy = encodeUnitVector(mix(prevBentNormal, bentNormal, weight));
                     ao.b  = mix(prevAO.b, ao.b, weight);

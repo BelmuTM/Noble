@@ -18,7 +18,7 @@
 /*                                                                              */
 /********************************************************************************/
 
-#if AO == 1 || GI == 1
+#if AO == 1
     const float ambientOcclusionLevel = 0.0;
 #else
     const float ambientOcclusionLevel = 1.0;
@@ -62,18 +62,6 @@ const int colortex13Format = R16F;                  // Depth tiles
 #endif
 
 // ============================================================================
-// DEFERRED LIGHTING / GLOBAL ILLUMINATION
-// ============================================================================
-
-#if RENDER_MODE == 0
-    const int colortex4Format = RGBA16F;            // Deferred lighting
-#else
-    const int colortex4Format = RGBA32F;            // Global illumination buffer
-#endif
-
-const bool colortex4Clear = false;
-
-// ============================================================================
 // IRRADIANCE / CLOUDS SHADOWS / BLOOM
 // ============================================================================
 
@@ -103,15 +91,11 @@ const bool colortex6Clear  = false;
 // TEMPORAL DATA / HISTORY
 // ============================================================================
 
+const int colortex4Format = RG16F;                  // Previous frame Depth | Temporal accumulation weight
+const bool colortex4Clear = false;
+
 const int  colortex8Format = RGBA16F;               // [RGB] Previous color | [A] Average luminance
 const bool colortex8Clear  = false;
-
-#if RENDER_MODE == 0 && GI == 1 && TEMPORAL_ACCUMULATION == 1 && ATROUS_FILTER == 1
-    const int colortex10Format = RGBA16F;           // [R] Previous frame depth | [GBA] Moments
-#else
-    const int colortex10Format = R16F;              // Previous frame Depth
-#endif
-const bool colortex10Clear = false;
 
 // ============================================================================
 // FOG

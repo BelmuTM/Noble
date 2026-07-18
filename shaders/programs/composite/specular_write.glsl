@@ -47,7 +47,7 @@
 
     /* RENDERTARGETS: 0 */
 
-    layout (location = 0) out vec3 lighting;
+    layout (location = 0) out vec3 lightingOut;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -74,7 +74,7 @@
     #include "/include/post/exposure.glsl"
 
     void main() {
-        lighting = vec3(0.0);
+        lightingOut = vec3(0.0);
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
@@ -130,7 +130,7 @@
             Material material = getMaterial(vertexCoords);
 
             if (material.F0 * maxFloat8 <= labPBRMetals) {
-                lighting = decodeLog(blendedLighting.rgb);
+                lightingOut = decodeLog(blendedLighting.rgb);
             }
 
             vec3 viewPosition1 = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
@@ -143,7 +143,7 @@
             
                 if (!isOpaque && material.F0 > EPS) {
 
-                    lighting = computeRefractions(
+                    lightingOut = computeRefractions(
                         modFragment,
                         projection,
                         projectionInverse,
@@ -231,8 +231,8 @@
         } else {
             // Sky Fragments
 
-            lighting  = decodeLog(blendedLighting.rgb);
-            lighting += renderCelestialBodies(vertexCoords, viewPosition0);
+            lightingOut  = decodeLog(blendedLighting.rgb);
+            lightingOut += renderCelestialBodies(vertexCoords, viewPosition0);
         }
 
         //////////////////////////////////////////////////////////
@@ -242,52 +242,58 @@
         vec3 scattering    = vec3(0.0);
         vec3 transmittance = vec3(0.0);
 
-        float totalWeight = 0.0;
-        const int filterSize = 2;
+        #if AIR_FOG_FILTER == 1
 
-        for (int x = -filterSize; x <= filterSize; x++) {
-            for (int y = -filterSize; y <= filterSize; y++) {
-                vec2  sampleCoords = coords.xy + vec2(x, y) * texelSize * 2.0;
-                uvec2 packedFog    = texture(FOG_BUFFER, sampleCoords).rg;
+            float totalWeight = 0.0;
+            const int filterSize = 2;
 
-                float weight = gaussianDistribution2D(vec2(x, y), 1.0);
+            for (int x = -filterSize; x <= filterSize; x++) {
+                for (int y = -filterSize; y <= filterSize; y++) {
+                    vec2  sampleCoords = coords.xy + vec2(x, y) * texelSize * 2.0;
+                    uvec2 packedFog    = texture(FOG_BUFFER, sampleCoords).rg;
 
-                float linearDepth;
-                float linearSampleDepth;
+                    float weight = gaussianDistribution2D(vec2(x, y), 1.0);
 
-                if (modFragment) {
-                    linearDepth       = texture(modDepthTex1, coords.xy).r;
-                    linearSampleDepth = texture(modDepthTex1, sampleCoords).r;
-                } else {
-                    linearDepth       = texture(depthtex1, coords.xy).r;
-                    linearSampleDepth = texture(depthtex1, sampleCoords).r;
+                    float linearDepth;
+                    float linearSampleDepth;
+
+                    if (modFragment) {
+                        linearDepth       = texture(modDepthTex1, coords.xy).r;
+                        linearSampleDepth = texture(modDepthTex1, sampleCoords).r;
+                    } else {
+                        linearDepth       = texture(depthtex1, coords.xy).r;
+                        linearSampleDepth = texture(depthtex1, sampleCoords).r;
+                    }
+
+                    linearDepth       = linearizeDepth(linearDepth, nearPlane, farPlane);
+                    linearSampleDepth = linearizeDepth(linearSampleDepth, nearPlane, farPlane);
+
+                    weight *= step(abs(linearDepth - linearSampleDepth) / max(linearDepth, linearSampleDepth), 0.1);
+                    
+                    scattering    += decodeRGBE(packedFog[0]) * weight;
+                    transmittance += decodeRGBE(packedFog[1]) * weight;
+
+                    totalWeight += weight;
                 }
-
-                linearDepth       = linearizeDepth(linearDepth, nearPlane, farPlane);
-                linearSampleDepth = linearizeDepth(linearSampleDepth, nearPlane, farPlane);
-
-                weight *= step(abs(linearDepth - linearSampleDepth) / max(linearDepth, linearSampleDepth), 0.1);
-                
-                scattering    += decodeRGBE(packedFog[0]) * weight;
-                transmittance += decodeRGBE(packedFog[1]) * weight;
-
-                totalWeight += weight;
             }
-        }
-        scattering    /= totalWeight;
-        transmittance /= totalWeight;
+            scattering    /= totalWeight;
+            transmittance /= totalWeight;
+        
+        #else
 
-        //scattering    = decodeRGBE(texture(FOG_BUFFER, coords.xy).r);
-        //transmittance = decodeRGBE(texture(FOG_BUFFER, coords.xy).g);
+            scattering    = decodeRGBE(texture(FOG_BUFFER, coords.xy).r);
+            transmittance = decodeRGBE(texture(FOG_BUFFER, coords.xy).g);
+
+        #endif
         
         if (isEyeInWater == 1) {
-            lighting += sunSpecular;
-            lighting += envSpecular;
-            lighting  = mix(lighting * transmittance + scattering, lighting, saturate(blendedLighting.a));
+            lightingOut += sunSpecular;
+            lightingOut += envSpecular;
+            lightingOut  = mix(lightingOut * transmittance + scattering, lightingOut, saturate(blendedLighting.a));
         } else {
-            lighting  = mix(lighting * transmittance + scattering, lighting, saturate(blendedLighting.a));
-            lighting += sunSpecular;
-            lighting += envSpecular;
+            lightingOut  = mix(lightingOut * transmittance + scattering, lightingOut, saturate(blendedLighting.a));
+            lightingOut += sunSpecular;
+            lightingOut += envSpecular;
         }
 
         //////////////////////////////////////////////////////////
@@ -310,15 +316,15 @@
 
             float glintBlendingFactor = blendedLighting.a > 0.0 ? 1.0 - blendedLighting.a : float(!isHand || basic.a > 0.0);
             
-            lighting.rgb += basic.rgb / exposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
+            lightingOut.rgb += basic.rgb / exposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
 
         } else if (!isHand) {
 
             if (isDamageOverlay) {
-                lighting.rgb = basic.rgb * lighting.rgb;
+                lightingOut.rgb = basic.rgb * lightingOut.rgb;
                 
             } else {
-                lighting.rgb = mix(lighting.rgb, basic.rgb / exposure, basic.a);
+                lightingOut.rgb = mix(lightingOut.rgb, basic.rgb / exposure, basic.a);
             }
 
         }

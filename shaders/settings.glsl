@@ -22,8 +22,6 @@
 
 #define ABOUT 0 // [0 1]
 
-#define RENDER_MODE 0 // [0 1]
-
 // Chunk loader mods support (Distant Horizons, Voxy)
 #if defined IS_IRIS && (defined DISTANT_HORIZONS || defined VOXY)
     #define CHUNK_LOADER_MOD_ENABLED
@@ -39,14 +37,13 @@
 
 #define REFLECTIONS_BUFFER    colortex2
 #define SHADOWMAP_BUFFER      colortex3
-#define DEFERRED_BUFFER       colortex4
 
 #define IRRADIANCE_BUFFER     colortex5
 #define ATMOSPHERE_BUFFER     colortex6
 #define CLOUDS_BUFFER         colortex7
 
+#define TEMPORAL_DATA_BUFFER  colortex4
 #define HISTORY_BUFFER        colortex8
-#define MOMENTS_BUFFER        colortex10
 
 #define FOG_BUFFER            colortex11
 
@@ -168,36 +165,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define REFRACTIONS_BORDER_FADE 0.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50]
 
 //////////////////////////////////////////////////////////
-/*---------------- GLOBAL ILLUMINATION -----------------*/
-//////////////////////////////////////////////////////////
-
-#define GI 0 // [0 1]
-
-#define GI_RENDER_DISTANCE 150.0 // Distance in blocks
-
-#define ATROUS_FILTER         1 // [0 1]
-#define TEMPORAL_ACCUMULATION 1 // [0 1]
-
-#define VARIANCE_STABILIZATION_THRESHOLD 4.0
-#define MIN_FRAMES_LUMINANCE_WEIGHT      4.0
-
-#define MAX_GI_ACCUMULATED_FRAMES 60.0
-
-#define ATROUS_STEP_SIZE      16.0 // [1.0 2.0 4.0 6.0 8.0 10.0 12.0 14.0 16.0 18.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0]
-#define NORMAL_WEIGHT_SIGMA   16.0 // [4.0 8.0 16.0 32.0 48.0 64.0 80.0 128.0]
-#define DEPTH_WEIGHT_SIGMA     1.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0]
-#define LUMINANCE_WEIGHT_SIGMA 4.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0 41.0 42.0 43.0 44.0 45.0 46.0 47.0 48.0 49.0 50.0 51.0 52.0 53.0 54.0 55.0 56.0 57.0 58.0 59.0 60.0 61.0 62.0 63.0 64.0 65.0 66.0 67.0 68.0 69.0 70.0 71.0 72.0 73.0 74.0 75.0 76.0 77.0 78.0 79.0 80.0 81.0 82.0 83.0 84.0 85.0 86.0 87.0 88.0 89.0 90.0 91.0 92.0 93.0 94.0 95.0 96.0 97.0 98.0 99.0 100.0]
-
-#define GI_SAMPLES     1 // [1 2 3 4 5 6 7 8]
-#define MAX_GI_BOUNCES 4 // [1 2 3 4 5 6 7 8 9 10 11 12 9999]
-#define GI_STRIDE     16 // [1 4 8 16 24 32 48 64]
-
-#define MIN_ROULETTE_BOUNCES -1
-
-#define SKY_CONTRIBUTION 1 // [0 1]
-#define RENDER_ENTITIES  1 // [0 1]
-
-//////////////////////////////////////////////////////////
 /*-------------------- ATMOSPHERICS --------------------*/
 //////////////////////////////////////////////////////////
 
@@ -221,8 +188,8 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // CLOUD MAP
 
-#define CLOUDMAP         1
-#define CLOUDMAP_SCALE 0.4
+#define CLOUDMAP          1
+#define CLOUDMAP_SCALE 0.25
 
 // CLOUDS LAYER 0
 
@@ -262,9 +229,10 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // FOG
 
-#define AIR_FOG                     1 // [0 1 2]
-#define AIR_FOG_SCATTERING_STEPS    8 // [8 16 24 32 40 48 64]
-#define AIR_FOG_TRANSMITTANCE_STEPS 8
+#define AIR_FOG        1 // [0 1 2]
+#define AIR_FOG_FILTER 1 // [0 1]
+
+#define AIR_FOG_SCATTERING_STEPS 8 // [8 16 24 32 40 48 64]
 
 #define FOG_SHAPE_SCALE 8 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
 #define FOG_ALTITUDE   60 // [-64 -63 -62 -61 -60 -59 -58 -57 -56 -55 -54 -53 -52 -51 -50 -49 -48 -47 -46 -45 -44 -43 -42 -41 -40 -39 -38 -37 -36 -35 -34 -33 -32 -31 -30 -29 -28 -27 -26 -25 -24 -23 -22 -21 -20 -19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
@@ -442,7 +410,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // Sharpen
 #define SHARPEN             1 // [0 1]
-#define SHARPEN_STRENGTH 0.75 // [0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
+#define SHARPEN_STRENGTH 1.00 // [0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
 
 // Cel Shading
 #define CEL_SHADING 0 // [0 1]

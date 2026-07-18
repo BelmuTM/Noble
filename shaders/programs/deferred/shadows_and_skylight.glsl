@@ -37,10 +37,7 @@
     out vec2 textureCoords;
     out vec2 vertexCoords;
 
-    #if GI == 0
-        flat out vec3[9] skyIrradiance;
-    #endif
-
+    flat out vec3[9] skyIrradiance;
     flat out vec3 uniformSkyIlluminance;
 
     void main() {
@@ -51,10 +48,7 @@
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            #if GI == 0
-                skyIrradiance = sampleUniformSkyIrradiance();
-            #endif
-
+            skyIrradiance         = sampleUniformSkyIrradiance();
             uniformSkyIlluminance = evaluateUniformSkyIrradianceApproximation();
         #endif
     }
@@ -70,10 +64,7 @@
     in vec2 textureCoords;
     in vec2 vertexCoords;
 
-    #if GI == 0
-        flat in vec3[9] skyIrradiance;
-    #endif
-
+    flat in vec3[9] skyIrradiance;
     flat in vec3 uniformSkyIlluminance;
 
     #if defined WORLD_OVERWORLD && SHADOWS > 0
@@ -131,7 +122,7 @@
 
             if (receivesSkylight) {
 
-                #if GI == 0 && AO > 0
+                #if AO > 0
 
                     vec3 aoBuffer    = texture(AO_BUFFER, vertexCoords).rgb;
                     vec3 bentNormals = max0(decodeUnitVector(aoBuffer.xy));

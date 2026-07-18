@@ -24,7 +24,7 @@
     float amplitude  = WAVE_AMPLITUDE;                                           \
     float wavelength = WAVE_LENGTH * 4.5;                                        \
                                                                                  \
-    float time = RENDER_MODE == 0 ? frameTimeCounter * speed : 1.0;              \
+    float time = frameTimeCounter * speed;                                       \
                                                                                  \
     const float angle   = radians(WAVE_ANGLE);                                   \
     const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)); \

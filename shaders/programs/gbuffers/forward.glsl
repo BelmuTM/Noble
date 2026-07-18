@@ -52,11 +52,6 @@
     uniform float rcp240;
 
     void main() {
-        #if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
-            gl_Position = vec4(1.0);
-            return;
-        #endif
-
         textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         lightmapCoords = gl_MultiTexCoord1.xy * rcp240;
         vertexColor    = gl_Color;
@@ -129,10 +124,6 @@
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
-        #endif
-
-        #if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
-            return;
         #endif
 
         vec4 albedoTexture = texture(gtexture, textureCoords);

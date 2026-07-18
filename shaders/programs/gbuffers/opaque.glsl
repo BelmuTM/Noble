@@ -53,11 +53,6 @@
     #include "/include/vertex/animation.glsl"
 
     void main() {
-        #if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
-            gl_Position = vec4(1.0);
-            return;
-        #endif
-
         textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         lightmapCoords = gl_MultiTexCoord1.xy * rcp240;
         vertexColor    = gl_Color;
@@ -94,7 +89,7 @@
     
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
-        #if RENDER_MODE == 0 && defined PROGRAM_TERRAIN && ANIMATIONS_ENABLED
+        #if defined PROGRAM_TERRAIN && ANIMATIONS_ENABLED
 
             animate(scenePosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
 
@@ -154,7 +149,7 @@
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
 
-    #if DIRECTIONAL_LIGHTMAP == 1 && GI == 0 && !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
+    #if DIRECTIONAL_LIGHTMAP == 1 && !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 
         vec2 computeLightmap(vec3 scenePosition, vec3 textureNormal) {
             // Thanks ninjamike1211 for the help
@@ -179,10 +174,6 @@
     #endif
 
     void main() {
-        #if (defined PROGRAM_HAND && RENDER_MODE == 1) || (defined PROGRAM_ENTITY && RENDER_MODE == 1 && RENDER_ENTITIES == 0)
-            return;
-        #endif
-
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
@@ -279,7 +270,7 @@
                 normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
                 normal    = tbn * normal;
 
-                #if DIRECTIONAL_LIGHTMAP == 1 && GI == 0
+                #if DIRECTIONAL_LIGHTMAP == 1
                     lightmap = computeLightmap(scenePosition, normalize(normal));
                 #endif
             }
