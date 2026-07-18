@@ -229,8 +229,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
     // Adaptive steps
     int steps = layer.steps;
     
-    for (int i = 0; i < steps; i++, rayPosition += increment) {
-        if (transmittance <= cloudsTransmitThreshold) break;
+    for (int i = 0; i < steps && transmittance > cloudsTransmitThreshold; i++, rayPosition += increment) {
 
         float density = calculateCloudsDensity(rayPosition, layer, isLowerLayer);
 

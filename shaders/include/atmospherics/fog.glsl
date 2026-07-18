@@ -179,21 +179,6 @@ float calculateAirFogPhase(float cosTheta) {
         return saturate(shapeNoise) * fogDensity * densityMult;
     }
 
-    float getFogTransmittance(vec3 rayOrigin, vec3 lightDir) {
-        const float stepSize = 1.0 / AIR_FOG_TRANSMITTANCE_STEPS;
-
-        vec3 increment   = lightDir * stepSize;
-        vec3 rayPosition = rayOrigin + increment * 0.5;
-
-        float accumAirmass = 0.0;
-        
-        for (int i = 0; i < AIR_FOG_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
-            accumAirmass += getAirFogDensity(rayPosition) * stepSize;
-        }
-
-        return exp(-airFogExtinctionCoefficient * accumAirmass);
-    }
-
     void computeVolumetricAirFog(
         inout vec3 scatteringOut,
         inout vec3 transmittanceOut,
@@ -235,9 +220,9 @@ float calculateAirFogPhase(float cosTheta) {
 
         const float minDensity = 0.01;
 
-        for (uint i = 0u; i < AIR_FOG_SCATTERING_STEPS; i++, rayPosition += increment, shadowPosition += shadowIncrement) {
-            // Early exit if transmittance is too low
-            if (maxOf(transmittanceOut) < EPS) break;
+        for (uint i = 0u; i < AIR_FOG_SCATTERING_STEPS && maxOf(transmittanceOut) > EPS;
+            i++, rayPosition += increment, shadowPosition += shadowIncrement
+        ) {
 
             #if defined WORLD_OVERWORLD
             
@@ -367,10 +352,10 @@ vec3 waterExtinctionCoefficients = waterScatteringCoefficients + waterAbsorption
         vec3 scattering    = vec3(0.0); 
         vec3 transmittance = vec3(1.0);
 
-        for (uint i = 0u; i < WATER_FOG_STEPS; i++, worldPosition += worldIncrement, shadowPosition += shadowIncrement) {
-            // Early exit if transmittance is too low
-            if (maxOf(transmittance) < EPS) break;
-
+        for (uint i = 0u; i < WATER_FOG_STEPS && maxOf(transmittance) > EPS;
+            i++, worldPosition += worldIncrement, shadowPosition += shadowIncrement
+        ) {
+            
             vec3 shadowScreenPosition = shadowClipToShadowScreen(shadowPosition);
 
             float shadowDepth0 = texture(shadowtex0, shadowScreenPosition.xy).r;

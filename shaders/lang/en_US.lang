@@ -667,6 +667,7 @@ value.WATER_CAUSTICS.1 = §aON
 
 option.WATER_CAUSTICS_STRENGTH = Caustics Strength
 option.WATER_CAUSTICS_STRENGTH.comment = Adjusts §bWater Caustics§r' intensity.
+suffix.WATER_CAUSTICS_STRENGTH = x
 
 # Water Parallax
 

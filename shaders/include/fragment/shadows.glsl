@@ -60,7 +60,8 @@ float jitter1 = temporalBlueNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize * 0.3));
 
         bool intersected = false;
 
-        for (int i = 0; i < CONTACT_SHADOWS_STEPS; i++) {
+        for (int i = 0; i < CONTACT_SHADOWS_STEPS && !intersected; i++, rayPosition += rayDirection) {
+
             float depth = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
 
             float linearDepth    = linearizeDepth(depth        , near, far);
@@ -76,11 +77,9 @@ float jitter1 = temporalBlueNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize * 0.3));
                 // Intersection check, avoid player hand fragments
                 if(maxZ >= depth && minZ <= depth && depth >= handDepth) {
                     intersected = true;
-                    break;
                 } 
             }
-
-            rayPosition += rayDirection;
+            
         }
 
         if (intersected) {
