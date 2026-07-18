@@ -69,6 +69,7 @@
         vec4 albedoTexture = texture(gtexture, textureCoords);
 
         #if defined PROGRAM_ARMOR_GLINT
+
             color = vec4(albedoTexture.rgb, 0.0);
 
             if (gl_FragDepth < handDepth) {
@@ -82,11 +83,13 @@
             color = vec4(albedoTexture.rgb, 0.1);
 
         #else
+        
             if (albedoTexture.a < alphaTestThreshold) { discard; return; }
 
-            albedoTexture.rgb *= vertexColor.rgb;
+            albedoTexture *= vertexColor;
 
             color = albedoTexture;
+
         #endif
     }
     

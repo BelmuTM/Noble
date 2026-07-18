@@ -69,7 +69,7 @@ float jitter1 = temporalBlueNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize * 0.3));
             float relativeGap = abs(linearRayDepth - linearDepth) / linearRayDepth;
 
             // Check if the ray and the fragment are near enough for contact shadows
-            if (relativeGap < 0.025) {
+            if (relativeGap < 0.01) {
                 float maxZ  = rayPosition.z;
                 float minZ  = rayPosition.z - float(CONTACT_SHADOWS_STRIDE) / linearDepth;
                 
@@ -176,7 +176,8 @@ float getShadowCaustics(vec3 samplePosition) {
 
 #endif
 
-vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float depth, out float subsurfaceDepth) {
+vec4 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float depth) {
+
     #if SHADOWS > 0
     
         vec3  shadowPosition = worldToShadowClip(scenePosition);
@@ -189,33 +190,38 @@ vec3 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float dept
 
         float penumbraSize = NORMAL_SHADOW_PENUMBRA;
 
-        subsurfaceDepth = 0.0;
-
         vec3 selfIntersectionBias = vec3(0.0);
 
-        if (depth < handDepth) selfIntersectionBias = vec3(0.0, 0.0, 1e-3);
+        if (depth < handDepth) {
+            selfIntersectionBias = vec3(0.0, 0.0, 1e-3);
+        }
 
         vec3 shadowPosDistort = shadowClipToShadowScreen(shadowPosition);
 
-        if (!insideScreenBounds(shadowPosDistort, 1.0)) return vec3(1.0);
-
-        float avgBlockerDepth = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
-
-        if (avgBlockerDepth < 0.0) {
-            return vec3(-1.0);
+        if (!insideScreenBounds(shadowPosDistort, 1.0)) {
+            return vec4(1.0, 1.0, 1.0, 0.0);
         }
 
-        if (NdotL < 0.0) return vec3(0.0);
+        float subsurfaceDepth = 0.0;
+        float avgBlockerDepth = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
+
+        if (NdotL < 0.0) {
+            return vec4(0.0, 0.0, 0.0, subsurfaceDepth);
+        }
 
         #if SHADOWS == 1
-            penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * (shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
+            penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * max0(shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
         #endif
 
-        return PCF(shadowPosition, penumbraSize, selfIntersectionBias) + getShadowCaustics(shadowPosDistort);
+        return vec4(
+            PCF(shadowPosition, penumbraSize, selfIntersectionBias) + getShadowCaustics(shadowPosDistort),
+            subsurfaceDepth
+        );
 
     #else
 
-        return vec3(1.0);
+        return vec4(1.0, 1.0, 1.0, 0.0);
 
     #endif
+
 }

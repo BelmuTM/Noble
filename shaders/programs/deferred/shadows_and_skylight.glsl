@@ -186,9 +186,7 @@
                 vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
                 vec3 scenePosition  = viewToWorld(viewPosition);
 
-                vec3 shadowmapResult = calculateShadowMapping(scenePosition, normal, depth, shadowmap.a);
-
-                shadowmap.rgb = abs(shadowmapResult);
+                shadowmap = calculateShadowMapping(scenePosition, normal, depth);
 
                 #if POM > 0 && POM_SHADOWING == 1
                     shadowmap.rgb *= unpackParallaxSelfShadowing(dataTexture.x);

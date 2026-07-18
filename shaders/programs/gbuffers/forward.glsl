@@ -161,7 +161,7 @@
 
         #if defined WORLD_OVERWORLD && SHADOWS > 0
 
-            shadowmap.rgb = abs(calculateShadowMapping(scenePosition, tbn[2], gl_FragDepth, shadowmap.a));
+            shadowmap = calculateShadowMapping(scenePosition, tbn[2], gl_FragDepth);
 
         #endif
 

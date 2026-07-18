@@ -307,13 +307,20 @@
             exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
         if (isEnchantmentGlint) {
-            if ((isHand && basic.a > 0.0 && basic.a <= 0.05) || (!isHand && basic.a == 0.0)) {
-                lighting.rgb += basic.rgb / exposure;
+
+            float glintBlendingFactor = blendedLighting.a > 0.0 ? 1.0 - blendedLighting.a : float(!isHand || basic.a > 0.0);
+            
+            lighting.rgb += basic.rgb / exposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
+
+        } else if (!isHand) {
+
+            if (isDamageOverlay) {
+                lighting.rgb = basic.rgb * lighting.rgb;
+                
+            } else {
+                lighting.rgb = mix(lighting.rgb, basic.rgb / exposure, basic.a);
             }
-        } else if (isDamageOverlay) {
-            if (!isHand) lighting.rgb = 2.0 * basic.rgb * lighting.rgb;
-        } else {
-            if (!isHand) lighting.rgb = mix(lighting.rgb, basic.rgb / exposure, basic.a);
+
         }
     }
 
