@@ -350,11 +350,11 @@ value.RENDER_ENTITIES.1 = §aON
 #////////////////////////////////////////////////////////#
 
 option.sunPathRotation = Celestial Path Rotation
-option.sunPathRotation.comment = Adjusts the sun's / the moon's path rotation.
+option.sunPathRotation.comment = Adjusts the sun's / moon's path rotation.
 suffix.sunPathRotation = °
 
 option.CELESTIAL_SIZE_MULTIPLIER = Celestial Size Multiplier
-option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the sun / the moon.
+option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the sun / moon.
 suffix.CELESTIAL_SIZE_MULTIPLIER = x
 
 ### ATMOSPHERE
@@ -611,9 +611,13 @@ option.STARS_LUMINANCE.comment = Adjusts the luminosity of stars in the sky.
 ### WEATHER
 
 option.WEATHER_TILT = Tilted Weather
-option.WEATHER_TILT.comment = Tilts the weather (rain, snow) by an angle to look mimick strong winds.
+option.WEATHER_TILT.comment = Tilts the weather (rain, snow) by an angle to mimic strong winds.
 value.WEATHER_TILT.0 = §cOFF
 value.WEATHER_TILT.1 = §aON
+
+option.WEATHER_TILT_ANGLE_X = Tilted Weather Angle
+option.WEATHER_TILT_ANGLE_X.comment = Adjusts the angle of tilted weather.
+suffix.WEATHER_TILT_ANGLE_X = °
 
 #////////////////////////////////////////////////////////#
 #------------------------- WORLD ------------------------#

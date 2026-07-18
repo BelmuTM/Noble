@@ -48,7 +48,8 @@
         vec3 scenePosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
 
         #if WEATHER_TILT == 1
-            const float weatherTiltAngleX = radians(WEATHER_TILT_ANGLE_X), weatherTiltAngleZ = radians(WEATHER_TILT_ANGLE_Z);
+            const float weatherTiltAngleX = radians((90.0 - abs(WEATHER_TILT_ANGLE_X)) * (WEATHER_TILT_ANGLE_X < 0.0 ? -1.0 : 1.0));
+            const float weatherTiltAngleZ = radians(WEATHER_TILT_ANGLE_Z);
 
             vec2 weatherTiltRotation = vec2(cos(weatherTiltAngleX), sin(weatherTiltAngleZ));
             vec2 weatherTiltOffset   = weatherTiltRotation * (cos(length(scenePosition + cameraPosition) * 5.0) * 0.2 + 0.8);
