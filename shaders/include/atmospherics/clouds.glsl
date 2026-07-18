@@ -183,7 +183,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 }
 
 float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int stepCount, CloudLayer layer, bool isLowerLayer, bool animated) {
-    float stepSize = 100.0, opticalDepth = 0.0;
+    float stepSize = 200.0, opticalDepth = 0.0;
 
     float jitter = animated ? randF() : bayer32(gl_FragCoord.xy);
 
@@ -239,7 +239,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
             float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
             float stepTransmittance = exp(-stepOpticalDepth);
 
-            float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition,  shadowLightVectorWorld, 8, layer, isLowerLayer, animated);
+            float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition,  shadowLightVectorWorld, 4, layer, isLowerLayer, animated);
             float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition, -up,                     1, layer, isLowerLayer, animated);
             float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition,  up,                     2, layer, isLowerLayer, animated);
 

@@ -99,26 +99,36 @@
 
             vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
-            viewPosition += normal * 1e-2;
+            viewPosition += normal * 1e-3;
 
             vec3 bentNormal = vec3(0.0);
 
             if (modFragment) {
+
                 #if AO == 1
                     ao.b = GTAO(modDepthTex0, projectionInverse, viewPosition, normal, bentNormal);
+
                 #elif AO == 2
                     ao.b = SSAO(modDepthTex0, projection, projectionInverse, viewPosition, normal, bentNormal);
+
                 #elif AO == 3
                     ao.b = RTAO(modDepthTex0, projection, projectionInverse, viewPosition, normal, bentNormal);
+
                 #endif
+
             } else {
+
                 #if AO == 1
                     ao.b = GTAO(depthtex0, projectionInverse, viewPosition, normal, bentNormal);
+
                 #elif AO == 2
                     ao.b = SSAO(depthtex0, projection, projectionInverse, viewPosition, normal, bentNormal);
+
                 #elif AO == 3
                     ao.b = RTAO(depthtex0, projection, projectionInverse, viewPosition, normal, bentNormal);
+                    
                 #endif  
+
             }
 
             bentNormal = normalize(bentNormal);
@@ -128,6 +138,7 @@
                 vec3 currFragment = vec3(textureCoords, depth);
 
                 vec3 closestFragment;
+
                 if (modFragment) {
                     closestFragment = getClosestFragment(modDepthTex0, currFragment);
                 } else {
@@ -137,6 +148,7 @@
                 vec2 prevCoords = vertexCoords + getVelocity(closestFragment, projectionInverse, projectionPrevious).xy * RENDER_SCALE;
 
                 if (insideScreenBounds(prevCoords, RENDER_SCALE)) {
+
                     vec3 prevAO         = texture(AO_BUFFER, prevCoords).rgb;
                     vec3 prevBentNormal = decodeUnitVector(prevAO.xy);
             
@@ -144,6 +156,7 @@
 
                     ao.xy = encodeUnitVector(mix(prevBentNormal, bentNormal, weight));
                     ao.b  = mix(prevAO.b, ao.b, weight);
+
                 } else {
                     ao = vec3(encodeUnitVector(normal), ao.b);
                 }

@@ -101,16 +101,18 @@ vec3 getShadowColor(vec3 samplePosition) {
 
     float shadowDepth0 = shadowVisibility(shadowtex0, samplePosition);
     float shadowDepth1 = shadowVisibility(shadowtex1, samplePosition);
-    vec3  shadowColor  = texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0).rgb;
+    vec4  shadowColor  = texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0);
     
     #if TONEMAP == ACES
-        shadowColor = srgbToAP1Albedo(shadowColor);
+        shadowColor.rgb = srgbToAP1Albedo(shadowColor.rgb);
     #else
-        shadowColor = srgbToLinear(shadowColor);
+        shadowColor.rgb = srgbToLinear(shadowColor.rgb);
     #endif
 
-    return mix(vec3(shadowDepth0), shadowColor, saturate(shadowDepth1 - shadowDepth0));
+    return mix(vec3(shadowDepth0), shadowColor.rgb * (1.0 - shadowColor.a), saturate(shadowDepth1 - shadowDepth0));
 }
+
+uniform sampler2D shadowcolor1;
 
 float getShadowCaustics(vec3 samplePosition) {
     if (!insideScreenBounds(samplePosition, 1.0)) return 0.0;
@@ -118,7 +120,7 @@ float getShadowCaustics(vec3 samplePosition) {
     float shadowDepth0 = shadowVisibility(shadowtex0, samplePosition);
     float shadowDepth1 = shadowVisibility(shadowtex1, samplePosition);
 
-    return texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0).a * saturate(shadowDepth1 - shadowDepth0);
+    return texelFetch(shadowcolor1, ivec2(samplePosition.xy * shadowMapResolution), 0).r * saturate(shadowDepth1 - shadowDepth0);
 }
 
 #if SHADOWS > 0

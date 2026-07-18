@@ -57,10 +57,10 @@
             coords *= viewSize;
 
             return maxOf(vec4(
-                texelFetch(depthTexture, ivec2(coords) + ivec2( 2,  2), 0).r,
-                texelFetch(depthTexture, ivec2(coords) + ivec2(-2,  2), 0).r,
-                texelFetch(depthTexture, ivec2(coords) + ivec2(-2, -2), 0).r,
-                texelFetch(depthTexture, ivec2(coords) + ivec2( 2, -2), 0).r
+                texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2( 2,  2)).r,
+                texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2(-2,  2)).r,
+                texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2(-2, -2)).r,
+                texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2( 2, -2)).r
             ));
         }
 
@@ -71,6 +71,8 @@
 
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;
+
+            if (depth < handDepth) return;
 
             mat4 projectionInverse = gbufferProjectionInverse;
 
@@ -84,7 +86,9 @@
             #endif
 
             #if CLOUDMAP == 1
+
                 if (insideScreenBounds(textureCoords, CLOUDMAP_SCALE)) {
+
                     vec3 cloudsCoords   = normalize(unprojectSphere(textureCoords * rcp(CLOUDMAP_SCALE)));
                     vec4 cloudmapLayer0 = estimateCloudsScattering(cloudLayer0, cloudsCoords, true, false);
                     vec4 cloudmapLayer1 = estimateCloudsScattering(cloudLayer1, cloudsCoords, false, false);
@@ -92,7 +96,9 @@
                     cloudmap.rg  = cloudmapLayer0.rg + cloudmapLayer1.rg * cloudmapLayer0.b;
                     cloudmap.b   = cloudmapLayer0.b  * cloudmapLayer1.b;
                     cloudmap.rgb = max0(cloudmap.rgb);
+
                 }
+
             #endif
 
             if (modFragment) {
@@ -137,25 +143,26 @@
             clouds.a   = distanceToClouds;
 
             /* Reprojection */
-            vec2  prevCoords = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDirection).xy;
-            float prevDepth  = texture(depthtex0, prevCoords).r;
+            vec2 prevCoords = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDirection).xy;
 
-            if (insideScreenBounds(prevCoords, 1.0) && prevDepth >= handDepth) {
+            if (insideScreenBounds(prevCoords, 1.0)) {
+
                 vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevCoords).rgb);
 
-                const float centerWeightStrength = 0.6;
+                const float centerWeightStrength = 0.2;
 
                 vec2  pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
                 float centerWeight    = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
 
                 distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-4 * distanceToClouds))));
-                centerWeight    = mix(0.8, centerWeight, distanceFalloff);
+                centerWeight    = mix(0.9, centerWeight, distanceFalloff);
                 
                 float velocityWeight = saturate(exp(-0.5 * length(cameraPosition - previousCameraPosition)));
 
-                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.997);
+                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.998);
 
                 clouds.rgb = max0(mix(clouds.rgb, history, weight));
+
             }
         }
         

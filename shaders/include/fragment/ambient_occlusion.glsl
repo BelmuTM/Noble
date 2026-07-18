@@ -32,38 +32,41 @@
         vec3 viewDirection,
         vec3 normal,
         vec3 sliceDir,
-        vec2 radius
+        float radius
     ) {
-        float horizonCos = -1.0;
+        float horizonCosTheta = -1.0;
 
-        vec2 stepSize    = radius * rcp(GTAO_HORIZON_STEPS);
-        vec2 increment   = sliceDir.xy * stepSize;
+        const float cosThetaThreshold = 0.95; // We can stop searching once cosTheta approaches 1
+
+        vec2 increment   = sliceDir.xy * radius * rcp(GTAO_HORIZON_STEPS);
         vec2 rayPosition = textureCoords + rand2F() * increment;
 
-        for (int i = 0; i < GTAO_HORIZON_STEPS; i++) {
+        for (int i = 0; i < GTAO_HORIZON_STEPS && horizonCosTheta < cosThetaThreshold; i++) {
+
             ivec2 coords = ivec2(rayPosition * viewSize * RENDER_SCALE);
             float depth  = texelFetch(depthTex, coords, 0).r;
 
-            if (insideScreenBounds(rayPosition, RENDER_SCALE) && depth < 1.0 || depth >= handDepth) {
+            if (insideScreenBounds(rayPosition, RENDER_SCALE) && depth < 1.0) {
 
                 vec3 horizonVec = screenToView(vec3(rayPosition, depth), projectionInverse, true) - viewPosition;
-                float cosTheta  = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(1.0, 2.0, lengthSqr(horizonVec)));
+
+                float cosTheta = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(1.0, 2.0, lengthSqr(horizonVec)));
     
-                horizonCos = max(horizonCos, cosTheta);
+                horizonCosTheta = max(horizonCosTheta, cosTheta);
 
                 rayPosition += increment;
             }
+
         }
 
-        return fastAcos(horizonCos);
+        return fastAcos(horizonCosTheta);
     }
 
     float GTAO(sampler2D depthTex, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
         float visibility = 0.0;
 
-        float rcpViewLength = fastRcpLength(viewPosition);
-        vec2  radius  		= GTAO_RADIUS * rcpViewLength * rcp(vec2(1.0, aspectRatio));
-        vec3  viewDirection = viewPosition * -rcpViewLength;
+        float radius  	    = gbufferProjection[1][1] * GTAO_RADIUS / -viewPosition.z;
+        vec3  viewDirection = viewPosition * -fastRcpLength(viewPosition);
 
         float dither = temporalBlueNoise(gl_FragCoord.xy);
 
@@ -75,22 +78,24 @@
             vec3 orthoDir   = cross(viewDirection, axis);
             vec3 projNormal = normal - axis * dot(normal, axis);
 
-            float sgnGamma   = sign(dot(projNormal, orthoDir));
             float invNormLen = fastRcpLength(projNormal);
-            float normLen    = rcp(invNormLen);
             float cosGamma   = saturate(dot(projNormal, viewDirection) * invNormLen);
-            float gamma      = sgnGamma * fastAcos(cosGamma);
+            float gamma      = sign(dot(projNormal, orthoDir)) * fastAcos(cosGamma);
 
-            vec2 horizons;
-            horizons.x = -findMaximumHorizon(depthTex, projectionInverse, viewPosition, viewDirection, normal,-sliceDir, radius);
-            horizons.y =  findMaximumHorizon(depthTex, projectionInverse, viewPosition, viewDirection, normal, sliceDir, radius);
-            horizons   =  gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
+            vec2 horizons = vec2(
+                -findMaximumHorizon(depthTex, projectionInverse, viewPosition, viewDirection, normal,-sliceDir, radius),
+                 findMaximumHorizon(depthTex, projectionInverse, viewPosition, viewDirection, normal, sliceDir, radius)
+            );
+
+            horizons = gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
     
-            vec2 arc    = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
-            visibility += dot(arc, vec2(0.25)) * normLen;
+            vec2 arc = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
 
-            float bentAngle   = dot(horizons, vec2(0.5));
-                  bentNormal += viewDirection * cos(bentAngle) + orthoDir * sin(bentAngle);
+            visibility += dot(arc, vec2(0.25)) * rcp(invNormLen);
+
+            float bentAngle = dot(horizons, vec2(0.5));
+
+            bentNormal += viewDirection * cos(bentAngle) + orthoDir * sin(bentAngle);
         }
 
         bentNormal = normalize(bentNormal) - 0.5 * viewDirection;
