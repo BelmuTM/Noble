@@ -328,6 +328,7 @@
 
         // Flickering fire-powered light sources
         if (id >= FIRE_ID && id <= HANGING_LANTERN_ID) {
+            
             const float speed = 4.0;
             float rng         = FBM(ceil(scenePosition + cameraPosition) + frameTimeCounter * speed * 0.1, 1, 0.5);
             float flickering  = mix(mix(0.8, 0.95, rng), 1.0, (sin(frameTimeCounter * speed * mix(0.3, 0.5, rng)) + 1.0) * 0.5);

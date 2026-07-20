@@ -149,7 +149,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
         float worley = worley(scaledCoords * 0.06);
 
-        weatherMap  = FBM(scaledCoords * 4.0, layer.octaves, layer.frequency);
+        weatherMap  = FBM(scaledCoords, layer.octaves, layer.frequency);
         weatherMap *= weatherMap;
         weatherMap *= sqrt(texture(noisetex, scaledCoords).g);
         weatherMap += worley * worley * worley * (1.0 + wetnessFactor);

@@ -967,6 +967,7 @@ value.VIGNETTE.1 = §aON
 
 option.VIGNETTE_STRENGTH = Vignette Strength
 option.VIGNETTE_STRENGTH.comment = Adjusts §bVignette§r's intensity.
+suffix.VIGNETTE_STRENGTH = x
 
 ### FILM GRAIN
 

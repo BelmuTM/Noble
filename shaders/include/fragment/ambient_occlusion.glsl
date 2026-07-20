@@ -66,7 +66,7 @@
         float visibility = 0.0;
 
         float radius  	    = gbufferProjection[1][1] * GTAO_RADIUS / -viewPosition.z;
-        vec3  viewDirection = viewPosition * -fastRcpLength(viewPosition);
+        vec3  viewDirection = -normalize(viewPosition);
 
         float dither = temporalBlueNoise(gl_FragCoord.xy);
 

@@ -20,8 +20,8 @@
 
 const float invShadowMapResolution = 1.0 / shadowMapResolution;
 
-float jitter0 = temporalBlueNoise(gl_FragCoord.xy);
-float jitter1 = temporalBlueNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize * 0.3));
+float jitter0 = interleavedGradientNoise(gl_FragCoord.xy);
+float jitter1 = interleavedGradientNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize * 0.3));
 
 #if CONTACT_SHADOWS == 1
 
