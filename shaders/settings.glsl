@@ -263,7 +263,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 /*------------------------ WORLD -----------------------*/
 //////////////////////////////////////////////////////////
 
-#define ENCHANTMENT_GLINT_STRENGTH 0.4
+#define ENCHANTMENT_GLINT_STRENGTH 0.2
 
 // WATER
 

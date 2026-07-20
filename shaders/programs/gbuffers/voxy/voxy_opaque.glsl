@@ -74,6 +74,8 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         bvec3(axis == 2u, axis == 0u, axis == 1u)
     );
 
+    // Material encoding
+
     vec2 encodedNormal = encodeUnitVector(normalize(normal));
 
     data = storeMaterial(

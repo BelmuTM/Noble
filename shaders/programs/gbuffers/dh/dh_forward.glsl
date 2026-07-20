@@ -136,6 +136,8 @@
 
         } else {
 
+            // Forward diffuse lighting
+
             material.F0 = 0.0;
 
             material.alpha = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
@@ -179,6 +181,8 @@
             translucents.a = vertexColor.a;
 
         }
+
+        // Material encoding
         
         vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
 

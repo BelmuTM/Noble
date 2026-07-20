@@ -147,7 +147,9 @@ float calculateAirFogPhase(float cosTheta) {
         #endif
 
         #if defined WORLD_NETHER
+
             //fogShapeFactors = mix(vec2(2.5, 0.6), fogShapeFactors, sqrt(quinticStep(0.0, 1.0, min(125.0, position.y) / 125.0)));
+            
         #endif
         
         vec4  shapeTex   = texture(depthtex2, position * FOG_SHAPE_SCALE * km_to_m);
@@ -158,6 +160,7 @@ float calculateAirFogPhase(float cosTheta) {
             shapeNoise *= exp(-abs(position.y - fogAltitude) * 0.14);
 
         #elif defined WORLD_NETHER
+
             //fogDensity *= mix(1.2, 1.0, sqrt(quinticStep(0.0, 1.0, min(125.0, position.y) / 125.0)));
 
         #elif defined WORLD_END

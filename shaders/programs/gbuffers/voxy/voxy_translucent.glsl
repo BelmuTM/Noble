@@ -101,6 +101,8 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
     } else {
 
+        // Forward diffuse lighting
+
         material.F0 = 0.0;
 
         material.alpha = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
@@ -142,6 +144,8 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         translucents.a = voxyParameters.sampledColour.a;
 
     }
+
+    // Material encoding
     
     vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
 

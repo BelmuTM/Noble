@@ -150,7 +150,7 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
             cloudsTransmittance = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).b;
         #endif
 
-        vec3 fakeAtmosphereAbsorption = exp(-sampleAtmosphere(sceneDirection, false, false) * 0.0001);
+        vec3 fakeAtmosphereAbsorption = exp(-sampleAtmosphere(sceneDirection, false, false) * 0.0008);
 
         return celestialBodies * pow5(cloudsTransmittance) * fakeAtmosphereAbsorption;
 

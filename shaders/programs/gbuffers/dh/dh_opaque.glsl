@@ -102,6 +102,8 @@
             }
         #endif
 
+        // Material encoding
+
         vec2 encodedNormal = encodeUnitVector(normalize(vertexNormal));
 
         data = storeMaterial(

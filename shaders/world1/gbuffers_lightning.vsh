@@ -1,7 +1,7 @@
 #version 400 compatibility
 
-#define PROGRAM_SPIDEREYES
+#define PROGRAM_LIGHTNING
 #define STAGE_VERTEX
-#define WORLD_NETHER
+#define WORLD_END
 
 #include "/programs/gbuffers/forward.glsl"

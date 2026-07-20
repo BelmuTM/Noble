@@ -113,7 +113,7 @@
     uniform sampler2D normals;
     uniform sampler2D specular;
 
-    #if defined PROGRAM_ENTITY
+    #if defined PROGRAM_ENTITY || defined PROGRAM_LIGHTNING
         uniform int entityId;
         uniform vec4 entityColor;
     #endif
@@ -205,20 +205,37 @@
                 albedoTexture.rgb = mix(albedoTexture.rgb, entityColor.rgb, entityColor.a);
                 
                 material.ao = all(lessThanEqual(normalTexture.rgb, vec3(EPS))) ? 1.0 : material.ao;
-        
+    
+            #else
+
+                // Harcoded nether portal emission
+                if (blockId == NETHER_PORTAL_ID) {
+                    material.emission = 1.0;
+                }
+
+            #endif
+
+            #if defined PROGRAM_ENTITY || defined PROGRAM_LIGHTNING
+
                 // Handling lightning bolts, end crystal and end crystal beams
-                if (entityId == 1000) material.id = LIGHTNING_BOLT_ID;
+                
+                if (entityId == 1000) {
+                    material.id       = LIGHTNING_BOLT_ID;
+                    material.emission = 1.0;
+                    material.lightmap = vec2(1.0);
+                }
 
                 if (entityId == 1001 || entityId == 1002) {
                     material.emission = 1.0;
                     material.lightmap = vec2(1.0);
                 }
 
-            #else
+            #endif
 
-                if (blockId == NETHER_PORTAL_ID) {
-                    material.emission = 1.0;
-                }
+            #if defined PROGRAM_SPIDEREYES
+            
+                material.emission = 1.0;
+                material.lightmap = vec2(lightmapCoords.x, 0.0);
 
             #endif
 
@@ -235,6 +252,8 @@
                 material.normal.z  = sqrt(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
                 material.normal    = tbn * material.normal;
             }
+
+            // Forward diffuse lighting
 
             #if REFRACTIONS == 0
                 bool shadeTranslucents = true;
@@ -315,6 +334,8 @@
             }
 
         }
+
+        // Material encoding
 
         vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
 

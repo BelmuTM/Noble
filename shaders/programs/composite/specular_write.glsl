@@ -299,7 +299,7 @@
         /*------------------ ALPHA BLENDING --------------------*/
         //////////////////////////////////////////////////////////
 
-        vec4 basic = texture(GBUFFERS_BASIC_BUFFER, vertexCoords);
+        vec4 basic = texture(GBUFFERS_BASIC_BUFFER, coords.xy);
 
         bool isEnchantmentGlint = basic.a >= 0.0 && basic.a <= 0.05;
         bool isDamageOverlay    = basic.a > 0.05 && basic.a <= 0.1;

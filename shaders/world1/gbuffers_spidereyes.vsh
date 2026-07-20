@@ -2,5 +2,6 @@
 
 #define PROGRAM_SPIDEREYES
 #define STAGE_VERTEX
+#define WORLD_END
 
-#include "/programs/gbuffers/opaque.glsl"
+#include "/programs/gbuffers/forward.glsl"

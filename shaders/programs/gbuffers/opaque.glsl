@@ -181,6 +181,8 @@
 
         vec2 coords = textureCoords;
 
+        // POM
+
         float parallaxSelfShadowing = 1.0;
 
         #if POM > 0 && defined PROGRAM_TERRAIN
@@ -254,14 +256,15 @@
         #endif
 
         #if defined PROGRAM_BEACONBEAM
-
-            if (albedoTexture.a < 0.999) { return; }
+        
             emission   = 1.0;
             lightmap.x = 1.0;
-        
+
         #endif
 
         vec3 normal = tbn[2];
+
+        // Normal mapping | Directional lightmaps
         
         #if !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 
@@ -275,10 +278,6 @@
                 #endif
             }
 
-        #endif
-
-        #if defined PROGRAM_SPIDEREYES
-            lightmap = vec2(lightmapCoords.x, 0.0);
         #endif
 
         #if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
@@ -312,22 +311,8 @@
 
         lightmap.x = max(handLight, lightmap.x);
 
-        uint id = blockId;
-
-        #if defined PROGRAM_ENTITY
-
-            // Handling lightning bolts, end crystal and end crystal beams
-            if (entityId == 1000) id = LIGHTNING_BOLT_ID;
-
-            if (entityId == 1001 || entityId == 1002) {
-                emission = 1.0;
-                lightmap = vec2(1.0);
-            }
-
-        #endif
-
         // Flickering fire-powered light sources
-        if (id >= FIRE_ID && id <= HANGING_LANTERN_ID) {
+        if (blockId >= FIRE_ID && blockId <= HANGING_LANTERN_ID) {
             
             const float speed = 4.0;
             float rng         = FBM(ceil(scenePosition + cameraPosition) + frameTimeCounter * speed * 0.1, 1, 0.5);
@@ -336,6 +321,8 @@
             lightmap.x *= flickering;
             emission   *= flickering;
         }
+
+        // Material encoding
 
         vec2 encodedNormal = encodeUnitVector(normalize(normal));
 
@@ -349,7 +336,7 @@
             encodedNormal,
             lightmap,
             parallaxSelfShadowing,
-            id
+            blockId
         );
     }
 
