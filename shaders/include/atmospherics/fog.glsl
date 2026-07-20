@@ -149,7 +149,7 @@ float calculateAirFogPhase(float cosTheta) {
         #if defined WORLD_NETHER
 
             //fogShapeFactors = mix(vec2(2.5, 0.6), fogShapeFactors, sqrt(quinticStep(0.0, 1.0, min(125.0, position.y) / 125.0)));
-            
+
         #endif
         
         vec4  shapeTex   = texture(depthtex2, position * FOG_SHAPE_SCALE * km_to_m);
@@ -334,6 +334,8 @@ vec3 waterExtinctionCoefficients = waterScatteringCoefficients + waterAbsorption
         float skylight,
         bool sky
     ) {
+        float eyeSkylight = saturate(eyeBrightnessSmooth.y * rcp240);
+
         const float stepSize = 1.0 / WATER_FOG_STEPS;
 
         vec3 worldIncrement = (endPosition - startPosition) * stepSize;
@@ -345,8 +347,6 @@ vec3 waterExtinctionCoefficients = waterScatteringCoefficients + waterAbsorption
         vec3 shadowPosition  = worldToShadowClip(worldPosition - cameraPosition);
 
         float rayLength = length(worldIncrement);
-
-        float eyeSkylight = saturate(eyeBrightnessSmooth.y * rcp240);
 
         float phase = cornetteShanksPhase(VdotL, 0.5);
 
@@ -368,12 +368,14 @@ vec3 waterExtinctionCoefficients = waterScatteringCoefficients + waterAbsorption
                 shadow *= getCloudsShadows(worldPosition);
             #endif
 
+            float adaptiveSkylight = mix(eyeSkylight, skylight, isEyeInWater == 1 ? maxOf(transmittance) : 1.0);
+
             float distanceThroughWater = max(5.0, float(!sky) * max0(shadowScreenPosition.z - shadowDepth0) * -shadowProjectionInverse[2].z / SHADOW_DEPTH_STRETCH);
 
             vec3 directTransmittance = shadow * exp(-waterExtinctionCoefficients * distanceThroughWater);
 
             scattering += transmittance * directIlluminance * phase          * directTransmittance;
-            scattering += transmittance * skyIlluminance    * isotropicPhase * eyeSkylight;
+            scattering += transmittance * skyIlluminance    * isotropicPhase * adaptiveSkylight;
             
             transmittance *= stepTransmittance;
         }

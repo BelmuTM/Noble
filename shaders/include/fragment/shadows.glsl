@@ -40,7 +40,7 @@ float jitter1 = interleavedGradientNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize *
         rayDirection  = viewPosition + abs(viewPosition.z) * shadowLightVector;
         rayDirection  = viewToScreen(rayDirection, projection, true) - rayPosition;
         rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);
-        
+
         vec2 resolution = viewSize * scale;
 
         rayPosition.xy  *= resolution;
@@ -60,7 +60,7 @@ float jitter1 = interleavedGradientNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize *
 
         bool intersected = false;
 
-        for (int i = 0; i < CONTACT_SHADOWS_STEPS && !intersected; i++, rayPosition += rayDirection) {
+        for (int i = 0; i < CONTACT_SHADOWS_STEPS; i++) {
 
             float depth = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
 
@@ -70,16 +70,18 @@ float jitter1 = interleavedGradientNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize *
             float relativeGap = abs(linearRayDepth - linearDepth) / linearRayDepth;
 
             // Check if the ray and the fragment are near enough for contact shadows
-            if (relativeGap < 0.01) {
+            if (relativeGap < 0.02) {
                 float maxZ  = rayPosition.z;
                 float minZ  = rayPosition.z - float(CONTACT_SHADOWS_STRIDE) / linearDepth;
-                
+
                 // Intersection check, avoid player hand fragments
                 if(maxZ >= depth && minZ <= depth && depth >= handDepth) {
                     intersected = true;
+                    break;
                 } 
             }
-            
+
+            rayPosition += rayDirection;
         }
 
         if (intersected) {
