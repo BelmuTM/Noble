@@ -103,17 +103,20 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define SHADOW_DISTORTION    0.85
 #define SHADOW_DEPTH_STRETCH 0.25
 
-#define CONTACT_SHADOWS        1 // [0 1]
-#define CONTACT_SHADOWS_STEPS  8 // [4 8 16 32]
-#define CONTACT_SHADOWS_STRIDE 6
-
 #define NORMAL_SHADOW_PENUMBRA 1.0
 #define MIN_SHADOW_PENUMBRA    0.5
 
 // Soft Shadows
+
 #define BLOCKER_SEARCH_SAMPLES   8
 #define BLOCKER_SEARCH_RADIUS 30.0
 #define LIGHT_SIZE            70.0
+
+// Contact Shadows
+
+#define CONTACT_SHADOWS        1 // [0 1]
+#define CONTACT_SHADOWS_STEPS  8 // [4 8 16 32]
+#define CONTACT_SHADOWS_STRIDE 6
 
 //////////////////////////////////////////////////////////
 /*------------------ AMBIENT OCCLUSION -----------------*/
@@ -130,14 +133,17 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define AO_SCALE 75 // [25 50 75 100]
 
 // SSAO (Screen-Space Ambient Occlusion)
+
 #define SSAO_SAMPLES 12  // [4 8 12 16 20]
 #define SSAO_RADIUS  0.7 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 
 // RTAO (Ray-Traced Ambient Occlusion)
+
 #define RTAO_SAMPLES 2  // [2 4 6 8 10]
 #define RTAO_STRIDE  32 // [1 4 8 16 24 32 48 64]
 
 // GTAO (Ground-Truth Ambient Occlusion)
+
 #define GTAO_HORIZON_STEPS 4
 #define GTAO_SLICES        2 // [1 2 3 4 5 6]
 #define GTAO_RADIUS      1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
@@ -146,7 +152,11 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 /*------------- REFLECTIONS | REFRACTIONS --------------*/
 //////////////////////////////////////////////////////////
 
+// Specular
+
 #define SPECULAR 1 // [0 1]
+
+// Reflections
 
 #define REFLECTIONS         1 // [0 1 2]
 #define REFLECTIONS_SCALE 100 // [25 50 75 100]
@@ -159,7 +169,12 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define REFLECTIONS_SKY_FALLBACK
 
-#define REFRACTIONS        1 // [0 1 2]
+// Refractions
+
+#define REFRACTIONS 1 // [0 1 2]
+
+#define REFRACTIONS_NEWTON_ITERATIONS 16
+
 #define REFRACTIONS_STRIDE 8
 
 #define REFRACTIONS_BORDER_FADE 0.00 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50]
@@ -170,13 +185,13 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define CELESTIAL_SIZE_MULTIPLIER 1 // [1 2 3 4]
 
-// ATMOSPHERE
+// Atmosphere
 
 #define ATMOSPHERE_SCALE              10 // [10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define ATMOSPHERE_SCATTERING_STEPS   16 // [8 12 16 20 24 28 32]
 #define ATMOSPHERE_TRANSMITTANCE_STEPS 8 // [8 12 16 20 24 28 32]
 
-// CLOUDS
+// Clouds
 
 #define CLOUDS_SCALE 50 // [25 30 40 50 60 70 75 80 90 100]
 
@@ -186,12 +201,12 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define CLOUDS_SHADOWS_STEPS        8
 #define CLOUDS_SHADOWS_RESOLUTION 256 // [128 256 512 1024 2048]
 
-// CLOUD MAP
+// Cloud map
 
 #define CLOUDMAP          1
 #define CLOUDMAP_SCALE 0.25
 
-// CLOUDS LAYER 0
+// Clouds Layer 0
 
 #define CLOUDS_LAYER0_ENABLED 1 // [0 1]
 
@@ -209,7 +224,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define CLOUDS_LAYER0_COVERAGE    30 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_LAYER0_SWIRL       10 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
-// CLOUDS LAYER 1
+// Clouds Layer 1
 
 #define CLOUDS_LAYER1_ENABLED 1 // [0 1]
 
@@ -227,7 +242,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define CLOUDS_LAYER1_COVERAGE   60 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_LAYER1_SWIRL      90 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
-// FOG
+// Fog
 
 #define AIR_FOG        1 // [0 1 2]
 #define AIR_FOG_FILTER 1 // [0 1]
@@ -245,7 +260,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define NETHER_FOG 1 // [0 1]
 #define END_FOG 1    // [0 1]
 
-// STARS
+// Stars
 
 #define STARS_SCALE      280 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300 310 320 330 340 350 360 370 380 390 400]
 #define STARS_AMOUNT      50 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
@@ -253,7 +268,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define STARS_MIN_TEMP  2500
 #define STARS_MAX_TEMP 50000
 
-// WEATHER
+// Weather
 
 #define WEATHER_TILT            1 // [0 1]
 #define WEATHER_TILT_ANGLE_X 45.0 // [-90.0 -85.0 -80.0 -75.0 -70.0 -65.0 -60.0 -55.0 -50.0 -45.0 -40.0 -35.0 -30.0 -25.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0 15.0 20.0 25.0 30.0 35.0 40.0 45.0 50.0 55.0 60.0 65.0 70.0 75.0 80.0 85.0 90.0]
@@ -265,8 +280,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define ENCHANTMENT_GLINT_STRENGTH 0.2
 
-// WATER
-
 // Water Waves
 
 #define WATER_OCTAVES 16 // [2 4 6 8 12 16 24 32]
@@ -276,14 +289,15 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define WAVE_ANGLE 15.0
 
-#define WAVE_SPEED     0.3 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define WAVE_SPEED     0.1 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define WAVE_AMPLITUDE 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
-#define WAVE_STEEPNESS 2.0 // [1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
+#define WAVE_STEEPNESS 1.0 // [1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
 #define WAVE_LENGTH	   1.0 // [0 0.5 1 1.5 2 2.5 3 3.5 4 4.5 5 5.5 6 6.5 7 7.5 8 8.5 9 9.5 10]
 
-#define WAVE_STEEPNESS_MULTIPLIER 0.98
-#define WAVE_AMPLITUDE_MULTIPLIER 0.93
+#define WAVE_STEEPNESS_MULTIPLIER 1.05
+#define WAVE_AMPLITUDE_MULTIPLIER 0.89
 #define WAVE_LENGTH_MULTIPLIER    0.91
+#define WAVE_TIME_MULTIPLIER      1.07
 
 // Water Caustics
 
@@ -311,7 +325,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define WATER_SCATTERING_G 20 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
 #define WATER_SCATTERING_B 18 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100]
 
-// UNDERWATER
+// Underwater
 
 #define UNDERWATER_DISTORTION 0
 
@@ -330,7 +344,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define POM_SHADOWING   0 // [0 1]
 #define POM_DEPTH_WRITE 0 // [0 1]
 
-// ANIMATIONS
+// Animations
 
 #define WAVING_PLANTS         1 // [0 1]
 #define WAVING_PLANTS_SPEED 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
@@ -339,7 +353,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define ANIMATIONS_ENABLED (WAVING_PLANTS == 1 || SWINGING_LANTERNS == 1)
 
-// RAIN
+// Rain
 
 #define RAIN_PUDDLES       1 // [0 1]
 #define RAIN_PUDDLES_SIZE 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
@@ -358,6 +372,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 //////////////////////////////////////////////////////////
 
 // Depth of Field
+
 #define DOF           0 // [0 1]
 #define DOF_RADIUS 10.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0 21.0 22.0 23.0 24.0 25.0 26.0 27.0 28.0 29.0 30.0 31.0 32.0 33.0 34.0 35.0 36.0 37.0 38.0 39.0 40.0]
 #define DOF_DEPTH     0 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 128 256 512 1024]
@@ -367,10 +382,12 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define DOF_ABERRATION_STRENGTH 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 // Bloom
+
 #define BLOOM             1 // [0 1]
 #define BLOOM_STRENGTH 0.00 // [-1.00 -0.95 -0.90 -0.85 -0.80 -0.75 -0.70 -0.65 -0.60 -0.55 -0.50 -0.45 -0.40 -0.35 -0.30 -0.25 -0.20 -0.15 -0.10 -0.05 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // Lens Flares
+
 #define LENS_FLARES 0 // [0 1]
 
 #define LENS_FLARES_STRENGTH 1.0 // [0.2 0.4 0.8 1.0 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2 3.4 3.6 3.8 4.0 4.2 4.4 4.6 4.8 5.0 5.2 5.4 5.6 5.8 6.0 6.2 6.4 6.6 6.8 7.0 7.2 7.4 7.6 7.8 8.0 8.2 8.4 8.6 8.8 9.0 9.2 9.4 9.6 9.8 10.0]
@@ -390,6 +407,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define LENS_FLARES_HALO_STRETCH_Y 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 // Glare
+
 #define GLARE            0 // [0 1]
 #define GLARE_STEPS     32
 #define GLARE_STRENGTH 1.0 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
@@ -401,25 +419,31 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define GLARE_BLADES_ANGLE  0 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180]
 
 // Vignette
+
 #define VIGNETTE             0 // [0 1]
 #define VIGNETTE_STRENGTH 0.25 // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50]
 
 // Film Grain
+
 #define FILM_GRAIN            0 // [0 1]
 #define FILM_GRAIN_STRENGTH 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 // Sharpen
+
 #define SHARPEN             1 // [0 1]
 #define SHARPEN_STRENGTH 1.00 // [0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00]
 
 // Cel Shading
+
 #define CEL_SHADING 0 // [0 1]
 #define CEL_SHADES  8 // [4 8 12 16 20 24 28 32]
 
 // 8-Bits Filter
+
 #define EIGHT_BITS_FILTER 0 // [0 1]
 
 // Palette
+
 #define PALETTE 0 // [0 1 2 3 4 5 6 7 8 9 10]
 
 //////////////////////////////////////////////////////////

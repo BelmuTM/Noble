@@ -244,10 +244,12 @@
         #if AIR_FOG_FILTER == 1
 
             float totalWeight = 0.0;
+
             const int filterSize = 2;
 
             for (int x = -filterSize; x <= filterSize; x++) {
                 for (int y = -filterSize; y <= filterSize; y++) {
+                    
                     vec2  sampleCoords = coords.xy + vec2(x, y) * texelSize * 2.0;
                     uvec2 packedFog    = texture(FOG_BUFFER, sampleCoords).rg;
 
@@ -275,6 +277,7 @@
                     totalWeight += weight;
                 }
             }
+            
             scattering    /= totalWeight;
             transmittance /= totalWeight;
         

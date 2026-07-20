@@ -18,13 +18,6 @@
 /*                                                                              */
 /********************************************************************************/
 
-/*
-    [References]:
-        LearnOpenGL. (2015). SSAO. https://learnopengl.com/Advanced-Lighting/SSAO
-        Jimenez et al. (2016). Practical Real-Time Strategies for Accurate Indirect Occlusion. https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
-        Jimenez et al. (2016). Practical Realtime Strategies for Accurate Indirect Occlusion. https://blog.selfshadow.com/publications/s2016-shading-course/activision/s2016_pbs_activision_occlusion.pdf
-*/
-
 #include "/settings.glsl"
 #include "/include/internal_settings.glsl"
 

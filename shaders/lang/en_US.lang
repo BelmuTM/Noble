@@ -284,10 +284,10 @@ value.REFLECTIONS_SCALE.75 = 75%
 value.REFLECTIONS_SCALE.100 = 100%
 
 option.REFRACTIONS = Refractions
-option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen. §aRaytraced§r refractions are precise but cost more performance. §aApproximation§r refractions are less precise but cost less performance.
+option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen. §aApproximation§r refractions are less precise but cost less performance. §aRaytraced§r refractions are precise but cost more performance.
 value.REFRACTIONS.0 = §cOFF
-value.REFRACTIONS.1 = §e§lRaytraced
-value.REFRACTIONS.2 = §e§lApproximation
+value.REFRACTIONS.1 = §e§lApproximation
+value.REFRACTIONS.2 = §e§lRaytraced
 
 option.REFRACTIONS_BORDER_FADE = Refractions Border Fade
 option.REFRACTIONS_BORDER_FADE.comment = Fades the borders of §bRefractions§r to hide the screen-space cutoff.

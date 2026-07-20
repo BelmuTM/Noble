@@ -18,13 +18,64 @@
 /*                                                                              */
 /********************************************************************************/
 
-// Kneemund's border attenuation (https://github.com/Kneemund)
+/*
+    [Credits]:
+        Kneemund - providing the border attenuation function (https://github.com/Kneemund)
+        jbritain - suggesting the Newton method for refraction (https://github.com/jbritain)
+
+    [References]:
+        Mayer, C., Assarsson, U., Sintorn, E. (2026). Ultrafast Screen-Space Refractions and Caustics via Newton’s Method. https://jcgt.org/published/0015/01/03/
+*/
+
 float kneemundAttenuation(vec2 pos, float edgeFactor) {
     if (edgeFactor < EPS) return 1.0;
 
     pos *= 1.0 - pos;
     return 1.0 - quinticStep(edgeFactor, 0.0, minOf(pos));
 }
+
+#if REFRACTIONS == 1
+
+    bool newtonRefraction(
+        mat4 projection,
+        mat4 projectionInverse,
+        vec3 viewPosition0,
+        vec3 viewPosition1,
+        vec3 rayDirection,
+        vec3 normal,
+        inout vec3 refractedPosition
+    ) {
+
+        const float distanceThreshold = 1.0;
+
+        for (int i = 0; i < REFRACTIONS_NEWTON_ITERATIONS; i++) {
+
+            float NdotL = dot(normal, rayDirection);
+            if (abs(NdotL) < EPS) break;
+
+            // Intersecting a point along the tangent plane defined by viewPosition1
+            float tangentPlaneDist = dot(normal, viewPosition1 - viewPosition0) / NdotL;
+            vec3  tangentPointView = viewPosition0 + rayDirection * tangentPlaneDist;
+
+            // Projecting the tangent point to screen space from the depth buffer
+            vec3 tangentPointScreen = viewToScreen(tangentPointView, projection, true);
+            vec3 rayPositionScreen  = vec3(tangentPointScreen.xy, texture(depthtex1, tangentPointScreen.xy).r);
+
+            viewPosition1 = screenToView(rayPositionScreen, projectionInverse, true);
+            normal        = unpackNormal(texelFetch(GBUFFERS_DATA, ivec2(tangentPointScreen.xy * viewSize), 0).w);
+
+            // If the ray's position is close enough, success
+            if (distance(tangentPointView, viewPosition1) < distanceThreshold) {
+                refractedPosition = rayPositionScreen;
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
+#endif
 
 vec3 computeRefractions(
     bool modFragment,
@@ -53,10 +104,23 @@ vec3 computeRefractions(
 
     #if REFRACTIONS == 1
 
+        hit = newtonRefraction(
+            projection,
+            projectionInverse,
+            viewPosition0,
+            viewPosition1,
+            refractedDirection,
+            normal,
+            refractedPosition
+        );
+
+    #elif REFRACTIONS == 2
+
         float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float rayLength;
 
         if (modFragment) {
+
             hit = raytrace(
                 modDepthTex1,
                 projection,
@@ -69,7 +133,9 @@ vec3 computeRefractions(
                 refractedPosition,
                 rayLength
             );
+
         } else {
+
             hit = raytrace(
                 depthtex1,
                 projection,
@@ -82,18 +148,8 @@ vec3 computeRefractions(
                 refractedPosition,
                 rayLength
             );
+
         }
-
-    #elif REFRACTIONS == 2
-
-        refractedDirection = mat3(gbufferModelViewInverse) * refractedDirection;
-
-        vec3 scenePosition0 = viewToWorld(viewPosition0);
-        vec3 scenePosition1 = viewToWorld(viewPosition1);
-
-        float refractedDistance = distance(scenePosition0, scenePosition1);
-
-        refractedPosition = viewToScreen(worldToView(scenePosition0 + refractedDirection * refractedDistance), projection, true);
 
     #endif
 
@@ -149,10 +205,8 @@ vec3 computeRefractions(
         density = clamp(density, 0.0, 2.0);
     }
 
-    vec3 absorption = exp(-(1.0 - albedo) * density);
-
-    vec3 blocklightColor = getBlockLightColor();
-    vec3 emissiveness    = emission * blocklightColor;
+    vec3 absorption   = exp(-(1.0 - albedo) * density);
+    vec3 emissiveness = emission * getBlockLightColor();
 
     return sampledColor * fresnel * absorption + emissiveness * albedo;
 }

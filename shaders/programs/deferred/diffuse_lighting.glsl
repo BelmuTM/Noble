@@ -159,7 +159,7 @@
         vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
         #if SHADOWS > 0
-            shadowmap = texture(SHADOWMAP_BUFFER, vertexCoords);
+            shadowmap = textureBicubic(SHADOWMAP_BUFFER, vertexCoords);
         #endif
 
         vec3 skyIlluminance = vec3(0.0);

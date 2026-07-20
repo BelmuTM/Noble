@@ -23,8 +23,7 @@
     float steepness  = WAVE_STEEPNESS;                                           \
     float amplitude  = WAVE_AMPLITUDE;                                           \
     float wavelength = WAVE_LENGTH * 4.5;                                        \
-                                                                                 \
-    float time = frameTimeCounter * speed;                                       \
+    float time       = frameTimeCounter * speed;                                 \
                                                                                  \
     const float angle   = radians(WAVE_ANGLE);                                   \
     const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)); \
@@ -37,7 +36,8 @@
     steepness  *= WAVE_STEEPNESS_MULTIPLIER; \
     amplitude  *= WAVE_AMPLITUDE_MULTIPLIER; \
     wavelength *= WAVE_LENGTH_MULTIPLIER;    \
-    direction  *= rotation;             
+    time       *= WAVE_TIME_MULTIPLIER;      \
+    direction  *= rotation;     
 
 const float g = 9.81; // Earth's gravitational constant
 
