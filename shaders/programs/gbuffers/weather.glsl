@@ -31,10 +31,12 @@
     flat out vec3 skyIlluminance;
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
+
         #include "/include/utility/phase.glsl"
 
         #include "/include/atmospherics/constants.glsl"
         #include "/include/atmospherics/atmosphere.glsl"
+        
     #endif
 
     void main() {

@@ -270,7 +270,7 @@
 
             if (all(greaterThan(normalTexture, vec4(EPS)))) {
                 normal.xy = normalTexture.xy * 2.0 - 1.0;
-                normal.z  = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
+                normal.z  = fastSqrtN1(1.0 - saturate(dot(normal.xy, normal.xy)));
                 normal    = tbn * normal;
 
                 #if DIRECTIONAL_LIGHTMAP == 1

@@ -249,7 +249,7 @@
 
             if (all(greaterThan(normalTexture, vec4(EPS)))) {
                 material.normal.xy = normalTexture.xy * 2.0 - 1.0;
-                material.normal.z  = sqrt(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
+                material.normal.z  = fastSqrtN1(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
                 material.normal    = tbn * material.normal;
             }
 

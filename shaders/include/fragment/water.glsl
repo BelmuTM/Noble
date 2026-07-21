@@ -120,12 +120,22 @@ vec2 calculateWaveDerivativeGerstner(vec2 position, int octaves) {
 vec3 getWaterNormal(vec3 worldPosition, vec3 worldNormal, int octaves, float strength) {
     vec2 waveDerivative = calculateWaveDerivativeGerstner(worldPosition.xz, octaves) * strength;
 
-    return normalize(
-        rotate(
-            normalize(vec3(-waveDerivative.x, 1.0, -waveDerivative.y)),
-            vec3(0.0, 1.0, 0.0),
-            worldNormal
-        )
+    // Attenuating water normals for grazing angles to prevent noise
+    // Yoinked from Photon, if your name is sixthsurge you can file complaints in my DMs >:3
+    float angleAttenuation = smoothstep(0.0, 0.15, abs(dot(worldNormal, normalize(worldPosition - cameraPosition))));
+
+    return mix(
+        worldNormal,
+
+        normalize(
+            rotate(
+                normalize(vec3(-waveDerivative.x, 1.0, -waveDerivative.y)),
+                vec3(0.0, 1.0, 0.0),
+                worldNormal
+            )
+        ),
+        
+        angleAttenuation
     );
 }
 
