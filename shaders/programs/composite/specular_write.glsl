@@ -318,18 +318,22 @@
 
             float glintBlendingFactor = blendedLighting.a > 0.0 ? 1.0 - blendedLighting.a : float(!isHand || basic.a > 0.0);
             
-            lightingOut.rgb += basic.rgb / exposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
+            lightingOut += basic.rgb / exposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
 
         } else if (!isHand) {
 
             if (isDamageOverlay) {
-                lightingOut.rgb = basic.rgb * lightingOut.rgb;
+                lightingOut = basic.rgb * lightingOut;
                 
             } else {
-                lightingOut.rgb = mix(lightingOut.rgb, basic.rgb / exposure, basic.a);
+                lightingOut = mix(lightingOut, basic.rgb / exposure, basic.a);
             }
 
         }
+
+        // Log encoding
+
+        lightingOut = encodeLog(lightingOut);
     }
 
 #endif
