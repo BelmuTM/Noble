@@ -297,11 +297,11 @@ suffix.REFRACTIONS_BORDER_FADE = x
 #--------------------- ATMOSPHERICS ---------------------#
 #////////////////////////////////////////////////////////#
 
-option.sunPathRotation = Celestial Path Rotation
+option.sunPathRotation = Sun/Moon Path Rotation
 option.sunPathRotation.comment = Adjusts the sun's / moon's path rotation.
 suffix.sunPathRotation = °
 
-option.CELESTIAL_SIZE_MULTIPLIER = Celestial Size Multiplier
+option.CELESTIAL_SIZE_MULTIPLIER = Sun/Moon Size Multiplier
 option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the sun / moon.
 suffix.CELESTIAL_SIZE_MULTIPLIER = x
 

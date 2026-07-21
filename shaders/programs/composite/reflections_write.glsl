@@ -66,14 +66,11 @@
 
         #include "/include/utility/rng.glsl"
 
-        #include "/include/atmospherics/constants.glsl"
-
-        #include "/include/utility/phase.glsl"
+        #include "/include/atmospherics/atmosphere_header.glsl"
+        
         #include "/include/utility/sampling.glsl"
 
         #include "/include/material/brdf.glsl"
-
-        #include "/include/atmospherics/celestial.glsl"
 
         #include "/include/fragment/raytracer.glsl"
         #include "/include/fragment/reflections.glsl"

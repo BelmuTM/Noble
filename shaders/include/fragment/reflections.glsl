@@ -23,6 +23,7 @@ vec3 sampleHitColor(vec2 hitCoords) {
 }
 
 vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
+
     #if defined WORLD_OVERWORLD || defined WORLD_END
     
         vec3 sceneDirection = normalize(mat3(gbufferModelViewInverse) * reflected);
@@ -47,11 +48,16 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
 
         #endif
 
-        return max0((sampleAtmosphereSimple(sceneDirection) * clouds.a + clouds.rgb) * skylight);
+        vec3 atmosphere = texture(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDirection))).rgb;
+
+        return max0((atmosphere * clouds.a + clouds.rgb) * skylight);
 
     #else
+
         return vec3(0.0);
+        
     #endif
+    
 }
 
 float jitter = temporalBlueNoise(gl_FragCoord.xy);

@@ -183,7 +183,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 /*-------------------- ATMOSPHERICS --------------------*/
 //////////////////////////////////////////////////////////
 
-#define CELESTIAL_SIZE_MULTIPLIER 1 // [1 2 3 4]
+#define CELESTIAL_SIZE_MULTIPLIER 2 // [1 2 3 4]
 
 // Atmosphere
 

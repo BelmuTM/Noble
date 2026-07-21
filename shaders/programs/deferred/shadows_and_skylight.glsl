@@ -25,11 +25,10 @@
 
 #include "/include/utility/rng.glsl"
 
-#include "/include/atmospherics/constants.glsl"
-
 #if defined WORLD_OVERWORLD || defined WORLD_END
-    #include "/include/utility/phase.glsl"
-    #include "/include/atmospherics/atmosphere.glsl"
+
+    #include "/include/atmospherics/atmosphere_header.glsl"
+
 #endif
 
 #if defined STAGE_VERTEX
@@ -50,6 +49,7 @@
 
             skyIrradiance         = sampleUniformSkyIrradiance();
             uniformSkyIlluminance = evaluateUniformSkyIrradianceApproximation();
+
         #endif
     }
 
@@ -68,11 +68,15 @@
     flat in vec3 uniformSkyIlluminance;
 
     #if defined WORLD_OVERWORLD && SHADOWS > 0
+
         #include "/include/fragment/shadows.glsl"
+
     #endif
 
     #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+
         #include "/include/atmospherics/clouds.glsl"
+
     #endif
 
     void main() {
@@ -144,14 +148,6 @@
             } else if (ivec2(gl_FragCoord.xy) == ivec2(0, 1)) {
                 // Uniform sky illuminance
                 illuminance.rgb = uniformSkyIlluminance;
-
-            } else if (ivec2(gl_FragCoord.xy) == ivec2(0, 2)) {
-                // Direct sun transmittance
-                illuminance.rgb = texelFetch(IRRADIANCE_BUFFER, ivec2(10, 0), 0).rgb;
-
-            } else if (ivec2(gl_FragCoord.xy) == ivec2(0, 3)) {
-                // Direct moon transmittance
-                illuminance.rgb = texelFetch(IRRADIANCE_BUFFER, ivec2(11, 0), 0).rgb;
 
             } else {
                 // Directional sky illuminance

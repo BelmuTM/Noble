@@ -62,10 +62,9 @@
     #include "/include/utility/sampling.glsl"
 
     #include "/include/material/brdf.glsl"
+    
     #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/shadows.glsl"
-
-    #include "/include/atmospherics/celestial.glsl"
 
     #if REFRACTIONS > 0
         #include "/include/fragment/refractions.glsl"
@@ -221,6 +220,8 @@
                         material.alpha
                     ) * directIlluminanceSpecular;
 
+                    sunSpecular = clamp16(sunSpecular);
+
                 }
 
             #endif
@@ -290,13 +291,16 @@
             transmittance = decodeRGBE(texture(FOG_BUFFER, coords.xy).g);
 
         #endif
+
+        scattering    = mix(scattering,    vec3(0.0), saturate(blendedLighting.a));
+        transmittance = mix(transmittance, vec3(1.0), saturate(blendedLighting.a));
         
         if (isEyeInWater == 1) {
             lightingOut += sunSpecular;
             lightingOut += envSpecular;
-            lightingOut  = mix(lightingOut * transmittance + scattering, lightingOut, saturate(blendedLighting.a));
+            lightingOut  = lightingOut * transmittance + scattering;
         } else {
-            lightingOut  = mix(lightingOut * transmittance + scattering, lightingOut, saturate(blendedLighting.a));
+            lightingOut  = lightingOut * transmittance + scattering;
             lightingOut += sunSpecular;
             lightingOut += envSpecular;
         }

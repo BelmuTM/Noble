@@ -25,9 +25,7 @@
     
     #include "/include/common.glsl"
 
-    #include "/include/utility/phase.glsl"
-    #include "/include/atmospherics/constants.glsl"
-    #include "/include/atmospherics/atmosphere.glsl"
+    #include "/include/atmospherics/atmosphere_header.glsl"
 
     #if defined STAGE_VERTEX
 
@@ -58,5 +56,7 @@
     #endif
     
 #else
+
     #include "/programs/discard.glsl"
+    
 #endif

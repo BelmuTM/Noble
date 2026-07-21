@@ -26,29 +26,19 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
 #if defined WORLD_OVERWORLD || defined WORLD_END
 
-    #include "/include/utility/phase.glsl"
-    #include "/include/atmospherics/constants.glsl"
-    #include "/include/atmospherics/atmosphere.glsl"
+    #include "/include/atmospherics/atmosphere_header.glsl"
 
     layout (rgba16f) uniform image2D colorimg5;
 
-    layout (local_size_x = 12, local_size_y = 1, local_size_z = 1) in;
+    layout (local_size_x = 10, local_size_y = 1, local_size_z = 1) in;
 
     shared vec3 skyIlluminance[9];
-
-    shared vec3 directIlluminance;
-
-    shared vec3 sunTransmittance;
-    shared vec3 moonTransmittance;
 
     void main() {
         uint x = gl_LocalInvocationID.x;
 
         if (x == 1) {
             evaluateUniformSkyIrradiance(skyIlluminance);
-
-        } else if (x == 0) {
-            directIlluminance = evaluateDirectIlluminance(sunTransmittance, moonTransmittance);
         }
 
         memoryBarrierShared();
@@ -58,19 +48,11 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
         if (x == 0) {
             // Direct illuminance
-            illuminance = encodeLog(directIlluminance);
+            illuminance = encodeLog(evaluateDirectIlluminance());
             
         } else if (x > 0 && x < 10) {
             // Sky illuminance (9 coefficients)
             illuminance = skyIlluminance[x - 1];
-            
-        } else if (x == 10) {
-            // Direct sun transmittance
-            illuminance = sunTransmittance;
-
-        } else if (x == 11) {
-            // Direct moon transmittance
-            illuminance = moonTransmittance;
         }
 
         imageStore(colorimg5, ivec2(x, 0), vec4(illuminance, 0.0));

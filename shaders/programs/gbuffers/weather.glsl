@@ -32,10 +32,7 @@
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
 
-        #include "/include/utility/phase.glsl"
-
-        #include "/include/atmospherics/constants.glsl"
-        #include "/include/atmospherics/atmosphere.glsl"
+        #include "/include/atmospherics/atmosphere_header.glsl"
         
     #endif
 
@@ -43,13 +40,16 @@
         textureCoords = gl_MultiTexCoord0.xy;
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
+
             // Boosted sky illuminance by 10x for stylization
             skyIlluminance = evaluateUniformSkyIrradianceApproximation() * 10.0;
+
         #endif
 
         vec3 scenePosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
 
         #if WEATHER_TILT == 1
+
             const float weatherTiltAngleX = radians((90.0 - abs(float(WEATHER_TILT_ANGLE_X))) * (float(WEATHER_TILT_ANGLE_X) < 0.0 ? -1.0 : 1.0));
             const float weatherTiltAngleZ = radians(WEATHER_TILT_ANGLE_Z);
 
@@ -57,6 +57,7 @@
             vec2 weatherTiltOffset   = weatherTiltRotation * (cos(length(scenePosition + cameraPosition) * 5.0) * 0.2 + 0.8);
 
             scenePosition.xz += weatherTiltOffset * scenePosition.y;
+
         #endif
 
         gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));

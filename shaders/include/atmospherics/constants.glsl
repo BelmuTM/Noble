@@ -58,17 +58,21 @@ const vec3 rayleighExtinctionCoefficientsEnd = vec3(3e-5, 2e-4, 4e-5);
 const vec3 mieExtinctionCoefficientsEnd      = vec3(7e-3, 2e-2, 9e-3) / mieScatteringAlbedo;
 
 #if TONEMAP == ACES
+
     mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO,  mieScatteringCoefficients * SRGB_2_AP1_ALBEDO);
     mat3x3 atmosphereAttenuationCoefficients = mat3x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO, (mieScatteringCoefficients * SRGB_2_AP1_ALBEDO) / mieScatteringAlbedo, ozoneExtinctionCoefficients * SRGB_2_AP1_ALBEDO);
 
     const mat2x3 atmosphereScatteringCoefficientsEnd  = mat2x3(rayleighScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO,  mieScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO);
     const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(rayleighScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO, (mieScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO) / mieScatteringAlbedo, vec3(0.0));
+
 #else
+
     mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients, mieScatteringCoefficients);
     mat3x3 atmosphereAttenuationCoefficients = mat3x3(rayleighScatteringCoefficients, mieScatteringCoefficients / mieScatteringAlbedo, ozoneExtinctionCoefficients);
 
     const mat2x3 atmosphereScatteringCoefficientsEnd  = mat2x3(rayleighScatteringCoefficientsEnd, mieScatteringCoefficientsEnd);
     const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(rayleighExtinctionCoefficientsEnd, mieExtinctionCoefficientsEnd, vec3(0.0));
+
 #endif
 
 vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
@@ -86,8 +90,8 @@ const float cloudsBackScatter  = 0.20;
 const float cloudsPeakWeight   = 0.10;
 
 const int   cloudsMultiScatterSteps = 8;
-const float cloudsExtinctionFalloff = 0.60;
-const float cloudsScatteringFalloff = 0.50;
+const float cloudsExtinctionFalloff = 0.70;
+const float cloudsScatteringFalloff = 0.60;
 const float cloudsAnisotropyFalloff = 0.80;
 
 /* FOG CONSTANTS */
@@ -121,10 +125,10 @@ const float moonAngularRadius = CELESTIAL_SIZE_MULTIPLIER * moonRadius / moonDis
 const float starAngularRadius = CELESTIAL_SIZE_MULTIPLIER * starRadius / starDistance;
 
 const vec3 sunIrradiance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
-      vec3 sunRadiance   = sunIrradiance / coneAngleToSolidAngle(sunAngularRadius);
+      vec3 sunRadiance   = sunIrradiance / coneAngleToSolidAngle(sunAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
 
 const vec3 moonRadiance   = moonAlbedo * sunIrradiance;
-      vec3 moonIrradiance = moonRadiance * coneAngleToSolidAngle(moonAngularRadius); // The rough amount of light the moon emits that reaches the earth
+      vec3 moonIrradiance = moonRadiance * coneAngleToSolidAngle(moonAngularRadius / CELESTIAL_SIZE_MULTIPLIER); // The rough amount of light the moon emits that reaches the earth
 
 vec3 starIrradiance = blackbody(25000.0) * 500.0;
 vec3 starRadiance   = starIrradiance / coneAngleToSolidAngle(starAngularRadius);

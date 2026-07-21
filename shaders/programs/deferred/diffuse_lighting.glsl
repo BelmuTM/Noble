@@ -60,14 +60,17 @@
 
     #include "/include/utility/rng.glsl"
 
-    #include "/include/atmospherics/constants.glsl"
+    #include "/include/atmospherics/atmosphere_header.glsl"
 
-    #include "/include/utility/phase.glsl"
     #include "/include/utility/sampling.glsl"
 
     #include "/include/material/brdf.glsl"
 
-    #include "/include/atmospherics/celestial.glsl"
+    #if defined WORLD_OVERWORLD || defined WORLD_END
+    
+        #include "/include/atmospherics/celestial.glsl"
+
+    #endif
 
     void main() {
         lightingOut = vec3(0.0);
@@ -113,9 +116,15 @@
         // Atmosphere rendering
 
         if (depth == 1.0) {
-            lightingOut  = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, uniformSkyIlluminance);
-            lightingOut += renderCelestialBodies(vertexCoords, viewPosition);
-            lightingOut  = encodeLog(lightingOut);
+
+            #if defined WORLD_OVERWORLD || defined WORLD_END
+
+                lightingOut  = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, uniformSkyIlluminance);
+                lightingOut += renderCelestialBodies(vertexCoords, viewPosition);
+                lightingOut  = encodeLog(lightingOut);
+
+            #endif
+            
             return;
         }
 

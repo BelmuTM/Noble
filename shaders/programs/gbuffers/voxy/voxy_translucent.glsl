@@ -34,20 +34,12 @@ uniform sampler2D vxDepthTexTrans;
 
 #include "/include/utility/math.glsl"
 #include "/include/utility/color.glsl"
-
+#include "/include/utility/rng.glsl"
 #include "/include/utility/transforms.glsl"
 
 #include "/include/material/material.glsl"
 
-#include "/include/utility/phase.glsl"
-
-#include "/include/atmospherics/constants.glsl"
-
-#if defined WORLD_OVERWORLD || defined WORLD_END
-    #include "/include/atmospherics/atmosphere.glsl"
-#endif
-
-#include "/include/utility/rng.glsl"
+#include "/include/atmospherics/atmosphere_header.glsl"
 
 #include "/include/material/brdf.glsl"
 

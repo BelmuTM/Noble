@@ -21,24 +21,32 @@
 #include "/settings.glsl"
 
 #if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0 || !defined WORLD_OVERWORLD
+
     #include "/programs/discard.glsl"
+
 #else
+
     #include "/include/taau_scale.glsl"
 
     #if defined STAGE_VERTEX
+    
         #include "/programs/vertex_simple.glsl"
 
     #elif defined STAGE_FRAGMENT
 
         #if CLOUDMAP == 1
+
             /* RENDERTARGETS: 7,14 */
 
-            layout (location = 0) out vec4 clouds;
-            layout (location = 1) out vec3 cloudmap;
+            layout (location = 0) out vec4 cloudsOut;
+            layout (location = 1) out vec3 cloudmapOut;
+
         #else
+
             /* RENDERTARGETS: 7 */
 
-            layout (location = 0) out vec4 clouds;
+            layout (location = 0) out vec4 cloudsOut;
+
         #endif
 
         in vec2 textureCoords;
@@ -67,7 +75,7 @@
         void main() {
             vec2 vertexCoords = textureCoords * RENDER_SCALE;
 
-            clouds = vec4(0.0, 0.0, 1.0, 0.0);
+            cloudsOut = vec4(0.0, 0.0, 1.0, 0.0);
 
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;
@@ -93,9 +101,9 @@
                     vec4 cloudmapLayer0 = estimateCloudsScattering(cloudLayer0, cloudsCoords, true, false);
                     vec4 cloudmapLayer1 = estimateCloudsScattering(cloudLayer1, cloudsCoords, false, false);
 
-                    cloudmap.rg  = cloudmapLayer0.rg + cloudmapLayer1.rg * cloudmapLayer0.b;
-                    cloudmap.b   = cloudmapLayer0.b  * cloudmapLayer1.b;
-                    cloudmap.rgb = max0(cloudmap.rgb);
+                    cloudmapOut.rg  = cloudmapLayer0.rg + cloudmapLayer1.rg * cloudmapLayer0.b;
+                    cloudmapOut.b   = cloudmapLayer0.b  * cloudmapLayer1.b;
+                    cloudmapOut.rgb = max0(cloudmapOut.rgb);
 
                 }
 
@@ -122,7 +130,8 @@
                 layer1 = estimateCloudsScattering(cloudLayer1, cloudsRayDirection, false, true);
             #endif
 
-            float distanceToClouds = min(layer0.a, layer1.a);
+            // Distance to cloudsOut
+            cloudsOut.a = min(layer0.a, layer1.a);
 
             /* Cloud Layers Blending */
             float s = step(layer0.a, layer1.a);
@@ -133,38 +142,34 @@
             vec3  C_back  = mix(layer0.rgb, layer1.rgb, s);
             float T_back  = mix(layer0.b,   layer1.b,   s);
 
-            clouds.rgb = C_front + T_front * C_back;
-            clouds.b   = T_front * T_back;
-
-            /* Aerial Perspective */
-            float distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-5 * distanceToClouds))));
-
-            clouds.rgb = mix(vec3(0.0, 0.0, 1.0), clouds.rgb, distanceFalloff);
-            clouds.a   = distanceToClouds;
+            cloudsOut.rgb = C_front + T_front * C_back;
+            cloudsOut.b   = T_front * T_back;
 
             /* Reprojection */
-            vec2 prevCoords = reproject(viewPosition, distanceToClouds, CLOUDS_WIND_SPEED * frameTime * windDirection).xy;
+            vec2 prevCoords = reproject(viewPosition, cloudsOut.a, CLOUDS_WIND_SPEED * frameTime * windDirection).xy;
 
             if (insideScreenBounds(prevCoords, 1.0)) {
 
-                vec3 history = max0(textureCatmullRom(CLOUDS_BUFFER, prevCoords).rgb);
+                vec3 history = texture(CLOUDS_BUFFER, prevCoords).rgb;
+
+                float distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-4 * cloudsOut.a))));
+
+                vec2 pixelCenterDist = 1.0 - abs(fract(prevCoords * viewSize) * 2.0 - 1.0);
 
                 const float centerWeightStrength = 0.2;
 
-                vec2  pixelCenterDist = 1.0 - abs(2.0 * fract(prevCoords * viewSize) - 1.0);
-                float centerWeight    = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
-
-                distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-4 * distanceToClouds))));
-                centerWeight    = mix(0.9, centerWeight, distanceFalloff);
+                float centerWeight = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
+                      centerWeight = mix(0.9, centerWeight, distanceFalloff);
                 
                 float velocityWeight = saturate(exp(-0.5 * length(cameraPosition - previousCameraPosition)));
 
                 float weight = clamp(centerWeight * velocityWeight, 0.0, 0.998);
 
-                clouds.rgb = max0(mix(clouds.rgb, history, weight));
+                cloudsOut.rgb = max0(mix(cloudsOut.rgb, history, weight));
 
             }
         }
         
     #endif
+
 #endif
