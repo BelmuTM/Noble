@@ -195,7 +195,9 @@
                         #endif
 
                         #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+
                             visibility *= getCloudsShadows(scenePosition0);
+
                         #endif
 
                     #endif
@@ -208,7 +210,7 @@
 
                 #endif
 
-                if (any(greaterThan(visibility, vec3(EPS))) && material.F0 > EPS) {
+                if (maxOf(visibility) > EPS && material.F0 > EPS) {
 
                     sunSpecular = computeSpecular(
                         -normalize(viewPosition0),
@@ -217,15 +219,16 @@
                         material.N,
                         material.K,
                         material.alpha
-                    ) 
-                    * directIlluminanceSpecular;
+                    ) * directIlluminanceSpecular;
 
                 }
 
             #endif
 
             #if REFLECTIONS > 0
+            
                 envSpecular = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
+
             #endif
 
         } else {

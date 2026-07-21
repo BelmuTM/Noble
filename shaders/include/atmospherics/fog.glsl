@@ -334,7 +334,7 @@ vec3 waterExtinctionCoefficients = waterScatteringCoefficients + waterAbsorption
         float skylight,
         bool sky
     ) {
-        float eyeSkylight = saturate(eyeBrightnessSmooth.y * rcp240);
+        float eyeSkylight = pow2(saturate(eyeBrightnessSmooth.y * rcp240));
 
         const float stepSize = 1.0 / WATER_FOG_STEPS;
 
@@ -346,13 +346,10 @@ vec3 waterExtinctionCoefficients = waterScatteringCoefficients + waterAbsorption
              shadowIncrement = diagonal3(shadowProjection) * shadowIncrement;
         vec3 shadowPosition  = worldToShadowClip(worldPosition - cameraPosition);
 
-        float rayLength = length(worldIncrement);
+        vec3 stepTransmittance = exp(-waterExtinctionCoefficients * length(worldIncrement));
 
-        float phase = cornetteShanksPhase(VdotL, 0.5);
-
-        vec3 stepTransmittance = exp(-waterExtinctionCoefficients * rayLength);
-
-        vec3 scattering    = vec3(0.0); 
+        vec3 scatteringSun = vec3(0.0);
+        vec3 scatteringSky = vec3(0.0); 
         vec3 transmittance = vec3(1.0);
 
         for (uint i = 0u; i < WATER_FOG_STEPS && maxOf(transmittance) > EPS;
@@ -372,31 +369,33 @@ vec3 waterExtinctionCoefficients = waterScatteringCoefficients + waterAbsorption
 
             float distanceThroughWater = max(5.0, float(!sky) * max0(shadowScreenPosition.z - shadowDepth0) * -shadowProjectionInverse[2].z / SHADOW_DEPTH_STRETCH);
 
-            vec3 directTransmittance = shadow * exp(-waterExtinctionCoefficients * distanceThroughWater);
-
-            scattering += transmittance * directIlluminance * phase          * directTransmittance;
-            scattering += transmittance * skyIlluminance    * isotropicPhase * adaptiveSkylight;
+            scatteringSun += transmittance * shadow * exp(-waterExtinctionCoefficients * distanceThroughWater);
+            scatteringSky += transmittance;
             
             transmittance *= stepTransmittance;
         }
 
         vec3 scatteringAlbedo = saturate(waterScatteringCoefficients / waterExtinctionCoefficients);
 
-        scattering *= waterScatteringCoefficients * (1.0 - stepTransmittance) / waterExtinctionCoefficients;
-
         // Multiple scattering approximation provided by Jessie
         vec3 multipleScatteringFactor = scatteringAlbedo * 0.84;
 
-        int   phaseSampleCount = 8;
-        float phaseMultiple    = 0.0;
+        const int phaseSampleCount = 4;
+
+        float phaseMultiple = 0.0;
+        float g = 0.85;
 
         for (int i = 0; i < phaseSampleCount; i++) {
-            phaseMultiple += cornetteShanksPhase(VdotL, 0.6 * pow(0.5, phaseSampleCount));
+            phaseMultiple += cornetteShanksPhase(VdotL, g);
+            g *= 0.5;
         }
         
         phaseMultiple /= phaseSampleCount;
 
-        scatteringOut  = scattering * phaseMultiple;
+        scatteringOut  = scatteringSun * directIlluminance * phaseMultiple
+                       + scatteringSky * skyIlluminance    * isotropicPhase * eyeSkylight;
+
+        scatteringOut *= waterScatteringCoefficients * (1.0 - stepTransmittance) / waterExtinctionCoefficients;
         scatteringOut *= multipleScatteringFactor / (1.0 - multipleScatteringFactor);
 
         transmittanceOut = transmittance;

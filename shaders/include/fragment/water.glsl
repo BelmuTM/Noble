@@ -18,11 +18,12 @@
 /*                                                                              */
 /********************************************************************************/
 
+
 #define WAVE_GERSTNER_SETUP()                                                    \
     float speed      = WAVE_SPEED;                                               \
     float steepness  = WAVE_STEEPNESS;                                           \
     float amplitude  = WAVE_AMPLITUDE;                                           \
-    float wavelength = WAVE_LENGTH * 4.5;                                        \
+    float wavelength = WAVE_LENGTH * 1.0;                                        \
     float time       = frameTimeCounter * speed;                                 \
                                                                                  \
     const float angle   = radians(WAVE_ANGLE);                                   \
@@ -30,14 +31,20 @@
                                                                                  \
     vec2 direction = vec2(0.1, 0.1);                                             \
                                                                                  \
-    float noise = texture(noisetex, position * 1e-2).a;                          \
+    float noise = FBM(position * 4e-2, 3, 1.0);
+
 
 #define WAVE_GERSTNER_PARAMS_FACTOR()        \
     steepness  *= WAVE_STEEPNESS_MULTIPLIER; \
     amplitude  *= WAVE_AMPLITUDE_MULTIPLIER; \
     wavelength *= WAVE_LENGTH_MULTIPLIER;    \
     time       *= WAVE_TIME_MULTIPLIER;      \
-    direction  *= rotation;     
+    direction  *= rotation;
+
+
+#define WAVE_GERSTNER_TIME_NOISE() \
+    time + noise * 5.0
+
 
 const float g = 9.81; // Earth's gravitational constant
 
@@ -73,7 +80,7 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
 
         height += gerstnerWaves(
             position,
-            time + noise * 2.0,
+            WAVE_GERSTNER_TIME_NOISE(),
             steepness,
             amplitude,
             wavelength,
@@ -97,7 +104,7 @@ vec2 calculateWaveDerivativeGerstner(vec2 position, int octaves) {
 
         derivative += gerstnerWavesDerivative(
             position,
-            time + noise * 2.0,
+            WAVE_GERSTNER_TIME_NOISE(),
             steepness,
             amplitude,
             wavelength,
