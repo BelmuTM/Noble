@@ -85,6 +85,7 @@ vec3 shadowClipToShadowScreen(vec3 shadowClipPosition) {
 //////////////////////////////////////////////////////////
 
 #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+
     vec3 getCloudsShadowPosition(vec2 coords, vec3 rayPosition) {
         coords *= rcp(CLOUDS_SHADOWS_RESOLUTION);
         coords  = coords * 2.0 - 1.0;
@@ -100,6 +101,7 @@ vec3 shadowClipToShadowScreen(vec3 shadowClipPosition) {
 
         return texture(IRRADIANCE_BUFFER, position.xy * CLOUDS_SHADOWS_RESOLUTION * texelSize).a;
     }
+    
 #endif
 
 //////////////////////////////////////////////////////////

@@ -153,19 +153,25 @@
         float cloudsShadows = 1.0; 
 
         #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+
             cloudsShadows = getCloudsShadows(viewToWorld(viewPosition));
+
         #endif
 
         vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
         #if SHADOWS > 0
+
             shadowmap = textureBicubic(SHADOWMAP_BUFFER, vertexCoords);
+
         #endif
 
         vec3 skyIlluminance = vec3(0.0);
         
         #if defined WORLD_OVERWORLD || defined WORLD_END
+
             skyIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
+            
         #endif
 
         float ao = 1.0;

@@ -135,10 +135,15 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
         vec3 celestialBodies = vec3(0.0);
 
         #if defined WORLD_OVERWORLD
-            celestialBodies += physicalSun(sceneDirection) + physicalMoon(sceneDirection);
+
+            vec3 sunTransmittance  = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 2), 0).rgb;
+            vec3 moonTransmittance = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 3), 0).rgb;
+
+            celestialBodies += physicalSun(sceneDirection) * sunTransmittance + physicalMoon(sceneDirection) * moonTransmittance;
             celestialBodies += computeStarfield(viewPosition, sunVector);
 
         #elif defined WORLD_END
+
             celestialBodies += physicalStar(sceneDirection);
             celestialBodies += computeStarfield(viewPosition, starVector) * 4.0;
 
@@ -150,9 +155,7 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
             cloudsTransmittance = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).b;
         #endif
 
-        vec3 fakeAtmosphereAbsorption = exp(-sampleAtmosphere(sceneDirection, false, false) * 0.0008);
-
-        return celestialBodies * pow5(cloudsTransmittance) * fakeAtmosphereAbsorption;
+        return clamp(celestialBodies * pow5(cloudsTransmittance), vec3(0.0), vec3(maxFloat16));
 
     #else
 

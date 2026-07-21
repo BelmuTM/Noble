@@ -30,8 +30,11 @@
         Häggström, F. (2018). Real-time rendering of volumetric clouds. http://www.diva-portal.org/smash/get/diva2:1223894/FULLTEXT01.pdf
 */
 
+uniform sampler3D colortex10;
 uniform sampler3D depthtex2;
-uniform sampler3D shadowcolor1;
+
+#define CURL_NOISE_TEXTURE  colortex10
+#define SHAPE_NOISE_TEXTURE depthtex2
 
 struct CloudLayer {
     int steps;
@@ -170,10 +173,10 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     position *= layer.detailScale;
 
-    vec3 curlTex   = texture(shadowcolor1, position * 0.4).rgb * 2.0 - 1.0;
+    vec3 curlTex   = texture(CURL_NOISE_TEXTURE, position * 0.4).rgb * 2.0 - 1.0;
          position += curlTex * layer.swirl;
 
-    vec4  shapeTex   = texture(depthtex2, position);
+    vec4  shapeTex   = texture(SHAPE_NOISE_TEXTURE, position);
     float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
           shapeNoise = remap(shapeNoise * heightAlter(altitude, weatherMap), 1.0 - mix(0.72, 0.9, wetness) * weatherMap, 1.0, 0.0, 1.0);
 

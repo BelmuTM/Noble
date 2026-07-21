@@ -154,7 +154,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
 
 #endif
 
-vec3 evaluateDirectIlluminance() {
+vec3 evaluateDirectIlluminance(inout vec3 sunTransmittance, inout vec3 moonTransmittance) {
     vec3 directIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD
@@ -175,8 +175,11 @@ vec3 evaluateDirectIlluminance() {
 
         #endif
 
-        directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, sunDirection , atmosphereAttenuationCoefficients) * sunIrradiance;
-        directIlluminance += evaluateAtmosphereTransmittance(atmosphereRayPosition, moonDirection, atmosphereAttenuationCoefficients) * moonIrradiance;
+        sunTransmittance  = evaluateAtmosphereTransmittance(atmosphereRayPosition, sunDirection , atmosphereAttenuationCoefficients);
+        moonTransmittance = evaluateAtmosphereTransmittance(atmosphereRayPosition, moonDirection, atmosphereAttenuationCoefficients);
+
+        directIlluminance += sunTransmittance  * sunIrradiance;
+        directIlluminance += moonTransmittance * moonIrradiance;
 
     #elif defined WORLD_END
 

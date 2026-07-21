@@ -242,9 +242,11 @@ float calculateAirFogPhase(float cosTheta) {
             float densityFog = 0.0;
 
             if (fogDensity > minDensity) {
+
                 float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-1.0 * length(rayPosition - cameraPosition) / farPlane));
 
                 densityFog = getAirFogDensity(rayPosition) * distanceFalloffFog;
+
             }
 
             vec3 stepScatteringDirect   = vec3(0.0);
@@ -252,6 +254,7 @@ float calculateAirFogPhase(float cosTheta) {
             vec3 stepTransmittance      = vec3(1.0);
 
             if (densityFog > minDensity) {
+
                 float airmassFog      = densityFog * rayLength;
                 vec3  opticalDepthFog = airFogAttenuationCoefficients * airmassFog;
 
@@ -262,13 +265,14 @@ float calculateAirFogPhase(float cosTheta) {
                 stepScatteringIndirect += airFogScatteringCoefficients * airmassFog * isotropicPhase * skyIlluminance    * visibleScatteringFog;
 
                 stepTransmittance *= stepTransmittanceFog;
+
             }
 
             #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
 
-                float heightFalloffAerial = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08) * float(!sky);
+                // float heightFalloffAerial = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08) * float(!sky);
 
-                float airmassAerial      = rayLength * heightFalloffAerial * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * 20.0;
+                float airmassAerial      = float(!sky) * rayLength * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * 20.0;
                 vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
 
                 vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
