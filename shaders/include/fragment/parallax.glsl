@@ -19,12 +19,14 @@
 /********************************************************************************/
 
 /*
-    [Credits]
+    [Credits]:
         Null (https://github.com/null511)
         ninjamike1211
             
         Thanks to them for their help!
 */
+
+// Needs vertex ouputs: botLeft, texSize, tbn, viewPosition, textureCoords
 
 const float layerHeight = 1.0 / float(POM_LAYERS);
 
@@ -81,6 +83,7 @@ vec2 atlasToLocal(vec2 atlasCoords) {
 
 vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out vec2 shadowCoords, out float traceDistance) {
     vec3 tangentDirection = normalize(viewToWorld(viewPosition)) * tbn;
+
     traceDistance = 0.0;
 
     vec2 increment = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize * layerHeight;

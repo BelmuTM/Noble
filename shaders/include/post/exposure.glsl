@@ -18,16 +18,16 @@
 /*                                                                              */
 /********************************************************************************/
 
-const float bias = 1.0;
+const float exposureBias = 1.0;
 
-const float minExposure = bias * 5.0e-5;
-const float maxExposure = bias * 1.5e-1;
+const float minExposure = exposureBias * 5.0e-5;
+const float maxExposure = exposureBias * 1.5e-1;
 
 const float calibration       = 7.5;   // Light meter calibration
 const float sensorSensitivity = 100.0; // Sensor sensitivity
 
 float computeEV100fromLuminance(float luminance) {
-    return log2(luminance * bias * sensorSensitivity / calibration);
+    return log2(luminance * sensorSensitivity * exposureBias / calibration);
 }
 
 float computeExposureFromEV100(float ev100) {

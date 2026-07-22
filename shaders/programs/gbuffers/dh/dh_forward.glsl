@@ -159,7 +159,9 @@
             #if defined WORLD_OVERWORLD || defined WORLD_END
 
                 #if defined WORLD_OVERWORLD && SHADOWS > 0
+
                     shadowmap = calculateShadowMapping(scenePosition, vertexNormal, gl_FragDepth);
+                
                 #endif
 
                 if (material.lightmap.y > EPS) {

@@ -83,8 +83,6 @@ vec3 physicalStar(vec3 sceneDirection) {
 }
 
 vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, vec3 skyIlluminance) {
-    float jitter = interleavedGradientNoise(gl_FragCoord.xy);
-
     vec3 sceneDirection = normalize(viewToWorld(viewPosition));
 
     vec3 atmosphere = textureBicubic(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDirection))).rgb;

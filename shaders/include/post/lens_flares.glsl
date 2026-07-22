@@ -53,6 +53,7 @@ void lensFlares(inout vec3 color, sampler2D colorTex, vec2 coords) {
     float totalWeight = 0.0;
 
     for (int i = 0; i < LENS_FLARES_GHOSTS; i++) {
+        
         vec2 ghostOffset = ghostDirection * i * ghostSpacing(i);
         vec2 ghostCoords = invertedCoords + ghostOffset;
 
@@ -65,10 +66,12 @@ void lensFlares(inout vec3 color, sampler2D colorTex, vec2 coords) {
         );
 
         #if LENS_FLARES_GHOSTS_THIN_FILM == 1
+
             float thinFilmNoise = texture(noisetex, fract(ghostCoords) * 0.3).b;
             vec3  thinFilm      = paletteFunction(thinFilmNoise * 3.0);
 
             ghostSample *= thinFilm;
+
         #endif
 
         flares      += ghostSample * weight;
@@ -90,6 +93,7 @@ void lensFlares(inout vec3 color, sampler2D colorTex, vec2 coords) {
         float weight = quinticStep(0.8, 1.0, 1.0 - dist);
 
         if (weight > 0.0) {
+
             vec3 haloSample = vec3(
                 texture(colorTex, (haloCoords + haloDirection * 1.01) * 0.5).r,
                 texture(colorTex, (haloCoords + haloDirection       ) * 0.5).g,

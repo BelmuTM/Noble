@@ -19,7 +19,7 @@
 /********************************************************************************/
 
 /*
-    [Credits]
+    [Credits]:
         Jessie     - providing shell intersection function and other utility functions (https://github.com/Jessie-LC/open-source-utility-code/blob/main/simple/misc.glsl)
         sixthsurge - help with encoding functions (https://github.com/sixthsurge)
 

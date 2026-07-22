@@ -76,8 +76,9 @@ in vec2 textureCoords;
         #endif
 
         color.b *= (lutSize - 1.0);
-        int bL   = int(color.b);
-        int bH   = bL + 1;
+
+        int bL = int(color.b);
+        int bH = bL + 1;
 
         vec2 offLo = vec2(bL % lutTileSize, bL / lutTileSize) * rcpLutTileSize;
         vec2 offHi = vec2(bH % lutTileSize, bH / lutTileSize) * rcpLutTileSize;
@@ -104,6 +105,7 @@ in vec2 textureCoords;
         avgLuma /= weight;
 
         float centerLuma = luminance(color);
+
         color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / centerLuma;
     }
     

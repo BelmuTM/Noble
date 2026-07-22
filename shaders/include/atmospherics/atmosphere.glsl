@@ -90,8 +90,12 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
 
         #endif
 
-        mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0)); vec3 multipleScattering = vec3(0.0); vec3 transmittance = vec3(1.0);
-    
+        mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0));
+
+        vec3 multipleScattering = vec3(0.0);
+        
+        vec3 transmittance = vec3(1.0);
+        
         for (int i = 0; i < ATMOSPHERE_SCATTERING_STEPS; i++, rayPosition += increment) {
 
             #if defined WORLD_OVERWORLD

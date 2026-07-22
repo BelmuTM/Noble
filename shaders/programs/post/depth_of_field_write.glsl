@@ -31,7 +31,7 @@
 
         /* RENDERTARGETS: 0 */
 
-        layout (location = 0) out vec3 color;
+        layout (location = 0) out vec3 colorOut;
 
         in vec2 textureCoords;
         in vec2 vertexCoords;
@@ -70,7 +70,7 @@
             #endif
 
             if (depth < handDepth) {
-                color = texture(MAIN_BUFFER, vertexCoords).rgb;
+                colorOut = texture(MAIN_BUFFER, vertexCoords).rgb;
                 return;
             }
 
@@ -101,9 +101,9 @@
                 
             #endif
 
-            depthOfField(color, MAIN_BUFFER, vertexCoords, getCoC(depth, targetDepth));
+            depthOfField(colorOut, MAIN_BUFFER, vertexCoords, getCoC(depth, targetDepth));
 
-            color = encodeLog(color);
+            colorOut = encodeLog(colorOut);
         }
         
     #endif

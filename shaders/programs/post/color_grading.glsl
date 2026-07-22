@@ -27,7 +27,7 @@
 
 /* RENDERTARGETS: 0 */
 
-layout (location = 0) out vec3 color;
+layout (location = 0) out vec3 colorOut;
 
 in vec2 textureCoords;
 
@@ -61,14 +61,14 @@ in vec2 textureCoords;
 #include "/include/post/grading.glsl"
 
 void main() {
-    color = texture(MAIN_BUFFER, textureCoords).rgb;
+    colorOut = texture(MAIN_BUFFER, textureCoords).rgb;
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
         if (all(lessThan(gl_FragCoord.xy, debugHistogramSize)))
             return;
     #endif
 
-    color = decodeLog(color);
+    colorOut = decodeLog(colorOut);
 
     float exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
 
@@ -81,58 +81,58 @@ void main() {
             bloom *= UNDERWATER_BLOOM_BOOST;
         }
 
-        color += bloom * bloomStrength;
+        colorOut += bloom * bloomStrength;
 
     #endif
 
     #if PURKINJE == 1
-        scotopicVisionApproximation(color);
+        scotopicVisionApproximation(colorOut);
     #endif
 
     #if LENS_FLARES == 1
-        lensFlares(color, IRRADIANCE_BUFFER, textureCoords);
+        lensFlares(colorOut, IRRADIANCE_BUFFER, textureCoords);
     #endif
 
     #if GLARE == 1
-        glare(color, IRRADIANCE_BUFFER, textureCoords);
+        glare(colorOut, IRRADIANCE_BUFFER, textureCoords);
     #endif
 
-    color *= exposure;
+    colorOut *= exposure;
     
     // Tonemapping & Color Grading
     
     #if TONEMAP == 0           // AgX
-        agx(color);
-        agxLook(color);
-        agxEotf(color);
+        agx(colorOut);
+        agxLook(colorOut);
+        agxEotf(colorOut);
         
     #elif TONEMAP == ACES      // ACES
-        compressionLMT(color);
-        rrt(color);
-        odt(color);
+        compressionLMT(colorOut);
+        rrt(colorOut);
+        odt(colorOut);
 
     #elif TONEMAP == 2         // Burgess
-        burgess(color);
+        burgess(colorOut);
 
     #elif TONEMAP == 3         // Reinhard-Jodie
-        reinhardJodie(color);
+        reinhardJodie(colorOut);
 
     #elif TONEMAP == 4         // Lottes
-        lottes(color);
+        lottes(colorOut);
 
     #elif TONEMAP == 5         // Uchimura
-        uchimura(color);
+        uchimura(colorOut);
 
     #elif TONEMAP == 6         // Uncharted 2
-        uncharted2(color);
+        uncharted2(colorOut);
 
     #endif
 
     #if TONEMAP != ACES && TONEMAP != 0
-        color = linearToSrgb(color);
+        colorOut = linearToSrgb(colorOut);
     #endif
 
-    color = saturate(color);
+    colorOut = saturate(colorOut);
 
     const float vibranceMul   = 1.0 + VIBRANCE;
     const float saturationMul = 1.0 + SATURATION;
@@ -141,9 +141,9 @@ void main() {
     const float gammaMul      = 1.0 + GAMMA;
     const float gainMul       = 1.0 + GAIN;
 
-    whiteBalance(color);
-    vibrance(color, vibranceMul);
-    saturation(color, saturationMul);
-    contrast(color, contrastMul);
-    liftGammaGain(color, liftMul, gammaMul, gainMul);
+    whiteBalance(colorOut);
+    vibrance(colorOut, vibranceMul);
+    saturation(colorOut, saturationMul);
+    contrast(colorOut, contrastMul);
+    liftGammaGain(colorOut, liftMul, gammaMul, gainMul);
 }

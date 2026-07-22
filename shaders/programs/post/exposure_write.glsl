@@ -159,7 +159,7 @@
 
         /* RENDERTARGETS: 8 */
 
-        layout (location = 0) out vec4 history;
+        layout (location = 0) out vec4 historyOut;
 
     #endif
 
@@ -171,15 +171,16 @@
     #endif
 
     void main() {
-        history.rgb = decodeLog(texture(MAIN_BUFFER, textureCoords).rgb);
+        historyOut.rgb = decodeLog(texture(MAIN_BUFFER, textureCoords).rgb);
 
         #if TAA == 1
-            history.rgb *= computeExposure(avgLuminance);
-            history.rgb  = reinhard(history.rgb);
+            historyOut.rgb *= computeExposure(avgLuminance);
+            historyOut.rgb  = reinhard(historyOut.rgb);
         #endif
 
         #if EXPOSURE > 0
-            history.a = avgLuminance;
+
+            historyOut.a = avgLuminance;
 
             #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
 
@@ -194,6 +195,7 @@
                 }
                 
             #endif
+
         #endif
     }
     

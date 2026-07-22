@@ -70,8 +70,8 @@
 
     /* RENDERTARGETS: 0,1 */
 
-    layout (location = 0) out vec4 shadowmap;
-    layout (location = 1) out float caustics;
+    layout (location = 0) out vec4 shadowmapOut;
+    layout (location = 1) out float causticsOut;
 
     flat in int blockId;
     in vec2 textureCoords;
@@ -106,17 +106,17 @@
             albedoTexture.rgb = vec3(1.0);
         #endif
 
-        shadowmap = albedoTexture;
+        shadowmapOut = albedoTexture;
 
-        caustics = 0.0;
+        causticsOut = 0.0;
 
         if (blockId == WATER_ID) {
 
-            shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
+            shadowmapOut = vec4(1.0, 1.0, 1.0, 0.0);
 
             #if WATER_CAUSTICS == 1
 
-                caustics = waterCaustics(
+                causticsOut = waterCaustics(
                     worldPosition,
                     getWaterNormal(worldPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES, 2.0 * WATER_NORMALS_STRENGTH_MULTIPLIER)
                 ) * WATER_CAUSTICS_STRENGTH;
