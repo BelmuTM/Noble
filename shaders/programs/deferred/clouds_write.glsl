@@ -159,12 +159,12 @@
 
                 vec2 pixelCenterDist = 1.0 - abs(fract(prevCoords * viewSize) * 2.0 - 1.0);
 
-                const float centerWeightStrength = 0.2;
+                const float centerWeightStrength = CLOUDS_CENTER_WEIGHT_STRENGTH * CLOUDS_SCALE * 0.01;
 
                 float centerWeight = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
                       centerWeight = mix(0.9, centerWeight, distanceFalloff);
                 
-                float velocityWeight = saturate(exp(-0.5 * length(cameraPosition - previousCameraPosition)));
+                float velocityWeight = saturate(exp(-CLOUDS_VELOCITY_WEIGHT_STRENGTH * length(cameraPosition - previousCameraPosition)));
 
                 const float maxCloudsTemporalWeight = 0.998;
                 const float maxCloudsDistanceDelta  = 45000.0;

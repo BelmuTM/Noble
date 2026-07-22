@@ -201,6 +201,9 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define CLOUDS_SHADOWS_STEPS        8
 #define CLOUDS_SHADOWS_RESOLUTION 256 // [128 256 512 1024 2048]
 
+#define CLOUDS_CENTER_WEIGHT_STRENGTH   0.5
+#define CLOUDS_VELOCITY_WEIGHT_STRENGTH 0.5
+
 // Cloud map
 
 #define CLOUDMAP          1
