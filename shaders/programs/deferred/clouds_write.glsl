@@ -54,8 +54,6 @@
         #include "/include/common.glsl"
 
         #include "/include/utility/rng.glsl"
-
-        #include "/include/utility/sampling.glsl"
         #include "/include/utility/phase.glsl"
         
         #include "/include/atmospherics/constants.glsl"
@@ -75,7 +73,7 @@
         void main() {
             vec2 vertexCoords = textureCoords * RENDER_SCALE;
 
-            cloudsOut = vec4(0.0, 0.0, 1.0, 0.0);
+            cloudsOut = vec4(0.0, 0.0, 1.0, cloudsFallbackDistance);
 
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;
@@ -92,6 +90,8 @@
                 }
                 
             #endif
+
+            /* Cloudmap rendering */
 
             #if CLOUDMAP == 1
 
@@ -116,11 +116,12 @@
             }
 
             /* Cloud Layers Tracing */
+
             vec3 viewPosition       = screenToView(vec3(textureCoords, 1.0), projectionInverse, false);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
-            vec4 layer0 = vec4(0.0, 0.0, 1.0, 1e9);
-            vec4 layer1 = vec4(0.0, 0.0, 1.0, 1e9);
+            vec4 layer0 = vec4(0.0, 0.0, 1.0, cloudsFallbackDistance);
+            vec4 layer1 = vec4(0.0, 0.0, 1.0, cloudsFallbackDistance);
 
             #if CLOUDS_LAYER0_ENABLED == 1
                 layer0 = estimateCloudsScattering(cloudLayer0, cloudsRayDirection, true, true);
@@ -130,10 +131,11 @@
                 layer1 = estimateCloudsScattering(cloudLayer1, cloudsRayDirection, false, true);
             #endif
 
-            // Distance to cloudsOut
+            // Distance to clouds
             cloudsOut.a = min(layer0.a, layer1.a);
 
             /* Cloud Layers Blending */
+
             float s = step(layer0.a, layer1.a);
 
             vec3  C_front = mix(layer1.rgb, layer0.rgb, s);
@@ -146,13 +148,14 @@
             cloudsOut.b   = T_front * T_back;
 
             /* Reprojection */
+
             vec2 prevCoords = reproject(viewPosition, cloudsOut.a, CLOUDS_WIND_SPEED * frameTime * windDirection).xy;
 
             if (insideScreenBounds(prevCoords, 1.0)) {
 
-                vec3 history = texture(CLOUDS_BUFFER, prevCoords).rgb;
+                vec4 history = texture(CLOUDS_BUFFER, prevCoords);
 
-                float distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-4 * cloudsOut.a))));
+                float distanceFalloff = quinticStep(0.0, 1.0, sqrt(max0(exp(-5e-5 * cloudsOut.a))));
 
                 vec2 pixelCenterDist = 1.0 - abs(fract(prevCoords * viewSize) * 2.0 - 1.0);
 
@@ -163,9 +166,13 @@
                 
                 float velocityWeight = saturate(exp(-0.5 * length(cameraPosition - previousCameraPosition)));
 
-                float weight = clamp(centerWeight * velocityWeight, 0.0, 0.998);
+                const float maxCloudsTemporalWeight = 0.998;
+                const float maxCloudsDistanceDelta  = 45000.0;
 
-                cloudsOut.rgb = max0(mix(cloudsOut.rgb, history, weight));
+                float weight  = clamp(centerWeight * velocityWeight, 0.0, maxCloudsTemporalWeight);
+                      weight *= float(abs(cloudsOut.a - history.a) < maxCloudsDistanceDelta);
+
+                cloudsOut.rgb = max0(mix(cloudsOut.rgb, history.rgb, weight));
 
             }
         }

@@ -20,7 +20,7 @@
 
 /*
     [Credits]:
-        SixthSurge - providing noise generator program for clouds shape and help with lighting (https://github.com/sixthsurge)
+        sixthSurge - providing noise generator program for clouds shape and help with lighting (https://github.com/sixthsurge)
         
     [References]:
         Wrenninge et al. (2013). Oz: The Great and Volumetric. http://magnuswrenninge.com/wp-content/uploads/2010/03/Wrenninge-OzTheGreatAndVolumetric.pdf
@@ -210,7 +210,10 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
     vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
-    if (dists.y < 0.0) return vec4(0.0, 0.0, 1.0, 1e9);
+    
+    if (dists.y < 0.0) {
+        return vec4(0.0, 0.0, 1.0, cloudsFallbackDistance);
+    }
 
     float jitter      = animated ? temporalBlueNoise(gl_FragCoord.xy) : bayer64(gl_FragCoord.xy);
     float stepSize    = (dists.y - dists.x) / layer.steps;

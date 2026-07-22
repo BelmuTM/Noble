@@ -183,7 +183,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 /*-------------------- ATMOSPHERICS --------------------*/
 //////////////////////////////////////////////////////////
 
-#define CELESTIAL_SIZE_MULTIPLIER 2 // [1 2 3 4]
+#define CELESTIAL_SIZE_MULTIPLIER 2 // [1 2 3 4 5]
 
 // Atmosphere
 
@@ -270,8 +270,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 // Weather
 
-#define WEATHER_TILT           1 // [0 1]
-#define WEATHER_TILT_ANGLE_X  45 // [-90 -85 -80 -75 -70 -65 -60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90]
+#define WEATHER_TILT_ANGLE_X  45 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90]
 #define WEATHER_TILT_ANGLE_Z 0.0
 
 //////////////////////////////////////////////////////////

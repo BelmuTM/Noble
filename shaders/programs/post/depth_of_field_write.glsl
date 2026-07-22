@@ -79,6 +79,7 @@
             depth = linearizeDepthFromInverseProjection(depth, projectionInverse);
 
             #if DOF_DEPTH == 0
+
                 vec2  centerCoords = vec2(RENDER_SCALE * 0.5);
                 float centerDepth  = texture(depthtex0, centerCoords).r;
 
@@ -93,8 +94,11 @@
                 centerDepth = linearizeDepthFromInverseProjection(centerDepth, projectionInverse);
 
                 float targetDepth  = centerDepth;
+
             #else
+
                 float targetDepth = float(DOF_DEPTH);
+                
             #endif
 
             depthOfField(color, MAIN_BUFFER, vertexCoords, getCoC(depth, targetDepth));

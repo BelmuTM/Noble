@@ -85,7 +85,7 @@
 
     /* RENDERTARGETS: 0 */
 
-    layout (location = 0) out vec3 color;
+    layout (location = 0) out vec3 colorOut;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -143,7 +143,7 @@
     #endif
 
     void main() {
-        color = decodeLog(texture(MAIN_BUFFER, vertexCoords).rgb);
+        colorOut = decodeLog(texture(MAIN_BUFFER, vertexCoords).rgb);
 
         #if TAA == 1
         
@@ -204,15 +204,15 @@
 
                 float weight = saturate((1.0 - TAA_STRENGTH + velocityWeight * velocityWeightMult) / luminanceWeight);
 
-                color = mix(history, currColor, weight);
+                colorOut = mix(history, currColor, weight);
                 
             }
 
-            color = inverseReinhard(color) / computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+            colorOut = inverseReinhard(colorOut) / computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
             
         #endif
 
-        color = encodeLog(color);
+        colorOut = encodeLog(colorOut);
     }
     
 #endif

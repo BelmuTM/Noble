@@ -563,13 +563,8 @@ option.STARS_LUMINANCE.comment = Adjusts the luminosity of stars in the sky.
 
 ### WEATHER
 
-option.WEATHER_TILT = Tilted Weather
-option.WEATHER_TILT.comment = Tilts the weather (rain, snow) by an angle to mimic strong winds.
-value.WEATHER_TILT.0 = §cOFF
-value.WEATHER_TILT.1 = §aON
-
-option.WEATHER_TILT_ANGLE_X = Tilted Weather Angle
-option.WEATHER_TILT_ANGLE_X.comment = Adjusts the angle of tilted weather.
+option.WEATHER_TILT_ANGLE_X = Weather Tilt Angle
+option.WEATHER_TILT_ANGLE_X.comment = Adjusts the tilt angle of weather (rain, snow) to mimic the effect of wind.
 suffix.WEATHER_TILT_ANGLE_X = °
 
 #////////////////////////////////////////////////////////#
