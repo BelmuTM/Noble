@@ -28,35 +28,57 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
     #include "/include/atmospherics/atmosphere_header.glsl"
 
-    layout (rgba16f) uniform image2D colorimg5;
+    #if defined IS_IRIS
 
-    layout (local_size_x = 10, local_size_y = 1, local_size_z = 1) in;
+        layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-    shared vec3 skyIlluminance[9];
+        #include "/include/atmospherics/illuminance_fetch.glsl"
 
-    void main() {
-        uint x = gl_LocalInvocationID.x;
+        void main() {
+            DIRECT_ILLUMINANCE() = evaluateDirectIlluminance();
 
-        if (x == 1) {
-            evaluateUniformSkyIrradiance(skyIlluminance);
+            UNIFORM_SKY_ILLUMINANCE() = evaluateUniformSkyIlluminanceApproximation();
+
+            evaluateUniformSkyIlluminance(SKY_ILLUMINANCE_COEFFICIENTS());
+        }      
+
+    #else
+
+        layout (rgba16f) uniform image2D colorimg5;
+
+        layout (local_size_x = 10, local_size_y = 1, local_size_z = 1) in;
+
+        shared vec3 skyIlluminance[9];
+
+        void main() {
+            uint x = gl_LocalInvocationID.x;
+
+            if (x == 1) {
+                evaluateUniformSkyIlluminance(skyIlluminance);
+            }
+
+            memoryBarrierShared();
+            barrier();
+
+            vec3 illuminance = vec3(0.0);
+
+            if (x == 0) {
+                // Direct illuminance
+                illuminance = encodeLog(evaluateDirectIlluminance());
+
+            } else if (x == 1) {
+                // Uniform sky illuminance
+                illuminance = evaluateUniformSkyIlluminanceApproximation();
+                
+            } else if (x > 1 && x < 11) {
+                // Sky illuminance (9 coefficients)
+                illuminance = skyIlluminance[x - 2];
+            }
+
+            imageStore(colorimg5, ivec2(0, x), vec4(illuminance, 0.0));
         }
 
-        memoryBarrierShared();
-        barrier();
-
-        vec3 illuminance = vec3(0.0);
-
-        if (x == 0) {
-            // Direct illuminance
-            illuminance = encodeLog(evaluateDirectIlluminance());
-            
-        } else if (x > 0 && x < 10) {
-            // Sky illuminance (9 coefficients)
-            illuminance = skyIlluminance[x - 1];
-        }
-
-        imageStore(colorimg5, ivec2(x, 0), vec4(illuminance, 0.0));
-    }
+    #endif
 
 #else
 

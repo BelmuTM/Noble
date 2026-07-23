@@ -31,6 +31,8 @@
     flat out vec3 directIlluminance;
     flat out vec3 skyIlluminance;
 
+    #include "/include/atmospherics/illuminance_fetch.glsl"
+
     void main() {
         gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w; + (RENDER_SCALE - 1.0);
@@ -39,17 +41,17 @@
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            directIlluminance = decodeLog(texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb);
-            skyIlluminance    = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 1), 0).rgb;
+            directIlluminance = DIRECT_ILLUMINANCE();
+            skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();
             
         #endif
     }
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 11 */
+    /* RENDERTARGETS: 0 */
 
-    layout (location = 0) out uvec2 fog;
+    layout (location = 0) out vec3 lightingOut;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
@@ -65,13 +67,24 @@
     
     #include "/include/atmospherics/fog.glsl"
 
+    #include "/include/post/exposure.glsl"
+
     void main() {
-        fog = uvec2(0);
+        
+        lightingOut = vec3(0.0);
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
+
+        // Inverting pre-exposure to retrieve range
+
+        float rcpExposure = 1.0 / CURRENT_EXPOSURE();
+
+        lightingOut = texture(MAIN_BUFFER, vertexCoords).rgb * rcpExposure;
+
+        // Fog setup
 
         float depth0 = texture(depthtex0, vertexCoords).r;
         float depth1 = texture(depthtex1, vertexCoords).r;
@@ -108,10 +121,10 @@
         vec3 viewPosition0  = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
         vec3 viewPosition1  = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
         vec3 scenePosition0 = viewToWorld(viewPosition0);
-
-        vec3 directIlluminanceFinal = directIlluminance;
         
         #if defined WORLD_OVERWORLD || defined WORLD_END
+
+            vec3 directIlluminanceFinal = directIlluminance;
 
             vec3 tmp = normalize(scenePosition0 - gbufferModelViewInverse[3].xyz);
 
@@ -123,32 +136,27 @@
 
         #else
 
-            directIlluminanceFinal = getBlockLightColor();
+            vec3 directIlluminanceFinal = getBlockLightColor();
+            
             float VdotL = 0.0;
             
         #endif
 
-        bool  sky             = depth0 == 1.0;
-        bool  skyTranslucents = depth1 == 1.0;
+        bool skyTranslucents = depth1 == 1.0;
 
-        float skylight = 0.0;
+        //////////////////////////////////////////////////////////
+        /*---------------- FRONT TO BACK FOG -------------------*/
+        //////////////////////////////////////////////////////////
 
-        vec3 scatteringLayer0    = vec3(0.0);
-        vec3 transmittanceLayer0 = vec3(1.0);
+        vec3 scatteringBack    = vec3(0.0);
+        vec3 transmittanceBack = vec3(1.0);
 
-        vec3 scatteringLayer1    = vec3(0.0);
-        vec3 transmittanceLayer1 = vec3(1.0);
-
-        if (!sky) {
+        if (depth0 < 1.0) {
             uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 
-            skylight = getSkylightFalloff(unpackLightmap(dataTexture.x).y);
+            float skylight = getSkylightFalloff(unpackLightmap(dataTexture.x).y);
 
             if (viewPosition0.z != viewPosition1.z) {
-
-                //////////////////////////////////////////////////////////
-                /*---------------- FRONT TO BACK FOG -------------------*/
-                //////////////////////////////////////////////////////////
 
                 vec3 scenePosition1 = viewToWorld(viewPosition1);
 
@@ -157,9 +165,9 @@
                     #if defined WORLD_OVERWORLD || defined WORLD_END
 
                         #if WATER_FOG == 0
-                            computeWaterFogApproximation(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                            computeWaterFogApproximation(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                         #else
-                            computeVolumetricWaterFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight, skyTranslucents);
+                            computeVolumetricWaterFog(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight, skyTranslucents);
                         #endif
 
                     #endif
@@ -167,46 +175,57 @@
                 } else {
 
                     #if AIR_FOG == 1
-                        computeVolumetricAirFog(scatteringLayer0, transmittanceLayer0, scenePosition0, scenePosition1, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skyTranslucents);
+                        computeVolumetricAirFog(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skyTranslucents);
                     #elif AIR_FOG == 2
-                        computeAirFogApproximation(scatteringLayer0, transmittanceLayer0, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                        computeAirFogApproximation(scatteringBack, transmittanceBack, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                     #endif
 
                 }
 
             }
-        } else {
-            skylight = 1.0;
         }
 
+        // Applying back fog
+
+        lightingOut = lightingOut * transmittanceBack + scatteringBack;
+
         //////////////////////////////////////////////////////////
-        /*------------------ EYE TO FRONT FOG ------------------*/
+        /*------------------ ALPHA BLENDING --------------------*/
         //////////////////////////////////////////////////////////
 
-        if (isEyeInWater == 1) {
+        // Forward-rendered translucents
+        vec4 translucents = texture(MAIN_BUFFER, vertexCoords);
 
-            #if defined WORLD_OVERWORLD || defined WORLD_END
+        // Elements from gbuffers_basic
+        vec4 basic = texture(GBUFFERS_BASIC_BUFFER, vertexCoords);
 
-                #if WATER_FOG == 0
-                    computeWaterFogApproximation(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
-                #else
-                    computeVolumetricWaterFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight, sky);
-                #endif
+        basic.rgb = mix(basic.rgb, translucents.rgb, translucents.a);
 
-            #endif
+        bool isEnchantmentGlint = basic.a >= 0.0 && basic.a <= 0.05;
+        bool isDamageOverlay    = basic.a > 0.05 && basic.a <= 0.1;
 
-        } else {
+        bool isHand = depth0 < handDepth;
 
-            #if AIR_FOG == 1
-                computeVolumetricAirFog(scatteringLayer1, transmittanceLayer1, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, sky);
-            #elif AIR_FOG == 2
-                computeAirFogApproximation(scatteringLayer1, transmittanceLayer1, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
-            #endif
+        // Basic elements blending
+
+        if (isEnchantmentGlint) {
+
+            float glintBlendingFactor = translucents.a > 0.0 ? 1.0 : float(!isHand || basic.a > 0.0);
+            
+            lightingOut += basic.rgb * rcpExposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
+
+        } else if (!isHand) {
+
+            if (isDamageOverlay) {
+                lightingOut = basic.rgb * lightingOut;
+                
+            } else {
+                lightingOut = mix(lightingOut, basic.rgb * rcpExposure, basic.a);
+            }
 
         }
 
-        fog.x = encodeRGBE(scatteringLayer0    * transmittanceLayer1 + scatteringLayer1);
-        fog.y = encodeRGBE(transmittanceLayer0 * transmittanceLayer1);
+        lightingOut /= rcpExposure;
     }
 
 #endif

@@ -25,6 +25,9 @@
 
 #include "/include/atmospherics/atmosphere_header.glsl"
 
+#include "/include/atmospherics/illuminance_fetch.glsl"
+
+
 #if defined STAGE_VERTEX
 
     #define attribute in
@@ -41,7 +44,7 @@
     out mat3 tbn;
 
     flat out vec3 directIlluminance;
-    flat out mat3[2] skyIlluminanceMat;
+    flat out vec3 skyIlluminance;
 
     uniform float rcp240;
 
@@ -51,8 +54,9 @@
         vertexColor    = gl_Color;
         
         vec3 viewPosition = (gl_ModelViewMatrix * gl_Vertex).xyz;
+        vec3 viewNormal   = normalize(gl_NormalMatrix * gl_Normal);
 
-        tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
+        tbn[2] = mat3(gbufferModelViewInverse) * viewNormal;
         tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
         tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
 
@@ -60,8 +64,8 @@
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            directIlluminance = decodeLog(texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb);
-            skyIlluminanceMat = evaluateDirectionalSkyIrradianceApproximation();
+            directIlluminance = DIRECT_ILLUMINANCE();
+            skyIlluminance    = evaluateDirectionalSkyIlluminance(SKY_ILLUMINANCE_COEFFICIENTS(), viewNormal, 1.0);
             
         #endif
 
@@ -79,8 +83,8 @@
 
     /* RENDERTARGETS: 1,0 */
 
-    layout (location = 0) out uvec4 data;
-    layout (location = 1) out vec4 translucents;
+    layout (location = 0) out uvec4 dataOut;
+    layout (location = 1) out vec4 translucentsOut;
 
     flat in uint blockId;
     in vec2 textureCoords;
@@ -91,17 +95,21 @@
     in mat3 tbn;
 
     flat in vec3 directIlluminance;
-    flat in mat3[2] skyIlluminanceMat;
+    flat in vec3 skyIlluminance;
 
     #include "/include/utility/rng.glsl"
     
     #include "/include/material/brdf.glsl"
 
     #if SHADOWS > 0
+    
         #include "/include/fragment/shadows.glsl"
+
     #endif
 
     #include "/include/fragment/water.glsl"
+
+    #include "/include/post/exposure.glsl"
 
     uniform sampler2D gtexture;
     uniform sampler2D normals;
@@ -113,7 +121,7 @@
     #endif
 
     void main() {
-        translucents = vec4(0.0);
+        translucentsOut = vec4(0.0);
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
@@ -166,6 +174,7 @@
             #if WATER_PARALLAX == 1
             
                 if (length(scenePosition) < WATER_PARALLAX_DISTANCE) {
+                    
                     vec3 tangentDirection = normalize(scenePosition) * tbn;
                     scenePositionWater.xz = parallaxMappingWater(scenePositionWater.xz, tangentDirection, WATER_OCTAVES);
                 }
@@ -242,6 +251,7 @@
             material.normal = tbn[2];
 
             if (all(greaterThan(normalTexture, vec4(EPS)))) {
+                
                 material.normal.xy = normalTexture.xy * 2.0 - 1.0;
                 material.normal.z  = fastSqrtN1(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
                 material.normal    = tbn * material.normal;
@@ -268,19 +278,9 @@
                 material.N = vec3(f0ToIOR(material.F0));
                 material.K = vec3(0.0);
 
-                vec3 skyIlluminance = vec3(0.0);
-
-                #if defined WORLD_OVERWORLD || defined WORLD_END
-
-                    if (material.lightmap.y > EPS) {
-                        skyIlluminance = evaluateSkylight(material.normal, skyIlluminanceMat);
-                    }
-
-                #endif
-
                 #if !defined PROGRAM_TEXTURED && !defined PROGRAM_TEXTURED_LIT && !defined PROGRAM_SPIDEREYES
 
-                    translucents.rgb = computeDiffuse(
+                    translucentsOut.rgb = computeDiffuse(
                         scenePosition,
                         shadowLightVectorWorld,
                         material,
@@ -317,13 +317,13 @@
                     diffuse += blocklight + skylight + ambient;
                     diffuse += emissiveness;
 
-                    translucents.rgb = material.albedo * diffuse;
+                    translucentsOut.rgb = material.albedo * diffuse;
     
                 #endif
 
-                translucents.rgb = encodeLog(translucents.rgb);
+                translucentsOut.rgb *= CURRENT_EXPOSURE();
 
-                translucents.a = albedoTexture.a;
+                translucentsOut.a = albedoTexture.a;
 
             }
 
@@ -333,7 +333,7 @@
 
         vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
 
-        data = storeMaterial(
+        dataOut = storeMaterial(
             material.F0,
             material.alpha,
             material.ao,

@@ -183,7 +183,7 @@ float getCoC(float fragDepth, float targetDepth) {
     return clamp(abs((FOCAL / F_STOPS) * ((FOCAL * (targetDepth - fragDepth)) / (fragDepth * (targetDepth - FOCAL)))) * 0.5, 0.0, maxCoC);
 }
 
-void depthOfField(inout vec3 color, sampler2D colorTex, vec2 coords, float coc) {
+void depthOfField(inout vec3 color, sampler2D colorTex, vec2 coords, float coc, float exposure) {
     color = vec3(0.0);
 
     float totalWeight = EPS;
@@ -201,16 +201,20 @@ void depthOfField(inout vec3 color, sampler2D colorTex, vec2 coords, float coc) 
         if (insideScreenBounds(sampleCoords, 1.0)) {
 
 			#if DOF_ABERRATION == 1
+
 				vec3 sampleColor = vec3(
 					texture(colorTex, sampleCoords + caOffset).r,
 					texture(colorTex, sampleCoords           ).g,
 					texture(colorTex, sampleCoords - caOffset).b
 				);
+
 			#else
+
 				vec3 sampleColor = texture(colorTex, sampleCoords).rgb;
+
 			#endif
 
-			sampleColor = decodeLog(sampleColor);
+			sampleColor /= exposure;
 
 			float weight = mix(0.3, 1.0, smoothstep(0.2, 1.0, luminance(sampleColor)));
 
@@ -243,16 +247,20 @@ void depthOfField_deprecated(inout vec3 color, sampler2D colorTex, vec2 coords, 
             if (insideScreenBounds(sampleCoords, 1.0)) {
 
 				#if DOF_ABERRATION == 1
+
 					vec3 sampleColor = vec3(
 						texture(colorTex, sampleCoords + caOffset).r,
 						texture(colorTex, sampleCoords           ).g,
 						texture(colorTex, sampleCoords - caOffset).b
 					);
+
 				#else
+
 					vec3 sampleColor = texture(colorTex, sampleCoords).rgb;
+
 				#endif
 
-				sampleColor = decodeLog(sampleColor);
+				sampleColor /= exposure;
 
 				color       += sampleColor * weight;
 				totalWeight += weight;

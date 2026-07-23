@@ -54,6 +54,8 @@
                 vec2 fragCoords = gl_FragCoord.xy * texelSize;
                 if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
             #endif
+
+            // Ambient occlusion setup
             
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;
@@ -89,6 +91,8 @@
                 ao = vec3(encodeUnitVector(normal), 1.0);
                 return;
             }
+
+            // Ambient occlusion tracing
 
             vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
@@ -126,6 +130,8 @@
 
             bentNormal = normalize(bentNormal);
 
+            // Ambient occlusion filtering
+
             #if AO_FILTER == 1
 
                 vec3 currFragment = vec3(textureCoords, depth);
@@ -155,7 +161,9 @@
                 }
 
             #else
+            
                 ao.xy = encodeUnitVector(bentNormal);
+
             #endif
 
             ao = saturate(ao);

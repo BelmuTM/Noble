@@ -49,3 +49,23 @@ float computeExposure(float averageLuminance) {
 
     return clamp(exposure, minExposure, maxExposure);
 }
+
+float fetchCurrentExposure() {
+    return computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0, 0), 0).a);
+}
+
+#if defined IS_IRIS
+
+    layout (std430, binding = 0) restrict buffer currentExposureBuffer {
+        float currentExposure;
+    };
+
+    #define CURRENT_EXPOSURE() \
+        currentExposure
+
+#else
+
+    #define CURRENT_EXPOSURE() \
+        fetchCurrentExposure()
+
+#endif

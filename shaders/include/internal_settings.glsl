@@ -40,7 +40,6 @@ const int colortex3Format = RGBA16F;                // Shadow map
 // ============================================================================
 
 const int  colortex0Format = RGBA16F;               // Main color
-const bool colortex0Clear  = false;
 
 const int  colortex1Format = RGBA32UI;              // GBuffer data:
                                                     // [R] parallax self shadowing | lightmap XY coordinates
@@ -62,10 +61,10 @@ const int colortex13Format = R16F;                  // Depth tiles
 #endif
 
 // ============================================================================
-// IRRADIANCE / CLOUDS SHADOWS / BLOOM
+// ILLUMINANCE / CLOUDS SHADOWS / BLOOM
 // ============================================================================
 
-const int colortex5Format = RGBA16F;                // Irradiance | Clouds shadows | Bloom
+const int colortex5Format = RGBA16F;                // Illuminance | Clouds shadows | Bloom
 
 // ============================================================================
 // ATMOSPHERE

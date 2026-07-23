@@ -37,16 +37,18 @@ uniform sampler2D vxDepthTexTrans;
 #include "/include/utility/rng.glsl"
 #include "/include/utility/transforms.glsl"
 
-#include "/include/material/material.glsl"
-
 #include "/include/atmospherics/atmosphere_header.glsl"
+#include "/include/atmospherics/illuminance_fetch.glsl"
 
+#include "/include/material/material.glsl"
 #include "/include/material/brdf.glsl"
 
 #include "/include/fragment/water.glsl"
 
-layout (location = 0) out uvec4 data;
-layout (location = 1) out vec4 translucents;
+#include "/include/post/exposure.glsl"
+
+layout (location = 0) out uvec4 dataOut;
+layout (location = 1) out vec4 translucentsOut;
 
 void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     uint blockId = max(0u, voxyParameters.customId - 1000u);
@@ -55,7 +57,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
     Material material;
 
-    translucents = vec4(0.0);
+    translucentsOut = vec4(0.0);
 
     material.lightmap = saturate(voxyParameters.lightMap);
 
@@ -68,8 +70,6 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
     material.ao         = 1.0;
     material.subsurface = 0.0;
-
-    vec3 directIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0), 0).rgb;
 
     vec3 screenPosition = vec3(gl_FragCoord.xy * texelSize, gl_FragCoord.z);
     vec3 viewPosition   = screenToView(screenPosition, vxProjInv, false);
@@ -118,22 +118,33 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         material.N = vec3(f0ToIOR(material.F0));
         material.K = vec3(0.0);
 
-        vec4 shadowmap      = vec4(1.0, 1.0, 1.0, 0.0);
-        vec3 skyIlluminance = vec3(0.0);
+        const vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
+
+        vec3 directIlluminance = vec3(0.0);
+        vec3 skyIlluminance    = vec3(0.0);
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            if (material.lightmap.y > EPS) {
-                skyIlluminance = evaluateUniformSkyIrradianceApproximation();
-            }
+            directIlluminance = DIRECT_ILLUMINANCE();
+            skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();
             
         #endif
 
-        translucents.rgb = computeDiffuse(scenePosition, shadowLightVectorWorld, material, false, vec4(1.0, 1.0, 1.0, 0.0), directIlluminance, skyIlluminance, 1.0, 1.0);
+        translucentsOut.rgb = computeDiffuse(
+            scenePosition,
+            shadowLightVectorWorld,
+            material,
+            false,
+            shadowmap,
+            directIlluminance,
+            skyIlluminance,
+            1.0,
+            1.0
+        );
 
-        translucents.rgb = encodeLog(translucents.rgb);
+        translucentsOut.rgb *= CURRENT_EXPOSURE();
 
-        translucents.a = voxyParameters.sampledColour.a;
+        translucentsOut.a = voxyParameters.sampledColour.a;
 
     }
 
@@ -141,7 +152,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     
     vec2 encodedNormal = encodeUnitVector(normalize(material.normal));
 
-    data = storeMaterial(
+    dataOut = storeMaterial(
         material.F0,
         material.alpha,
         material.ao,

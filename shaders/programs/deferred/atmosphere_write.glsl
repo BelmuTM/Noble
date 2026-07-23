@@ -26,17 +26,19 @@
     #include "/include/common.glsl"
 
     #include "/include/atmospherics/atmosphere_header.glsl"
+    #include "/include/atmospherics/illuminance_fetch.glsl"
 
     #if defined STAGE_VERTEX
 
         out vec2 textureCoords;
+
         flat out vec3 skyIlluminance;
 
         void main() {
             gl_Position   = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
             textureCoords = gl_Vertex.xy;
 
-            skyIlluminance = evaluateUniformSkyIrradianceApproximation();
+            skyIlluminance = UNIFORM_SKY_ILLUMINANCE();
         }
 
     #elif defined STAGE_FRAGMENT
@@ -46,6 +48,7 @@
         layout (location = 0) out vec3 sky;
 
         in vec2 textureCoords;
+        
         flat in vec3 skyIlluminance;
 
         void main() {

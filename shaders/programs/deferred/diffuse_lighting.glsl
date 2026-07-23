@@ -31,6 +31,8 @@
     flat out vec3 directIlluminance;
     flat out vec3 uniformSkyIlluminance;
 
+    #include "/include/atmospherics/illuminance_fetch.glsl"
+
     void main() {
         gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w; + (RENDER_SCALE - 1.0);
@@ -39,8 +41,8 @@
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            directIlluminance     = decodeLog(texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb);
-            uniformSkyIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 1), 0).rgb;
+            directIlluminance     = DIRECT_ILLUMINANCE();
+            uniformSkyIlluminance = UNIFORM_SKY_ILLUMINANCE();
 
         #endif
     }
@@ -72,13 +74,18 @@
 
     #endif
 
+    #include "/include/post/exposure.glsl"
+
     void main() {
+        
         lightingOut = vec3(0.0);
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
+
+        // Diffuse setup
 
         bool  modFragment = false;
         float depth       = texture(depthtex0, vertexCoords).r;
@@ -113,6 +120,10 @@
 
         vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
 
+        // Exposure to pre-apply and store values in smaller range buffer
+
+        float exposure = CURRENT_EXPOSURE();
+
         // Atmosphere rendering
 
         if (depth == 1.0) {
@@ -121,7 +132,7 @@
 
                 lightingOut  = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, uniformSkyIlluminance);
                 lightingOut += renderCelestialBodies(vertexCoords, viewPosition);
-                lightingOut  = encodeLog(lightingOut);
+                lightingOut *= exposure;
 
             #endif
             
@@ -179,7 +190,7 @@
         
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            skyIlluminance = texelFetch(IRRADIANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
+            skyIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
             
         #endif
 
@@ -201,7 +212,7 @@
             cloudsShadows
         );
 
-        lightingOut = encodeLog(lightingOut);
+        lightingOut *= exposure;
     }
 
 #endif

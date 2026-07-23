@@ -30,6 +30,10 @@
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
 
+#include "/include/common.glsl"
+
+#include "/include/post/exposure.glsl"
+
 #if defined STAGE_COMPUTE
 
     #if TAA == 1
@@ -40,22 +44,24 @@
 
         const vec2 workGroupsRender = vec2(RENDER_SCALE, RENDER_SCALE);
 
-        #include "/include/common.glsl"
-
-        #include "/include/post/exposure.glsl"
         #include "/include/post/grading.glsl"
+
+        shared float exposure;
 
         void main() {
             ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 
             if (coords.x > viewWidth || coords.y > viewHeight) return;
 
-            vec3 color = decodeLog(imageLoad(colorimg0, coords).rgb);
+            if (gl_GlobalInvocationID == ivec3(0)) {
+                exposure = CURRENT_EXPOSURE();
+            }
 
-            color *= computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
-            color  = reinhard(color);
+            vec3 color = imageLoad(colorimg0, coords).rgb;
 
-            imageStore(colorimg0, coords, vec4(encodeLog(color), 0.0));
+            color = reinhard(color);
+
+            imageStore(colorimg0, coords, vec4(color, 0.0));
         }
 
     #else
@@ -90,11 +96,7 @@
     in vec2 textureCoords;
     in vec2 vertexCoords;
 
-    #include "/include/common.glsl"
-
     #if TAA == 1
-
-        #include "/include/post/exposure.glsl"
     
         #include "/include/utility/sampling.glsl"
 
@@ -112,15 +114,15 @@
             ivec2 coords = ivec2(gl_FragCoord.xy * RENDER_SCALE);
 
             // Left to right, top to bottom
-            vec3 sample_0 = toYCoCg(decodeLog(texelFetchOffset(currTex, coords, 0, ivec2(-1,  1)).rgb));
-            vec3 sample_1 = toYCoCg(decodeLog(texelFetchOffset(currTex, coords, 0, ivec2( 0,  1)).rgb));
-            vec3 sample_2 = toYCoCg(decodeLog(texelFetchOffset(currTex, coords, 0, ivec2( 1,  1)).rgb));
-            vec3 sample_3 = toYCoCg(decodeLog(texelFetchOffset(currTex, coords, 0, ivec2(-1,  0)).rgb));
+            vec3 sample_0 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2(-1,  1)).rgb);
+            vec3 sample_1 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 0,  1)).rgb);
+            vec3 sample_2 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 1,  1)).rgb);
+            vec3 sample_3 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2(-1,  0)).rgb);
             vec3 sample_4 = toYCoCg(currColor);
-            vec3 sample_5 = toYCoCg(decodeLog(texelFetchOffset(currTex, coords, 0, ivec2( 1,  0)).rgb));
-            vec3 sample_6 = toYCoCg(decodeLog(texelFetchOffset(currTex, coords, 0, ivec2(-1, -1)).rgb));
-            vec3 sample_7 = toYCoCg(decodeLog(texelFetchOffset(currTex, coords, 0, ivec2( 0, -1)).rgb));
-            vec3 sample_8 = toYCoCg(decodeLog(texelFetchOffset(currTex, coords, 0, ivec2( 1, -1)).rgb));
+            vec3 sample_5 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 1,  0)).rgb);
+            vec3 sample_6 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2(-1, -1)).rgb);
+            vec3 sample_7 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 0, -1)).rgb);
+            vec3 sample_8 = toYCoCg(texelFetchOffset(currTex, coords, 0, ivec2( 1, -1)).rgb);
 
             // Min and max nearest 5 + nearest 9
             vec3 minColor, maxColor;
@@ -143,7 +145,8 @@
     #endif
 
     void main() {
-        colorOut = decodeLog(texture(MAIN_BUFFER, vertexCoords).rgb);
+        
+        colorOut = texture(MAIN_BUFFER, vertexCoords).rgb;
 
         #if TAA == 1
         
@@ -187,7 +190,7 @@
 
                 vec2 jitteredCoords = vertexCoords + taaOffsets[framemod] * texelSize;
 
-                vec3 currColor = max0(decodeLog(textureCatmullRom(MAIN_BUFFER, jitteredCoords).rgb));
+                vec3 currColor = max0(textureCatmullRom(MAIN_BUFFER, jitteredCoords).rgb);
 
                 vec3 history = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
                      history = neighbourhoodClipping(MAIN_BUFFER, currColor, history);
@@ -208,11 +211,10 @@
                 
             }
 
-            colorOut = inverseReinhard(colorOut) / computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+            colorOut = inverseReinhard(colorOut);
             
         #endif
 
-        colorOut = encodeLog(colorOut);
     }
     
 #endif

@@ -57,7 +57,7 @@ float starfield(vec3 viewPosition, vec3 lightVector) {
 }
 
 vec3 physicalSun(vec3 sceneDirection) {
-    return dot(sceneDirection, sunVector) < cos(sunAngularRadius) ? vec3(0.0) : sunRadiance * RCP_PI;
+    return dot(sceneDirection, sunVector) < cos(sunAngularRadius) ? vec3(0.0) : sunLuminance * RCP_PI;
 }
 
 vec3 physicalMoon(vec3 sceneDirection) {
@@ -72,14 +72,14 @@ vec3 physicalMoon(vec3 sceneDirection) {
 
         vec3 moonN = vec3(f0ToIOR(moonF0));
 
-        return moonAlbedo * hammonDiffuse(-sceneDirection, sunVector, moonAlbedo, moonNormal, moonN, moonF0, moonAlpha) * sunIrradiance;
+        return moonAlbedo * hammonDiffuse(-sceneDirection, sunVector, moonAlbedo, moonNormal, moonN, moonF0, moonAlpha) * sunIlluminance;
     } else {
         return vec3(0.0);
     }
 }
 
 vec3 physicalStar(vec3 sceneDirection) {
-    return dot(sceneDirection, starVector) < cos(starAngularRadius) ? vec3(0.0) : starRadiance * RCP_PI;
+    return dot(sceneDirection, starVector) < cos(starAngularRadius) ? vec3(0.0) : starLuminance * RCP_PI;
 }
 
 vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, vec3 skyIlluminance) {

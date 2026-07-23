@@ -61,6 +61,7 @@ in vec2 textureCoords;
 #include "/include/post/grading.glsl"
 
 void main() {
+    
     colorOut = texture(MAIN_BUFFER, textureCoords).rgb;
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
@@ -68,13 +69,13 @@ void main() {
             return;
     #endif
 
-    colorOut = decodeLog(colorOut);
+    float exposure = CURRENT_EXPOSURE();
 
-    float exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
+    colorOut /= exposure;
 
     #if BLOOM == 1
 
-        vec3  bloom         = texture(IRRADIANCE_BUFFER, textureCoords * 0.5).rgb;
+        vec3  bloom         = texture(ILLUMINANCE_BUFFER, textureCoords * 0.5).rgb;
         float bloomStrength = exp2(exposure + BLOOM_STRENGTH - 3.0);
 
         if (isEyeInWater == 1) {
@@ -90,11 +91,11 @@ void main() {
     #endif
 
     #if LENS_FLARES == 1
-        lensFlares(colorOut, IRRADIANCE_BUFFER, textureCoords);
+        lensFlares(colorOut, ILLUMINANCE_BUFFER, textureCoords);
     #endif
 
     #if GLARE == 1
-        glare(colorOut, IRRADIANCE_BUFFER, textureCoords);
+        glare(colorOut, ILLUMINANCE_BUFFER, textureCoords);
     #endif
 
     colorOut *= exposure;

@@ -38,7 +38,7 @@ uniform sampler2D vxDepthTexTrans;
 
 #include "/include/material/material.glsl"
 
-layout (location = 0) out uvec4 data;
+layout (location = 0) out uvec4 dataOut;
 
 void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     uint blockId = max(0u, voxyParameters.customId - 1000u);
@@ -78,7 +78,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
     vec2 encodedNormal = encodeUnitVector(normalize(normal));
 
-    data = storeMaterial(
+    dataOut = storeMaterial(
         0.0,
         roughness,
         1.0,

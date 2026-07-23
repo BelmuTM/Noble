@@ -38,6 +38,8 @@
         flat out vec3 directIlluminance;
         flat out vec3 skyIlluminance;
 
+        #include "/include/atmospherics/illuminance_fetch.glsl"
+
         void main() {
             gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
             gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w; + (RENDER_SCALE - 1.0);
@@ -46,8 +48,8 @@
 
             #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
 
-                directIlluminance = decodeLog(texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb);
-                skyIlluminance    = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 1), 0).rgb;
+                directIlluminance = DIRECT_ILLUMINANCE();
+                skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();
 
             #endif
         }
@@ -75,6 +77,8 @@
         #include "/include/fragment/raytracer.glsl"
         #include "/include/fragment/reflections.glsl"
 
+        #include "/include/post/exposure.glsl"
+
         void main() {
             reflections = vec4(0.0);
 
@@ -82,6 +86,8 @@
                 vec2 fragCoords = gl_FragCoord.xy * texelSize;
                 if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
             #endif
+
+            // Reflections setup
 
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;
@@ -121,11 +127,17 @@
             float F0    = unpackF0(dataTexture.y);
             float alpha = unpackAlpha(dataTexture.z);
 
-            if (F0 <= EPS || alpha > REFLECTIONS_ROUGHNESS_THRESHOLD) return;
+            if (F0 <= EPS || alpha > REFLECTIONS_ROUGHNESS_THRESHOLD) { 
+                return;
+            }
+
+            float exposure = CURRENT_EXPOSURE();
 
             vec3 albedo = unpackAlbedo(dataTexture.z);
 
             bool isWater = isWater(unpackId(dataTexture.x));
+
+            // Reflections tracing
 
             vec3 screenPosition = vec3(textureCoords, depth);
             vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
@@ -137,6 +149,7 @@
                 reflections.rgb = computeRoughReflections(
                     modFragment, projection, projectionInverse, viewPosition,
                     unpackNormal(dataTexture.w), getN(albedo, F0), getK(albedo, F0), alpha, unpackLightmap(dataTexture.x).y, isWater,
+                    exposure,
                     rayLength
                 );
 
@@ -145,13 +158,16 @@
                 reflections.rgb = computeSmoothReflections(
                     modFragment, projection, projectionInverse, viewPosition,
                     unpackNormal(dataTexture.w), getN(albedo, F0), getK(albedo, F0), alpha, unpackLightmap(dataTexture.x).y, isWater,
+                    exposure,
                     rayLength
                 );
 
             #endif
 
-            vec3 velocity     = getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious);
-            vec3 prevPosition = vec3(vertexCoords, depth);
+            // Reflections filtering
+
+            vec3 velocity     = getVelocity(screenPosition, projectionInverse, projectionPrevious);
+            vec3 prevPosition = vec3(vertexCoords, depth) + velocity * RENDER_SCALE;
 
             float reprojectionDepth;
             bool  isReflectingSky = false;
@@ -165,7 +181,7 @@
             }
 
             vec3 velocityReflected     = getVelocity(vec3(textureCoords, reprojectionDepth), projectionInverse, projectionPrevious);
-            vec3 prevPositionReflected = vec3(vertexCoords, reprojectionDepth) + velocityReflected;
+            vec3 prevPositionReflected = vec3(vertexCoords, reprojectionDepth) + velocityReflected * RENDER_SCALE;
 
             vec4 prevReflections = texture(REFLECTIONS_BUFFER, prevPositionReflected.xy);
 

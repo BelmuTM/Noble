@@ -38,16 +38,16 @@
 
         #include "/include/common.glsl"
 
-        #if TAA == 1
-            #include "/include/post/exposure.glsl"
-            #include "/include/post/grading.glsl"
-        #endif
-
         #include "/include/utility/sampling.glsl"
 
         #include "/include/post/depth_of_field.glsl"
 
+        #include "/include/post/exposure.glsl"
+
         void main() {
+
+            // Depth of field setup
+
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;
 
@@ -78,6 +78,8 @@
 
             depth = linearizeDepthFromInverseProjection(depth, projectionInverse);
 
+            // Target depth computation
+
             #if DOF_DEPTH == 0
 
                 vec2  centerCoords = vec2(RENDER_SCALE * 0.5);
@@ -101,9 +103,13 @@
                 
             #endif
 
-            depthOfField(colorOut, MAIN_BUFFER, vertexCoords, getCoC(depth, targetDepth));
+            float exposure = CURRENT_EXPOSURE();
 
-            colorOut = encodeLog(colorOut);
+            // Depth of field computation
+
+            depthOfField(colorOut, MAIN_BUFFER, vertexCoords, getCoC(depth, targetDepth), exposure);
+
+            colorOut *= exposure;
         }
         
     #endif

@@ -234,12 +234,12 @@ float calculateAirFogPhase(float cosTheta) {
 
             #if defined WORLD_OVERWORLD
             
-                if ((i & 3u) == 0u) {
-                    shadow = getShadowColor(shadowClipToShadowScreen(shadowPosition));
-                }
+                shadow = getShadowColor(shadowClipToShadowScreen(shadowPosition));
 
                 #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+
                     shadow *= getCloudsShadows(rayPosition);
+                    
                 #endif
 
             #endif

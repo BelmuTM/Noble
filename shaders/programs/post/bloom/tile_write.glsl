@@ -30,7 +30,15 @@ const float lodFactor = exp2(-lod);
 
 #if defined STAGE_VERTEX
 
+    flat out float exposure;
+
+    #include "/include/uniforms.glsl"
+
+    #include "/include/post/exposure.glsl"
+
     void main() {
+        exposure = CURRENT_EXPOSURE();
+
         vec2 tileCoords = gl_Vertex.xy * lodFactor * 0.5 + 1.0 - lodFactor;
 
         gl_Position = vec4(tileCoords * 2.0 - 1.0, 0.0, 1.0);
@@ -41,6 +49,8 @@ const float lodFactor = exp2(-lod);
     /* RENDERTARGETS: 5 */
 
     layout (location = 0) out vec4 bloomOut;
+
+    flat in float exposure;
 
     #include "/include/uniforms.glsl"
 
@@ -70,7 +80,7 @@ const float lodFactor = exp2(-lod);
         #if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
             #define BLOOM_SAMPLER MAIN_BUFFER
         #else
-            #define BLOOM_SAMPLER IRRADIANCE_BUFFER
+            #define BLOOM_SAMPLER ILLUMINANCE_BUFFER
         #endif
 
         vec3 sampleBloomBuffer(vec2 coords) {
@@ -78,7 +88,7 @@ const float lodFactor = exp2(-lod);
 
             #if BLOOM_DOWNSAMPLE_PASS_INDEX == 0
 
-                tile = decodeLog(tile);
+                tile /= exposure;
 
             #endif
 
@@ -87,7 +97,7 @@ const float lodFactor = exp2(-lod);
 
     #elif defined BLOOM_UPSAMPLE_PASS
 
-        #define BLOOM_SAMPLER IRRADIANCE_BUFFER
+        #define BLOOM_SAMPLER ILLUMINANCE_BUFFER
 
         #include "/include/utility/sampling.glsl"
 
@@ -98,6 +108,7 @@ const float lodFactor = exp2(-lod);
     #endif
 
     void main() {
+        
         vec2 coords = gl_FragCoord.xy * texelSize;
 
         #if defined BLOOM_DOWNSAMPLE_PASS

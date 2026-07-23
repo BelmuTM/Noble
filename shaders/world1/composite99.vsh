@@ -1,3 +1,3 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #include "/programs/vertex_simple.glsl"

@@ -71,6 +71,9 @@
         }
 
         void main() {
+
+            // Clouds setup
+
             vec2 vertexCoords = textureCoords * RENDER_SCALE;
 
             cloudsOut = vec4(0.0, 0.0, 1.0, cloudsFallbackDistance);
@@ -91,7 +94,7 @@
                 
             #endif
 
-            /* Cloudmap rendering */
+            // Cloudmap rendering
 
             #if CLOUDMAP == 1
 
@@ -115,7 +118,7 @@
                 if (find4x4MaximumDepth(depthtex0, vertexCoords) < 1.0) { return; }
             }
 
-            /* Cloud Layers Tracing */
+            // Cloud layers tracing
 
             vec3 viewPosition       = screenToView(vec3(textureCoords, 1.0), projectionInverse, false);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
@@ -134,7 +137,7 @@
             // Distance to clouds
             cloudsOut.a = min(layer0.a, layer1.a);
 
-            /* Cloud Layers Blending */
+            // Cloud layers blending
 
             float s = step(layer0.a, layer1.a);
 
@@ -147,7 +150,7 @@
             cloudsOut.rgb = C_front + T_front * C_back;
             cloudsOut.b   = T_front * T_back;
 
-            /* Reprojection */
+            // Reprojection
 
             vec2 prevCoords = reproject(viewPosition, cloudsOut.a, CLOUDS_WIND_SPEED * frameTime * windDirection).xy;
 

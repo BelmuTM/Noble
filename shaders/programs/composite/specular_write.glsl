@@ -29,6 +29,9 @@
     out vec2 vertexCoords;
 
     flat out vec3 directIlluminance;
+    flat out vec3 skyIlluminance;
+
+    #include "/include/atmospherics/illuminance_fetch.glsl"
 
     void main() {
         gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
@@ -38,7 +41,8 @@
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            directIlluminance = decodeLog(texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb);
+            directIlluminance = DIRECT_ILLUMINANCE();
+            skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();
 
         #endif
     }
@@ -53,6 +57,7 @@
     in vec2 vertexCoords;
 
     flat in vec3 directIlluminance;
+    flat in vec3 skyIlluminance;
 
     #include "/include/utility/rng.glsl"
 
@@ -66,6 +71,8 @@
     #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/shadows.glsl"
 
+    #include "/include/atmospherics/fog.glsl"
+
     #if REFRACTIONS > 0
         #include "/include/fragment/refractions.glsl"
     #endif
@@ -73,6 +80,7 @@
     #include "/include/post/exposure.glsl"
 
     void main() {
+        
         lightingOut = vec3(0.0);
 
         #if DOWNSCALED_RENDERING == 1
@@ -80,14 +88,14 @@
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
-        vec3 coords = vec3(vertexCoords, 0.0);
-
-        vec3 sunSpecular = vec3(0.0), envSpecular = vec3(0.0);
+        // Specular setup
 
         bool modFragment = false;
 
         float depth0 = texture(depthtex0, vertexCoords).r;
         float depth1 = texture(depthtex1, vertexCoords).r;
+
+        vec3 screenPosition = vec3(vertexCoords, depth1);
 
         mat4 projection        = gbufferProjection;
         mat4 projectionInverse = gbufferProjectionInverse;
@@ -119,17 +127,29 @@
 
         vec3 viewPosition0 = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
 
-        vec4 blendedLighting = texture(MAIN_BUFFER, vertexCoords);
+        vec3 scenePosition0 = viewToWorld(viewPosition0);
 
-        // Terrain Fragments
+        // Specular lighting
+
+        float exposure = CURRENT_EXPOSURE();
+
+        lightingOut = texture(MAIN_BUFFER, vertexCoords).rgb / exposure;
+
+        float skylight = 1.0;
+
         if (depth0 < 1.0) {
+
+            // Terrain fragments (refractions + specular)
 
             bool isOpaque = abs(depth0 - depth1) < 1e-6;
 
             Material material = getMaterial(vertexCoords);
 
-            if (material.F0 * maxFloat8 <= labPBRMetals) {
-                lightingOut = decodeLog(blendedLighting.rgb);
+            skylight = getSkylightFalloff(material.lightmap.y);
+
+            // Metals
+            if (material.F0 * maxFloat8 > labPBRMetals) {
+                lightingOut = vec3(0.0);
             }
 
             //////////////////////////////////////////////////////////
@@ -153,7 +173,8 @@
                         material.emission,
                         material.N,
                         material.id,
-                        coords
+                        exposure,
+                        screenPosition
                     );
 
                 }
@@ -164,7 +185,12 @@
             /*-------------------- REFLECTIONS ---------------------*/
             //////////////////////////////////////////////////////////
 
+            vec3 directSpecular      = vec3(0.0);
+            vec3 environmentSpecular = vec3(0.0);
+
             #if SPECULAR == 1
+
+                // Specular visibility computation
 
                 vec3 visibility = vec3(1.0);
 
@@ -174,14 +200,12 @@
 
                     #if defined WORLD_OVERWORLD
 
-                        vec3 scenePosition0 = viewToWorld(viewPosition0);
-
                         #if SHADOWS > 0
 
                             if (!modFragment) {
 
                                 if (isOpaque) {
-                                    visibility = texture(SHADOWMAP_BUFFER, max(coords.xy, texelSize)).rgb;
+                                    visibility = texture(SHADOWMAP_BUFFER, max(screenPosition.xy, texelSize)).rgb;
 
                                 } else {
                                     vec3 shadowPosition = worldToShadowScreen(scenePosition0) - vec3(0.0, 0.0, 1e-3);
@@ -209,9 +233,11 @@
 
                 #endif
 
+                // Direct (sun/moon) specular
+
                 if (maxOf(visibility) > EPS && material.F0 > EPS) {
 
-                    sunSpecular = computeSpecular(
+                    directSpecular = computeSpecular(
                         -normalize(viewPosition0),
                         shadowLightVector,
                         material.normal,
@@ -220,127 +246,80 @@
                         material.alpha
                     ) * directIlluminanceSpecular;
 
-                    sunSpecular = clamp16(sunSpecular);
-
                 }
 
             #endif
+
+            // Fetching environment reflections
 
             #if REFLECTIONS > 0
             
-                envSpecular = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
+                environmentSpecular = texture(REFLECTIONS_BUFFER, vertexCoords).rgb;
+
+            #endif
+
+            // Applying direct and environment specular
+
+            lightingOut += directSpecular;
+            lightingOut += environmentSpecular;
+        }
+
+        //////////////////////////////////////////////////////////
+        /*------------------ EYE TO FRONT FOG ------------------*/
+        //////////////////////////////////////////////////////////
+
+        vec3 scatteringFront    = vec3(0.0);
+        vec3 transmittanceFront = vec3(1.0);
+
+        #if defined WORLD_OVERWORLD || defined WORLD_END
+
+            vec3 directIlluminanceFinal = directIlluminance;
+
+            vec3 tmp = normalize(scenePosition0 - gbufferModelViewInverse[3].xyz);
+
+            #if defined WORLD_OVERWORLD
+                float VdotL = dot(tmp, shadowLightVectorWorld);
+            #elif defined WORLD_END
+                float VdotL = dot(tmp, starVector);
+            #endif
+
+        #else
+
+            vec3 directIlluminanceFinal = getBlockLightColor();
+            
+            float VdotL = 0.0;
+            
+        #endif
+
+        bool sky = depth0 == 1.0;
+
+        if (isEyeInWater == 1) {
+
+            #if defined WORLD_OVERWORLD || defined WORLD_END
+
+                #if WATER_FOG == 0
+                    computeWaterFogApproximation(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                #else
+                    computeVolumetricWaterFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight, sky);
+                #endif
 
             #endif
 
         } else {
-            
-            // Sky Fragments
-            lightingOut = decodeLog(blendedLighting.rgb);
+
+            #if AIR_FOG == 1
+                computeVolumetricAirFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, sky);
+            #elif AIR_FOG == 2
+                computeAirFogApproximation(scatteringFront, transmittanceFront, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+            #endif
+
         }
-
-        //////////////////////////////////////////////////////////
-        /*--------------------- FOG FILTER ---------------------*/
-        //////////////////////////////////////////////////////////
-
-        vec3 scattering    = vec3(0.0);
-        vec3 transmittance = vec3(0.0);
-
-        #if AIR_FOG_FILTER == 1
-
-            float totalWeight = 0.0;
-
-            const int filterSize = 2;
-
-            for (int x = -filterSize; x <= filterSize; x++) {
-                for (int y = -filterSize; y <= filterSize; y++) {
-                    
-                    vec2  sampleCoords = coords.xy + vec2(x, y) * texelSize * 2.0;
-                    uvec2 packedFog    = texture(FOG_BUFFER, sampleCoords).rg;
-
-                    float weight = gaussianDistribution2D(vec2(x, y), 1.0);
-
-                    float linearDepth;
-                    float linearSampleDepth;
-
-                    if (modFragment) {
-                        linearDepth       = texture(modDepthTex1, coords.xy).r;
-                        linearSampleDepth = texture(modDepthTex1, sampleCoords).r;
-                    } else {
-                        linearDepth       = texture(depthtex1, coords.xy).r;
-                        linearSampleDepth = texture(depthtex1, sampleCoords).r;
-                    }
-
-                    linearDepth       = linearizeDepth(linearDepth, nearPlane, farPlane);
-                    linearSampleDepth = linearizeDepth(linearSampleDepth, nearPlane, farPlane);
-
-                    weight *= step(abs(linearDepth - linearSampleDepth) / max(linearDepth, linearSampleDepth), 0.1);
-                    
-                    scattering    += decodeRGBE(packedFog[0]) * weight;
-                    transmittance += decodeRGBE(packedFog[1]) * weight;
-
-                    totalWeight += weight;
-                }
-            }
-            
-            scattering    /= totalWeight;
-            transmittance /= totalWeight;
         
-        #else
+        // Applying front fog
 
-            scattering    = decodeRGBE(texture(FOG_BUFFER, coords.xy).r);
-            transmittance = decodeRGBE(texture(FOG_BUFFER, coords.xy).g);
+        lightingOut = lightingOut * transmittanceFront + scatteringFront;
 
-        #endif
-
-        scattering    = mix(scattering,    vec3(0.0), saturate(blendedLighting.a));
-        transmittance = mix(transmittance, vec3(1.0), saturate(blendedLighting.a));
-        
-        if (isEyeInWater == 1) {
-            lightingOut += sunSpecular;
-            lightingOut += envSpecular;
-            lightingOut  = lightingOut * transmittance + scattering;
-        } else {
-            lightingOut  = lightingOut * transmittance + scattering;
-            lightingOut += sunSpecular;
-            lightingOut += envSpecular;
-        }
-
-        //////////////////////////////////////////////////////////
-        /*------------------ ALPHA BLENDING --------------------*/
-        //////////////////////////////////////////////////////////
-
-        vec4 basic = texture(GBUFFERS_BASIC_BUFFER, coords.xy);
-
-        bool isEnchantmentGlint = basic.a >= 0.0 && basic.a <= 0.05;
-        bool isDamageOverlay    = basic.a > 0.05 && basic.a <= 0.1;
-
-        bool isHand = depth0 < handDepth;
-
-        float exposure = 1.0;
-
-        if (isEnchantmentGlint || (!isEnchantmentGlint && !isDamageOverlay))
-            exposure = computeExposure(texelFetch(HISTORY_BUFFER, ivec2(0), 0).a);
-
-        if (isEnchantmentGlint) {
-
-            float glintBlendingFactor = blendedLighting.a > 0.0 ? 1.0 - blendedLighting.a : float(!isHand || basic.a > 0.0);
-            
-            lightingOut += basic.rgb / exposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
-
-        } else if (!isHand) {
-
-            if (isDamageOverlay) {
-                lightingOut = basic.rgb * lightingOut;
-                
-            } else {
-                lightingOut = mix(lightingOut, basic.rgb / exposure, basic.a);
-            }
-
-        }
-
-        // Log encoding
-
-        lightingOut = encodeLog(lightingOut);
+        lightingOut *= exposure;
     }
 
 #endif

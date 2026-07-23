@@ -107,7 +107,7 @@
 
     /* RENDERTARGETS: 1 */
 
-    layout (location = 0) out uvec4 data;
+    layout (location = 0) out uvec4 dataOut;
 
     flat in uint blockId;
     
@@ -326,7 +326,7 @@
 
         vec2 encodedNormal = encodeUnitVector(normalize(normal));
 
-        data = storeMaterial(
+        dataOut = storeMaterial(
             F0,
             roughness,
             ao,

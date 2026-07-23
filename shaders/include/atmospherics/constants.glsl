@@ -126,13 +126,13 @@ const float sunAngularRadius  = CELESTIAL_SIZE_MULTIPLIER * sunRadius  / sunDist
 const float moonAngularRadius = CELESTIAL_SIZE_MULTIPLIER * moonRadius / moonDistance;
 const float starAngularRadius = CELESTIAL_SIZE_MULTIPLIER * starRadius / starDistance;
 
-const vec3 sunIrradiance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (~126'000 J/m²)
-      vec3 sunRadiance   = sunIrradiance / coneAngleToSolidAngle(sunAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
+const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (~126'000 lux)
+      vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
 
-const vec3 moonRadiance   = moonAlbedo * sunIrradiance;
-      vec3 moonIrradiance = moonRadiance * coneAngleToSolidAngle(moonAngularRadius / CELESTIAL_SIZE_MULTIPLIER); // The rough amount of light the moon emits that reaches the earth
+const vec3 moonLuminance   = moonAlbedo * sunIlluminance;
+      vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRadius / CELESTIAL_SIZE_MULTIPLIER); // The rough amount of light the moon emits that reaches the earth
 
-vec3 starIrradiance = blackbody(25000.0) * 500.0;
-vec3 starRadiance   = starIrradiance / coneAngleToSolidAngle(starAngularRadius);
+vec3 starIlluminance = blackbody(25000.0) * 500.0;
+vec3 starLuminance   = starIlluminance / coneAngleToSolidAngle(starAngularRadius);
 
 float shadowLightAngularRadius = sunAngle < 0.5 ? sunAngularRadius : moonAngularRadius;

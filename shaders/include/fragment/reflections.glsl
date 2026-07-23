@@ -22,8 +22,8 @@ vec3 approximateWaterAbsorption(float rayLength) {
     return exp(-waterAbsorptionCoefficients * rayLength * far);
 }
 
-vec3 sampleHitColor(vec2 hitCoords) {
-    return decodeLog(texture(MAIN_BUFFER, hitCoords * RENDER_SCALE).rgb);
+vec3 sampleHitColor(vec2 hitCoords, float exposure) {
+    return texture(MAIN_BUFFER, hitCoords * RENDER_SCALE).rgb / exposure;
 }
 
 vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
@@ -83,6 +83,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float alpha,
         float lightmapY,
         bool isWater,
+        float exposure,
         inout float rayLength
     ) {
         viewPosition += normal * 1e-2;
@@ -148,7 +149,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
             }
 
-            vec3 hitColor = sampleHitColor(hitPosition.xy);
+            vec3 hitColor = sampleHitColor(hitPosition.xy, exposure);
 
             if (isEyeInWater == 1) {
                 hitColor *= approximateWaterAbsorption(sampleRayLength);
@@ -198,6 +199,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float alpha,
         float lightmapY,
         bool isWater,
+        float exposure,
         inout float rayLength
     ) {
         viewPosition += normal * 1e-2;
@@ -252,7 +254,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             }
         }
 
-        vec3 hitColor = sampleHitColor(hitPosition.xy);
+        vec3 hitColor = sampleHitColor(hitPosition.xy, exposure);
 
         if (isEyeInWater == 1) {
             hitColor *= approximateWaterAbsorption(rayLength);

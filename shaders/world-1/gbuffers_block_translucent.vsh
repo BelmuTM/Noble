@@ -1,4 +1,4 @@
-#version 400 compatibility
+#version 430 compatibility
 
 #define PROGRAM_BLOCK
 #define STAGE_VERTEX

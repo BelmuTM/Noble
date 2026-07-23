@@ -36,8 +36,15 @@
     out vec2 textureCoords;
     out vec2 vertexCoords;
 
-    flat out vec3[9] skyIrradiance;
-    flat out vec3 uniformSkyIlluminance;
+    #if defined WORLD_OVERWORLD || defined WORLD_END
+
+        flat out vec3    directIlluminance;
+        flat out vec3    uniformSkyIlluminance;
+        flat out vec3[9] skyIlluminanceCoefficients;
+
+        #include "/include/atmospherics/illuminance_fetch.glsl"
+
+    #endif
 
     void main() {
         gl_Position    = vec4(gl_Vertex.xy * 2.0 - 1.0, 1.0, 1.0);
@@ -47,8 +54,9 @@
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
-            skyIrradiance         = sampleUniformSkyIrradiance();
-            uniformSkyIlluminance = evaluateUniformSkyIrradianceApproximation();
+            directIlluminance          = DIRECT_ILLUMINANCE();
+            uniformSkyIlluminance      = UNIFORM_SKY_ILLUMINANCE();
+            skyIlluminanceCoefficients = SKY_ILLUMINANCE_COEFFICIENTS();
 
         #endif
     }
@@ -57,15 +65,19 @@
 
     /* RENDERTARGETS: 3,5 */
 
-    layout (location = 0) out vec4 shadowmap;
-    layout (location = 1) out vec4 illuminance;
-    //layout (location = 2) out float depthTiles;
+    layout (location = 0) out vec4 shadowmapOut;
+    layout (location = 1) out vec4 illuminanceOut;
 
     in vec2 textureCoords;
     in vec2 vertexCoords;
 
-    flat in vec3[9] skyIrradiance;
-    flat in vec3 uniformSkyIlluminance;
+    #if defined WORLD_OVERWORLD || defined WORLD_END
+
+        flat in vec3    directIlluminance;
+        flat in vec3    uniformSkyIlluminance;
+        flat in vec3[9] skyIlluminanceCoefficients;
+
+    #endif
 
     #if defined WORLD_OVERWORLD && SHADOWS > 0
 
@@ -80,8 +92,8 @@
     #endif
 
     void main() {
-        shadowmap   = vec4(1.0, 1.0, 1.0, 0.0);
-        illuminance = vec4(0.0);
+        shadowmapOut   = vec4(1.0, 1.0, 1.0, 0.0);
+        illuminanceOut = vec4(0.0);
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
@@ -100,18 +112,10 @@
 
         #endif
 
-        /*
-        if (modFragment) {
-            depthTiles = computeDepthMips(modDepthTex0, vertexCoords);
-        } else {
-            depthTiles = computeDepthMips(depthtex0, vertexCoords);
-        }
-        */
-
         uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 
         //////////////////////////////////////////////////////////
-        /*--------------------- IRRADIANCE ---------------------*/
+        /*--------------------- ILLUMINANCE --------------------*/
         //////////////////////////////////////////////////////////
 
         vec3 skyIlluminance = vec3(0.0);
@@ -128,10 +132,12 @@
 
                 #if AO > 0
 
+                    // Directional sky illuminance from bent normals
+
                     vec3 aoBuffer    = texture(AO_BUFFER, vertexCoords).rgb;
                     vec3 bentNormals = max0(decodeUnitVector(aoBuffer.xy));
 
-                    skyIlluminance = evaluateDirectionalSkyIrradiance(skyIrradiance, bentNormals, aoBuffer.z);
+                    skyIlluminance = evaluateDirectionalSkyIlluminance(skyIlluminanceCoefficients, bentNormals, aoBuffer.z);
 
                 #else
 
@@ -142,16 +148,14 @@
             }
 
             if (ivec2(gl_FragCoord.xy) == ivec2(0, 0)) {
+
                 // Direct illuminance
-                illuminance.rgb = texelFetch(IRRADIANCE_BUFFER, ivec2(0, 0), 0).rgb;
+                illuminanceOut.rgb = encodeLog(directIlluminance);
 
-            } else if (ivec2(gl_FragCoord.xy) == ivec2(0, 1)) {
-                // Uniform sky illuminance
-                illuminance.rgb = uniformSkyIlluminance;
+            } else if (ivec2(gl_FragCoord.xy) != ivec2(0, 1)) {
 
-            } else {
                 // Directional sky illuminance
-                illuminance.rgb = skyIlluminance;
+                illuminanceOut.rgb = skyIlluminance;
             }
 
         #endif
@@ -178,17 +182,23 @@
                     
                 #endif
 
+                // Shadowmapping
+
                 vec3 normal = decodeUnitVector(unpackUnorm2x16(dataTexture.w));
 
                 vec3 screenPosition = vec3(textureCoords, depth);
                 vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
                 vec3 scenePosition  = viewToWorld(viewPosition);
 
-                shadowmap = calculateShadowMapping(scenePosition, normal, depth);
+                shadowmapOut = calculateShadowMapping(scenePosition, normal, depth);
+
+                // POM self-shadowing
 
                 #if POM > 0 && POM_SHADOWING == 1
-                    shadowmap.rgb *= unpackParallaxSelfShadowing(dataTexture.x);
+                    shadowmapOut.rgb *= unpackParallaxSelfShadowing(dataTexture.x);
                 #endif
+
+                // Contact shadows
 
                 #if CONTACT_SHADOWS == 1
 
@@ -213,21 +223,23 @@
                     #endif
 
                     if (subsurfaceDepth > 0.0 && outsideShadowBounds) {
-                        shadowmap.a = subsurfaceDepth;
+                        shadowmapOut.a = subsurfaceDepth;
                     }
 
-                    // Apply contact shadows if the shadowmap is insufficient (out of bounds or lacks precision)
-                    if (shadowmap.rgb == vec3(1.0) || luminance(shadowmap.rgb) > contactShadows) {
-                        shadowmap.rgb *= contactShadows;
+                    // Apply contact shadows if the shadowmapOut is insufficient (out of bounds or lacks precision)
+                    if (shadowmapOut.rgb == vec3(1.0) || luminance(shadowmapOut.rgb) > contactShadows) {
+                        shadowmapOut.rgb *= contactShadows;
                     }
 
                 #endif
                 
             #endif
 
+            // Clouds shadows
+
             #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
 
-                illuminance.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), cloudLayer0, true);
+                illuminanceOut.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), cloudLayer0, true);
 
             #endif
 

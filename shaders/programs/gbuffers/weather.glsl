@@ -28,11 +28,13 @@
 #if defined STAGE_VERTEX
 
     out vec2 textureCoords;
-    flat out vec3 skyIlluminance;
 
     #if defined WORLD_OVERWORLD || defined WORLD_END
 
+        flat out vec3 skyIlluminance;
+
         #include "/include/atmospherics/atmosphere_header.glsl"
+        #include "/include/atmospherics/illuminance_fetch.glsl"
         
     #endif
 
@@ -42,7 +44,7 @@
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
             // Boosted sky illuminance by 10x for stylization
-            skyIlluminance = evaluateUniformSkyIrradianceApproximation() * 10.0;
+            skyIlluminance = UNIFORM_SKY_ILLUMINANCE() * 10.0;
 
         #endif
 
@@ -67,9 +69,16 @@
     layout (location = 0) out vec4 color;
 
     in vec2 textureCoords;
-    flat in vec3 skyIlluminance;
+
+    #if defined WORLD_OVERWORLD || defined WORLD_END
+
+        flat in vec3 skyIlluminance;
+
+    #endif
 
     uniform sampler2D gtexture;
+
+    #include "/include/post/exposure.glsl"
 
     vec4 computeRainColor() {
         const float density               = 1.0;
@@ -109,7 +118,7 @@
 
             color.rgb *= skyIlluminance;
 
-            color.rgb = encodeLog(color.rgb);
+            color.rgb *= CURRENT_EXPOSURE();
             
         #endif
     }

@@ -99,7 +99,7 @@ vec3 shadowClipToShadowScreen(vec3 shadowClipPosition) {
         position.xy /= 1.0 + length(position.xy);
         position.xy  = position.xy * 0.5 + 0.5;
 
-        return texture(IRRADIANCE_BUFFER, position.xy * CLOUDS_SHADOWS_RESOLUTION * texelSize).a;
+        return texture(ILLUMINANCE_BUFFER, position.xy * CLOUDS_SHADOWS_RESOLUTION * texelSize).a;
     }
     
 #endif
