@@ -20,6 +20,8 @@
 
 #include "/include/constants.glsl"
 
+#include "/include/utility/primitive_types.glsl"
+
 #include "/include/uniforms.glsl"
 #include "/include/uniforms_mods.glsl"
 

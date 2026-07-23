@@ -37,35 +37,35 @@ uniform sampler3D depthtex2;
 #define SHAPE_NOISE_TEXTURE depthtex2
 
 struct CloudLayer {
-    int steps;
-    int octaves;
+    int8_t steps;
+    int8_t octaves;
 
-    float scale;
-    float detailScale;
-    float frequency;
+    float16_t scale;
+    float16_t detailScale;
+    float16_t frequency;
 
-    float density;
+    float16_t density;
 
-    float altitude;
-    float thickness;
-    float coverage;
-    float swirl;
+    float16_t altitude;
+    float16_t thickness;
+    float16_t coverage;
+    float16_t swirl;
 };
 
 #define PARSE_CLOUD_LAYER_SETTINGS( \
     SCATTERING_STEPS, OCTAVES, SCALE, DETAILSCALE, FREQUENCY, DENSITY, ALTITUDE, THICKNESS, COVERAGE, SWIRL \
 ) \
     CloudLayer(                      \
-        SCATTERING_STEPS,            \
-        OCTAVES,                     \
-        1e-5 + SCALE       * 9.9e-6, \
-        1e-5 + DETAILSCALE * 9.9e-6, \
-        FREQUENCY,                   \
-        DENSITY            * 0.01,   \
-        ALTITUDE,                    \
-        THICKNESS,                   \
-        COVERAGE           * 0.01,   \
-        SWIRL              * 0.01    \
+        int8_t(SCATTERING_STEPS              ), \
+        int8_t(OCTAVES                       ), \
+        float16_t(1e-5 + SCALE       * 9.9e-6), \
+        float16_t(1e-5 + DETAILSCALE * 9.9e-6), \
+        float16_t(FREQUENCY                  ), \
+        float16_t(DENSITY            * 0.01  ), \
+        float16_t(ALTITUDE                   ), \
+        float16_t(THICKNESS                  ), \
+        float16_t(COVERAGE           * 0.01  ), \
+        float16_t(SWIRL              * 0.01  )  \
     )
 
 const CloudLayer cloudLayer0 = PARSE_CLOUD_LAYER_SETTINGS(
@@ -102,13 +102,13 @@ vec3 wind          = CLOUDS_WIND_SPEED * frameTimeCounter * windDirection;
 float heightAlter(float altitude, float weatherMap) {
     float stopHeight = saturate(weatherMap + 0.12);
 
-    float heightAlter  = saturate(remap(altitude, 0.0, 0.07, 0.0, 1.0));
+    float heightAlter  = saturate(remap(altitude, 0.0, 0.01, 0.0, 1.0));
           heightAlter *= saturate(remap(altitude, stopHeight * 0.2, stopHeight, 1.0, 0.0));
     return heightAlter;
 }
 
 float densityAlter(float altitude, float weatherMap) {
-    float densityAlter  = altitude * saturate(remap(altitude, 0.0, 0.2, 0.0, 1.0));
+    float densityAlter  = altitude;
           densityAlter *= saturate(remap(altitude, 0.9, 1.0, 1.0, 0.0));
           densityAlter *= weatherMap * 2.0;
     return densityAlter;
@@ -140,7 +140,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     position += wind;
 
-    layer.coverage += (0.26 * wetness);
+    layer.coverage += float16_t(0.26 * wetness);
 
     vec2 scaledCoords = position.xz * layer.scale;
 
@@ -173,7 +173,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     position *= layer.detailScale;
 
-    vec3 curlTex   = texture(CURL_NOISE_TEXTURE, position * 0.4).rgb * 2.0 - 1.0;
+    vec3 curlTex   = texture(CURL_NOISE_TEXTURE, position * 0.2).rgb * 2.0 - 1.0;
          position += curlTex * layer.swirl;
 
     vec4  shapeTex   = texture(SHAPE_NOISE_TEXTURE, position);
@@ -231,7 +231,8 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
     float transmittance = 1.0;
 
     // Adaptive steps
-    int steps = layer.steps;
+    
+    int steps = int(mix(layer.steps * 0.25, float(layer.steps), saturate(length(rayPosition) / length(atmosphereRayPosition + rayDirection * dists.y))));
     
     for (int i = 0; i < steps && transmittance > cloudsTransmitThreshold; i++, rayPosition += increment) {
 

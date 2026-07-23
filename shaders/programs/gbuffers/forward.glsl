@@ -65,7 +65,7 @@
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
             directIlluminance = DIRECT_ILLUMINANCE();
-            skyIlluminance    = evaluateDirectionalSkyIlluminance(SKY_ILLUMINANCE_COEFFICIENTS(), viewNormal, 1.0);
+            skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();
             
         #endif
 

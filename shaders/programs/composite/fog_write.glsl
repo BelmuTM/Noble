@@ -82,7 +82,7 @@
 
         float rcpExposure = 1.0 / CURRENT_EXPOSURE();
 
-        lightingOut = texture(MAIN_BUFFER, vertexCoords).rgb * rcpExposure;
+        vec3 background = texture(MAIN_BUFFER, vertexCoords).rgb * rcpExposure;
 
         // Fog setup
 
@@ -187,7 +187,7 @@
 
         // Applying back fog
 
-        lightingOut = lightingOut * transmittanceBack + scatteringBack;
+        lightingOut = background * transmittanceBack + scatteringBack;
 
         //////////////////////////////////////////////////////////
         /*------------------ ALPHA BLENDING --------------------*/
@@ -198,8 +198,6 @@
 
         // Elements from gbuffers_basic
         vec4 basic = texture(GBUFFERS_BASIC_BUFFER, vertexCoords);
-
-        basic.rgb = mix(basic.rgb, translucents.rgb, translucents.a);
 
         bool isEnchantmentGlint = basic.a >= 0.0 && basic.a <= 0.05;
         bool isDamageOverlay    = basic.a > 0.05 && basic.a <= 0.1;
@@ -224,6 +222,10 @@
             }
 
         }
+
+        // Translucents blending
+
+        lightingOut = mix(lightingOut, background, translucents.a);
 
         lightingOut /= rcpExposure;
     }
