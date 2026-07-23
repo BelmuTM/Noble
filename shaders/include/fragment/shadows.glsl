@@ -147,9 +147,8 @@ float getShadowCaustics(vec3 samplePosition) {
             subsurfaceDepthSum += max0(shadowDepth - depth);
         }
         
-        // Subsurface depth calculation from sixthsurge
-        // -shadowProjectionInverse[2].z helps us convert the depth to a meters scale
-        subsurfaceDepth = (-shadowProjectionInverse[2].z * maxEps(subsurfaceDepthSum)) / (SHADOW_DEPTH_STRETCH * BLOCKER_SEARCH_SAMPLES);
+        // Linearized distance traveled through the block
+        subsurfaceDepth = max0(subsurfaceDepthSum) * RCP_BLOCKER_SEARCH_SAMPLES * -shadowProjectionInverse[2].z * RCP_SHADOWS_DEPTH_STRETCH;
 
         return weightSum == 0.0 ? -1.0 : blockerDepthSum / weightSum;
     }

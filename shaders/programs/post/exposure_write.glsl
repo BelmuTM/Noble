@@ -65,6 +65,7 @@
                     pdf[getBinFromLuminance(luminance)]++;
                 }
             }
+            
             return pdf;
         }
 

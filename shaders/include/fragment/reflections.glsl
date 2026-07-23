@@ -18,6 +18,10 @@
 /*                                                                              */
 /********************************************************************************/
 
+vec3 approximateWaterAbsorption(float rayLength) {
+    return exp(-waterAbsorptionCoefficients * rayLength * far);
+}
+
 vec3 sampleHitColor(vec2 hitCoords) {
     return decodeLog(texture(MAIN_BUFFER, hitCoords * RENDER_SCALE).rgb);
 }
@@ -79,7 +83,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float alpha,
         float lightmapY,
         bool isWater,
-        out float rayLength
+        inout float rayLength
     ) {
         viewPosition += normal * 1e-2;
 
@@ -106,9 +110,11 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
             float NdotL            = abs(dot(normal, rayDirection));
 
-            float hit;
-            vec3 hitPosition;
-            float sampleRayLength;
+            float hit = 0.0;
+
+            vec3 hitPosition = vec3(0.0);
+
+            float sampleRayLength = 0.0;
 
             if (modFragment) {
 
@@ -142,6 +148,12 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
             }
 
+            vec3 hitColor = sampleHitColor(hitPosition.xy);
+
+            if (isEyeInWater == 1) {
+                hitColor *= approximateWaterAbsorption(sampleRayLength);
+            }
+
             #if defined REFLECTIONS_SKY_FALLBACK
                 vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
             #else
@@ -150,7 +162,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
             vec3 fresnel = vec3(0.0);
 
-            if (isEyeInWater == 1 || isWater) {
+            if (isWater) {
                 fresnel = fresnelDielectricDielectric_R(MdotV, vec3(airIOR), vec3(1.333));
 
             } else {
@@ -159,7 +171,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
             float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
 
-            reflection += mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * G2 / G1;
+            reflection += mix(fallback, hitColor, hit) * fresnel * G2 / G1;
 
             rayLength += sampleRayLength;
         }
@@ -186,7 +198,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float alpha,
         float lightmapY,
         bool isWater,
-        out float rayLength
+        inout float rayLength
     ) {
         viewPosition += normal * 1e-2;
 
@@ -202,8 +214,9 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         vec3  rayDirection  = viewDirection + 2.0 * NdotV * normal; 
         float NdotL         = abs(dot(normal, rayDirection));
 
-        float hit;
-        vec3 hitPosition;
+        float hit = 0.0;
+        
+        vec3 hitPosition = vec3(0.0);
 
         if (NdotL > 0.0) {
             if (modFragment) {
@@ -223,21 +236,6 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
             } else {
 
-                /*
-                hit = float(raytraceHiZ(
-                    depthtex0,
-                    projection,
-                    projectionInverse,
-                    viewPosition,
-                    rayDirection,
-                    jitter,
-                    RENDER_SCALE,
-                    128,
-                    hitPosition,
-                    rayLength
-                ));
-                */
-
                 hit = float(raytrace(
                     depthtex0,
                     projection,
@@ -254,6 +252,12 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
             }
         }
 
+        vec3 hitColor = sampleHitColor(hitPosition.xy);
+
+        if (isEyeInWater == 1) {
+            hitColor *= approximateWaterAbsorption(rayLength);
+        }
+
         #if defined REFLECTIONS_SKY_FALLBACK
             vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
         #else
@@ -262,7 +266,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
         vec3 fresnel = vec3(0.0);
 
-        if (isEyeInWater == 1 || isWater) {
+        if (isWater) {
             fresnel = fresnelDielectricDielectric_R(NdotV, vec3(airIOR), vec3(1.333));
 
         } else {
@@ -272,7 +276,7 @@ float jitter = temporalBlueNoise(gl_FragCoord.xy);
         float G1 = G1_Smith_GGX(NdotV, alphaSq);
         float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
 
-        return mix(fallback, sampleHitColor(hitPosition.xy), hit) * fresnel * G2 / G1;
+        return mix(fallback, hitColor, hit) * fresnel * G2 / G1;
     }
 
 #endif

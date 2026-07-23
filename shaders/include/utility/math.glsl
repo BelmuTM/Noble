@@ -240,20 +240,20 @@ vec3 rotate(vec3 vector, vec3 from, vec3 to) {
 /*---------------- VECTOR MANIPULATION -----------------*/
 //////////////////////////////////////////////////////////
 
-vec3 generateUnitVector(vec2 xy) {
-    xy.x *= TAU; xy.y = 2.0 * xy.y - 1.0;
-    return vec3(sincos(xy.x) * sqrt(1.0 - xy.y * xy.y), xy.y);
+vec3 generateUnitVector(vec2 xi) {
+    xi.x *= TAU; xi.y = 2.0 * xi.y - 1.0;
+    return vec3(sincos(xi.x) * sqrt(1.0 - xi.y * xi.y), xi.y);
 }
 
-vec3 generateCosineVector(vec3 vector, vec2 xy) {
-    return normalize(vector + generateUnitVector(xy));
+vec3 generateCosineVector(vec3 vector, vec2 xi) {
+    return normalize(vector + generateUnitVector(xi));
 }
 
-vec3 generateConeVector(vec3 vector, vec2 xy, float angle) {
-    xy.x *= TAU;
+vec3 generateConeVector(vec3 vector, vec2 xi, float angle) {
+    xi.x *= TAU;
     float cosAngle = cos(angle);
-    xy.y = xy.y * (1.0 - cosAngle) + cosAngle;
-    vec3 sphereCap = vec3(vec2(cos(xy.x), sin(xy.x)) * sqrt(1.0 - xy.y * xy.y), xy.y);
+    xi.y = xi.y * (1.0 - cosAngle) + cosAngle;
+    vec3 sphereCap = vec3(vec2(cos(xi.x), sin(xi.x)) * sqrt(1.0 - xi.y * xi.y), xi.y);
     return rotate(sphereCap, vec3(0.0, 0.0, 1.0), vector);
 }
 

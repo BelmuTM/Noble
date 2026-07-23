@@ -109,9 +109,12 @@ vec3 hammonDiffuse(vec3 viewDirection, vec3 lightDirection, vec3 albedo, vec3 no
 }
 
 vec3 subsurfaceScatteringApprox(vec3 viewDirection, vec3 lightDirection, vec3 albedo, float subsurface, float distThroughMedium, uint id) {
-    if (subsurface < EPS || distThroughMedium < EPS) return vec3(0.0);
 
-    vec3  beer     = saturate(exp((albedo * 0.5 - 1.0) * maxEps(distThroughMedium) / subsurface));
+    if (subsurface < EPS || distThroughMedium < EPS) {
+        return vec3(0.0);
+    }
+
+    vec3  beer     = saturate(exp((albedo * 0.5 - 1.0) * distThroughMedium / subsurface));
     float cosTheta = -dot(lightDirection, viewDirection);
 
     // Phase function specifically made for leaves
