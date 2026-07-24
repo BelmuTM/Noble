@@ -195,6 +195,8 @@
 
             #else
 
+                // LabPBR data decoding
+
                 material.F0         = specularTexture.y;
                 material.alpha      = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTexture.x);
                 material.ao         = normalTexture.z;
@@ -250,11 +252,14 @@
 
             material.normal = tbn[2];
 
+            // Normal map decoding
+
             if (all(greaterThan(normalTexture, vec4(EPS)))) {
                 
                 material.normal.xy = normalTexture.xy * 2.0 - 1.0;
                 material.normal.z  = fastSqrtN1(1.0 - saturate(dot(material.normal.xy, material.normal.xy)));
                 material.normal    = tbn * material.normal;
+
             }
 
             // Forward diffuse lighting

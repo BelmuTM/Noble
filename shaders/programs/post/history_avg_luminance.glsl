@@ -183,12 +183,6 @@
 
         historyOut.rgb = texture(MAIN_BUFFER, textureCoords).rgb;
 
-        #if TAA == 1
-
-            historyOut.rgb = reinhard(historyOut.rgb);
-
-        #endif
-
         #if EXPOSURE > 0
 
             historyOut.a = avgLuminance;

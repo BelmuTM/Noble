@@ -205,14 +205,6 @@ vec3 paletteFunction(float x) {
     return 0.5 + 0.5 * cos(TAU * (x + vec3(0.0, 0.25, 0.5)));
 }
 
-vec3 reinhard(vec3 color) {
-    return max0(color / (1.0 + luminance(color)));
-}
-
-vec3 inverseReinhard(vec3 color) {
-    return max0(color / (1.0 - luminance(color)));
-}
-
 vec3 plancks(float temperature, vec3 lambda) {
     const float h = 6.62607015e-16; // Planck's constant
     const float c = 2.99792458e17;  // Speed of light in a vacuum

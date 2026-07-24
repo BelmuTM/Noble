@@ -32,51 +32,7 @@
 
 #include "/include/common.glsl"
 
-#include "/include/post/exposure.glsl"
-
-#if defined STAGE_COMPUTE
-
-    #if TAA == 1
-
-        layout (rgba16f) uniform image2D colorimg0;
-
-        layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
-
-        const vec2 workGroupsRender = vec2(RENDER_SCALE, RENDER_SCALE);
-
-        #include "/include/post/grading.glsl"
-
-        shared float exposure;
-
-        void main() {
-            ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
-
-            if (coords.x > viewWidth || coords.y > viewHeight) return;
-
-            if (gl_GlobalInvocationID == ivec3(0)) {
-                exposure = CURRENT_EXPOSURE();
-            }
-
-            vec3 color = imageLoad(colorimg0, coords).rgb;
-
-            color = reinhard(color);
-
-            imageStore(colorimg0, coords, vec4(color, 0.0));
-        }
-
-    #else
-
-        layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-
-        const ivec3 workGroups = ivec3(1, 1, 1);
-
-        void main() {
-            return;
-        }
-
-    #endif
-
-#elif defined STAGE_VERTEX
+#if defined STAGE_VERTEX
 
     out vec2 textureCoords;
     out vec2 vertexCoords;
@@ -210,8 +166,6 @@
                 colorOut = mix(history, currColor, weight);
                 
             }
-
-            colorOut = inverseReinhard(colorOut);
             
         #endif
 

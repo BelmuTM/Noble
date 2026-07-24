@@ -41,20 +41,28 @@ float bayer2(vec2 a) {
 #define bayer256(a) (bayer128(0.5 * (a))  *  0.25 + bayer2(a))
 #define bayer512(a) (bayer256(0.5 * (a))  *  0.25 + bayer2(a))
 
+void pcg(inout uint seed) {
+    uint state = seed * 747796405u + 2891336453u;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    seed = (word >> 22u) ^ word;
+}
+
 #if defined STAGE_FRAGMENT
+    uint rngState = uint(viewWidth * viewHeight) * uint(frameCounter) + (uint(gl_FragCoord.x) + uint(gl_FragCoord.y * viewWidth));
 
-    void pcg(inout uint seed) {
-        uint state = seed * 747796405u + 2891336453u;
-        uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
-        seed = (word >> 22u) ^ word;
-    }
+#elif defined STAGE_COMPUTE
+    uint rngState = uint(viewWidth * viewHeight) * uint(frameCounter) + (uint(gl_GlobalInvocationID.x) + uint(gl_GlobalInvocationID.y * viewWidth) + uint(gl_GlobalInvocationID.z * viewWidth * viewWidth));
 
-    uint rngState = uint(viewWidth * viewHeight) * uint(frameCounter) + ((uint(gl_FragCoord.x) << 16u) ^ uint(gl_FragCoord.y * viewWidth));
-    
-    float randF()  { pcg(rngState); return float(rngState) / float(0xffffffffu); }
-    vec2  rand2F() { return vec2(randF(), randF());                              }
-
+#else
+    uint rngState = 0u;
 #endif
+
+float randF() {
+    pcg(rngState);
+    return float(rngState) / float(0xffffffffu);
+}
+
+vec2 rand2F() { return vec2(randF(), randF()); }
 
 float temporalBlueNoise(vec2 uv) {
     return fract(texelFetch(noisetex, ivec2(uv) % noiseTextureResolution, 0).r + GOLDEN_RATIO * frameCounter);

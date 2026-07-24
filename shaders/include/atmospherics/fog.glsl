@@ -199,11 +199,7 @@ float calculateAirFogPhase(float cosTheta) {
         vec3 skyIlluminance,
         bool sky
     ) {
-        #if defined WORLD_NETHER && NETHER_FOG == 0
-            return;
-        #endif
-        
-        #if defined WORLD_END && END_FOG == 0
+        #if (defined WORLD_NETHER && NETHER_FOG == 0) || (defined WORLD_END && END_FOG == 0)
             return;
         #endif
 
@@ -224,9 +220,9 @@ float calculateAirFogPhase(float cosTheta) {
 
         float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
 
-        vec3 shadow = vec3(1.0);
-
         const float minDensity = 0.01;
+
+        vec3 shadow = vec3(0.0);
 
         for (uint i = 0u; i < AIR_FOG_SCATTERING_STEPS && maxOf(transmittanceOut) > EPS;
             i++, rayPosition += increment, shadowPosition += shadowIncrement
@@ -254,9 +250,10 @@ float calculateAirFogPhase(float cosTheta) {
 
             }
 
-            vec3 stepScatteringDirect   = vec3(0.0);
-            vec3 stepScatteringIndirect = vec3(0.0);
-            vec3 stepTransmittance      = vec3(1.0);
+            vec3 stepScatteringSun = vec3(0.0);
+            vec3 stepScatteringSky = vec3(0.0);
+
+            vec3 stepTransmittance = vec3(1.0);
 
             if (densityFog > minDensity) {
 
@@ -266,8 +263,8 @@ float calculateAirFogPhase(float cosTheta) {
                 vec3 stepTransmittanceFog = exp(-opticalDepthFog);
                 vec3 visibleScatteringFog = transmittanceOut * saturate((stepTransmittanceFog - 1.0) / -opticalDepthFog);
 
-                stepScatteringDirect   += airFogScatteringCoefficients * airmassFog * phaseFog       * directIlluminance * visibleScatteringFog * shadow;
-                stepScatteringIndirect += airFogScatteringCoefficients * airmassFog * isotropicPhase * skyIlluminance    * visibleScatteringFog;
+                stepScatteringSun += airFogScatteringCoefficients * airmassFog * phaseFog       * visibleScatteringFog;
+                stepScatteringSky += airFogScatteringCoefficients * airmassFog * isotropicPhase * visibleScatteringFog;
 
                 stepTransmittance *= stepTransmittanceFog;
 
@@ -283,18 +280,20 @@ float calculateAirFogPhase(float cosTheta) {
                 vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
                 vec3 visibleScatteringAerial = transmittanceOut * saturate((stepTransmittanceAerial - 1.0) / -opticalDepthAerial);
 
-                stepScatteringDirect   += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * directIlluminance * visibleScatteringAerial * shadow;
-                stepScatteringIndirect += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * skyIlluminance    * visibleScatteringAerial;
+                stepScatteringSun += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * visibleScatteringAerial;
+                stepScatteringSky += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * visibleScatteringAerial;
 
                 stepTransmittance *= stepTransmittanceAerial;
 
             #endif
 
             #if defined WORLD_OVERWORLD
-                stepScatteringIndirect *= eyeBrightness.y * rcp240;
+                stepScatteringSky *= eyeBrightness.y * rcp240;
             #endif
 
-            scatteringOut    += stepScatteringDirect + stepScatteringIndirect;
+            scatteringOut += stepScatteringSun * shadow * directIlluminance
+                           + stepScatteringSky * skyIlluminance;
+
             transmittanceOut *= stepTransmittance;
         }
     }

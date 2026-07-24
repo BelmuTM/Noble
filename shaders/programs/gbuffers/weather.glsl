@@ -38,8 +38,14 @@
         
     #endif
 
+    flat out float exposure;
+
+    #include "/include/post/exposure.glsl"
+
     void main() {
         textureCoords = gl_MultiTexCoord0.xy;
+
+        exposure = CURRENT_EXPOSURE();
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
 
@@ -76,11 +82,13 @@
 
     #endif
 
+    flat in float exposure;
+
     uniform sampler2D gtexture;
 
-    #include "/include/post/exposure.glsl"
-
     vec4 computeRainColor() {
+        // Fake water absorption
+
         const float density               = 1.0;
         const float scatteringCoefficient = 0.1;
         const float alpha                 = 0.2;
@@ -95,6 +103,7 @@
     }
 
     void main() {
+
         color = vec4(0.0);
 
         #if defined WORLD_OVERWORLD || defined WORLD_END
@@ -108,17 +117,19 @@
 
             if (albedo.a < alphaTestThreshold) { discard; return; }
 
-            bool isRain = (abs(albedo.r - albedo.b) > EPS);
+            bool isRain = abs(albedo.r - albedo.b) > EPS;
 
             if (isRain) {
                 color = computeRainColor();
+
             } else {
+                // Snow
                 color = vec4(1.0, 1.0, 1.0, 0.3);
             }
 
             color.rgb *= skyIlluminance;
 
-            color.rgb *= CURRENT_EXPOSURE();
+            color.rgb *= exposure;
             
         #endif
     }

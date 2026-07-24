@@ -32,6 +32,17 @@
 
 #include "/include/material/material.glsl"
 
+#if defined STAGE_FRAGMENT || defined STAGE_VERTEX
+
+    #define SCREEN_COORDS (gl_FragCoord.xy)
+
+#elif defined STAGE_COMPUTE
+
+    #define SCREEN_COORDS (gl_GlobalInvocationID.xy)
+
+#endif
+
+/*
 #define HIZ_LOD_COUNT 6
 
 const vec2 depthMipsOffsets[] = vec2[](
@@ -71,3 +82,4 @@ float computeDepthMips(sampler2D depthTex, vec2 coords) {
 vec2 getDepthMip(vec2 coords, int lod) {
     return coords / int(exp2(lod)) + depthMipsOffsets[lod - 1];
 }
+*/

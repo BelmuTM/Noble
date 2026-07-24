@@ -227,6 +227,8 @@
 
         if (albedoTexture.a < alphaTestThreshold) { discard; return; }
 
+        // LabPBR data decoding
+
         vec4 normalTexture = texture(normals, coords);
 
         #if !defined PROGRAM_TEXTURED
@@ -247,38 +249,29 @@
             albedoTexture.rgb = vec3(1.0);
         #endif
 
-        #if defined PROGRAM_ENTITY
-
-            albedoTexture.rgb = mix(albedoTexture.rgb, entityColor.rgb, entityColor.a);
-            
-            ao = all(lessThanEqual(normalTexture.rgb, vec3(EPS))) ? 1.0 : ao;
-
-        #endif
-
-        #if defined PROGRAM_BEACONBEAM
-        
-            emission   = 1.0;
-            lightmap.x = 1.0;
-
-        #endif
-
         vec3 normal = tbn[2];
 
-        // Normal mapping | Directional lightmaps
+        // Normal map decoding + directional lightmaps
         
         #if !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 
             if (all(greaterThan(normalTexture, vec4(EPS)))) {
+
                 normal.xy = normalTexture.xy * 2.0 - 1.0;
                 normal.z  = fastSqrtN1(1.0 - saturate(dot(normal.xy, normal.xy)));
                 normal    = tbn * normal;
 
                 #if DIRECTIONAL_LIGHTMAP == 1
+
                     lightmap = computeLightmap(scenePosition, normalize(normal));
+
                 #endif
+
             }
 
         #endif
+
+        // Rain puddles
 
         #if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
 
@@ -289,6 +282,8 @@
             }
 
         #endif
+
+        // Hardcoded LabPBR values
 
         #if HARDCODED_EMISSION == 1
         
@@ -305,6 +300,23 @@
             }
 
         #endif
+
+        #if defined PROGRAM_ENTITY
+
+            albedoTexture.rgb = mix(albedoTexture.rgb, entityColor.rgb, entityColor.a);
+            
+            ao = all(lessThanEqual(normalTexture.rgb, vec3(EPS))) ? 1.0 : ao;
+
+        #endif
+
+        #if defined PROGRAM_BEACONBEAM
+        
+            emission   = 1.0;
+            lightmap.x = 1.0;
+
+        #endif
+
+        // Hand light
 
         float handLight  = min(float(heldBlockLightValue + heldBlockLightValue2), 15.0) / 15.0;
               handLight *= smoothstep(1.0, 0.0, min(HANDLIGHT_DISTANCE * handLight, length(viewPosition)) / (HANDLIGHT_DISTANCE * handLight));

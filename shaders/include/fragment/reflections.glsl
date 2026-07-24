@@ -42,7 +42,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
             
                 cloudsBuffer = texture(
                     CLOUDMAP_BUFFER,
-                    saturate(projectSphere(sceneDirection) * CLOUDMAP_SCALE - bayer2(gl_FragCoord.xy) * 1e-3)
+                    saturate(projectSphere(sceneDirection) * CLOUDMAP_SCALE - bayer2(SCREEN_COORDS) * 1e-3)
                 ).rgb;
 
             #endif
@@ -64,7 +64,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
     
 }
 
-float jitter = temporalBlueNoise(gl_FragCoord.xy);
+float jitter = temporalBlueNoise(SCREEN_COORDS);
 
 #if REFLECTIONS == 1
 

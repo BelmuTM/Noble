@@ -46,7 +46,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
         inout vec3 refractedPosition
     ) {
 
-        const float distanceThreshold = 1.0;
+        const float distanceThreshold = 0.1;
 
         for (int i = 0; i < REFRACTIONS_NEWTON_ITERATIONS; i++) {
 

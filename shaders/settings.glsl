@@ -38,7 +38,7 @@
 #define REFLECTIONS_BUFFER    colortex2
 #define SHADOWMAP_BUFFER      colortex3
 
-#define ILLUMINANCE_BUFFER     colortex5
+#define ILLUMINANCE_BUFFER    colortex5
 #define ATMOSPHERE_BUFFER     colortex6
 #define CLOUDS_BUFFER         colortex7
 
@@ -290,7 +290,7 @@ const float RCP_BLOCKER_SEARCH_SAMPLES = 1.0 / BLOCKER_SEARCH_SAMPLES;
 
 #define WATER_OCTAVES 16 // [2 4 6 8 12 16 24 32]
 
-#define WATER_NORMALS_STRENGTH           0.02
+#define WATER_NORMALS_STRENGTH           0.01
 #define WATER_NORMALS_STRENGTH_MULTIPLIER 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
 
 #define WAVE_ANGLE 40.0
@@ -458,7 +458,7 @@ const float RCP_BLOCKER_SEARCH_SAMPLES = 1.0 / BLOCKER_SEARCH_SAMPLES;
 
 #define EXPOSURE 2 // [0 1 2]
 
-#define EXPOSURE_GROWTH 2.00
+#define EXPOSURE_GROWTH 1.50
 #define EXPOSURE_DECAY  0.50
 
 #define EXPOSURE_IGNORE_DARK   0.60
