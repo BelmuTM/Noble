@@ -100,16 +100,28 @@
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
-        float depth = texture(depthtex0, vertexCoords).r;
-
         bool modFragment = false;
 
+        float depth = texture(depthtex0, vertexCoords).r;
+
+        float nearPlane = near;
+        float farPlane  = far;
+
         #if defined CHUNK_LOADER_MOD_ENABLED
-        
+
+            nearPlane = modNearPlane;
+            farPlane  = modFarPlane;
+
             if (depth >= 1.0) {
                 modFragment = true;
-            }
 
+                #if defined VOXY
+                    depth = texture(modDepthTex0, textureCoords).r;
+                #else
+                    depth = texture(modDepthTex0, vertexCoords).r;
+                #endif
+            }
+            
         #endif
 
         uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
@@ -210,9 +222,9 @@
                     float subsurfaceDepth = 0.0;
 
                     if (modFragment) {
-                        contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
+                        contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, nearPlane, farPlane, RENDER_SCALE, subsurfaceDepth);
                     } else {
-                        contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
+                        contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, nearPlane, farPlane, RENDER_SCALE, subsurfaceDepth);
                     }
 
                     // Use the subsurface depth from contact shadows if the one from shadow mapping is undefined/invalid

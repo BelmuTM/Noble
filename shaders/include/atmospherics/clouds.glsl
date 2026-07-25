@@ -136,6 +136,7 @@ float worley(vec2 coords) {
 }
 
 float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer) {
+    
     float altitude = (position.y - (planetRadius + layer.altitude)) * rcp(layer.thickness);
 
     position += wind * frameTimeCounter;

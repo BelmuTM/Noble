@@ -506,6 +506,7 @@ value.AIR_FOG_FILTER.1 = §aON
 
 option.AIR_FOG_SCATTERING_STEPS = VF Scattering Steps
 option.AIR_FOG_SCATTERING_STEPS.comment = Influences §bVolumetric Fog§r's scattering accuracy. §cHigher value gives better results, but reduces §cperformance.
+value.AIR_FOG_SCATTERING_STEPS.4  = §b4
 value.AIR_FOG_SCATTERING_STEPS.8  = §38
 value.AIR_FOG_SCATTERING_STEPS.16 = §216
 value.AIR_FOG_SCATTERING_STEPS.24 = §a24
@@ -667,6 +668,7 @@ value.POM.2 = §e§lSteep
 
 option.POM_LAYERS = Layers
 option.POM_LAYERS.comment = Adjusts §bPOM§r's quality, the more layers there are, the more detailed it will be. §cHigher value gives better results, but reduces §cperformance.
+value.POM_LAYERS.16 = §216
 value.POM_LAYERS.32 = §a32
 value.POM_LAYERS.64 = §e64
 value.POM_LAYERS.128 = §6128

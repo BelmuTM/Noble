@@ -18,6 +18,11 @@
 /*                                                                              */
 /********************************************************************************/
 
+/*
+    [References]:
+        Serdyuchenko et al. (2014). High spectral resolution ozone absorption cross-sections – Part 1: Measurements, data analysis and comparison with previous measurements around 293 K. https://amt.copernicus.org/articles/7/609/2014/amt-7-609-2014.pdf
+*/
+
 /* ATMOSPHERIC CONSTANTS */
 
 #if defined WORLD_OVERWORLD

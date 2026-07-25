@@ -97,20 +97,14 @@
 
             farPlane = modFarPlane;
 
-            #if defined VOXY
-                float modDepth1 = texture(modDepthTex1, textureCoords).r;
-            #else
-                float modDepth1 = texture(modDepthTex1, vertexCoords).r;
-            #endif
-
-            if (depth1 >= 1.0 && depth0 >= 1.0) {
+            if (depth1 >= 1.0) {
         
                 #if defined VOXY
                     depth0 = texture(modDepthTex0, textureCoords).r;
-                    depth1 = modDepth1;
+                    depth1 = texture(modDepthTex1, textureCoords).r;
                 #else
                     depth0 = texture(modDepthTex0, vertexCoords).r;
-                    depth1 = modDepth1;
+                    depth1 = texture(modDepthTex1, vertexCoords).r;
                 #endif
                 
                 projectionInverse = modProjectionInverse;

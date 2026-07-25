@@ -136,7 +136,7 @@ vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, b
 
     vec3 viewDirection = normalize(-fragPosition);
 
-    vec3 diffuse;
+    vec3 diffuse = vec3(0.0);
 
     if (isMetal) {
         // Lambert

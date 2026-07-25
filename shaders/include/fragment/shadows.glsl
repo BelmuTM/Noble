@@ -30,6 +30,8 @@ float jitter1 = interleavedGradientNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize *
         mat4 projection,
         mat4 projectionInverse,
         vec3 viewPosition,
+        float nearPlane,
+        float farPlane,
         float scale,
         inout float subsurfaceDepth
     ) {
@@ -64,8 +66,8 @@ float jitter1 = interleavedGradientNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize *
 
             float depth = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
 
-            float linearDepth    = linearizeDepth(depth        , near, far);
-            float linearRayDepth = linearizeDepth(rayPosition.z, near, far);
+            float linearDepth    = linearizeDepth(depth        , nearPlane, farPlane);
+            float linearRayDepth = linearizeDepth(rayPosition.z, nearPlane, farPlane);
 
             float relativeGap = abs(linearRayDepth - linearDepth) / linearRayDepth;
 

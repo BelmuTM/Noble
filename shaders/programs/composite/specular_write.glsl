@@ -105,7 +105,10 @@
 
         #if defined CHUNK_LOADER_MOD_ENABLED
 
-            if (depth1 >= 1.0) {
+            nearPlane = modNearPlane;
+            farPlane  = modFarPlane;
+
+            if (depth0 >= 1.0) {
                 modFragment = true;
 
                 #if defined VOXY
@@ -118,9 +121,6 @@
                         
                 projection        = modProjection;
                 projectionInverse = modProjectionInverse;
-            
-                nearPlane = modNearPlane;
-                farPlane  = modFarPlane;
             }
             
         #endif
@@ -158,7 +158,7 @@
 
             #if REFRACTIONS > 0
             
-                if (!isOpaque && material.F0 > EPS) {
+                if (!modFragment && !isOpaque && material.F0 > EPS) {
 
                     vec3 viewPosition1 = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
 

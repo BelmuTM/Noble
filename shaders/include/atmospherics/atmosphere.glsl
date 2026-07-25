@@ -267,7 +267,7 @@ void evaluateUniformSkyIlluminance(out vec3[9] skyIlluminance) {
         monochrome = true;
     #endif
 
-    const ivec2 samples        = ivec2(8);
+    const ivec2 samples        = ivec2(8, 8);
     const float invSampleCount = 1.0 / float(samples.x * samples.y);
 
     for (int x = 0; x < samples.x; x++) {

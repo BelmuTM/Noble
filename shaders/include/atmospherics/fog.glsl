@@ -110,7 +110,7 @@ float calculateAirFogPhase(float cosTheta) {
 
         #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
 
-            float airmassAerial      = quinticStep(0.0, farPlane, length(viewPosition.xz)) * aerialPerspectiveMult * AERIAL_PERSPECTIVE_DENSITY;
+            float airmassAerial      = quinticStep(0.0, farPlane, length(viewPosition.xz)) * aerialPerspectiveMult * AERIAL_PERSPECTIVE_DENSITY * AERIAL_PERSPECTIVE_DENSITY_MULTIPLIER;
             vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
 
             transmittanceAerial = exp(-opticalDepthAerial);
@@ -133,9 +133,12 @@ float calculateAirFogPhase(float cosTheta) {
     uniform sampler3D depthtex2;
 
     float getAirFogDensity(vec3 position) {
-        if (clamp(position.y, fogAltitude, fogAltitude + fogThickness) != position.y) return 0.0;
+        
+        if (clamp(position.y, fogAltitude, fogAltitude + fogThickness) != position.y) {
+            return 0.0;
+        }
 
-        float altitude   = (position.y - fogAltitude) * rcp(fogThickness);
+        float altitude   = (position.y - fogAltitude) / fogThickness;
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
 
         #if defined WORLD_END
@@ -158,10 +161,11 @@ float calculateAirFogPhase(float cosTheta) {
         #endif
         
         vec4  shapeTex   = texture(depthtex2, position * FOG_SHAPE_SCALE * km_to_m);
-        float shapeNoise = remap(pow(shapeTex.r, 1.4), -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
+        float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
               shapeNoise = (shapeNoise * shapeAlter - (2.0 * shapeAlter * altitude * 0.5 + 0.5)) * fogShapeFactors.x - fogShapeFactors.y;
 
         #if defined WORLD_OVERWORLD
+
             shapeNoise *= exp(-abs(position.y - fogAltitude) * 0.14);
 
         #elif defined WORLD_NETHER
@@ -244,7 +248,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             if (fogDensity > minDensity) {
 
-                float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-1.0 * length(rayPosition - cameraPosition) / farPlane));
+                float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-1.0 * length(rayPosition - cameraPosition) / far));
 
                 densityFog = getAirFogDensity(rayPosition) * distanceFalloffFog;
 
@@ -274,7 +278,7 @@ float calculateAirFogPhase(float cosTheta) {
 
                 // float heightFalloffAerial = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08) * float(!sky);
 
-                float airmassAerial      = float(!sky) * rayLength * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * 20.0;
+                float airmassAerial      = float(!sky) * rayLength * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * AERIAL_PERSPECTIVE_DENSITY_MULTIPLIER;
                 vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
 
                 vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
@@ -315,7 +319,7 @@ float calculateAirFogPhase(float cosTheta) {
         transmittanceOut = exp(-waterAbsorptionCoefficients * distance(startPosition, endPosition));
 
         scatteringOut  = skyIlluminance    * isotropicPhase * skylight;
-        scatteringOut += directIlluminance * kleinNishinaPhase(VdotL, 0.5);
+        scatteringOut += directIlluminance * cornetteShanksPhase(VdotL, 0.85);
         scatteringOut *= waterScatteringCoefficients * (1.0 - transmittanceOut) / waterAbsorptionCoefficients;
     }
 
