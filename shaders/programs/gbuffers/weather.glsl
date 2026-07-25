@@ -29,30 +29,8 @@
 
     out vec2 textureCoords;
 
-    #if defined WORLD_OVERWORLD || defined WORLD_END
-
-        flat out vec3 skyIlluminance;
-
-        #include "/include/atmospherics/atmosphere_header.glsl"
-        #include "/include/atmospherics/illuminance_fetch.glsl"
-        
-    #endif
-
-    flat out float exposure;
-
-    #include "/include/post/exposure.glsl"
-
     void main() {
         textureCoords = gl_MultiTexCoord0.xy;
-
-        exposure = CURRENT_EXPOSURE();
-
-        #if defined WORLD_OVERWORLD || defined WORLD_END
-
-            // Boosted sky illuminance by 10x for stylization
-            skyIlluminance = UNIFORM_SKY_ILLUMINANCE() * 10.0;
-
-        #endif
 
         vec3 scenePosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
 
@@ -66,37 +44,19 @@
 
         gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
+
+        TAA_JITTER(gl_Position);
     }
 
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 0 */
+    /* RENDERTARGETS: 15 */
 
     layout (location = 0) out vec4 color;
 
     in vec2 textureCoords;
 
-    #if defined WORLD_OVERWORLD || defined WORLD_END
-
-        flat in vec3 skyIlluminance;
-
-    #endif
-
-    flat in float exposure;
-
     uniform sampler2D gtexture;
-
-    vec4 computeRainColor() {
-        // Fake water absorption
-
-        const float opacity = 0.2;
-        const float density = 1.0;
-
-        const float scatteringCoefficient   = 0.1;
-        const vec3  attenuationCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(0.338675, 0.0493852, 0.00218174) * SRGB_2_AP1_ALBEDO);
-
-        return vec4(exp(-attenuationCoefficients * density) * scatteringCoefficient, opacity);
-    }
 
     void main() {
 
@@ -115,17 +75,11 @@
 
             bool isRain = abs(albedo.r - albedo.b) > EPS;
 
-            if (isRain) {
-                color = computeRainColor();
+            color = isRain
+                  ? vec4(1.0, 1.0, 1.0, RAIN_OPACITY)
+                  : vec4(1.0, 1.0, 1.0, SNOW_OPACITY);
 
-            } else {
-                // Snow
-                color = vec4(1.0, 1.0, 1.0, 0.3);
-            }
-
-            color.rgb *= skyIlluminance;
-
-            color.rgb *= exposure;
+            color.rgb *= color.a;
             
         #endif
     }

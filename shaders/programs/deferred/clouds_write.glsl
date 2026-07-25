@@ -81,7 +81,7 @@
             bool  modFragment = false;
             float depth       = texture(depthtex0, vertexCoords).r;
 
-            if (depth < handDepth) return;
+            if (depth < handDepth) { return; }
 
             mat4 projectionInverse = gbufferProjectionInverse;
 

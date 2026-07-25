@@ -41,9 +41,9 @@ const float mieScatteringAlbedo = 0.9;
 const float mieAnisotropyFactor = 0.76;
 
 const float airNumberDensity    = 2.5035422e25;
-const float ozonePeakDensity    = 5e-6;
-const float ozonePeakAltitude   = 35e3;
-const float ozoneNumberDensity  = airNumberDensity * exp(-ozonePeakAltitude / 8e3) * (134.628 / 48.0) * ozonePeakDensity;
+const float ozonePeakDensity    = 5e-6; // ppm
+const float ozonePeakAltitude   = 35e3; // km
+const float ozoneNumberDensity  = airNumberDensity * exp(-ozonePeakAltitude / 8e3) * ozonePeakDensity;
 const float ozoneUnitConversion = 1e-4; // Converts from cm² to m²
 
 const vec3 rayleighScatteringCoefficientsSunny = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
@@ -55,7 +55,7 @@ const vec3 mieScatteringCoefficientsRain      = vec3(1e-5);
 vec3 rayleighScatteringCoefficients = mix(rayleighScatteringCoefficientsSunny, rayleighScatteringCoefficientsRain, wetness * biome_may_rain);
 vec3 mieScatteringCoefficients      = mix(mieScatteringCoefficientsSunny     , mieScatteringCoefficientsRain     , wetness * biome_may_rain);
 
-const vec3 ozoneExtinctionCoefficients = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * ozoneNumberDensity * ozoneUnitConversion;
+const vec3 ozoneExtinctionCoefficients = vec3(4.51103e-21, 3.28547e-21, 5.36774e-22) * ozoneNumberDensity * ozoneUnitConversion;
 
 const vec3 rayleighScatteringCoefficientsEnd = vec3(3e-5, 4e-6, 1e-5);
 const vec3 mieScatteringCoefficientsEnd      = vec3(5.2e-3, 7e-3, 5e-3);
@@ -110,11 +110,11 @@ const float cloudsAnisotropyFalloff = 0.80;
 const float airFogExtinctionCoefficient = 0.1;
 const float airFogScatteringCoefficient = 0.99;
 
-const float airFogForwardsLobe = 0.35;
-const float airFogBackardsLobe = 0.35;
-const float airFogForwardsPeak = 0.90;
-const float airFogBackScatter  = 0.15;
-const float airFogPeakWeight   = 0.25;
+const float airFogForwardsLobe = 0.75;
+const float airFogBackardsLobe = 0.20;
+const float airFogForwardsPeak = 0.95;
+const float airFogBackScatter  = 0.08;
+const float airFogPeakWeight   = 0.35;
 
 /* CELESTIAL CONSTANTS */
 

@@ -41,7 +41,7 @@ const float aerialPerspectiveMult = 1.0;
     float fogFrequency    = mix(0.7, 1.0, biome_may_sandstorm);
     vec2  fogShapeFactors = mix(vec2(1.5, 0.4), vec2(2.0, 0.4), biome_may_sandstorm);
     float densityFactor   = wetness;
-    float densityMult     = mix(0.1, 0.7, biome_may_sandstorm);
+    float densityMult     = mix(0.03, 0.7, biome_may_sandstorm);
 
 #elif defined WORLD_NETHER
 
@@ -160,13 +160,13 @@ float calculateAirFogPhase(float cosTheta) {
 
         #endif
         
-        vec4  shapeTex   = texture(depthtex2, position * FOG_SHAPE_SCALE * km_to_m);
+        vec4  shapeTex   = texture(depthtex2, position * FOG_SHAPE_SCALE * 1e-4);
         float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
               shapeNoise = (shapeNoise * shapeAlter - (2.0 * shapeAlter * altitude * 0.5 + 0.5)) * fogShapeFactors.x - fogShapeFactors.y;
 
         #if defined WORLD_OVERWORLD
 
-            shapeNoise *= exp(-abs(position.y - fogAltitude) * 0.14);
+            shapeNoise *= smoothstep(0.0, 1.0, exp(-abs(position.y - fogAltitude) * 0.03));
 
         #elif defined WORLD_NETHER
 
@@ -207,6 +207,7 @@ float calculateAirFogPhase(float cosTheta) {
             return;
         #endif
 
+        // Ray marching setup
         const float stepSize = 1.0 / AIR_FOG_SCATTERING_STEPS;
         
         vec3 increment    = (endPosition - startPosition) * stepSize;
@@ -219,14 +220,16 @@ float calculateAirFogPhase(float cosTheta) {
 
         float rayLength = length(increment);
 
+        float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
+
+        // Phases
         float phaseFog    = calculateAirFogPhase(VdotL);
         vec2  phaseAerial = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
-        float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
+        // Tracing
+        vec3 shadow = vec3(0.0);
 
         const float minDensity = 0.01;
-
-        vec3 shadow = vec3(0.0);
 
         for (uint i = 0u; i < AIR_FOG_SCATTERING_STEPS && maxOf(transmittanceOut) > EPS;
             i++, rayPosition += increment, shadowPosition += shadowIncrement
@@ -248,7 +251,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             if (fogDensity > minDensity) {
 
-                float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-1.0 * length(rayPosition - cameraPosition) / far));
+                float distanceFalloffFog = quinticStep(0.0, 1.0, exp(-length(rayPosition.xz - cameraPosition.xz) / farPlane * 2.0));
 
                 densityFog = getAirFogDensity(rayPosition) * distanceFalloffFog;
 
@@ -336,6 +339,7 @@ float calculateAirFogPhase(float cosTheta) {
         float skylight,
         bool sky
     ) {
+        // Ray marching setup
         float jitter = interleavedGradientNoise(gl_FragCoord.xy);
 
         const float rcpSteps = 1.0 / WATER_FOG_STEPS;
@@ -350,6 +354,7 @@ float calculateAirFogPhase(float cosTheta) {
         vec3 startPositionShadow = worldToShadowClip(startPosition);
         vec3 shadowDirection     = mat3(shadowModelView) * worldDirection * diagonal3(shadowProjection);
 
+        // Analytical transmittance evaluation (water is a homogeneous medium)
         vec3 transmittance = exp(-waterExtinctionCoefficients * rayLength);
 
         // CDF over the ray's length for interaction with a water particle (CDF(rayLength) = 1.0 - transmittance)

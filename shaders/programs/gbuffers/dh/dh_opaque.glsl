@@ -28,9 +28,11 @@
     flat out uint blockId;
     
     out vec2 lightmapCoords;
+
     out vec3 vertexNormal;
-    out vec3 scenePosition;
     out vec4 vertexColor;
+
+    out vec3 scenePosition;
 
     void main() {
         lightmapCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
@@ -49,9 +51,7 @@
         gl_Position    = modProjection * vec4(viewPosition, 1.0);
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
-        #if TAA == 1
-            gl_Position.xy += taaJitter(gl_Position);
-        #endif
+        TAA_JITTER(gl_Position);
     }
 
 #elif defined STAGE_FRAGMENT
@@ -63,9 +63,15 @@
     flat in uint blockId;
 
     in vec2 lightmapCoords;
+
     in vec3 vertexNormal;
-    in vec3 scenePosition;
     in vec4 vertexColor;
+
+    in vec3 scenePosition;
+
+    #if RAIN_PUDDLES == 1
+        #include "/include/material/rain_puddles.glsl"
+    #endif
 
     void main() {
         
@@ -83,7 +89,25 @@
             albedo = vec3(1.0);
         #endif
 
+        vec3 normal = vertexNormal;
+
+        float F0 = 0.0;
+
         float roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0);
+
+        // Rain puddles
+
+        #if RAIN_PUDDLES == 1
+
+            if (wetness > 0.0 && biome_may_rain > 0.0 && isEyeInWater == 0) {
+            
+                rainPuddles(scenePosition, vertexNormal, lightmapCoords, 0.0, albedo, normal, F0, roughness);
+
+            }
+
+        #endif
+
+        // Hardcoded LabPBR values
 
         float emission = 0.0;
 
@@ -107,10 +131,10 @@
 
         // Material encoding
 
-        vec2 encodedNormal = encodeUnitVector(normalize(vertexNormal));
+        vec2 encodedNormal = encodeUnitVector(normalize(normal));
 
         dataOut = storeMaterial(
-            0.0,
+            F0,
             roughness,
             1.0,
             emission,

@@ -99,7 +99,11 @@
 
         #if defined CHUNK_LOADER_MOD_ENABLED
 
+            nearPlane = modNearPlane;
+            farPlane  = modFarPlane;
+
             if (depth >= 1.0) {
+
                 modFragment = true;
 
                 #if defined VOXY
@@ -111,9 +115,6 @@
                 projection         = modProjection;
                 projectionInverse  = modProjectionInverse;
                 projectionPrevious = modProjectionPrevious;
-
-                nearPlane = modNearPlane;
-                farPlane  = modFarPlane;
             }
             
         #endif

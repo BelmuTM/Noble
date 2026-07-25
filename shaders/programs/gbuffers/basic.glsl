@@ -42,9 +42,7 @@
 
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
-        #if TAA == 1
-            gl_Position.xy += taaJitter(gl_Position);
-        #endif
+        TAA_JITTER(gl_Position);
     }
 
 #elif defined STAGE_FRAGMENT
@@ -73,14 +71,14 @@
             color = vec4(albedoTexture.rgb, 0.0);
 
             if (gl_FragDepth < handDepth) {
-                color.a = 0.02;
+                color.a = 0.01;
             }
             
         #elif defined PROGRAM_DAMAGED_BLOCK
 
             if (albedoTexture.a < alphaTestThreshold) { discard; return; }
 
-            color = vec4(albedoTexture.rgb, 0.1);
+            color = vec4(albedoTexture.rgb, 0.045);
 
         #else
         

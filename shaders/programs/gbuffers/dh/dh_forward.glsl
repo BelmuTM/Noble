@@ -30,9 +30,11 @@
     flat out uint blockId;
     
     out vec2 lightmapCoords;
+
     out vec3 vertexNormal;
-    out vec3 scenePosition;
     out vec4 vertexColor;
+
+    out vec3 scenePosition;
 
     flat out vec3 directIlluminance;
     flat out vec3 skyIlluminance;
@@ -63,9 +65,7 @@
         gl_Position    = modProjection * vec4(viewPosition, 1.0);
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
-        #if TAA == 1
-            gl_Position.xy += taaJitter(gl_Position);
-        #endif
+        TAA_JITTER(gl_Position);
     }
 
 #elif defined STAGE_FRAGMENT
@@ -78,9 +78,11 @@
     flat in uint blockId;
 
     in vec2 lightmapCoords;
+
     in vec3 vertexNormal;
-    in vec3 scenePosition;
     in vec4 vertexColor;
+
+    in vec3 scenePosition;
 
     flat in vec3 directIlluminance;
     flat in vec3 skyIlluminance;

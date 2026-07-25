@@ -193,8 +193,8 @@
         // Elements from gbuffers_basic
         vec4 basic = texture(GBUFFERS_BASIC_BUFFER, vertexCoords);
 
-        bool isEnchantmentGlint = basic.a >= 0.0 && basic.a <= 0.05;
-        bool isDamageOverlay    = basic.a > 0.05 && basic.a <= 0.1;
+        bool isEnchantmentGlint = basic.a >= 0.0 && basic.a <= 0.03;
+        bool isDamageOverlay    = basic.a > 0.03 && basic.a <= 0.06;
 
         bool isHand = depth0 < handDepth;
 

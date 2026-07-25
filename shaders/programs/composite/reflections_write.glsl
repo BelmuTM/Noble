@@ -36,6 +36,8 @@
     shared vec3 directIlluminance;
     shared vec3 skyIlluminance;
 
+    shared float exposure;
+
     #include "/include/common.glsl"
 
     #include "/include/utility/rng.glsl"
@@ -50,6 +52,9 @@
 
     #include "/include/post/exposure.glsl"
 
+    #define STORE_REFLECTIONS(COORDS, VALUE) \
+        imageStore(colorimg2, COORDS, VALUE)
+
     void main() {
         ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 
@@ -60,8 +65,11 @@
         // Pre-fetching illuminance values
 
         if (gl_LocalInvocationID.x == 0 && gl_LocalInvocationID.y == 0) {
+
             directIlluminance = DIRECT_ILLUMINANCE();
             skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();
+
+            exposure = CURRENT_EXPOSURE();
         }
 
         memoryBarrierShared();
@@ -85,7 +93,11 @@
 
         #if defined CHUNK_LOADER_MOD_ENABLED
 
+            nearPlane = modNearPlane;
+            farPlane  = modFarPlane;
+
             if (depth >= 1.0) {
+                
                 modFragment = true;
                 
                 #if defined VOXY
@@ -97,9 +109,6 @@
                 projection         = modProjection;
                 projectionInverse  = modProjectionInverse;
                 projectionPrevious = modProjectionPrevious;
-
-                nearPlane = modNearPlane;
-                farPlane  = modFarPlane;
             }
             
         #endif
@@ -107,7 +116,7 @@
         // Discard sky fragments
 
         if (depth == 1.0) {
-            imageStore(colorimg2, bufferCoords, reflections);
+            STORE_REFLECTIONS(bufferCoords, reflections);
             return;
         }
 
@@ -119,11 +128,9 @@
         // Discard reflections if material's F0 is too low or if roughness is too high
 
         if (F0 <= EPS || alpha > REFLECTIONS_ROUGHNESS_THRESHOLD) {
-            imageStore(colorimg2, bufferCoords, reflections);
+            STORE_REFLECTIONS(bufferCoords, reflections);
             return;
         }
-
-        float exposure = CURRENT_EXPOSURE();
 
         vec3 albedo = unpackAlbedo(dataTexture.z);
 
@@ -175,10 +182,10 @@
             reprojectionDepth = depth + (alpha > 0.1 ? 0.0 : rayLength);
         }
 
-        vec3 velocityReflected     = getVelocity(vec3(pixelCoords, reprojectionDepth), projectionInverse, projectionPrevious);
-        vec3 prevPositionReflected = vec3(scaledPixelCoords, reprojectionDepth) + velocityReflected * RENDER_SCALE;
+        vec2 velocityReflected   = getVelocity(vec3(pixelCoords, reprojectionDepth), projectionInverse, projectionPrevious).xy;
+        vec2 prevCoordsReflected = scaledPixelCoords + velocityReflected * RENDER_SCALE;
 
-        vec4 prevReflections = texture(REFLECTIONS_BUFFER, prevPositionReflected.xy);
+        vec4 prevReflections = texelFetch(REFLECTIONS_BUFFER, ivec2(round(prevCoordsReflected * viewSize)), 0);
 
         bool isHand = depth < handDepth;
 
@@ -194,16 +201,16 @@
         float centerWeightHand = isHand ? sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 : 1.0;
 
         weight *= depthWeight * velocityWeight * centerWeightHand;
-        weight  = saturate(weight);
-        weight *= float(insideScreenBounds(prevPositionReflected.xy, RENDER_SCALE));
+        weight *= float(insideScreenBounds(prevCoordsReflected, RENDER_SCALE));
         weight *= mix(1.0, 0.5, float(isWater));
+        weight  = saturate(weight);
 
         reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
         reflections.a   = log2(prevPosition.z);
 
         // Writing to buffer
 
-        imageStore(colorimg2, bufferCoords, reflections);
+        STORE_REFLECTIONS(bufferCoords, reflections);
     }
     
 #else

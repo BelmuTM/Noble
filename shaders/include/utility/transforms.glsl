@@ -18,6 +18,10 @@
 /*                                                                              */
 /********************************************************************************/
 
+//////////////////////////////////////////////////////////
+/*------------------------ TAA -------------------------*/
+//////////////////////////////////////////////////////////
+
 const vec2 taaOffsets[8] = vec2[8](
     vec2( 0.125,-0.375),
     vec2(-0.125, 0.375),
@@ -32,6 +36,17 @@ const vec2 taaOffsets[8] = vec2[8](
 vec2 taaJitter(vec4 pos) {
     return taaOffsets[framemod] * (pos.w * texelSize);
 }
+
+#if TAA == 1
+
+    #define TAA_JITTER(POSITION) \
+        POSITION.xy += taaJitter(POSITION)
+
+#else
+
+    #define TAA_JITTER(POSITION) ;
+
+#endif
 
 //////////////////////////////////////////////////////////
 /*----------------- MATRIX OPERATIONS ------------------*/
@@ -170,12 +185,14 @@ vec3 reproject(vec3 viewPosition, float distanceToFrag, vec3 offset) {
 
     vec4 prevPosition = gbufferPreviousModelView  * vec4(scenePosition + velocity, 1.0);
          prevPosition = gbufferPreviousProjection * vec4(prevPosition.xyz, 1.0);
+         
     return prevPosition.xyz / prevPosition.w * 0.5 + 0.5;
 }
 
 vec3 getClosestFragment(sampler2D depthTex, vec3 position) {
     vec3 closestFragment = position;
-    vec3 currentFragment;
+    vec3 currentFragment = vec3(0.0);
+
     const int size = 1;
 
     for (int x = -size; x <= size; x++) {
@@ -185,5 +202,6 @@ vec3 getClosestFragment(sampler2D depthTex, vec3 position) {
             closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
         }
     }
+
     return closestFragment;
 }

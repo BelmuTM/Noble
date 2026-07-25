@@ -45,13 +45,12 @@
 
         const float cosThetaThreshold = 0.95; // We can stop searching once cosTheta approaches 1
 
-        vec2 increment   = sliceDir.xy * radius * rcp(GTAO_HORIZON_STEPS);
+        vec2 increment   = sliceDir.xy * radius * RCP_GTAO_HORIZON_STEPS;
         vec2 rayPosition = textureCoords + rand2F() * increment;
 
         for (int i = 0; i < GTAO_HORIZON_STEPS && horizonCosTheta < cosThetaThreshold; i++) {
 
-            ivec2 coords = ivec2(rayPosition * viewSize * RENDER_SCALE);
-            float depth  = texelFetch(depthTex, coords, 0).r;
+            float depth = texelFetch(depthTex, ivec2(rayPosition * viewSize * RENDER_SCALE), 0).r;
 
             if (insideScreenBounds(rayPosition, RENDER_SCALE) && depth < 1.0) {
 
@@ -78,8 +77,8 @@
         float dither = temporalBlueNoise(gl_FragCoord.xy);
 
         for (int i = 0; i < GTAO_SLICES; i++) {
-            float sliceAngle = PI * rcp(GTAO_SLICES) * (i + dither);
-            vec3  sliceDir   = vec3(cos(sliceAngle), sin(sliceAngle), 0.0);
+
+            vec3 sliceDir = vec3(sincos(PI * RCP_GTAO_SLICES * (i + dither)), 0.0);
 
             vec3 axis       = normalize(cross(sliceDir, viewDirection));
             vec3 orthoDir   = cross(viewDirection, axis);
@@ -107,7 +106,7 @@
 
         bentNormal = normalize(bentNormal) - 0.5 * viewDirection;
 
-        float ao = visibility * rcp(GTAO_SLICES);
+        float ao = visibility * RCP_GTAO_SLICES;
 
         ao = 1.0 - saturate((1.0 - ao) * AO_STRENGTH);
 

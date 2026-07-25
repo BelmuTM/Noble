@@ -18,6 +18,9 @@
 /*                                                                              */
 /********************************************************************************/
 
+layout (location = 0) out uvec4 dataOut;
+layout (location = 1) out vec4 translucentsOut;
+
 uniform usampler2D colortex1;
 uniform sampler2D colortex3;
 
@@ -46,9 +49,6 @@ uniform sampler2D vxDepthTexTrans;
 #include "/include/fragment/water.glsl"
 
 #include "/include/post/exposure.glsl"
-
-layout (location = 0) out uvec4 dataOut;
-layout (location = 1) out vec4 translucentsOut;
 
 void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 

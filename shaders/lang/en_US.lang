@@ -151,6 +151,15 @@ value.shadowMapResolution.10240 = §410240x
 
 option.shadowDistance = Shadow Distance
 option.shadowDistance.comment = Adjusts §bShadows§r maximum render distance.
+value.shadowDistance.64 = 4 chunks
+value.shadowDistance.128 = 8 chunks
+value.shadowDistance.256 = 16 chunks
+value.shadowDistance.384 = 24 chunks
+value.shadowDistance.512 = 32 chunks
+value.shadowDistance.768 = 48 chunks
+value.shadowDistance.1024 = 64 chunks
+value.shadowDistance.2048 = 128 chunks
+value.shadowDistance.4096 = 256 chunks
 
 option.CONTACT_SHADOWS = Contact Shadows
 option.CONTACT_SHADOWS.comment = Traces shadows over a short distance to rectify shadowmapping's weaknesses.

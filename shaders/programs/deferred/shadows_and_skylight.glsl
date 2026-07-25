@@ -113,6 +113,7 @@
             farPlane  = modFarPlane;
 
             if (depth >= 1.0) {
+                
                 modFragment = true;
 
                 #if defined VOXY
@@ -207,7 +208,9 @@
                 // POM self-shadowing
 
                 #if POM > 0 && POM_SHADOWING == 1
+
                     shadowmapOut.rgb *= unpackParallaxSelfShadowing(dataTexture.x);
+                    
                 #endif
 
                 // Contact shadows

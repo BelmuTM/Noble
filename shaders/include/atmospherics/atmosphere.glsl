@@ -46,7 +46,7 @@ vec3 getAtmosphereDensities(float centerDist) {
 }
 
 vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 attenuationCoefficients) {
-    float stepSize   = intersectSphere(origin, lightDirection, atmosphereUpperRadius).y * rcp(ATMOSPHERE_TRANSMITTANCE_STEPS);
+    float stepSize   = intersectSphere(origin, lightDirection, atmosphereUpperRadius).y * RCP_ATMOSPHERE_TRANSMITTANCE_STEPS;
     vec3 increment   = lightDirection * stepSize;
     vec3 rayPosition = origin + increment * 0.5;
 
@@ -66,7 +66,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
         vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, atmosphereLowerRadius, atmosphereUpperRadius);
         if (dists.y < 0.0) return vec3(0.0);
 
-        float stepSize   = (dists.y - dists.x) * rcp(ATMOSPHERE_SCATTERING_STEPS);
+        float stepSize   = (dists.y - dists.x) * RCP_ATMOSPHERE_SCATTERING_STEPS;
         vec3 increment   = rayDirection * stepSize;
         vec3 rayPosition = atmosphereRayPosition + increment * 0.5;
 

@@ -114,26 +114,31 @@ float densityAlter(float altitude, float weatherMap) {
     return densityAlter;
 }
 
-const float WORLEY_CELLS_COUNT = 1.0 / 16.0;
+const float WORLEY_CELLS_COUNT     = 16.0;
+const float RCP_WORLEY_CELLS_COUNT = 1.0 / WORLEY_CELLS_COUNT;
+const float RCP_WORLEY_LENGTH      = 1.0 / length(vec2(RCP_WORLEY_CELLS_COUNT));
 
-vec2 getCellPoint(ivec2 cell) {
-    return (cell + hash22(cell)) * WORLEY_CELLS_COUNT;
+vec2 getCellPoint(vec2 cell) {
+    return (cell + hash22(cell)) * RCP_WORLEY_CELLS_COUNT;
 }
 
 float worley(vec2 coords) {
-    ivec2 cell = ivec2(floor(coords / WORLEY_CELLS_COUNT));
+    vec2 cell = floor(coords * WORLEY_CELLS_COUNT);
+    
     float dist = 1.0;
 
-    const int neighbourhoodSize = 2;
+    const int neighbourhoodSize = 1;
     
-    for (int x = -neighbourhoodSize; x < neighbourhoodSize; x++) { 
-        for (int y = -neighbourhoodSize; y < neighbourhoodSize; y++) {
-            dist = min(dist, distance(getCellPoint(cell + ivec2(x, y)), coords));
+    for (int x = -neighbourhoodSize; x <= neighbourhoodSize; x++) { 
+        for (int y = -neighbourhoodSize; y <= neighbourhoodSize; y++) {
+            dist = min(dist, distance(getCellPoint(cell + vec2(x, y)), coords));
         }
     }
     
-    return 1.0 - dist / length(vec2(WORLEY_CELLS_COUNT));
+    return 1.0 - dist * RCP_WORLEY_LENGTH;
 }
+
+#define OLD_CLOUDS_SHAPE
 
 float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer) {
     
@@ -151,17 +156,32 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
         float wetnessFactor = 0.13 * max0(1.0 - wetness);
 
-        float worley = worley(scaledCoords * 0.06);
+        #if defined OLD_CLOUDS_SHAPE
 
-        weatherMap  = FBM(scaledCoords, layer.octaves, layer.frequency);
-        weatherMap *= weatherMap;
-        weatherMap *= fastSqrtN1(texture(noisetex, scaledCoords).g);
-        weatherMap += worley * worley * worley * (1.0 + wetnessFactor);
-        weatherMap -= wetnessFactor;
+            float worley = worley(scaledCoords * 0.06);
+
+            weatherMap  = FBM(scaledCoords * 1.0, layer.octaves, layer.frequency, 2.0, 0.5);
+            weatherMap *= weatherMap;
+            weatherMap *= fastSqrtN1(texture(noisetex, scaledCoords).g);
+            weatherMap += worley * worley * worley * (1.0 + wetnessFactor);
+            weatherMap -= wetnessFactor;
+
+        #else
+
+            // Bad attempt
+            
+            float worley = 1.0 - texture(noisetex, scaledCoords * 0.1).g * 0.8 - 0.1;
+
+            weatherMap  = FBM(scaledCoords * 3.0, layer.octaves, layer.frequency, 2.0, 0.5);
+            weatherMap += worley * worley;
+
+            weatherMap = smoothstep(0.0, 1.0, weatherMap * 0.6);
+
+        #endif
 
     } else {
 
-        weatherMap  = FBM(scaledCoords, layer.octaves, layer.frequency);
+        weatherMap  = FBM(scaledCoords, layer.octaves, layer.frequency, 2.0, 0.5);
         weatherMap *= saturate(texture(noisetex, position.xz * 2e-4).b * 0.8 + 0.5);
 
     }
@@ -190,7 +210,9 @@ float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int ste
     float jitter = animated ? randF() : bayer32(gl_FragCoord.xy);
 
     for (int i = 0; i < stepCount; i++) {
+
         float density = calculateCloudsDensity(rayPosition + lightDirection * stepSize * jitter, layer, isLowerLayer);
+        
         opticalDepth += density * stepSize;
         rayPosition  += lightDirection * stepSize;
     }
@@ -263,6 +285,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
             mieAnisotropyFactors = pow(mieAnisotropyFactors, vec3(1.0 + directOpticalDepth));
             
             for (int j = 0; j < cloudsMultiScatterSteps; j++) {
+                
                 stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * directOpticalDepth) * cloudsPhase    * powderSun;
                 stepScattering.x += scatteringCoefficient * exp(-extinctionCoefficient * groundOpticalDepth) * bouncedLight   * powder;
                 stepScattering.y += scatteringCoefficient * exp(-extinctionCoefficient * skyOpticalDepth   ) * isotropicPhase * powderSky;

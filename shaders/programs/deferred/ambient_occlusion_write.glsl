@@ -69,6 +69,7 @@
             #if defined CHUNK_LOADER_MOD_ENABLED
 
                 if (depth >= 1.0) {
+                    
                     modFragment = true;
 
                     #if defined VOXY

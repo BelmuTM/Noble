@@ -26,10 +26,10 @@ void wavingLeaves(inout vec3 worldPosition, float skyFalloff) {
 
         worldPosition += cameraPosition;
 
-        float rng = 1.0 + FBM(worldPosition * vec3(0.3, 0.5, 0.3), 1, 1.0);
+        float rng = 1.0 + FBM(worldPosition * vec3(0.3, 0.5, 0.3), 1, 1.0, 2.0, 0.5);
 
         vec3 offset  = sin(worldPosition * 1.4 + windDirection * rng * vec3(2.0, 1.5, 2.0)) * vec3(0.04, 0.06, 0.04);
-            offset *= skyFalloff;
+             offset *= skyFalloff;
 
         worldPosition += offset;
         worldPosition -= cameraPosition;
@@ -42,10 +42,10 @@ void wavingPlants(inout vec3 worldPosition, float skyFalloff, bool isTopVertex, 
 
         worldPosition += cameraPosition;
 
-        float rng = 1.0 + FBM(worldPosition.xz, 1, 1.5);
+        float rng = 1.0 + FBM(worldPosition.xz, 1, 1.5, 2.0, 0.5);
 
         vec2 offset  = sin(worldPosition.xz * 1.4 + rng * windDirection.xz) * 0.1 + vec2(0.06, -0.03);
-            offset *= (isTopBlock ? 1.0 : float(isTopVertex)) * skyFalloff;
+             offset *= (isTopBlock ? 1.0 : float(isTopVertex)) * skyFalloff;
 
         worldPosition.xz += offset;
         worldPosition    -= cameraPosition;
@@ -59,9 +59,13 @@ void swingingLanterns(inout vec3 worldPosition, bool isBottomVertex) {
         worldPosition += cameraPosition;
 
         vec3 localOrigin   = worldPosition + at_midBlock / 64.0;
-            localOrigin.y = ceil(localOrigin.y);
+             localOrigin.y = ceil(localOrigin.y);
 
-        vec2 rng      = vec2(FBM(floor(worldPosition.xz + vec2(150.0)), 1, 5.0), FBM(floor(worldPosition.xz), 1, 10.0)) * 2.0 - 1.0;
+        vec2 rng = vec2(
+            FBM(floor(worldPosition.xz + vec2(150.0)), 1, 5.0, 2.0, 0.5),
+            FBM(floor(worldPosition.xz), 1, 10.0, 2.0, 0.5)
+        ) * 2.0 - 1.0;
+
         vec2 rotation = sincos(frameTimeCounter * 1.5) * vec2(7.0 * (rng.y * 2.0 + rng.x * 4.0), 10.0 * (rng.y * 6.0)) * 0.1;
 
         worldPosition -= localOrigin;

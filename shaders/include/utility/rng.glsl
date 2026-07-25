@@ -119,26 +119,36 @@ float noise(vec3 pos) {
 const float fbmLacunarity  = 2.0;
 const float fbmPersistance = 0.5;
 
-float FBM(vec2 uv, int octaves, float frequency) {
+float FBM(vec2 uv, int octaves, float frequency, float lacunarity, float persistance) {
     float height    = 0.0;
     float amplitude = 1.0;
+
+    float totalAmplitude = EPS;
 
     for (int i = 0; i < octaves; i++) {
         height    += noise(uv * frequency) * amplitude;
-        frequency *= fbmLacunarity;
-        amplitude *= fbmPersistance;
+        frequency *= lacunarity;
+        amplitude *= persistance;
+
+        totalAmplitude += amplitude;
     }
+
     return height;
 }
 
-float FBM(vec3 pos, int octaves, float frequency) {
+float FBM(vec3 pos, int octaves, float frequency, float lacunarity, float persistance) {
     float height    = 0.0;
     float amplitude = 1.0;
 
+    float totalAmplitude = EPS;
+
     for (int i = 0; i < octaves; i++) {
         height    += noise(pos * frequency) * amplitude;
-        frequency *= fbmLacunarity;
-        amplitude *= fbmPersistance;
+        frequency *= lacunarity;
+        amplitude *= persistance;
+
+        totalAmplitude += amplitude;
     }
+
     return height;
 }

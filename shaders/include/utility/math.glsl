@@ -39,6 +39,7 @@ const float PI      = radians(180.0);
 const float HALF_PI = PI * 0.5;
 const float RCP_PI  = 1.0 / PI;
 const float TAU     = PI * 2.0;
+const float RCP_TAU = 1.0 / TAU;
 
 const float GOLDEN_ANGLE = PI * (3.0 - sqrt(5.0));
 const float GOLDEN_RATIO = sqrt(5.0) * 0.5 + 0.5;
@@ -210,7 +211,7 @@ vec2 projectSphere(vec3 direction) {
     float longitude = atan(-direction.x, -direction.z);
     float latitude  = fastAcos(direction.y);
 
-    return vec2(longitude * rcp(TAU) + 0.5, latitude * RCP_PI);
+    return vec2(longitude * RCP_TAU + 0.5, latitude * RCP_PI);
 }
 
 vec3 unprojectSphere(vec2 coords) {

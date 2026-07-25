@@ -91,7 +91,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 
     #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
 
-        vec4 cloudsBuffer = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE));
+        vec4 cloudsBuffer = texture(CLOUDS_BUFFER, coords * RCP_RENDER_SCALE);
 
         // Clouds aerial perspective
         float distanceFalloff = pow5(1.0 - quinticStep(0.0, 1.0, exp(-4e-5 * cloudsBuffer.a)));
@@ -124,7 +124,7 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
 
         #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
 
-            cloudsTransmittance = texture(CLOUDS_BUFFER, coords * rcp(RENDER_SCALE)).b;
+            cloudsTransmittance = texture(CLOUDS_BUFFER, coords * RCP_RENDER_SCALE).b;
 
         #endif
 

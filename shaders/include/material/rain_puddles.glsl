@@ -23,12 +23,10 @@ float calculatePuddleRipples(vec2 position) {
 
     float time = frameTimeCounter * 1.1;
 
-    position *= 1.5;
-
-    float ripple  = texture(noisetex, position + time * rippleOffsets[0]).b;
-          ripple += texture(noisetex, position + time * rippleOffsets[1]).b;
-          ripple += texture(noisetex, position + time * rippleOffsets[2]).b;
-          ripple += texture(noisetex, position + time * rippleOffsets[3]).b;
+    float ripple  = texture(noisetex, position + time * rippleOffsets[0]).a * 0.25;
+          ripple += texture(noisetex, position + time * rippleOffsets[1]).a * 0.25;
+          ripple += texture(noisetex, position + time * rippleOffsets[2]).a * 0.25;
+          ripple += texture(noisetex, position + time * rippleOffsets[3]).a * 0.25;
 
     return ripple;
 }
@@ -45,21 +43,32 @@ vec3 getPuddleNormals(vec2 position, float strength) {
     return normalize(vec3(-steps.x, dStep * 2.0, -steps.y));
 }
 
-void rainPuddles(vec3 scenePosition, vec3 geometricNormal, vec2 lightmapCoords, float porosity, inout float F0, inout float roughness, inout vec3 normal) {
-    vec2 puddleCoords = ((scenePosition + cameraPosition).xz * 0.5 + 0.5) * (1.0 - RAIN_PUDDLES_SIZE * 0.01);
+void rainPuddles(
+    vec3 scenePosition,
+    vec3 geometricNormal,
+    vec2 lightmapCoords,
+    float porosity,
+    inout vec3 albedo,
+    inout vec3 normal,
+    inout float F0,
+    inout float roughness
+) {
+    const float puddleScalingFactor = 1.0 - RAIN_PUDDLES_SIZE * 0.01; // 100% - X%
+    
+    vec2 puddleCoords = ((scenePosition + cameraPosition).xz * 0.5 + 0.5) * puddleScalingFactor;
 
-    float puddle  = saturate(FBM(puddleCoords, 3, 1.0) * 0.5 + 0.5);
+    float puddle  = saturate(texture(noisetex, puddleCoords * 0.1).a * 0.6 + 0.4);
           puddle *= pow2(quinticStep(0.0, 1.0, lightmapCoords.y));
-          puddle *= quinticStep(0.89, 0.99, geometricNormal.y);
+          puddle *= linearStep(0.89, 0.99, geometricNormal.y);
           puddle *= (1.0 - porosity);
-          puddle *= wetness;
+          puddle *= wetness * biome_may_rain;
           puddle  = saturate(puddle);
-          
-    puddle *= biome_may_rain;
 
-    vec3 surfaceNormal = mix(geometricNormal, getPuddleNormals(puddleCoords, 0.1), 0.035 * rainStrength);
+    albedo *= 1.0 - puddle * RAIN_PUDDLES_ABSORPTION;
 
-    F0        = clamp(F0 + waterF0 * puddle, 0.0, mix(1.0, labPBRMetals * rcpMaxFloat8, float(F0 * maxFloat8 <= labPBRMetals)));
+    vec3 surfaceNormal = mix(geometricNormal, getPuddleNormals(puddleCoords, 0.1), rainStrength * 0.1);
+
+    F0        = max(F0, mix(F0, waterF0, puddle));
     roughness = mix(roughness, 0.0, puddle);
-    normal    = mix(normal, surfaceNormal, puddle);
+    normal    = mix(normal, surfaceNormal, puddle * puddle);
 }

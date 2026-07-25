@@ -31,7 +31,7 @@
                                                                                   \
     vec2 direction = vec2(0.1, 0.1);                                              \
                                                                                   \
-    float noise = FBM(position * 4e-2, 3, 1.0);
+    float noise = FBM(position * 4e-2, 3, 1.0, 2.0, 0.5);
 
 
 #define WAVE_GERSTNER_PARAMS_FACTOR()        \
@@ -43,7 +43,7 @@
 
 
 #define WAVE_GERSTNER_TIME_NOISE() \
-    time + noise * 0.0
+    time + noise * 5.0
 
 
 const float g = 9.81; // Earth's gravitational constant

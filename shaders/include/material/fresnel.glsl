@@ -83,3 +83,11 @@ vec3 fresnelDielectricConductor(float cosTheta, vec3 eta, vec3 etaK) {
 
    return saturate((Rp + Rs) * 0.5);
 }
+
+float fresnelSchlick(float cosTheta, float F0) {
+    return saturate(F0 + (1.0 - F0) * pow5(1.0 - cosTheta));
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+    return saturate(F0 + (1.0 - F0) * pow5(1.0 - cosTheta));
+}

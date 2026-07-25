@@ -109,6 +109,7 @@
             farPlane  = modFarPlane;
 
             if (depth0 >= 1.0) {
+                
                 modFragment = true;
 
                 #if defined VOXY
@@ -235,7 +236,7 @@
 
                 // Direct (sun/moon) specular
 
-                if (maxOf(visibility) > EPS && material.F0 > EPS) {
+                if (maxOf(visibility) > EPS) {
 
                     directSpecular = computeSpecular(
                         -normalize(viewPosition0),

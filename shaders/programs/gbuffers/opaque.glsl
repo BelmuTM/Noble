@@ -98,9 +98,7 @@
         gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
-        #if TAA == 1
-            gl_Position.xy += taaJitter(gl_Position);
-        #endif
+        TAA_JITTER(gl_Position);
     }
 
 #elif defined STAGE_FRAGMENT
@@ -136,7 +134,7 @@
         #endif
 
         #if RAIN_PUDDLES == 1
-            #include "/include/material/puddles.glsl"
+            #include "/include/material/rain_puddles.glsl"
         #endif
         
     #endif
@@ -276,10 +274,12 @@
 
         #if defined PROGRAM_TERRAIN && RAIN_PUDDLES == 1
 
-            if (wetness > 0.0 && isEyeInWater == 0) {
+            if (wetness > 0.0 && biome_may_rain > 0.0 && isEyeInWater == 0) {
+
                 float porosity = saturate(specularTexture.z * (maxFloat8 / 64.0));
                 
-                rainPuddles(scenePosition, tbn[2], lightmapCoords, porosity, F0, roughness, normal);
+                rainPuddles(scenePosition, tbn[2], lightmapCoords, porosity, albedoTexture.rgb, normal, F0, roughness);
+
             }
 
         #endif
@@ -327,9 +327,11 @@
         // Flickering fire-powered light sources
         if (blockId >= FIRE_ID && blockId <= HANGING_LANTERN_ID) {
             
-            const float speed = 4.0;
-            float rng         = FBM(ceil(scenePosition + cameraPosition) + frameTimeCounter * speed * 0.1, 1, 0.5);
-            float flickering  = mix(mix(0.8, 0.95, rng), 1.0, (sin(frameTimeCounter * speed * mix(0.3, 0.5, rng)) + 1.0) * 0.5);
+            float time = frameTimeCounter * FLICKERING_LIGHTS_SPEED;
+
+            float rng = FBM(ceil(scenePosition + cameraPosition) + time * 0.1, 1, 0.5, 2.0, 0.5);
+
+            float flickering  = mix(mix(0.8, 0.95, rng), 1.0, (sin(time * mix(0.3, 0.5, rng)) + 1.0) * 0.5);
 
             lightmap.x *= flickering;
             emission   *= flickering;

@@ -18,6 +18,8 @@
 /*                                                                              */
 /********************************************************************************/
 
+layout (location = 0) out uvec4 dataOut;
+
 uniform usampler2D colortex1;
 
 uniform sampler2D vxDepthTexOpaque;
@@ -38,7 +40,9 @@ uniform sampler2D vxDepthTexTrans;
 
 #include "/include/material/material.glsl"
 
-layout (location = 0) out uvec4 dataOut;
+#if RAIN_PUDDLES == 1
+    #include "/include/material/rain_puddles.glsl"
+#endif
 
 void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     uint blockId = max(0u, voxyParameters.customId - 1000u);
@@ -49,7 +53,34 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         albedo = vec3(1.0);
     #endif
 
+    uint  axis = voxyParameters.face >> 1u;
+    float sign = float((voxyParameters.face & 1u) * 2.0 - 1.0);
+
+    vec3 normal = sign * vec3(
+        bvec3(axis == 2u, axis == 0u, axis == 1u)
+    );
+
+    float F0 = 0.0;
+
     float roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0);
+
+    // Rain puddles
+
+    #if RAIN_PUDDLES == 1
+
+        if (wetness > 0.0 && biome_may_rain > 0.0 && isEyeInWater == 0) {
+
+            vec3 screenPosition = vec3(gl_FragCoord.xy * texelSize, gl_FragCoord.z);
+            vec3 viewPosition   = screenToView(screenPosition, vxProjInv, false);
+            vec3 scenePosition  = transform(vxModelViewInv, viewPosition);
+            
+            rainPuddles(scenePosition, normal, voxyParameters.lightMap, 0.0, albedo, normal, F0, roughness);
+
+        }
+
+    #endif
+
+    // Hardcoded LabPBR values
 
     float emission = 0.0;
 
@@ -71,19 +102,12 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
     #endif
 
-    uint  axis = voxyParameters.face >> 1u;
-    float sign = float((voxyParameters.face & 1u) * 2.0 - 1.0);
-
-    vec3 normal = sign * vec3(
-        bvec3(axis == 2u, axis == 0u, axis == 1u)
-    );
-
     // Material encoding
 
     vec2 encodedNormal = encodeUnitVector(normalize(normal));
 
     dataOut = storeMaterial(
-        0.0,
+        F0,
         roughness,
         1.0,
         emission,

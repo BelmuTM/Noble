@@ -74,9 +74,7 @@
         gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
-        #if TAA == 1
-            gl_Position.xy += taaJitter(gl_Position);
-        #endif
+        TAA_JITTER(gl_Position);
     }
 
 #elif defined STAGE_FRAGMENT
