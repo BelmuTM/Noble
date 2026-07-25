@@ -124,16 +124,20 @@
         #if EXPOSURE > 0
 
             #if EXPOSURE == 1
+
                 avgLuminance = luminance(texture(ILLUMINANCE_BUFFER, vec2(0.25)).rgb);
+                
             #else
 
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
 
                 #if DEBUG_HISTOGRAM == 1
+
                     for (int i = 0; i < HISTOGRAM_BINS; i++) {
                         // Normalizing the PDF
                         luminanceHistogram[i >> 2][i & 3] = pdf[i] * tileSize.x * tileSize.y;
                     }
+
                 #endif
 
                 avgLuminance = getGeometricMeanLuminance(pdf);
@@ -181,7 +185,7 @@
 
     void main() {
 
-        historyOut.rgb = texture(MAIN_BUFFER, textureCoords).rgb;
+        historyOut = texture(MAIN_BUFFER, textureCoords);
 
         #if EXPOSURE > 0
 

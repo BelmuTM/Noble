@@ -98,6 +98,7 @@
     #include "/include/post/exposure.glsl"
 
     void main() {
+        
         translucentsOut = vec4(0.0);
 
         #if DOWNSCALED_RENDERING == 1
@@ -112,9 +113,9 @@
     
         if (linearDepth < linearDepthDh && depth < 1.0) { return; }
 
-        vec3 albedo = vertexColor.rgb;
-
         Material material;
+
+        material.albedo = vertexColor.rgb;
 
         material.lightmap = lightmapCoords;
         material.normal   = vertexNormal;
@@ -125,10 +126,10 @@
         // WOTAH
         if (blockId == DH_BLOCK_WATER) {
 
-            material.F0        = waterF0;
-            material.alpha     = 0.0;
-            material.emission  = 0.0;
-            albedo             = vec3(0.0);
+            material.F0       = waterF0;
+            material.alpha    = 0.0;
+            material.emission = 0.0;
+            material.albedo   = vec3(0.0);
 
             material.normal = getWaterNormal(scenePosition + cameraPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES);
 
@@ -148,11 +149,7 @@
                 material.albedo = vec3(1.0);
             #endif
 
-            #if TONEMAP == ACES
-                material.albedo = srgbToAP1Albedo(albedo);
-            #else
-                material.albedo = srgbToLinear(albedo);
-            #endif
+            material.albedo = SRGB_TO_WORKING_SPACE(material.albedo);
 
             material.N = vec3(f0ToIOR(material.F0));
             material.K = vec3(0.0);
@@ -193,7 +190,7 @@
             material.ao,
             material.emission,
             material.subsurface,
-            albedo,
+            material.albedo,
             encodedNormal,
             material.lightmap,
             1.0,

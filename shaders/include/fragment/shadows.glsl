@@ -102,13 +102,10 @@ vec3 getShadowColor(vec3 samplePosition) {
 
     float shadowDepth0 = shadowVisibility(shadowtex0, samplePosition);
     float shadowDepth1 = shadowVisibility(shadowtex1, samplePosition);
-    vec4  shadowColor  = texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0);
-    
-    #if TONEMAP == ACES
-        shadowColor.rgb = srgbToAP1Albedo(shadowColor.rgb);
-    #else
-        shadowColor.rgb = srgbToLinear(shadowColor.rgb);
-    #endif
+
+    vec4 shadowColor = texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0);
+
+    shadowColor.rgb = SRGB_TO_WORKING_SPACE(shadowColor.rgb);
 
     return mix(vec3(shadowDepth0), shadowColor.rgb * (1.0 - shadowColor.a), saturate(shadowDepth1 - shadowDepth0));
 }

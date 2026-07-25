@@ -19,6 +19,7 @@
 /********************************************************************************/
 
 #include "/settings.glsl"
+
 #include "/include/internal_settings.glsl"
 
 #include "/include/taau_scale.glsl"
@@ -30,6 +31,7 @@
 #else
 
     #if defined STAGE_VERTEX
+    
         #include "/programs/vertex_taau.glsl"
 
     #elif defined STAGE_FRAGMENT

@@ -51,15 +51,16 @@ layout (location = 0) out uvec4 dataOut;
 layout (location = 1) out vec4 translucentsOut;
 
 void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
-    uint blockId = max(0u, voxyParameters.customId - 1000u);
-
-    vec3 albedo = voxyParameters.sampledColour.rgb * voxyParameters.tinting.rgb;
-
-    Material material;
 
     translucentsOut = vec4(0.0);
 
+    Material material;
+
+    material.albedo = voxyParameters.sampledColour.rgb * voxyParameters.tinting.rgb;
+
     material.lightmap = saturate(voxyParameters.lightMap);
+
+    material.id = max(0u, voxyParameters.customId - 1000u);
 
     uint  axis = voxyParameters.face >> 1u;
     float sign = float((voxyParameters.face & 1) * 2.0 - 1.0);
@@ -78,10 +79,10 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     // WOTAH
     if (blockId == WATER_ID) {
 
-        material.F0        = waterF0;
-        material.alpha     = 0.0;
-        material.emission  = 0.0;
-        albedo             = vec3(0.0);
+        material.F0       = waterF0;
+        material.alpha    = 0.0;
+        material.emission = 0.0;
+        material.albedo   = vec3(0.0);
 
         const mat3 tbn = mat3(
             vec3(1.0, 0.0, 0.0),
@@ -100,20 +101,18 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         material.alpha = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
 
         #if HARDCODED_EMISSION == 1
+        
             if (blockId >= LAVA_ID && blockId < SSS_ID) {
                 material.emission = HARDCODED_EMISSION_VAL;
             }
+
         #endif
 
         #if WHITE_WORLD == 1
             material.albedo = vec3(1.0);
         #endif
 
-        #if TONEMAP == ACES
-            material.albedo = srgbToAP1Albedo(albedo);
-        #else
-            material.albedo = srgbToLinear(albedo);
-        #endif
+        material.albedo = SRGB_TO_WORKING_SPACE(material.albedo);
 
         material.N = vec3(f0ToIOR(material.F0));
         material.K = vec3(0.0);
@@ -158,7 +157,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         material.ao,
         material.emission,
         material.subsurface,
-        albedo,
+        material.albedo,
         encodedNormal,
         material.lightmap,
         1.0,

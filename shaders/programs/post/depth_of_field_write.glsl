@@ -22,9 +22,13 @@
 #include "/include/taau_scale.glsl"
 
 #if DOF == 0
+
     #include "/programs/discard.glsl"
+    
 #else
+
     #if defined STAGE_VERTEX
+
         #include "/programs/vertex_taau.glsl"
 
     #elif defined STAGE_FRAGMENT
@@ -113,4 +117,5 @@
         }
         
     #endif
+
 #endif

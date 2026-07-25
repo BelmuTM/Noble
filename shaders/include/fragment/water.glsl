@@ -19,18 +19,18 @@
 /********************************************************************************/
 
 
-#define WAVE_GERSTNER_SETUP()                                                    \
-    float speed      = WAVE_SPEED;                                               \
-    float steepness  = WAVE_STEEPNESS;                                           \
-    float amplitude  = WAVE_AMPLITUDE;                                           \
-    float wavelength = WAVE_LENGTH * 1.0;                                        \
-    float time       = frameTimeCounter * speed;                                 \
-                                                                                 \
-    const float angle   = radians(WAVE_ANGLE);                                   \
-    const mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)); \
-                                                                                 \
-    vec2 direction = vec2(0.1, 0.1);                                             \
-                                                                                 \
+#define WAVE_GERSTNER_SETUP()                                                     \
+    float speed      = WAVE_SPEED;                                                \
+    float steepness  = WAVE_STEEPNESS;                                            \
+    float amplitude  = WAVE_AMPLITUDE;                                            \
+    float wavelength = WAVE_LENGTH * 1.0;                                         \
+    float time       = frameTimeCounter * speed;                                  \
+                                                                                  \
+    const float angle    = radians(WAVE_ANGLE);                                   \
+    const mat2  rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)); \
+                                                                                  \
+    vec2 direction = vec2(0.1, 0.1);                                              \
+                                                                                  \
     float noise = FBM(position * 4e-2, 3, 1.0);
 
 
@@ -43,7 +43,7 @@
 
 
 #define WAVE_GERSTNER_TIME_NOISE() \
-    time + noise * 5.0
+    time + noise * 0.0
 
 
 const float g = 9.81; // Earth's gravitational constant
@@ -118,6 +118,7 @@ vec2 calculateWaveDerivativeGerstner(vec2 position, int octaves) {
 }
 
 vec3 getWaterNormal(vec3 worldPosition, vec3 worldNormal, int octaves, float strength) {
+
     vec2 waveDerivative = calculateWaveDerivativeGerstner(worldPosition.xz, octaves) * strength;
 
     // Attenuating water normals for grazing angles to prevent noise
@@ -144,6 +145,7 @@ vec3 getWaterNormal(vec3 worldPosition, vec3 worldNormal, int octaves) {
 }
 
 vec2 parallaxMappingWater(vec2 coords, vec3 tangentDirection, int octaves) {
+    
     const float layerHeight = 1.0 / WATER_PARALLAX_LAYERS;
 
     vec2 increment = tangentDirection.xy / tangentDirection.z * WATER_PARALLAX_DEPTH * layerHeight;

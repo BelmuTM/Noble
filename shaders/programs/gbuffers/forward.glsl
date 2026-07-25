@@ -121,6 +121,7 @@
     #endif
 
     void main() {
+        
         translucentsOut = vec4(0.0);
 
         #if DOWNSCALED_RENDERING == 1
@@ -274,11 +275,7 @@
 
             if (!isMetal && shadeTranslucents) {
 
-                #if TONEMAP == ACES
-                    material.albedo = srgbToAP1Albedo(material.albedo);
-                #else
-                    material.albedo = srgbToLinear(material.albedo);
-                #endif
+                material.albedo = SRGB_TO_WORKING_SPACE(material.albedo);
 
                 material.N = vec3(f0ToIOR(material.F0));
                 material.K = vec3(0.0);

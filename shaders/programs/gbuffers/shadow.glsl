@@ -98,6 +98,7 @@
 
     void main() {
         vec4 albedoTexture = texture(gtexture, textureCoords);
+        
         albedoTexture.rgb *= vertexColor.rgb;
 
         if (albedoTexture.a < alphaTestThreshold) { discard; return; }

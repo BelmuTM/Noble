@@ -151,9 +151,27 @@ vec3 ap1ToLinear(vec3 color) {
     return (AP1_2_XYZ_MAT * color) * XYZ_2_SRGB_MAT;
 }
 
-vec3 srgbToAP1Albedo(vec3 color) {
+vec3 srgbToLinearAP1(vec3 color) {
     return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
 }
+
+#if TONEMAP == ACES
+
+    #define SRGB_TO_WORKING_SPACE(SRGB_COLOR) \
+        srgbToLinearAP1(SRGB_COLOR)
+
+    #define SRGB_TO_WORKING_SPACE_ALBEDO(ALBEDO_SRGB_COLOR) \
+        ALBEDO_SRGB_COLOR * SRGB_2_AP1_ALBEDO
+
+#else
+
+    #define SRGB_TO_WORKING_SPACE(SRGB_COLOR) \
+        srgbToLinear(SRGB_COLOR)
+
+    #define SRGB_TO_WORKING_SPACE_ALBEDO(ALBEDO_SRGB_COLOR) \
+        ALBEDO_SRGB_COLOR
+
+#endif
 
 vec3 fromYCoCg(vec3 color) {
     float r = color.x + color.y - color.z;

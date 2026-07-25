@@ -48,7 +48,7 @@ const vec3 rayleighScatteringCoefficientsRain = vec3(6.42e-5, 6.98e-5, 8.9e-5);
 const vec3 mieScatteringCoefficientsRain      = vec3(1e-5);
 
 vec3 rayleighScatteringCoefficients = mix(rayleighScatteringCoefficientsSunny, rayleighScatteringCoefficientsRain, wetness * biome_may_rain);
-vec3 mieScatteringCoefficients      = mix(mieScatteringCoefficientsSunny, mieScatteringCoefficientsRain, wetness * biome_may_rain);
+vec3 mieScatteringCoefficients      = mix(mieScatteringCoefficientsSunny     , mieScatteringCoefficientsRain     , wetness * biome_may_rain);
 
 const vec3 ozoneExtinctionCoefficients = vec3(4.51103766177301e-21, 3.2854797958699e-21, 1.96774621921165e-22) * ozoneNumberDensity * ozoneUnitConversion;
 
@@ -57,23 +57,27 @@ const vec3 mieScatteringCoefficientsEnd      = vec3(5.2e-3, 7e-3, 5e-3);
 const vec3 rayleighExtinctionCoefficientsEnd = vec3(3e-5, 2e-4, 4e-5);
 const vec3 mieExtinctionCoefficientsEnd      = vec3(7e-3, 2e-2, 9e-3) / mieScatteringAlbedo;
 
-#if TONEMAP == ACES
+mat2x3 atmosphereScatteringCoefficients = mat2x3(
+    SRGB_TO_WORKING_SPACE_ALBEDO(rayleighScatteringCoefficients),
+    SRGB_TO_WORKING_SPACE_ALBEDO(mieScatteringCoefficients)
+);
 
-    mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO,  mieScatteringCoefficients * SRGB_2_AP1_ALBEDO);
-    mat3x3 atmosphereAttenuationCoefficients = mat3x3(rayleighScatteringCoefficients * SRGB_2_AP1_ALBEDO, (mieScatteringCoefficients * SRGB_2_AP1_ALBEDO) / mieScatteringAlbedo, ozoneExtinctionCoefficients * SRGB_2_AP1_ALBEDO);
+mat3x3 atmosphereAttenuationCoefficients = mat3x3(
+    SRGB_TO_WORKING_SPACE_ALBEDO(rayleighScatteringCoefficients),
+    SRGB_TO_WORKING_SPACE_ALBEDO(mieScatteringCoefficients / mieScatteringAlbedo),
+    SRGB_TO_WORKING_SPACE_ALBEDO(ozoneExtinctionCoefficients)
+);
 
-    const mat2x3 atmosphereScatteringCoefficientsEnd  = mat2x3(rayleighScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO,  mieScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO);
-    const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(rayleighScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO, (mieScatteringCoefficientsEnd * SRGB_2_AP1_ALBEDO) / mieScatteringAlbedo, vec3(0.0));
+const mat2x3 atmosphereScatteringCoefficientsEnd = mat2x3(
+    SRGB_TO_WORKING_SPACE_ALBEDO(rayleighScatteringCoefficientsEnd),
+    SRGB_TO_WORKING_SPACE_ALBEDO(mieScatteringCoefficientsEnd)
+);
 
-#else
-
-    mat2x3 atmosphereScatteringCoefficients  = mat2x3(rayleighScatteringCoefficients, mieScatteringCoefficients);
-    mat3x3 atmosphereAttenuationCoefficients = mat3x3(rayleighScatteringCoefficients, mieScatteringCoefficients / mieScatteringAlbedo, ozoneExtinctionCoefficients);
-
-    const mat2x3 atmosphereScatteringCoefficientsEnd  = mat2x3(rayleighScatteringCoefficientsEnd, mieScatteringCoefficientsEnd);
-    const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(rayleighExtinctionCoefficientsEnd, mieExtinctionCoefficientsEnd, vec3(0.0));
-
-#endif
+const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(
+    SRGB_TO_WORKING_SPACE_ALBEDO(rayleighExtinctionCoefficientsEnd),
+    SRGB_TO_WORKING_SPACE_ALBEDO(mieExtinctionCoefficientsEnd),
+    vec3(0.0)
+);
 
 vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 
@@ -81,7 +85,7 @@ vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 
 const float cloudsFallbackDistance = 65534.0;
 
-const float cloudsExtinctionCoefficient = 0.07;
+const float cloudsExtinctionCoefficient = 0.05;
 const float cloudsScatteringCoefficient = 0.99;
 const float cloudsTransmitThreshold     = 0.05;
 

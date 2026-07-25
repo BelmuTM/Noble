@@ -24,7 +24,7 @@
         Zombye     - skylight falloff function (https://github.com/zombye)
 */
 
-const float labPBRMetals = 229.5;
+const float airIOR = 1.00029;
 
 const vec3 labPBRData0Range = vec3(1.0, 8191.0, 4095.0);
 
@@ -48,24 +48,43 @@ struct Material {
     uint id;
 };
 
-const float airIOR = 1.00029;
+// Conversion functions
+
+float f0ToIOR(float F0) {
+    F0 = sqrt(F0) * 0.99999;
+    return airIOR * ((1.0 + F0) / (1.0 - F0));
+}
+
+vec3 f0ToIOR(vec3 F0) {
+    F0 = sqrt(F0) * 0.99999;
+    return airIOR * ((1.0 + F0) / (1.0 - F0));
+}
+
+float iorToF0(float ior) {
+    float a = (ior - airIOR) / (ior + airIOR);
+    return a * a;
+}
 
 // Water properties
+
 const float waterF0 = 0.02;
 
-#if TONEMAP == ACES
-
-    const vec3 waterAbsorptionCoefficients = (vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01) * SRGB_2_AP1_ALBEDO;
-    const vec3 waterScatteringCoefficients = (vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01) * SRGB_2_AP1_ALBEDO;
-
-#else 
-
-    const vec3 waterAbsorptionCoefficients = vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01;
-    const vec3 waterScatteringCoefficients = vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01;
-
-#endif
+const vec3 waterAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01);
+const vec3 waterScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01);
 
 const vec3 waterExtinctionCoefficients = waterScatteringCoefficients + waterAbsorptionCoefficients;
+
+bool isWater(uint materialID) {
+    #if defined DISTANT_HORIZONS
+        return materialID == WATER_ID || materialID == DH_BLOCK_WATER;
+    #else
+        return materialID == WATER_ID;
+    #endif
+}
+
+// Hardcoded metals
+
+const float labPBRMetals = 229.5;
 
 const mat2x3 hardcodedMetals[] = mat2x3[](
     mat2x3(vec3(2.9114, 2.9497, 2.5845),    // Iron
@@ -86,33 +105,12 @@ const mat2x3 hardcodedMetals[] = mat2x3[](
            vec3(3.9291, 3.1900, 2.3808))
 );
 
-float f0ToIOR(float F0) {
-    F0 = sqrt(F0) * 0.99999;
-    return airIOR * ((1.0 + F0) / (1.0 - F0));
-}
-
-vec3 f0ToIOR(vec3 F0) {
-    F0 = sqrt(F0) * 0.99999;
-    return airIOR * ((1.0 + F0) / (1.0 - F0));
-}
-
-float iorToF0(float ior) {
-    float a = (ior - airIOR) / (ior + airIOR);
-    return a * a;
-}
-
 mat2x3 getHardcodedMetal(vec3 albedo, float F0) {
     int metalID = int(F0 * 255.0 - labPBRMetals);
     return metalID >= 0 && metalID < 8 ? hardcodedMetals[metalID] : mat2x3(f0ToIOR(albedo), vec3(0.0));
 }
 
-bool isWater(uint materialID) {
-    #if defined DISTANT_HORIZONS
-        return materialID == WATER_ID || materialID == DH_BLOCK_WATER;
-    #else
-        return materialID == WATER_ID;
-    #endif
-}
+// LabPBR material encoding
 
 uvec4 storeMaterial(
     float F0,
@@ -145,6 +143,8 @@ uvec4 storeMaterial(
     return data;
 }
 
+// LabPBR material decoding
+
 Material getMaterial(vec2 coords) {
     uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(coords * viewSize), 0);
 
@@ -163,13 +163,7 @@ Material getMaterial(vec2 coords) {
         material.ao = 1.0;
     #endif
 
-    material.albedo = data1.rgb;
-
-    #if TONEMAP == ACES
-        material.albedo = srgbToAP1Albedo(material.albedo);
-    #else
-        material.albedo = srgbToLinear(material.albedo);
-    #endif
+    material.albedo = SRGB_TO_WORKING_SPACE(data1.rgb);
 
     if (material.F0 * maxFloat8 > labPBRMetals) {
         mat2x3 hcm = getHardcodedMetal(material.albedo, material.F0);
@@ -190,11 +184,7 @@ Material getMaterial(vec2 coords) {
 }
 
 vec3 unpackAlbedo(uint packedData) {
-    #if TONEMAP == ACES
-        return srgbToAP1Albedo(unpackUnorm4x8(packedData).rgb);
-    #else
-        return srgbToLinear(unpackUnorm4x8(packedData).rgb);
-    #endif
+    return SRGB_TO_WORKING_SPACE(unpackUnorm4x8(packedData).rgb);
 }
 
 vec3 unpackNormal(uint packedData) {
@@ -248,6 +238,8 @@ vec3 getK(vec3 albedo, float F0) {
         return vec3(0.0);
     }
 }
+
+// Lightmap handling
 
 vec3 getBlockLightColor() {
     return blackbody(BLOCKLIGHT_TEMPERATURE) * EMISSIVE_INTENSITY;

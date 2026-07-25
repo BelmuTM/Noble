@@ -89,17 +89,13 @@
     vec4 computeRainColor() {
         // Fake water absorption
 
-        const float density               = 1.0;
-        const float scatteringCoefficient = 0.1;
-        const float alpha                 = 0.2;
+        const float opacity = 0.2;
+        const float density = 1.0;
 
-        #if TONEMAP == ACES
-            const vec3 attenuationCoefficients = vec3(0.338675, 0.0493852, 0.00218174) * SRGB_2_AP1_ALBEDO;
-        #else
-            const vec3 attenuationCoefficients = vec3(0.338675, 0.0493852, 0.00218174);
-        #endif
+        const float scatteringCoefficient   = 0.1;
+        const vec3  attenuationCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(0.338675, 0.0493852, 0.00218174) * SRGB_2_AP1_ALBEDO);
 
-        return vec4(exp(-attenuationCoefficients * density) * scatteringCoefficient, alpha);
+        return vec4(exp(-attenuationCoefficients * density) * scatteringCoefficient, opacity);
     }
 
     void main() {

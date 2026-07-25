@@ -68,6 +68,7 @@
     in vec4 vertexColor;
 
     void main() {
+        
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
@@ -87,19 +88,23 @@
         float emission = 0.0;
 
         #if HARDCODED_EMISSION == 1
+
             if (blockId == DH_BLOCK_ILLUMINATED) {
                 emission = HARDCODED_EMISSION_VAL;
             }
+
         #endif
 
         float subsurface = 0.0;
 
         #if HARDCODED_SSS == 1
+
             if (subsurface <= EPS) {
                 if (blockId == DH_BLOCK_LEAVES || blockId == DH_BLOCK_SNOW || blockId == DH_BLOCK_SAND) {
                     subsurface = HARDCODED_SSS_VAL;
                 }
             }
+
         #endif
 
         // Material encoding

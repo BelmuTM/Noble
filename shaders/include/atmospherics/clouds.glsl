@@ -94,10 +94,10 @@ const CloudLayer cloudLayer1 = PARSE_CLOUD_LAYER_SETTINGS(
     CLOUDS_LAYER1_SWIRL
 );
 
-const vec3 up = vec3(0.0, 1.0, 0.0);
+const vec3 upVector = vec3(0.0, 1.0, 0.0);
 
-vec3 windDirection = vec3(sincos(-0.785398), 0.0).xzy;
-vec3 wind          = CLOUDS_WIND_SPEED * frameTimeCounter * windDirection;
+const vec3 windDirection = vec3(-0.7, 0.0, 0.7);
+const vec3 wind          = windDirection *CLOUDS_WIND_SPEED;
 
 float heightAlter(float altitude, float weatherMap) {
     float stopHeight = saturate(weatherMap + 0.12);
@@ -138,7 +138,7 @@ float worley(vec2 coords) {
 float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer) {
     float altitude = (position.y - (planetRadius + layer.altitude)) * rcp(layer.thickness);
 
-    position += wind;
+    position += wind * frameTimeCounter;
 
     layer.coverage += float16_t(0.26 * wetness);
 
@@ -223,7 +223,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
     float distanceToClouds = dists.y;
 
     float VdotL = dot(rayDirection, shadowLightVectorWorld);
-    float VdotU = dot(rayDirection, up);
+    float VdotU = dot(rayDirection, upVector);
     
     float bouncedLight = abs(-VdotU) * RCP_PI * 0.5 * isotropicPhase;
 
@@ -244,8 +244,8 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
             float stepTransmittance = exp(-stepOpticalDepth);
 
             float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition,  shadowLightVectorWorld, 4, layer, isLowerLayer, animated);
-            float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition, -up,                     1, layer, isLowerLayer, animated);
-            float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition,  up,                     2, layer, isLowerLayer, animated);
+            float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition, -upVector,               1, layer, isLowerLayer, animated);
+            float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition,  upVector,               2, layer, isLowerLayer, animated);
 
             float powder    = 6.5 * (1.0 - 0.97 * exp(-8.0 * density));
             float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);

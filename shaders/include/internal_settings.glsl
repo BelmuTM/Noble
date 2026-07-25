@@ -30,7 +30,7 @@
 // SHADOW MAP TEXTURES / SHADOW BUFFER
 // ============================================================================
 
-const int shadowcolor0Format = RGBA16F;             // Shadow color (albedo)
+const int shadowcolor0Format = RGBA8;               // Shadow color (albedo)
 const int shadowcolor1Format = R16F;                // Caustics
 
 const int colortex3Format = RGBA16F;                // Shadow map
