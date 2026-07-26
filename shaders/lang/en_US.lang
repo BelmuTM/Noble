@@ -73,7 +73,7 @@ screen.SHARPEN                 = Sharpen
 screen.VIGNETTE                = Vignette
 screen.FILM_GRAIN              = Film Grain
 screen.CEL_SHADING             = Cel Shading
-screen.MISC                    = 8-Bit Filter & Palette
+screen.MISC                    = 8-Bit Filter | Color Palettes
 screen.DEBUG                   = Debug
 
 #////////////////////////////////////////////////////////#

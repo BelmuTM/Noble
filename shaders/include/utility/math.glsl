@@ -260,7 +260,7 @@ vec3 generateConeVector(vec3 vector, vec2 xi, float angle) {
 
 // Using a macro to suppress warnings/errors for compile-time constants
 #define coneAngleToSolidAngle(x) \
-    TAU * (1.0 - cos(x))
+    (TAU * (1.0 - cos(x)))
 
 //////////////////////////////////////////////////////////
 /*-------------------- DISTRIBUTION --------------------*/
