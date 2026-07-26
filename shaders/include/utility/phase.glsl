@@ -32,38 +32,37 @@
 const float isotropicPhase = 0.25 / PI;
 
 float rayleighPhase(float cosTheta) {
-    const float rayleigh = 3.0 / (16.0 * PI);
-    return rayleigh * (1.0 + cosTheta * cosTheta);
+    const float rayleighNormalization = 3.0 / (16.0 * PI);
+
+    return rayleighNormalization * (1.0 + cosTheta * cosTheta);
 }
 
 float cornetteShanksPhase(float cosTheta, float g) {
-    const float cornette = 3.0 / (8.0 * PI);
-    float gg             = g * g;
+    const float cornetteNormalization = 3.0 / (8.0 * PI);
 
-    float num   = (1.0 - gg) * (1.0 + cosTheta * cosTheta);
-    float denom = (2.0 + gg) * pow(1.0 + gg - 2.0 * g * cosTheta, 1.5);
-    return cornette * (num / denom);
+    float gg = g * g;
+
+    float numerator   = (1.0 - gg) * (1.0 + cosTheta * cosTheta);
+    float denominator = (2.0 + gg) * pow(1.0 + gg - 2.0 * g * cosTheta, 1.5);
+
+    return cornetteNormalization * (numerator / denominator);
 }
 
 float henyeyGreensteinPhase(float cosTheta, float g) {
-    return (1.0 - g * g) / pow(1.0 + g * g - 2.0 * g * cosTheta, 1.5) / (2.0 * TAU);
+    const float henyeyNormalization = 1.0 / (2.0 * TAU);
+
+    return (1.0 - g * g) / pow(1.0 + g * g - 2.0 * g * cosTheta, 1.5) * henyeyNormalization;
 }
 
-float kleinNishinaPhase(float cosTheta, float g) {
-    float e = 1.0;
-    
-    for (int i = 0; i < 8; i++) {
-        float gFromE = 1.0 / e - 2.0 / log(2.0 * e + 1.0) + 1.0;
-        float deriv  = 4.0 / ((2.0 * e + 1.0) * pow2(log(2.0 * e + 1.0))) - 1.0 / (e * e);
-        if (abs(deriv) < 1e-8) break;
-        e = e - (gFromE - g) / deriv;
-    }
-
+float kleinNishinaPhase(float cosTheta, float e) {
     return e / (TAU * (e * (1.0 - cosTheta) + 1.0) * log(2.0 * e + 1.0));
 }
 
 // Phase function specifically designed for leaves
 float biLambertianPlatePhase(float kd, float cosTheta) {
+    const float bilambertNormalization = 1.0 / (3.0 * PI * PI);
+
     float phase = 2.0 * (-PI * kd * cosTheta + sqrt(1.0 - cosTheta * cosTheta) + cosTheta * acos(-cosTheta));
-    return phase / (3.0 * PI * PI);
+
+    return phase * bilambertNormalization;
 }

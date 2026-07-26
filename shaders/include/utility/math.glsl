@@ -258,16 +258,9 @@ vec3 generateConeVector(vec3 vector, vec2 xi, float angle) {
     return rotate(sphereCap, vec3(0.0, 0.0, 1.0), vector);
 }
 
-float coneAngleToSolidAngle(float x) { 
-    return TAU * (1.0 - cos(x));
-}
-
-vec3 sphericalToCartesian(float azimuth, float altitude) {
-    float phi   = radians(azimuth);
-    float theta = radians(90.0 - altitude);
-
-    return vec3(sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi));
-}
+// Using a macro to suppress warnings/errors for compile-time constants
+#define coneAngleToSolidAngle(x) \
+    TAU * (1.0 - cos(x))
 
 //////////////////////////////////////////////////////////
 /*-------------------- DISTRIBUTION --------------------*/

@@ -80,7 +80,7 @@ uniform float rcp240;
 float calculateAirFogPhase(float cosTheta) {
     float forwardsLobe  = henyeyGreensteinPhase(cosTheta, airFogForwardsLobe);
     float backwardsLobe = henyeyGreensteinPhase(cosTheta,-airFogBackardsLobe);
-    float forwardsPeak  = kleinNishinaPhase    (cosTheta, airFogForwardsPeak);
+    float forwardsPeak  = cornetteShanksPhase  (cosTheta, airFogForwardsPeak);
 
     return mix(mix(forwardsLobe, backwardsLobe, airFogBackScatter), forwardsPeak, airFogPeakWeight);
 }

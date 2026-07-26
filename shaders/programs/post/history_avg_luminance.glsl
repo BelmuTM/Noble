@@ -66,6 +66,7 @@
 
             for (int x = 0; x < tiles.x; x++) {
                 for (int y = 0; y < tiles.y; y++) {
+
                     vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
                     float luminance = luminance(textureLod(ILLUMINANCE_BUFFER, coords * 0.5, lod).rgb);
 
@@ -105,6 +106,7 @@
             float densitySum  = 0.0;
 
             for (int bin = lowerBound; bin <= upperBound; bin++) {
+                
                 float binDensity = pdf[bin];
                 float logCenter  = minLogLuminance + (float(bin) + 0.5) * logStep;
 

@@ -31,20 +31,23 @@
     const float atmosphereLowerOffset = 0.0;
 #endif
 
-const float planetRadius          = 6371e3;                               // Meters
-const float atmosphereLowerRadius = planetRadius + atmosphereLowerOffset; // Meters
-const float atmosphereUpperRadius = planetRadius + 110e3;                 // Meters
+const float planetRadius          = 6371e3;                               // Meters (m)
+const float atmosphereLowerRadius = planetRadius + atmosphereLowerOffset; // Meters (m)
+const float atmosphereUpperRadius = planetRadius + 110e3;                 // Meters (m)
 
-const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters
+const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters (m)
 
 const float mieScatteringAlbedo = 0.9;
-const float mieAnisotropyFactor = 0.76;
+const float mieAnisotropyFactor = 2346.25355; // energy term e (unitless)
+
+const float ozonePeakDensity    = 5e-6; // Parts per million (ppm)
+const float ozonePeakAltitude   = 35e3; // Kilometers (km)
+const float ozoneUnitConversion = 1e-4; // Converts from cm² to m²
 
 const float airNumberDensity    = 2.5035422e25;
-const float ozonePeakDensity    = 5e-6; // ppm
-const float ozonePeakAltitude   = 35e3; // km
 const float ozoneNumberDensity  = airNumberDensity * exp(-ozonePeakAltitude / 8e3) * ozonePeakDensity;
-const float ozoneUnitConversion = 1e-4; // Converts from cm² to m²
+
+// Coefficients in cm²/molecule
 
 const vec3 rayleighScatteringCoefficientsSunny = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
 const vec3 mieScatteringCoefficientsSunny      = vec3(22e-6);
@@ -118,30 +121,48 @@ const float airFogPeakWeight   = 0.35;
 
 /* CELESTIAL CONSTANTS */
 
-vec3 starVector = normalize(sphericalToCartesian(25.0, 45.0));
+// End star
+
+const float azimuthStar  = 25.0;
+const float altitudeStar = 45.0;
+
+const float phi_star   = radians(azimuthStar);
+const float theta_star = radians(90.0 - altitudeStar);
+
+const vec3 starVector = normalize(vec3(sin(theta_star) * cos(phi_star), cos(theta_star), sin(theta_star) * sin(phi_star)));
+
+const float starRadius   = 3.171e11;
+const float starDistance = 6.07852e12;
+
+// Sun
 
 const float sunRadius   = 6.9634e8;
 const float sunDistance = 1.496e11;
+
+// Moon
 
 const float moonRadius    = 1.7374e6;
 const float moonDistance  = 3.8440e8;
 const float moonAlbedo    = 0.136; // The full moon reflects approximately 13-14% of the sun's emitted light 
 const float moonRoughness = 0.40;
 
-const float starRadius   = 3.171e11;
-const float starDistance = 6.07852e12;
+// Angular radii
 
 const float sunAngularRadius  = CELESTIAL_SIZE_MULTIPLIER * sunRadius  / sunDistance;
 const float moonAngularRadius = CELESTIAL_SIZE_MULTIPLIER * moonRadius / moonDistance;
 const float starAngularRadius = CELESTIAL_SIZE_MULTIPLIER * starRadius / starDistance;
 
-const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 126e3; // Brightness of light reaching the earth (~126'000 lux)
-      vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
+float shadowLightAngularRadius = sunAngle < 0.5 ? sunAngularRadius : moonAngularRadius;
+
+// Photometric constants
+
+// Brightness of light reaching the earth (~126'000 lux)
+const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 126e3;
+const vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
 
 const vec3 moonLuminance   = moonAlbedo * sunIlluminance;
-      vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRadius / CELESTIAL_SIZE_MULTIPLIER); // The rough amount of light the moon emits that reaches the earth
+// The rough amount of light the moon emits that reaches the earth
+const vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
 
 vec3 starIlluminance = blackbody(25000.0) * 500.0;
 vec3 starLuminance   = starIlluminance / coneAngleToSolidAngle(starAngularRadius);
-
-float shadowLightAngularRadius = sunAngle < 0.5 ? sunAngularRadius : moonAngularRadius;
