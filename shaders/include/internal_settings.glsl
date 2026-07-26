@@ -31,7 +31,12 @@
 // ============================================================================
 
 const int shadowcolor0Format = RGBA8;               // Shadow color (albedo)
-const int shadowcolor1Format = R16F;                // Caustics
+
+#if WATER_CAUSTICS == 1
+
+    const int shadowcolor1Format = R16F;            // Water caustics
+
+#endif
 
 const int colortex3Format = RGBA16F;                // Shadow map
 
@@ -56,8 +61,10 @@ const int colortex13Format = R16F;                  // Depth tiles
 // ============================================================================
 
 #if REFLECTIONS > 0
+
     const int  colortex2Format = RGBA16F;           // Reflections
     const bool colortex2Clear  = false;
+
 #endif
 
 // ============================================================================
@@ -77,13 +84,17 @@ const bool colortex6Clear  = false;
 // CLOUDS
 // ============================================================================
 
-#if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
+#if defined CLOUDS_ENABLED
+
     const int  colortex7Format = RGBA16F;           // Clouds
     const bool colortex7Clear  = false;
+
 #endif
 
 #if CLOUDMAP == 1
+
     const int colortex14Format = R11F_G11F_B10F;    // Cloud map (low resolution)
+
 #endif
 
 // ============================================================================
@@ -107,8 +118,10 @@ const int colortex11Format = RG32UI;                // Fog
 // ============================================================================
 
 #if AO > 0
+
     const int  colortex12Format = RGB16F;           // Ambient occlusion
     const bool colortex12Clear  = false;
+
 #endif
 
 */

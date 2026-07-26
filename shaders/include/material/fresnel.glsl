@@ -55,7 +55,9 @@ vec3 fresnelDielectricDielectric_T(float cosThetaI, vec3 n1, vec3 n2) {
 
     vec3 cosThetaT = cos(thetaT);
 
-    if (any(greaterThan(abs(sin(thetaT)), vec3(1.0)))) return vec3(1.0);
+    if (any(greaterThan(abs(sin(thetaT)), vec3(1.0)))) {
+        return vec3(1.0);
+    }
 
     vec3 numerator = 2.0 * n1 * cosThetaI;
 
@@ -82,12 +84,4 @@ vec3 fresnelDielectricConductor(float cosTheta, vec3 eta, vec3 etaK) {
    vec3 Rp = Rs * (t3 - t4) / (t3 + t4);
 
    return saturate((Rp + Rs) * 0.5);
-}
-
-float fresnelSchlick(float cosTheta, float F0) {
-    return saturate(F0 + (1.0 - F0) * pow5(1.0 - cosTheta));
-}
-
-vec3 fresnelSchlick(float cosTheta, vec3 F0) {
-    return saturate(F0 + (1.0 - F0) * pow5(1.0 - cosTheta));
 }

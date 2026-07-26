@@ -25,7 +25,7 @@
 
 #include "/include/utility/rng.glsl"
 
-#if defined WORLD_OVERWORLD || defined WORLD_END
+#if defined OVERWORLD_OR_END
 
     #include "/include/atmospherics/atmosphere_header.glsl"
 
@@ -36,7 +36,7 @@
     out vec2 textureCoords;
     out vec2 vertexCoords;
 
-    #if defined WORLD_OVERWORLD || defined WORLD_END
+    #if defined OVERWORLD_OR_END
 
         flat out vec3    directIlluminance;
         flat out vec3    uniformSkyIlluminance;
@@ -52,7 +52,7 @@
         textureCoords  = gl_Vertex.xy;
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             directIlluminance          = DIRECT_ILLUMINANCE();
             uniformSkyIlluminance      = UNIFORM_SKY_ILLUMINANCE();
@@ -71,7 +71,7 @@
     in vec2 textureCoords;
     in vec2 vertexCoords;
 
-    #if defined WORLD_OVERWORLD || defined WORLD_END
+    #if defined OVERWORLD_OR_END
 
         flat in vec3    directIlluminance;
         flat in vec3    uniformSkyIlluminance;
@@ -133,7 +133,7 @@
 
         vec3 skyIlluminance = vec3(0.0);
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
         
             bool receivesSkylight = true;
 

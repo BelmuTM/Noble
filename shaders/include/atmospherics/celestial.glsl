@@ -89,7 +89,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 
     vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
-    #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
+    #if defined WORLD_OVERWORLD && defined CLOUDS_ENABLED
 
         vec4 cloudsBuffer = texture(CLOUDS_BUFFER, coords * RCP_RENDER_SCALE);
 
@@ -122,7 +122,7 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
         celestialBodies += (physicalSun(sceneDirection) + physicalMoon(sceneDirection)) * viewTransmittance;
         celestialBodies += stars;
 
-        #if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
+        #if defined CLOUDS_ENABLED
 
             cloudsTransmittance = texture(CLOUDS_BUFFER, coords * RCP_RENDER_SCALE).b;
 

@@ -18,9 +18,10 @@
 /*                                                                              */
 /********************************************************************************/
 
-#if defined WORLD_OVERWORLD || defined WORLD_END
+#include "/settings.glsl"
 
-    #include "/settings.glsl"
+#if defined OVERWORLD_OR_END
+
     #include "/include/taau_scale.glsl"
     
     #include "/include/common.glsl"

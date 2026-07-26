@@ -39,7 +39,7 @@
         textureCoords  = gl_Vertex.xy;
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             directIlluminance     = DIRECT_ILLUMINANCE();
             uniformSkyIlluminance = UNIFORM_SKY_ILLUMINANCE();
@@ -68,7 +68,7 @@
 
     #include "/include/material/brdf.glsl"
 
-    #if defined WORLD_OVERWORLD || defined WORLD_END
+    #if defined OVERWORLD_OR_END
     
         #include "/include/atmospherics/celestial.glsl"
 
@@ -129,7 +129,7 @@
 
         if (depth == 1.0) {
 
-            #if defined WORLD_OVERWORLD || defined WORLD_END
+            #if defined OVERWORLD_OR_END
 
                 lightingOut  = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, uniformSkyIlluminance);
                 lightingOut += renderCelestialBodies(vertexCoords, viewPosition);
@@ -189,7 +189,7 @@
 
         vec3 skyIlluminance = vec3(0.0);
         
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             skyIlluminance = texelFetch(ILLUMINANCE_BUFFER, ivec2(gl_FragCoord.xy), 0).rgb;
             

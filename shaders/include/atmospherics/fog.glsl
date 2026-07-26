@@ -251,7 +251,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             if (fogDensity > minDensity) {
 
-                float distanceFalloffFog = quinticStep(0.0, 1.0, exp(-length(rayPosition.xz - cameraPosition.xz) / farPlane * 2.0));
+                float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-length(rayPosition.xz - cameraPosition.xz) / farPlane));
 
                 densityFog = getAirFogDensity(rayPosition) * distanceFalloffFog;
 

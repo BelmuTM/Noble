@@ -65,13 +65,17 @@ void main() {
     colorOut = texture(MAIN_BUFFER, textureCoords).rgb;
 
     #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+
         if (all(lessThan(gl_FragCoord.xy, debugHistogramSize)))
             return;
+            
     #endif
 
     float exposure = CURRENT_EXPOSURE();
 
     colorOut /= exposure;
+
+    // Bloom
 
     #if BLOOM == 1
 
@@ -86,21 +90,33 @@ void main() {
 
     #endif
 
+    // Lowlight desaturation (Purkinje)
+
     #if PURKINJE == 1
         scotopicVisionApproximation(colorOut);
     #endif
 
+    // Lens flares
+
     #if LENS_FLARES == 1
+
         lensFlares(colorOut, ILLUMINANCE_BUFFER, textureCoords);
+
     #endif
 
+    // Glare
+
     #if GLARE == 1
+
         glare(colorOut, ILLUMINANCE_BUFFER, textureCoords);
+
     #endif
+
+    // Exposure
 
     colorOut *= exposure;
     
-    // Tonemapping & Color Grading
+    // Tonemapping
     
     #if TONEMAP == 0           // AgX
         agx(colorOut);
@@ -134,6 +150,8 @@ void main() {
     #endif
 
     colorOut = saturate(colorOut);
+
+    // Color grading
 
     const float vibranceMul   = 1.0 + VIBRANCE;
     const float saturationMul = 1.0 + SATURATION;

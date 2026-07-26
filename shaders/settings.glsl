@@ -24,7 +24,15 @@
 
 // Chunk loader mods support (Distant Horizons, Voxy)
 #if defined IS_IRIS && (defined DISTANT_HORIZONS || defined VOXY)
+
     #define CHUNK_LOADER_MOD_ENABLED
+    
+#endif
+
+#if defined WORLD_OVERWORLD || defined WORLD_END
+
+    #define OVERWORLD_OR_END
+
 #endif
 
 //////////////////////////////////////////////////////////
@@ -95,6 +103,14 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define MAX_ACCUMULATED_FRAMES 20.0
 
+#if defined OVERWORLD_OR_END
+    const vec3 AMBIENT_LIGHT = vec3(0.15);
+
+#else
+    const vec3 AMBIENT_LIGHT = vec3(1.9, 0.8, 0.1) * 5.0;
+    
+#endif
+
 //////////////////////////////////////////////////////////
 /*---------------------- SHADOWS -----------------------*/
 //////////////////////////////////////////////////////////
@@ -123,6 +139,10 @@ const float RCP_BLOCKER_SEARCH_SAMPLES = 1.0 / BLOCKER_SEARCH_SAMPLES;
 #define CONTACT_SHADOWS        1 // [0 1]
 #define CONTACT_SHADOWS_STEPS  8 // [4 8 16 32]
 #define CONTACT_SHADOWS_STRIDE 6
+
+// Distant Horizons Shadows
+
+#define DH_SHADOWS 1 // [0 1]
 
 //////////////////////////////////////////////////////////
 /*------------------ AMBIENT OCCLUSION -----------------*/
@@ -256,6 +276,12 @@ const float RCP_ATMOSPHERE_TRANSMITTANCE_STEPS = 1.0 / ATMOSPHERE_TRANSMITTANCE_
 #define CLOUDS_LAYER1_THICKNESS 100 // [100 200 300 400 500 600 700 800 900 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000]
 #define CLOUDS_LAYER1_COVERAGE   60 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define CLOUDS_LAYER1_SWIRL      90 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+
+#if CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1
+
+    #define CLOUDS_ENABLED
+
+#endif
 
 // Fog
 
@@ -461,7 +487,8 @@ const float RCP_ATMOSPHERE_TRANSMITTANCE_STEPS = 1.0 / ATMOSPHERE_TRANSMITTANCE_
 
 // 8-Bits Filter
 
-#define EIGHT_BITS_FILTER 0 // [0 1]
+#define EIGHT_BITS_FILTER              0 // [0 1]
+#define EIGHT_BITS_FILTER_PIXEL_SIZE 250 // [25 50 75 100 125 150 175 200 225 250 275 300 325 350 375 400 425 450 475 500]
 
 // Palette
 

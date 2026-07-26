@@ -122,7 +122,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         vec3 directIlluminance = vec3(0.0);
         vec3 skyIlluminance    = vec3(0.0);
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             directIlluminance = DIRECT_ILLUMINANCE();
             skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();

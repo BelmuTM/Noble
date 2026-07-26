@@ -25,8 +25,11 @@
 
 #include "/include/atmospherics/atmosphere_header.glsl"
 
-#include "/include/atmospherics/illuminance_fetch.glsl"
+#if defined OVERWORLD_OR_END
 
+    #include "/include/atmospherics/illuminance_fetch.glsl"
+
+#endif
 
 #if defined STAGE_VERTEX
 
@@ -62,10 +65,10 @@
 
         blockId = uint((mc_Entity.x - 1000.0) + 0.25);
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             directIlluminance = DIRECT_ILLUMINANCE();
-            skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();
+            skyIlluminance    = vec3(luminance(UNIFORM_SKY_ILLUMINANCE()));
             
         #endif
 
@@ -308,13 +311,7 @@
                     vec3 blocklight      = blocklightColor * getBlocklightFalloff(material.lightmap.x);
                     vec3 emissiveness    = material.emission * blocklightColor;
 
-                    #if defined WORLD_OVERWORLD || defined WORLD_END
-                        const vec3 ambient = vec3(0.2);
-                    #else
-                        const vec3 ambient = vec3(1.0);
-                    #endif
-
-                    diffuse += blocklight + skylight + ambient;
+                    diffuse += blocklight + skylight + AMBIENT_LIGHT;
                     diffuse += emissiveness;
 
                     translucentsOut.rgb = material.albedo * diffuse;

@@ -125,8 +125,10 @@ in vec2 textureCoords;
         color += (bayer2(gl_FragCoord.xy) - 0.5) * quantizationPeriod;
     }
 
-    vec4 samplePixelatedBuffer(sampler2D colorTex, vec2 coords, int size) {
-        vec2 aspectCorrectedSize = size * vec2(aspectRatio, 1.0);
+    vec4 samplePixelatedBuffer(sampler2D colorTex, vec2 coords) {
+
+        const vec2 aspectCorrectedSize = (500 - EIGHT_BITS_FILTER_PIXEL_SIZE + 100) * vec2(aspectRatio, 1.0);
+
         return texelFetch(colorTex, ivec2((floor(coords * aspectCorrectedSize) / aspectCorrectedSize) * viewSize), 0);
     }
 
@@ -160,6 +162,8 @@ void debugOutput(inout vec3 color) {
 void main() {
     vec2 distortCoords = textureCoords;
 
+    // Underwater distortion
+
     #if UNDERWATER_DISTORTION == 1
 
         if (isEyeInWater == 1) {
@@ -170,21 +174,40 @@ void main() {
 
     #if EIGHT_BITS_FILTER == 0
         colorOut = texture(MAIN_BUFFER, distortCoords).rgb;
+
     #else
-        colorOut = samplePixelatedBuffer(MAIN_BUFFER, distortCoords, 300).rgb;
+
+        // 8-Bits filter pixelization
+
+        colorOut = samplePixelatedBuffer(MAIN_BUFFER, distortCoords).rgb;
+
     #endif
+
+    // Sharpening
 
     #if SHARPEN == 1
+
         sharpeningFilter(colorOut, distortCoords);
+
     #endif
+
+    // Color grading LUT
 
     #if LUT > 0
+
         applyLUT(colorOut);
+
     #endif
 
+    // Film grain
+
     #if FILM_GRAIN == 1
+
         colorOut += randF() * colorOut * FILM_GRAIN_STRENGTH;
+
     #endif
+
+    // Vignette
 
     #if VIGNETTE == 1
 
@@ -193,15 +216,25 @@ void main() {
         
     #endif
 
+    // Cel-shading
+
     #if CEL_SHADING == 1
+
         celShading(colorOut);
+
     #endif
 
+    // Color palette
+
     #if PALETTE > 0
+
         applyColorPalette(colorOut);
+
     #endif
 
     #if EIGHT_BITS_FILTER == 1
+
+        // 8-Bits filter quantization
 
         const int   colorPaletteSize   = 2;
         const float quantizationPeriod = 1.0 / colorPaletteSize;
@@ -212,10 +245,14 @@ void main() {
     #else
 
         #if CEL_SHADING == 0
+
             colorOut += bayer8(gl_FragCoord.xy) * rcpMaxFloat8;
+            
         #endif
 
     #endif
 
     debugOutput(colorOut);
+
+    //colorOut = vec3(texture(shadowtex0, textureCoords).r);
 }

@@ -24,7 +24,7 @@
 
 const ivec3 workGroups = ivec3(1, 1, 1);
 
-#if defined WORLD_OVERWORLD || defined WORLD_END
+#if defined OVERWORLD_OR_END
 
     #include "/include/atmospherics/atmosphere_header.glsl"
 

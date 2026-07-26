@@ -181,13 +181,7 @@ vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, b
     vec3 blocklight      = blocklightColor * getBlocklightFalloff(material.lightmap.x);
     vec3 emissiveness    = material.emission * blocklightColor;
 
-    #if defined WORLD_OVERWORLD || defined WORLD_END
-        const vec3 ambient = vec3(0.15);
-    #else
-        const vec3 ambient = vec3(1.9, 0.8, 0.1) * 5.0;
-    #endif
-
-    diffuse += (blocklight + skylight + ambient) * material.ao * ao;
+    diffuse += (blocklight + skylight + AMBIENT_LIGHT) * material.ao * ao;
     diffuse += emissiveness;
 
     return material.albedo * diffuse;

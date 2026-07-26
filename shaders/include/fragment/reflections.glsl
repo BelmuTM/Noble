@@ -28,13 +28,13 @@ vec3 sampleHitColor(vec2 hitCoords, float exposure) {
 
 vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
 
-    #if defined WORLD_OVERWORLD || defined WORLD_END
+    #if defined OVERWORLD_OR_END
     
         vec3 sceneDirection = normalize(mat3(gbufferModelViewInverse) * reflected);
 
         vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
         
-        #if defined WORLD_OVERWORLD && (CLOUDS_LAYER0_ENABLED == 1 || CLOUDS_LAYER1_ENABLED == 1)
+        #if defined WORLD_OVERWORLD && defined CLOUDS_ENABLED
 
             vec3 cloudsBuffer = vec3(0.0, 0.0, 1.0);
 

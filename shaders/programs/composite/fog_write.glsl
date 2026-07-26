@@ -39,7 +39,7 @@
         textureCoords  = gl_Vertex.xy;
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             directIlluminance = DIRECT_ILLUMINANCE();
             skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();
@@ -116,7 +116,7 @@
         vec3 viewPosition1  = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
         vec3 scenePosition0 = viewToWorld(viewPosition0);
         
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             vec3 directIlluminanceFinal = directIlluminance;
 
@@ -156,7 +156,7 @@
 
                 if (isEyeInWater != 1 && isWater(unpackId(dataTexture.x))) {
 
-                    #if defined WORLD_OVERWORLD || defined WORLD_END
+                    #if defined OVERWORLD_OR_END
 
                         #if WATER_FOG == 0
                             computeWaterFogApproximation(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);

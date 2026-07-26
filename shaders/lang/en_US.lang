@@ -161,6 +161,7 @@ value.shadowDistance.1024 = 64 chunks
 value.shadowDistance.2048 = 128 chunks
 value.shadowDistance.4096 = 256 chunks
 
+# Contact Shadows
 option.CONTACT_SHADOWS = Contact Shadows
 option.CONTACT_SHADOWS.comment = Traces shadows over a short distance to rectify shadowmapping's weaknesses.
 value.CONTACT_SHADOWS.0 = §cOFF
@@ -172,6 +173,12 @@ value.CONTACT_SHADOWS_STEPS.4 = §24
 value.CONTACT_SHADOWS_STEPS.8 = §a8
 value.CONTACT_SHADOWS_STEPS.16 = §e16
 value.CONTACT_SHADOWS_STEPS.32 = §632
+
+# Distant Horizons Shadows
+option.DH_SHADOWS = Distant Horizons Shadows
+option.DH_SHADOWS.comment = Enables shadows for §bDistant Horizons§r chunk LODs.
+value.DH_SHADOWS.0 = §cOFF
+value.DH_SHADOWS.1 = §aON
 
 #////////////////////////////////////////////////////////#
 #------------------- AMBIENT OCCLUSION ------------------#
@@ -1001,6 +1008,10 @@ option.EIGHT_BITS_FILTER = 8-Bits Filter
 option.EIGHT_BITS_FILTER.comment = Makes the game look like a vintage 8-bits game.
 value.EIGHT_BITS_FILTER.0 = §cOFF
 value.EIGHT_BITS_FILTER.1 = §aON
+
+option.EIGHT_BITS_FILTER_PIXEL_SIZE = 8-Bits Filter Pixels Size
+option.EIGHT_BITS_FILTER_PIXEL_SIZE.comment = Adjusts the size of the pixels on the §b8-Bits Filter§r.
+suffix.EIGHT_BITS_FILTER_PIXEL_SIZE = x
 
 ### PALETTE
 

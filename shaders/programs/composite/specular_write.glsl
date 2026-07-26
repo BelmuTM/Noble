@@ -39,7 +39,7 @@
         textureCoords  = gl_Vertex.xy;
         vertexCoords   = gl_Vertex.xy * RENDER_SCALE;
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             directIlluminance = DIRECT_ILLUMINANCE();
             skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();
@@ -197,7 +197,7 @@
 
                 vec3 directIlluminanceSpecular = directIlluminance;
 
-                #if defined WORLD_OVERWORLD || defined WORLD_END
+                #if defined OVERWORLD_OR_END
 
                     #if defined WORLD_OVERWORLD
 
@@ -272,7 +272,7 @@
         vec3 scatteringFront    = vec3(0.0);
         vec3 transmittanceFront = vec3(1.0);
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             vec3 directIlluminanceFinal = directIlluminance;
 
@@ -296,7 +296,7 @@
 
         if (isEyeInWater == 1) {
 
-            #if defined WORLD_OVERWORLD || defined WORLD_END
+            #if defined OVERWORLD_OR_END
 
                 #if WATER_FOG == 0
                     computeWaterFogApproximation(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);

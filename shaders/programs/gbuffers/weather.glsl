@@ -62,8 +62,8 @@
 
         color = vec4(0.0);
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
-
+        #if defined OVERWORLD_OR_END
+        
             #if DOWNSCALED_RENDERING == 1
                 vec2 fragCoords = gl_FragCoord.xy * texelSize;
                 if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }

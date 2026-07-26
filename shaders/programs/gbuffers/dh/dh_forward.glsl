@@ -55,7 +55,7 @@
 
         scenePosition = transform(gbufferModelViewInverse, viewPosition);
 
-        #if defined WORLD_OVERWORLD || defined WORLD_END
+        #if defined OVERWORLD_OR_END
 
             directIlluminance = DIRECT_ILLUMINANCE();
             skyIlluminance    = UNIFORM_SKY_ILLUMINANCE();

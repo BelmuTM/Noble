@@ -163,7 +163,7 @@
 
         /* RENDERTARGETS: 8 */
 
-        layout (location = 0) out vec4 history;
+        layout (location = 0) out vec4 historyOut;
 
         layout (rgba16f) uniform image2D colorimg0;
 
