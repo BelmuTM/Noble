@@ -109,7 +109,7 @@
 
             vec3 viewPosition = screenToView(closestFragment, projectionInverse, true);
 
-            viewPosition += normal * mix(1e-3, 1.0, length(viewPosition) / farPlane);
+            viewPosition += normal * mix(1e-3, 1.0, saturate(length(viewPosition) / farPlane));
 
             vec3 bentNormal = vec3(0.0);
 
