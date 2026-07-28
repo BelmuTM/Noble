@@ -23,7 +23,7 @@
 #include "/include/utility/primitive_types.glsl"
 
 #include "/include/uniforms.glsl"
-#include "/include/uniforms_mods.glsl"
+#include "/include/uniforms_lod_mods.glsl"
 
 #include "/include/utility/math.glsl"
 #include "/include/utility/color.glsl"
@@ -53,17 +53,6 @@ const vec2 depthMipsOffsets[] = vec2[](
     vec2(exp2(-2.0)),
     vec2(exp2(-2.5))
 );
-
-float find2x2MinimumDepth(sampler2D depthTex, vec2 coords, int scale) {
-    coords *= viewSize;
-
-    return maxOf(vec4(
-        texelFetch(depthTex, ivec2(coords)                      , 0).r,
-        texelFetch(depthTex, ivec2(coords) + ivec2(1, 0) * scale, 0).r,
-        texelFetch(depthTex, ivec2(coords) + ivec2(0, 1) * scale, 0).r,
-        texelFetch(depthTex, ivec2(coords) + ivec2(1, 1) * scale, 0).r
-    ));
-}
 
 float computeDepthMips(sampler2D depthTex, vec2 coords) {
     float tiles = 0.0;

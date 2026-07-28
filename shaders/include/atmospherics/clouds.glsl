@@ -37,7 +37,7 @@ uniform sampler3D depthtex2;
 #define SHAPE_NOISE_TEXTURE depthtex2
 
 struct CloudLayer {
-    int8_t steps;
+    int8_t stepCount;
     int8_t octaves;
 
     float16_t scale;
@@ -232,18 +232,18 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
     float cloudsLowerBound = planetRadius     + layer.altitude;
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
-    vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
+    vec2 distsToVolume = intersectSphericalShell(atmosphereRayPosition, rayDirection, cloudsLowerBound, cloudsUpperBound);
     
-    if (dists.y < 0.0) {
+    if (distsToVolume.y < 0.0) {
         return vec4(0.0, 0.0, 1.0, cloudsFallbackDistance);
     }
 
     float jitter      = animated ? temporalBlueNoise(gl_FragCoord.xy) : bayer64(gl_FragCoord.xy);
-    float stepSize    = (dists.y - dists.x) / layer.steps;
-    vec3  rayPosition = atmosphereRayPosition + rayDirection * (dists.x + stepSize * jitter);
+    float stepSize    = (distsToVolume.y - distsToVolume.x) / layer.stepCount;
+    vec3  rayPosition = atmosphereRayPosition + rayDirection * (distsToVolume.x + stepSize * jitter);
     vec3  increment   = rayDirection * stepSize;
 
-    float distanceToClouds = dists.y;
+    float distanceToClouds = distsToVolume.y;
 
     float VdotL = dot(rayDirection, shadowLightVectorWorld);
     float VdotU = dot(rayDirection, upVector);
@@ -255,9 +255,9 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
 
     // Adaptive steps
     
-    int steps = int(mix(layer.steps * 0.25, float(layer.steps), saturate(length(rayPosition) / length(atmosphereRayPosition + rayDirection * dists.y))));
+    int stepCount = int(mix(layer.stepCount * 0.25, float(layer.stepCount), saturate(length(rayPosition) / length(atmosphereRayPosition + rayDirection * distsToVolume.y))));
     
-    for (int i = 0; i < steps && transmittance > cloudsTransmitThreshold; i++, rayPosition += increment) {
+    for (int i = 0; i < stepCount && transmittance > cloudsTransmitThreshold; i++, rayPosition += increment) {
 
         float density = calculateCloudsDensity(rayPosition, layer, isLowerLayer);
 
@@ -302,7 +302,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
             scattering    += stepScattering * scatteringIntegral * transmittance;
             transmittance *= stepTransmittance;
 
-            distanceToClouds = min((i + jitter) * stepSize + dists.x, distanceToClouds);
+            distanceToClouds = min((i + jitter) * stepSize + distsToVolume.x, distanceToClouds);
 
         }
     }
@@ -318,11 +318,11 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
         float cloudsLowerBound = planetRadius     + layer.altitude;
         float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
-        vec2 dists = intersectSphericalShell(shadowPosition, shadowLightVectorWorld, cloudsLowerBound, cloudsUpperBound);
+        vec2 distsToVolume = intersectSphericalShell(shadowPosition, shadowLightVectorWorld, cloudsLowerBound, cloudsUpperBound);
 
-        float stepSize    = (dists.y - dists.x) * rcp(CLOUDS_SHADOWS_STEPS);
+        float stepSize    = (distsToVolume.y - distsToVolume.x) * rcp(CLOUDS_SHADOWS_STEPS);
         vec3  increment   = shadowLightVectorWorld * stepSize;
-        vec3  rayPosition = shadowPosition + shadowLightVectorWorld * (dists.x + stepSize * 0.5);
+        vec3  rayPosition = shadowPosition + shadowLightVectorWorld * (distsToVolume.x + stepSize * 0.5);
 
         float opticalDepth = 0.0;
 

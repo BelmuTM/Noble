@@ -94,13 +94,7 @@
         mat4 projectionInverse  = gbufferProjectionInverse;
         mat4 projectionPrevious = gbufferPreviousProjection;
 
-        float nearPlane = near;
-        float farPlane  = far;
-
         #if defined CHUNK_LOADER_MOD_ENABLED
-
-            nearPlane = modNearPlane;
-            farPlane  = modFarPlane;
 
             if (depth >= 1.0) {
 
@@ -154,15 +148,12 @@
         float prevDepth   = exp2(temporalDataOut.r);
         temporalDataOut.r = log2(prevPosition.z);
 
-        float linearDepth     = linearizeDepth(prevPosition.z, nearPlane, farPlane);
-        float linearPrevDepth = linearizeDepth(prevDepth, nearPlane, farPlane);
-
         // Temporal accumulation weight computation
 
         vec3 prevScenePosition = viewToWorld(screenToView(prevPosition, projectionInverse, false));
         bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
 
-        float depthWeight = pow(exp(-abs(linearDepth - linearPrevDepth)), 2.0);
+        float depthWeight = pow(exp(-abs(linearizeDepth(prevPosition.z) - linearizeDepth(prevDepth))), 2.0);
 
         temporalDataOut.g *= float(insideScreenBounds(prevPosition.xy, RENDER_SCALE));
         temporalDataOut.g *= float(depth >= handDepth);

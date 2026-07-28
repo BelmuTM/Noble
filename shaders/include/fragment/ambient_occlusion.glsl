@@ -32,36 +32,38 @@
         return visibility / (albedo * visibility + (1.0 - albedo)); 
     }
 
-    float findMaximumHorizon(
+    float findMaximumHorizonAngle(
         sampler2D depthTex,
         mat4 projectionInverse,
         vec3 viewPosition,
         vec3 viewDirection,
         vec3 normal,
-        vec3 sliceDir,
-        float radius
+        vec2 sliceStep
     ) {
         float horizonCosTheta = -1.0;
 
         const float cosThetaThreshold = 0.95; // We can stop searching once cosTheta approaches 1
 
-        vec2 increment   = sliceDir.xy * radius * RCP_GTAO_HORIZON_STEPS;
-        vec2 rayPosition = textureCoords + rand2F() * increment;
+        ivec2 slicePosition = ivec2(textureCoords * viewSize + sliceStep * rand2F());
 
         for (int i = 0; i < GTAO_HORIZON_STEPS && horizonCosTheta < cosThetaThreshold; i++) {
 
-            float depth = texelFetch(depthTex, ivec2(rayPosition * viewSize * RENDER_SCALE), 0).r;
+            float depth = texelFetch(depthTex, slicePosition, 0).r;
 
-            if (insideScreenBounds(rayPosition, RENDER_SCALE) && depth < 1.0) {
+            if (insideScreenBounds(vec3(slicePosition * texelSize, depth), 1.0)) {
 
-                vec3 horizonVec = screenToView(vec3(rayPosition, depth), projectionInverse, true) - viewPosition;
+                vec3 horizonVec = screenToView(vec3(slicePosition * texelSize, depth), projectionInverse, true) - viewPosition;
 
-                float cosTheta = mix(dot(horizonVec, viewDirection) * fastRcpLength(horizonVec), -1.0, linearStep(1.0, 2.0, lengthSqr(horizonVec)));
-    
+                float cosTheta = mix(
+                    dot(horizonVec, viewDirection) * fastRcpLength(horizonVec),
+                    -1.0,
+                    linearStep(1.0, 2.0, lengthSqr(horizonVec))
+                );
+
                 horizonCosTheta = max(horizonCosTheta, cosTheta);
-
-                rayPosition += increment;
             }
+            
+            slicePosition += ivec2(sliceStep);
 
         }
 
@@ -71,44 +73,49 @@
     float GTAO(sampler2D depthTex, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
         float visibility = 0.0;
 
-        float radius  	    = gbufferProjection[1][1] * GTAO_RADIUS / -viewPosition.z;
-        vec3  viewDirection = -normalize(viewPosition);
+        // World-space radius
+        vec2 radius = viewSize * GTAO_RADIUS * RCP_GTAO_HORIZON_STEPS * gbufferProjection[1][1] / -viewPosition.z;
 
-        float dither = temporalBlueNoise(gl_FragCoord.xy);
+        vec3 viewDirection = -normalize(viewPosition);
+
+        float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
         for (int i = 0; i < GTAO_SLICES; i++) {
 
-            vec3 sliceDir = vec3(sincos(PI * RCP_GTAO_SLICES * (i + dither)), 0.0);
+            vec2 sliceDirection = sincos(PI * RCP_GTAO_SLICES * (i + jitter));
 
-            vec3 axis       = normalize(cross(sliceDir, viewDirection));
-            vec3 orthoDir   = cross(viewDirection, axis);
-            vec3 projNormal = normal - axis * dot(normal, axis);
+            // Projecting the normal to the slice
+            vec3 axis           = normalize(cross(vec3(sliceDirection, 0.0), viewDirection));
+            vec3 orthoDirection = cross(viewDirection, axis);
+            vec3 projNormal     = normal - axis * dot(normal, axis);
 
             float invNormLen = fastRcpLength(projNormal);
-            float cosGamma   = saturate(dot(projNormal, viewDirection) * invNormLen);
-            float gamma      = sign(dot(projNormal, orthoDir)) * fastAcos(cosGamma);
+            float cosGamma   = dot(projNormal, viewDirection) * invNormLen;
+            float gamma      = sign(dot(projNormal, orthoDirection)) * fastAcos(cosGamma);
 
+            // Horizon search
             vec2 horizons = vec2(
-                -findMaximumHorizon(depthTex, projectionInverse, viewPosition, viewDirection, normal,-sliceDir, radius),
-                 findMaximumHorizon(depthTex, projectionInverse, viewPosition, viewDirection, normal, sliceDir, radius)
+                -findMaximumHorizonAngle(depthTex, projectionInverse, viewPosition, viewDirection, normal, -sliceDirection * radius),
+                 findMaximumHorizonAngle(depthTex, projectionInverse, viewPosition, viewDirection, normal,  sliceDirection * radius)
             );
 
+            // Each slice covers PI radians, thus we clamp the angles to the [-PI/2; PI/2] range
             horizons = gamma + clamp(horizons - gamma, -HALF_PI, HALF_PI);
+
+            // The bent normal angle is simply the average of the two horizon angles
+            float bentAngle = dot(horizons, vec2(0.5));
     
+            // Integrating the arc
             vec2 arc = cosGamma + 2.0 * horizons * sin(gamma) - cos(2.0 * horizons - gamma);
 
             visibility += dot(arc, vec2(0.25)) * rcp(invNormLen);
 
-            float bentAngle = dot(horizons, vec2(0.5));
-
-            bentNormal += viewDirection * cos(bentAngle) + orthoDir * sin(bentAngle);
+            bentNormal += viewDirection * cos(bentAngle) + orthoDirection * sin(bentAngle);
         }
 
         bentNormal = normalize(bentNormal) - 0.5 * viewDirection;
 
-        float ao = visibility * RCP_GTAO_SLICES;
-
-        ao = 1.0 - saturate((1.0 - ao) * AO_STRENGTH);
+        float ao = 1.0 - saturate((1.0 - visibility * RCP_GTAO_SLICES) * AO_STRENGTH);
 
         return multiBounceApprox(ao);
     }

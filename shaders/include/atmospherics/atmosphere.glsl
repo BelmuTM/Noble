@@ -29,28 +29,44 @@
         Jimenez et al. (2016). Practical Real-Time Strategies for Accurate Indirect Occlusion. https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf 
         Mayaux, B. (n.d.). Spherical Harmonics. https://patapom.com/blog/SHPortal/
         Wikipedia. (2023). Table of spherical harmonics. https://en.wikipedia.org/wiki/Table_of_spherical_harmonics
+    
+    [Notes]:
+        The scattering/transmittance evaluations are standard Riemann sum integrations.
+        position + increment * 0.5 is midpoint sampling, it improves accuracy by "placing" the samples better.
+        It reduces error of the Riemann sum from ~O(h) for endpoint sampling to ~O(h²) (more accurate).
 */
 
 vec3 getAtmosphereDensities(float centerDist) {
     float altitudeKm = (centerDist - planetRadius) * km_to_m;
+
     vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * km_to_m));
 
-    // Ozone approximation from Jessie
-    float o1 = 25.0 *     exp(( 0.0 - altitudeKm) * rcp(  8.0));
-    float o2 = 30.0 * pow(exp((18.0 - altitudeKm) * rcp( 80.0)), altitudeKm - 18.0);
-    float o3 = 75.0 * pow(exp((25.3 - altitudeKm) * rcp( 35.0)), altitudeKm - 25.3);
-    float o4 = 50.0 * pow(exp((30.0 - altitudeKm) * rcp(150.0)), altitudeKm - 30.0);
-    float ozone = (o1 + o2 + o3 + o4) * rcp(134.628);
+    float ozone = 0.0;
+
+    #if defined WORLD_OVERWORLD
+
+        // Ozone approximation from Jessie
+        float o1 = 25.0 *     exp(( 0.0 - altitudeKm) * rcp(  8.0));
+        float o2 = 30.0 * pow(exp((18.0 - altitudeKm) * rcp( 80.0)), altitudeKm - 18.0);
+        float o3 = 75.0 * pow(exp((25.3 - altitudeKm) * rcp( 35.0)), altitudeKm - 25.3);
+        float o4 = 50.0 * pow(exp((30.0 - altitudeKm) * rcp(150.0)), altitudeKm - 30.0);
+        
+        ozone = (o1 + o2 + o3 + o4) * rcp(134.628);
+
+    #endif
 
     return vec3(rayleighMie, ozone);
 }
 
 vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 attenuationCoefficients) {
-    float stepSize   = intersectSphere(origin, lightDirection, atmosphereUpperRadius).y * RCP_ATMOSPHERE_TRANSMITTANCE_STEPS;
-    vec3 increment   = lightDirection * stepSize;
-    vec3 rayPosition = origin + increment * 0.5;
+
+    float stepSize    = intersectSphere(origin, lightDirection, atmosphereUpperRadius).y * RCP_ATMOSPHERE_TRANSMITTANCE_STEPS;
+    vec3  increment   = lightDirection * stepSize;
+    vec3  rayPosition = origin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
+
+    // Transmittance evaluation
     
     for (int i = 0; i < ATMOSPHERE_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
         accumAirmass += getAtmosphereDensities(length(rayPosition)) * stepSize;
@@ -63,12 +79,17 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
 
     vec3 evaluateAtmosphericScattering(vec3 rayDirection, vec3 skyIlluminance) {
 
-        vec2 dists = intersectSphericalShell(atmosphereRayPosition, rayDirection, atmosphereLowerRadius, atmosphereUpperRadius);
-        if (dists.y < 0.0) return vec3(0.0);
+        // Ray marching setup, the ray starts at the volume's bounds
 
-        float stepSize   = (dists.y - dists.x) * RCP_ATMOSPHERE_SCATTERING_STEPS;
+        vec2 distsToVolume = intersectSphericalShell(atmosphereRayPosition, rayDirection, atmosphereLowerRadius, atmosphereUpperRadius);
+
+        if (distsToVolume.y < 0.0) { return vec3(0.0); }
+
+        float stepSize   = (distsToVolume.y - distsToVolume.x) * RCP_ATMOSPHERE_SCATTERING_STEPS;
         vec3 increment   = rayDirection * stepSize;
         vec3 rayPosition = atmosphereRayPosition + increment * 0.5;
+
+        // Phases
 
         #if defined WORLD_OVERWORLD
 
@@ -78,18 +99,20 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
                 vec2(rayleighPhase(VdotL.y), kleinNishinaPhase(VdotL.y, mieAnisotropyFactor))
             );
 
-            mat2x3 scatteringCoefficients  = atmosphereScatteringCoefficients;
-            mat3x3 attenuationCoefficients = atmosphereAttenuationCoefficients;
+            const mat2x3 scatteringCoefficients  = atmosphereScatteringCoefficients;
+            const mat3x3 attenuationCoefficients = atmosphereAttenuationCoefficients;
 
         #elif defined WORLD_END
 
             float VdotL = dot(rayDirection, starVector);
             vec2  phase = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
-            mat2x3 scatteringCoefficients  = atmosphereScatteringCoefficientsEnd;
-            mat3x3 attenuationCoefficients = atmosphereAttenuationCoefficientsEnd;
+            const mat2x3 scatteringCoefficients  = atmosphereScatteringCoefficientsEnd;
+            const mat3x3 attenuationCoefficients = atmosphereAttenuationCoefficientsEnd;
 
         #endif
+
+        // Tracing
 
         mat2x3 scattering = mat2x3(vec3(0.0), vec3(0.0));
 
@@ -99,21 +122,15 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
         
         for (int i = 0; i < ATMOSPHERE_SCATTERING_STEPS; i++, rayPosition += increment) {
 
-            #if defined WORLD_OVERWORLD
+            // Density function
 
-                vec3 airmass          = getAtmosphereDensities(length(rayPosition)) * stepSize;
-                vec3 stepOpticalDepth = atmosphereAttenuationCoefficients * airmass;
+            vec3 airmass = getAtmosphereDensities(length(rayPosition)) * stepSize;
 
-            #elif defined WORLD_END
+            // Scattering evaluation
 
-                float altitudeKm       = (length(rayPosition) - planetRadius) * km_to_m;
-                vec3  airmass          = exp(altitudeKm / -(vec3(scaleHeights, 5e3) * km_to_m)) * stepSize;
-                vec3  stepOpticalDepth = atmosphereAttenuationCoefficientsEnd * airmass;
-                
-            #endif
-
-            vec3 stepTransmittance  = exp(-stepOpticalDepth);
-            vec3 visibleScattering  = transmittance * saturate((stepTransmittance - 1.0) / -stepOpticalDepth);
+            vec3 stepOpticalDepth  = attenuationCoefficients * airmass;
+            vec3 stepTransmittance = exp(-stepOpticalDepth);
+            vec3 visibleScattering = transmittance * saturate((stepTransmittance - 1.0) / -stepOpticalDepth);
 
             #if defined WORLD_OVERWORLD
 
@@ -131,10 +148,12 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
 
             #endif
 
-            vec3 stepScattering    = scatteringCoefficients * airmass.xy;
-            vec3 stepScatterAlbedo = stepScattering / stepOpticalDepth;
+            // Multiple scattering approximation
 
-            vec3 multScatteringFactor = stepScatterAlbedo * 0.84;
+            vec3 stepScattering       = scatteringCoefficients * airmass.xy;
+            vec3 stepScatteringAlbedo = stepScattering / stepOpticalDepth;
+
+            vec3 multScatteringFactor = stepScatteringAlbedo * 0.84;
             vec3 multScatteringEnergy = multScatteringFactor / (1.0 - multScatteringFactor);
                  multipleScattering  += multScatteringEnergy * visibleScattering * stepScattering;
 

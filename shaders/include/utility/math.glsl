@@ -197,10 +197,10 @@ vec2 intersectSphericalShell(vec3 origin, vec3 direction, float innerSphereRadiu
 
     if (!outerSphereIntersected) return vec2(-1.0);
 
-    vec2 dists;
-    dists.x = innerSphereIntersected && innerSphereDists.x < 0.0 ? innerSphereDists.y : max0(outerSphereDists.x);
-    dists.y = innerSphereIntersected && innerSphereDists.x > 0.0 ? innerSphereDists.x : outerSphereDists.y;
-    return dists;
+    return vec2(
+        innerSphereIntersected && innerSphereDists.x < 0.0 ? innerSphereDists.y : max0(outerSphereDists.x),
+        innerSphereIntersected && innerSphereDists.x > 0.0 ? innerSphereDists.x : outerSphereDists.y
+    );
 }
 
 //////////////////////////////////////////////////////////
@@ -282,35 +282,6 @@ float gaussianDistribution2D(vec2 xy, float sigma) {
 //////////////////////////////////////////////////////////
 /*---------------------- ENCODING ----------------------*/
 //////////////////////////////////////////////////////////
-
-uint encodeRGBE(vec3 color) {
-    float maxChannel = maxOf(color);
-    if (maxChannel < 1e-6) return 0u;
-
-    float exponent = ceil(log2(maxChannel));
-    float scale    = exp2(-exponent) * 255.0;
-
-    uvec4 encoded;
-    encoded.r = uint(clamp(color.r * scale, 0.0, 255.0));
-    encoded.g = uint(clamp(color.g * scale, 0.0, 255.0));
-    encoded.b = uint(clamp(color.b * scale, 0.0, 255.0));
-    encoded.a = uint(exponent + 128.0);
-
-    return (encoded.r << 0u) | (encoded.g << 8u) | (encoded.b << 16u) | (encoded.a << 24u);
-}
-
-vec3 decodeRGBE(uint packedColor) {
-    uvec4 encoded;
-    encoded.r = packedColor >>  0u & 0xFFu;
-    encoded.g = packedColor >>  8u & 0xFFu;
-    encoded.b = packedColor >> 16u & 0xFFu;
-    encoded.a = packedColor >> 24u & 0xFFu;
-
-    float exponent = float(int(encoded.a) - 128);
-    float scale    = exp2(exponent) / 255.0;
-
-    return encoded.rgb * scale;
-}
 
 vec2 encodeUnitVector(vec3 v) {
     vec2 encoded = v.xy / (abs(v.x) + abs(v.y) + abs(v.z));

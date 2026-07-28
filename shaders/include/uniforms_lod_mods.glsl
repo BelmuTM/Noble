@@ -32,8 +32,10 @@
     uniform mat4 dhProjectionInverse;
     uniform mat4 dhProjectionPrevious;
 
-    #define modNearPlane dhNearPlane
-    #define modFarPlane  dhFarPlane
+    uniform int dhRenderDistance;
+
+    #define nearPlane near
+    #define farPlane  dhRenderDistance
 
     #define modProjection         dhProjection
     #define modProjectionInverse  dhProjectionInverse
@@ -54,8 +56,11 @@
     uniform mat4 vxProjInv;
     uniform mat4 vxProjPrev;
 
-    #define modNearPlane near
-    #define modFarPlane  far
+    uniform int vxRenderDistance;
+
+    #define nearPlane near
+
+    float farPlane = float(vxRenderDistance * 16);
 
     #define modProjection         vxProj
     #define modProjectionInverse  vxProjInv
@@ -66,8 +71,8 @@
 
 #else
 
-    #define modNearPlane near
-    #define modFarPlane  far
+    #define nearPlane near
+    #define farPlane  far
 
     #define modProjection         gbufferProjection
     #define modProjectionInverse  gbufferProjectionInverse

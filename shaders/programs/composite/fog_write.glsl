@@ -89,13 +89,9 @@
         float depth0 = texture(depthtex0, vertexCoords).r;
         float depth1 = texture(depthtex1, vertexCoords).r;
 
-        float farPlane = far;
-
         mat4 projectionInverse = gbufferProjectionInverse;
 
         #if defined CHUNK_LOADER_MOD_ENABLED
-
-            farPlane = modFarPlane;
 
             if (depth1 >= 1.0) {
         
@@ -169,9 +165,9 @@
                 } else {
 
                     #if AIR_FOG == 1
-                        computeVolumetricAirFog(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skyTranslucents);
+                        computeVolumetricAirFog(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, viewPosition0, VdotL, directIlluminanceFinal, skyIlluminance, skyTranslucents);
                     #elif AIR_FOG == 2
-                        computeAirFogApproximation(scatteringBack, transmittanceBack, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                        computeAirFogApproximation(scatteringBack, transmittanceBack, viewPosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
                     #endif
 
                 }

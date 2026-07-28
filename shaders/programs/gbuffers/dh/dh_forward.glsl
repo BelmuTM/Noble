@@ -109,11 +109,9 @@
         #endif
 
         float depth       = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
-        float linearDepth = linearizeDepth(depth, near, far);
-
-        float linearDepthDh = linearizeDepth(gl_FragCoord.z, dhNearPlane, dhFarPlane);
+        float linearDepth = linearizeDepth(depth);
     
-        if (linearDepth < linearDepthDh && depth < 1.0) { return; }
+        if (depth < 1.0) { return; }
 
         Material material;
 

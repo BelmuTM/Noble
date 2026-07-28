@@ -104,13 +104,7 @@
 
         float depth = texture(depthtex0, vertexCoords).r;
 
-        float nearPlane = near;
-        float farPlane  = far;
-
         #if defined CHUNK_LOADER_MOD_ENABLED
-
-            nearPlane = modNearPlane;
-            farPlane  = modFarPlane;
 
             if (depth >= 1.0) {
                 
@@ -225,9 +219,9 @@
                     float subsurfaceDepth = 0.0;
 
                     if (modFragment) {
-                        contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, nearPlane, farPlane, RENDER_SCALE, subsurfaceDepth);
+                        contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
                     } else {
-                        contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, nearPlane, farPlane, RENDER_SCALE, subsurfaceDepth);
+                        contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
                     }
 
                     // Use the subsurface depth from contact shadows if the one from shadow mapping is undefined/invalid

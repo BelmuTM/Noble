@@ -88,13 +88,7 @@
         mat4 projectionInverse  = gbufferProjectionInverse;
         mat4 projectionPrevious = gbufferPreviousProjection;
 
-        float nearPlane = near;
-        float farPlane  = far;
-
         #if defined CHUNK_LOADER_MOD_ENABLED
-
-            nearPlane = modNearPlane;
-            farPlane  = modFarPlane;
 
             if (depth >= 1.0) {
                 
@@ -191,8 +185,8 @@
 
         float weight = 0.975;
 
-        float linearDepth     = linearizeDepth(prevPosition.z         , nearPlane, farPlane);
-        float linearPrevDepth = linearizeDepth(exp2(prevReflections.a), nearPlane, farPlane);
+        float linearDepth     = linearizeDepth(prevPosition.z);
+        float linearPrevDepth = linearizeDepth(exp2(prevReflections.a));
         float depthWeight     = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.01);
 
         float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isHand ? 1.0 : (isReflectingSky ? 0.8 : 0.5));

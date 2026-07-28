@@ -23,11 +23,13 @@
         Kutz et al. (2017). Spectral and Decomposition Tracking for Rendering HeterogeneousVolumes. https://media.disneyanimation.com/uploads/production/publication_asset/158/asset/SpectralAndDecompositionTracking.pdf
 */
 
-float dither = temporalBlueNoise(gl_FragCoord.xy);
+float jitter = temporalBlueNoise(gl_FragCoord.xy);
 
 const float aerialPerspectiveMult = 1.0;
 
 #if defined WORLD_OVERWORLD
+
+    // Overworld
 
     const vec3 sandFogExtinctionCoefficients = vec3(0.24, 0.28, 0.36);
     const vec3 sandFogScatteringCoefficients = vec3(0.80, 0.55, 0.36);
@@ -45,6 +47,8 @@ const float aerialPerspectiveMult = 1.0;
 
 #elif defined WORLD_NETHER
 
+    // Nether
+
     const vec3 airFogAttenuationCoefficients = vec3(0.02, 0.03, 0.30);
     const vec3 airFogScatteringCoefficients  = vec3(0.20, 0.10, 0.06);
 
@@ -56,6 +60,8 @@ const float aerialPerspectiveMult = 1.0;
     const float densityMult     = 0.03;
 
 #elif defined WORLD_END
+
+    // End
 
     float airFogTransitionFactor = sin(frameTimeCounter * 2.0);
 
@@ -87,11 +93,14 @@ float calculateAirFogPhase(float cosTheta) {
 
 #if AIR_FOG == 2
 
+    //////////////////////////////////////////////////////////
+    /*--------------- AIR FOG APPROXIMATION ----------------*/
+    //////////////////////////////////////////////////////////
+
     void computeAirFogApproximation(
         out vec3 scatteringOut,
         out vec3 transmittanceOut,
         vec3 viewPosition,
-        float farPlane,
         float VdotL,
         vec3 directIlluminance,
         vec3 skyIlluminance,
@@ -130,6 +139,10 @@ float calculateAirFogPhase(float cosTheta) {
 
 #elif AIR_FOG == 1
 
+    //////////////////////////////////////////////////////////
+    /*----------------- AIR FOG RAYMARCHED -----------------*/
+    //////////////////////////////////////////////////////////
+
     uniform sampler3D depthtex2;
 
     float getAirFogDensity(vec3 position) {
@@ -142,6 +155,8 @@ float calculateAirFogPhase(float cosTheta) {
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
 
         #if defined WORLD_END
+
+            // Rotating cloud centered at the origin (0,0,0)
         
             float movementSpeed = frameTimeCounter * 10.0;
 
@@ -174,6 +189,8 @@ float calculateAirFogPhase(float cosTheta) {
 
         #elif defined WORLD_END
 
+            // End cloud ring shape
+
             float innerRadius    = 30.0;
             float outerRingStart = 70.0;
             float outerRingEnd   = 160.0;
@@ -191,13 +208,31 @@ float calculateAirFogPhase(float cosTheta) {
         return saturate(shapeNoise) * fogDensity * densityMult;
     }
 
+    vec2 intersectFogVolume(vec3 rayDirection) {
+        
+        float rcpDirectionY = 1.0 / rayDirection.y;
+
+        float volumeStart = (fogAltitude                - eyeAltitude) * rcpDirectionY;
+        float volumeEnd   = (fogAltitude + fogThickness - eyeAltitude) * rcpDirectionY;
+
+        if (rayDirection.y < 0.0) {
+            float tmp = volumeStart;
+
+            volumeStart = volumeEnd;
+            volumeEnd   = tmp;
+        }
+
+        if (volumeEnd < 0.0) { return vec2(-1.0); }
+
+        return vec2(max0(volumeStart), volumeEnd);
+    }
+
     void computeVolumetricAirFog(
         inout vec3 scatteringOut,
         inout vec3 transmittanceOut,
         vec3 startPosition,
         vec3 endPosition,
         vec3 viewPosition,
-        float farPlane,
         float VdotL,
         vec3 directIlluminance,
         vec3 skyIlluminance,
@@ -207,107 +242,172 @@ float calculateAirFogPhase(float cosTheta) {
             return;
         #endif
 
-        // Ray marching setup
-        const float stepSize = 1.0 / AIR_FOG_SCATTERING_STEPS;
-        
-        vec3 increment    = (endPosition - startPosition) * stepSize;
-        vec3 rayPosition  = startPosition + increment * dither;
-             rayPosition += cameraPosition;
-
-        vec3 shadowStartPosition = worldToShadowClip(startPosition);
-        vec3 shadowIncrement     = (worldToShadowClip(endPosition) - shadowStartPosition) * stepSize;
-        vec3 shadowPosition      = shadowStartPosition + shadowIncrement * dither;
-
-        float rayLength = length(increment);
-
-        float distanceFalloffAerial = linearStep(0.0, farPlane, length(endPosition.xz));
-
-        // Phases
-        float phaseFog    = calculateAirFogPhase(VdotL);
-        vec2  phaseAerial = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
-
-        // Tracing
-        vec3 shadow = vec3(0.0);
+        vec3 scatteringSun = vec3(0.0);
+        vec3 scatteringSky = vec3(0.0);
 
         const float minDensity = 0.01;
 
-        for (uint i = 0u; i < AIR_FOG_SCATTERING_STEPS && maxOf(transmittanceOut) > EPS;
-            i++, rayPosition += increment, shadowPosition += shadowIncrement
-        ) {
+        // Ray marching setup
 
-            #if defined WORLD_OVERWORLD
+        vec3 rayDirection = endPosition - startPosition;
+
+        float rayLength    = lengthSqr(rayDirection);
+        float rcpRayLength = inversesqrt(rayLength);
+        
+        rayLength    *= rcpRayLength;
+        rayDirection *= rcpRayLength;
+
+        if (rayLength < EPS) { return; }
+
+        vec3 shadowStartPosition = worldToShadowClip(startPosition);
+        vec3 shadowDirection     = mat3(shadowModelView) * rayDirection * diagonal3(shadowProjection);
+
+        //////////////////////////////////////////////////////////
+        /*------------------ AIR FOG TRACING -------------------*/
+        //////////////////////////////////////////////////////////
+
+        // Intersecting the fog volume
+        vec2 distsToVolume = intersectFogVolume(rayDirection);
+
+        if (distsToVolume.y > 0.0 && fogDensity > minDensity) {
+
+            // Calculating the distance travelled inside the fog volume per step
+            float fogRayLength = sky ? distsToVolume.y : rayLength;
+                  fogRayLength = clamp(fogRayLength - distsToVolume.x, 0.0, farPlane);
+
+            int fogStepCount = int(floor(float(AIR_FOG_MIN_SCATTERING_STEPS) + AIR_FOG_SCATTERING_STEPS_GROWTH * fogRayLength));
+                fogStepCount = min(fogStepCount, AIR_FOG_MAX_SCATTERING_STEPS);
+
+            float fogStepSize = 1.0 / float(fogStepCount);
+
+            fogRayLength *= fogStepSize;
             
-                shadow = getShadowColor(shadowClipToShadowScreen(shadowPosition));
+            vec3 fogIncrement = rayDirection * fogRayLength;
 
-                #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+            vec3 fogRayPosition  = startPosition + rayDirection * (distsToVolume.x + fogRayLength * jitter);
+                 fogRayPosition += cameraPosition;
 
-                    shadow *= getCloudsShadows(rayPosition);
-                    
+            vec3 fogShadowIncrement = (worldToShadowClip(endPosition) - shadowStartPosition) * fogStepSize;
+            vec3 fogShadowPosition  = shadowStartPosition + shadowDirection * (distsToVolume.x + fogRayLength * jitter);
+
+            // Fog phase
+            float phaseFog = calculateAirFogPhase(VdotL);
+
+            for (int i = 0; i < fogStepCount && maxOf(transmittanceOut) > EPS; i++) {
+
+                // Shadows sampling
+
+                vec3 shadow = vec3(1.0);
+
+                #if defined WORLD_OVERWORLD
+                
+                    shadow = getShadowColor(shadowClipToShadowScreen(fogShadowPosition));
+
+                    #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+                        shadow *= getCloudsShadows(fogRayPosition);
+                    #endif
+
                 #endif
 
-            #endif
+                // Air fog
 
-            float densityFog = 0.0;
+                float distanceFalloffFog = linearStep(0.0, 1.0, farPlane / length(fogRayPosition.xz - cameraPosition.xz));
 
-            if (fogDensity > minDensity) {
+                float densityFog = getAirFogDensity(fogRayPosition) * distanceFalloffFog;
 
-                float distanceFalloffFog = quinticStep(0.0, 1.0, exp2(-length(rayPosition.xz - cameraPosition.xz) / farPlane));
+                if (densityFog > minDensity) {
 
-                densityFog = getAirFogDensity(rayPosition) * distanceFalloffFog;
+                    float airmassFog      = densityFog * fogRayLength;
+                    vec3  opticalDepthFog = airFogAttenuationCoefficients * airmassFog;
 
+                    vec3 stepTransmittanceFog = exp(-opticalDepthFog);
+                    vec3 visibleScatteringFog = transmittanceOut * saturate((stepTransmittanceFog - 1.0) / -opticalDepthFog);
+
+                    scatteringSun += airFogScatteringCoefficients * airmassFog * phaseFog       * visibleScatteringFog * shadow;
+                    scatteringSky += airFogScatteringCoefficients * airmassFog * isotropicPhase * visibleScatteringFog;
+
+                    transmittanceOut *= stepTransmittanceFog;
+
+                }
+
+                // Incrementing rays
+                fogRayPosition    += fogIncrement;
+                fogShadowPosition += fogShadowIncrement;
             }
 
-            vec3 stepScatteringSun = vec3(0.0);
-            vec3 stepScatteringSky = vec3(0.0);
+        }
 
-            vec3 stepTransmittance = vec3(1.0);
+        //////////////////////////////////////////////////////////
+        /*------------- AERIAL PERSPECTIVE TRACING -------------*/
+        //////////////////////////////////////////////////////////
 
-            if (densityFog > minDensity) {
+        #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
 
-                float airmassFog      = densityFog * rayLength;
-                vec3  opticalDepthFog = airFogAttenuationCoefficients * airmassFog;
+            const float aerialStepSize = 1.0 / AERIAL_PERSPECTIVE_SCATTERING_STEPS;
 
-                vec3 stepTransmittanceFog = exp(-opticalDepthFog);
-                vec3 visibleScatteringFog = transmittanceOut * saturate((stepTransmittanceFog - 1.0) / -opticalDepthFog);
+            float aerialRayLength  = mix(rayLength, rayLength * AERIAL_PERSPECTIVE_DISTANCE_MULTIPLIER, saturate(rayLength / farPlane) * float(!sky));
+                  aerialRayLength *= aerialStepSize;
 
-                stepScatteringSun += airFogScatteringCoefficients * airmassFog * phaseFog       * visibleScatteringFog;
-                stepScatteringSky += airFogScatteringCoefficients * airmassFog * isotropicPhase * visibleScatteringFog;
+            vec3 aerialIncrement = rayDirection * aerialRayLength;
 
-                stepTransmittance *= stepTransmittanceFog;
+            vec3 aerialRayPosition  = startPosition + aerialIncrement * jitter;
+                 aerialRayPosition += cameraPosition;
 
-            }
+            vec3 aerialShadowIncrement = (worldToShadowClip(endPosition) - shadowStartPosition) * aerialStepSize;
+            vec3 aerialShadowPosition  = shadowStartPosition + aerialShadowIncrement * jitter;
 
-            #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
+            // Aerial perspective phase
+            vec2 phaseAerial = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
-                // float heightFalloffAerial = exp(-max0(rayPosition.y - cameraPosition.y) * 0.08) * float(!sky);
+            for (int i = 0; i < AERIAL_PERSPECTIVE_SCATTERING_STEPS && maxOf(transmittanceOut) > EPS; i++) {
 
-                float airmassAerial      = float(!sky) * rayLength * distanceFalloffAerial * AERIAL_PERSPECTIVE_DENSITY * AERIAL_PERSPECTIVE_DENSITY_MULTIPLIER;
+                // Shadows sampling
+
+                vec3 shadow = getShadowColor(shadowClipToShadowScreen(aerialShadowPosition));
+
+                #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+                    shadow *= getCloudsShadows(aerialShadowPosition);
+                #endif
+
+                // Aerial perspective
+
+                float airmassAerial      = aerialRayLength * AERIAL_PERSPECTIVE_DENSITY;
                 vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
 
                 vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
                 vec3 visibleScatteringAerial = transmittanceOut * saturate((stepTransmittanceAerial - 1.0) / -opticalDepthAerial);
 
-                stepScatteringSun += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * visibleScatteringAerial;
-                stepScatteringSky += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * visibleScatteringAerial;
+                scatteringSun += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * visibleScatteringAerial * shadow;
+                scatteringSky += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * visibleScatteringAerial;
 
-                stepTransmittance *= stepTransmittanceAerial;
+                transmittanceOut *= stepTransmittanceAerial;
 
-            #endif
+                // Incrementing rays
+                aerialRayPosition    += aerialIncrement;
+                aerialShadowPosition += aerialShadowIncrement;
+            }
 
-            #if defined WORLD_OVERWORLD
-                stepScatteringSky *= eyeBrightness.y * rcp240;
-            #endif
+        #endif
 
-            scatteringOut += stepScatteringSun * shadow * directIlluminance
-                           + stepScatteringSky * skyIlluminance;
+        //////////////////////////////////////////////////////////
+        /*------------- FOG SCATTERING EVALUATION --------------*/
+        //////////////////////////////////////////////////////////
 
-            transmittanceOut *= stepTransmittance;
-        }
+        #if defined WORLD_OVERWORLD
+            scatteringSky *= eyeBrightness.y * rcp240;
+        #endif
+
+        scatteringOut += scatteringSun * directIlluminance
+                       + scatteringSky * skyIlluminance;
     }
 
 #endif
 
 #if WATER_FOG == 0
+
+    //////////////////////////////////////////////////////////
+    /*-------------- WATER FOG APPROXIMATION ---------------*/
+    //////////////////////////////////////////////////////////
 
     void computeWaterFogApproximation(
         out vec3 scatteringOut,
@@ -322,11 +422,15 @@ float calculateAirFogPhase(float cosTheta) {
         transmittanceOut = exp(-waterAbsorptionCoefficients * distance(startPosition, endPosition));
 
         scatteringOut  = skyIlluminance    * isotropicPhase * skylight;
-        scatteringOut += directIlluminance * cornetteShanksPhase(VdotL, 0.85);
+        scatteringOut += directIlluminance * cornetteShanksPhase(VdotL, waterAnisotropyFactor);
         scatteringOut *= waterScatteringCoefficients * (1.0 - transmittanceOut) / waterAbsorptionCoefficients;
     }
 
 #else
+
+    //////////////////////////////////////////////////////////
+    /*---------------- WATER FOG RAYMARCHED ----------------*/
+    //////////////////////////////////////////////////////////
 
     void computeVolumetricWaterFog(
         out vec3 scatteringOut,
@@ -340,18 +444,17 @@ float calculateAirFogPhase(float cosTheta) {
         bool sky
     ) {
         // Ray marching setup
-        float jitter = interleavedGradientNoise(gl_FragCoord.xy);
 
         const float rcpSteps = 1.0 / WATER_FOG_STEPS;
 
         vec3  rayVector = endPosition - startPosition;
         float rayLength = length(rayVector);
 
-        if (rayLength < EPS) return;
+        if (rayLength < EPS) { return; }
 
         vec3 worldDirection = rayVector / rayLength;
 
-        vec3 startPositionShadow = worldToShadowClip(startPosition);
+        vec3 shadowStartPosition = worldToShadowClip(startPosition);
         vec3 shadowDirection     = mat3(shadowModelView) * worldDirection * diagonal3(shadowProjection);
 
         // Analytical transmittance evaluation (water is a homogeneous medium)
@@ -380,7 +483,7 @@ float calculateAirFogPhase(float cosTheta) {
             vec3 misWeight = desiredPDF / sampledPDF;
 
             // Shadows sampling
-            vec3 shadowPosition = startPositionShadow + shadowDirection * stepSize;
+            vec3 shadowPosition = shadowStartPosition + shadowDirection * stepSize;
 
             vec3 shadowScreenPosition = shadowClipToShadowScreen(shadowPosition);
 
@@ -394,7 +497,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             #endif
 
-            // Linearized distance traveled through water
+            // Linearized distance travelled through water
             float distanceThroughWater = max0(shadowScreenPosition.z - shadowDepth0) * -shadowProjectionInverse[2].z * RCP_SHADOWS_DEPTH_STRETCH * 2.0;
 
             scatteringSun += misWeight * shadow * exp(-waterAbsorptionCoefficients * distanceThroughWater);
@@ -409,7 +512,7 @@ float calculateAirFogPhase(float cosTheta) {
         const int phaseSampleCount = 4;
 
         float phaseMultiple = 0.0;
-        float anisotropy    = 0.85;
+        float anisotropy    = waterAnisotropyFactor;
 
         // Fake multi-lobe scattering by averaging multiple phase terms
         for (int i = 0; i < phaseSampleCount; i++) {

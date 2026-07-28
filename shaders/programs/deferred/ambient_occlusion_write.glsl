@@ -48,7 +48,7 @@
         #include "/include/utility/rng.glsl"
         
         #include "/include/fragment/ambient_occlusion.glsl"
-
+        
         void main() {
             ao = vec3(0.0, 0.0, 1.0);
 
@@ -97,9 +97,19 @@
 
             // Ambient occlusion tracing
 
-            vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
+            vec3 currFragment = vec3(textureCoords, depth);
 
-            viewPosition += normal * 1e-3;
+            vec3 closestFragment = vec3(0.0);
+
+            if (modFragment) {
+                closestFragment = getClosestFragment(modDepthTex0, currFragment);
+            } else {
+                closestFragment = getClosestFragment(depthtex0, currFragment);
+            }
+
+            vec3 viewPosition = screenToView(closestFragment, projectionInverse, true);
+
+            viewPosition += normal * mix(1e-3, 1.0, length(viewPosition) / farPlane);
 
             vec3 bentNormal = vec3(0.0);
 
@@ -136,16 +146,6 @@
             // Ambient occlusion filtering
 
             #if AO_FILTER == 1
-
-                vec3 currFragment = vec3(textureCoords, depth);
-
-                vec3 closestFragment;
-
-                if (modFragment) {
-                    closestFragment = getClosestFragment(modDepthTex0, currFragment);
-                } else {
-                    closestFragment = getClosestFragment(depthtex0, currFragment);
-                }
 
                 vec2 prevCoords = vertexCoords + getVelocity(closestFragment, projectionInverse, projectionPrevious).xy * RENDER_SCALE;
 

@@ -69,6 +69,8 @@ float iorToF0(float ior) {
 
 const float waterF0 = 0.02;
 
+const float waterAnisotropyFactor = 0.85;
+
 const vec3 waterAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01);
 const vec3 waterScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01);
 

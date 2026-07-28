@@ -69,10 +69,12 @@ in vec2 textureCoords;
         color = clamp(color, vec3(0.02745098039), vec3(0.96862745098));
 
         #if DEBUG_LUT == 1
+        
             if (all(lessThan(gl_FragCoord.xy, ivec2(256)))) {
                 color = texture(LUT_BUFFER, gl_FragCoord.xy * rcpLutTexSize * 2.0).rgb;
                 return;
             }
+
         #endif
 
         color.b *= (lutSize - 1.0);
@@ -151,7 +153,7 @@ void debugOutput(inout vec3 color) {
         color = decodeUnitVector(unpackUnorm2x16(texture(GBUFFERS_DATA, textureCoords * RENDER_SCALE).w)) * 0.5 + 0.5;
 
     #elif DEBUG_DEPTH == 1
-        color = vec3(linearizeDepth(texture(depthtex0, textureCoords * RENDER_SCALE).r, near, far) / far);
+        color = vec3(linearizeDepth(texture(depthtex0, textureCoords * RENDER_SCALE).r) / farPlane);
 
     #elif DEBUG_AO == 1
         color = vec3(texture(AO_BUFFER, textureCoords * RENDER_SCALE).b);

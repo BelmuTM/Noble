@@ -165,17 +165,12 @@ vec3 computeRefractions(
     float depth0 = texture(depthtex0, refractedPosition.xy).r;
     float depth1 = texture(depthtex1, refractedPosition.xy).r;
 
-    float nearPlane = near;
-    float farPlane  = far;
-
     #if defined CHUNK_LOADER_MOD_ENABLED
 
         if (depth0 >= 1.0) {
+
             depth0 = texture(modDepthTex0, refractedPosition.xy).r;
             depth1 = texture(modDepthTex1, refractedPosition.xy).r;
-
-            nearPlane = modNearPlane;
-            farPlane  = modFarPlane;
         }
         
     #endif
@@ -194,16 +189,11 @@ vec3 computeRefractions(
     }
 
     // Approximate absorption for other materials
-    float density = 0.0;
+    float density = 3.0;
 
-    if (id == NETHER_PORTAL_ID) {
-        density = 3.0;
-    } else {
-        density = distance(
-            linearizeDepth(depth1, nearPlane, farPlane),
-            linearizeDepth(depth0, nearPlane, farPlane)
-        );
+    if (id != NETHER_PORTAL_ID) {
 
+        density = distance(linearizeDepth(depth1), linearizeDepth(depth0));
         density = clamp(density, 0.0, 2.0);
     }
 

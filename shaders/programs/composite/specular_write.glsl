@@ -100,13 +100,7 @@
         mat4 projection        = gbufferProjection;
         mat4 projectionInverse = gbufferProjectionInverse;
 
-        float nearPlane = near;
-        float farPlane  = far;
-
         #if defined CHUNK_LOADER_MOD_ENABLED
-
-            nearPlane = modNearPlane;
-            farPlane  = modFarPlane;
 
             if (depth0 >= 1.0) {
                 
@@ -309,9 +303,9 @@
         } else {
 
             #if AIR_FOG == 1
-                computeVolumetricAirFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, sky);
+                computeVolumetricAirFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, VdotL, directIlluminanceFinal, skyIlluminance, sky);
             #elif AIR_FOG == 2
-                computeAirFogApproximation(scatteringFront, transmittanceFront, viewPosition0, farPlane, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                computeAirFogApproximation(scatteringFront, transmittanceFront, viewPosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
             #endif
 
         }

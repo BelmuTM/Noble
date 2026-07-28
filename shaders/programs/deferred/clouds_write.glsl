@@ -59,17 +59,6 @@
         #include "/include/atmospherics/constants.glsl"
         #include "/include/atmospherics/clouds.glsl"
 
-        float find4x4MaximumDepth(sampler2D depthTexture, vec2 coords) {
-            coords *= viewSize;
-
-            return maxOf(vec4(
-                texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2( 2,  2)).r,
-                texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2(-2,  2)).r,
-                texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2(-2, -2)).r,
-                texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2( 2, -2)).r
-            ));
-        }
-
         void main() {
 
             // Clouds setup
@@ -113,9 +102,9 @@
             #endif
 
             if (modFragment) {
-                if (find4x4MaximumDepth(modDepthTex0, vertexCoords) < 1.0) { return; }
+                if (find2x2MaximumDepth(modDepthTex0, vertexCoords) < 1.0) { return; }
             } else {
-                if (find4x4MaximumDepth(depthtex0, vertexCoords) < 1.0) { return; }
+                if (find2x2MaximumDepth(depthtex0, vertexCoords) < 1.0) { return; }
             }
 
             // Cloud layers tracing

@@ -30,8 +30,6 @@ float jitter1 = interleavedGradientNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize *
         mat4 projection,
         mat4 projectionInverse,
         vec3 viewPosition,
-        float nearPlane,
-        float farPlane,
         float scale,
         inout float subsurfaceDepth
     ) {
@@ -66,8 +64,8 @@ float jitter1 = interleavedGradientNoise(gl_FragCoord.yx * 0.9 + vec2(viewSize *
 
             float depth = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
 
-            float linearDepth    = linearizeDepth(depth        , nearPlane, farPlane);
-            float linearRayDepth = linearizeDepth(rayPosition.z, nearPlane, farPlane);
+            float linearDepth    = linearizeDepth(depth);
+            float linearRayDepth = linearizeDepth(rayPosition.z);
 
             float relativeGap = abs(linearRayDepth - linearDepth) / linearRayDepth;
 
@@ -146,7 +144,7 @@ float getShadowCaustics(vec3 samplePosition) {
             subsurfaceDepthSum += max0(shadowDepth - depth);
         }
         
-        // Linearized distance traveled through the block
+        // Linearized distance travelled through the block
         subsurfaceDepth = max0(subsurfaceDepthSum) * RCP_BLOCKER_SEARCH_SAMPLES * -shadowProjectionInverse[2].z * RCP_SHADOWS_DEPTH_STRETCH;
 
         return weightSum == 0.0 ? -1.0 : blockerDepthSum / weightSum;

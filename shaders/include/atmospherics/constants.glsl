@@ -26,7 +26,7 @@
 /* ATMOSPHERIC CONSTANTS */
 
 #if defined WORLD_OVERWORLD
-    const float atmosphereLowerOffset = -1e3;
+    const float atmosphereLowerOffset = -5e3;
 #else
     const float atmosphereLowerOffset = 0.0;
 #endif

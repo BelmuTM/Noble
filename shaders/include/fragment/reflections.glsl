@@ -69,7 +69,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
 #if REFLECTIONS == 1
 
     //////////////////////////////////////////////////////////
-    /*------------------ ROUGH REFLECTIONS -----------------*/
+    /*----------------- ROUGH REFLECTIONS ------------------*/
     //////////////////////////////////////////////////////////
 
     vec3 computeRoughReflections(
@@ -185,7 +185,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
 #elif REFLECTIONS == 2
 
     //////////////////////////////////////////////////////////
-    /*------------------ SMOOTH REFLECTIONS ----------------*/
+    /*----------------- SMOOTH REFLECTIONS -----------------*/
     //////////////////////////////////////////////////////////
 
     vec3 computeSmoothReflections(

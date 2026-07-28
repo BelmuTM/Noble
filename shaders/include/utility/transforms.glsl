@@ -158,8 +158,12 @@ mat3 calculateTBN(vec3 normal) {
 }
 
 // https://wiki.shaderlabs.org/wiki/Shader_tricks#Linearizing_depth
-float linearizeDepth(float depth, float nearPlane, float farPlane) {
+float linearizeDepth(float depth) {
     return (nearPlane * farPlane) / (depth * (nearPlane - farPlane) + farPlane);
+}
+
+float linearizeDepth(float depth, float nearr, float farr) {
+    return (nearr * farr) / (depth * (nearr - farr) + farr);
 }
 
 float linearizeDepthFromInverseProjection(float depth, mat4 projectionInverse) {
@@ -193,10 +197,11 @@ vec3 getClosestFragment(sampler2D depthTex, vec3 position) {
     vec3 closestFragment = position;
     vec3 currentFragment = vec3(0.0);
 
-    const int size = 1;
+    // 3x3 search
+    const int neighbourhoodSize = 1;
 
-    for (int x = -size; x <= size; x++) {
-        for (int y = -size; y <= size; y++) {
+    for (int x = -neighbourhoodSize; x <= neighbourhoodSize; x++) {
+        for (int y = -neighbourhoodSize; y <= neighbourhoodSize; y++) {
             currentFragment.xy = position.xy + vec2(x, y) * texelSize;
             currentFragment.z  = texelFetch(depthTex, ivec2(currentFragment.xy * viewSize * RENDER_SCALE), 0).r;
             closestFragment    = currentFragment.z < closestFragment.z ? currentFragment : closestFragment;
@@ -204,4 +209,26 @@ vec3 getClosestFragment(sampler2D depthTex, vec3 position) {
     }
 
     return closestFragment;
+}
+
+float find2x2MaximumDepth(sampler2D depthTexture, vec2 coords) {
+    coords *= viewSize;
+
+    return maxOf(vec4(
+        texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2( 2,  2)).r,
+        texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2(-2,  2)).r,
+        texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2(-2, -2)).r,
+        texelFetchOffset(depthTexture, ivec2(coords), 0, ivec2( 2, -2)).r
+    ));
+}
+
+float find2x2MinimumDepth(sampler2D depthTexture, vec2 coords, int scale) {
+    coords *= viewSize;
+
+    return maxOf(vec4(
+        texelFetch      (depthTexture, ivec2(coords)        , 0             ).r,
+        texelFetchOffset(depthTexture, ivec2(coords) * scale, 0, ivec2(1, 0)).r,
+        texelFetchOffset(depthTexture, ivec2(coords) * scale, 0, ivec2(0, 1)).r,
+        texelFetchOffset(depthTexture, ivec2(coords) * scale, 0, ivec2(1, 1)).r
+    ));
 }
