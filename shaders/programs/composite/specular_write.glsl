@@ -303,9 +303,9 @@
         } else {
 
             #if AIR_FOG == 1
-                computeVolumetricAirFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, viewPosition0, VdotL, directIlluminanceFinal, skyIlluminance, sky);
+                computeVolumetricAirFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, sky);
             #elif AIR_FOG == 2
-                computeAirFogApproximation(scatteringFront, transmittanceFront, viewPosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                computeAirFogApproximation(scatteringFront, transmittanceFront, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight, sky);
             #endif
 
         }
