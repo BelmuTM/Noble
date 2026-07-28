@@ -90,7 +90,7 @@
             vec3 projNormal     = normal - axis * dot(normal, axis);
 
             float invNormLen = fastRcpLength(projNormal);
-            float cosGamma   = dot(projNormal, viewDirection) * invNormLen;
+            float cosGamma   = saturate(dot(projNormal, viewDirection) * invNormLen);
             float gamma      = sign(dot(projNormal, orthoDirection)) * fastAcos(cosGamma);
 
             // Horizon search

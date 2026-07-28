@@ -245,7 +245,7 @@ float calculateAirFogPhase(float cosTheta) {
         vec3 scatteringSun = vec3(0.0);
         vec3 scatteringSky = vec3(0.0);
 
-        const float minDensity = 0.01;
+        const float minDensity = 1e-4;
 
         // Ray marching setup
 
