@@ -26,7 +26,7 @@
     
 #elif defined STAGE_FRAGMENT
 
-    /* RENDERTARGETS: 9 */
+    /* RENDERTARGETS: 10 */
 
     void main() {}
 

@@ -53,16 +53,14 @@
 #define TEMPORAL_DATA_BUFFER  colortex4
 #define HISTORY_BUFFER        colortex8
 
-#define FOG_BUFFER            colortex11
-
 #define AO_BUFFER             colortex12
-
-#define DEPTH_MIPMAP_BUFFER   colortex13
 
 #define CLOUDMAP_BUFFER       colortex14
 
 #define LUT_BUFFER            colortex6
 #define GBUFFERS_BASIC_BUFFER colortex15
+
+// #define DEPTH_MIPMAP_BUFFER   colortex13
 
 //////////////////////////////////////////////////////////
 /*----------------- OPTIFINE CONSTANTS -----------------*/
@@ -166,6 +164,8 @@ const float RCP_BLOCKER_SEARCH_SAMPLES = 1.0 / BLOCKER_SEARCH_SAMPLES;
 
 #define AO_SCALE 75 // [25 50 75 100]
 
+const float aoScale = AO_SCALE * 0.01;
+
 // SSAO (Screen-Space Ambient Occlusion)
 
 #define SSAO_SAMPLES 12  // [4 8 12 16 20]
@@ -197,6 +197,8 @@ const float RCP_GTAO_SLICES        = 1.0 / GTAO_SLICES;
 
 #define REFLECTIONS         1 // [0 1 2]
 #define REFLECTIONS_SCALE 100 // [25 50 75 100]
+
+const float reflectionsScale = REFLECTIONS_SCALE * 0.01;
 
 #define REFLECTIONS_ROUGHNESS_THRESHOLD 0.5
 
@@ -548,7 +550,7 @@ const float RCP_ATMOSPHERE_TRANSMITTANCE_STEPS = 1.0 / ATMOSPHERE_TRANSMITTANCE_
 #define TONEMAP 0 // [-1 0 1 2 3 4 5 6]
 #define LUT     0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 
-#define AGX_LOOK 0
+#define AGX_LOOK 2
 
 #define PURKINJE 1 // [0 1]
 

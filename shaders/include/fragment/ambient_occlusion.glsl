@@ -48,7 +48,7 @@
 
         for (int i = 0; i < GTAO_HORIZON_STEPS && horizonCosTheta < cosThetaThreshold; i++) {
 
-            float depth = texelFetch(depthTex, slicePosition, 0).r;
+            float depth = texelFetch(depthTex, ivec2(slicePosition * RENDER_SCALE), 0).r;
 
             if (insideScreenBounds(vec3(slicePosition * texelSize, depth), 1.0)) {
 

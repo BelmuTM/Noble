@@ -20,6 +20,8 @@
 
 #include "/settings.glsl"
 
+#include "/include/internal_settings.glsl"
+
 #if defined OVERWORLD_OR_END
 
     #include "/include/taau_scale.glsl"
