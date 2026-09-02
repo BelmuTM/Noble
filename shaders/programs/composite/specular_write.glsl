@@ -158,6 +158,7 @@
                     vec3 viewPosition1 = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
 
                     lightingOut = computeRefractions(
+                        textureCoords,
                         modFragment,
                         projection,
                         projectionInverse,

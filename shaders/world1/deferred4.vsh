@@ -3,4 +3,4 @@
 #define STAGE_VERTEX
 #define WORLD_END
 
-#include "/programs/deferred/diffuse_lighting.glsl"
+#include "/programs/deferred/diffuse_lighting_sky.glsl"

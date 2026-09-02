@@ -130,14 +130,14 @@
 
             float s = step(layer0.a, layer1.a);
 
-            vec3  C_front = mix(layer1.rgb, layer0.rgb, s);
-            float T_front = mix(layer1.b,   layer0.b,   s);
+            vec2  C_front = mix(layer1.rg, layer0.rg, s);
+            float T_front = mix(layer1.b,  layer0.b,  s);
 
-            vec3  C_back  = mix(layer0.rgb, layer1.rgb, s);
-            float T_back  = mix(layer0.b,   layer1.b,   s);
+            vec2  C_back  = mix(layer0.rg, layer1.rg, s);
+            float T_back  = mix(layer0.b,  layer1.b,  s);
 
-            cloudsOut.rgb = C_front + T_front * C_back;
-            cloudsOut.b   = T_front * T_back;
+            cloudsOut.rg = C_front + T_front * C_back;
+            cloudsOut.b  = T_front * T_back;
 
             // Reprojection
 

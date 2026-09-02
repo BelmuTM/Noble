@@ -245,7 +245,7 @@ vec3 blackbody(float temperature) {
     void scotopicVisionApproximation(inout vec3 color) {
         const float bias    = 1.0;
         const float rcpBias = 1.0 / bias;
-        const vec2 xy_b     = vec2(0.25);
+        const vec2  xy_b    = vec2(0.26);
 
         vec3 xyz = toXYZ(color * rcpBias);
 

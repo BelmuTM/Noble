@@ -79,6 +79,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
 #endif
 
 vec3 computeRefractions(
+    vec2 coords,
     bool modFragment,
     mat4 projection,
     mat4 projectionInverse,
@@ -118,7 +119,7 @@ vec3 computeRefractions(
 
     #elif REFRACTIONS == 2
 
-        float jitter = temporalBlueNoise(gl_FragCoord.xy);
+        float jitter = temporalBlueNoise(SCREEN_COORDS);
         float rayLength;
 
         if (modFragment) {
@@ -155,11 +156,13 @@ vec3 computeRefractions(
 
     #endif
 
-    refractedPosition.xy  = mix(textureCoords, refractedPosition.xy, kneemundAttenuation(refractedPosition.xy, REFRACTIONS_BORDER_FADE));
+    refractedPosition.xy  = mix(coords, refractedPosition.xy, kneemundAttenuation(refractedPosition.xy, REFRACTIONS_BORDER_FADE));
     refractedPosition.xy *= RENDER_SCALE;
 
+    vec2 scaledCoords = coords * RENDER_SCALE;
+
     if (!hit || !insideScreenBounds(refractedPosition.xy, 1.0)) {
-        refractedPosition.xy = vertexCoords;
+        refractedPosition.xy = scaledCoords;
     }
 
     float depth0 = texture(depthtex0, refractedPosition.xy).r;
@@ -176,7 +179,7 @@ vec3 computeRefractions(
     #endif
 
     if (depth1 < handDepth) {
-        refractedPosition.xy = vertexCoords;
+        refractedPosition.xy = scaledCoords;
     }
 
     vec3 fresnel = fresnelDielectricDielectric_T(abs(dot(normal, -viewDirection)), n1, n2);

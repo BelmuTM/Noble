@@ -94,7 +94,8 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
         vec4 cloudsBuffer = texture(CLOUDS_BUFFER, coords * RCP_RENDER_SCALE);
 
         // Clouds aerial perspective
-        float distanceFalloff = pow5(1.0 - quinticStep(0.0, 1.0, exp(-4e-5 * cloudsBuffer.a)));
+        float distanceFalloff = saturate(pow5(1.0 - quinticStep(0.0, 1.0, exp(-4e-5 * cloudsBuffer.a))) 
+                              * (1.0 - CLOUDS_AERIAL_PERSPECTIVE_STRENGTH) + CLOUDS_AERIAL_PERSPECTIVE_STRENGTH);
 
         cloudsBuffer.rgb = mix(cloudsBuffer.rgb, vec3(0.0, 0.0, 1.0), distanceFalloff);
 

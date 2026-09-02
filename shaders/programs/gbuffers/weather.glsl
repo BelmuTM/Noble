@@ -29,8 +29,22 @@
 
     out vec2 textureCoords;
 
+    #if defined OVERWORLD_OR_END
+
+        #include "/include/atmospherics/illuminance_fetch.glsl"
+
+        flat out vec3 skyIlluminance;
+
+    #endif
+
     void main() {
         textureCoords = gl_MultiTexCoord0.xy;
+
+        #if defined OVERWORLD_OR_END
+
+            skyIlluminance = DIRECT_ILLUMINANCE();
+
+        #endif
 
         vec3 scenePosition = transform(gbufferModelViewInverse, transform(gl_ModelViewMatrix, gl_Vertex.xyz));
 
@@ -56,7 +70,17 @@
 
     in vec2 textureCoords;
 
+    #if defined OVERWORLD_OR_END
+
+        flat in vec3 skyIlluminance;
+
+    #endif
+
     uniform sampler2D gtexture;
+
+    const vec3 rainColor = vec3(1.0, 1.0, 1.0);
+
+    const vec3 snowColor = vec3(1.0, 1.0, 1.0);
 
     void main() {
 
@@ -76,8 +100,10 @@
             bool isRain = abs(albedo.r - albedo.b) > EPS;
 
             color = isRain
-                  ? vec4(1.0, 1.0, 1.0, RAIN_OPACITY)
-                  : vec4(1.0, 1.0, 1.0, SNOW_OPACITY);
+                  ? vec4(rainColor, RAIN_OPACITY)
+                  : vec4(snowColor, SNOW_OPACITY);
+            
+            color.rgb *= saturate(skyIlluminance * 0.15);
 
             color.rgb *= color.a;
             
