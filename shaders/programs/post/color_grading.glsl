@@ -117,6 +117,8 @@ void main() {
     colorOut *= exposure;
     
     // Tonemapping
+
+    colorOut = ap1ToLinear(colorOut);
     
     #if TONEMAP == 0           // AgX
         agx(colorOut);

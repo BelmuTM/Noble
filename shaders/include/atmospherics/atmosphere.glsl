@@ -37,9 +37,9 @@
 */
 
 vec3 getAtmosphereDensities(float centerDist) {
-    float altitudeKm = (centerDist - planetRadius) * km_to_m;
+    float altitudeKm = (centerDist - planetRadius) * m_to_km;
 
-    vec2 rayleighMie = exp(altitudeKm / -(scaleHeights * km_to_m));
+    vec2 rayleighMie = exp(altitudeKm * -invScaleHeights * km_to_m);
 
     float ozone = 0.0;
 

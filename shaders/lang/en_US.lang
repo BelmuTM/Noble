@@ -577,6 +577,14 @@ option.WEATHER_TILT_ANGLE_X = Weather Tilt Angle
 option.WEATHER_TILT_ANGLE_X.comment = Adjusts the tilt angle of weather (rain, snow) to mimic the effect of wind.
 suffix.WEATHER_TILT_ANGLE_X = °
 
+option.RAIN_OPACITY = Rain Opacity
+option.RAIN_OPACITY.comment = Adjusts the opacity of rain
+suffix.RAIN_OPACITY = x
+
+option.SNOW_OPACITY = Snow Opacity
+option.SNOW_OPACITY.comment = Adjusts the opacity of snow.
+suffix.SNOW_OPACITY = x
+
 #////////////////////////////////////////////////////////#
 #------------------------- WORLD ------------------------#
 #////////////////////////////////////////////////////////#

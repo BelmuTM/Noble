@@ -44,7 +44,8 @@ const float RCP_TAU = 1.0 / TAU;
 const float GOLDEN_ANGLE = PI * (3.0 - sqrt(5.0));
 const float GOLDEN_RATIO = sqrt(5.0) * 0.5 + 0.5;
 
-const float km_to_m = 1e-3;
+const float km_to_m = 1e3;
+const float m_to_km = 1e-3;
 
 const float degrees_to_radians = 0.01745329251994;
 

@@ -28,22 +28,24 @@
                                                                 \
     float noise = textureBicubic(noisetex, position * 5e-3).a;  \
                                                                 \
-    vec2 direction = vec2(0.3 * noise, 0.5 * noise);
+    vec2 direction = vec2(0.3 * noise, 0.5 * noise);            \
+                                                                \
+    float wavesThreshold = WATER_OCTAVES * 0.75;
 
 
 
-#define WAVE_GERSTNER_PARAMS_FACTOR()                                     \
-    float angle = radians(mix(155.0, 15.0, float(i < 12)));               \
-                                                                          \
-    steepness  *= WAVE_STEEPNESS_MULTIPLIER;                              \
-    amplitude  *= WAVE_AMPLITUDE_MULTIPLIER;                              \
-    wavelength *= WAVE_LENGTH_MULTIPLIER;                                 \
-    time       *= WAVE_TIME_MULTIPLIER;                                   \
+#define WAVE_GERSTNER_PARAMS_FACTOR()                                          \
+    float angle = radians(mix(155.0, 15.0, float(float(i) < wavesThreshold))); \
+                                                                               \
+    steepness  *= WAVE_STEEPNESS_MULTIPLIER;                                   \
+    amplitude  *= WAVE_AMPLITUDE_MULTIPLIER;                                   \
+    wavelength *= WAVE_LENGTH_MULTIPLIER;                                      \
+    time       *= WAVE_TIME_MULTIPLIER;                                        \
     direction  *= mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
 
 
 #define WAVE_GERSTNER_TIME_NOISE() \
-    time + noise * 5.0
+    time + noise * 4.0
 
 
 const float g = 9.81; // Earth's gravitational constant

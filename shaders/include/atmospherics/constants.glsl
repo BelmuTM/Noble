@@ -35,13 +35,14 @@ const float planetRadius          = 6371e3;                               // Met
 const float atmosphereLowerRadius = planetRadius + atmosphereLowerOffset; // Meters (m)
 const float atmosphereUpperRadius = planetRadius + 110e3;                 // Meters (m)
 
-const vec2 scaleHeights = vec2(8.40e3, 1.25e3); // Meters (m)
+const vec2 scaleHeights    = vec2(8.40e3, 1.25e3); // Meters (m)
+const vec2 invScaleHeights = 1.0 / scaleHeights;
 
 const float mieScatteringAlbedo = 0.9;
 const float mieAnisotropyFactor = 2346.25355; // energy term e (unitless)
 
 const float ozonePeakDensity    = 5e-6; // Parts per million (ppm)
-const float ozonePeakAltitude   = 35e3; // Kilometers (km)
+const float ozonePeakAltitude   = 35e3; // Meters (m)
 const float ozoneUnitConversion = 1e-4; // Converts from cm² to m²
 
 const float airNumberDensity    = 2.5035422e25;
@@ -50,7 +51,7 @@ const float ozoneNumberDensity  = airNumberDensity * exp(-ozonePeakAltitude / 8e
 // Coefficients in cm²/molecule
 
 const vec3 rayleighScatteringCoefficientsSunny = vec3(6.42905682e-6, 1.08663713e-5, 2.4844733e-5);
-const vec3 mieScatteringCoefficientsSunny      = vec3(22e-6);
+const vec3 mieScatteringCoefficientsSunny      = vec3(4e-6);
 
 const vec3 rayleighScatteringCoefficientsRain = vec3(6.42e-5, 6.98e-5, 8.9e-5);
 const vec3 mieScatteringCoefficientsRain      = vec3(1e-5);
