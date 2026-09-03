@@ -105,5 +105,5 @@ void lensFlares(inout vec3 color, sampler2D colorTex, vec2 coords) {
 
     #endif
 
-    color += flares * attenuationFactor * LENS_FLARES_STRENGTH;
+    color += clamp16(flares * attenuationFactor * LENS_FLARES_STRENGTH);
 }

@@ -78,5 +78,5 @@ void glare(inout vec3 color, sampler2D colorTex, vec2 coords) {
         totalWeight += weight;
     }
     
-    color += (glare / totalWeight) * 0.1 * GLARE_STRENGTH;
+    color += clamp16((glare / totalWeight) * 0.1 * GLARE_STRENGTH);
 }
