@@ -46,6 +46,8 @@ uniform sampler2D vxDepthTexTrans;
 #include "/include/material/material.glsl"
 #include "/include/material/brdf.glsl"
 
+#include "/include/utility/sampling.glsl"
+
 #include "/include/fragment/water.glsl"
 
 #include "/include/post/exposure.glsl"

@@ -82,6 +82,8 @@
 
     #if WATER_CAUSTICS == 1
 
+        #include "/include/utility/sampling.glsl"
+
         #include "/include/fragment/water.glsl"
 
         // https://medium.com/@evanwallace/rendering-realtime-caustics-in-webgl-2a99a29a0b2c
@@ -117,9 +119,11 @@
 
             #if WATER_CAUSTICS == 1
 
+                // const int causticsOctaves = int(round(WATER_OCTAVES * 0.5));
+
                 causticsOut = waterCaustics(
                     worldPosition,
-                    getWaterNormal(worldPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES, 2.0 * WATER_NORMALS_STRENGTH_MULTIPLIER)
+                    getWaterNormal(worldPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES, 1.0 * WATER_NORMALS_STRENGTH_MULTIPLIER)
                 ) * WATER_CAUSTICS_STRENGTH;
 
             #endif

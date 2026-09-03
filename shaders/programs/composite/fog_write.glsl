@@ -142,15 +142,16 @@
         vec3 transmittanceBack = vec3(1.0);
 
         if (depth0 < 1.0) {
-            uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
-
-            float skylight = getSkylightFalloff(unpackLightmap(dataTexture.x).y);
 
             if (viewPosition0.z != viewPosition1.z) {
 
+                uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
+
+                float skylight = getSkylightFalloff(unpackLightmap(dataTexture.x).y);
+
                 vec3 scenePosition1 = viewToWorld(viewPosition1);
 
-                if (isEyeInWater != 1 && isWater(unpackId(dataTexture.x))) {
+                if ((isEyeInWater == 0 && isWater(unpackId(dataTexture.x))) || (isEyeInWater == 1)) {
 
                     #if defined OVERWORLD_OR_END
 
@@ -177,7 +178,9 @@
 
         // Applying back fog
 
-        lightingOut = background * transmittanceBack + scatteringBack;
+        vec3 backgroundWithFog = background * transmittanceBack + scatteringBack;
+
+        lightingOut = backgroundWithFog;
 
         //////////////////////////////////////////////////////////
         /*------------------ ALPHA BLENDING --------------------*/
@@ -215,7 +218,7 @@
 
         // Translucents blending
 
-        lightingOut = mix(lightingOut, background, translucents.a);
+        lightingOut = mix(lightingOut, backgroundWithFog, translucents.a);
 
         lightingOut /= rcpExposure;
     }

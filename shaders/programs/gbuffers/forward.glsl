@@ -108,6 +108,8 @@
 
     #endif
 
+    #include "/include/utility/sampling.glsl"
+
     #include "/include/fragment/water.glsl"
 
     #include "/include/post/exposure.glsl"

@@ -19,27 +19,27 @@
 /********************************************************************************/
 
 
-#define WAVE_GERSTNER_SETUP()                                                     \
-    float speed      = WAVE_SPEED;                                                \
-    float steepness  = WAVE_STEEPNESS;                                            \
-    float amplitude  = WAVE_AMPLITUDE;                                            \
-    float wavelength = WAVE_LENGTH * 1.0;                                         \
-    float time       = frameTimeCounter * speed;                                  \
-                                                                                  \
-    const float angle    = radians(WAVE_ANGLE);                                   \
-    const mat2  rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)); \
-                                                                                  \
-    vec2 direction = vec2(0.1, 0.1);                                              \
-                                                                                  \
-    float noise = FBM(position * 4e-2, 3, 1.0, 2.0, 0.5);
+#define WAVE_GERSTNER_SETUP()                                   \
+    float speed      = WAVE_SPEED;                              \
+    float steepness  = WAVE_STEEPNESS;                          \
+    float amplitude  = WAVE_AMPLITUDE;                          \
+    float wavelength = WAVE_LENGTH * 1.0;                       \
+    float time       = frameTimeCounter * speed;                \
+                                                                \
+    float noise = textureBicubic(noisetex, position * 5e-3).a;  \
+                                                                \
+    vec2 direction = vec2(0.3 * noise, 0.5 * noise);
 
 
-#define WAVE_GERSTNER_PARAMS_FACTOR()        \
-    steepness  *= WAVE_STEEPNESS_MULTIPLIER; \
-    amplitude  *= WAVE_AMPLITUDE_MULTIPLIER; \
-    wavelength *= WAVE_LENGTH_MULTIPLIER;    \
-    time       *= WAVE_TIME_MULTIPLIER;      \
-    direction  *= rotation;
+
+#define WAVE_GERSTNER_PARAMS_FACTOR()                                     \
+    float angle = radians(mix(155.0, 15.0, float(i < 12)));               \
+                                                                          \
+    steepness  *= WAVE_STEEPNESS_MULTIPLIER;                              \
+    amplitude  *= WAVE_AMPLITUDE_MULTIPLIER;                              \
+    wavelength *= WAVE_LENGTH_MULTIPLIER;                                 \
+    time       *= WAVE_TIME_MULTIPLIER;                                   \
+    direction  *= mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
 
 
 #define WAVE_GERSTNER_TIME_NOISE() \
@@ -66,7 +66,10 @@ vec2 gerstnerWavesDerivative(vec2 coords, float time, float steepness, float amp
     float u    = sin(x) * 0.5 + 0.5;
     float dudx = -0.5 * cos(x) * k;
 
-    return amplitude * steepness * pow(u, steepness - 1.0) * dudx * direction;
+    float sharpDeriv = steepness * pow(u, steepness - 1.0) * dudx;
+    float softDeriv  = dudx;
+
+    return amplitude * mix(sharpDeriv, softDeriv, 0.3) * direction;
 }
 
 float calculateWaveHeightGerstner(vec2 position, int octaves) {
@@ -86,6 +89,7 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
             wavelength,
             direction
         );
+        
 
         WAVE_GERSTNER_PARAMS_FACTOR();
 
