@@ -118,7 +118,9 @@ void main() {
     
     // Tonemapping
 
-    colorOut = ap1ToLinear(colorOut);
+    #if TONEMAP != ACES
+        colorOut = ap1ToLinear(colorOut);
+    #endif
     
     #if TONEMAP == 0           // AgX
         agx(colorOut);

@@ -64,7 +64,7 @@ void rainPuddles(
           puddle *= wetness * biome_may_rain;
           puddle  = saturate(puddle);
 
-    albedo *= 1.0 - puddle * RAIN_PUDDLES_ABSORPTION;
+    albedo *= saturate(1.0 - puddle * RAIN_PUDDLES_ABSORPTION);
 
     vec3 surfaceNormal = mix(geometricNormal, getPuddleNormals(puddleCoords, 0.1), rainStrength * 0.1);
 
