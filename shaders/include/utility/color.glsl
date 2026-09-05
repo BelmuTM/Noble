@@ -151,12 +151,12 @@ vec3 ap1ToLinear(vec3 color) {
     return color * AP1_2_XYZ_MAT * D60_2_D65_CAT * XYZ_2_SRGB_MAT;
 }
 
-vec3 srgbToLinearAP1(vec3 color) {
+vec3 srgbToLinearAlbedoAP1(vec3 color) {
     return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
 }
 
 #define SRGB_TO_WORKING_SPACE(SRGB_COLOR) \
-    srgbToLinearAP1(SRGB_COLOR)
+    srgbToLinearAlbedoAP1(SRGB_COLOR)
 
 #define SRGB_TO_WORKING_SPACE_ALBEDO(ALBEDO_SRGB_COLOR) \
     ALBEDO_SRGB_COLOR * SRGB_2_AP1_ALBEDO
@@ -176,35 +176,19 @@ vec3 toYCoCg(vec3 color) {
 }
 
 vec3 fromXYZ(vec3 color) {
-    #if TONEMAP == ACES
-        return color * XYZ_2_AP1_MAT;
-    #else
-        return color * XYZ_2_SRGB_MAT;
-    #endif
+    return color * XYZ_2_AP1_MAT;
 }
 
 vec3 toXYZ(vec3 color) {
-    #if TONEMAP == ACES
-        return color * AP1_2_XYZ_MAT;
-    #else
-        return color * SRGB_2_XYZ_MAT;
-    #endif
+    return color * AP1_2_XYZ_MAT;
 }
 
 mat3 fromXYZ(mat3 mat) {
-    #if TONEMAP == ACES
-        return mat * XYZ_2_AP1_MAT;
-    #else
-        return mat * XYZ_2_SRGB_MAT;
-    #endif
+    return mat * XYZ_2_AP1_MAT;
 }
 
 mat3 toXYZ(mat3 mat) {
-    #if TONEMAP == ACES
-        return mat * AP1_2_XYZ_MAT;
-    #else
-        return mat * SRGB_2_XYZ_MAT;
-    #endif
+    return mat * AP1_2_XYZ_MAT;
 }
 
 vec3 paletteFunction(float x) {

@@ -42,6 +42,8 @@
 
         #include "/include/common.glsl"
 
+        #include "/include/utility/rng.glsl"
+
         #include "/include/utility/sampling.glsl"
 
         #include "/include/post/depth_of_field.glsl"
