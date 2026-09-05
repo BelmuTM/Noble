@@ -2,4 +2,4 @@
 
 #define STAGE_FRAGMENT
 
-#include "/programs/post/anti_aliasing.glsl"
+#include "/programs/post/depth_of_field_write.glsl"

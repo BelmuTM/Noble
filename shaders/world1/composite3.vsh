@@ -2,4 +2,4 @@
 
 #define STAGE_VERTEX
 
-#include "/programs/post/anti_aliasing.glsl"
+#include "/programs/post/depth_of_field_write.glsl"
