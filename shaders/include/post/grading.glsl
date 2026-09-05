@@ -203,7 +203,7 @@ mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
         0.0, 0.0, tmp.z
     );
 
-    return (CONE_RESP_CAT02 * vonKries) * inverse(CONE_RESP_CAT02);
+    return (CONE_RESP_CAT02 * vonKries) * CONE_RESP_CAT02_INV;
 }
 
 void whiteBalance(inout vec3 color) {

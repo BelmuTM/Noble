@@ -23,12 +23,19 @@ layout (location = 1) out vec4 translucentsOut;
 
 uniform usampler2D colortex1;
 uniform sampler2D colortex3;
+uniform sampler2D colortex8;
 
 uniform sampler2D vxDepthTexOpaque;
 uniform sampler2D vxDepthTexTrans;
 
+uniform int vxRenderDistance;
+
 #define modDepthTex0 vxDepthTexTrans
 #define modDepthTex1 vxDepthTexOpaque
+
+#define nearPlane near
+
+float farPlane = float(vxRenderDistance * 16);
 
 #include "/settings.glsl"
 #include "/include/taau_scale.glsl"
@@ -79,7 +86,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     vec3 scenePosition  = transform(vxModelViewInv, viewPosition);
 
     // WOTAH
-    if (blockId == WATER_ID) {
+    if (material.id == WATER_ID) {
 
         material.F0       = waterF0;
         material.alpha    = 0.0;
@@ -104,7 +111,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
         #if HARDCODED_EMISSION == 1
         
-            if (blockId >= LAVA_ID && blockId < SSS_ID) {
+            if (material.id >= LAVA_ID && material.id < SSS_ID) {
                 material.emission = HARDCODED_EMISSION_VAL;
             }
 
@@ -163,6 +170,6 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         encodedNormal,
         material.lightmap,
         1.0,
-        blockId
+        material.id
     );
 }

@@ -8,8 +8,7 @@
     "useViewportDims": true,
     "renderScale": [RENDER_SCALE_VOXY, RENDER_SCALE_VOXY],
     "opaqueDrawBuffers": [
-        1,
-        3
+        1
     ],
     "translucentDrawBuffers": [
         1,
@@ -33,7 +32,9 @@
         "framemod",
         "frameCounter",
         "frameTimeCounter",
+        "isEyeInWater",
         "wetness",
+        "rainStrength",
         "sunAngle",
         "biome_may_rain",
         "near",
@@ -58,8 +59,9 @@
         "shadowtex0": "sampler2D",
         "shadowtex1": "sampler2D",
         "shadowcolor0": "sampler2D"
-    },
+    }
 #if TAA == 1
+    ,
     "taaOffset": "{
         const vec2 taaOffsets[8] = vec2[8](
             vec2( 0.125,-0.375),

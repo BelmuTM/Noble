@@ -20,8 +20,6 @@
 
 #include "/settings.glsl"
 
-#include "/include/internal_settings.glsl"
-
 #include "/include/taau_scale.glsl"
 
 #if AO == 0
