@@ -89,27 +89,37 @@
         float depth0 = texture(depthtex0, vertexCoords).r;
         float depth1 = texture(depthtex1, vertexCoords).r;
 
-        mat4 projectionInverse = gbufferProjectionInverse;
+        mat4 projectionInverse0 = gbufferProjectionInverse;
+        mat4 projectionInverse1 = gbufferProjectionInverse;
 
         #if defined CHUNK_LOADER_MOD_ENABLED
+
+            if (depth0 >= 1.0) {
+        
+                #if defined VOXY
+                    depth0 = texture(modDepthTex0, textureCoords).r;
+                #else
+                    depth0 = texture(modDepthTex0, vertexCoords).r;
+                #endif
+                
+                projectionInverse0 = modProjectionInverse;
+            }
 
             if (depth1 >= 1.0) {
         
                 #if defined VOXY
-                    depth0 = texture(modDepthTex0, textureCoords).r;
                     depth1 = texture(modDepthTex1, textureCoords).r;
                 #else
-                    depth0 = texture(modDepthTex0, vertexCoords).r;
                     depth1 = texture(modDepthTex1, vertexCoords).r;
                 #endif
                 
-                projectionInverse = modProjectionInverse;
+                projectionInverse1 = modProjectionInverse;
             }
             
         #endif
 
-        vec3 viewPosition0  = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
-        vec3 viewPosition1  = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
+        vec3 viewPosition0  = screenToView(vec3(textureCoords, depth0), projectionInverse0, true);
+        vec3 viewPosition1  = screenToView(vec3(textureCoords, depth1), projectionInverse1, true);
         vec3 scenePosition0 = viewToWorld(viewPosition0);
         
         #if defined OVERWORLD_OR_END
