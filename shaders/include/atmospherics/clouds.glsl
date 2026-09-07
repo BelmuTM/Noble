@@ -120,6 +120,7 @@ float densityAlter(float altitude, float weatherMap) {
     densityAlter *= saturate(remap(altitude, 0.0, 0.15, 0.0, 1.0)); // Reduce density towards the bottom
     densityAlter *= saturate(remap(altitude, 0.7, 1.0 , 1.0, 0.0)); // Softer transition towards the top
     densityAlter *= weatherMap * 2.0;                               // Make the weathermap influence the density
+    densityAlter *= (0.5 + wetness);
 
     return densityAlter;
 }
@@ -159,7 +160,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     position += wind * frameTimeCounter;
 
-    layer.coverage += float16_t(0.26 * wetness);
+    layer.coverage = float16_t(saturate(layer.coverage + wetness));
 
     vec2 scaledCoords = position.xz * layer.scale;
 
@@ -169,13 +170,21 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     if (isLowerLayer) {
 
-        float wetnessFactor = 0.13 * max0(1.0 - wetness);
+        // Lower layer
 
         float worley = worley(scaledCoords * 0.06);
 
-        weatherMap  = max(0.0, mix((FBM(scaledCoords * 2.0, layer.octaves, layer.frequency, 1.5, 0.5)) * 1.9 - 0.5, worley * worley * 1.4 - 0.2, 0.4));
+        float worleyNoise = worley * worley * 1.1 - 0.1;
+        float fbmNoise    = (FBM(scaledCoords * 3.0, layer.octaves, layer.frequency, 1.5, 0.3)) * 1.1 - 0.1;
+
+        const float fbmWorleyMixFactor = 0.4;
+        const float weatherMapCutoff   = 0.15;
+
+        weatherMap = remap((1.0 + layer.coverage) * mix(fbmNoise, worleyNoise, fbmWorleyMixFactor), weatherMapCutoff, 1.0, 0.0, 1.0);
 
     } else {
+
+        // Upper layer
 
         weatherMap  = FBM(scaledCoords, layer.octaves, layer.frequency, 2.0, 0.5);
         weatherMap *= saturate(texture(noisetex, position.xz * 2e-4).b * 0.8 + 0.5);
@@ -200,15 +209,15 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     // Shape noise
 
-    vec4  shapeTex    = texture(SHAPE_NOISE_TEXTURE, position * 0.7);
+    vec4  shapeTex    = texture(SHAPE_NOISE_TEXTURE, position * 0.6);
     float shapeNoise  = remap(shapeTex.r, (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125) - 1.0, 1.0, 0.0, 1.0);  // Combine noise channels with FBM
-          shapeNoise  = remap(shapeNoise * shapeAlter(heightPercentage, weatherMap), 1.0 - weatherMap, 1.0, 0.0, 1.0); // Height-dependent shape altering
+          shapeNoise  = remap(shapeNoise * shapeAlter(heightPercentage, weatherMap), 1.0 - weatherMap, 1.0, 0.0, 1.0);          // Height-dependent shape altering
     
     // Detail noise
 
     vec3  detailTex   = texture(DETAIL_NOISE_TEXTURE, position * 3.0).rgb;
     float detailNoise = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
-          detailNoise = 0.75 * exp(-layer.coverage * 0.75) * mix(detailNoise, 1.0 - detailNoise, saturate(heightPercentage * 5.0));
+          detailNoise = 0.60 * exp(-layer.coverage * 0.75) * mix(detailNoise, 1.0 - detailNoise, saturate(heightPercentage * 5.0));
 
     return saturate(remap(shapeNoise, detailNoise, 1.0, 0.0, 1.0)) * densityAlter(heightPercentage, weatherMap) * layer.density;
 }

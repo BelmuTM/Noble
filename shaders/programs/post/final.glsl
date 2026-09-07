@@ -162,6 +162,7 @@ void debugOutput(inout vec3 color) {
 }
 
 void main() {
+
     vec2 distortCoords = textureCoords;
 
     // Underwater distortion
