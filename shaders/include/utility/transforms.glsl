@@ -106,11 +106,11 @@ vec3 shadowClipToShadowScreen(vec3 shadowClipPosition) {
         coords  = coords * 2.0 - 1.0;
         coords /= 1.0 - length(coords.xy);
 
-        return transform(shadowModelViewInverse, vec3(coords * far, 1.0)) + rayPosition;
+        return transform(shadowModelViewInverse, vec3(coords * farPlane, 1.0)) + rayPosition;
     }
 
     float getCloudsShadows(vec3 position) {
-        position     = transform(shadowModelView, position) / far;
+        position     = transform(shadowModelView, position) / farPlane;
         position.xy /= 1.0 + length(position.xy);
         position.xy  = position.xy * 0.5 + 0.5;
 

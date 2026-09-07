@@ -42,7 +42,7 @@
 
         #if defined OVERWORLD_OR_END
 
-            skyIlluminance = DIRECT_ILLUMINANCE();
+            skyIlluminance = UNIFORM_SKY_ILLUMINANCE();
 
         #endif
 
@@ -103,7 +103,7 @@
                   ? vec4(rainColor, RAIN_OPACITY)
                   : vec4(snowColor, SNOW_OPACITY);
             
-            color.rgb *= saturate(skyIlluminance * 0.15);
+            color.rgb *= saturate(skyIlluminance * 1e-5);
 
             color.rgb *= color.a;
             

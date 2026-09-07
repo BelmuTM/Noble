@@ -120,7 +120,6 @@ float densityAlter(float altitude, float weatherMap) {
     densityAlter *= saturate(remap(altitude, 0.0, 0.15, 0.0, 1.0)); // Reduce density towards the bottom
     densityAlter *= saturate(remap(altitude, 0.7, 1.0 , 1.0, 0.0)); // Softer transition towards the top
     densityAlter *= weatherMap * 2.0;                               // Make the weathermap influence the density
-    densityAlter *= (0.5 + wetness);
 
     return densityAlter;
 }
@@ -160,11 +159,11 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     position += wind * frameTimeCounter;
 
-    layer.coverage = float16_t(saturate(layer.coverage + wetness));
-
     vec2 scaledCoords = position.xz * layer.scale;
 
     // Weather map
+
+    layer.coverage = float16_t(saturate(layer.coverage + wetness));
 
     float weatherMap = 0.0;
 
@@ -172,15 +171,16 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
         // Lower layer
 
-        float worley = worley(scaledCoords * 0.06);
+        float worleyNoise = worley(scaledCoords * 0.055);
+              worleyNoise = remap(worleyNoise * worleyNoise * 1.2 - 0.2, 0.1, 1.0, 0.0, 1.0);
 
-        float worleyNoise = worley * worley * 1.1 - 0.1;
-        float fbmNoise    = (FBM(scaledCoords * 3.0, layer.octaves, layer.frequency, 1.5, 0.3)) * 1.1 - 0.1;
+        float bakedNoise = (
+            remap(texture(noisetex, scaledCoords * 0.07).g * 1.5 - 0.25, saturate(0.3 - wetness * 0.5), 1.0, 0.0, 1.0)
+        );
 
-        const float fbmWorleyMixFactor = 0.4;
-        const float weatherMapCutoff   = 0.15;
+        const float weatherMapCutoff = 0.325;
 
-        weatherMap = remap((1.0 + layer.coverage) * mix(fbmNoise, worleyNoise, fbmWorleyMixFactor), weatherMapCutoff, 1.0, 0.0, 1.0);
+        weatherMap = remap(1.6 * (bakedNoise + worleyNoise * layer.coverage), saturate(weatherMapCutoff - wetness * 0.5), 1.0, 0.0, 1.0);
 
     } else {
 
@@ -194,7 +194,6 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
     }
 
     weatherMap = mix(weatherMap, 0.0, biome_arid);
-    weatherMap = saturate(weatherMap);
 
     if (weatherMap <= 0.05) {
         return 0.0;
@@ -209,9 +208,9 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     // Shape noise
 
-    vec4  shapeTex    = texture(SHAPE_NOISE_TEXTURE, position * 0.6);
-    float shapeNoise  = remap(shapeTex.r, (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125) - 1.0, 1.0, 0.0, 1.0);  // Combine noise channels with FBM
-          shapeNoise  = remap(shapeNoise * shapeAlter(heightPercentage, weatherMap), 1.0 - weatherMap, 1.0, 0.0, 1.0);          // Height-dependent shape altering
+    vec4  shapeTex    = texture(SHAPE_NOISE_TEXTURE, position * 0.5);
+    float shapeNoise  = remap(shapeTex.r, (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125) - 1.0, 1.0, 0.0, 1.0); // Combine noise channels with FBM
+          shapeNoise  = remap(shapeNoise * shapeAlter(heightPercentage, weatherMap), 1.0 - 0.75 * weatherMap, 1.0, 0.0, 1.0);  // Height-dependent shape altering
     
     // Detail noise
 
@@ -249,6 +248,7 @@ float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int ste
 }
 
 vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerLayer, bool animated) {
+
     float cloudsLowerBound = planetRadius     + layer.altitude;
     float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
@@ -334,20 +334,20 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
 
 #if CLOUDS_SHADOWS == 1
 
-    float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer, bool isLowerLayer) {
+    float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer) {
         float cloudsLowerBound = planetRadius     + layer.altitude;
         float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
         vec2 distsToVolume = intersectSphericalShell(shadowPosition, shadowLightVectorWorld, cloudsLowerBound, cloudsUpperBound);
 
-        float stepSize    = (distsToVolume.y - distsToVolume.x) * rcp(CLOUDS_SHADOWS_STEPS);
+        float stepSize    = (distsToVolume.y - distsToVolume.x) * RCP_CLOUDS_SHADOWS_STEPS;
         vec3  increment   = shadowLightVectorWorld * stepSize;
         vec3  rayPosition = shadowPosition + shadowLightVectorWorld * (distsToVolume.x + stepSize * 0.5);
 
         float opticalDepth = 0.0;
 
         for (int i = 0; i < CLOUDS_SHADOWS_STEPS; i++, rayPosition += increment) {
-            opticalDepth += calculateCloudsDensity(rayPosition, layer, isLowerLayer);
+            opticalDepth += calculateCloudsDensity(rayPosition, layer, true);
         }
 
         return exp(-cloudsExtinctionCoefficient * opticalDepth * stepSize);
