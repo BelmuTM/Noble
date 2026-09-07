@@ -49,9 +49,6 @@
     uniform sampler2D vxDepthTexOpaque;
     uniform sampler2D vxDepthTexTrans;
 
-    uniform mat4 vxModelView;
-    uniform mat4 vxModelViewInv;
-
     uniform mat4 vxProj;
     uniform mat4 vxProjInv;
     uniform mat4 vxProjPrev;

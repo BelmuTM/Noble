@@ -171,7 +171,7 @@ vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, b
 
     diffuse *= directIlluminance * SUNLIGHT_STRENGTH;
 
-    vec3 skylight = skyIlluminance * SKYLIGHT_STRENGTH * 1.5; // The 1.5 factor is a magic constant to reduce the contrast of shadows
+    vec3 skylight = skyIlluminance * SKYLIGHT_STRENGTH * SKY_LIGHT_BOOST; // The SKY_LIGHT_BOOST factor is a magic constant to reduce the contrast of shadows
 
     #if defined WORLD_OVERWORLD
         skylight *= skylightFalloff;

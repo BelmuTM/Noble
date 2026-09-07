@@ -57,7 +57,7 @@
                 float cosTheta = mix(
                     dot(horizonVec, viewDirection) * fastRcpLength(horizonVec),
                     -1.0,
-                    linearStep(1.0, 2.0, lengthSqr(horizonVec))
+                    linearStep(2.0, 3.0, lengthSqr(horizonVec))
                 );
 
                 horizonCosTheta = max(horizonCosTheta, cosTheta);

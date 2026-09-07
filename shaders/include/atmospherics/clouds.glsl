@@ -30,11 +30,17 @@
         Häggström, F. (2018). Real-time rendering of volumetric clouds. http://www.diva-portal.org/smash/get/diva2:1223894/FULLTEXT01.pdf
 */
 
+// Clouds textures
+
 uniform sampler3D colortex10;
+uniform sampler3D colortex11;
 uniform sampler3D depthtex2;
 
 #define CURL_NOISE_TEXTURE  colortex10
 #define SHAPE_NOISE_TEXTURE depthtex2
+#define DETAIL_NOISE_TEXTURE colortex11
+
+// Clouds settings
 
 struct CloudLayer {
     int8_t stepCount;
@@ -96,23 +102,29 @@ const CloudLayer cloudLayer1 = PARSE_CLOUD_LAYER_SETTINGS(
 
 const vec3 upVector = vec3(0.0, 1.0, 0.0);
 
+// Wind constants
+
 const vec3 windDirection = vec3(-0.7, 0.0, 0.7);
-const vec3 wind          = windDirection *CLOUDS_WIND_SPEED;
+const vec3 wind          = windDirection * CLOUDS_WIND_SPEED;
 
-float heightAlter(float altitude, float weatherMap) {
-    float stopHeight = saturate(weatherMap + 0.12);
+float shapeAlter(float altitude, float weatherMap) {
+    float stopHeight = saturate(weatherMap + 0.35);                           // Maximum cloud height
 
-    float heightAlter  = saturate(remap(altitude, 0.0, 0.01, 0.0, 1.0));
-          heightAlter *= saturate(remap(altitude, stopHeight * 0.2, stopHeight, 1.0, 0.0));
-    return heightAlter;
+    return saturate(remap(altitude, 0.0, 0.07, 0.0, 1.0))                     // Round the clouds towards the bottom
+         * saturate(remap(altitude, stopHeight * 0.2, stopHeight, 1.0, 0.0)); // Round the clouds towards the top
 }
 
 float densityAlter(float altitude, float weatherMap) {
-    float densityAlter  = altitude;
-          densityAlter *= saturate(remap(altitude, 0.9, 1.0, 1.0, 0.0));
-          densityAlter *= weatherMap * 2.0;
+    float densityAlter = altitude;
+
+    densityAlter *= saturate(remap(altitude, 0.0, 0.15, 0.0, 1.0)); // Reduce density towards the bottom
+    densityAlter *= saturate(remap(altitude, 0.7, 1.0 , 1.0, 0.0)); // Softer transition towards the top
+    densityAlter *= weatherMap * 2.0;                               // Make the weathermap influence the density
+
     return densityAlter;
 }
+
+// Worley noise
 
 const float WORLEY_CELLS_COUNT     = 16.0;
 const float RCP_WORLEY_CELLS_COUNT = 1.0 / WORLEY_CELLS_COUNT;
@@ -138,11 +150,12 @@ float worley(vec2 coords) {
     return 1.0 - dist * RCP_WORLEY_LENGTH;
 }
 
-#define OLD_CLOUDS_SHAPE
+// Clouds density
 
 float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer) {
     
-    float altitude = (position.y - (planetRadius + layer.altitude)) * rcp(layer.thickness);
+    // The ray's height relative to the clouds thickness
+    float heightPercentage = (position.y - (planetRadius + layer.altitude)) / layer.thickness;
 
     position += wind * frameTimeCounter;
 
@@ -150,58 +163,64 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     vec2 scaledCoords = position.xz * layer.scale;
 
+    // Weather map
+
     float weatherMap = 0.0;
 
     if (isLowerLayer) {
 
         float wetnessFactor = 0.13 * max0(1.0 - wetness);
 
-        #if defined OLD_CLOUDS_SHAPE
+        float worley = worley(scaledCoords * 0.06);
 
-            float worley = worley(scaledCoords * 0.06);
-
-            weatherMap  = FBM(scaledCoords * 1.0, layer.octaves, layer.frequency, 2.0, 0.5);
-            weatherMap *= weatherMap;
-            weatherMap *= fastSqrtN1(texture(noisetex, scaledCoords).g);
-            weatherMap += worley * worley * worley * (1.0 + wetnessFactor);
-            weatherMap -= wetnessFactor;
-
-        #else
-
-            // Bad attempt
-            
-            float worley = 1.0 - texture(noisetex, scaledCoords * 0.1).g * 0.8 - 0.1;
-
-            weatherMap  = FBM(scaledCoords * 3.0, layer.octaves, layer.frequency, 2.0, 0.5);
-            weatherMap += worley * worley;
-
-            weatherMap = smoothstep(0.0, 1.0, weatherMap * 0.6);
-
-        #endif
+        weatherMap  = max(0.0, mix((FBM(scaledCoords * 2.0, layer.octaves, layer.frequency, 1.5, 0.5)) * 1.9 - 0.5, worley * worley * 1.4 - 0.2, 0.4));
 
     } else {
 
         weatherMap  = FBM(scaledCoords, layer.octaves, layer.frequency, 2.0, 0.5);
         weatherMap *= saturate(texture(noisetex, position.xz * 2e-4).b * 0.8 + 0.5);
 
+        weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
+
     }
 
-    weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
     weatherMap = mix(weatherMap, 0.0, biome_arid);
     weatherMap = saturate(weatherMap);
 
-    if (weatherMap < EPS) return 0.0;
+    if (weatherMap <= 0.05) {
+        return 0.0;
+    }
 
     position *= layer.detailScale;
+
+    // Curl
 
     vec3 curlTex   = texture(CURL_NOISE_TEXTURE, position * 0.2).rgb * 2.0 - 1.0;
          position += curlTex * layer.swirl;
 
-    vec4  shapeTex   = texture(SHAPE_NOISE_TEXTURE, position);
-    float shapeNoise = remap(shapeTex.r, -(1.0 - (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125)), 1.0, 0.0, 1.0);
-          shapeNoise = remap(shapeNoise * heightAlter(altitude, weatherMap), 1.0 - mix(0.72, 0.9, wetness) * weatherMap, 1.0, 0.0, 1.0);
+    // Shape noise
 
-    return saturate(shapeNoise) * densityAlter(altitude, weatherMap) * layer.density;
+    vec4  shapeTex    = texture(SHAPE_NOISE_TEXTURE, position * 0.7);
+    float shapeNoise  = remap(shapeTex.r, (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125) - 1.0, 1.0, 0.0, 1.0);  // Combine noise channels with FBM
+          shapeNoise  = remap(shapeNoise * shapeAlter(heightPercentage, weatherMap), 1.0 - weatherMap, 1.0, 0.0, 1.0); // Height-dependent shape altering
+    
+    // Detail noise
+
+    vec3  detailTex   = texture(DETAIL_NOISE_TEXTURE, position * 3.0).rgb;
+    float detailNoise = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
+          detailNoise = 0.75 * exp(-layer.coverage * 0.75) * mix(detailNoise, 1.0 - detailNoise, saturate(heightPercentage * 5.0));
+
+    return saturate(remap(shapeNoise, detailNoise, 1.0, 0.0, 1.0)) * densityAlter(heightPercentage, weatherMap) * layer.density;
+}
+
+// Clouds raymarching
+
+float calculateCloudsPhase(float cosTheta, vec3 mieAnisotropyFactors) {
+    float forwardsLobe  = henyeyGreensteinPhase(cosTheta,  mieAnisotropyFactors.x);
+    float backwardsLobe = henyeyGreensteinPhase(cosTheta, -mieAnisotropyFactors.y);
+    float forwardsPeak  = henyeyGreensteinPhase(cosTheta,  mieAnisotropyFactors.z);
+
+    return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeakWeight);
 }
 
 float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int stepCount, CloudLayer layer, bool isLowerLayer, bool animated) {
@@ -218,14 +237,6 @@ float calculateCloudsOpticalDepth(vec3 rayPosition, vec3 lightDirection, int ste
     }
 
     return opticalDepth;
-}
-
-float calculateCloudsPhase(float cosTheta, vec3 mieAnisotropyFactors) {
-    float forwardsLobe  = henyeyGreensteinPhase(cosTheta,  mieAnisotropyFactors.x);
-    float backwardsLobe = henyeyGreensteinPhase(cosTheta, -mieAnisotropyFactors.y);
-    float forwardsPeak  = henyeyGreensteinPhase(cosTheta,  mieAnisotropyFactors.z);
-
-    return mix(mix(forwardsLobe, backwardsLobe, cloudsBackScatter), forwardsPeak, cloudsPeakWeight);
 }
 
 vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerLayer, bool animated) {
