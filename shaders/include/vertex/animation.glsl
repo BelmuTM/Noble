@@ -28,7 +28,7 @@ void wavingLeaves(inout vec3 worldPosition, float skyFalloff) {
 
         float rng = 1.0 + FBM(worldPosition * vec3(0.3, 0.5, 0.3), 1, 1.0, 2.0, 0.5);
 
-        vec3 offset  = sin(worldPosition * 1.4 + windDirection * rng * vec3(2.0, 1.5, 2.0)) * vec3(0.04, 0.06, 0.04);
+        vec3 offset  = sin(worldPosition * 1.4 + windDirection * rng * vec3(2.0, 1.5, 2.0)) * vec3(0.04, 0.06, 0.04) * WAVING_LEAVES_INTENSITY;
              offset *= skyFalloff;
 
         worldPosition += offset;
@@ -45,7 +45,7 @@ void wavingPlants(inout vec3 worldPosition, float skyFalloff, bool isTopVertex, 
         float rng = 1.0 + FBM(worldPosition.xz, 1, 1.5, 2.0, 0.5);
 
         vec2 offset  = sin(worldPosition.xz * 1.4 + rng * windDirection.xz) * 0.1 + vec2(0.06, -0.03);
-             offset *= (isTopBlock ? 1.0 : float(isTopVertex)) * skyFalloff;
+             offset *= (isTopBlock ? 1.0 : float(isTopVertex)) * skyFalloff * WAVING_PLANTS_INTENSITY;
 
         worldPosition.xz += offset;
         worldPosition    -= cameraPosition;
