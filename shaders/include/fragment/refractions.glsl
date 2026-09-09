@@ -80,7 +80,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
 #endif
 
 vec3 computeRefractions(
-    vec2 coords,
+    vec3 screenPosition,
     bool modFragment,
     mat4 projection,
     mat4 projectionInverse,
@@ -158,7 +158,7 @@ vec3 computeRefractions(
     #endif
 
     refractedPosition.xy = mix(
-        coords,
+        screenPosition.xy,
         refractedPosition.xy,
         kneemundAttenuation(refractedPosition.xy, REFRACTIONS_BORDER_FADE)
         * float(hit && insideScreenBounds(refractedPosition.xy, 1.0) && refractedPosition.z > handDepth)
@@ -166,14 +166,11 @@ vec3 computeRefractions(
 
     refractedPosition.xy *= RENDER_SCALE;
 
-    float depth0 = texture(depthtex0, refractedPosition.xy).r;
     float depth1 = texture(depthtex1, refractedPosition.xy).r;
 
     #if defined CHUNK_LOADER_MOD_ENABLED
 
-        if (depth0 >= 1.0) {
-
-            depth0 = texture(modDepthTex0, refractedPosition.xy).r;
+        if (depth1 >= 1.0) {
             depth1 = texture(modDepthTex1, refractedPosition.xy).r;
         }
         
@@ -193,7 +190,7 @@ vec3 computeRefractions(
 
     if (id != NETHER_PORTAL_ID) {
 
-        density = distance(linearizeDepth(depth1), linearizeDepth(depth0));
+        density = abs(linearizeDepth(screenPosition.z) - linearizeDepth(refractedPosition.z));
         density = clamp(density, 0.0, 2.0);
     }
 

@@ -99,7 +99,7 @@ const float cloudsScatteringCoefficient = 0.99;
 const float cloudsTransmitThreshold     = 0.05;
 
 const float cloudsForwardsLobe = 0.80;
-const float cloudsBackardsLobe = 0.25;
+const float cloudsBackardsLobe = 0.35;
 const float cloudsForwardsPeak = 0.85;
 const float cloudsBackScatter  = 0.20;
 const float cloudsPeakWeight   = 0.10;
