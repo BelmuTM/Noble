@@ -304,7 +304,8 @@ void evaluateUniformSkyIlluminance(out vec3[9] skyIlluminance) {
             float[9] sh = calculateSphericalHarmonicsCoefficients(direction);
 
             for (int i = 0; i < 9; i++) {
-                skyIlluminance[i] += radiance * sh[i] * cosTheta * sinTheta;
+                skyIlluminance[i] += radiance * sh[i] * sinTheta;
+                // The cosTheta jacobian term isn't needed here because Lambertian convolution accounts for it later
             }
         }
     }

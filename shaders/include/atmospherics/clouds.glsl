@@ -113,9 +113,9 @@ float shapeAlter(float altitude, float weatherMap) {
 float densityAlter(float altitude, float weatherMap) {
     float densityAlter = altitude;
 
-    densityAlter *= saturate(remap(altitude, 0.0, 0.15, 0.0, 1.0)); // Reduce density towards the bottom
-    densityAlter *= saturate(remap(altitude, 0.7, 1.0 , 1.0, 0.0)); // Softer transition towards the top
-    densityAlter *= weatherMap * 2.0;                               // Make the weathermap influence the density
+    densityAlter *= saturate(remap(altitude, 0.0, 0.7, 0.0, 1.0)); // Reduce density towards the bottom
+    densityAlter *= saturate(remap(altitude, 0.7, 1.0, 1.0, 0.0)); // Softer transition towards the top
+    densityAlter *= weatherMap * 2.0;                              // Make the weather map influence the density
 
     return densityAlter;
 }

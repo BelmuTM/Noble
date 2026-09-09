@@ -135,5 +135,5 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
 
     #endif
 
-    return clamp16(celestialBodies * pow5(cloudsTransmittance));
+    return celestialBodies * pow5(cloudsTransmittance);
 }

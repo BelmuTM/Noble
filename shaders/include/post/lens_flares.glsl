@@ -31,7 +31,7 @@ float ghostSpacing(int i) {
     return mix(LENS_FLARES_GHOSTS_MIN_SPACING, LENS_FLARES_GHOSTS_MAX_SPACING, distribution);
 }
 
-void lensFlares(inout vec3 color, sampler2D colorTex, vec2 coords) {
+void lensFlares(inout vec3 color, sampler2D colorTex, vec2 coords, float invExposure) {
     const float attenuationFactor = 1e-3;
 
     vec3 flares = vec3(0.0);
@@ -50,7 +50,7 @@ void lensFlares(inout vec3 color, sampler2D colorTex, vec2 coords) {
     const float k = length(vec2(0.5));
           float d = length(ghostDirection) / k;
 
-    float totalWeight = 0.0;
+    float totalWeight = EPS;
 
     for (int i = 0; i < LENS_FLARES_GHOSTS; i++) {
         
@@ -105,5 +105,5 @@ void lensFlares(inout vec3 color, sampler2D colorTex, vec2 coords) {
 
     #endif
 
-    color += clamp16(flares * attenuationFactor * LENS_FLARES_STRENGTH);
+    color += flares * attenuationFactor * LENS_FLARES_STRENGTH * invExposure;
 }

@@ -51,6 +51,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
         for (int i = 0; i < REFRACTIONS_NEWTON_ITERATIONS; i++) {
 
             float NdotL = dot(normal, rayDirection);
+            
             if (abs(NdotL) < EPS) break;
 
             // Intersecting a point along the tangent plane defined by viewPosition1
@@ -156,14 +157,14 @@ vec3 computeRefractions(
 
     #endif
 
-    refractedPosition.xy  = mix(coords, refractedPosition.xy, kneemundAttenuation(refractedPosition.xy, REFRACTIONS_BORDER_FADE));
+    refractedPosition.xy = mix(
+        coords,
+        refractedPosition.xy,
+        kneemundAttenuation(refractedPosition.xy, REFRACTIONS_BORDER_FADE)
+        * float(hit && insideScreenBounds(refractedPosition.xy, 1.0) && refractedPosition.z > handDepth)
+    );
+
     refractedPosition.xy *= RENDER_SCALE;
-
-    vec2 scaledCoords = coords * RENDER_SCALE;
-
-    if (!hit || !insideScreenBounds(refractedPosition.xy, 1.0)) {
-        refractedPosition.xy = scaledCoords;
-    }
 
     float depth0 = texture(depthtex0, refractedPosition.xy).r;
     float depth1 = texture(depthtex1, refractedPosition.xy).r;
@@ -177,10 +178,6 @@ vec3 computeRefractions(
         }
         
     #endif
-
-    if (depth1 < handDepth) {
-        refractedPosition.xy = scaledCoords;
-    }
 
     vec3 fresnel = fresnelDielectricDielectric_T(abs(dot(normal, -viewDirection)), n1, n2);
 

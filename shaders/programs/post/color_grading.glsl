@@ -71,15 +71,16 @@ void main() {
             
     #endif
 
-    float exposure = CURRENT_EXPOSURE();
+    float exposure    = CURRENT_EXPOSURE();
+    float invExposure = 1.0 / exposure;
 
-    colorOut /= exposure;
+    colorOut *= invExposure;
 
     // Bloom
 
     #if BLOOM == 1
 
-        vec3  bloom         = texture(ILLUMINANCE_BUFFER, textureCoords * 0.5).rgb;
+        vec3  bloom         = texture(ILLUMINANCE_BUFFER, textureCoords * 0.5).rgb * invExposure;
         float bloomStrength = exp2(exposure + BLOOM_STRENGTH - 3.0);
 
         if (isEyeInWater == 1) {
@@ -100,7 +101,7 @@ void main() {
 
     #if LENS_FLARES == 1
 
-        lensFlares(colorOut, ILLUMINANCE_BUFFER, textureCoords);
+        lensFlares(colorOut, ILLUMINANCE_BUFFER, textureCoords, invExposure);
 
     #endif
 
@@ -108,7 +109,7 @@ void main() {
 
     #if GLARE == 1
 
-        glare(colorOut, ILLUMINANCE_BUFFER, textureCoords);
+        glare(colorOut, ILLUMINANCE_BUFFER, textureCoords, invExposure);
 
     #endif
 

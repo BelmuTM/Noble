@@ -32,7 +32,7 @@ const vec2 bladeDirections[4] = vec2[4](
     vec2( 0.0      , 1.0      )
 );
 
-void glare(inout vec3 color, sampler2D colorTex, vec2 coords) {
+void glare(inout vec3 color, sampler2D colorTex, vec2 coords, float invExposure) {
     const float sigma = GLARE_STEPS * GLARE_BLADES_SIZE * 0.45;
     
     vec3 worldForward = mat3(gbufferModelView) * vec3(0.0, 0.0, -1.0);
@@ -44,7 +44,7 @@ void glare(inout vec3 color, sampler2D colorTex, vec2 coords) {
 
     vec3 glare = vec3(0.0);
 
-    float totalWeight = 0.0;
+    float totalWeight = EPS;
     
     for (int i = -GLARE_STEPS; i <= GLARE_STEPS; i++) {
         float d = float(i) * GLARE_BLADES_SIZE;
@@ -61,22 +61,26 @@ void glare(inout vec3 color, sampler2D colorTex, vec2 coords) {
 
         #if GLARE_BLADES >= 1
             glare += texture(colorTex, (coords + bladeDirections[0] * rotation * scale) * 0.5).rgb * thinFilm * weight;
+
         #endif
 
         #if GLARE_BLADES >= 2
             glare += texture(colorTex, (coords + bladeDirections[1] * rotation * scale) * 0.5).rgb * thinFilm * weight;
+
         #endif
 
         #if GLARE_BLADES >= 3
             glare += texture(colorTex, (coords + bladeDirections[2] * rotation * scale) * 0.5).rgb * thinFilm * weight;
+
         #endif
 
         #if GLARE_BLADES >= 4
             glare += texture(colorTex, (coords + bladeDirections[3] * rotation * scale) * 0.5).rgb * thinFilm * weight;
+            
         #endif
 
         totalWeight += weight;
     }
     
-    color += clamp16((glare / totalWeight) * 0.1 * GLARE_STRENGTH);
+    color += (glare / totalWeight) * 0.1 * GLARE_STRENGTH * invExposure;
 }

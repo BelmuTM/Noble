@@ -181,7 +181,7 @@ vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, b
     vec3 blocklight      = blocklightColor * getBlocklightFalloff(material.lightmap.x);
     vec3 emissiveness    = material.emission * blocklightColor;
 
-    diffuse += (blocklight + skylight + AMBIENT_LIGHT) * material.ao * ao;
+    diffuse += ((blocklight + AMBIENT_LIGHT) * ao + skylight) * material.ao;
     diffuse += emissiveness;
 
     return material.albedo * diffuse;

@@ -43,6 +43,8 @@
 
     #endif
 
+    #include "/include/post/exposure.glsl"
+
     #if EXPOSURE == 2
 
         ivec2 tiles    = ivec2(floor(32.0 * vec2(1.0, aspectRatio)));
@@ -58,7 +60,8 @@
             return exp((bin * rcp(HISTOGRAM_BINS)) * logLuminanceRange + minLogLuminance);
         }
 
-        float[HISTOGRAM_BINS] buildLuminanceHistogram() {
+        float[HISTOGRAM_BINS] buildLuminanceHistogram(float invPreviousExposure) {
+
             float lod = ceil(log2(maxOf(viewSize * tileSize)));
 
             float[HISTOGRAM_BINS] pdf;
@@ -68,7 +71,7 @@
                 for (int y = 0; y < tiles.y; y++) {
 
                     vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
-                    float luminance = luminance(textureLod(ILLUMINANCE_BUFFER, coords * 0.5, lod).rgb);
+                    float luminance = luminance(textureLod(ILLUMINANCE_BUFFER, coords * 0.5, lod).rgb * invPreviousExposure);
 
                     pdf[getBinFromLuminance(luminance)]++;
                 }
@@ -125,13 +128,15 @@
 
         #if EXPOSURE > 0
 
+            float invPreviousExposure = 1.0 / CURRENT_EXPOSURE();
+
             #if EXPOSURE == 1
 
-                avgLuminance = luminance(texture(ILLUMINANCE_BUFFER, vec2(0.25)).rgb);
+                avgLuminance = luminance(texture(ILLUMINANCE_BUFFER, vec2(0.25)).rgb * invPreviousExposure);
                 
             #else
 
-                float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram();
+                float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram(invPreviousExposure);
 
                 #if DEBUG_HISTOGRAM == 1
 

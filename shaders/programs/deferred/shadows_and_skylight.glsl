@@ -144,7 +144,7 @@
                     vec3 aoBuffer    = texture(AO_BUFFER, vertexCoords).rgb;
                     vec3 bentNormals = max0(decodeUnitVector(aoBuffer.xy));
 
-                    skyIlluminance = evaluateDirectionalSkyIlluminance(skyIlluminanceCoefficients, bentNormals, aoBuffer.z);
+                    skyIlluminance = evaluateDirectionalSkyIlluminance(skyIlluminanceCoefficients, bentNormals, aoBuffer.b);
 
                 #else
 
