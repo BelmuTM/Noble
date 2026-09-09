@@ -80,9 +80,10 @@
 
         // Inverting pre-exposure to retrieve range
 
-        float rcpExposure = 1.0 / CURRENT_EXPOSURE();
+        float exposure    = CURRENT_EXPOSURE();
+        float invExposure = 1.0 / exposure;
 
-        vec3 background = texture(MAIN_BUFFER, vertexCoords).rgb * rcpExposure;
+        vec3 background = texture(MAIN_BUFFER, vertexCoords).rgb * invExposure;
 
         // Fog setup
 
@@ -213,7 +214,7 @@
 
             float glintBlendingFactor = translucents.a > 0.0 ? 1.0 : float(!isHand || basic.a > 0.0);
             
-            lightingOut += basic.rgb * rcpExposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
+            lightingOut += basic.rgb * invExposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
 
         } else if (!isHand) {
 
@@ -221,7 +222,7 @@
                 lightingOut = basic.rgb * lightingOut;
                 
             } else {
-                lightingOut = mix(lightingOut, basic.rgb * rcpExposure, basic.a);
+                lightingOut = mix(lightingOut, basic.rgb * invExposure, basic.a);
             }
 
         }
@@ -230,7 +231,7 @@
 
         lightingOut = mix(lightingOut, backgroundWithFog, translucents.a);
 
-        lightingOut /= rcpExposure;
+        lightingOut *= exposure;
     }
 
 #endif

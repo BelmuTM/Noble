@@ -156,7 +156,7 @@
             reflections.rgb = computeRoughReflections(
                 modFragment, projection, projectionInverse, viewPosition,
                 unpackNormal(dataTexture.w), getN(albedo, F0), getK(albedo, F0), alpha, unpackLightmap(dataTexture.x).y, isWater,
-                exposure,
+                1.0 / exposure,
                 rayLength
             );
 
@@ -165,7 +165,7 @@
             reflections.rgb = computeSmoothReflections(
                 modFragment, projection, projectionInverse, viewPosition,
                 unpackNormal(dataTexture.w), getN(albedo, F0), getK(albedo, F0), alpha, unpackLightmap(dataTexture.x).y, isWater,
-                exposure,
+                1.0 / exposure,
                 rayLength
             );
 

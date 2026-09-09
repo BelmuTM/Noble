@@ -408,15 +408,6 @@ value.CLOUDS_LAYER0_SCATTERING_STEPS.24 = §624
 value.CLOUDS_LAYER0_SCATTERING_STEPS.28 = §c28
 value.CLOUDS_LAYER0_SCATTERING_STEPS.32 = §432
 
-option.CLOUDS_LAYER0_OCTAVES = Shape Octaves
-option.CLOUDS_LAYER0_OCTAVES.comment = How much layers of noise are generated to produce the cloud shapes. §cHigher value gives better results, but reduces §cperformance.
-value.CLOUDS_LAYER0_OCTAVES.1 = §21
-value.CLOUDS_LAYER0_OCTAVES.2 = §a2
-value.CLOUDS_LAYER0_OCTAVES.3 = §e3
-value.CLOUDS_LAYER0_OCTAVES.4 = §64
-value.CLOUDS_LAYER0_OCTAVES.5 = §c5
-value.CLOUDS_LAYER0_OCTAVES.6 = §46
-
 option.CLOUDS_LAYER0_SCALE = Shape Scale
 option.CLOUDS_LAYER0_SCALE.comment = Adjusts the scale of cloud shapes.
 suffix.CLOUDS_LAYER0_SCALE = %
@@ -465,15 +456,6 @@ value.CLOUDS_LAYER1_SCATTERING_STEPS.20 = §e20
 value.CLOUDS_LAYER1_SCATTERING_STEPS.24 = §624
 value.CLOUDS_LAYER1_SCATTERING_STEPS.28 = §c28
 value.CLOUDS_LAYER1_SCATTERING_STEPS.32 = §432
-
-option.CLOUDS_LAYER1_OCTAVES = Shape Octaves
-option.CLOUDS_LAYER1_OCTAVES.comment = How much layers of noise are generated to produce the cloud shapes. §cHigher value gives better results, but reduces §cperformance.
-value.CLOUDS_LAYER1_OCTAVES.1 = §21
-value.CLOUDS_LAYER1_OCTAVES.2 = §a2
-value.CLOUDS_LAYER1_OCTAVES.3 = §e3
-value.CLOUDS_LAYER1_OCTAVES.4 = §64
-value.CLOUDS_LAYER1_OCTAVES.5 = §c5
-value.CLOUDS_LAYER1_OCTAVES.6 = §46
 
 option.CLOUDS_LAYER1_SCALE = Shape Scale
 option.CLOUDS_LAYER1_SCALE.comment = Adjusts the scale of cloud shapes.
@@ -578,7 +560,7 @@ option.WEATHER_TILT_ANGLE_X.comment = Adjusts the tilt angle of weather (rain, s
 suffix.WEATHER_TILT_ANGLE_X = °
 
 option.RAIN_OPACITY = Rain Opacity
-option.RAIN_OPACITY.comment = Adjusts the opacity of rain
+option.RAIN_OPACITY.comment = Adjusts the opacity of rain.
 suffix.RAIN_OPACITY = x
 
 option.SNOW_OPACITY = Snow Opacity

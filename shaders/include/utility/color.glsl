@@ -161,7 +161,7 @@ vec3 srgbToLinearAlbedoAP1(vec3 color) {
     srgbToLinearAlbedoAP1(SRGB_COLOR)
 
 #define SRGB_TO_WORKING_SPACE_ALBEDO(ALBEDO_SRGB_COLOR) \
-    ALBEDO_SRGB_COLOR * SRGB_2_AP1_ALBEDO
+    (ALBEDO_SRGB_COLOR) * SRGB_2_AP1_ALBEDO
 
 vec3 fromYCoCg(vec3 color) {
     float r = color.x + color.y - color.z;

@@ -35,8 +35,8 @@
 /*------------------ GGX DISTRIBUTION ------------------*/
 //////////////////////////////////////////////////////////
 
-float distribution_GGX(float cosTheta, float alphaSq) {
-    float denom = cosTheta * cosTheta * (alphaSq - 1.0) + 1.0;
+float distribution_GGX(float cosThetaSq, float alphaSq) {
+    float denom = cosThetaSq * (alphaSq - 1.0) + 1.0;
     return alphaSq * RCP_PI / (denom * denom);
 }
 
@@ -196,6 +196,7 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
     float radiusCos = cos(angularRadius), radiusTan = tan(angularRadius);
         
     float RdotL = 2.0 * NdotL * NdotV - VdotL;
+    
     if (RdotL >= radiusCos) {
         newNdotL = 2.0 * NdotV - NdotV;
         newVdotL = 2.0 * NdotV * NdotV - 1.0;
@@ -231,6 +232,7 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
 
 vec3 computeSpecular(vec3 viewDirection, vec3 lightDirection, vec3 normal, vec3 N, vec3 K, float alpha) {
     float NdotL = dot(normal, lightDirection);
+    
     if (NdotL <= 0.0) return vec3(0.0);
 
     float alphaSq = maxEps(alpha * alpha);
@@ -239,11 +241,11 @@ vec3 computeSpecular(vec3 viewDirection, vec3 lightDirection, vec3 normal, vec3 
     float VdotL = dot(viewDirection, lightDirection);
 
     float NdotHSq = NdotHSquared(shadowLightAngularRadius, NdotL, NdotV, VdotL, NdotL, VdotL);
-    float VdotH   = (VdotL + 1.0) * fastInvSqrtN1(2.0 * VdotL + 2.0);
+    float VdotH   = (VdotL + 1.0) * inversesqrt(2.0 * VdotL + 2.0);
 
     NdotV = abs(NdotV);
     
-    float D  = distribution_GGX(fastSqrtN1(NdotHSq), alphaSq);
+    float D  = distribution_GGX(NdotHSq, alphaSq);
     vec3  F  = fresnelDielectricConductor(VdotH, N, K);
     float G2 = G2_Smith_Height_Correlated(NdotV, NdotL, alphaSq);
         
