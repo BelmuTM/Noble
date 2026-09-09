@@ -130,6 +130,7 @@ float getShadowCaustics(vec3 samplePosition) {
         float weightSum = 0.0;
 
         for (int i = 0; i < BLOCKER_SEARCH_SAMPLES; i++) {
+            
             vec2 offset       = BLOCKER_SEARCH_RADIUS * sampleDisk(i, BLOCKER_SEARCH_SAMPLES, jitter0, jitter1) * invShadowMapResolution;
             vec2 sampleCoords = shadowClipToShadowScreen(shadowCoords + offset);
             
@@ -159,6 +160,7 @@ float getShadowCaustics(vec3 samplePosition) {
         vec2 offset  = vec2(0.0);
 
         for (int i = 0; i < SHADOW_SAMPLES; i++) {
+             
             #if SHADOWS != 3
                 offset = sampleDisk(i, SHADOW_SAMPLES, jitter0, jitter1) * penumbraSize * invShadowMapResolution;
             #endif
@@ -172,13 +174,11 @@ float getShadowCaustics(vec3 samplePosition) {
     }
 
     vec4 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float depth) {
-        vec3  shadowPosition = worldToShadowClip(scenePosition);
-        float NdotL          = dot(geometricNormal, shadowLightVectorWorld);
+        vec3 shadowPositionClip = worldToShadowClip(scenePosition);
 
-        // Shadow bias implementation from Emin and concept from gri573
-        float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.1;
+        float NdotL = dot(geometricNormal, shadowLightVectorWorld);
 
-        shadowPosition += mat3(shadowProjection) * (mat3(shadowModelView) * geometricNormal) * getDistortionFactor(shadowPosition.xy) * biasAdjust;
+        shadowPositionClip += getShadowBias(shadowPositionClip, geometricNormal);
 
         float penumbraSize = NORMAL_SHADOW_PENUMBRA;
 
@@ -188,25 +188,25 @@ float getShadowCaustics(vec3 samplePosition) {
             selfIntersectionBias = vec3(0.0, 0.0, 1e-3);
         }
 
-        vec3 shadowPosDistort = shadowClipToShadowScreen(shadowPosition);
+        vec3 shadowPositionScreen = shadowClipToShadowScreen(shadowPositionClip);
 
-        if (!insideScreenBounds(shadowPosDistort, 1.0)) {
+        if (!insideScreenBounds(shadowPositionScreen, 1.0)) {
             return vec4(1.0, 1.0, 1.0, 0.0);
         }
 
         float subsurfaceDepth = 0.0;
-        float avgBlockerDepth = findBlockerDepth(shadowPosition.xy, shadowPosDistort.z, subsurfaceDepth);
+        float avgBlockerDepth = findBlockerDepth(shadowPositionClip.xy, shadowPositionScreen.z, subsurfaceDepth);
 
         if (NdotL < 0.0) {
             return vec4(0.0, 0.0, 0.0, subsurfaceDepth);
         }
 
         #if SHADOWS == 1
-            penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * max0(shadowPosDistort.z - avgBlockerDepth) / avgBlockerDepth);
+            penumbraSize = max(MIN_SHADOW_PENUMBRA, LIGHT_SIZE * max0(shadowPositionScreen.z - avgBlockerDepth) / avgBlockerDepth);
         #endif
 
         return vec4(
-            PCF(shadowPosition, penumbraSize, selfIntersectionBias) + getShadowCaustics(shadowPosDistort),
+            PCF(shadowPositionClip, penumbraSize, selfIntersectionBias) + getShadowCaustics(shadowPositionScreen),
             subsurfaceDepth
         );
     }

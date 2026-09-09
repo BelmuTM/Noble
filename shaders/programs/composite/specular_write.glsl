@@ -204,7 +204,10 @@
                                     visibility = texture(SHADOWMAP_BUFFER, max(screenPosition.xy, texelSize)).rgb;
 
                                 } else {
-                                    vec3 shadowPosition = worldToShadowScreen(scenePosition0) - vec3(0.0, 0.0, 1e-3);
+                                    vec3 shadowPosition  = worldToShadowClip(scenePosition0);
+                                         shadowPosition += getShadowBias(shadowPosition, material.normal);
+                                         shadowPosition  = shadowClipToShadowScreen(shadowPosition);
+
                                     // Fragments outside of shadow bounds are considered unoccluded
                                     visibility = insideScreenBounds(shadowPosition, 1.0) ? vec3(shadowVisibility(shadowtex0, shadowPosition)) : vec3(1.0);
                                 }

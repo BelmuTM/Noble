@@ -95,6 +95,13 @@ vec3 shadowClipToShadowScreen(vec3 shadowClipPosition) {
     return distortShadowSpace(shadowClipPosition) * 0.5 + 0.5;
 }
 
+vec3 getShadowBias(vec3 shadowClipPosition, vec3 normal) {
+    // Shadow bias implementation from Emin and concept from gri573
+    const float biasAdjust = log2(max(4.0, shadowDistance - shadowMapResolution * 0.125)) * 0.1;
+
+    return mat3(shadowProjection) * (mat3(shadowModelView) * normal) * getDistortionFactor(shadowClipPosition.xy) * biasAdjust;
+}
+
 //////////////////////////////////////////////////////////
 /*------------------- CLOUDS SHADOWS -------------------*/
 //////////////////////////////////////////////////////////
