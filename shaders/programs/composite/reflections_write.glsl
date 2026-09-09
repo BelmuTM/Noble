@@ -105,11 +105,7 @@
                 
                 modFragment = true;
                 
-                #if defined VOXY
-                    depth = texelFetch(modDepthTex0, ivec2(SNAP_COORDS(coords * RCP_RENDER_SCALE)), 0).r;
-                #else
-                    depth = texelFetch(modDepthTex0, coords, 0).r;
-                #endif
+                depth = texelFetch(modDepthTex0, coords, 0).r;
                 
                 projection         = modProjection;
                 projectionInverse  = modProjectionInverse;
@@ -173,48 +169,52 @@
 
         // Reflections filtering
 
-        vec3 velocity     = getVelocity(screenPosition, projectionInverse, projectionPrevious);
-        vec3 prevPosition = vec3(scaledPixelCoords, depth) + velocity * RENDER_SCALE;
+        #if REFLECTIONS_FILTER == 1
 
-        float reprojectionDepth;
-        bool  isReflectingSky = false;
+            vec3 velocity     = getVelocity(screenPosition, projectionInverse, projectionPrevious);
+            vec3 prevPosition = vec3(scaledPixelCoords, depth) + velocity * RENDER_SCALE;
 
-        if (rayLength < EPS) {
-            reprojectionDepth = texture(CLOUDMAP_BUFFER, pixelCoords).a;
-            isReflectingSky   = true;
+            float reprojectionDepth;
+            bool  isReflectingSky = false;
 
-        } else {
-            reprojectionDepth = depth + (alpha > 0.1 ? 0.0 : rayLength);
-        }
+            if (rayLength < EPS) {
+                reprojectionDepth = texture(CLOUDMAP_BUFFER, pixelCoords).a;
+                isReflectingSky   = true;
 
-        vec2 velocityReflected   = getVelocity(vec3(pixelCoords, reprojectionDepth), projectionInverse, projectionPrevious).xy;
-        vec2 prevCoordsReflected = scaledPixelCoords + velocityReflected * RENDER_SCALE;
+            } else {
+                reprojectionDepth = depth + (alpha > 0.1 ? 0.0 : rayLength);
+            }
 
-        if (insideScreenBounds(prevCoordsReflected, RENDER_SCALE)) {
+            vec2 velocityReflected   = getVelocity(vec3(pixelCoords, reprojectionDepth), projectionInverse, projectionPrevious).xy;
+            vec2 prevCoordsReflected = scaledPixelCoords + velocityReflected * RENDER_SCALE;
 
-            vec4 prevReflections = texelFetch(REFLECTIONS_BUFFER, ivec2(SNAP_COORDS(prevCoordsReflected * viewSize * reflectionsScale)), 0);
+            if (insideScreenBounds(prevCoordsReflected, RENDER_SCALE)) {
 
-            bool isHand = depth < handDepth;
+                vec4 prevReflections = texelFetch(REFLECTIONS_BUFFER, ivec2(SNAP_COORDS(prevCoordsReflected * viewSize * reflectionsScale)), 0);
 
-            float linearDepth     = linearizeDepth(prevPosition.z);
-            float linearPrevDepth = linearizeDepth(exp2(prevReflections.a));
-            float depthWeight     = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.01);
+                bool isHand = depth < handDepth;
 
-            float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isHand ? 1.0 : (isReflectingSky ? 0.8 : 0.5));
+                float linearDepth     = linearizeDepth(prevPosition.z);
+                float linearPrevDepth = linearizeDepth(exp2(prevReflections.a));
+                float depthWeight     = step(abs(linearDepth - linearPrevDepth) / max(linearDepth, linearPrevDepth), 0.01);
 
-            vec2  pixelCenterDist  = 1.0 - abs(fract(prevPosition.xy * viewSize) * 2.0 - 1.0);
-            float centerWeightHand = isHand ? sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 : 1.0;
+                float velocityWeight = 1.0 - saturate(length(velocity.xy * viewSize)) * (isHand ? 1.0 : (isReflectingSky ? 0.8 : 0.5));
 
-            float weight = 0.975;
+                vec2  pixelCenterDist  = 1.0 - abs(fract(prevPosition.xy * viewSize) * 2.0 - 1.0);
+                float centerWeightHand = isHand ? sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 : 1.0;
 
-            weight *= depthWeight * velocityWeight * centerWeightHand;
-            weight *= mix(1.0, 0.5, float(isWater));
-            weight  = saturate(weight);
+                float weight = 0.975;
 
-            reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
-            reflections.a   = log2(prevPosition.z);
+                weight *= depthWeight * velocityWeight * centerWeightHand;
+                weight *= mix(1.0, 0.5, float(isWater));
+                weight  = saturate(weight);
 
-        }
+                reflections.rgb = max0(mix(reflections.rgb, prevReflections.rgb, weight));
+                reflections.a   = log2(prevPosition.z);
+
+            }
+
+        #endif
 
         // Writing to buffer
 

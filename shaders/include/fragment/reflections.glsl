@@ -106,6 +106,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
         vec3 reflection = vec3(0.0);
 
         for (int i = 0; i < ROUGH_REFLECTIONS_SAMPLES; i++) {
+            
             vec3  microfacetNormal = tbn * sampleGGXVNDF(tangentViewDirection, rand2F(), alpha);
             float MdotV            = dot(microfacetNormal, -viewDirection);
             vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	

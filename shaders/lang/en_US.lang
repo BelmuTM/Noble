@@ -272,6 +272,18 @@ value.REFLECTIONS.0 = §cOFF
 value.REFLECTIONS.1 = §e§lRough
 value.REFLECTIONS.2 = §e§lSmooth
 
+option.REFLECTIONS_FILTER = Reflections Filter
+option.REFLECTIONS_FILTER.comment = Accumulates §bReflections§r over multiple frames to reduce noise and give a cleaner result.
+value.REFLECTIONS_FILTER.0 = §cOFF
+value.REFLECTIONS_FILTER.1 = §aON
+
+option.REFLECTIONS_SCALE = Reflections Render Scale
+option.REFLECTIONS_SCALE.comment = Adjusts §bReflections§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
+value.REFLECTIONS_SCALE.25 = 25%
+value.REFLECTIONS_SCALE.50 = 50%
+value.REFLECTIONS_SCALE.75 = 75%
+value.REFLECTIONS_SCALE.100 = 100%
+
 option.REFLECTIONS_STRIDE = Reflections Stride
 option.REFLECTIONS_STRIDE.comment = Influences §bReflections§r' pixel accuracy. §cLower value gives better results, but reduces §cperformance.
 value.REFLECTIONS_STRIDE.1 = §41
@@ -289,13 +301,6 @@ value.ROUGH_REFLECTIONS_SAMPLES.1 = §a1
 value.ROUGH_REFLECTIONS_SAMPLES.2 = §e2
 value.ROUGH_REFLECTIONS_SAMPLES.3 = §63
 value.ROUGH_REFLECTIONS_SAMPLES.4 = §c4
-
-option.REFLECTIONS_SCALE = Reflections Render Scale
-option.REFLECTIONS_SCALE.comment = Adjusts §bReflections§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
-value.REFLECTIONS_SCALE.25 = 25%
-value.REFLECTIONS_SCALE.50 = 50%
-value.REFLECTIONS_SCALE.75 = 75%
-value.REFLECTIONS_SCALE.100 = 100%
 
 option.REFRACTIONS = Refractions
 option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen. §aApproximation§r refractions are less precise but cost less performance. §aRaytraced§r refractions are precise but cost more performance.

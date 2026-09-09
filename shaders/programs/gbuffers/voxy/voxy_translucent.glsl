@@ -81,7 +81,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
     material.ao         = 1.0;
     material.subsurface = 0.0;
 
-    vec3 screenPosition = vec3(gl_FragCoord.xy * texelSize, gl_FragCoord.z);
+    vec3 screenPosition = vec3(gl_FragCoord.xy * texelSize * RCP_RENDER_SCALE, gl_FragCoord.z);
     vec3 viewPosition   = screenToView(screenPosition, vxProjInv, false);
     vec3 scenePosition  = transform(vxModelViewInv, viewPosition);
 
@@ -91,7 +91,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         material.F0       = waterF0;
         material.alpha    = 0.0;
         material.emission = 0.0;
-        material.albedo   = vec3(0.0);
+        material.albedo   = vec3(1.0);
 
         const mat3 tbn = mat3(
             vec3(1.0, 0.0, 0.0),

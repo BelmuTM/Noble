@@ -197,7 +197,10 @@ const float RCP_GTAO_SLICES        = 1.0 / GTAO_SLICES;
 
 // Reflections
 
-#define REFLECTIONS         1 // [0 1 2]
+#define REFLECTIONS 1 // [0 1 2]
+
+#define REFLECTIONS_FILTER 1 // [0 1]
+
 #define REFLECTIONS_SCALE 100 // [25 50 75 100]
 
 const float reflectionsScale = REFLECTIONS_SCALE * 0.01;

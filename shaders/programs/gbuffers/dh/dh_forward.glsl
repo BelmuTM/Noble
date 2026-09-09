@@ -131,7 +131,7 @@
             material.F0       = waterF0;
             material.alpha    = 0.0;
             material.emission = 0.0;
-            material.albedo   = vec3(0.0);
+            material.albedo   = vec3(1.0);
 
             material.normal = getWaterNormal(scenePosition + cameraPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES);
 

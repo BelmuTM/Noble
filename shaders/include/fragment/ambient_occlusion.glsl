@@ -78,7 +78,7 @@
 
         vec3 viewDirection = -normalize(viewPosition);
 
-        float jitter = temporalBlueNoise(gl_FragCoord.xy);
+        float jitter = temporalBlueNoise(SCREEN_COORDS);
 
         for (int i = 0; i < GTAO_SLICES; i++) {
 

@@ -95,8 +95,6 @@
         float depth0 = texture(depthtex0, vertexCoords).r;
         float depth1 = texture(depthtex1, vertexCoords).r;
 
-        vec3 screenPosition = vec3(vertexCoords, depth1);
-
         mat4 projection        = gbufferProjection;
         mat4 projectionInverse = gbufferProjectionInverse;
 
@@ -119,6 +117,8 @@
             }
             
         #endif
+
+        vec3 screenPosition = vec3(vertexCoords, depth1);
 
         vec3 viewPosition0 = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
 
