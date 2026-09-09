@@ -350,6 +350,14 @@ float calculateAirFogPhase(float cosTheta) {
 
             float aerialRayLength  = mix(rayLength, rayLength * AERIAL_PERSPECTIVE_DISTANCE_MULTIPLIER, saturate(rayLength / farPlane) * float(!sky));
                   aerialRayLength *= aerialStepSize;
+            
+            #if defined VOXY
+
+                if (sky) {
+                    aerialRayLength *= 0.25; // Required because Voxy is a pain in the ass
+                }
+
+            #endif
 
             vec3 aerialIncrement = rayDirection * aerialRayLength;
 

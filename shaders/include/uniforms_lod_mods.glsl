@@ -57,7 +57,7 @@
 
     #define nearPlane near
 
-    float farPlane = float(vxRenderDistance * 16);
+    float farPlane = float(vxRenderDistance * 4);
 
     #define modProjection         vxProj
     #define modProjectionInverse  vxProjInv
