@@ -238,7 +238,7 @@
 
                     directSpecular = computeSpecular(
                         -normalize(viewPosition0),
-                        shadowLightVector,
+                        normalize(shadowLightVector),
                         material.normal,
                         material.N,
                         material.K,
