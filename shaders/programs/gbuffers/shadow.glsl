@@ -54,6 +54,7 @@
         #if ANIMATIONS_ENABLED
 
             animate(worldPosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(gl_MultiTexCoord1.y * rcp240));
+            
             gl_Position = project(gl_ProjectionMatrix, transform(shadowModelView, worldPosition));
 
         #else
@@ -123,7 +124,7 @@
 
                 causticsOut = waterCaustics(
                     worldPosition,
-                    getWaterNormal(worldPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES, 1.0 * WATER_NORMALS_STRENGTH_MULTIPLIER)
+                    getWaterNormalCaustics(worldPosition, vec3(0.0, 1.0, 0.0), WATER_OCTAVES, 1.0 * WATER_NORMALS_STRENGTH_MULTIPLIER)
                 ) * WATER_CAUSTICS_STRENGTH;
 
             #endif

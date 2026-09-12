@@ -93,9 +93,10 @@
 
             animate(scenePosition, textureCoords.y < mc_midTexCoord.y, getSkylightFalloff(lightmapCoords.y));
 
+            gl_Position = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
+
         #endif
 
-        gl_Position    = project(gl_ProjectionMatrix, transform(gbufferModelView, scenePosition));
         gl_Position.xy = gl_Position.xy * RENDER_SCALE + (RENDER_SCALE - 1.0) * gl_Position.w;
 
         TAA_JITTER(gl_Position);

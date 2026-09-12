@@ -77,12 +77,12 @@ mat3x3 atmosphereAttenuationCoefficients = mat3x3(
     SRGB_TO_WORKING_SPACE_ALBEDO(ozoneExtinctionCoefficients)
 );
 
-mat2x3 atmosphereScatteringCoefficientsEnd = mat2x3(
+const mat2x3 atmosphereScatteringCoefficientsEnd = mat2x3(
     SRGB_TO_WORKING_SPACE_ALBEDO(rayleighScatteringCoefficientsEnd),
     SRGB_TO_WORKING_SPACE_ALBEDO(mieScatteringCoefficientsEnd)
 );
 
-mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(
+const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(
     SRGB_TO_WORKING_SPACE_ALBEDO(rayleighExtinctionCoefficientsEnd),
     SRGB_TO_WORKING_SPACE_ALBEDO(mieExtinctionCoefficientsEnd),
     vec3(0.0)

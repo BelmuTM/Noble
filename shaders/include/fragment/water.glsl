@@ -45,7 +45,7 @@
 
 
 #define WAVE_GERSTNER_TIME_NOISE() \
-    time + noise * 4.0
+    time + noise * 9.0
 
 
 const float g = 9.81; // Earth's gravitational constant
@@ -71,7 +71,7 @@ vec2 gerstnerWavesDerivative(vec2 coords, float time, float steepness, float amp
     float sharpDeriv = steepness * pow(u, steepness - 1.0) * dudx;
     float softDeriv  = dudx;
 
-    return amplitude * mix(sharpDeriv, softDeriv, 0.3) * direction;
+    return amplitude * mix(sharpDeriv, softDeriv, 0.0) * direction;
 }
 
 float calculateWaveHeightGerstner(vec2 position, int octaves) {
@@ -79,7 +79,7 @@ float calculateWaveHeightGerstner(vec2 position, int octaves) {
 
     WAVE_GERSTNER_SETUP();
 
-    float totalAmplitude = EPS;
+    float totalAmplitude = amplitude;
 
     for (int i = 0; i < octaves; i++) {
 
@@ -148,6 +148,19 @@ vec3 getWaterNormal(vec3 worldPosition, vec3 worldNormal, int octaves, float str
 
 vec3 getWaterNormal(vec3 worldPosition, vec3 worldNormal, int octaves) {
     return getWaterNormal(worldPosition, worldNormal, octaves, WATER_NORMALS_STRENGTH * WATER_NORMALS_STRENGTH_MULTIPLIER);
+}
+
+vec3 getWaterNormalCaustics(vec3 worldPosition, vec3 worldNormal, int octaves, float strength) {
+
+    vec2 waveDerivative = calculateWaveDerivativeGerstner(worldPosition.xz, octaves) * strength;
+
+    return normalize(
+        rotate(
+            normalize(vec3(-waveDerivative.x, 1.0, -waveDerivative.y)),
+            vec3(0.0, 1.0, 0.0),
+            worldNormal
+        )
+    );
 }
 
 vec2 parallaxMappingWater(vec2 coords, vec3 tangentDirection, int octaves) {
