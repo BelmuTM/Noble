@@ -144,7 +144,7 @@ const float sunDistance = 1.496e11;
 
 const float moonRadius    = 1.7374e6;
 const float moonDistance  = 3.8440e8;
-const float moonAlbedo    = 0.136; // The full moon reflects approximately 13-14% of the sun's emitted light 
+const float moonAlbedo    = 0.12; // The full moon reflects approximately 11-14% of the sun's emitted light 
 const float moonRoughness = 0.40;
 
 // Angular radii

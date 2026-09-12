@@ -110,7 +110,7 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define MAX_ACCUMULATED_FRAMES 20.0
 
 #if defined OVERWORLD_OR_END
-    const vec3 AMBIENT_LIGHT = vec3(0.25);
+    const vec3 AMBIENT_LIGHT = vec3(0.15);
 
 #else
     const vec3 AMBIENT_LIGHT = vec3(1.9, 0.8, 0.1) * 5.0;

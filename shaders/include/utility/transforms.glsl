@@ -159,8 +159,9 @@ vec3 viewToWorld(vec3 viewPosition) {
 }
 
 mat3 calculateTBN(vec3 normal) {
-    vec3 tangent = normal.y == 1.0 ? vec3(1.0, 0.0, 0.0) : normalize(cross(vec3(0.0, 1.0, 0.0), normal));
+    vec3 tangent   = normal.y > 0.999 ? vec3(1.0, 0.0, 0.0) : normalize(cross(vec3(0.0, 1.0, 0.0), normal));
     vec3 bitangent = normalize(cross(tangent, normal));
+    
     return mat3(tangent, bitangent, normal);
 }
 
