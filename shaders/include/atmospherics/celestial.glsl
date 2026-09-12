@@ -60,18 +60,6 @@ vec3 physicalSun(vec3 sceneDirection) {
     return dot(sceneDirection, sunVector) < cos(sunAngularRadius) ? vec3(0.0) : sunLuminance * RCP_PI;
 }
 
-uniform int moonPhase;
-
-vec3 getFictiveSunPosition(vec3 moonVector) {
-    // (Moon phase / 8) * 2 * pi
-    const float sweepAngle = float(moonPhase) * 0.125 * TAU;
-
-    vec3 tangent   = abs(moonVector.y) < 0.999 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
-    vec3 bitangent = normalize(cross(tangent, moonVector));
-
-    return normalize(-moonVector * cos(sweepAngle) + bitangent * sin(sweepAngle));
-}
-
 vec3 physicalMoon(vec3 sceneDirection) {
     vec2 sphere = intersectSphere(-moonVector, sceneDirection, moonAngularRadius);
 
@@ -79,20 +67,9 @@ vec3 physicalMoon(vec3 sceneDirection) {
 
         vec3 moonNormal = normalize(sceneDirection * sphere.x - moonVector);
 
-        const vec3 moonAlbedo = vec3(moonAlbedo);
+        float NdotL = max0(dot(moonNormal, fictiveSunVector));
 
-        const float moonAlpha  = moonRoughness * moonRoughness;
-        const float moonF0     = 0.02;
-
-        vec3 moonN = vec3(f0ToIOR(moonF0));
-
-        vec3 moonBRDF = hammonDiffuse(-sceneDirection, sunVector, moonAlbedo, moonNormal, vec3(f0ToIOR(moonF0)), moonF0, moonAlpha);
-
-        vec3 fictiveSunPosition = getFictiveSunPosition(moonVector);
-
-        float NdotL = max0(dot(moonNormal, fictiveSunPosition));
-
-        return moonAlbedo * NdotL * moonBRDF * sunIlluminance;
+        return moonAlbedo * NdotL * RCP_PI * sunIlluminance;
     }
 
     return vec3(0.0);

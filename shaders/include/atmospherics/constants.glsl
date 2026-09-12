@@ -21,6 +21,7 @@
 /*
     [References]:
         Serdyuchenko et al. (2014). High spectral resolution ozone absorption cross-sections – Part 1: Measurements, data analysis and comparison with previous measurements around 293 K. https://amt.copernicus.org/articles/7/609/2014/amt-7-609-2014.pdf
+        Tatum & Fairbairn. (2026). Planetary Photometry. https://www.booksofall.com/planetary-photometry-tatum-and-fairbairn/
 */
 
 /* ATMOSPHERIC CONSTANTS */
@@ -142,10 +143,9 @@ const float sunDistance = 1.496e11;
 
 // Moon
 
-const float moonRadius    = 1.7374e6;
-const float moonDistance  = 3.8440e8;
-const float moonAlbedo    = 0.12; // The full moon reflects approximately 11-14% of the sun's emitted light 
-const float moonRoughness = 0.40;
+const float moonRadius   = 1.7374e6;
+const float moonDistance = 3.8440e8;
+const float moonAlbedo   = 0.12; // The full Moon reflects approximately 11-14% of the Sun's emitted light 
 
 // Angular radii
 
@@ -157,13 +157,35 @@ float shadowLightAngularRadius = sunAngle < 0.5 ? sunAngularRadius : moonAngular
 
 // Photometric constants
 
-// Brightness of light reaching the earth (~126'000 lux)
+uniform int moonPhase;
+
+vec3 getFictiveSunVector() {
+    // (Moon phase / 8) * 2 * pi
+    const float sweepAngle = float(moonPhase) * 0.125 * TAU;
+
+    vec3 tangent   = abs(moonVector.y) < 0.999 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+    vec3 bitangent = normalize(cross(tangent, moonVector));
+
+    return normalize(-moonVector * cos(sweepAngle) + bitangent * sin(sweepAngle));
+}
+
+vec3 fictiveSunVector = getFictiveSunVector();
+
+// Analytically computes the Lambertian angular term for the Moon's BRDF
+// This way, Moon phases affect its radiance
+float lambertPhase() {
+    float phaseAngle = acos(clamp(dot(-moonVector, fictiveSunVector), -1.0, 1.0));
+
+    return (sin(phaseAngle) + (PI - phaseAngle) * cos(phaseAngle)) * RCP_PI;
+}
+
+// Brightness of light reaching the Earth (~126'000 lux)
 const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 126e3;
 const vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
 
-const vec3 moonLuminance   = moonAlbedo * sunIlluminance;
-// The rough amount of light the moon emits that reaches the earth
-const vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
+vec3 moonLuminance   = moonAlbedo * sunIlluminance * lambertPhase();
+// The rough amount of light the moon emits that reaches the Earth
+vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
 
 vec3 starIlluminance = blackbody(25000.0) * 500.0;
 vec3 starLuminance   = starIlluminance / coneAngleToSolidAngle(starAngularRadius);
