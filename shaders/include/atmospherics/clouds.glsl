@@ -167,11 +167,11 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
         float globalCoverage = saturate(wetness + layer.coverage);
 
-        float worleyNoise = worley(scaledCoords * 0.055);
+        float worleyNoise = worley(scaledCoords * layer.frequency * 0.055);
               worleyNoise = remap(worleyNoise * worleyNoise, 0.1, 1.0, 0.0, 1.0);
 
         float bakedNoise = (
-            remap(texture(noisetex, scaledCoords * mix(0.07, 0.01, wetness)).g * 1.5 - 0.25, saturate(0.4 - globalCoverage * 0.5), 1.0, 0.0, 1.0)
+            remap(texture(noisetex, scaledCoords * layer.frequency * mix(0.07, 0.01, wetness)).g * 1.5 - 0.25, saturate(0.4 - globalCoverage * 0.5), 1.0, 0.0, 1.0)
         );
 
         const float weatherMapCutoff = 0.4;
@@ -340,6 +340,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
 #if CLOUDS_SHADOWS == 1
 
     float calculateCloudsShadows(vec3 shadowPosition, CloudLayer layer) {
+        
         float cloudsLowerBound = planetRadius     + layer.altitude;
         float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 

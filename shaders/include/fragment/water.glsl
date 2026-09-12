@@ -45,7 +45,7 @@
 
 
 #define WAVE_GERSTNER_TIME_NOISE() \
-    time + noise * 9.0
+    time + noise * 6.0
 
 
 const float g = 9.81; // Earth's gravitational constant

@@ -93,7 +93,7 @@
 
     void main() {
         shadowmapOut   = vec4(1.0, 1.0, 1.0, 0.0);
-        illuminanceOut = vec4(0.0);
+        illuminanceOut = vec4(0.0, 0.0, 0.0, 1.0);
 
         #if DOWNSCALED_RENDERING == 1
             vec2 fragCoords = gl_FragCoord.xy * texelSize;
@@ -171,84 +171,84 @@
         /*----------------- SHADOW MAPPING ---------------------*/
         //////////////////////////////////////////////////////////
 
-        if (depth == 1.0) return;
-            
-        #if defined WORLD_OVERWORLD
-
-            #if SHADOWS > 0
-
-                mat4 projection        = gbufferProjection;
-                mat4 projectionInverse = gbufferProjectionInverse;
-
-                #if defined CHUNK_LOADER_MOD_ENABLED
-
-                    if (modFragment) {
-                        projection        = modProjection;
-                        projectionInverse = modProjectionInverse;
-                    }
-                    
-                #endif
-
-                // Shadowmapping
-
-                vec3 normal = decodeUnitVector(unpackUnorm2x16(dataTexture.w));
-
-                vec3 screenPosition = vec3(textureCoords, depth);
-                vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
-                vec3 scenePosition  = viewToWorld(viewPosition);
-
-                shadowmapOut = calculateShadowMapping(scenePosition, normal, depth);
-
-                // POM self-shadowing
-
-                #if POM > 0 && POM_SHADOWING == 1
-
-                    shadowmapOut.rgb *= unpackParallaxSelfShadowing(dataTexture.x);
-                    
-                #endif
-
-                // Contact shadows
-
-                #if CONTACT_SHADOWS == 1
-
-                    float contactShadows = 1.0;
-
-                    normal        = mat3(gbufferModelView) * normal;
-                    viewPosition += normal * 1e-2;
-
-                    float subsurfaceDepth = 0.0;
-
-                    if (modFragment) {
-                        contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
-                    } else {
-                        contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
-                    }
-
-                    // Use the subsurface depth from contact shadows if the one from shadow mapping is undefined/invalid
-                    #if defined VOXY
-                        bool outsideShadowBounds = length(scenePosition) >= shadowDistance - 32;
-                    #else
-                        bool outsideShadowBounds = length(scenePosition) >= shadowDistance;
-                    #endif
-
-                    if (subsurfaceDepth > 0.0 && outsideShadowBounds) {
-                        shadowmapOut.a = subsurfaceDepth;
-                    }
-
-                    // Apply contact shadows if the shadowmapOut is insufficient (out of bounds or lacks precision)
-                    if (shadowmapOut.rgb == vec3(1.0) || luminance(shadowmapOut.rgb) > contactShadows) {
-                        shadowmapOut.rgb *= contactShadows;
-                    }
-
-                #endif
-                
-            #endif
+        #if defined WORLD_OVERWORLD && SHADOWS > 0
 
             // Clouds shadows
 
             #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
 
                 illuminanceOut.a = calculateCloudsShadows(getCloudsShadowPosition(gl_FragCoord.xy, atmosphereRayPosition), cloudLayer0);
+
+            #endif
+
+            // Sky check
+
+            if (depth == 1.0) {
+                return;
+            }
+
+            mat4 projection        = gbufferProjection;
+            mat4 projectionInverse = gbufferProjectionInverse;
+
+            #if defined CHUNK_LOADER_MOD_ENABLED
+
+                if (modFragment) {
+                    projection        = modProjection;
+                    projectionInverse = modProjectionInverse;
+                }
+                
+            #endif
+
+            // Shadowmapping
+
+            vec3 normal = decodeUnitVector(unpackUnorm2x16(dataTexture.w));
+
+            vec3 screenPosition = vec3(textureCoords, depth);
+            vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
+            vec3 scenePosition  = viewToWorld(viewPosition);
+
+            shadowmapOut = calculateShadowMapping(scenePosition, normal, depth);
+
+            // POM self-shadowing
+
+            #if POM > 0 && POM_SHADOWING == 1
+
+                shadowmapOut.rgb *= unpackParallaxSelfShadowing(dataTexture.x);
+                
+            #endif
+
+            // Contact shadows
+
+            #if CONTACT_SHADOWS == 1
+
+                float contactShadows = 1.0;
+
+                normal        = mat3(gbufferModelView) * normal;
+                viewPosition += normal * 1e-2;
+
+                float subsurfaceDepth = 0.0;
+
+                if (modFragment) {
+                    contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
+                } else {
+                    contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
+                }
+
+                // Use the subsurface depth from contact shadows if the one from shadow mapping is undefined/invalid
+                #if defined VOXY
+                    bool outsideShadowBounds = length(scenePosition) >= shadowDistance - 32;
+                #else
+                    bool outsideShadowBounds = length(scenePosition) >= shadowDistance;
+                #endif
+
+                if (subsurfaceDepth > 0.0 && outsideShadowBounds) {
+                    shadowmapOut.a = subsurfaceDepth;
+                }
+
+                // Apply contact shadows if the shadowmapOut is insufficient (out of bounds or lacks precision)
+                if (shadowmapOut.rgb == vec3(1.0) || luminance(shadowmapOut.rgb) > contactShadows) {
+                    shadowmapOut.rgb *= contactShadows;
+                }
 
             #endif
 
