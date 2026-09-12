@@ -217,7 +217,7 @@ vec3 evaluateDirectIlluminance() {
 vec3 sampleAtmosphereTexture(vec2 coords, bool monochrome) {
     vec3 radiance = texture(ATMOSPHERE_BUFFER, coords).rgb;
 
-    return monochrome ? vec3(luminance(radiance)) : radiance;
+    return monochrome ? vec3(luminanceAP1(radiance)) : radiance;
 }
 
 vec3 evaluateUniformSkyIlluminanceApproximation() {

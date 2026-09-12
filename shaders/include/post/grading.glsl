@@ -34,14 +34,14 @@
 //////////////////////////////////////////////////////////
 
 void whitePreservingReinhard(inout vec3 color, float white) {
-    float luminance           = luminance(color);
+    float luminance           = luminanceBT709(color);
     float toneMappedLuminance = luminance * (1.0 + luminance / (white * white)) / (1.0 + luminance);
 
     color *= toneMappedLuminance / luminance;
 }
 
 void reinhardJodie(inout vec3 color) {
-    float luminance = luminance(color);
+    float luminance = luminanceBT709(color);
     vec3  tv        = color / (1.0 + color);
 
     color = mix(color / (1.0 + luminance), tv, tv);
@@ -117,15 +117,15 @@ void burgess(inout vec3 color) {
 }
 
 const mat3 agxTransform = mat3(
-    0.842479062253094 , 0.0423282422610123, 0.0423756549057051,
-    0.0784335999999992, 0.878468636469772 , 0.0784336,
-    0.0792237451477643, 0.0791661274605434, 0.879142973793104
+    0.8424010709504686, 0.0424010709504685, 0.04240107095046854,
+    0.0784365015618027, 0.8784365015618028, 0.07843650156180276,
+    0.0791624274877287, 0.0791624274877287, 0.87916242748772870
 );
 
 const mat3 agxTransformInverse = mat3(
-     1.19687900512017  , -0.0528968517574562, -0.0529716355144438,
-    -0.0980208811401368,  1.15190312990417  , -0.0980434501171241,
-    -0.0990297440797205, -0.0989611768448433,  1.15107367264116
+     1.19699866131191430, -0.05300133868808567, -0.05300133868808567,
+    -0.09804562695225345,  1.15195437304774660, -0.09804562695225345,
+    -0.09895303435966087, -0.09895303435966087,  1.15104696564033900
 );
 
 vec3 agxDefaultContrastApproximation(vec3 x) {
@@ -147,13 +147,19 @@ void agx(inout vec3 color) {
     const float minEv = -12.47393;
     const float maxEv =  4.026069;
 
+    // Input transform
     color = agxTransform * color;
+
+    // Log2 space encoding
     color = clamp(log2(color), minEv, maxEv);
     color = (color - minEv) / (maxEv - minEv);
+
+    // Apply sigmoid function approximation
     color = agxDefaultContrastApproximation(color);
 }
 
 void agxEotf(inout vec3 color) {
+    // Inverse input transform
     color = agxTransformInverse * color;
 }
 
@@ -182,7 +188,7 @@ void agxLook(inout vec3 color) {
 
     #endif
 
-    float luma = luminance(color);
+    float luma = luminanceBT709(color);
   
     color = pow(color * slope, power);
     color = luma + saturation * (color - luma);
@@ -217,7 +223,7 @@ void whiteBalance(inout vec3 color) {
 void vibrance(inout vec3 color, float intensity) {
     float minimum    = minOf(color);
     float maximum    = maxOf(color);
-    float saturation = (1.0 - saturate(maximum - minimum)) * saturate(1.0 - maximum) * luminance(color) * 5.0;
+    float saturation = (1.0 - saturate(maximum - minimum)) * saturate(1.0 - maximum) * luminanceBT709(color) * 5.0;
     vec3  lightness  = vec3((minimum + maximum) * 0.5);
 
     // Vibrance
@@ -227,7 +233,7 @@ void vibrance(inout vec3 color, float intensity) {
 }
 
 void saturation(inout vec3 color, float intensity) {
-    color = mix(vec3(luminance(color)), color, intensity);
+    color = mix(vec3(luminanceBT709(color)), color, intensity);
 }
 
 void contrast(inout vec3 color, float contrast) {

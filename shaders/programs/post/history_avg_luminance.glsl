@@ -71,7 +71,7 @@
                 for (int y = 0; y < tiles.y; y++) {
 
                     vec2 coords     = vec2(x, y) * tileSize + tileSize * 0.5;
-                    float luminance = luminance(textureLod(ILLUMINANCE_BUFFER, coords * 0.5, lod).rgb * invPreviousExposure);
+                    float luminance = luminanceAP1(textureLod(ILLUMINANCE_BUFFER, coords * 0.5, lod).rgb * invPreviousExposure);
 
                     pdf[getBinFromLuminance(luminance)]++;
                 }
@@ -132,7 +132,7 @@
 
             #if EXPOSURE == 1
 
-                avgLuminance = luminance(texture(ILLUMINANCE_BUFFER, vec2(0.25)).rgb * invPreviousExposure);
+                avgLuminance = luminanceAP1(texture(ILLUMINANCE_BUFFER, vec2(0.25)).rgb * invPreviousExposure);
                 
             #else
 

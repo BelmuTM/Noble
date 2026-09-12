@@ -51,7 +51,7 @@ float starfield(vec3 viewPosition, vec3 lightVector) {
 
     star = saturate(star - (1.0 - STARS_AMOUNT * 0.0025));
 
-    float luminosity = STARS_LUMINANCE * luminance(blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rng)));
+    float luminosity = STARS_LUMINANCE * luminanceAP1(blackbody(mix(STARS_MIN_TEMP, STARS_MAX_TEMP, rng)));
 
     return star * angularFactor * falloff * luminosity;
 }

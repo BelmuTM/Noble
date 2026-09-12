@@ -148,7 +148,7 @@
 
                 #else
 
-                    skyIlluminance = vec3(luminance(uniformSkyIlluminance));
+                    skyIlluminance = vec3(luminanceAP1(uniformSkyIlluminance));
 
                 #endif
 
@@ -246,7 +246,7 @@
                 }
 
                 // Apply contact shadows if the shadowmapOut is insufficient (out of bounds or lacks precision)
-                if (shadowmapOut.rgb == vec3(1.0) || luminance(shadowmapOut.rgb) > contactShadows) {
+                if (shadowmapOut.rgb == vec3(1.0) || luminanceAP1(shadowmapOut.rgb) > contactShadows) {
                     shadowmapOut.rgb *= contactShadows;
                 }
 

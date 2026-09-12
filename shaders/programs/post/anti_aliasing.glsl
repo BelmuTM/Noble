@@ -160,7 +160,7 @@
                     velocityWeightMult = 1.0;
                 }
 
-                float luminanceWeight = 1.0 + pow2(distance(history, currColor) / (luminance(history) + luminance(currColor) + EPS));
+                float luminanceWeight = 1.0 + pow2(distance(history, currColor) / (luminanceAP1(history) + luminanceAP1(currColor) + EPS));
 
                 float weight = saturate((1.0 - TAA_STRENGTH + velocityWeight * velocityWeightMult) / luminanceWeight);
 

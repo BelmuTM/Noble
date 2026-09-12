@@ -68,7 +68,7 @@
         #if defined OVERWORLD_OR_END
 
             directIlluminance = DIRECT_ILLUMINANCE();
-            skyIlluminance    = vec3(luminance(UNIFORM_SKY_ILLUMINANCE()));
+            skyIlluminance    = vec3(luminanceAP1(UNIFORM_SKY_ILLUMINANCE()));
             
         #endif
 

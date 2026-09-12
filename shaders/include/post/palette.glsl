@@ -159,7 +159,7 @@
 #endif
 
 void applyColorPalette(inout vec3 color) {
-    float index  = luminance(color) * (paletteSize - 1);
+    float index  = luminanceBT709(color) * (paletteSize - 1);
     float dither = float(fract(index) > bayer8(gl_FragCoord.xy));
 
     index = floor(index);

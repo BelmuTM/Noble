@@ -101,12 +101,12 @@ in vec2 textureCoords;
 
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++, weight++) {
-                avgLuma += luminance(texture(MAIN_BUFFER, coords + vec2(x, y) * texelSize).rgb);
+                avgLuma += luminanceBT709(texture(MAIN_BUFFER, coords + vec2(x, y) * texelSize).rgb);
             }
         }
         avgLuma /= weight;
 
-        float centerLuma = luminance(color);
+        float centerLuma = luminanceBT709(color);
 
         color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / centerLuma;
     }
@@ -139,7 +139,7 @@ in vec2 textureCoords;
 #if CEL_SHADING == 1
 
     void celShading(inout vec3 color) {
-        float luminance = luminance(color);
+        float luminance = luminanceBT709(color);
               color    /= luminance / (floor(luminance * CEL_SHADES) / CEL_SHADES);
     }
 

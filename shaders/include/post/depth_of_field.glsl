@@ -62,7 +62,7 @@ void depthOfField(inout vec3 color, sampler2D colorTex, vec2 coords, float coc, 
 
 			sampleColor /= exposure;
 
-			float weight = mix(0.3, 1.0, smoothstep(0.2, 1.0, luminance(sampleColor)));
+			float weight = mix(0.3, 1.0, smoothstep(0.2, 1.0, luminanceAP1(sampleColor)));
 
 			color       += sampleColor * weight;
 			totalWeight += weight;

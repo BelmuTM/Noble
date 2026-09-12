@@ -123,14 +123,12 @@ const mat3 SRGB_2_AP1_ALBEDO = SRGB_2_XYZ_MAT * XYZ_2_AP1_MAT;
 /*----------------- COLOR CONVERSIONS ------------------*/
 //////////////////////////////////////////////////////////
 
-float luminance(vec3 color) {
-    #if TONEMAP == ACES
-        vec3 luminanceCoefficients = AP1_2_XYZ_MAT[1];
-    #else
-        vec3 luminanceCoefficients = SRGB_2_XYZ_MAT[1];
-    #endif
+float luminanceAP1(vec3 color) {
+    return dot(color, AP1_2_XYZ_MAT[1]);
+}
 
-    return dot(color, luminanceCoefficients);
+float luminanceBT709(vec3 color) {
+    return dot(color, SRGB_2_XYZ_MAT[1]);
 }
 
 vec3 linearToSrgb(vec3 linear) {
