@@ -205,7 +205,7 @@
 
                                 } else {
                                     vec3 shadowPosition  = worldToShadowClip(scenePosition0);
-                                         shadowPosition += getShadowBias(shadowPosition, material.normal);
+                                         shadowPosition += getShadowBias(shadowPosition, mat3(gbufferModelViewInverse) * material.normal);
                                          shadowPosition  = shadowClipToShadowScreen(shadowPosition);
 
                                     // Fragments outside of shadow bounds are considered unoccluded

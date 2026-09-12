@@ -24,7 +24,7 @@
     float steepness  = WAVE_STEEPNESS;                          \
     float amplitude  = WAVE_AMPLITUDE;                          \
     float wavelength = WAVE_LENGTH * 1.0;                       \
-    float time       = frameTimeCounter * speed;                \
+    float time       = frameTimeCounter * speed * 0.1;          \
                                                                 \
     float noise = textureBicubic(noisetex, position * 5e-3).a;  \
                                                                 \
@@ -37,7 +37,7 @@
 #define WAVE_GERSTNER_PARAMS_FACTOR()                                          \
     float angle = radians(mix(155.0, 15.0, float(float(i) < wavesThreshold))); \
                                                                                \
-    steepness  *= WAVE_STEEPNESS_MULTIPLIER;                                   \
+    steepness   = max(1.0, steepness * WAVE_STEEPNESS_MULTIPLIER);             \
     amplitude  *= WAVE_AMPLITUDE_MULTIPLIER;                                   \
     wavelength *= WAVE_LENGTH_MULTIPLIER;                                      \
     time       *= WAVE_TIME_MULTIPLIER;                                        \
