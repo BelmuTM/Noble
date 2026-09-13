@@ -187,6 +187,7 @@ vec3 evaluateDirectIlluminance() {
         vec3 moonDirection = moonVector;
 
         #if !defined IS_IRIS
+        
             // Sun position code from builderb0y
             const vec2 sunRotationData = vec2(cos(sunPathRotation * degrees_to_radians), -sin(sunPathRotation * degrees_to_radians));
 

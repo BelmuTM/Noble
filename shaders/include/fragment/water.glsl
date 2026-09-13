@@ -71,7 +71,7 @@ vec2 gerstnerWavesDerivative(vec2 coords, float time, float steepness, float amp
     float sharpDeriv = steepness * pow(u, steepness - 1.0) * dudx;
     float softDeriv  = dudx;
 
-    return amplitude * mix(sharpDeriv, softDeriv, 0.0) * direction;
+    return amplitude * mix(sharpDeriv, softDeriv, 0.0) * -direction;
 }
 
 float calculateWaveHeightGerstner(vec2 position, int octaves) {

@@ -511,7 +511,7 @@ float calculateAirFogPhase(float cosTheta) {
             // Linearized distance travelled through water
             float distanceThroughWater = max0(shadowScreenPosition.z - shadowDepth0) * -shadowProjectionInverse[2].z * RCP_SHADOWS_DEPTH_STRETCH * 2.0;
 
-            scatteringSun += misWeight * shadow * exp(-waterAbsorptionCoefficients * distanceThroughWater);
+            scatteringSun += misWeight * shadow * exp(-waterExtinctionCoefficients * distanceThroughWater);
             scatteringSky += misWeight;
         }
 
