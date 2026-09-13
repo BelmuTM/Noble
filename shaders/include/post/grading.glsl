@@ -148,7 +148,7 @@ void agx(inout vec3 color) {
     const float maxEv =  4.026069;
 
     // Input transform
-    color = max0(agxTransform * color);
+    color = max(agxTransform * color, vec3(EPS));
 
     // Log2 space encoding
     color = clamp(log2(color), minEv, maxEv);
