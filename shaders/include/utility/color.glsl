@@ -88,6 +88,12 @@ const mat3 AP1_2_AP0_MAT = mat3(
     -0.0055258826, 0.0040252103, 1.0015006723
 );
 
+const mat3 SRGB_2_AP1_MAT = mat3(
+     0.6131324224, 0.3411640858, 0.0455034919,
+     0.0701312622, 0.9226919042, 0.0127738147,
+     0.0206155517, 0.1225777335, 0.9407840895
+);
+
 const mat3 D60_2_D65_CAT = mat3(
      0.98722400,-0.00611327, 0.01595330,
     -0.00759836, 1.00186000, 0.00533002,
@@ -116,8 +122,7 @@ const mat3 CONE_RESP_BRADFORD = mat3(
 
 const vec3 AP1_RGB2Y = vec3(0.2722287168, 0.6740817658, 0.0536895174); // Desaturation Coefficients
 
-const mat3 SRGB_2_AP1        = SRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP1_MAT;
-const mat3 SRGB_2_AP1_ALBEDO = SRGB_2_XYZ_MAT * XYZ_2_AP1_MAT;
+const mat3 SRGB_2_AP1_ADAPTATION_MAT = SRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP1_MAT;
 
 //////////////////////////////////////////////////////////
 /*----------------- COLOR CONVERSIONS ------------------*/
@@ -144,7 +149,7 @@ vec3 srgbToLinear(vec3 srgb) {
 }
 
 vec3 linearToAP1(vec3 color) {
-    return color * SRGB_2_AP1;
+    return color * SRGB_2_AP1_ADAPTATION_MAT;
 }
 
 vec3 ap1ToLinear(vec3 color) {
@@ -152,14 +157,14 @@ vec3 ap1ToLinear(vec3 color) {
 }
 
 vec3 srgbToLinearAlbedoAP1(vec3 color) {
-    return srgbToLinear(color) * SRGB_2_AP1_ALBEDO;
+    return srgbToLinear(color) * SRGB_2_AP1_MAT;
 }
 
 #define SRGB_TO_WORKING_SPACE(SRGB_COLOR) \
     srgbToLinearAlbedoAP1(SRGB_COLOR)
 
 #define SRGB_TO_WORKING_SPACE_ALBEDO(ALBEDO_SRGB_COLOR) \
-    (ALBEDO_SRGB_COLOR) * SRGB_2_AP1_ALBEDO
+    (ALBEDO_SRGB_COLOR) * SRGB_2_AP1_MAT
 
 vec3 fromYCoCg(vec3 color) {
     float r = color.x + color.y - color.z;

@@ -86,6 +86,7 @@ bool raytrace(
 
     // March until we reach the edge or intersect something
     while (t < tMax && !intersected) {
+        
         rayPosition = startPosition + rayDirection * t;
 
         float stepT = (t == jitter ? jitter : stride);
