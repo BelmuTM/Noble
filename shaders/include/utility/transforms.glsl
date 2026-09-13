@@ -121,6 +121,8 @@ vec3 getShadowBias(vec3 shadowClipPosition, vec3 normal) {
         position.xy /= 1.0 + length(position.xy);
         position.xy  = position.xy * 0.5 + 0.5;
 
+        if (!insideScreenBounds(position.xy, 1.0)) { return 0.0; }
+
         return texture(ILLUMINANCE_BUFFER, position.xy * CLOUDS_SHADOWS_RESOLUTION * texelSize).a;
     }
     

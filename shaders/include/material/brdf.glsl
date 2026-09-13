@@ -129,7 +129,18 @@ vec3 subsurfaceScatteringApprox(vec3 viewDirection, vec3 lightDirection, vec3 al
     return mix(isotropicLobe, mix(forwardsLobe, backwardsLobe, 0.3), 0.6);
 }
 
-vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, bool isMetal, vec4 shadowmap, vec3 directIlluminance, vec3 skyIlluminance, float ao, float cloudsShadows) {
+vec3 computeDiffuse(
+    vec3 fragPosition,
+    vec3 lightDirection,
+    Material material,
+    bool isMetal,
+    vec4 shadowmap,
+    vec3 directIlluminance,
+    vec3 skyIlluminance,
+    float ao,
+    float cloudsShadows
+) {
+
     if (material.id == LIGHTNING_BOLT_ID) {
         return vec3(1e7);
     }
@@ -193,6 +204,7 @@ vec3 computeDiffuse(vec3 fragPosition, vec3 lightDirection, Material material, b
 
 // This function assumes the light source is a sphere
 float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, out float newNdotL, out float newVdotL) {
+    
     float radiusCos = cos(angularRadius), radiusTan = tan(angularRadius);
         
     float RdotL = 2.0 * NdotL * NdotV - VdotL;

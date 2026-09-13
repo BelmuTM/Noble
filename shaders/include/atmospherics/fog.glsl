@@ -262,14 +262,16 @@ float calculateAirFogPhase(float cosTheta) {
         vec3 shadowStartPosition = worldToShadowClip(startPosition);
         vec3 shadowDirection     = mat3(shadowModelView) * rayDirection * diagonal3(shadowProjection);
 
-        vec3 scatteringSun = vec3(0.0);
-        vec3 scatteringSky = vec3(0.0);
-
         const float minDensity = 1e-4;
 
         //////////////////////////////////////////////////////////
-        /*------------------ AIR FOG TRACING -------------------*/
+        /*----------------- GROUND FOG TRACING -----------------*/
         //////////////////////////////////////////////////////////
+
+        vec3 scatteringSunGround = vec3(0.0);
+        vec3 scatteringSkyGround = vec3(0.0);
+
+        vec3 transmittanceGround = vec3(1.0);
 
         // Intersecting the fog volume
         vec2 distsToVolume = intersectFogVolume(rayDirection);
@@ -298,7 +300,7 @@ float calculateAirFogPhase(float cosTheta) {
             // Fog phase
             float phaseFog = calculateAirFogPhase(VdotL);
 
-            for (int i = 0; i < fogStepCount && maxOf(transmittanceOut) > EPS; i++) {
+            for (int i = 0; i < fogStepCount && maxOf(transmittanceGround) > EPS; i++) {
 
                 // Shadows sampling
 
@@ -320,16 +322,16 @@ float calculateAirFogPhase(float cosTheta) {
 
                 if (densityFog > minDensity) {
 
-                    float airmassFog      = densityFog * fogRayLength;
+                    float airmassFog      = densityFog * mix(fogRayLength, 0.0, length(startPosition) / farPlane);
                     vec3  opticalDepthFog = airFogAttenuationCoefficients * airmassFog;
 
                     vec3 stepTransmittanceFog = exp(-opticalDepthFog);
-                    vec3 visibleScatteringFog = transmittanceOut * saturate((stepTransmittanceFog - 1.0) / -opticalDepthFog);
+                    vec3 visibleScatteringFog = transmittanceGround * saturate((stepTransmittanceFog - 1.0) / -opticalDepthFog);
 
-                    scatteringSun += airFogScatteringCoefficients * airmassFog * phaseFog       * visibleScatteringFog * shadow;
-                    scatteringSky += airFogScatteringCoefficients * airmassFog * isotropicPhase * visibleScatteringFog;
+                    scatteringSunGround += airFogScatteringCoefficients * airmassFog * phaseFog       * visibleScatteringFog * shadow;
+                    scatteringSkyGround += airFogScatteringCoefficients * airmassFog * isotropicPhase * visibleScatteringFog;
 
-                    transmittanceOut *= stepTransmittanceFog;
+                    transmittanceGround *= stepTransmittanceFog;
 
                 }
 
@@ -337,12 +339,16 @@ float calculateAirFogPhase(float cosTheta) {
                 fogRayPosition    += fogIncrement;
                 fogShadowPosition += fogShadowIncrement;
             }
-
         }
 
         //////////////////////////////////////////////////////////
         /*------------- AERIAL PERSPECTIVE TRACING -------------*/
         //////////////////////////////////////////////////////////
+
+        vec3 scatteringSunAerial = vec3(0.0);
+        vec3 scatteringSkyAerial = vec3(0.0);
+
+        vec3 transmittanceAerial = vec3(1.0);
 
         #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
 
@@ -370,7 +376,7 @@ float calculateAirFogPhase(float cosTheta) {
             // Aerial perspective phase
             vec2 phaseAerial = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
-            for (int i = 0; i < AERIAL_PERSPECTIVE_SCATTERING_STEPS && maxOf(transmittanceOut) > EPS; i++) {
+            for (int i = 0; i < AERIAL_PERSPECTIVE_SCATTERING_STEPS && maxOf(transmittanceAerial) > EPS; i++) {
 
                 // Shadows sampling
 
@@ -386,12 +392,12 @@ float calculateAirFogPhase(float cosTheta) {
                 vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
 
                 vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
-                vec3 visibleScatteringAerial = transmittanceOut * saturate((stepTransmittanceAerial - 1.0) / -opticalDepthAerial);
+                vec3 visibleScatteringAerial = transmittanceAerial * saturate((stepTransmittanceAerial - 1.0) / -opticalDepthAerial);
 
-                scatteringSun += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * visibleScatteringAerial * shadow;
-                scatteringSky += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * visibleScatteringAerial;
+                scatteringSunAerial += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * visibleScatteringAerial * shadow;
+                scatteringSkyAerial += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * visibleScatteringAerial;
 
-                transmittanceOut *= stepTransmittanceAerial;
+                transmittanceAerial *= stepTransmittanceAerial;
 
                 // Incrementing rays
                 aerialRayPosition    += aerialIncrement;
@@ -404,12 +410,19 @@ float calculateAirFogPhase(float cosTheta) {
         /*------------- FOG SCATTERING EVALUATION --------------*/
         //////////////////////////////////////////////////////////
 
+        float transmittanceAerialLuma = luminanceAP1(transmittanceAerial);
+
+        vec3 scatteringSun = scatteringSunAerial + scatteringSunGround * transmittanceAerialLuma;
+        vec3 scatteringSky = scatteringSkyAerial + scatteringSkyGround * transmittanceAerialLuma;
+
         #if defined WORLD_OVERWORLD
             scatteringSky *= eyeBrightness.y * rcp240;
         #endif
 
         scatteringOut += scatteringSun * directIlluminance
                        + scatteringSky * skyIlluminance;
+        
+        transmittanceOut = transmittanceGround * transmittanceAerial;
     }
 
 #endif

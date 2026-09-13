@@ -123,6 +123,7 @@ const mat3 CONE_RESP_BRADFORD = mat3(
 const vec3 AP1_RGB2Y = vec3(0.2722287168, 0.6740817658, 0.0536895174); // Desaturation Coefficients
 
 const mat3 SRGB_2_AP1_ADAPTATION_MAT = SRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP1_MAT;
+const mat3 AP1_2_SRGB_ADAPTATION_MAT = AP1_2_XYZ_MAT * D60_2_D65_CAT * XYZ_2_SRGB_MAT;
 
 //////////////////////////////////////////////////////////
 /*----------------- COLOR CONVERSIONS ------------------*/
@@ -153,7 +154,7 @@ vec3 linearToAP1(vec3 color) {
 }
 
 vec3 ap1ToLinear(vec3 color) {
-    return color * AP1_2_XYZ_MAT * D60_2_D65_CAT * XYZ_2_SRGB_MAT;
+    return color * AP1_2_SRGB_ADAPTATION_MAT;
 }
 
 vec3 srgbToLinearAlbedoAP1(vec3 color) {

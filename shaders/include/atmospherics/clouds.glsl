@@ -344,11 +344,13 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
         float cloudsLowerBound = planetRadius     + layer.altitude;
         float cloudsUpperBound = cloudsLowerBound + layer.thickness;
 
-        vec2 distsToVolume = intersectSphericalShell(shadowPosition, shadowLightVectorWorld, cloudsLowerBound, cloudsUpperBound);
+        vec3 lightPosition = normalize(transform(gbufferModelViewInverse, shadowLightPosition));
+
+        vec2 distsToVolume = intersectSphericalShell(shadowPosition, lightPosition, cloudsLowerBound, cloudsUpperBound);
 
         float stepSize    = (distsToVolume.y - distsToVolume.x) * RCP_CLOUDS_SHADOWS_STEPS;
-        vec3  increment   = shadowLightVectorWorld * stepSize;
-        vec3  rayPosition = shadowPosition + shadowLightVectorWorld * (distsToVolume.x + stepSize * 0.5);
+        vec3  increment   = lightPosition * stepSize;
+        vec3  rayPosition = shadowPosition + lightPosition * (distsToVolume.x + stepSize * 0.5);
 
         float opticalDepth = 0.0;
 
