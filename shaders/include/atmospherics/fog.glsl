@@ -382,6 +382,13 @@ float calculateAirFogPhase(float cosTheta) {
             // Aerial perspective phase
             vec2 phaseAerial = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
+            float airmassAerial      = aerialRayLength * AERIAL_PERSPECTIVE_DENSITY;
+            vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
+
+            vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
+
+            vec3 integratedStepTransmittanceAerial = saturate((stepTransmittanceAerial - 1.0) / -opticalDepthAerial);
+
             for (int i = 0; i < AERIAL_PERSPECTIVE_SCATTERING_STEPS && maxOf(transmittanceAerial) > EPS; i++) {
 
                 // Shadows sampling
@@ -398,11 +405,7 @@ float calculateAirFogPhase(float cosTheta) {
 
                 // Aerial perspective
 
-                float airmassAerial      = aerialRayLength * AERIAL_PERSPECTIVE_DENSITY;
-                vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
-
-                vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
-                vec3 visibleScatteringAerial = transmittanceAerial * saturate((stepTransmittanceAerial - 1.0) / -opticalDepthAerial);
+                vec3 visibleScatteringAerial = transmittanceAerial * integratedStepTransmittanceAerial;
 
                 scatteringSunAerial += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * visibleScatteringAerial * shadow;
                 scatteringSkyAerial += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * visibleScatteringAerial;

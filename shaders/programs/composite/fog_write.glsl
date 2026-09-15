@@ -83,7 +83,9 @@
         float exposure    = CURRENT_EXPOSURE();
         float invExposure = 1.0 / exposure;
 
-        vec3 background = texture(MAIN_BUFFER, vertexCoords).rgb * invExposure;
+        vec4 blendedLighting = texture(MAIN_BUFFER, vertexCoords);
+
+        blendedLighting.rgb *= invExposure;
 
         // Fog setup
 
@@ -154,7 +156,7 @@
 
         if (depth0 < 1.0) {
 
-            if (viewPosition0.z != viewPosition1.z) {
+            if (viewPosition0.z != viewPosition1.z && blendedLighting.a < 0.99) {
 
                 uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 
@@ -189,16 +191,11 @@
 
         // Applying back fog
 
-        vec3 backgroundWithFog = background * transmittanceBack + scatteringBack;
-
-        lightingOut = backgroundWithFog;
+        lightingOut = blendedLighting.rgb * transmittanceBack + scatteringBack;
 
         //////////////////////////////////////////////////////////
         /*------------------ ALPHA BLENDING --------------------*/
         //////////////////////////////////////////////////////////
-
-        // Forward-rendered translucents
-        vec4 translucents = texture(MAIN_BUFFER, vertexCoords);
 
         // Elements from gbuffers_basic
         vec4 basic = texture(GBUFFERS_BASIC_BUFFER, vertexCoords);
@@ -212,7 +209,7 @@
 
         if (isEnchantmentGlint) {
 
-            float glintBlendingFactor = translucents.a > 0.0 ? 1.0 : float(!isHand || basic.a > 0.0);
+            float glintBlendingFactor = blendedLighting.a > 0.0 ? 1.0 : float(!isHand || basic.a > 0.0);
             
             lightingOut += basic.rgb * invExposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
 
@@ -226,10 +223,6 @@
             }
 
         }
-
-        // Translucents blending
-
-        lightingOut = mix(lightingOut, backgroundWithFog, translucents.a);
 
         lightingOut *= exposure;
     }
