@@ -137,7 +137,7 @@
 
         #else
 
-            vec3 directIlluminanceFinal = getBlockLightColor();
+            vec3 directIlluminanceFinal = blockLightValue;
             
             float VdotL = 0.0;
             

@@ -320,7 +320,7 @@
         // Hand light
 
         float handLight  = min(float(heldBlockLightValue + heldBlockLightValue2), 15.0) / 15.0;
-              handLight *= smoothstep(1.0, 0.0, min(HANDLIGHT_DISTANCE * handLight, length(viewPosition)) / (HANDLIGHT_DISTANCE * handLight));
+              handLight *= smoothstep(1.0, 0.0, min(float(HANDLIGHT_DISTANCE) * handLight, length(viewPosition)) / (float(HANDLIGHT_DISTANCE) * handLight));
 
         lightmap.x = max(handLight, lightmap.x);
 

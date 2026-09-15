@@ -42,16 +42,20 @@ value.RENDER_SCALE_OPTION.100 = §a100%
 
 screen.LIGHTING                = Lighting
 screen.SHADOWS                 = Shadows
-screen.AMBIENT_OCCLUSION       = Ambient Occlusion
+screen.AMBIENT_LIGHTING        = Ambient Lighting
+screen.BLOCKLIGHT_COLOR        = Block Light Color
 screen.REFLECTIONS_REFRACTIONS = Reflections | Refractions
-screen.GLOBAL_ILLUMINATION     = Global Illumination
-screen.FILTER                  = Denoiser
+screen.AMBIENT_OCCLUSION       = Ambient Occlusion
 screen.ATMOSPHERICS            = Atmospherics
 screen.ATMOSPHERE              = Atmosphere
 screen.CLOUDS                  = Clouds
 screen.CLOUDS_LAYER0           = First Layer
 screen.CLOUDS_LAYER1           = Second Layer
 screen.FOG                     = Fog
+screen.MIST                    = Mist
+screen.SANDSTORMS              = Sandstorms
+screen.NETHER_FOG              = Nether Fog
+screen.END_FOG                 = End Fog
 screen.STARS                   = Stars
 screen.WORLD                   = World
 screen.WATER                   = Water
@@ -100,20 +104,12 @@ option.HARDCODED_SSS.comment = Forces subsurface scattering to happen for certai
 value.HARDCODED_SSS.0 = §cOFF
 value.HARDCODED_SSS.1 = §aON
 
-option.BLOCKLIGHT_TEMPERATURE = Blocklight Temperature
-option.BLOCKLIGHT_TEMPERATURE.comment = Adjusts the temperature of blocklight (in Kelvins). It influences the blocklight color.
-suffix.BLOCKLIGHT_TEMPERATURE = K
-
-option.EMISSIVE_INTENSITY = Emissive Intensity
-option.EMISSIVE_INTENSITY.comment = Adjusts the intensity of emitted blocklight (in Lumens).
-suffix.EMISSIVE_INTENSITY = lumens
-
-option.SUNLIGHT_STRENGTH = Sunlight Strength
+option.SUNLIGHT_STRENGTH = Sun Light Strength
 option.SUNLIGHT_STRENGTH.comment = Adjusts the strength of sunlight.
 suffix.SUNLIGHT_STRENGTH = x
 
-option.SKYLIGHT_STRENGTH = Skylight Strength
-option.SKYLIGHT_STRENGTH.comment = Adjusts the strength of skylight.
+option.SKYLIGHT_STRENGTH = Sky Light Strength
+option.SKYLIGHT_STRENGTH.comment = Adjusts the strength of sky light.
 suffix.SKYLIGHT_STRENGTH = x
 
 #////////////////////////////////////////////////////////#
@@ -179,6 +175,88 @@ option.DH_SHADOWS = Distant Horizons Shadows
 option.DH_SHADOWS.comment = Enables shadows for §bDistant Horizons§r chunk LODs.
 value.DH_SHADOWS.0 = §cOFF
 value.DH_SHADOWS.1 = §aON
+
+#////////////////////////////////////////////////////////#
+#------------------- AMBIENT LIGHTING -------------------#
+#////////////////////////////////////////////////////////#
+
+option.BLOCKLIGHT_R = §cRed
+option.BLOCKLIGHT_R.comment = Adjusts how §cred§r the block light is.
+suffix.BLOCKLIGHT_R = %
+
+option.BLOCKLIGHT_G = §aGreen
+option.BLOCKLIGHT_G.comment = Adjusts how §agreen§r the block light is.
+suffix.BLOCKLIGHT_G = %
+
+option.BLOCKLIGHT_B = §9Blue
+option.BLOCKLIGHT_B.comment = Adjusts how §9blue§r the block light is.
+suffix.BLOCKLIGHT_B = %
+
+option.BLOCKLIGHT_STRENGTH = Block Light Strength
+option.BLOCKLIGHT_STRENGTH.comment = Adjusts the strength of block light.
+suffix.BLOCKLIGHT_STRENGTH = x
+
+option.HANDLIGHT_DISTANCE = Hand Light Distance
+option.HANDLIGHT_DISTANCE.comment = Adjusts how far the light emitted from handheld items spreads.
+
+option.AMBIENT_LIGHT_STRENGTH = Ambient Light Strength
+option.AMBIENT_LIGHT_STRENGTH.comment = Adjusts the strength of ambient light.
+suffix.AMBIENT_LIGHT_STRENGTH = x
+
+#////////////////////////////////////////////////////////#
+#----------------------- SPECULAR -----------------------#
+#////////////////////////////////////////////////////////#
+
+option.SPECULAR = Sun Reflections
+option.SPECULAR.comment = Adds solar specular reflections.
+value.SPECULAR.0 = §cOFF
+value.SPECULAR.1 = §aON
+
+option.REFLECTIONS = Reflections
+option.REFLECTIONS.comment = §cCan only reflect what's being displayed §con your screen. §aRough§r reflections consider a surface's roughness. §aSmooth§r reflections §cdon't§r consider a surface's roughness.
+value.REFLECTIONS.0 = §cOFF
+value.REFLECTIONS.1 = §e§lRough
+value.REFLECTIONS.2 = §e§lSmooth
+
+option.REFLECTIONS_FILTER = Reflections Filter
+option.REFLECTIONS_FILTER.comment = Accumulates §bReflections§r over multiple frames to reduce noise and give a cleaner result.
+value.REFLECTIONS_FILTER.0 = §cOFF
+value.REFLECTIONS_FILTER.1 = §aON
+
+option.REFLECTIONS_SCALE = Reflections Render Scale
+option.REFLECTIONS_SCALE.comment = Adjusts §bReflections§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
+value.REFLECTIONS_SCALE.25 = 25%
+value.REFLECTIONS_SCALE.50 = 50%
+value.REFLECTIONS_SCALE.75 = 75%
+value.REFLECTIONS_SCALE.100 = 100%
+
+option.REFLECTIONS_STRIDE = Reflections Stride
+option.REFLECTIONS_STRIDE.comment = Influences §bReflections§r' pixel accuracy. §cLower value gives better results, but reduces §cperformance.
+value.REFLECTIONS_STRIDE.1 = §41
+value.REFLECTIONS_STRIDE.4 = §c4
+value.REFLECTIONS_STRIDE.8 = §68
+value.REFLECTIONS_STRIDE.16 = §e16
+value.REFLECTIONS_STRIDE.24 = §a24
+value.REFLECTIONS_STRIDE.32 = §232
+value.REFLECTIONS_STRIDE.48 = §348
+value.REFLECTIONS_STRIDE.64 = §b64
+
+option.ROUGH_REFLECTIONS_SAMPLES = Rough Reflections Samples
+option.ROUGH_REFLECTIONS_SAMPLES.comment = Influences §bRough Reflections§r' quality. §cHigher value gives better results, but reduces §cperformance.
+value.ROUGH_REFLECTIONS_SAMPLES.1 = §a1
+value.ROUGH_REFLECTIONS_SAMPLES.2 = §e2
+value.ROUGH_REFLECTIONS_SAMPLES.3 = §63
+value.ROUGH_REFLECTIONS_SAMPLES.4 = §c4
+
+option.REFRACTIONS = Refractions
+option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen. §aApproximation§r refractions are less precise but cost less performance. §aRaytraced§r refractions are precise but cost more performance.
+value.REFRACTIONS.0 = §cOFF
+value.REFRACTIONS.1 = §e§lApproximation
+value.REFRACTIONS.2 = §e§lRaytraced
+
+option.REFRACTIONS_BORDER_FADE = Refractions Border Fade
+option.REFRACTIONS_BORDER_FADE.comment = Fades the borders of §bRefractions§r to hide the screen-space cutoff.
+suffix.REFRACTIONS_BORDER_FADE = x
 
 #////////////////////////////////////////////////////////#
 #------------------- AMBIENT OCCLUSION ------------------#
@@ -256,61 +334,6 @@ option.MATERIAL_AO = Material AO
 option.MATERIAL_AO.comment = Adds pseudo-shadows to the textures themselves. §cRequires a LabPBR resource pack!
 value.MATERIAL_AO.0 = §cOFF
 value.MATERIAL_AO.1 = §aON
-
-#////////////////////////////////////////////////////////#
-#----------------------- SPECULAR -----------------------#
-#////////////////////////////////////////////////////////#
-
-option.SPECULAR = Sun Reflections
-option.SPECULAR.comment = Adds solar specular reflections.
-value.SPECULAR.0 = §cOFF
-value.SPECULAR.1 = §aON
-
-option.REFLECTIONS = Reflections
-option.REFLECTIONS.comment = §cCan only reflect what's being displayed §con your screen. §aRough§r reflections consider a surface's roughness. §aSmooth§r reflections §cdon't§r consider a surface's roughness.
-value.REFLECTIONS.0 = §cOFF
-value.REFLECTIONS.1 = §e§lRough
-value.REFLECTIONS.2 = §e§lSmooth
-
-option.REFLECTIONS_FILTER = Reflections Filter
-option.REFLECTIONS_FILTER.comment = Accumulates §bReflections§r over multiple frames to reduce noise and give a cleaner result.
-value.REFLECTIONS_FILTER.0 = §cOFF
-value.REFLECTIONS_FILTER.1 = §aON
-
-option.REFLECTIONS_SCALE = Reflections Render Scale
-option.REFLECTIONS_SCALE.comment = Adjusts §bReflections§r' rendering scale. §cHigher value gives better results, but reduces §cperformance.
-value.REFLECTIONS_SCALE.25 = 25%
-value.REFLECTIONS_SCALE.50 = 50%
-value.REFLECTIONS_SCALE.75 = 75%
-value.REFLECTIONS_SCALE.100 = 100%
-
-option.REFLECTIONS_STRIDE = Reflections Stride
-option.REFLECTIONS_STRIDE.comment = Influences §bReflections§r' pixel accuracy. §cLower value gives better results, but reduces §cperformance.
-value.REFLECTIONS_STRIDE.1 = §41
-value.REFLECTIONS_STRIDE.4 = §c4
-value.REFLECTIONS_STRIDE.8 = §68
-value.REFLECTIONS_STRIDE.16 = §e16
-value.REFLECTIONS_STRIDE.24 = §a24
-value.REFLECTIONS_STRIDE.32 = §232
-value.REFLECTIONS_STRIDE.48 = §348
-value.REFLECTIONS_STRIDE.64 = §b64
-
-option.ROUGH_REFLECTIONS_SAMPLES = Rough Reflections Samples
-option.ROUGH_REFLECTIONS_SAMPLES.comment = Influences §bRough Reflections§r' quality. §cHigher value gives better results, but reduces §cperformance.
-value.ROUGH_REFLECTIONS_SAMPLES.1 = §a1
-value.ROUGH_REFLECTIONS_SAMPLES.2 = §e2
-value.ROUGH_REFLECTIONS_SAMPLES.3 = §63
-value.ROUGH_REFLECTIONS_SAMPLES.4 = §c4
-
-option.REFRACTIONS = Refractions
-option.REFRACTIONS.comment = Applies §bRefractions§r to refractive materials (glass, water, ice,...). §cCan only refract what's being displayed §con your screen. §aApproximation§r refractions are less precise but cost less performance. §aRaytraced§r refractions are precise but cost more performance.
-value.REFRACTIONS.0 = §cOFF
-value.REFRACTIONS.1 = §e§lApproximation
-value.REFRACTIONS.2 = §e§lRaytraced
-
-option.REFRACTIONS_BORDER_FADE = Refractions Border Fade
-option.REFRACTIONS_BORDER_FADE.comment = Fades the borders of §bRefractions§r to hide the screen-space cutoff.
-suffix.REFRACTIONS_BORDER_FADE = x
 
 #////////////////////////////////////////////////////////#
 #--------------------- ATMOSPHERICS ---------------------#
@@ -526,15 +549,121 @@ option.FOG_THICKNESS.comment = Adjusts the fog's thickness.
 option.FOG_DENSITY = Density
 option.FOG_DENSITY.comment = Adjusts the fog's density.
 
+# Mist Fog
+
+option.MIST_ABSORPTION_R = Absorb §cRed
+option.MIST_ABSORPTION_R.comment = Adjusts how mist absorbs light. Higher value means that §cred§r will be absorbed more.
+suffix.MIST_ABSORPTION_R = %
+
+option.MIST_ABSORPTION_G = Absorb §aGreen
+option.MIST_ABSORPTION_G.comment = Adjusts how mist absorbs light. Higher value means that §agreen§r will be absorbed more.
+suffix.MIST_ABSORPTION_G = %
+
+option.MIST_ABSORPTION_B = Absorb §9Blue
+option.MIST_ABSORPTION_B.comment = Adjusts how mist absorbs light. Higher value means that §9blue§r will be absorbed more.
+suffix.MIST_ABSORPTION_B = %
+
+option.MIST_SCATTERING_R = Scatter §cRed
+option.MIST_SCATTERING_R.comment = Adjusts how mist scatters light. Higher value means that §cred§r will be scattered more.
+suffix.MIST_SCATTERING_R = %
+
+option.MIST_SCATTERING_G = Scatter §aGreen
+option.MIST_SCATTERING_G.comment = Adjusts how mist scatters light. Higher value means that §agreen§r will be scattered more.
+suffix.MIST_SCATTERING_G = %
+
+option.MIST_SCATTERING_B = Scatter §9Blue
+option.MIST_SCATTERING_B.comment = Adjusts how mist scatters light. Higher value means that §9blue§r will be scattered more.
+suffix.MIST_SCATTERING_B = %
+
+# Sandstorm Fog
+
+option.SANDSTORMS_ABSORPTION_R = Absorb §cRed
+option.SANDSTORMS_ABSORPTION_R.comment = Adjusts how sandstorms absorb light. Higher value means that §cred§r will be absorbed more.
+suffix.SANDSTORMS_ABSORPTION_R = %
+
+option.SANDSTORMS_ABSORPTION_G = Absorb §aGreen
+option.SANDSTORMS_ABSORPTION_G.comment = Adjusts how sandstorms absorb light. Higher value means that §agreen§r will be absorbed more.
+suffix.SANDSTORMS_ABSORPTION_G = %
+
+option.SANDSTORMS_ABSORPTION_B = Absorb §9Blue
+option.SANDSTORMS_ABSORPTION_B.comment = Adjusts how sandstorms absorb light. Higher value means that §9blue§r will be absorbed more.
+suffix.SANDSTORMS_ABSORPTION_B = %
+
+option.SANDSTORMS_SCATTERING_R = Scatter §cRed
+option.SANDSTORMS_SCATTERING_R.comment = Adjusts how sandstorms scatter light. Higher value means that §cred§r will be scattered more.
+suffix.SANDSTORMS_SCATTERING_R = %
+
+option.SANDSTORMS_SCATTERING_G = Scatter §aGreen
+option.SANDSTORMS_SCATTERING_G.comment = Adjusts how sandstorms scatter light. Higher value means that §agreen§r will be scattered more.
+suffix.SANDSTORMS_SCATTERING_G = %
+
+option.SANDSTORMS_SCATTERING_B = Scatter §9Blue
+option.SANDSTORMS_SCATTERING_B.comment = Adjusts how sandstorms scatter light. Higher value means that §9blue§r will be scattered more.
+suffix.SANDSTORMS_SCATTERING_B = %
+
+# Nether Fog
+
 option.NETHER_FOG = Nether Fog
 option.NETHER_FOG.comment = Fog in the Nether dimension.
 value.NETHER_FOG.0 = §cOFF
 value.NETHER_FOG.1 = §aON
 
+option.NETHER_ABSORPTION_R = Absorb §cRed
+option.NETHER_ABSORPTION_R.comment = Adjusts how Nether fog absorbs light. Higher value means that §cred§r will be absorbed more.
+suffix.NETHER_ABSORPTION_R = %
+
+option.NETHER_ABSORPTION_G = Absorb §aGreen
+option.NETHER_ABSORPTION_G.comment = Adjusts how Nether fog absorbs light. Higher value means that §agreen§r will be absorbed more.
+suffix.NETHER_ABSORPTION_G = %
+
+option.NETHER_ABSORPTION_B = Absorb §9Blue
+option.NETHER_ABSORPTION_B.comment = Adjusts how Nether fog absorbs light. Higher value means that §9blue§r will be absorbed more.
+suffix.NETHER_ABSORPTION_B = %
+
+option.NETHER_SCATTERING_R = Scatter §cRed
+option.NETHER_SCATTERING_R.comment = Adjusts how Nether fog scatters light. Higher value means that §cred§r will be scattered more.
+suffix.NETHER_SCATTERING_R = %
+
+option.NETHER_SCATTERING_G = Scatter §aGreen
+option.NETHER_SCATTERING_G.comment = Adjusts how Nether fog scatters light. Higher value means that §agreen§r will be scattered more.
+suffix.NETHER_SCATTERING_G = %
+
+option.NETHER_SCATTERING_B = Scatter §9Blue
+option.NETHER_SCATTERING_B.comment = Adjusts how Nether fog scatters light. Higher value means that §9blue§r will be scattered more.
+suffix.NETHER_SCATTERING_B = %
+
+# End Fog
+
 option.END_FOG = End Fog
 option.END_FOG.comment = Fog in the End dimension.
 value.END_FOG.0 = §cOFF
 value.END_FOG.1 = §aON
+
+option.END_ABSORPTION_R = Absorb §cRed
+option.END_ABSORPTION_R.comment = Adjusts how End fog absorbs light. Higher value means that §cred§r will be absorbed more.
+suffix.END_ABSORPTION_R = %
+
+option.END_ABSORPTION_G = Absorb §aGreen
+option.END_ABSORPTION_G.comment = Adjusts how End fog absorbs light. Higher value means that §agreen§r will be absorbed more.
+suffix.END_ABSORPTION_G = %
+
+option.END_ABSORPTION_B = Absorb §9Blue
+option.END_ABSORPTION_B.comment = Adjusts how End fog absorbs light. Higher value means that §9blue§r will be absorbed more.
+suffix.END_ABSORPTION_B = %
+
+option.END_SCATTERING_R = Scatter §cRed
+option.END_SCATTERING_R.comment = Adjusts how End fog scatters light. Higher value means that §cred§r will be scattered more.
+suffix.END_SCATTERING_R = %
+
+option.END_SCATTERING_G = Scatter §aGreen
+option.END_SCATTERING_G.comment = Adjusts how End fog scatters light. Higher value means that §agreen§r will be scattered more.
+suffix.END_SCATTERING_G = %
+
+option.END_SCATTERING_B = Scatter §9Blue
+option.END_SCATTERING_B.comment = Adjusts how End fog scatters light. Higher value means that §9blue§r will be scattered more.
+suffix.END_SCATTERING_B = %
+
+# Aerial Perspective
 
 option.AERIAL_PERSPECTIVE = Aerial Perspective
 option.AERIAL_PERSPECTIVE.comment = Fog that appears at far distances when the atmosphere starts blending with the terrain.
@@ -646,23 +775,29 @@ value.WATER_FOG_STEPS.8 = §a8
 value.WATER_FOG_STEPS.16 = §e16
 value.WATER_FOG_STEPS.32 = §632
 
-option.WATER_ABSORPTION_R = §cRed
+option.WATER_ABSORPTION_R = Absorb §cRed
 option.WATER_ABSORPTION_R.comment = Adjusts how water absorbs light. Higher value means that §cred§r will be absorbed more.
+suffix.WATER_ABSORPTION_R = %
 
-option.WATER_ABSORPTION_G = §aGreen
+option.WATER_ABSORPTION_G = Absorb §aGreen
 option.WATER_ABSORPTION_G.comment = Adjusts how water absorbs light. Higher value means that §agreen§r will be absorbed more.
+suffix.WATER_ABSORPTION_G = %
 
-option.WATER_ABSORPTION_B = §9Blue
+option.WATER_ABSORPTION_B = Absorb §9Blue
 option.WATER_ABSORPTION_B.comment = Adjusts how water absorbs light. Higher value means that §9blue§r will be absorbed more.
+suffix.WATER_ABSORPTION_B = %
 
-option.WATER_SCATTERING_R = §cRed
+option.WATER_SCATTERING_R = Scatter §cRed
 option.WATER_SCATTERING_R.comment = Adjusts how water scatters light. Higher value means that §cred§r will be scattered more.
+suffix.WATER_SCATTERING_R = %
 
-option.WATER_SCATTERING_G = §aGreen
+option.WATER_SCATTERING_G = Scatter §aGreen
 option.WATER_SCATTERING_G.comment = Adjusts how water scatters light. Higher value means that §agreen§r will be scattered more.
+suffix.WATER_SCATTERING_G = %
 
-option.WATER_SCATTERING_B = §9Blue
+option.WATER_SCATTERING_B = Scatter §9Blue
 option.WATER_SCATTERING_B.comment = Adjusts how water scatters light. Higher value means that §9blue§r will be scattered more.
+suffix.WATER_SCATTERING_B = %
 
 ### POM
 

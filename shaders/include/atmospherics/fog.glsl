@@ -33,16 +33,18 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
 
     // Overworld
 
-    const vec3 sandFogExtinctionCoefficients = vec3(0.24, 0.28, 0.36);
-    const vec3 sandFogScatteringCoefficients = vec3(0.80, 0.55, 0.36);
+    const vec3 mistFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(MIST_ABSORPTION_R, MIST_ABSORPTION_G, MIST_ABSORPTION_B) * 0.01);
+    const vec3 mistFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(MIST_SCATTERING_R, MIST_SCATTERING_G, MIST_SCATTERING_B) * 0.01);
 
-    vec3 airFogAttenuationCoefficients = mix(vec3(airFogExtinctionCoefficient), sandFogExtinctionCoefficients, biome_may_sandstorm);
-    vec3 airFogScatteringCoefficients  = mix(vec3(airFogScatteringCoefficient), sandFogScatteringCoefficients, biome_may_sandstorm);
+    const vec3 sandFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(SANDSTORMS_ABSORPTION_R, SANDSTORMS_ABSORPTION_G, SANDSTORMS_ABSORPTION_B) * 0.01);
+    const vec3 sandFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(SANDSTORMS_SCATTERING_R, SANDSTORMS_SCATTERING_G, SANDSTORMS_SCATTERING_B) * 0.01);
+
+    vec3 airFogAbsorptionCoefficients = mix(mistFogAbsorptionCoefficients, sandFogAbsorptionCoefficients, biome_may_sandstorm);
+    vec3 airFogScatteringCoefficients = mix(mistFogScatteringCoefficients, sandFogScatteringCoefficients, biome_may_sandstorm);
 
     const float fogAltitude  = FOG_ALTITUDE;
     const float fogThickness = FOG_THICKNESS;
-    
-    float fogFrequency    = mix(0.7, 1.0, biome_may_sandstorm);
+
     vec2  fogShapeFactors = mix(vec2(1.5, 0.4), vec2(2.0, 0.4), biome_may_sandstorm);
     float densityFactor   = wetness;
     float densityMult     = mix(0.03, 0.7, biome_may_sandstorm);
@@ -51,35 +53,39 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
 
     // Nether
 
-    const vec3 airFogAttenuationCoefficients = vec3(0.02, 0.03, 0.30);
-    const vec3 airFogScatteringCoefficients  = vec3(0.20, 0.10, 0.06);
+    const vec3 airFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(NETHER_ABSORPTION_R, NETHER_ABSORPTION_G, NETHER_ABSORPTION_B) * 0.01);
+    const vec3 airFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(NETHER_SCATTERING_R, NETHER_SCATTERING_G, NETHER_SCATTERING_B) * 0.01);
 
-    const float fogAltitude     = max(0.0, FOG_ALTITUDE - 63.0);
+    const float fogAltitude     = max(0.0, FOG_ALTITUDE - SEA_LEVEL);
     const float fogThickness    = FOG_THICKNESS * 2.0;
-    const float fogFrequency    = 0.7;
     const vec2  fogShapeFactors = vec2(2.0, 0.7);
-    const float densityFactor   = 1.0;
-    const float densityMult     = 0.03;
+    const float densityFactor   = 0.2;
+    const float densityMult     = 0.01;
 
 #elif defined WORLD_END
 
     // End
 
+    const vec3 endFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(END_ABSORPTION_R, END_ABSORPTION_G, END_ABSORPTION_B) * 0.01);
+    const vec3 endFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(END_SCATTERING_R, END_SCATTERING_G, END_SCATTERING_B) * 0.01);
+
+    const vec3 endFogFlashAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(0.10, 0.05, 0.10));
+    const vec3 endFogFlashScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(1.00, 1.00, 1.00));
+
     float airFogTransitionFactor = sin(frameTimeCounter * 2.0);
 
-    vec3 airFogAttenuationCoefficients = mix(vec3(0.30, 0.20, 0.30), vec3(0.10, 0.05, 0.10), airFogTransitionFactor);
-    vec3 airFogScatteringCoefficients  = mix(vec3(0.80, 0.70, 0.80), vec3(1.00, 1.00, 1.00), airFogTransitionFactor);
+    vec3 airFogAbsorptionCoefficients = mix(endFogAbsorptionCoefficients, endFogFlashAbsorptionCoefficients, airFogTransitionFactor);
+    vec3 airFogScatteringCoefficients = mix(endFogScatteringCoefficients, endFogFlashScatteringCoefficients, airFogTransitionFactor);
 
-    const float fogAltitude     = max(0.0, FOG_ALTITUDE - 63.0);
+    const float fogAltitude     = max(0.0, FOG_ALTITUDE - 100.0);
     const float fogThickness    = min(200.0, (FOG_THICKNESS + 40.0) * 2.0);
-    const float fogFrequency    = 0.7;
     const vec2  fogShapeFactors = vec2(2.0, 0.7);
     const float densityFactor   = 1.0;
-    const float densityMult     = 1.0;
+    const float densityMult     = 0.1;
 
 #endif
 
-float fogDensity = saturate(FOG_DENSITY + densityFactor) * 0.4;
+float fogDensity = saturate(FOG_DENSITY + densityFactor);
 
 
 float calculateAirFogPhase(float cosTheta) {
@@ -112,11 +118,11 @@ float calculateAirFogPhase(float cosTheta) {
 
         float airmassFog = density * 0.5 * farPlane * fogDensity * densityMult;
 
-        vec3 transmittanceFog = exp(-airFogAttenuationCoefficients * airmassFog);
+        vec3 transmittanceFog = exp(-airFogAbsorptionCoefficients * airmassFog);
 
         vec3 scatteringFog  = directIlluminance * calculateAirFogPhase(VdotL);
              scatteringFog += skyIlluminance    * isotropicPhase * eyeSkylight;
-             scatteringFog *= airFogScatteringCoefficients * ((1.0 - transmittanceFog) / airFogAttenuationCoefficients);
+             scatteringFog *= airFogScatteringCoefficients * ((1.0 - transmittanceFog) / airFogAbsorptionCoefficients);
 
         vec3 scatteringAerial    = vec3(0.0);
         vec3 transmittanceAerial = vec3(1.0);
@@ -323,7 +329,7 @@ float calculateAirFogPhase(float cosTheta) {
                 if (densityFog > minDensity) {
 
                     float airmassFog      = densityFog * mix(fogRayLength, 0.0, length(startPosition) / farPlane);
-                    vec3  opticalDepthFog = airFogAttenuationCoefficients * airmassFog;
+                    vec3  opticalDepthFog = airFogAbsorptionCoefficients * airmassFog;
 
                     vec3 stepTransmittanceFog = exp(-opticalDepthFog);
                     vec3 visibleScatteringFog = transmittanceGround * saturate((stepTransmittanceFog - 1.0) / -opticalDepthFog);
@@ -379,11 +385,15 @@ float calculateAirFogPhase(float cosTheta) {
             for (int i = 0; i < AERIAL_PERSPECTIVE_SCATTERING_STEPS && maxOf(transmittanceAerial) > EPS; i++) {
 
                 // Shadows sampling
+                
+                #if defined WORLD_OVERWORLD
+                
+                    vec3 shadow = getShadowColor(shadowClipToShadowScreen(aerialShadowPosition));
 
-                vec3 shadow = getShadowColor(shadowClipToShadowScreen(aerialShadowPosition));
+                    #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+                        shadow *= getCloudsShadows(aerialRayPosition);
+                    #endif
 
-                #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                    shadow *= getCloudsShadows(aerialShadowPosition);
                 #endif
 
                 // Aerial perspective
@@ -507,15 +517,14 @@ float calculateAirFogPhase(float cosTheta) {
             vec3 misWeight = desiredPDF / sampledPDF;
 
             // Shadows sampling
-            vec3 shadowPosition = shadowStartPosition + shadowDirection * stepSize;
 
-            vec3 shadowScreenPosition = shadowClipToShadowScreen(shadowPosition);
+            vec3 shadowScreenPosition = shadowClipToShadowScreen(shadowStartPosition + shadowDirection * stepSize);
 
             float shadowDepth0 = texture(shadowtex0, shadowScreenPosition.xy).r;
             vec3  shadow       = getShadowColor(shadowScreenPosition)
                                + getShadowCaustics(shadowScreenPosition);
 
-            #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
+            #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
 
                 shadow *= getCloudsShadows(startPosition + worldDirection * stepSize);
 

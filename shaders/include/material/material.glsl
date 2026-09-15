@@ -28,6 +28,9 @@ const float airIOR = 1.00029;
 
 const vec3 labPBRData0Range = vec3(1.0, 8191.0, 4095.0);
 
+const vec3 blockLightColor = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(BLOCKLIGHT_R, BLOCKLIGHT_G, BLOCKLIGHT_B) * 0.01);
+const vec3 blockLightValue = blockLightColor * EMISSIVE_INTENSITY * BLOCKLIGHT_STRENGTH;
+
 struct Material {
     vec3 albedo;
     vec3 normal;
@@ -243,9 +246,6 @@ vec3 getK(vec3 albedo, float F0) {
 
 // Lightmap handling
 
-vec3 getBlockLightColor() {
-    return blackbody(BLOCKLIGHT_TEMPERATURE) * EMISSIVE_INTENSITY;
-}
 
 float getBlocklightFalloff(float lightmapX) {
     return linearStep(0.00390625, 1.0, 1.0 / pow2(16.0 - 15.0 * lightmapX));

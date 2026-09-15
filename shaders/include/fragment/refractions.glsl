@@ -195,7 +195,7 @@ vec3 computeRefractions(
     }
 
     vec3 absorption   = exp(-(1.0 - albedo) * density);
-    vec3 emissiveness = emission * getBlockLightColor();
+    vec3 emissiveness = emission * blockLightColor;
 
     return sampledColor * fresnel * absorption + emissiveness * albedo;
 }

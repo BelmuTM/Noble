@@ -309,9 +309,8 @@
                         skylight *= getSkylightFalloff(material.lightmap.y);
                     #endif
 
-                    vec3 blocklightColor = getBlockLightColor();
-                    vec3 blocklight      = blocklightColor * getBlocklightFalloff(material.lightmap.x);
-                    vec3 emissiveness    = material.emission * blocklightColor;
+                    vec3 blocklight   = blockLightValue * getBlocklightFalloff(material.lightmap.x);
+                    vec3 emissiveness = material.emission * blockLightColor;
 
                     diffuse += blocklight + skylight + AMBIENT_LIGHT;
                     diffuse += emissiveness;
