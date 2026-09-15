@@ -158,7 +158,7 @@
 
                 uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
 
-                float skylight = getSkylightFalloff(unpackLightmap(dataTexture.x).y);
+                float skyLight = getSkylightFalloff(unpackLightmap(dataTexture.x).y);
 
                 vec3 scenePosition1 = viewToWorld(viewPosition1);
 
@@ -167,9 +167,9 @@
                     #if defined OVERWORLD_OR_END
 
                         #if WATER_FOG == 0
-                            computeWaterFogApproximation(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                            computeWaterFogApproximation(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skyLight);
                         #else
-                            computeVolumetricWaterFog(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skylight, skyTranslucents);
+                            computeVolumetricWaterFog(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skyLight, skyTranslucents);
                         #endif
 
                     #endif
@@ -179,7 +179,7 @@
                     #if AIR_FOG == 1
                         computeVolumetricAirFog(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skyTranslucents);
                     #elif AIR_FOG == 2
-                        computeAirFogApproximation(scatteringBack, transmittanceBack, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight, skyTranslucents);
+                        computeAirFogApproximation(scatteringBack, transmittanceBack, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skyLight, skyTranslucents);
                     #endif
 
                 }

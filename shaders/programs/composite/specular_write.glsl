@@ -130,7 +130,7 @@
 
         lightingOut = texture(MAIN_BUFFER, vertexCoords).rgb / exposure;
 
-        float skylight = 1.0;
+        float skyLight = 1.0;
 
         if (depth0 < 1.0) {
 
@@ -140,7 +140,7 @@
 
             Material material = getMaterial(vertexCoords);
 
-            skylight = getSkylightFalloff(material.lightmap.y);
+            skyLight = getSkylightFalloff(material.lightmap.y);
 
             // Metals
             if (material.F0 * maxFloat8 > labPBRMetals) {
@@ -297,9 +297,9 @@
             #if defined OVERWORLD_OR_END
 
                 #if WATER_FOG == 0
-                    computeWaterFogApproximation(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight);
+                    computeWaterFogApproximation(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skyLight);
                 #else
-                    computeVolumetricWaterFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight, sky);
+                    computeVolumetricWaterFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skyLight, sky);
                 #endif
 
             #endif
@@ -309,7 +309,7 @@
             #if AIR_FOG == 1
                 computeVolumetricAirFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, sky);
             #elif AIR_FOG == 2
-                computeAirFogApproximation(scatteringFront, transmittanceFront, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skylight, sky);
+                computeAirFogApproximation(scatteringFront, transmittanceFront, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skyLight, sky);
             #endif
 
         }

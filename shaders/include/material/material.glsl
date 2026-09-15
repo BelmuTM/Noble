@@ -20,8 +20,8 @@
 
 /*
     [Credits]:
-        sixthsurge - help with the blocklight falloff function (https://github.com/sixthsurge)
-        Zombye     - skylight falloff function (https://github.com/zombye)
+        sixthsurge - help with the blockLight falloff function (https://github.com/sixthsurge)
+        Zombye     - skyLight falloff function (https://github.com/zombye)
 */
 
 const float airIOR = 1.00029;
@@ -246,11 +246,16 @@ vec3 getK(vec3 albedo, float F0) {
 
 // Lightmap handling
 
-
 float getBlocklightFalloff(float lightmapX) {
     return linearStep(0.00390625, 1.0, 1.0 / pow2(16.0 - 15.0 * lightmapX));
 }
 
 float getSkylightFalloff(float lightmapY) {
     return lightmapY * exp(3.0 * (lightmapY - 1.0));
+}
+
+float computeHandLight(float distanceFromSource) {
+    float handLight = min(float(heldBlockLightValue + heldBlockLightValue2), 15.0) / 15.0;
+    
+    return handLight * smoothstep(1.0, 0.0, min(HANDLIGHT_DIAMETER * handLight, distanceFromSource) / (HANDLIGHT_DIAMETER * handLight));
 }

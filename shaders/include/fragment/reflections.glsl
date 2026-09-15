@@ -26,7 +26,7 @@ vec3 sampleHitColor(vec2 hitCoords, float invExposure) {
     return texture(MAIN_BUFFER, hitCoords * RENDER_SCALE).rgb * invExposure;
 }
 
-vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
+vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skyLight) {
 
     #if defined OVERWORLD_OR_END
     
@@ -54,7 +54,7 @@ vec3 sampleSkyColor(vec2 hitCoords, vec3 reflected, float skylight) {
 
         vec3 atmosphere = texture(ATMOSPHERE_BUFFER, saturate(projectSphere(sceneDirection))).rgb;
 
-        return max0((atmosphere * clouds.a + clouds.rgb) * skylight);
+        return max0((atmosphere * clouds.a + clouds.rgb) * skyLight);
 
     #else
 
@@ -93,7 +93,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
         vec3 eta  = N / airIOR;
         vec3 etaK = K / airIOR;
 
-        float skylight = getSkylightFalloff(lightmapY);
+        float skyLight = getSkylightFalloff(lightmapY);
 
         vec3  viewDirection = normalize(viewPosition);
         mat3  tbn           = calculateTBN(normal);
@@ -157,7 +157,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
             }
 
             #if defined REFLECTIONS_SKY_FALLBACK
-                vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
+                vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skyLight);
             #else
                 vec3 fallback = vec3(0.0);
             #endif
@@ -210,7 +210,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
         vec3 eta  = N / airIOR;
         vec3 etaK = K / airIOR;
 
-        float skylight = getSkylightFalloff(lightmapY);
+        float skyLight = getSkylightFalloff(lightmapY);
 
         vec3  viewDirection = normalize(viewPosition);
         float NdotV         = dot(normal, -viewDirection);
@@ -262,7 +262,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
         }
 
         #if defined REFLECTIONS_SKY_FALLBACK
-            vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skylight);
+            vec3 fallback = sampleSkyColor(hitPosition.xy, rayDirection, skyLight);
         #else
             vec3 fallback = vec3(0.0);
         #endif

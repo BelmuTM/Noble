@@ -144,9 +144,6 @@
         uniform vec4 entityColor;
     #endif
 
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
-
     #if DIRECTIONAL_LIGHTMAP == 1 && !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
 
         vec2 computeLightmap(vec3 scenePosition, vec3 textureNormal) {
@@ -180,6 +177,8 @@
 
         vec2 coords = textureCoords;
 
+        float distanceFromPosition = length(scenePosition);
+
         // POM
 
         float parallaxSelfShadowing = 1.0;
@@ -194,7 +193,7 @@
 
             #endif
 
-            if (length(scenePosition) < POM_DISTANCE) {
+            if (distanceFromPosition < POM_DISTANCE) {
 
                 float height = 1.0, traceDistance = 0.0;
                 vec2  shadowCoords = vec2(0.0);
@@ -319,12 +318,12 @@
 
         // Hand light
 
-        float handLight  = min(float(heldBlockLightValue + heldBlockLightValue2), 15.0) / 15.0;
-              handLight *= smoothstep(1.0, 0.0, min(float(HANDLIGHT_DISTANCE) * handLight, length(viewPosition)) / (float(HANDLIGHT_DISTANCE) * handLight));
+        float handLight = computeHandLight(distanceFromPosition);
 
         lightmap.x = max(handLight, lightmap.x);
 
         // Flickering fire-powered light sources
+
         if (blockId >= FIRE_ID && blockId <= HANGING_LANTERN_ID) {
             
             float time = frameTimeCounter * FLICKERING_LIGHTS_SPEED;

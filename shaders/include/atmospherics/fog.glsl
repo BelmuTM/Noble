@@ -109,7 +109,7 @@ float calculateAirFogPhase(float cosTheta) {
         float VdotL,
         vec3 directIlluminance,
         vec3 skyIlluminance,
-        float skylight,
+        float skyLight,
         bool sky
     ) {
         float eyeSkylight = pow2(saturate(eyeBrightnessSmooth.y * rcp240));
@@ -451,11 +451,11 @@ float calculateAirFogPhase(float cosTheta) {
         float VdotL,
         vec3 directIlluminance,
         vec3 skyIlluminance,
-        float skylight
+        float skyLight
     ) {
         transmittanceOut = exp(-waterAbsorptionCoefficients * distance(startPosition, endPosition));
 
-        scatteringOut  = skyIlluminance    * isotropicPhase * skylight;
+        scatteringOut  = skyIlluminance    * isotropicPhase * skyLight;
         scatteringOut += directIlluminance * cornetteShanksPhase(VdotL, waterAnisotropyFactor);
         scatteringOut *= waterScatteringCoefficients * (1.0 - transmittanceOut) / waterAbsorptionCoefficients;
     }
@@ -474,7 +474,7 @@ float calculateAirFogPhase(float cosTheta) {
         float VdotL,
         vec3 directIlluminance,
         vec3 skyIlluminance,
-        float skylight,
+        float skyLight,
         bool sky
     ) {
         // Ray marching setup
@@ -556,7 +556,7 @@ float calculateAirFogPhase(float cosTheta) {
         phaseMultiple /= phaseSampleCount;
 
         float eyeSkylight      = pow2(saturate(eyeBrightnessSmooth.y * rcp240));
-        float adaptiveSkylight = mix(eyeSkylight, skylight, isEyeInWater == 1 ? maxOf(transmittance) : 1.0);
+        float adaptiveSkylight = mix(eyeSkylight, skyLight, isEyeInWater == 1 ? maxOf(transmittance) : 1.0);
 
         // Integral evaluation
         scatteringOut  = scatteringSun * directIlluminance * phaseMultiple

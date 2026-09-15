@@ -50,6 +50,9 @@ uniform float frameTimeCounter;
 uniform int isEyeInWater;
 uniform int hideGUI;
 
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+
 uniform float centerDepthSmooth;
 uniform float rainStrength;
 uniform float wetness;

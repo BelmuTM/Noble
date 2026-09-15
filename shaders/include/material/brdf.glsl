@@ -182,16 +182,16 @@ vec3 computeDiffuse(
 
     diffuse *= directIlluminance * SUNLIGHT_STRENGTH;
 
-    vec3 skylight = skyIlluminance * SKYLIGHT_STRENGTH * SKY_LIGHT_BOOST; // The SKY_LIGHT_BOOST factor is a magic constant to reduce the contrast of shadows
+    vec3 skyLight = skyIlluminance * SKYLIGHT_STRENGTH * SKY_LIGHT_BOOST; // The SKY_LIGHT_BOOST factor is a magic constant to reduce the contrast of shadows
 
     #if defined WORLD_OVERWORLD
-        skylight *= skylightFalloff;
+        skyLight *= skylightFalloff;
     #endif
 
-    vec3 blocklight   = blockLightValue * getBlocklightFalloff(material.lightmap.x);
+    vec3 blockLight   = blockLightValue * getBlocklightFalloff(material.lightmap.x);
     vec3 emissiveness = material.emission * blockLightColor;
 
-    diffuse += ((blocklight + AMBIENT_LIGHT) * ao + skylight) * material.ao;
+    diffuse += ((blockLight + AMBIENT_LIGHT) * ao + skyLight) * material.ao;
     diffuse += emissiveness;
 
     return material.albedo * diffuse;

@@ -250,12 +250,12 @@ vec3 evaluateUniformSkyIlluminanceApproximation() {
     return max0(skyIlluminance);
 }
 
-vec3 evaluateSkylight(vec3 normal, mat3[2] skylight) {
+vec3 evaluateSkylight(vec3 normal, mat3[2] skyLight) {
     vec3 octahedronPoint = normal / dot(abs(normal), vec3(1.0));
     vec3 positive = saturate(octahedronPoint), negative = saturate(-octahedronPoint);
     
-    return skylight[0][0] * positive.x + skylight[0][1] * positive.y + skylight[0][2] * positive.z
-         + skylight[1][0] * negative.x + skylight[1][1] * negative.y + skylight[1][2] * negative.z;
+    return skyLight[0][0] * positive.x + skyLight[0][1] * positive.y + skyLight[0][2] * positive.z
+         + skyLight[1][0] * negative.x + skyLight[1][1] * negative.y + skyLight[1][2] * negative.z;
 }
 
 // Spherical Harmonics Coefficients for 2 orders

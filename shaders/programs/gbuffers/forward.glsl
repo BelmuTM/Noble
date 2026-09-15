@@ -154,6 +154,14 @@
 
         material.lightmap = lightmapCoords;
 
+        // Hand light
+
+        float handLight = computeHandLight(length(scenePosition));
+
+        material.lightmap.x = max(handLight, material.lightmap.x);
+
+        // Shadowmap
+
         vec4 shadowmap = vec4(1.0, 1.0, 1.0, 0.0);
 
         #if defined WORLD_OVERWORLD && SHADOWS > 0
@@ -303,16 +311,16 @@
 
                     diffuse *= directIlluminance * shadowmap.rgb;
 
-                    vec3 skylight = skyIlluminance;
+                    vec3 skyLight = skyIlluminance;
 
                     #if defined WORLD_OVERWORLD
-                        skylight *= getSkylightFalloff(material.lightmap.y);
+                        skyLight *= getSkylightFalloff(material.lightmap.y);
                     #endif
 
-                    vec3 blocklight   = blockLightValue * getBlocklightFalloff(material.lightmap.x);
+                    vec3 blockLight   = blockLightValue * getBlocklightFalloff(material.lightmap.x);
                     vec3 emissiveness = material.emission * blockLightColor;
 
-                    diffuse += blocklight + skylight + AMBIENT_LIGHT;
+                    diffuse += blockLight + skyLight + AMBIENT_LIGHT;
                     diffuse += emissiveness;
 
                     translucentsOut.rgb = material.albedo * diffuse;

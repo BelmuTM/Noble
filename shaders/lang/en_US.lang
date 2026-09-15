@@ -196,8 +196,9 @@ option.BLOCKLIGHT_STRENGTH = Block Light Strength
 option.BLOCKLIGHT_STRENGTH.comment = Adjusts the strength of block light.
 suffix.BLOCKLIGHT_STRENGTH = x
 
-option.HANDLIGHT_DISTANCE = Hand Light Distance
-option.HANDLIGHT_DISTANCE.comment = Adjusts how far the light emitted from handheld items spreads.
+option.HANDLIGHT_RADIUS = Hand Light Radius
+option.HANDLIGHT_RADIUS.comment = Adjusts how far the light emitted from handheld items spreads (in blocks).
+suffix.HANDLIGHT_RADIUS = m
 
 option.AMBIENT_LIGHT_STRENGTH = Ambient Light Strength
 option.AMBIENT_LIGHT_STRENGTH.comment = Adjusts the strength of ambient light.
