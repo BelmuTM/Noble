@@ -115,7 +115,7 @@
 
         bentNormal = normalize(bentNormal) - 0.5 * viewDirection;
 
-        float ao = 1.0 - saturate((1.0 - visibility * RCP_GTAO_SLICES) * AO_STRENGTH);
+        float ao = 1.0 - saturate((1.0 - visibility * RCP_GTAO_SLICES) * aoStrength);
 
         return multiBounceApprox(ao);
     }
@@ -123,6 +123,7 @@
 #elif AO == 2
 
     float SSAO(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+
         float occlusion        = 0.0;
         float visibilityWeight = 0.0;
 
@@ -150,7 +151,7 @@
 
         bentNormal = visibilityWeight > 0.0 ? bentNormal / visibilityWeight : normal;
 
-        return saturate(1.0 - occlusion * rcp(SSAO_SAMPLES) * AO_STRENGTH);
+        return saturate(1.0 - occlusion * rcp(SSAO_SAMPLES) * aoStrength);
     }
 
 #elif AO == 3
@@ -184,7 +185,7 @@
             float h = float(hit);
 
             bentNormal += rayDirection * (1.0 - h);
-            visibility -= rcp(RTAO_SAMPLES) * h * AO_STRENGTH;
+            visibility -= rcp(RTAO_SAMPLES) * h * aoStrength;
         }
 
         return saturate(visibility);

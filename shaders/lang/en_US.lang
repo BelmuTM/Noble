@@ -331,6 +331,13 @@ value.GTAO_SLICES.6 = §46
 option.GTAO_RADIUS = GTAO Radius
 option.GTAO_RADIUS.comment = Adjusts §bGTAO§r's radius.
 
+# Misc.
+
+option.SUNLIGHT_AO = Sun Light AO
+option.SUNLIGHT_AO.comment = Applies §bAO§r to Sun light. In real life, it only applies to ambient light.
+value.SUNLIGHT_AO.0 = §cOFF
+value.SUNLIGHT_AO.1 = §aON
+
 option.MATERIAL_AO = Material AO
 option.MATERIAL_AO.comment = Adds pseudo-shadows to the textures themselves. §cRequires a LabPBR resource pack!
 value.MATERIAL_AO.0 = §cOFF

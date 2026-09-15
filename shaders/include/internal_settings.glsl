@@ -18,10 +18,14 @@
 /*                                                                              */
 /********************************************************************************/
 
-#if AO == 1
+#if AO > 0
+
     const float ambientOcclusionLevel = 0.0;
+
 #else
+
     const float ambientOcclusionLevel = 1.0;
+    
 #endif
 
 /*

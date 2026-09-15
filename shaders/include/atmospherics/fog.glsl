@@ -423,10 +423,23 @@ float calculateAirFogPhase(float cosTheta) {
         /*------------- FOG SCATTERING EVALUATION --------------*/
         //////////////////////////////////////////////////////////
 
-        float transmittanceAerialLuma = luminanceAP1(transmittanceAerial);
+        vec3 scatteringSun, scatteringSky;
 
-        vec3 scatteringSun = scatteringSunAerial * transmittanceGround + scatteringSunGround;
-        vec3 scatteringSky = scatteringSkyAerial * transmittanceGround + scatteringSkyGround;
+        if (distsToVolume.x > 0.0) {
+
+            // Ground fog is closer to the camera than aerial perspective fog
+
+            scatteringSun = scatteringSunAerial + scatteringSunGround * transmittanceAerial;
+            scatteringSky = scatteringSkyAerial + scatteringSkyGround * transmittanceAerial;
+
+        } else {
+
+            // Aerial perspective fog is closer to the camera than ground fog
+
+            scatteringSun = scatteringSunGround + scatteringSunAerial * transmittanceGround;
+            scatteringSky = scatteringSkyGround + scatteringSkyAerial * transmittanceGround;
+
+        }
 
         #if defined WORLD_OVERWORLD
             scatteringSky *= eyeBrightness.y * rcp240;

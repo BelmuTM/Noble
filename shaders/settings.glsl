@@ -102,8 +102,6 @@ const float hardcodedRoughness = 0.0; // 0.0 = OFF
 #define SUNLIGHT_STRENGTH 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
 #define SKYLIGHT_STRENGTH 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
 
-#define SKY_LIGHT_BOOST 1.0
-
 #define MAX_ACCUMULATED_FRAMES 20.0
 
 //////////////////////////////////////////////////////////
@@ -171,11 +169,13 @@ const float RCP_BLOCKER_SEARCH_SAMPLES = 1.0 / BLOCKER_SEARCH_SAMPLES;
 /*------------------ AMBIENT OCCLUSION -----------------*/
 //////////////////////////////////////////////////////////
 
-#define MATERIAL_AO 1 // [0 1]
-
 #define AO 1 // [0 1 2 3]
 
 #define AO_STRENGTH 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+
+#define AO_STRENGTH_MULTIPLIER 2.0
+
+const float aoStrength = AO_STRENGTH * AO_STRENGTH_MULTIPLIER;
 
 #define AO_FILTER 1 // [0 1]
 
@@ -201,6 +201,12 @@ const float aoScale = AO_SCALE * 0.01;
 
 const float RCP_GTAO_HORIZON_STEPS = 1.0 / GTAO_HORIZON_STEPS;
 const float RCP_GTAO_SLICES        = 1.0 / GTAO_SLICES;
+
+// Misc.
+
+#define SUNLIGHT_AO 0 // [0 1]
+
+#define MATERIAL_AO 1 // [0 1]
 
 //////////////////////////////////////////////////////////
 /*------------- REFLECTIONS | REFRACTIONS --------------*/
@@ -383,7 +389,7 @@ const float RCP_CLOUDS_SHADOWS_STEPS = 1.0 / CLOUDS_SHADOWS_STEPS;
 
 #define AERIAL_PERSPECTIVE_SCATTERING_STEPS 2
 
-#define AERIAL_PERSPECTIVE_DISTANCE_MULTIPLIER 16.0
+#define AERIAL_PERSPECTIVE_DISTANCE_MULTIPLIER 32.0
 
 // Stars
 
