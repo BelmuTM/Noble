@@ -33,6 +33,8 @@
         "frameCounter",
         "frameTimeCounter",
         "isEyeInWater",
+        "heldBlockLightValue",
+        "heldBlockLightValue2",
         "wetness",
         "rainStrength",
         "sunAngle",
