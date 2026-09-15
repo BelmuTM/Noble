@@ -198,7 +198,11 @@
 
                         #if SHADOWS > 0
 
-                            if (!modFragment) {
+                            #if DH_SHADOWS == 1
+                                bool lodShadowsEnabled = true;
+                            #endif
+
+                            if (!modFragment || lodShadowsEnabled) {
 
                                 if (isOpaque) {
                                     visibility = texture(SHADOWMAP_BUFFER, max(screenPosition.xy, texelSize)).rgb;
