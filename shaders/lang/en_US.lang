@@ -105,7 +105,7 @@ value.HARDCODED_SSS.0 = §cOFF
 value.HARDCODED_SSS.1 = §aON
 
 option.SUNLIGHT_STRENGTH = Sun Light Strength
-option.SUNLIGHT_STRENGTH.comment = Adjusts the strength of sunlight.
+option.SUNLIGHT_STRENGTH.comment = Adjusts the strength of Sun light.
 suffix.SUNLIGHT_STRENGTH = x
 
 option.SKYLIGHT_STRENGTH = Sky Light Strength
@@ -341,11 +341,11 @@ value.MATERIAL_AO.1 = §aON
 #////////////////////////////////////////////////////////#
 
 option.sunPathRotation = Sun/Moon Path Rotation
-option.sunPathRotation.comment = Adjusts the sun's / moon's path rotation.
+option.sunPathRotation.comment = Adjusts the Sun's / Moon's path rotation.
 suffix.sunPathRotation = °
 
 option.CELESTIAL_SIZE_MULTIPLIER = Sun/Moon Size Multiplier
-option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the sun / moon.
+option.CELESTIAL_SIZE_MULTIPLIER.comment = Adjusts the size of the Sun / Moon.
 suffix.CELESTIAL_SIZE_MULTIPLIER = x
 
 ### ATMOSPHERE

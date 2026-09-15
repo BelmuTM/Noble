@@ -232,7 +232,7 @@
 
                 #endif
 
-                // Direct (sun/moon) specular
+                // Direct (Sun/Moon) specular
 
                 if (maxOf(visibility) > EPS) {
 
