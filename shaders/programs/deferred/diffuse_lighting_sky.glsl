@@ -194,7 +194,7 @@
 
         lightingOut = computeDiffuse(
             viewPosition,
-            normalize(shadowLightVector),
+            normalize(shadowLightVectorView),
             material,
             material.F0 * maxFloat8 > labPBRMetals,
             shadowmap,

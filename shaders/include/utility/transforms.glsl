@@ -181,6 +181,12 @@ float linearizeDepthFromInverseProjection(float depth, mat4 projectionInverse) {
     return 1.0 / (depth * projectionInverse[2][3] + projectionInverse[3][3]);
 }
 
+float thickenDepth(float depth, float zThickness, mat4 projection) {
+    depth = 1.0 - 2.0 * depth;
+    depth = (depth + projection[2].z * zThickness) / (1.0 + zThickness);
+    return 0.5 - 0.5 * depth;
+}
+
 //////////////////////////////////////////////////////////
 /*-------------------- REPROJECTION --------------------*/
 //////////////////////////////////////////////////////////

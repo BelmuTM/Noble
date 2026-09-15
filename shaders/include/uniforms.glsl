@@ -25,7 +25,7 @@ uniform vec3 moonVector;
 
 uniform vec3 shadowLightPosition;
 
-uniform vec3 shadowLightVector;
+uniform vec3 shadowLightVectorView;
 uniform vec3 shadowLightVectorWorld;
 
 uniform vec3 cameraPosition;

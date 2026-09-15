@@ -21,7 +21,7 @@
     "uniforms": [
         "sunVector",
         "moonVector",
-        "shadowLightVector",
+        "shadowLightVectorView",
         "shadowLightVectorWorld",
         "cameraPosition",
         "previousCameraPosition",

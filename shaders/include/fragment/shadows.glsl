@@ -37,7 +37,7 @@ float jitter1 = interleavedGradientNoise(SCREEN_COORDS.yx * 0.9 + vec2(viewSize 
         vec3 rayPosition;
         vec3 rayDirection;
         rayPosition   = viewToScreen(viewPosition, projection, true);
-        rayDirection  = viewPosition + abs(viewPosition.z) * normalize(shadowLightVector);
+        rayDirection  = viewPosition + abs(viewPosition.z) * normalize(shadowLightVectorView);
         rayDirection  = viewToScreen(rayDirection, projection, true) - rayPosition;
         rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);
 
@@ -58,27 +58,30 @@ float jitter1 = interleavedGradientNoise(SCREEN_COORDS.yx * 0.9 + vec2(viewSize 
         // Jitter the first step
         rayPosition += rayDirection * jitter0;
 
+        /*
+            Thicken each depth sample by a factor to prevent false positives during
+            intersection checks, this makes each depth sample equivalent to a frustum-shaped voxel
+            (McGuire & Mara, 2014)
+        */
+        const float zThickness = 1e-3;
+
         bool intersected = false;
 
         for (int i = 0; i < CONTACT_SHADOWS_STEPS; i++) {
 
-            float depth = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
+            float maxZ  = rayPosition.z;
+            float minZ  = rayPosition.z - float(CONTACT_SHADOWS_STRIDE) * abs(rayDirection.z);
 
-            float linearDepth    = linearizeDepth(depth);
-            float linearRayDepth = linearizeDepth(rayPosition.z);
+            float depth      = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
+            float thickDepth = thickenDepth(depth, zThickness * float(CONTACT_SHADOWS_STRIDE), projection);
 
-            float relativeGap = abs(linearRayDepth - linearDepth) / linearRayDepth;
-
-            // Check if the ray and the fragment are near enough for contact shadows
-            if (relativeGap < 0.02) {
-                float maxZ  = rayPosition.z;
-                float minZ  = rayPosition.z - float(CONTACT_SHADOWS_STRIDE) / linearDepth;
-
-                // Intersection check, avoid player hand fragments
-                if(maxZ >= depth && minZ <= depth && depth >= handDepth) {
-                    intersected = true;
-                    break;
-                } 
+            /*
+                Intersection check, take account of the depth sample's thickness,
+                and avoid player hand and sky fragments
+            */
+            if (maxZ >= depth && minZ <= thickDepth && depth >= handDepth && depth < 1.0) {
+                intersected = true;
+                break;
             }
 
             rayPosition += rayDirection;

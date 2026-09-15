@@ -23,12 +23,6 @@
         McGuire, M., & Mara, M. (2014). Efficient GPU Screen-Space Ray Tracing. https://jcgt.org/published/0003/04/04/paper.pdf
 */
 
-float thickenDepth(float depth, float zThickness, mat4 projection) {
-    depth = 1.0 - 2.0 * depth;
-    depth = (depth + projection[2].z * zThickness) / (1.0 + zThickness);
-    return 0.5 - 0.5 * depth;
-}
-
 bool raytrace(
     sampler2D depthTexture,
     mat4 projection,
