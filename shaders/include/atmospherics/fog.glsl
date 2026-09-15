@@ -47,7 +47,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
 
     vec2  fogShapeFactors = mix(vec2(1.5, 0.4), vec2(2.0, 0.4), biome_may_sandstorm);
     float densityFactor   = wetness;
-    float densityMult     = mix(0.03, 0.7, biome_may_sandstorm);
+    float densityMult     = mix(0.03, 0.1, biome_may_sandstorm);
 
 #elif defined WORLD_NETHER
 
@@ -425,8 +425,8 @@ float calculateAirFogPhase(float cosTheta) {
 
         float transmittanceAerialLuma = luminanceAP1(transmittanceAerial);
 
-        vec3 scatteringSun = scatteringSunAerial + scatteringSunGround * transmittanceAerialLuma;
-        vec3 scatteringSky = scatteringSkyAerial + scatteringSkyGround * transmittanceAerialLuma;
+        vec3 scatteringSun = scatteringSunAerial * transmittanceGround + scatteringSunGround;
+        vec3 scatteringSky = scatteringSkyAerial * transmittanceGround + scatteringSkyGround;
 
         #if defined WORLD_OVERWORLD
             scatteringSky *= eyeBrightness.y * rcp240;
