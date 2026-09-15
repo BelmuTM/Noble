@@ -85,6 +85,7 @@ vec3 sampleGGXVNDF(vec3 viewDirection, vec2 xi, float alpha) {
 //////////////////////////////////////////////////////////
 
 vec3 hammonDiffuse(vec3 viewDirection, vec3 lightDirection, vec3 albedo, vec3 normal, vec3 N, float F0, float alpha) {
+
     float NdotL = dot(normal, lightDirection);
     if (NdotL <= 0.0) return vec3(0.0);
 
@@ -102,11 +103,32 @@ vec3 hammonDiffuse(vec3 viewDirection, vec3 lightDirection, vec3 albedo, vec3 no
     vec3 fresnelV = fresnelDielectricDielectric_T(NdotV, vec3(airIOR), N);
 
     vec3 smoothSurf = (fresnelL * fresnelV) / energyConservationFactor;
-    vec3 single     = mix(smoothSurf, vec3(roughSurf), alpha) * RCP_PI;
-    float multi     = 0.1159 * alpha;
+
+    vec3  single = mix(smoothSurf, vec3(roughSurf), alpha) * RCP_PI;
+    float multi  = 0.1159 * alpha;
 
     return NdotL * (albedo * multi + single);
 }
+
+/*
+vec3 hammonDiffuseUniform(vec3 viewDirection, vec3 albedo, vec3 normal, vec3 N, float F0, float alpha) {
+
+    float NdotV = saturate(dot(normal, viewDirection));
+
+    float roughSurf = 0.5 * (fastInvSqrtN1(1.0 + 1e-2) + 2.0);
+
+    vec3 energyConservationFactor = vec3(1.0 - (4.0 * sqrt(F0) + 5.0 * F0 * F0) * rcp(9.0));
+
+    vec3 fresnelV = fresnelDielectricDielectric_T(NdotV, vec3(airIOR), N);
+
+    vec3 smoothSurf = (fresnelV * fresnelV) / energyConservationFactor;
+
+    vec3  single = mix(smoothSurf, vec3(roughSurf), alpha) * RCP_PI;
+    float multi  = 0.1159 * alpha;
+
+    return albedo * multi + single;
+}
+*/
 
 vec3 subsurfaceScatteringApprox(vec3 viewDirection, vec3 lightDirection, vec3 albedo, float subsurface, float distThroughMedium, uint id) {
 
@@ -208,9 +230,8 @@ vec3 computeDiffuse(
     vec3 blockLight   = blockLightValue * getBlocklightFalloff(material.lightmap.x);
     vec3 emissiveness = material.emission * blockLightColor;
 
-    diffuse += ((blockLight + AMBIENT_LIGHT) * ao + skyLight) * material.ao;
-    diffuse += emissiveness;
-
+    diffuse += ((blockLight + AMBIENT_LIGHT) * ao + skyLight) * material.ao + emissiveness;
+    
     return material.albedo * diffuse;
 }
 
@@ -259,6 +280,7 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
 }
 
 vec3 computeSpecular(vec3 viewDirection, vec3 lightDirection, vec3 normal, vec3 N, vec3 K, float alpha) {
+    
     float NdotL = dot(normal, lightDirection);
     
     if (NdotL <= 0.0) return vec3(0.0);
