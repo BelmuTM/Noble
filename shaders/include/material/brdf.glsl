@@ -213,7 +213,7 @@ vec3 computeDiffuse(
 
     diffuse *= directIlluminance * SUNLIGHT_STRENGTH;
 
-    #if SUNLIGHT_AO == 1
+    #if SUNLIGHT_AO == 1 || defined WORLD_END
 
         diffuse *= ao;
 

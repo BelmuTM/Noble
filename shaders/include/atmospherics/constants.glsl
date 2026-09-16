@@ -26,11 +26,7 @@
 
 /* ATMOSPHERIC CONSTANTS */
 
-#if defined WORLD_OVERWORLD
-    const float atmosphereLowerOffset = -5e3;
-#else
-    const float atmosphereLowerOffset = 0.0;
-#endif
+const float atmosphereLowerOffset = -5e3;
 
 const float planetRadius          = 6371e3;                               // Meters (m)
 const float atmosphereLowerRadius = planetRadius + atmosphereLowerOffset; // Meters (m)
@@ -62,10 +58,10 @@ vec3 mieScatteringCoefficients      = mix(mieScatteringCoefficientsSunny     , m
 
 const vec3 ozoneExtinctionCoefficients = vec3(4.51103e-21, 3.28547e-21, 5.36774e-22) * ozoneNumberDensity * ozoneUnitConversion;
 
-const vec3 rayleighScatteringCoefficientsEnd = vec3(3e-5, 4e-6, 1e-5);
-const vec3 mieScatteringCoefficientsEnd      = vec3(5.2e-3, 7e-3, 5e-3);
-const vec3 rayleighExtinctionCoefficientsEnd = vec3(3e-5, 2e-4, 4e-5);
-const vec3 mieExtinctionCoefficientsEnd      = vec3(7e-3, 2e-2, 9e-3) / mieScatteringAlbedo;
+const vec3 rayleighScatteringCoefficientsEnd = vec3(2e-5, 4e-6, 3e-5);
+const vec3 mieScatteringCoefficientsEnd      = vec3(1e-5);
+const vec3 rayleighExtinctionCoefficientsEnd = rayleighScatteringCoefficientsEnd;
+const vec3 mieExtinctionCoefficientsEnd      = mieScatteringCoefficientsEnd / mieScatteringAlbedo;
 
 mat2x3 atmosphereScatteringCoefficients = mat2x3(
     SRGB_TO_WORKING_SPACE_ALBEDO(rayleighScatteringCoefficients),
@@ -95,9 +91,19 @@ vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
 
 const float cloudsFallbackDistance = 65534.0;
 
-const float cloudsExtinctionCoefficient = 0.06;
-const float cloudsScatteringCoefficient = 0.99;
-const float cloudsTransmitThreshold     = 0.05;
+#if defined WORLD_OVERWORLD
+
+    const float cloudsExtinctionCoefficient = 0.06;
+    const float cloudsScatteringCoefficient = 0.99;
+
+#else
+
+    const float cloudsExtinctionCoefficient = 0.20;
+    const float cloudsScatteringCoefficient = 0.99;
+
+#endif
+
+const float cloudsTransmitThreshold = 0.05;
 
 const float cloudsForwardsLobe = 0.80;
 const float cloudsBackardsLobe = 0.35;
@@ -125,12 +131,12 @@ const float airFogPeakWeight   = 0.35;
 const float azimuthStar  = 25.0;
 const float altitudeStar = 45.0;
 
-const float phi_star   = radians(azimuthStar);
-const float theta_star = radians(90.0 - altitudeStar);
+const float phiStar   = radians(azimuthStar);
+const float thetaStar = radians(90.0 - altitudeStar);
 
-const vec3 starVector = normalize(vec3(sin(theta_star) * cos(phi_star), cos(theta_star), sin(theta_star) * sin(phi_star)));
+const vec3 starVector = normalize(vec3(sin(thetaStar) * cos(phiStar), cos(thetaStar), sin(thetaStar) * sin(phiStar)));
 
-const float starRadius   = 3.171e11;
+const float starRadius   = 2.171e11;
 const float starDistance = 6.07852e12;
 
 // Sun
@@ -184,5 +190,19 @@ vec3 moonLuminance   = moonAlbedo * sunIlluminance * lambertPhase();
 // The rough amount of light the moon emits that reaches the Earth
 vec3 moonIlluminance = moonLuminance * coneAngleToSolidAngle(moonAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
 
-vec3 starIlluminance = blackbody(25000.0) * 500.0;
-vec3 starLuminance   = starIlluminance / coneAngleToSolidAngle(starAngularRadius);
+const vec3 starIlluminance = vec3(0.553, 0.298, 0.71) * END_STAR_BRIGHTNESS;
+const vec3 starLuminance   = starIlluminance / coneAngleToSolidAngle(starAngularRadius  / CELESTIAL_SIZE_MULTIPLIER);
+
+// Light vectors
+
+#if defined WORLD_OVERWORLD || defined WORLD_NETHER
+
+    vec3 lightVectorView  = shadowLightVectorView;
+    vec3 lightVectorWorld = shadowLightVectorWorld;
+
+#elif defined WORLD_END
+
+    vec3 lightVectorView  = normalize(mat3(gbufferModelView) * starVector);
+    vec3 lightVectorWorld = starVector;
+
+#endif

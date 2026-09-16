@@ -20,7 +20,7 @@
 
 #include "/settings.glsl"
 
-#if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0 || !defined WORLD_OVERWORLD
+#if CLOUDS_LAYER0_ENABLED == 0 && CLOUDS_LAYER1_ENABLED == 0 || defined WORLD_NETHER
 
     #include "/programs/discard.glsl"
 
@@ -119,7 +119,7 @@
                 layer0 = estimateCloudsScattering(cloudLayer0, cloudsRayDirection, true, true);
             #endif
 
-            #if CLOUDS_LAYER1_ENABLED == 1
+            #if CLOUDS_LAYER1_ENABLED == 1 && defined WORLD_OVERWORLD
                 layer1 = estimateCloudsScattering(cloudLayer1, cloudsRayDirection, false, true);
             #endif
 
@@ -151,7 +151,13 @@
 
                 vec2 pixelCenterDist = 1.0 - abs(fract(prevCoords * viewSize) * 2.0 - 1.0);
 
-                const float centerWeightStrength = CLOUDS_CENTER_WEIGHT_STRENGTH * CLOUDS_SCALE * 0.01;
+                #if defined WORLD_OVERWORLD
+                    const float centerWeightStrength = CLOUDS_CENTER_WEIGHT_STRENGTH * CLOUDS_SCALE * 0.01;
+
+                #elif defined WORLD_END
+                    const float centerWeightStrength = 0.5 * CLOUDS_CENTER_WEIGHT_STRENGTH * CLOUDS_SCALE * 0.01;
+
+                #endif
 
                 float centerWeight = sqrt(pixelCenterDist.x * pixelCenterDist.y) * centerWeightStrength + (1.0 - centerWeightStrength);
                       centerWeight = mix(0.9, centerWeight, distanceFalloff);

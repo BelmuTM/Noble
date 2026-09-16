@@ -695,6 +695,10 @@ suffix.STARS_AMOUNT = %
 option.STARS_LUMINANCE = Luminosity
 option.STARS_LUMINANCE.comment = Adjusts the luminosity of stars in the sky.
 
+option.END_STARS_ROTATION_SPEED = End Stars Rotation Speed
+option.END_STARS_ROTATION_SPEED.comment = Adjusts how fast the stars rotate in the End dimension.
+suffix.END_STARS_ROTATION_SPEED = x
+
 ### WEATHER
 
 option.WEATHER_TILT_ANGLE_X = Weather Tilt Angle

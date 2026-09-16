@@ -52,6 +52,8 @@
 
     #include "/include/vertex/animation.glsl"
 
+    #include "/include/atmospherics/constants.glsl"
+
     void main() {
         textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         lightmapCoords = gl_MultiTexCoord1.xy * rcp240;
@@ -81,7 +83,7 @@
 
         bool isBillboardPlant = blockId == PLANTS_ID || blockId == DOUBLE_PLANTS_LOWER_ID || blockId == DOUBLE_PLANTS_UPPER_ID;
 
-        vec3 vertexNormal = isBillboardPlant ? shadowLightVectorWorld : gl_Normal;
+        vec3 vertexNormal = isBillboardPlant ? lightVectorWorld : gl_Normal;
 
         tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * vertexNormal);
         tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);

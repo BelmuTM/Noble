@@ -72,17 +72,35 @@ struct CloudLayer {
         float16_t(SWIRL              * 0.01  )  \
     )
 
-const CloudLayer cloudLayer0 = PARSE_CLOUD_LAYER_SETTINGS(
-    CLOUDS_LAYER0_SCATTERING_STEPS,
-    CLOUDS_LAYER0_SCALE,
-    CLOUDS_LAYER0_DETAILSCALE,
-    CLOUDS_LAYER0_FREQUENCY,
-    CLOUDS_LAYER0_DENSITY,
-    CLOUDS_LAYER0_ALTITUDE,
-    CLOUDS_LAYER0_THICKNESS,
-    CLOUDS_LAYER0_COVERAGE,
-    CLOUDS_LAYER0_SWIRL
-);
+#if defined WORLD_OVERWORLD
+
+    const CloudLayer cloudLayer0 = PARSE_CLOUD_LAYER_SETTINGS(
+        CLOUDS_LAYER0_SCATTERING_STEPS,
+        CLOUDS_LAYER0_SCALE,
+        CLOUDS_LAYER0_DETAILSCALE,
+        CLOUDS_LAYER0_FREQUENCY,
+        CLOUDS_LAYER0_DENSITY,
+        CLOUDS_LAYER0_ALTITUDE,
+        CLOUDS_LAYER0_THICKNESS,
+        CLOUDS_LAYER0_COVERAGE,
+        CLOUDS_LAYER0_SWIRL
+    );
+
+#elif defined WORLD_END
+
+    const CloudLayer cloudLayer0 = PARSE_CLOUD_LAYER_SETTINGS(
+        16,
+        45,
+        40,
+        1.2,
+        100,
+        -2000,
+        1000,
+        100,
+        90
+    );
+
+#endif
 
 const CloudLayer cloudLayer1 = PARSE_CLOUD_LAYER_SETTINGS(
     CLOUDS_LAYER1_SCATTERING_STEPS,
@@ -100,8 +118,17 @@ const vec3 upVector = vec3(0.0, 1.0, 0.0);
 
 // Wind constants
 
-const vec3 windDirection = vec3(-0.7, 0.0, 0.7);
-const vec3 wind          = windDirection * CLOUDS_WIND_SPEED;
+#if defined WORLD_OVERWORLD
+
+    const vec3 windDirection = vec3(-0.7, 0.0, 0.7);
+    const vec3 wind          = windDirection * CLOUDS_WIND_SPEED;
+
+#else
+
+    const vec3 windDirection = vec3(0.0);
+    const vec3 wind          = vec3(0.0);
+
+#endif
 
 float shapeAlter(float altitude, float weatherMap) {
     float stopHeight = saturate(weatherMap + 0.35);                           // Maximum cloud height
@@ -270,7 +297,7 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
 
     float distanceToClouds = distsToVolume.y;
 
-    float VdotL = dot(rayDirection, shadowLightVectorWorld);
+    float VdotL = dot(rayDirection, lightVectorWorld);
     float VdotU = dot(rayDirection, upVector);
     
     float bouncedLight = abs(-VdotU) * RCP_PI * 0.5 * isotropicPhase;
@@ -291,9 +318,9 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
             float stepOpticalDepth  = cloudsExtinctionCoefficient * density * stepSize;
             float stepTransmittance = exp(-stepOpticalDepth);
 
-            float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition,  shadowLightVectorWorld, 4, layer, isLowerLayer, animated);
-            float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition, -upVector,               1, layer, isLowerLayer, animated);
-            float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition,  upVector,               2, layer, isLowerLayer, animated);
+            float directOpticalDepth = calculateCloudsOpticalDepth(rayPosition,  lightVectorWorld, 4, layer, isLowerLayer, animated);
+            float groundOpticalDepth = calculateCloudsOpticalDepth(rayPosition, -upVector,         1, layer, isLowerLayer, animated);
+            float skyOpticalDepth    = calculateCloudsOpticalDepth(rayPosition,  upVector,         2, layer, isLowerLayer, animated);
 
             float powder    = 6.5 * (1.0 - 0.97 * exp(-8.0 * density));
             float powderSun = mix(powder, 1.0, VdotL * 0.5 + 0.5);

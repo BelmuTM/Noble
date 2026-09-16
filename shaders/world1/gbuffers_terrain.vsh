@@ -2,5 +2,6 @@
 
 #define PROGRAM_TERRAIN
 #define STAGE_VERTEX
+#define WORLD_END
 
 #include "/programs/gbuffers/opaque.glsl"

@@ -124,7 +124,7 @@ vec2 parallaxMapping(vec3 viewPosition, mat2 texDeriv, inout float height, out v
 #if POM_SHADOWING == 1
 
     float parallaxShadowing(vec2 parallaxCoords, float height, mat2 texDeriv) {
-        vec3  tangentDirection = shadowLightVectorWorld * tbn;
+        vec3  tangentDirection = lightVectorWorld * tbn;
         float currLayerHeight  = height;
 
         vec2 increment = (tangentDirection.xy / tangentDirection.z) * POM_DEPTH * texSize * layerHeight;

@@ -242,7 +242,7 @@
 
                     directSpecular = computeSpecular(
                         -normalize(viewPosition0),
-                        normalize(shadowLightVectorView),
+                        lightVectorView,
                         material.normal,
                         material.N,
                         material.K,
@@ -278,13 +278,7 @@
 
             vec3 directIlluminanceFinal = directIlluminance;
 
-            vec3 tmp = normalize(scenePosition0 - gbufferModelViewInverse[3].xyz);
-
-            #if defined WORLD_OVERWORLD
-                float VdotL = dot(tmp, shadowLightVectorWorld);
-            #elif defined WORLD_END
-                float VdotL = dot(tmp, starVector);
-            #endif
+            float VdotL = dot(normalize(scenePosition0 - gbufferModelViewInverse[3].xyz), lightVectorWorld);
 
         #else
 

@@ -140,7 +140,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
 
         translucentsOut.rgb = computeDiffuse(
             scenePosition,
-            shadowLightVectorWorld,
+            lightVectorWorld,
             material,
             false,
             shadowmap,

@@ -295,7 +295,7 @@
 
                     translucentsOut.rgb = computeDiffuse(
                         scenePosition,
-                        shadowLightVectorWorld,
+                        lightVectorWorld,
                         material,
                         isMetal,
                         shadowmap,

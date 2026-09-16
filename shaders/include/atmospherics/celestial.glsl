@@ -21,8 +21,19 @@
 uniform vec3 upPosition;
 
 float starfield(vec3 viewPosition, vec3 lightVector) {
+
     vec3 sceneDirection = normalize(viewToWorld(viewPosition));
-         sceneDirection = rotate(sceneDirection, lightVector, vec3(0.0, 0.0, 1.0));
+
+    #if defined WORLD_OVERWORLD
+
+        sceneDirection = rotate(sceneDirection, lightVector, vec3(0.0, 0.0, 1.0));
+
+
+    #elif defined WORLD_END
+
+        sceneDirection = rotate(sceneDirection, lightVector, frameTimeCounter * END_STARS_ROTATION_SPEED);
+
+    #endif
 
     vec3  position = sceneDirection * STARS_SCALE;
     vec3  index    = floor(position);
@@ -86,7 +97,7 @@ vec3 renderAtmosphere(vec2 coords, vec3 viewPosition, vec3 directIlluminance, ve
 
     vec4 clouds = vec4(0.0, 0.0, 0.0, 1.0);
 
-    #if defined WORLD_OVERWORLD && defined CLOUDS_ENABLED
+    #if defined CLOUDS_ENABLED
 
         vec4 cloudsBuffer = texture(CLOUDS_BUFFER, coords * RCP_RENDER_SCALE);
 
@@ -110,14 +121,12 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
 
     float cloudsTransmittance = 1.0;
 
-    float stars = starfield(viewPosition, sunVector);
-
     #if defined WORLD_OVERWORLD
 
         vec3 viewTransmittance = evaluateAtmosphereTransmittance(atmosphereRayPosition, sceneDirection, atmosphereAttenuationCoefficients);
         
         celestialBodies += (physicalSun(sceneDirection) + physicalMoon(sceneDirection)) * viewTransmittance;
-        celestialBodies += stars;
+        celestialBodies += starfield(viewPosition, sunVector);
 
         #if defined CLOUDS_ENABLED
 
@@ -128,7 +137,7 @@ vec3 renderCelestialBodies(vec2 coords, vec3 viewPosition) {
     #elif defined WORLD_END
 
         celestialBodies += physicalStar(sceneDirection);
-        celestialBodies += stars * 4.0;
+        celestialBodies += starfield(viewPosition, starVector) * 0.3;
 
     #endif
 

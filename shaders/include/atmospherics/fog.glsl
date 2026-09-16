@@ -60,7 +60,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
     const float fogThickness    = FOG_THICKNESS * 2.0;
     const vec2  fogShapeFactors = vec2(2.0, 0.7);
     const float densityFactor   = 0.2;
-    const float densityMult     = 0.01;
+    const float densityMult     = 0.05;
 
 #elif defined WORLD_END
 
@@ -392,10 +392,12 @@ float calculateAirFogPhase(float cosTheta) {
             for (int i = 0; i < AERIAL_PERSPECTIVE_SCATTERING_STEPS && maxOf(transmittanceAerial) > EPS; i++) {
 
                 // Shadows sampling
+
+                vec3 shadow = vec3(1.0);
                 
                 #if defined WORLD_OVERWORLD
                 
-                    vec3 shadow = getShadowColor(shadowClipToShadowScreen(aerialShadowPosition));
+                    shadow = getShadowColor(shadowClipToShadowScreen(aerialShadowPosition));
 
                     #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
                         shadow *= getCloudsShadows(aerialRayPosition);
