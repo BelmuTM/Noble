@@ -550,9 +550,11 @@ suffix.FOG_SHAPE_SCALE = %
 
 option.FOG_ALTITUDE = Altitude
 option.FOG_ALTITUDE.comment = Adjusts the fog's altitude in blocks.
+suffix.FOG_ALTITUDE = m
 
 option.FOG_THICKNESS = Thickness
 option.FOG_THICKNESS.comment = Adjusts the fog's thickness.
+suffix.FOG_THICKNESS = m
 
 option.FOG_DENSITY = Density
 option.FOG_DENSITY.comment = Adjusts the fog's density.

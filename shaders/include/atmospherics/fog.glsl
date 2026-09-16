@@ -317,7 +317,7 @@ float calculateAirFogPhase(float cosTheta) {
                     shadow = getShadowColor(shadowClipToShadowScreen(fogShadowPosition));
 
                     #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                        shadow *= getCloudsShadows(fogRayPosition);
+                        shadow *= getCloudsShadows(fogRayPosition - cameraPosition);
                     #endif
 
                 #endif
@@ -398,10 +398,6 @@ float calculateAirFogPhase(float cosTheta) {
                 #if defined WORLD_OVERWORLD
                 
                     shadow = getShadowColor(shadowClipToShadowScreen(aerialShadowPosition));
-
-                    #if CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-                        shadow *= getCloudsShadows(aerialRayPosition);
-                    #endif
 
                 #endif
 
@@ -544,7 +540,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
 
-                shadow *= getCloudsShadows(startPosition + worldDirection * stepSize);
+                shadow *= getCloudsShadows(startPosition + worldDirection * stepSize - cameraPosition);
 
             #endif
 

@@ -30,14 +30,9 @@ const float lodFactor = exp2(-lod);
 
 #if defined STAGE_VERTEX
 
-    flat out float exposure;
-
     #include "/include/uniforms.glsl"
 
-    #include "/include/post/exposure.glsl"
-
     void main() {
-        exposure = CURRENT_EXPOSURE();
 
         vec2 tileCoords = gl_Vertex.xy * lodFactor * 0.5 + 1.0 - lodFactor;
 
@@ -49,8 +44,6 @@ const float lodFactor = exp2(-lod);
     /* RENDERTARGETS: 5 */
 
     layout (location = 0) out vec4 bloomOut;
-
-    flat in float exposure;
 
     #include "/include/uniforms.glsl"
 
@@ -150,7 +143,9 @@ const float lodFactor = exp2(-lod);
             bloomOut.a   = tileWeight(BLOOM_UPSAMPLE_PASS_INDEX) * normalization;
 
             #if BLOOM_UPSAMPLE_PASS_INDEX == 7
+
                 bloomOut.rgb *= tileWeight(BLOOM_UPSAMPLE_PASS_INDEX + 1) * normalization;
+
             #endif
 
         #endif
