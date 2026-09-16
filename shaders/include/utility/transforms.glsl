@@ -171,14 +171,8 @@ float linearizeDepth(float depth) {
     return (nearPlane * farPlane) / (depth * (nearPlane - farPlane) + farPlane);
 }
 
-/*
-float linearizeDepth(float depth, float nearr, float farr) {
-    return (nearr * farr) / (depth * (nearr - farr) + farr);
-}
-*/
-
-float linearizeDepthFromInverseProjection(float depth, mat4 projectionInverse) {
-    return 1.0 / (depth * projectionInverse[2][3] + projectionInverse[3][3]);
+float linearizeDepth(float depth, mat4 projectionInverse) {
+    return 1.0 / (depth * projectionInverse[2].w + projectionInverse[3].w);
 }
 
 float thickenDepth(float depth, float zThickness, mat4 projection) {
