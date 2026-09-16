@@ -132,7 +132,7 @@ vec3 hammonDiffuseUniform(vec3 viewDirection, vec3 albedo, vec3 normal, vec3 N, 
 
 vec3 subsurfaceScatteringApprox(vec3 viewDirection, vec3 lightDirection, vec3 albedo, float subsurface, float distThroughMedium, uint id) {
 
-    if (subsurface < EPS || distThroughMedium < EPS) {
+    if (subsurface < EPS) {
         return vec3(0.0);
     }
 

@@ -29,14 +29,15 @@ float jitter1 = interleavedGradientNoise(SCREEN_COORDS.yx * 0.9 + vec2(viewSize 
         sampler2D depthTexture,
         mat4 projection,
         mat4 projectionInverse,
+        vec3 screenPosition,
         vec3 viewPosition,
         float scale,
         inout float subsurfaceDepth
     ) {
         // DDA setup (McGuire & Mara, 2014)
-        vec3 rayPosition;
+        vec3 rayPosition = screenPosition;
+
         vec3 rayDirection;
-        rayPosition   = viewToScreen(viewPosition, projection, true);
         rayDirection  = viewPosition + abs(viewPosition.z) * normalize(shadowLightVectorView);
         rayDirection  = viewToScreen(rayDirection, projection, true) - rayPosition;
         rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);

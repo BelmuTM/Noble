@@ -229,9 +229,17 @@
                 float subsurfaceDepth = 0.0;
 
                 if (modFragment) {
-                    contactShadows = traceContactShadows(modDepthTex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
+
+                    contactShadows = traceContactShadows(
+                        modDepthTex0, projection, projectionInverse, screenPosition, viewPosition, RENDER_SCALE, subsurfaceDepth
+                    );
+
                 } else {
-                    contactShadows = traceContactShadows(depthtex0, projection, projectionInverse, viewPosition, RENDER_SCALE, subsurfaceDepth);
+
+                    contactShadows = traceContactShadows(
+                        depthtex0, projection, projectionInverse, screenPosition, viewPosition, RENDER_SCALE, subsurfaceDepth
+                    );
+                    
                 }
 
                 // Use the subsurface depth from contact shadows if the one from shadow mapping is undefined/invalid
