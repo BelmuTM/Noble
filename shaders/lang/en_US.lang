@@ -46,6 +46,9 @@ screen.AMBIENT_LIGHTING        = Ambient Lighting
 screen.BLOCKLIGHT_COLOR        = Block Light Color
 screen.REFLECTIONS_REFRACTIONS = Reflections | Refractions
 screen.AMBIENT_OCCLUSION       = Ambient Occlusion
+screen.SUN_SKY_LIGHT           = Sun / Sky Light
+screen.SUN_COLOR               = Sun Color
+screen.LABPBR_SUPPORT          = §bLabPBR§r Support
 screen.ATMOSPHERICS            = Atmospherics
 screen.ATMOSPHERE              = Atmosphere
 screen.CLOUDS                  = Clouds
@@ -79,38 +82,6 @@ screen.FILM_GRAIN              = Film Grain
 screen.CEL_SHADING             = Cel Shading
 screen.MISC                    = 8-Bit Filter | Color Palettes
 screen.DEBUG                   = Debug
-
-#////////////////////////////////////////////////////////#
-#----------------------- LIGHTING -----------------------#
-#////////////////////////////////////////////////////////#
-
-option.DIRECTIONAL_LIGHTMAP = Directional Lightmap
-option.DIRECTIONAL_LIGHTMAP.comment = Makes Minecraft's lightmap depend on the direction to the light source. §cMight produce visual bugs.
-value.DIRECTIONAL_LIGHTMAP.0 = §cOFF
-value.DIRECTIONAL_LIGHTMAP.1 = §aON
-
-option.SUBSURFACE_SCATTERING = Subsurface Scattering (SSS)
-option.SUBSURFACE_SCATTERING.comment = Simulates how light goes through certain materials (leaves, skin,...). §cRequires a PBR resource pack!
-value.SUBSURFACE_SCATTERING.0 = §cOFF
-value.SUBSURFACE_SCATTERING.1 = §aON
-
-option.HARDCODED_EMISSION = Hardcoded Emission
-option.HARDCODED_EMISSION.comment = Forces light sources to emit light when you don't have a §bPBR resource pack§r for it.
-value.HARDCODED_EMISSION.0 = §cOFF
-value.HARDCODED_EMISSION.1 = §aON
-
-option.HARDCODED_SSS = Hardcoded SSS
-option.HARDCODED_SSS.comment = Forces subsurface scattering to happen for certain blocks (leaves, wool, sand,...) when you don't have a §bPBR resource pack§r for it.
-value.HARDCODED_SSS.0 = §cOFF
-value.HARDCODED_SSS.1 = §aON
-
-option.SUNLIGHT_STRENGTH = Sun Light Strength
-option.SUNLIGHT_STRENGTH.comment = Adjusts the strength of Sun light.
-suffix.SUNLIGHT_STRENGTH = x
-
-option.SKYLIGHT_STRENGTH = Sky Light Strength
-option.SKYLIGHT_STRENGTH.comment = Adjusts the strength of sky light.
-suffix.SKYLIGHT_STRENGTH = x
 
 #////////////////////////////////////////////////////////#
 #------------------------ SHADOWS -----------------------#
@@ -342,6 +313,54 @@ option.MATERIAL_AO = Material AO
 option.MATERIAL_AO.comment = Adds pseudo-shadows to the textures themselves. §cRequires a LabPBR resource pack!
 value.MATERIAL_AO.0 = §cOFF
 value.MATERIAL_AO.1 = §aON
+
+#////////////////////////////////////////////////////////#
+#-------------------- SUN/SKY LIGHT ---------------------#
+#////////////////////////////////////////////////////////#
+
+option.SUN_COLOR_R = §cRed
+option.SUN_COLOR_R.comment = Adjusts how §cred§r the Sun and its light are.
+suffix.SUN_COLOR_R = %
+
+option.SUN_COLOR_G = §aGreen
+option.SUN_COLOR_G.comment = Adjusts how §agreen§r the Sun and its light are.
+suffix.SUN_COLOR_G = %
+
+option.SUN_COLOR_B = §9Blue
+option.SUN_COLOR_B.comment = Adjusts how §9blue§r the Sun and its light are.
+suffix.SUN_COLOR_B = %
+
+option.SUNLIGHT_STRENGTH = Sun Light Strength
+option.SUNLIGHT_STRENGTH.comment = Adjusts the strength of Sun light.
+suffix.SUNLIGHT_STRENGTH = x
+
+option.SKYLIGHT_STRENGTH = Sky Light Strength
+option.SKYLIGHT_STRENGTH.comment = Adjusts the strength of sky light.
+suffix.SKYLIGHT_STRENGTH = x
+
+#////////////////////////////////////////////////////////#
+#-------------------- LABPBR SUPPORT --------------------#
+#////////////////////////////////////////////////////////#
+
+option.DIRECTIONAL_LIGHTMAP = Directional Lightmap
+option.DIRECTIONAL_LIGHTMAP.comment = Makes Minecraft's lightmap depend on the direction to the light source. §cMight produce visual bugs.
+value.DIRECTIONAL_LIGHTMAP.0 = §cOFF
+value.DIRECTIONAL_LIGHTMAP.1 = §aON
+
+option.SUBSURFACE_SCATTERING = Subsurface Scattering (SSS)
+option.SUBSURFACE_SCATTERING.comment = Simulates how light goes through certain materials (leaves, skin,...). §cRequires a PBR resource pack!
+value.SUBSURFACE_SCATTERING.0 = §cOFF
+value.SUBSURFACE_SCATTERING.1 = §aON
+
+option.HARDCODED_EMISSION = Hardcoded Emission
+option.HARDCODED_EMISSION.comment = Forces light sources to emit light when you don't have a §bPBR resource pack§r for it.
+value.HARDCODED_EMISSION.0 = §cOFF
+value.HARDCODED_EMISSION.1 = §aON
+
+option.HARDCODED_SSS = Hardcoded SSS
+option.HARDCODED_SSS.comment = Forces subsurface scattering to happen for certain blocks (leaves, wool, sand,...) when you don't have a §bPBR resource pack§r for it.
+value.HARDCODED_SSS.0 = §cOFF
+value.HARDCODED_SSS.1 = §aON
 
 #////////////////////////////////////////////////////////#
 #--------------------- ATMOSPHERICS ---------------------#

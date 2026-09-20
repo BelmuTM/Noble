@@ -183,7 +183,7 @@ float lambertPhase() {
 }
 
 // Brightness of light reaching the Earth (~126'000 lux)
-const vec3 sunIlluminance = vec3(1.0, 0.949, 0.937) * 126e3;
+const vec3 sunIlluminance = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(SUN_COLOR_R, SUN_COLOR_G, SUN_COLOR_B) * 0.01) * 126e3;
 const vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
 
 vec3 moonLuminance   = moonAlbedo * sunIlluminance * lambertPhase();
