@@ -152,6 +152,10 @@ vec3 viewToScreen(vec3 viewPosition, mat4 projection, bool unjitter) {
     return ndcPosition * 0.5 + 0.5;
 }
 
+float viewToScreen(float depth, mat4 projection) {
+	return (depth * projection[2].z + projection[3].z) / -depth * 0.5 + 0.5;
+}
+
 vec3 worldToView(vec3 worldPosition) {
     return transform(gbufferModelView, worldPosition);
 }
@@ -172,6 +176,10 @@ float linearizeDepth(float depth) {
 }
 
 float linearizeDepth(float depth, mat4 projectionInverse) {
+    return 1.0 / (depth * projectionInverse[2].w + projectionInverse[3].w);
+}
+
+vec4 linearizeDepth(vec4 depth, mat4 projectionInverse) {
     return 1.0 / (depth * projectionInverse[2].w + projectionInverse[3].w);
 }
 

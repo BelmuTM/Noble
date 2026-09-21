@@ -25,6 +25,24 @@ float jitter1 = interleavedGradientNoise(SCREEN_COORDS.yx * 0.9 + vec2(viewSize 
 
 #if CONTACT_SHADOWS == 1
 
+    float getInterpolatedLinearDepth(sampler2D depthTexture, mat4 projectionInverse, vec2 coords) {
+        // Linear depth interpolation from Zombye (Spectrum - https://github.com/zombye/spectrum)
+
+        coords += 0.5;
+
+        ivec2 texelCoords = ivec2(floor(coords));
+
+        coords = coords - texelCoords; // Fractional part
+
+        // Linearizing 4 depth neighbour samples
+        vec4 samples = linearizeDepth(textureGather(depthTexture, texelCoords * texelSize) * 2.0 - 1.0, projectionInverse);
+
+        // Interpolation
+        samples.xy = mix(samples.wx, samples.zy, coords.x);
+
+        return mix(samples.x,  samples.y,  coords.y) * gbufferProjectionInverse[3].z; // Scaling result to projection
+    }
+
     float traceContactShadows(
         sampler2D depthTexture,
         mat4 projection,
@@ -64,7 +82,7 @@ float jitter1 = interleavedGradientNoise(SCREEN_COORDS.yx * 0.9 + vec2(viewSize 
             intersection checks, this makes each depth sample equivalent to a frustum-shaped voxel
             (McGuire & Mara, 2014)
         */
-        const float zThickness = 1e-3;
+        const float zThickness = 1e-3 * float(CONTACT_SHADOWS_STRIDE);
 
         bool intersected = false;
 
@@ -74,13 +92,23 @@ float jitter1 = interleavedGradientNoise(SCREEN_COORDS.yx * 0.9 + vec2(viewSize 
             float minZ  = rayPosition.z - float(CONTACT_SHADOWS_STRIDE) * abs(rayDirection.z);
 
             float depth      = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
-            float thickDepth = thickenDepth(depth, zThickness * float(CONTACT_SHADOWS_STRIDE), projection);
+            float thickDepth = thickenDepth(depth, zThickness, projection);
+
+            float interpDepth = getInterpolatedLinearDepth(depthTexture, projectionInverse, rayPosition.xy);
+                  interpDepth = viewToScreen(interpDepth, projection);
+
+            float thickInterpDepth = thickenDepth(interpDepth, zThickness, projection);
 
             /*
                 Intersection check, take account of the depth sample's thickness,
                 and avoid player hand and sky fragments
             */
-            if (maxZ >= depth && minZ <= thickDepth && depth >= handDepth && depth < 1.0) {
+            if (
+                   maxZ >= depth       && minZ <= thickDepth
+                && maxZ >= interpDepth && minZ <= thickInterpDepth
+                && depth >= handDepth
+                && depth < 1.0
+            ) {
                 intersected = true;
                 break;
             }

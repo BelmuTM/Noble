@@ -20,11 +20,13 @@
 
 vec4 cubicWeight(float v) {
     vec4 s = pow3(vec4(1.0, 2.0, 3.0, 4.0) - v);
+
     vec4 weight;
          weight.x = s.x;
          weight.y = s.y - 4.0 * s.x;
          weight.z = s.z - 4.0 * s.y + 6.0 * s.x;
          weight.w = 6.0 - weight.x - weight.y - weight.z;
+         
     return weight / 6.0;
 }
  
@@ -100,6 +102,7 @@ vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
     texPos12 *= rcpTexSize;
 
     vec4 result = vec4(0.0);
+
     result += texture(tex, vec2(texPos0.x , texPos0.y)) * w0.x  * w0.y;
     result += texture(tex, vec2(texPos12.x, texPos0.y)) * w12.x * w0.y;
     result += texture(tex, vec2(texPos3.x , texPos0.y)) * w3.x  * w0.y;
@@ -111,6 +114,7 @@ vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
     result += texture(tex, vec2(texPos0.x , texPos3.y)) * w0.x  * w3.y;
     result += texture(tex, vec2(texPos12.x, texPos3.y)) * w12.x * w3.y;
     result += texture(tex, vec2(texPos3.x , texPos3.y)) * w3.x  * w3.y;
+
     return result;
 }
 
@@ -126,27 +130,32 @@ vec2 getLinearCoords(const in vec2 coords, const in vec2 texSize, out vec2 uv[4]
     uv[1] = uv[0] + vec2(1.0, 0.0) * texelSize;
     uv[2] = uv[0] + vec2(0.0, 1.0) * texelSize;
     uv[3] = uv[0] + vec2(1.0, 1.0) * texelSize;
+
     return f;
 }
 
 float linearBlend4(const in vec4 samples, const in vec2 f) {
     float x1 = mix(samples[0], samples[1], f.x);
     float x2 = mix(samples[2], samples[3], f.x);
+
     return mix(x1, x2, f.y);
 }
 
 vec3 linearBlend4(const in vec3 samples[4], const in vec2 f) {
     vec3 x1 = mix(samples[0], samples[1], f.x);
     vec3 x2 = mix(samples[2], samples[3], f.x);
+
     return mix(x1, x2, f.y);
 }
 
 vec3 textureLodLinearRGB(const in sampler2D samplerName, const in vec2 uv[4], const in int lod, const in vec2 f) {
     vec3 samples[4];
+    
     samples[0] = textureLod(samplerName, uv[0], lod).rgb;
     samples[1] = textureLod(samplerName, uv[1], lod).rgb;
     samples[2] = textureLod(samplerName, uv[2], lod).rgb;
     samples[3] = textureLod(samplerName, uv[3], lod).rgb;
+
     return linearBlend4(samples, f);
 }
 
@@ -158,10 +167,12 @@ vec3 textureLodLinearRGB(const in sampler2D samplerName, const in vec2 coords, c
 
 float textureGradLinear(const in sampler2D samplerName, const in vec2 uv[4], const in mat2 dFdXY, const in vec2 f, const in int comp) {
     vec4 samples;
+
     samples[0] = textureGrad(samplerName, uv[0], dFdXY[0], dFdXY[1])[comp];
     samples[1] = textureGrad(samplerName, uv[1], dFdXY[0], dFdXY[1])[comp];
     samples[2] = textureGrad(samplerName, uv[2], dFdXY[0], dFdXY[1])[comp];
     samples[3] = textureGrad(samplerName, uv[3], dFdXY[0], dFdXY[1])[comp];
+
     return linearBlend4(samples, f);
 }
 
