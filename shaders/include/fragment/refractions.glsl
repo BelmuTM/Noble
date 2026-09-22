@@ -52,24 +52,29 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
 
             float NdotL = dot(normal, rayDirection);
             
-            if (abs(NdotL) < EPS) break;
+            if (abs(NdotL) < EPS) { break; }
 
             // Intersecting a point along the tangent plane defined by viewPosition1
             float tangentPlaneDist = dot(normal, viewPosition1 - viewPosition0) / NdotL;
             vec3  tangentPointView = viewPosition0 + rayDirection * tangentPlaneDist;
 
             // Projecting the tangent point to screen space from the depth buffer
-            vec3  tangentPointScreen = viewToScreen(tangentPointView, projection, true);
-            ivec2 tangentPointCoords = ivec2(tangentPointScreen.xy * viewSize * RENDER_SCALE);
-            vec3  rayPositionScreen  = vec3(tangentPointScreen.xy, texelFetch(depthtex1, tangentPointCoords, 0).r);
+            vec3 tangentPointScreen = viewToScreen(tangentPointView, projection, true);
 
-            viewPosition1 = screenToView(rayPositionScreen, projectionInverse, true);
-            normal        = unpackNormal(texelFetch(GBUFFERS_DATA, tangentPointCoords, 0).w);
+            if (insideScreenBounds(tangentPointScreen.xy, 1.0)) {
 
-            // If the ray's position is close enough, success
-            if (distance(tangentPointView, viewPosition1) < distanceThreshold) {
-                refractedPosition = rayPositionScreen;
-                return true;
+                ivec2 tangentPointCoords = ivec2(tangentPointScreen.xy * viewSize * RENDER_SCALE);
+                vec3  rayPositionScreen  = vec3(tangentPointScreen.xy, texelFetch(depthtex1, tangentPointCoords, 0).r);
+
+                viewPosition1 = screenToView(rayPositionScreen, projectionInverse, true);
+                normal        = unpackNormal(texelFetch(GBUFFERS_DATA, tangentPointCoords, 0).w);
+
+                // If the ray's position is close enough, success
+                if (distance(tangentPointView, viewPosition1) < distanceThreshold) {
+                    refractedPosition = rayPositionScreen;
+                    return true;
+                }
+                
             }
 
         }
@@ -165,16 +170,6 @@ vec3 computeRefractions(
     );
 
     refractedPosition.xy *= RENDER_SCALE;
-
-    float depth1 = texture(depthtex1, refractedPosition.xy).r;
-
-    #if defined CHUNK_LOADER_MOD_ENABLED
-
-        if (depth1 >= 1.0) {
-            depth1 = texture(modDepthTex1, refractedPosition.xy).r;
-        }
-        
-    #endif
 
     vec3 fresnel = fresnelDielectricDielectric_T(abs(dot(normal, -viewDirection)), n1, n2);
 

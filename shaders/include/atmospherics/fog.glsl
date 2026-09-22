@@ -451,7 +451,7 @@ float calculateAirFogPhase(float cosTheta) {
 
 #endif
 
-#if WATER_FOG == 0
+#if WATER_FOG == 1
 
     //////////////////////////////////////////////////////////
     /*-------------- WATER FOG APPROXIMATION ---------------*/
@@ -488,8 +488,7 @@ float calculateAirFogPhase(float cosTheta) {
         float VdotL,
         vec3 directIlluminance,
         vec3 skyIlluminance,
-        float skyLight,
-        bool sky
+        float skyLight
     ) {
         // Ray marching setup
 

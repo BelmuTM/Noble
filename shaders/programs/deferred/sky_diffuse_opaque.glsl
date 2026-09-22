@@ -127,7 +127,7 @@
 
                 lightingOut  = renderAtmosphere(vertexCoords, viewPosition, directIlluminance, uniformSkyIlluminance);
                 lightingOut += renderCelestialBodies(vertexCoords, viewPosition);
-                lightingOut *= exposure;
+                lightingOut *= exposure; // Apply exposure to output to preserve HDR scale
 
             #endif
             
@@ -203,6 +203,8 @@
             ao,
             cloudsShadows
         );
+
+        // Apply exposure to output to preserve HDR scale
 
         lightingOut *= exposure;
     }

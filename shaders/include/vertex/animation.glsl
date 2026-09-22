@@ -66,7 +66,8 @@ void swingingLanterns(inout vec3 worldPosition, bool isBottomVertex) {
             FBM(floor(worldPosition.xz), 1, 10.0, 2.0, 0.5)
         ) * 2.0 - 1.0;
 
-        vec2 rotation = sincos(frameTimeCounter * 1.5) * vec2(7.0 * (rng.y * 2.0 + rng.x * 4.0), 10.0 * (rng.y * 6.0)) * 0.1;
+        vec2 rotation = sincos(frameTimeCounter * SWINGING_LANTERNS_SPEED * 1.5) 
+                      * vec2(7.0 * (rng.y * 2.0 + rng.x * 4.0), 10.0 * (rng.y * 6.0)) * SWINGING_LANTERNS_INTENSITY * 0.1;
 
         worldPosition -= localOrigin;
         worldPosition  = rotate(worldPosition, vec3(0.0, 0.0, 1.0), rotation.x);

@@ -68,14 +68,9 @@
 
     #include "/include/material/brdf.glsl"
     
-    #include "/include/fragment/raytracer.glsl"
     #include "/include/fragment/shadows.glsl"
 
     #include "/include/atmospherics/fog.glsl"
-
-    #if REFRACTIONS > 0
-        #include "/include/fragment/refractions.glsl"
-    #endif
 
     #include "/include/post/exposure.glsl"
 
@@ -148,36 +143,6 @@
             }
 
             //////////////////////////////////////////////////////////
-            /*-------------------- REFRACTIONS ---------------------*/
-            //////////////////////////////////////////////////////////
-
-            #if REFRACTIONS > 0
-            
-                if (!modFragment && !isOpaque && material.F0 > EPS) {
-
-                    vec3 viewPosition1 = screenToView(vec3(textureCoords, depth1), projectionInverse, true);
-
-                    lightingOut = computeRefractions(
-                        vec3(textureCoords, depth0),
-                        modFragment,
-                        projection,
-                        projectionInverse,
-                        viewPosition0,
-                        viewPosition1,
-                        material.albedo,
-                        material.normal,
-                        material.emission,
-                        material.N,
-                        material.id,
-                        exposure,
-                        screenPosition
-                    );
-
-                }
-
-            #endif
-
-            //////////////////////////////////////////////////////////
             /*-------------------- REFLECTIONS ---------------------*/
             //////////////////////////////////////////////////////////
 
@@ -208,12 +173,15 @@
                                     visibility = texture(SHADOWMAP_BUFFER, max(screenPosition.xy, texelSize)).rgb;
 
                                 } else {
+
                                     vec3 shadowPosition  = worldToShadowClip(scenePosition0);
                                          shadowPosition += getShadowBias(shadowPosition, mat3(gbufferModelViewInverse) * material.normal);
                                          shadowPosition  = shadowClipToShadowScreen(shadowPosition);
 
                                     // Fragments outside of shadow bounds are considered unoccluded
-                                    visibility = insideScreenBounds(shadowPosition, 1.0) ? vec3(shadowVisibility(shadowtex0, shadowPosition)) : vec3(1.0);
+                                    visibility = insideScreenBounds(shadowPosition, 1.0) 
+                                               ? vec3(shadowVisibility(shadowtex0, shadowPosition))
+                                               : vec3(1.0);
                                 }
 
                             }
@@ -261,7 +229,7 @@
 
             #endif
 
-            // Applying direct and environment specular
+            // Apply direct and environment specular
 
             lightingOut += directSpecular;
             lightingOut += environmentSpecular;
@@ -292,29 +260,74 @@
 
         if (isEyeInWater == 1) {
 
+            // Water fog
+
             #if defined OVERWORLD_OR_END
 
                 #if WATER_FOG == 0
-                    computeWaterFogApproximation(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skyLight);
+
+                    // Raymarched
+
+                    computeVolumetricWaterFog(
+                        scatteringFront, transmittanceFront,
+                        gbufferModelViewInverse[3].xyz, scenePosition0,
+                        VdotL,
+                        directIlluminanceFinal, skyIlluminance,
+                        skyLight
+                    );
+
                 #else
-                    computeVolumetricWaterFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skyLight, sky);
+
+                    // Approximation
+
+                    computeWaterFogApproximation(
+                        scatteringFront, transmittanceFront,
+                        gbufferModelViewInverse[3].xyz, scenePosition0,
+                        VdotL,
+                        directIlluminanceFinal, skyIlluminance,
+                        skyLight
+                    );
+
                 #endif
 
             #endif
 
         } else {
 
+            // Air fog
+
             #if AIR_FOG == 1
-                computeVolumetricAirFog(scatteringFront, transmittanceFront, gbufferModelViewInverse[3].xyz, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, sky);
+
+                // Raymarched
+
+                computeVolumetricAirFog(
+                    scatteringFront, transmittanceFront,
+                    gbufferModelViewInverse[3].xyz, scenePosition0,
+                    VdotL,
+                    directIlluminanceFinal, skyIlluminance,
+                    sky
+                );
+
             #elif AIR_FOG == 2
-                computeAirFogApproximation(scatteringFront, transmittanceFront, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skyLight, sky);
+
+                // Approximation
+
+                computeAirFogApproximation(
+                    scatteringFront, transmittanceFront,
+                    scenePosition0,
+                    VdotL, directIlluminanceFinal, skyIlluminance,
+                    skyLight, sky
+                );
+            
             #endif
 
         }
         
-        // Applying front fog
+        // Apply front fog
 
         lightingOut = lightingOut * transmittanceFront + scatteringFront;
+
+        // Apply exposure to output to preserve HDR scale
 
         lightingOut *= exposure;
     }

@@ -67,6 +67,14 @@
     
     #include "/include/atmospherics/fog.glsl"
 
+    #if REFRACTIONS > 0
+
+        #include "/include/material/brdf.glsl"
+        #include "/include/fragment/raytracer.glsl"
+        #include "/include/fragment/refractions.glsl"
+
+    #endif
+
     #include "/include/post/exposure.glsl"
 
     void main() {
@@ -83,17 +91,22 @@
         float exposure    = CURRENT_EXPOSURE();
         float invExposure = 1.0 / exposure;
 
-        vec4 blendedLighting = texture(MAIN_BUFFER, vertexCoords);
+        vec4 alphaBlendedLighting = texture(MAIN_BUFFER, vertexCoords);
 
-        blendedLighting.rgb *= invExposure;
+        lightingOut.rgb = alphaBlendedLighting.rgb * invExposure;
 
         // Fog setup
 
         float depth0 = texture(depthtex0, vertexCoords).r;
         float depth1 = texture(depthtex1, vertexCoords).r;
 
+        mat4 projection0 = gbufferProjection;
+        mat4 projection1 = gbufferProjection;
+
         mat4 projectionInverse0 = gbufferProjectionInverse;
         mat4 projectionInverse1 = gbufferProjectionInverse;
+
+        bool modFragment = false;
 
         #if defined CHUNK_LOADER_MOD_ENABLED
 
@@ -105,7 +118,10 @@
                     depth0 = texture(modDepthTex0, vertexCoords).r;
                 #endif
                 
+                projection0        = modProjection;
                 projectionInverse0 = modProjectionInverse;
+
+                modFragment = true;
             }
 
             if (depth1 >= 1.0) {
@@ -116,76 +132,150 @@
                     depth1 = texture(modDepthTex1, vertexCoords).r;
                 #endif
                 
+                projection1        = modProjection;
                 projectionInverse1 = modProjectionInverse;
+
+                modFragment = true;
             }
             
         #endif
 
-        vec3 viewPosition0  = screenToView(vec3(textureCoords, depth0), projectionInverse0, true);
-        vec3 viewPosition1  = screenToView(vec3(textureCoords, depth1), projectionInverse1, true);
-        vec3 scenePosition0 = viewToWorld(viewPosition0);
-        
-        #if defined OVERWORLD_OR_END
+        vec3 screenPosition0 = vec3(textureCoords, depth0);
+        vec3 screenPosition1 = vec3(textureCoords, depth1);
 
-            vec3 directIlluminanceFinal = directIlluminance;
-
-            float VdotL = dot(normalize(scenePosition0 - gbufferModelViewInverse[3].xyz), lightVectorWorld);
-
-        #else
-
-            vec3 directIlluminanceFinal = blockLightValue;
-            
-            float VdotL = 0.0;
-            
-        #endif
-
-        bool skyTranslucents = depth1 == 1.0;
-
-        //////////////////////////////////////////////////////////
-        /*---------------- FRONT TO BACK FOG -------------------*/
-        //////////////////////////////////////////////////////////
+        vec3 viewPosition0 = screenToView(screenPosition0, projectionInverse0, true);
+        vec3 viewPosition1 = screenToView(screenPosition1, projectionInverse1, true);
 
         vec3 scatteringBack    = vec3(0.0);
         vec3 transmittanceBack = vec3(1.0);
 
-        if (depth0 < 1.0) {
+        if (depth0 < 1.0 && (viewPosition0.z != viewPosition1.z)) {
 
-            if (viewPosition0.z != viewPosition1.z && blendedLighting.a < 0.99) {
+            Material material = getMaterial(vertexCoords);
 
-                uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
+            //////////////////////////////////////////////////////////
+            /*-------------------- REFRACTIONS ---------------------*/
+            //////////////////////////////////////////////////////////
 
-                float skyLight = getSkylightFalloff(unpackLightmap(dataTexture.x).y);
+            #if REFRACTIONS > 0
+            
+                if (!modFragment && material.F0 > EPS) {
 
-                vec3 scenePosition1 = viewToWorld(viewPosition1);
-
-                if ((isEyeInWater == 0 && isWater(unpackId(dataTexture.x))) || (isEyeInWater == 1)) {
-
-                    #if defined OVERWORLD_OR_END
-
-                        #if WATER_FOG == 0
-                            computeWaterFogApproximation(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skyLight);
-                        #else
-                            computeVolumetricWaterFog(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skyLight, skyTranslucents);
-                        #endif
-
-                    #endif
-
-                } else {
-
-                    #if AIR_FOG == 1
-                        computeVolumetricAirFog(scatteringBack, transmittanceBack, scenePosition0, scenePosition1, VdotL, directIlluminanceFinal, skyIlluminance, skyTranslucents);
-                    #elif AIR_FOG == 2
-                        computeAirFogApproximation(scatteringBack, transmittanceBack, scenePosition0, VdotL, directIlluminanceFinal, skyIlluminance, skyLight, skyTranslucents);
-                    #endif
+                    lightingOut.rgb = computeRefractions(
+                        screenPosition0,
+                        modFragment,
+                        projection0,
+                        projectionInverse1,
+                        viewPosition0,
+                        viewPosition1,
+                        material.albedo,
+                        material.normal,
+                        material.emission,
+                        material.N,
+                        material.id,
+                        exposure,
+                        screenPosition1
+                    );
 
                 }
 
+            #endif
+
+            //////////////////////////////////////////////////////////
+            /*---------------- FRONT TO BACK FOG -------------------*/
+            //////////////////////////////////////////////////////////
+
+            bool skyTranslucents = screenPosition1.z >= 1.0;
+
+            float skyLight = getSkylightFalloff(material.lightmap.y);
+
+            vec3 scenePosition0 = viewToWorld(viewPosition0);
+            vec3 scenePosition1 = viewToWorld(screenToView(screenPosition1, projectionInverse1, true));
+        
+            #if defined OVERWORLD_OR_END
+
+                vec3 directIlluminanceFinal = directIlluminance;
+
+                float VdotL = dot(normalize(scenePosition0 - gbufferModelViewInverse[3].xyz), lightVectorWorld);
+
+            #else
+
+                vec3 directIlluminanceFinal = blockLightValue;
+                
+                float VdotL = 0.0;
+                
+            #endif
+
+            if (isEyeInWater == 0 && isWater(material.id)) {
+
+                // Water fog
+
+                #if defined OVERWORLD_OR_END
+
+                    #if WATER_FOG == 0
+
+                        // Raymarched
+
+                        computeVolumetricWaterFog(
+                            scatteringBack, transmittanceBack,
+                            scenePosition0, scenePosition1,
+                            VdotL,
+                            directIlluminanceFinal, skyIlluminance,
+                            skyLight
+                        );
+                    
+                    #else
+
+                        // Approximation
+
+                        computeWaterFogApproximation(
+                            scatteringBack, transmittanceBack,
+                            scenePosition0, scenePosition1,
+                            VdotL,
+                            directIlluminanceFinal, skyIlluminance,
+                            skyLight
+                        ); 
+                    
+                    #endif
+
+                #endif
+
+            } else {
+
+                // Air fog
+
+                #if AIR_FOG == 1
+
+                    // Raymarched
+
+                    computeVolumetricAirFog(
+                        scatteringBack, transmittanceBack,
+                        scenePosition0, scenePosition1,
+                        VdotL,
+                        directIlluminanceFinal, skyIlluminance,
+                        skyTranslucents
+                    );
+                
+                #elif AIR_FOG == 2
+
+                    // Approximation
+
+                    computeAirFogApproximation(
+                        scatteringBack, transmittanceBack,
+                        scenePosition0,
+                        VdotL,
+                        directIlluminanceFinal, skyIlluminance,
+                        skyLight, skyTranslucents
+                    );
+                
+                #endif
+
             }
+
+            // Apply back fog
+
+            lightingOut = lightingOut * transmittanceBack + scatteringBack;
         }
-
-        // Applying back fog
-
-        lightingOut = blendedLighting.rgb * transmittanceBack + scatteringBack;
 
         //////////////////////////////////////////////////////////
         /*------------------ ALPHA BLENDING --------------------*/
@@ -203,7 +293,7 @@
 
         if (isEnchantmentGlint) {
 
-            float glintBlendingFactor = blendedLighting.a > 0.0 ? 1.0 : float(!isHand || basic.a > 0.0);
+            float glintBlendingFactor = alphaBlendedLighting.a > 0.0 ? 1.0 : float(!isHand || basic.a > 0.0);
             
             lightingOut += basic.rgb * invExposure * glintBlendingFactor * ENCHANTMENT_GLINT_STRENGTH;
 
@@ -217,6 +307,8 @@
             }
 
         }
+
+        // Apply exposure to output to preserve HDR scale
 
         lightingOut *= exposure;
     }

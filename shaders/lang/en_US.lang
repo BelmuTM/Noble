@@ -547,7 +547,7 @@ suffix.CLOUDS_LAYER1_SWIRL = %
 ### FOG
 
 option.AIR_FOG = Fog
-option.AIR_FOG.comment = Simulates light scattering in dense particles. §aApproximation§r fog is a semi-accurate way of computing it. §aVolumetric§r fog uses ray marching and complex calculations to compute it more accurately.
+option.AIR_FOG.comment = Simulates light scattering in dense particles. §aVolumetric§r fog uses ray marching and complex calculations to compute it accurately. §aApproximation§r fog is a semi-accurate way of computing it fast.
 value.AIR_FOG.0 = §cOFF
 value.AIR_FOG.1 = §e§lVolumetric (VF)
 value.AIR_FOG.2 = §e§lApproximation
@@ -797,9 +797,9 @@ option.WATER_PARALLAX_DEPTH.comment = Adjusts §bWater Parallax§r's depth.
 # Water Fog
 
 option.WATER_FOG = Water Fog
-option.WATER_FOG.comment = Simulates the absorption and scattering of light in water. §aApproximation§r water fog is a semi-accurate way of computing it. §aVolumetric§r water fog uses ray marching and complex calculations to compute it more accurately.
-value.WATER_FOG.0 = §e§lApproximation
-value.WATER_FOG.1 = §e§lVolumetric
+option.WATER_FOG.comment = Simulates the absorption and scattering of light in water. §aVolumetric§r water fog uses ray marching and complex calculations to compute it accurately. §aApproximation§r water fog is a semi-accurate way of computing it fast.
+value.WATER_FOG.0 = §e§lVolumetric
+value.WATER_FOG.1 = §e§lApproximation
 
 option.WATER_FOG_STEPS = Volumetric Water Fog Steps
 option.WATER_FOG_STEPS.comment = Influences §bWater Fog§r's accuracy. §cHigher value gives better results, but reduces §cperformance.
@@ -891,6 +891,10 @@ option.SWINGING_LANTERNS = Swinging Lanterns
 option.SWINGING_LANTERNS.comment = Makes lanterns swing randomly when they're placed on a ceiling.
 value.SWINGING_LANTERNS.0 = §cOFF
 value.SWINGING_LANTERNS.1 = §aON
+
+option.SWINGING_LANTERNS_SPEED = Swinging Lanterns Speed
+option.SWINGING_LANTERNS_SPEED.comment = Adjusts the speed of the swinging animation of hanging lanterns.
+suffix.SWINGING_LANTERNS_SPEED = x
 
 #////////////////////////////////////////////////////////#
 #------------------------ CAMERA ------------------------#

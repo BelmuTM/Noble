@@ -129,13 +129,13 @@
 
         #if defined OVERWORLD_OR_END
         
-            bool receivesSkylight = true;
+            bool receivesSkyLight = true;
 
             #if defined WORLD_OVERWORLD
-                receivesSkylight = unpackLightmap(dataTexture.x).y > EPS;
+                receivesSkyLight = unpackLightmap(dataTexture.x).y > EPS;
             #endif
 
-            if (receivesSkylight) {
+            if (receivesSkyLight) {
 
                 #if AO > 0
 

@@ -116,6 +116,8 @@
 
             depthOfField(colorOut, MAIN_BUFFER, vertexCoords, getCoC(depth, targetDepth), exposure);
 
+            // Apply exposure to output to preserve HDR scale
+
             colorOut *= exposure;
         }
         
