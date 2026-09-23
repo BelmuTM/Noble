@@ -81,11 +81,7 @@
 
         viewPosition = transform(gl_ModelViewMatrix, gl_Vertex.xyz);
 
-        bool isBillboardPlant = blockId == PLANTS_ID || blockId == DOUBLE_PLANTS_LOWER_ID || blockId == DOUBLE_PLANTS_UPPER_ID;
-
-        vec3 vertexNormal = isBillboardPlant ? lightVectorWorld : gl_Normal;
-
-        tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * vertexNormal);
+        tbn[2] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * gl_Normal);
         tbn[0] = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix * at_tangent.xyz);
         tbn[1] = cross(tbn[0], tbn[2]) * sign(at_tangent.w);
     

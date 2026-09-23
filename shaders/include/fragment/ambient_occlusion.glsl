@@ -38,33 +38,34 @@
         vec3 viewPosition,
         vec3 viewDirection,
         vec3 normal,
-        vec2 sliceStep
+        vec3 viewSliceDirection
     ) {
         float horizonCosTheta = -1.0;
 
         const float cosThetaThreshold = 0.95; // We can stop searching once cosTheta approaches 1
 
-        ivec2 slicePosition = ivec2(textureCoords * viewSize + sliceStep * rand2F());
+        float stepSize = GTAO_RADIUS * RCP_GTAO_HORIZON_STEPS * gbufferProjection[1][1];
 
-        for (int i = 0; i < GTAO_HORIZON_STEPS && horizonCosTheta < cosThetaThreshold; i++) {
+        vec2 sliceStep = viewToScreen(viewPosition + viewSliceDirection * stepSize, gbufferProjection, true).xy - textureCoords;
 
-            float depth = texelFetch(depthTex, ivec2(slicePosition * RENDER_SCALE), 0).r;
+        vec2 slicePosition = textureCoords + sliceStep * rand2F();
 
-            if (insideScreenBounds(vec3(slicePosition * texelSize, depth), 1.0)) {
+        for (int i = 0; i < GTAO_HORIZON_STEPS; i++, slicePosition += sliceStep) {
 
-                vec3 horizonVec = screenToView(vec3(slicePosition * texelSize, depth), projectionInverse, true) - viewPosition;
+            float depth = texelFetch(depthTex, ivec2(slicePosition * viewSize * RENDER_SCALE), 0).r;
+
+            if (insideScreenBounds(vec3(slicePosition, depth), 1.0)) {
+
+                vec3 horizonVec = screenToView(vec3(slicePosition, depth), projectionInverse, true) - viewPosition;
 
                 float cosTheta = mix(
                     dot(horizonVec, viewDirection) * fastRcpLength(horizonVec),
                     -1.0,
-                    linearStep(2.0, 3.0, lengthSqr(horizonVec))
+                    linearStep(0.75 * GTAO_RADIUS, GTAO_RADIUS, lengthSqr(horizonVec))
                 );
 
                 horizonCosTheta = max(horizonCosTheta, cosTheta);
             }
-            
-            slicePosition += ivec2(sliceStep);
-
         }
 
         return fastAcos(horizonCosTheta);
@@ -74,18 +75,22 @@
         float visibility = 0.0;
 
         // World-space radius
-        vec2 radius = viewSize * GTAO_RADIUS * RCP_GTAO_HORIZON_STEPS * gbufferProjection[1][1] / -viewPosition.z;
-
         vec3 viewDirection = -normalize(viewPosition);
 
         float jitter = temporalBlueNoise(SCREEN_COORDS);
 
+        // The idea of using the view-space slice direction came from Photon (https://github.com/sixthsurge/photon)
+        vec3 viewRight   = normalize(cross(vec3(0.0, 1.0, 0.0), viewDirection));
+        vec3 viewUp      = cross(viewDirection, viewRight);
+        mat3 localToView = mat3(viewRight, viewUp, viewDirection);
+
         for (int i = 0; i < GTAO_SLICES; i++) {
 
-            vec2 sliceDirection = sincos(PI * RCP_GTAO_SLICES * (i + jitter));
+            vec3 sliceDirection     = vec3(sincos(PI * RCP_GTAO_SLICES * (i + jitter)), 0.0);
+            vec3 viewSliceDirection = localToView * sliceDirection;
 
             // Projecting the normal to the slice
-            vec3 axis           = normalize(cross(vec3(sliceDirection, 0.0), viewDirection));
+            vec3 axis           = normalize(cross(sliceDirection, viewDirection));
             vec3 orthoDirection = cross(viewDirection, axis);
             vec3 projNormal     = normal - axis * dot(normal, axis);
 
@@ -95,8 +100,8 @@
 
             // Horizon search
             vec2 horizons = vec2(
-                -findMaximumHorizonAngle(depthTex, projectionInverse, viewPosition, viewDirection, normal, -sliceDirection * radius),
-                 findMaximumHorizonAngle(depthTex, projectionInverse, viewPosition, viewDirection, normal,  sliceDirection * radius)
+                -findMaximumHorizonAngle(depthTex, projectionInverse, viewPosition, viewDirection, normal, -viewSliceDirection),
+                 findMaximumHorizonAngle(depthTex, projectionInverse, viewPosition, viewDirection, normal,  viewSliceDirection)
             );
 
             // Each slice covers PI radians, thus we clamp the angles to the [-PI/2; PI/2] range

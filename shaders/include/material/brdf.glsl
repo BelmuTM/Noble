@@ -169,6 +169,8 @@ vec3 computeDiffuse(
 
     vec3 viewDirection = normalize(-fragPosition);
 
+    setBillboardNormal(material.normal, material.id);
+
     vec3 diffuse = vec3(0.0);
 
     if (isMetal) {

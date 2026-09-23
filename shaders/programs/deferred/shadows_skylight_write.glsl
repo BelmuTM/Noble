@@ -92,6 +92,7 @@
     #endif
 
     void main() {
+        
         shadowmapOut   = vec4(1.0, 1.0, 1.0, 0.0);
         illuminanceOut = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -202,6 +203,8 @@
             // Shadowmapping
 
             vec3 normal = decodeUnitVector(unpackUnorm2x16(dataTexture.w));
+
+            setBillboardNormal(normal, unpackId(dataTexture.x));
 
             vec3 screenPosition = vec3(textureCoords, depth);
             vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);

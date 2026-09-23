@@ -48,6 +48,7 @@
         #include "/include/fragment/ambient_occlusion.glsl"
         
         void main() {
+            
             ao = vec3(0.0, 0.0, 1.0);
 
             #if DOWNSCALED_RENDERING == 1

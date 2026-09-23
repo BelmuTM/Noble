@@ -55,8 +55,10 @@
         flat in vec3 skyIlluminance;
 
         void main() {
+
             vec3 skyRay = normalize(unprojectSphere(textureCoords));
                  sky    = evaluateAtmosphericScattering(skyRay, skyIlluminance);
+
         }
         
     #endif
