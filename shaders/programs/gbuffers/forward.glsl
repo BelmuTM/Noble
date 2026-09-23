@@ -209,7 +209,7 @@
 
                 // LabPBR data decoding
 
-                material.F0         = specularTexture.y;
+                material.F0         = max(minF0, specularTexture.y);
                 material.alpha      = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTexture.x);
                 material.ao         = normalTexture.z;
                 material.emission   = specularTexture.w * maxFloat8 < 254.5 ? specularTexture.w : 0.0;
@@ -279,7 +279,7 @@
             #if REFRACTIONS == 0
                 bool shadeTranslucents = true;
             #else
-                bool shadeTranslucents = material.F0 <= EPS;
+                bool shadeTranslucents = material.F0 < minRefractionsF0;
             #endif
 
             bool isMetal = material.F0 * maxFloat8 > labPBRMetals;

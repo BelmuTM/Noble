@@ -37,6 +37,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
 #if REFRACTIONS == 1
 
     bool newtonRefraction(
+        sampler2D depthTexture,
         mat4 projection,
         mat4 projectionInverse,
         vec3 viewPosition0,
@@ -64,7 +65,7 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
             if (insideScreenBounds(tangentPointScreen.xy, 1.0)) {
 
                 ivec2 tangentPointCoords = ivec2(tangentPointScreen.xy * viewSize * RENDER_SCALE);
-                vec3  rayPositionScreen  = vec3(tangentPointScreen.xy, texelFetch(depthtex1, tangentPointCoords, 0).r);
+                vec3  rayPositionScreen  = vec3(tangentPointScreen.xy, texelFetch(depthTexture, tangentPointCoords, 0).r);
 
                 viewPosition1 = screenToView(rayPositionScreen, projectionInverse, true);
                 normal        = unpackNormal(texelFetch(GBUFFERS_DATA, tangentPointCoords, 0).w);
@@ -113,15 +114,33 @@ vec3 computeRefractions(
 
     #if REFRACTIONS == 1
 
-        hit = newtonRefraction(
-            projection,
-            projectionInverse,
-            viewPosition0,
-            viewPosition1,
-            refractedDirection,
-            normal,
-            refractedPosition
-        );
+        if (modFragment) {
+
+            hit = newtonRefraction(
+                modDepthTex1,
+                projection,
+                projectionInverse,
+                viewPosition0,
+                viewPosition1,
+                refractedDirection,
+                normal,
+                refractedPosition
+            );
+
+        } else {
+
+            hit = newtonRefraction(
+                depthtex1,
+                projection,
+                projectionInverse,
+                viewPosition0,
+                viewPosition1,
+                refractedDirection,
+                normal,
+                refractedPosition
+            );        
+
+        }
 
     #elif REFRACTIONS == 2
 
@@ -173,11 +192,11 @@ vec3 computeRefractions(
 
     vec3 fresnel = fresnelDielectricDielectric_T(abs(dot(normal, -viewDirection)), n1, n2);
 
-    vec3 sampledColor = texture(MAIN_BUFFER, refractedPosition.xy).rgb / exposure;
+    vec3 refractedColor = texture(MAIN_BUFFER, refractedPosition.xy).rgb / exposure;
 
     // Water absorption is handled individually
     if (isWater(id)) {
-        return sampledColor * fresnel;
+        return refractedColor * fresnel;
     }
 
     // Approximate absorption for other materials
@@ -185,12 +204,12 @@ vec3 computeRefractions(
 
     if (id != NETHER_PORTAL_ID) {
 
-        density = abs(linearizeDepth(screenPosition.z) - linearizeDepth(refractedPosition.z));
+        density = abs(linearizeDepth(screenPosition.z, projectionInverse) - linearizeDepth(refractedPosition.z, projectionInverse));
         density = clamp(density, 0.0, 2.0);
     }
 
     vec3 absorption   = exp(-(1.0 - albedo) * density);
     vec3 emissiveness = emission * blockLightColor;
 
-    return sampledColor * fresnel * absorption + emissiveness * albedo;
+    return refractedColor * fresnel * absorption + emissiveness * albedo;
 }

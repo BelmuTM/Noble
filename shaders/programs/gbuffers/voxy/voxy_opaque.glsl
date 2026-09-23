@@ -51,6 +51,7 @@ float farPlane = float(vxRenderDistance * 16);
 #endif
 
 void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
+
     uint blockId = max(0u, voxyParameters.customId - 1000u);
     
     vec3 albedo = voxyParameters.sampledColour.rgb * voxyParameters.tinting.rgb;
@@ -66,7 +67,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         bvec3(axis == 2u, axis == 0u, axis == 1u)
     );
 
-    float F0 = 0.0;
+    float F0 = minF0;
 
     float roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0);
 

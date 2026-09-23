@@ -106,7 +106,8 @@
         mat4 projectionInverse0 = gbufferProjectionInverse;
         mat4 projectionInverse1 = gbufferProjectionInverse;
 
-        bool modFragment = false;
+        bool modFragment0 = false;
+        bool modFragment1 = false;
 
         #if defined CHUNK_LOADER_MOD_ENABLED
 
@@ -121,7 +122,7 @@
                 projection0        = modProjection;
                 projectionInverse0 = modProjectionInverse;
 
-                modFragment = true;
+                modFragment0 = true;
             }
 
             if (depth1 >= 1.0) {
@@ -135,7 +136,7 @@
                 projection1        = modProjection;
                 projectionInverse1 = modProjectionInverse;
 
-                modFragment = true;
+                modFragment1 = true;
             }
             
         #endif
@@ -159,12 +160,12 @@
 
             #if REFRACTIONS > 0
             
-                if (!modFragment && material.F0 > EPS) {
+                if (!modFragment0 && material.F0 > minRefractionsF0) {
 
                     lightingOut.rgb = computeRefractions(
                         screenPosition0,
-                        modFragment,
-                        projection0,
+                        modFragment1,
+                        projection1,
                         projectionInverse1,
                         viewPosition0,
                         viewPosition1,

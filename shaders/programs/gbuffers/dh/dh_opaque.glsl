@@ -91,7 +91,7 @@
 
         vec3 normal = vertexNormal;
 
-        float F0 = 0.0;
+        float F0 = minF0;
 
         float roughness = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0);
 

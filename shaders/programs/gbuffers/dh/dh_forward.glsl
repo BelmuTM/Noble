@@ -139,7 +139,7 @@
 
             // Forward diffuse lighting
 
-            material.F0 = 0.0;
+            material.F0 = minF0;
 
             material.alpha = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 0.0);
 

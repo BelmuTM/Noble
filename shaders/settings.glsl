@@ -100,6 +100,9 @@ const float shadowNearPlane = -1.0;
 /*------------------- LABPBR SUPPORT -------------------*/
 //////////////////////////////////////////////////////////
 
+const float minF0            = 0.017;
+const float minRefractionsF0 = 0.019;
+
 const float hardcodedRoughness = 0.0; // 0.0 = OFF
 
 #define EMISSIVE_INTENSITY 600 

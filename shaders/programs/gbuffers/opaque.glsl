@@ -239,7 +239,7 @@
 
         vec2 lightmap = lightmapCoords;
 
-        float F0 		 = specularTexture.y;
+        float F0 		 = max(minF0, specularTexture.y);
         float ao 		 = normalTexture.z;
         float roughness  = saturate(hardcodedRoughness != 0.0 ? hardcodedRoughness : 1.0 - specularTexture.x);
         float emission   = specularTexture.w * maxFloat8 < 254.5 ? specularTexture.w : 0.0;
@@ -253,7 +253,7 @@
 
         // Normal map decoding + directional lightmaps
         
-        #if !defined PROGRAM_BLOCK && !defined PROGRAM_BEACONBEAM
+        #if !defined PROGRAM_BEACONBEAM
 
             if (all(greaterThan(normalTexture, vec4(EPS)))) {
 
@@ -261,7 +261,7 @@
                 normal.z  = fastSqrtN1(1.0 - saturate(dot(normal.xy, normal.xy)));
                 normal    = tbn * normal;
 
-                #if DIRECTIONAL_LIGHTMAP == 1
+                #if DIRECTIONAL_LIGHTMAP == 1 && !defined PROGRAM_BLOCK
 
                     lightmap = computeLightmap(scenePosition, normalize(normal));
 

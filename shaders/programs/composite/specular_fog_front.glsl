@@ -165,6 +165,8 @@
 
                             #if DH_SHADOWS == 1
                                 bool lodShadowsEnabled = true;
+                            #else
+                                bool lodShadowsEnabled = false;
                             #endif
 
                             if (!modFragment || lodShadowsEnabled) {
