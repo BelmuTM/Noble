@@ -308,6 +308,10 @@ float calculateAirFogPhase(float cosTheta) {
 
             for (int i = 0; i < fogStepCount && maxOf(transmittanceGround) > EPS; i++) {
 
+                // Incrementing rays
+                fogRayPosition    += fogIncrement;
+                fogShadowPosition += fogShadowIncrement;
+
                 // Shadows sampling
 
                 vec3 shadow = vec3(1.0);
@@ -340,10 +344,6 @@ float calculateAirFogPhase(float cosTheta) {
                     transmittanceGround *= stepTransmittanceFog;
 
                 }
-
-                // Incrementing rays
-                fogRayPosition    += fogIncrement;
-                fogShadowPosition += fogShadowIncrement;
             }
         }
 
