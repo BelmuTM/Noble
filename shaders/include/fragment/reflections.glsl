@@ -222,6 +222,7 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
         vec3 hitPosition = vec3(0.0);
 
         if (NdotL > 0.0) {
+            
             if (modFragment) {
                 
                 hit = float(raytrace(

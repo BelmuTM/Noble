@@ -27,7 +27,7 @@ uniform ivec2 eyeBrightness;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float rcp240;
 
-float jitter = temporalBlueNoise(SCREEN_COORDS);
+float jitter = interleavedGradientNoise(SCREEN_COORDS);
 
 #if defined WORLD_OVERWORLD
 

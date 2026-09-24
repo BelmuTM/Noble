@@ -20,7 +20,7 @@
 
 #include "/settings.glsl"
 
-#if REFLECTIONS == 1
+#if REFLECTIONS > 0
 
     #include "/include/taau_scale.glsl"
 
@@ -128,7 +128,7 @@
 
         // Discard reflections if material's F0 is too low or if roughness is too high
 
-        if (F0 <= EPS || alpha > REFLECTIONS_ROUGHNESS_THRESHOLD) {
+        if (F0 < EPS || alpha > REFLECTIONS_ROUGHNESS_THRESHOLD) {
             STORE_REFLECTIONS(bufferCoords, reflections);
             return;
         }
@@ -203,7 +203,7 @@
                 vec2  pixelCenterDist  = 1.0 - abs(fract(prevPosition.xy * viewSize) * 2.0 - 1.0);
                 float centerWeightHand = isHand ? sqrt(pixelCenterDist.x * pixelCenterDist.y) * 0.3 : 1.0;
 
-                float weight = 0.975;
+                float weight = 0.989;
 
                 weight *= depthWeight * velocityWeight * centerWeightHand;
                 weight *= mix(1.0, 0.5, float(isWater));
