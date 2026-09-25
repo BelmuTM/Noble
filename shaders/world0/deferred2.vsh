@@ -1,5 +1,6 @@
 #version 430 compatibility
 
 #define STAGE_VERTEX
+#define WORLD_OVERWORLD
 
-#include "/programs/deferred/ambient_occlusion_write.glsl"
+#include "/programs/deferred/clouds_write.glsl"

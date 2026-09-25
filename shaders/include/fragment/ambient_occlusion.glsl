@@ -33,8 +33,6 @@
     }
 
     float findMaximumHorizonAngle(
-        sampler2D depthTex,
-        mat4 projectionInverse,
         vec3 viewPosition,
         vec3 viewDirection,
         vec3 normal,
@@ -42,21 +40,19 @@
     ) {
         float horizonCosTheta = -1.0;
 
-        const float cosThetaThreshold = 0.95; // We can stop searching once cosTheta approaches 1
+        float stepSize = GTAO_RADIUS * RCP_GTAO_HORIZON_STEPS;
 
-        float stepSize = GTAO_RADIUS * RCP_GTAO_HORIZON_STEPS * gbufferProjection[1][1];
-
-        vec2 sliceStep = viewToScreen(viewPosition + viewSliceDirection * stepSize, gbufferProjection, true).xy - textureCoords;
+        vec2 sliceStep = viewToScreen(viewPosition + viewSliceDirection * stepSize, projectionMatrix, true).xy - textureCoords;
 
         vec2 slicePosition = textureCoords + sliceStep * rand2F();
 
         for (int i = 0; i < GTAO_HORIZON_STEPS; i++, slicePosition += sliceStep) {
 
-            float depth = texelFetch(depthTex, ivec2(slicePosition * viewSize * RENDER_SCALE), 0).r;
+            float depth = texelFetch(depthBuffer1, ivec2(slicePosition * viewSize * RENDER_SCALE), 0).r;
 
             if (insideScreenBounds(vec3(slicePosition, depth), 1.0)) {
 
-                vec3 horizonVec = screenToView(vec3(slicePosition, depth), projectionInverse, true) - viewPosition;
+                vec3 horizonVec = screenToView(vec3(slicePosition, depth), projectionInverseMatrix, true) - viewPosition;
 
                 float cosTheta = mix(
                     dot(horizonVec, viewDirection) * fastRcpLength(horizonVec),
@@ -71,7 +67,8 @@
         return fastAcos(horizonCosTheta);
     }
 
-    float GTAO(sampler2D depthTex, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+    float GTAO(vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+        
         float visibility = 0.0;
 
         // World-space radius
@@ -100,8 +97,10 @@
 
             // Horizon search
             vec2 horizons = vec2(
-                -findMaximumHorizonAngle(depthTex, projectionInverse, viewPosition, viewDirection, normal, -viewSliceDirection),
-                 findMaximumHorizonAngle(depthTex, projectionInverse, viewPosition, viewDirection, normal,  viewSliceDirection)
+                // Negative horizon
+                -findMaximumHorizonAngle(viewPosition, viewDirection, normal, -viewSliceDirection),
+                // Positive horizon
+                findMaximumHorizonAngle(viewPosition, viewDirection, normal, viewSliceDirection)
             );
 
             // Each slice covers PI radians, thus we clamp the angles to the [-PI/2; PI/2] range
@@ -118,7 +117,7 @@
             bentNormal += viewDirection * cos(bentAngle) + orthoDirection * sin(bentAngle);
         }
 
-        bentNormal = normalize(bentNormal) - 0.5 * viewDirection;
+        bentNormal = normalize(normalize(bentNormal) - 0.5 * viewDirection);
 
         float ao = 1.0 - saturate((1.0 - visibility * RCP_GTAO_SLICES) * aoStrength);
 
@@ -127,22 +126,23 @@
 
 #elif AO == 2
 
-    float SSAO(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+    float SSAO(vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
 
         float occlusion        = 0.0;
         float visibilityWeight = 0.0;
 
         for (int i = 0; i < SSAO_SAMPLES; i++) {
+
             vec3 rayDirection = generateCosineVector(normal, rand2F());
             vec3 rayPosition  = viewPosition + rayDirection * SSAO_RADIUS;
 
-            vec2 sampleCoords = viewToScreen(rayPosition, projection, true).xy;
+            vec2 sampleCoords = viewToScreen(rayPosition, projectionMatrix, true).xy;
 
             ivec2 coords = ivec2(sampleCoords * viewSize * RENDER_SCALE);
 
-            float sampleDepth = texelFetch(depthTex, ivec2(coords), 0).r;
+            float sampleDepth = texelFetch(depthBuffer1, ivec2(coords), 0).r;
 
-            float rayDepth = screenToView(vec3(sampleCoords, sampleDepth), projectionInverse, true).z;
+            float rayDepth = screenToView(vec3(sampleCoords, sampleDepth), projectionInverseMatrix, true).z;
 
             float contribution  = step(rayPosition.z + EPS, rayDepth);
                   contribution *= quinticStep(0.0, 1.0, SSAO_RADIUS / abs(viewPosition.z - rayDepth));
@@ -163,21 +163,23 @@
 
     #include "/include/fragment/raytracer.glsl"
 
-    float RTAO(sampler2D depthTex, mat4 projection, mat4 projectionInverse, vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+    float RTAO(vec3 viewPosition, vec3 normal, out vec3 bentNormal) {
+
         float visibility = 1.0;
 
         vec3 hitPosition = vec3(0.0);
         float rayLength;
 
         for (int i = 0; i < RTAO_SAMPLES; i++) {
+
             vec3 rayDirection = generateCosineVector(normal, rand2F());
 
             float jitter = randF();
 
             bool hit = raytrace(
-                depthTex,
-                projection,
-                projectionInverse,
+                depthBuffer1,
+                projectionMatrix,
+                projectionInverseMatrix,
                 viewPosition,
                 rayDirection,
                 float(RTAO_STRIDE),

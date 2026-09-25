@@ -33,11 +33,11 @@ float jitter = interleavedGradientNoise(SCREEN_COORDS);
 
     // Overworld
 
-    const vec3 mistFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(MIST_ABSORPTION_R, MIST_ABSORPTION_G, MIST_ABSORPTION_B) * 0.01);
-    const vec3 mistFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(MIST_SCATTERING_R, MIST_SCATTERING_G, MIST_SCATTERING_B) * 0.01);
+    const vec3 mistFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(MIST_ABSORPTION_R, MIST_ABSORPTION_G, MIST_ABSORPTION_B) * 0.01);
+    const vec3 mistFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(MIST_SCATTERING_R, MIST_SCATTERING_G, MIST_SCATTERING_B) * 0.01);
 
-    const vec3 sandFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(SANDSTORMS_ABSORPTION_R, SANDSTORMS_ABSORPTION_G, SANDSTORMS_ABSORPTION_B) * 0.01);
-    const vec3 sandFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(SANDSTORMS_SCATTERING_R, SANDSTORMS_SCATTERING_G, SANDSTORMS_SCATTERING_B) * 0.01);
+    const vec3 sandFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(SANDSTORMS_ABSORPTION_R, SANDSTORMS_ABSORPTION_G, SANDSTORMS_ABSORPTION_B) * 0.01);
+    const vec3 sandFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(SANDSTORMS_SCATTERING_R, SANDSTORMS_SCATTERING_G, SANDSTORMS_SCATTERING_B) * 0.01);
 
     vec3 airFogAbsorptionCoefficients = mix(mistFogAbsorptionCoefficients, sandFogAbsorptionCoefficients, biome_may_sandstorm);
     vec3 airFogScatteringCoefficients = mix(mistFogScatteringCoefficients, sandFogScatteringCoefficients, biome_may_sandstorm);
@@ -53,8 +53,8 @@ float jitter = interleavedGradientNoise(SCREEN_COORDS);
 
     // Nether
 
-    const vec3 airFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(NETHER_ABSORPTION_R, NETHER_ABSORPTION_G, NETHER_ABSORPTION_B) * 0.01);
-    const vec3 airFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(NETHER_SCATTERING_R, NETHER_SCATTERING_G, NETHER_SCATTERING_B) * 0.01);
+    const vec3 airFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(NETHER_ABSORPTION_R, NETHER_ABSORPTION_G, NETHER_ABSORPTION_B) * 0.01);
+    const vec3 airFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(NETHER_SCATTERING_R, NETHER_SCATTERING_G, NETHER_SCATTERING_B) * 0.01);
 
     const float fogAltitude     = max(0.0, FOG_ALTITUDE - SEA_LEVEL);
     const float fogThickness    = FOG_THICKNESS * 2.0;
@@ -66,11 +66,11 @@ float jitter = interleavedGradientNoise(SCREEN_COORDS);
 
     // End
 
-    const vec3 endFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(END_ABSORPTION_R, END_ABSORPTION_G, END_ABSORPTION_B) * 0.01);
-    const vec3 endFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(END_SCATTERING_R, END_SCATTERING_G, END_SCATTERING_B) * 0.01);
+    const vec3 endFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(END_ABSORPTION_R, END_ABSORPTION_G, END_ABSORPTION_B) * 0.01);
+    const vec3 endFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(END_SCATTERING_R, END_SCATTERING_G, END_SCATTERING_B) * 0.01);
 
-    const vec3 endFogFlashAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(0.10, 0.05, 0.10));
-    const vec3 endFogFlashScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(1.00, 1.00, 1.00));
+    const vec3 endFogFlashAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(0.10, 0.05, 0.10));
+    const vec3 endFogFlashScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(1.00, 1.00, 1.00));
 
     float airFogTransitionFactor = sin(frameTimeCounter * 2.0);
 
@@ -158,10 +158,6 @@ float calculateAirFogPhase(float cosTheta) {
     uniform sampler3D depthtex2;
 
     float getAirFogDensity(vec3 position) {
-        
-        if (clamp(position.y, fogAltitude, fogAltitude + fogThickness) != position.y) {
-            return 0.0;
-        }
 
         float altitude   = (position.y - fogAltitude) / fogThickness;
         float shapeAlter = remap(altitude, 0.0, 0.2, 0.0, 1.0) * remap(altitude, 0.9, 1.0, 1.0, 0.0);
@@ -205,7 +201,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             float innerRadius    = 30.0;
             float outerRingStart = 70.0;
-            float outerRingEnd   = 160.0;
+            float outerRingEnd   = 250.0;
 
             float distanceFromCenter = length(position.xz);
 

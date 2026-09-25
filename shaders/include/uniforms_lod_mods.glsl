@@ -79,3 +79,76 @@
     #define modDepthTex1 depthtex1
 
 #endif
+
+#if defined CHUNK_LOD_MOD_ENABLED
+
+    // https://shaderlabs.org/wiki/Shader_Tricks#Constructing_Perspective_Projection_Matrices
+
+    mat4 combinedProjection = mat4(
+        // Row 1
+        gbufferProjection[0][0],
+        0.0,
+        0.0,
+        0.0,
+
+        // Row 2
+        0.0,
+        gbufferProjection[1][1],
+        0.0,
+        0.0,
+
+        // Row 3
+        gbufferProjection[2][0],
+        gbufferProjection[2][1],
+        (farPlane + nearPlane) / (nearPlane - farPlane),
+        -1.0,
+
+        // Row 4
+        0.0,
+        0.0,
+        (2.0 * farPlane * nearPlane) / (nearPlane - farPlane),
+        0.0
+    );
+
+    mat4 combinedProjectionInverse = mat4(
+        // Row 1
+        gbufferProjectionInverse[0][0],
+        0.0,
+        0.0,
+        0.0,
+
+        // Row 2
+        0.0,
+        gbufferProjectionInverse[1][1],
+        0.0,
+        0.0,
+        
+        // Row 3
+        0.0,
+        0.0,
+        0.0,
+        -(farPlane - nearPlane) / (2.0 * farPlane * nearPlane),
+
+        // Row 4
+        gbufferProjectionInverse[3][0],
+        gbufferProjectionInverse[3][1],
+        -1.0,
+        (farPlane + nearPlane) / (2.0 * farPlane * nearPlane)
+        
+    );
+
+    #define projectionMatrix        combinedProjection
+    #define projectionInverseMatrix combinedProjectionInverse
+
+    #define depthBuffer0 COMBINED_DEPTH0_BUFFER
+    #define depthBuffer1 COMBINED_DEPTH1_BUFFER
+
+#else
+
+    #define projectionMatrix        gbufferProjection
+    #define projectionInverseMatrix gbufferProjectionInverse
+
+    #define depthBuffer0 depthtex0
+    #define depthBuffer1 depthtex1
+
+#endif

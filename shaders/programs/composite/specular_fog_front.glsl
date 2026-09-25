@@ -85,37 +85,12 @@
 
         // Specular setup
 
-        bool modFragment = false;
+        float depth0 = texture(depthBuffer0, vertexCoords).r;
+        float depth1 = texture(depthBuffer1, vertexCoords).r;
 
-        float depth0 = texture(depthtex0, vertexCoords).r;
-        float depth1 = texture(depthtex1, vertexCoords).r;
+        vec3 screenPosition1 = vec3(vertexCoords, depth1);
 
-        mat4 projection        = gbufferProjection;
-        mat4 projectionInverse = gbufferProjectionInverse;
-
-        #if defined CHUNK_LOADER_MOD_ENABLED
-
-            if (depth0 >= 1.0) {
-                
-                modFragment = true;
-
-                #if defined VOXY
-                    depth0 = texture(modDepthTex0, textureCoords).r;
-                    depth1 = texture(modDepthTex1, textureCoords).r;
-                #else
-                    depth0 = texture(modDepthTex0, vertexCoords).r;
-                    depth1 = texture(modDepthTex1, vertexCoords).r;
-                #endif
-                        
-                projection        = modProjection;
-                projectionInverse = modProjectionInverse;
-            }
-            
-        #endif
-
-        vec3 screenPosition = vec3(vertexCoords, depth1);
-
-        vec3 viewPosition0 = screenToView(vec3(textureCoords, depth0), projectionInverse, true);
+        vec3 viewPosition0 = screenToView(vec3(textureCoords, depth0), projectionInverseMatrix, true);
 
         vec3 scenePosition0 = viewToWorld(viewPosition0);
 
@@ -169,10 +144,9 @@
                                 bool lodShadowsEnabled = false;
                             #endif
 
-                            if (!modFragment || lodShadowsEnabled) {
 
                                 if (isOpaque) {
-                                    visibility = texture(SHADOWMAP_BUFFER, max(screenPosition.xy, texelSize)).rgb;
+                                    visibility = texture(SHADOWMAP_BUFFER, max(screenPosition1.xy, texelSize)).rgb;
 
                                 } else {
 
@@ -186,7 +160,7 @@
                                                : vec3(1.0);
                                 }
 
-                            }
+                            
 
                         #endif
 
@@ -258,7 +232,7 @@
             
         #endif
 
-        bool sky = depth0 == 1.0;
+        bool sky = depth0 >= 1.0;
 
         if (isEyeInWater == 1) {
 

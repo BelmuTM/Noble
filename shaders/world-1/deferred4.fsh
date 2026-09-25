@@ -3,4 +3,4 @@
 #define STAGE_FRAGMENT
 #define WORLD_NETHER
 
-#include "/programs/deferred/sky_diffuse_opaque.glsl"
+#include "/programs/deferred/shadows_skylight_write.glsl"

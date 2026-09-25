@@ -67,6 +67,7 @@
         }
 
         vec3 neighbourhoodClipping(sampler2D currTex, vec3 currColor, vec3 history) {
+            
             ivec2 coords = ivec2(gl_FragCoord.xy * RENDER_SCALE);
 
             // Left to right, top to bottom
@@ -106,41 +107,13 @@
 
         #if TAA == 1
         
-            bool  modFragment = false;
-            float depth       = texture(depthtex1, vertexCoords).r;
-
-            mat4 projectionInverse  = gbufferProjectionInverse;
-            mat4 projectionPrevious = gbufferPreviousProjection;
-
-            #if defined CHUNK_LOADER_MOD_ENABLED
-
-                if (depth >= 1.0) {
-                    
-                    modFragment = true;
-                    
-                    #if defined VOXY
-                        depth = texture(modDepthTex1, textureCoords).r;
-                    #else
-                        depth = texture(modDepthTex1, vertexCoords).r;
-                    #endif
-
-                    projectionInverse  = modProjectionInverse;
-                    projectionPrevious = modProjectionPrevious;
-                }
-                
-            #endif
+            float depth = texture(depthBuffer1, vertexCoords).r;
 
             vec3 currFragment = vec3(textureCoords, depth);
 
-            vec3 closestFragment;
+            vec3 closestFragment = getClosestFragment(depthBuffer1, currFragment);
 
-            if (modFragment) {
-                closestFragment = getClosestFragment(modDepthTex1, currFragment);
-            } else {
-                closestFragment = getClosestFragment(depthtex1, currFragment);
-            }
-
-            vec2 velocity   = getVelocity(closestFragment, projectionInverse, projectionPrevious).xy;
+            vec2 velocity   = getVelocity(closestFragment, projectionInverseMatrix, gbufferPreviousProjection).xy;
             vec2 prevCoords = textureCoords + velocity;
 
             if (insideScreenBounds(prevCoords, 1.0)) {

@@ -97,60 +97,25 @@
 
         // Fog setup
 
-        float depth0 = texture(depthtex0, vertexCoords).r;
-        float depth1 = texture(depthtex1, vertexCoords).r;
+        float depth0 = texture(depthBuffer0, vertexCoords).r;
 
-        mat4 projection0 = gbufferProjection;
-        mat4 projection1 = gbufferProjection;
+        if (depth0 >= 1.0) {
+            lightingOut *= exposure;
+            return;
+        }
 
-        mat4 projectionInverse0 = gbufferProjectionInverse;
-        mat4 projectionInverse1 = gbufferProjectionInverse;
-
-        bool modFragment0 = false;
-        bool modFragment1 = false;
-
-        #if defined CHUNK_LOADER_MOD_ENABLED
-
-            if (depth0 >= 1.0) {
-        
-                #if defined VOXY
-                    depth0 = texture(modDepthTex0, textureCoords).r;
-                #else
-                    depth0 = texture(modDepthTex0, vertexCoords).r;
-                #endif
-                
-                projection0        = modProjection;
-                projectionInverse0 = modProjectionInverse;
-
-                modFragment0 = true;
-            }
-
-            if (depth1 >= 1.0) {
-        
-                #if defined VOXY
-                    depth1 = texture(modDepthTex1, textureCoords).r;
-                #else
-                    depth1 = texture(modDepthTex1, vertexCoords).r;
-                #endif
-                
-                projection1        = modProjection;
-                projectionInverse1 = modProjectionInverse;
-
-                modFragment1 = true;
-            }
-            
-        #endif
+        float depth1 = texture(depthBuffer1, vertexCoords).r;
 
         vec3 screenPosition0 = vec3(textureCoords, depth0);
         vec3 screenPosition1 = vec3(textureCoords, depth1);
 
-        vec3 viewPosition0 = screenToView(screenPosition0, projectionInverse0, true);
-        vec3 viewPosition1 = screenToView(screenPosition1, projectionInverse1, true);
+        vec3 viewPosition0 = screenToView(screenPosition0, projectionInverseMatrix, true);
+        vec3 viewPosition1 = screenToView(screenPosition1, projectionInverseMatrix, true);
 
         vec3 scatteringBack    = vec3(0.0);
         vec3 transmittanceBack = vec3(1.0);
 
-        if (depth0 < 1.0 && (viewPosition0.z != viewPosition1.z)) {
+        if (viewPosition0.z != viewPosition1.z) {
 
             Material material = getMaterial(vertexCoords);
 
@@ -160,13 +125,10 @@
 
             #if REFRACTIONS > 0
             
-                if (!modFragment0 && material.F0 > minRefractionsF0) {
+                if (material.F0 > minRefractionsF0) {
 
                     lightingOut.rgb = computeRefractions(
                         screenPosition0,
-                        modFragment1,
-                        projection1,
-                        projectionInverse1,
                         viewPosition0,
                         viewPosition1,
                         material.albedo,
@@ -186,12 +148,12 @@
             /*---------------- FRONT TO BACK FOG -------------------*/
             //////////////////////////////////////////////////////////
 
-            bool skyTranslucents = screenPosition1.z >= 1.0;
+            bool skyTranslucents = depth1 >= 1.0;
 
             float skyLight = getSkylightFalloff(material.lightmap.y);
 
             vec3 scenePosition0 = viewToWorld(viewPosition0);
-            vec3 scenePosition1 = viewToWorld(screenToView(screenPosition1, projectionInverse1, true));
+            vec3 scenePosition1 = viewToWorld(screenToView(screenPosition1, projectionInverseMatrix, true));
         
             #if defined OVERWORLD_OR_END
 

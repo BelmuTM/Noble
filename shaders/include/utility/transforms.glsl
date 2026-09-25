@@ -152,10 +152,6 @@ vec3 viewToScreen(vec3 viewPosition, mat4 projection, bool unjitter) {
     return ndcPosition * 0.5 + 0.5;
 }
 
-float viewToScreen(float depth, mat4 projection) {
-	return (depth * projection[2].z + projection[3].z) / -depth * 0.5 + 0.5;
-}
-
 vec3 worldToView(vec3 worldPosition) {
     return transform(gbufferModelView, worldPosition);
 }
@@ -175,12 +171,16 @@ float linearizeDepth(float depth) {
     return (nearPlane * farPlane) / (depth * (nearPlane - farPlane) + farPlane);
 }
 
-float linearizeDepth(float depth, mat4 projectionInverse) {
-    return 1.0 / (depth * projectionInverse[2].w + projectionInverse[3].w);
+float screenToViewDepth(float depth, mat4 projectionInverse) {
+    return -projectionInverse[3].z / (projectionInverse[2].w * (depth * 2.0 - 1.0) + projectionInverse[3].w);
 }
 
-vec4 linearizeDepth(vec4 depth, mat4 projectionInverse) {
-    return 1.0 / (depth * projectionInverse[2].w + projectionInverse[3].w);
+vec4 screenToViewDepth(vec4 depth, mat4 projectionInverse) {
+    return -projectionInverse[3].z / (projectionInverse[2].w * (depth * 2.0 - 1.0) + projectionInverse[3].w);
+}
+
+float viewToScreenDepth(float depth, mat4 projection) {
+	return (-projection[2].z * depth + projection[3].z) / depth * 0.5 + 0.5;
 }
 
 float thickenDepth(float depth, float zThickness, mat4 projection) {
@@ -244,7 +244,7 @@ float find2x2MaximumDepth(sampler2D depthTexture, vec2 coords) {
 float find2x2MinimumDepth(sampler2D depthTexture, vec2 coords, int scale) {
     coords *= viewSize;
 
-    return maxOf(vec4(
+    return minOf(vec4(
         texelFetch      (depthTexture, ivec2(coords)        , 0             ).r,
         texelFetchOffset(depthTexture, ivec2(coords) * scale, 0, ivec2(1, 0)).r,
         texelFetchOffset(depthTexture, ivec2(coords) * scale, 0, ivec2(0, 1)).r,

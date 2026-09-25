@@ -1,6 +1,6 @@
 #version 430 compatibility
 
 #define STAGE_FRAGMENT
-#define WORLD_NETHER
+#define WRITE_DEPTH_1
 
-#include "/programs/deferred/atmosphere_write.glsl"
+#include "/programs/composite/combined_depth_write.glsl"

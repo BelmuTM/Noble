@@ -101,26 +101,9 @@
             if (!insideScreenBounds(fragCoords, RENDER_SCALE)) { return; }
         #endif
 
-        bool modFragment = false;
+        float depth = texture(depthBuffer1, vertexCoords).r;
 
-        float depth = texture(depthtex0, vertexCoords).r;
-
-        #if defined CHUNK_LOADER_MOD_ENABLED
-
-            if (depth >= 1.0) {
-                
-                modFragment = true;
-
-                #if defined VOXY
-                    depth = texture(modDepthTex0, textureCoords).r;
-                #else
-                    depth = texture(modDepthTex0, vertexCoords).r;
-                #endif
-            }
-            
-        #endif
-
-        uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
+        uvec4 dataTexture = texelFetch(GBUFFERS_DATA_BUFFER, ivec2(vertexCoords * viewSize), 0);
 
         //////////////////////////////////////////////////////////
         /*--------------------- ILLUMINANCE --------------------*/
@@ -184,21 +167,9 @@
 
             // Sky check
 
-            if (depth == 1.0) {
+            if (depth >= 1.0) {
                 return;
             }
-
-            mat4 projection        = gbufferProjection;
-            mat4 projectionInverse = gbufferProjectionInverse;
-
-            #if defined CHUNK_LOADER_MOD_ENABLED
-
-                if (modFragment) {
-                    projection        = modProjection;
-                    projectionInverse = modProjectionInverse;
-                }
-                
-            #endif
 
             // Shadowmapping
 
@@ -207,7 +178,7 @@
             setBillboardNormal(normal, unpackId(dataTexture.x));
 
             vec3 screenPosition = vec3(textureCoords, depth);
-            vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
+            vec3 viewPosition   = screenToView(screenPosition, projectionInverseMatrix, true);
             vec3 scenePosition  = viewToWorld(viewPosition);
 
             shadowmapOut = calculateShadowMapping(scenePosition, normal, depth);
@@ -224,26 +195,12 @@
 
             #if CONTACT_SHADOWS == 1
 
-                float contactShadows = 1.0;
-
                 normal        = mat3(gbufferModelView) * normal;
                 viewPosition += normal * 1e-2;
 
                 float subsurfaceDepth = 0.0;
 
-                if (modFragment) {
-
-                    contactShadows = traceContactShadows(
-                        modDepthTex0, projection, projectionInverse, screenPosition, viewPosition, RENDER_SCALE, subsurfaceDepth
-                    );
-
-                } else {
-
-                    contactShadows = traceContactShadows(
-                        depthtex0, projection, projectionInverse, screenPosition, viewPosition, RENDER_SCALE, subsurfaceDepth
-                    );
-                    
-                }
+                float contactShadows = traceContactShadows(screenPosition, viewPosition, RENDER_SCALE, subsurfaceDepth);
 
                 // Use the subsurface depth from contact shadows if the one from shadow mapping is undefined/invalid
                 #if defined VOXY

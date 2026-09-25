@@ -67,21 +67,11 @@
 
             cloudsOut = vec4(0.0, 0.0, 1.0, cloudsFallbackDistance);
 
-            bool  modFragment = false;
-            float depth       = texture(depthtex0, vertexCoords).r;
+            float depth = texture(depthBuffer1, vertexCoords).r;
 
-            if (depth < handDepth) { return; }
-
-            mat4 projectionInverse = gbufferProjectionInverse;
-
-            #if defined CHUNK_LOADER_MOD_ENABLED
-
-                if (depth >= 1.0) {
-                    modFragment       = true;
-                    projectionInverse = modProjectionInverse;
-                }
-                
-            #endif
+            if (depth < handDepth) {
+                return;
+            }
 
             // Cloudmap rendering
 
@@ -101,15 +91,13 @@
 
             #endif
 
-            if (modFragment) {
-                if (find2x2MaximumDepth(modDepthTex0, vertexCoords) < 1.0) { return; }
-            } else {
-                if (find2x2MaximumDepth(depthtex0, vertexCoords) < 1.0) { return; }
+            if (find2x2MaximumDepth(depthBuffer1, vertexCoords) < 1.0) {
+                return;
             }
 
             // Cloud layers tracing
 
-            vec3 viewPosition       = screenToView(vec3(textureCoords, 1.0), projectionInverse, false);
+            vec3 viewPosition       = screenToView(vec3(textureCoords, 1.0), projectionInverseMatrix, false);
             vec3 cloudsRayDirection = mat3(gbufferModelViewInverse) * normalize(viewPosition);
 
             vec4 layer0 = vec4(0.0, 0.0, 1.0, cloudsFallbackDistance);

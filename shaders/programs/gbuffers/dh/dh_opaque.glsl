@@ -81,7 +81,11 @@
         #endif
 
         float fragDistance = length(scenePosition);
-        if (fragDistance < 0.5 * far) { return; }
+        
+        if (fragDistance < 0.5 * far) {
+            discard;
+            return;
+        }
 
         vec3 albedo = vertexColor.rgb;
 

@@ -37,9 +37,6 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
 #if REFRACTIONS == 1
 
     bool newtonRefraction(
-        sampler2D depthTexture,
-        mat4 projection,
-        mat4 projectionInverse,
         vec3 viewPosition0,
         vec3 viewPosition1,
         vec3 rayDirection,
@@ -60,15 +57,15 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
             vec3  tangentPointView = viewPosition0 + rayDirection * tangentPlaneDist;
 
             // Projecting the tangent point to screen space from the depth buffer
-            vec3 tangentPointScreen = viewToScreen(tangentPointView, projection, true);
+            vec3 tangentPointScreen = viewToScreen(tangentPointView, projectionMatrix, true);
 
             if (insideScreenBounds(tangentPointScreen.xy, 1.0)) {
 
                 ivec2 tangentPointCoords = ivec2(tangentPointScreen.xy * viewSize * RENDER_SCALE);
-                vec3  rayPositionScreen  = vec3(tangentPointScreen.xy, texelFetch(depthTexture, tangentPointCoords, 0).r);
+                vec3  rayPositionScreen  = vec3(tangentPointScreen.xy, texelFetch(depthBuffer1, tangentPointCoords, 0).r);
 
-                viewPosition1 = screenToView(rayPositionScreen, projectionInverse, true);
-                normal        = unpackNormal(texelFetch(GBUFFERS_DATA, tangentPointCoords, 0).w);
+                viewPosition1 = screenToView(rayPositionScreen, projectionInverseMatrix, true);
+                normal        = unpackNormal(texelFetch(GBUFFERS_DATA_BUFFER, tangentPointCoords, 0).w);
 
                 // If the ray's position is close enough, success
                 if (distance(tangentPointView, viewPosition1) < distanceThreshold) {
@@ -87,9 +84,6 @@ float kneemundAttenuation(vec2 pos, float edgeFactor) {
 
 vec3 computeRefractions(
     vec3 screenPosition,
-    bool modFragment,
-    mat4 projection,
-    mat4 projectionInverse,
     vec3 viewPosition0,
     vec3 viewPosition1,
     vec3 albedo,
@@ -114,70 +108,32 @@ vec3 computeRefractions(
 
     #if REFRACTIONS == 1
 
-        if (modFragment) {
-
-            hit = newtonRefraction(
-                modDepthTex1,
-                projection,
-                projectionInverse,
-                viewPosition0,
-                viewPosition1,
-                refractedDirection,
-                normal,
-                refractedPosition
-            );
-
-        } else {
-
-            hit = newtonRefraction(
-                depthtex1,
-                projection,
-                projectionInverse,
-                viewPosition0,
-                viewPosition1,
-                refractedDirection,
-                normal,
-                refractedPosition
-            );        
-
-        }
+        hit = newtonRefraction(
+            viewPosition0,
+            viewPosition1,
+            refractedDirection,
+            normal,
+            refractedPosition
+        );        
 
     #elif REFRACTIONS == 2
 
         float jitter = temporalBlueNoise(SCREEN_COORDS);
-        float rayLength;
 
-        if (modFragment) {
+        float rayLength = 0.0;
 
-            hit = raytrace(
-                modDepthTex1,
-                projection,
-                projectionInverse,
-                viewPosition0,
-                refractedDirection,
-                float(REFRACTIONS_STRIDE),
-                jitter,
-                RENDER_SCALE,
-                refractedPosition,
-                rayLength
-            );
-
-        } else {
-
-            hit = raytrace(
-                depthtex1,
-                projection,
-                projectionInverse,
-                viewPosition0,
-                refractedDirection,
-                float(REFRACTIONS_STRIDE),
-                jitter,
-                RENDER_SCALE,
-                refractedPosition,
-                rayLength
-            );
-
-        }
+        hit = raytrace(
+            depthBuffer1,
+            projectionMatrix,
+            projectionInverseMatrix,
+            viewPosition0,
+            refractedDirection,
+            float(REFRACTIONS_STRIDE),
+            jitter,
+            RENDER_SCALE,
+            refractedPosition,
+            rayLength
+        );
 
     #endif
 
@@ -204,7 +160,11 @@ vec3 computeRefractions(
 
     if (id != NETHER_PORTAL_ID) {
 
-        density = abs(linearizeDepth(screenPosition.z, projectionInverse) - linearizeDepth(refractedPosition.z, projectionInverse));
+        density = abs(
+            screenToViewDepth(screenPosition.z, projectionInverseMatrix)
+          - screenToViewDepth(refractedPosition.z, projectionInverseMatrix)
+        );
+
         density = clamp(density, 0.0, 2.0);
     }
 

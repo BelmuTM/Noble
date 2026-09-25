@@ -92,36 +92,16 @@
 
         vec4 reflections = vec4(0.0);
 
-        bool  modFragment = false;
-        float depth       = texelFetch(depthtex0, coords, 0).r;
-
-        mat4 projection         = gbufferProjection;
-        mat4 projectionInverse  = gbufferProjectionInverse;
-        mat4 projectionPrevious = gbufferPreviousProjection;
-
-        #if defined CHUNK_LOADER_MOD_ENABLED
-
-            if (depth >= 1.0) {
-                
-                modFragment = true;
-                
-                depth = texelFetch(modDepthTex0, coords, 0).r;
-                
-                projection         = modProjection;
-                projectionInverse  = modProjectionInverse;
-                projectionPrevious = modProjectionPrevious;
-            }
-            
-        #endif
+        float depth = texelFetch(depthBuffer0, coords, 0).r;
 
         // Discard sky fragments
 
-        if (depth == 1.0) {
+        if (depth >= 1.0) {
             STORE_REFLECTIONS(bufferCoords, reflections);
             return;
         }
 
-        uvec4 dataTexture = texelFetch(GBUFFERS_DATA, coords, 0);
+        uvec4 dataTexture = texelFetch(GBUFFERS_DATA_BUFFER, coords, 0);
 
         float F0    = unpackF0(dataTexture.y);
         float alpha = unpackAlpha(dataTexture.z);
@@ -143,15 +123,20 @@
         vec2 pixelCoords       = scaledPixelCoords * RCP_RENDER_SCALE;
 
         vec3 screenPosition = vec3(pixelCoords, depth);
-        vec3 viewPosition   = screenToView(screenPosition, projectionInverse, true);
+        vec3 viewPosition   = screenToView(screenPosition, projectionInverseMatrix, true);
 
         float rayLength = 0.0;
                 
         #if REFLECTIONS == 1
 
             reflections.rgb = computeRoughReflections(
-                modFragment, projection, projectionInverse, viewPosition,
-                unpackNormal(dataTexture.w), getN(albedo, F0), getK(albedo, F0), alpha, unpackLightmap(dataTexture.x).y, isWater,
+                viewPosition,
+                unpackNormal(dataTexture.w),
+                getN(albedo, F0),
+                getK(albedo, F0),
+                alpha,
+                unpackLightmap(dataTexture.x).y,
+                isWater,
                 1.0 / exposure,
                 rayLength
             );
@@ -159,8 +144,13 @@
         #elif REFLECTIONS == 2
 
             reflections.rgb = computeSmoothReflections(
-                modFragment, projection, projectionInverse, viewPosition,
-                unpackNormal(dataTexture.w), getN(albedo, F0), getK(albedo, F0), alpha, unpackLightmap(dataTexture.x).y, isWater,
+                viewPosition,
+                unpackNormal(dataTexture.w),
+                getN(albedo, F0),
+                getK(albedo, F0),
+                alpha,
+                unpackLightmap(dataTexture.x).y,
+                isWater,
                 1.0 / exposure,
                 rayLength
             );
@@ -171,7 +161,7 @@
 
         #if REFLECTIONS_FILTER == 1
 
-            vec3 velocity     = getVelocity(screenPosition, projectionInverse, projectionPrevious);
+            vec3 velocity     = getVelocity(screenPosition, projectionInverseMatrix, gbufferPreviousProjection);
             vec3 prevPosition = vec3(scaledPixelCoords, depth) + velocity * RENDER_SCALE;
 
             float reprojectionDepth;
@@ -185,7 +175,7 @@
                 reprojectionDepth = depth + (alpha > 0.1 ? 0.0 : rayLength);
             }
 
-            vec2 velocityReflected   = getVelocity(vec3(pixelCoords, reprojectionDepth), projectionInverse, projectionPrevious).xy;
+            vec2 velocityReflected   = getVelocity(vec3(pixelCoords, reprojectionDepth), projectionInverseMatrix, gbufferPreviousProjection).xy;
             vec2 prevCoordsReflected = scaledPixelCoords + velocityReflected * RENDER_SCALE;
 
             if (insideScreenBounds(prevCoordsReflected, RENDER_SCALE)) {

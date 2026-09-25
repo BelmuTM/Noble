@@ -22,10 +22,10 @@
 
 #define ABOUT 0 // [0 1]
 
-// Chunk loader mods support (Distant Horizons, Voxy)
+// Chunk LOD mods support (Distant Horizons, Voxy)
 #if defined IS_IRIS && (defined DISTANT_HORIZONS || defined VOXY)
 
-    #define CHUNK_LOADER_MOD_ENABLED
+    #define CHUNK_LOD_MOD_ENABLED
     
 #endif
 
@@ -39,28 +39,29 @@
 /*---------------------- BUFFERS -----------------------*/
 //////////////////////////////////////////////////////////
 
-#define MAIN_BUFFER           colortex0
+#define MAIN_BUFFER            colortex0
 
-#define GBUFFERS_DATA         colortex1
+#define GBUFFERS_DATA_BUFFER   colortex1
 
-#define REFLECTIONS_BUFFER    colortex2
-#define SHADOWMAP_BUFFER      colortex3
+#define REFLECTIONS_BUFFER     colortex2
+#define SHADOWMAP_BUFFER       colortex3
 
-#define ILLUMINANCE_BUFFER    colortex5
-#define ATMOSPHERE_BUFFER     colortex6
-#define CLOUDS_BUFFER         colortex7
+#define ILLUMINANCE_BUFFER     colortex5
+#define ATMOSPHERE_BUFFER      colortex6
+#define CLOUDS_BUFFER          colortex7
 
-#define TEMPORAL_DATA_BUFFER  colortex4
-#define HISTORY_BUFFER        colortex8
+#define TEMPORAL_DATA_BUFFER   colortex4
+#define HISTORY_BUFFER         colortex8
 
-#define AO_BUFFER             colortex12
+#define AO_BUFFER              colortex12
 
-#define CLOUDMAP_BUFFER       colortex14
+#define CLOUDMAP_BUFFER        colortex14
 
-#define LUT_BUFFER            colortex6
-#define GBUFFERS_BASIC_BUFFER colortex15
+#define LUT_BUFFER             colortex6
+#define GBUFFERS_BASIC_BUFFER  colortex15
 
-// #define DEPTH_MIPMAP_BUFFER   colortex13
+#define COMBINED_DEPTH0_BUFFER colortex9
+#define COMBINED_DEPTH1_BUFFER colortex13
 
 //////////////////////////////////////////////////////////
 /*----------------- OPTIFINE CONSTANTS -----------------*/

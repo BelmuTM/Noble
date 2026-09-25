@@ -58,35 +58,13 @@
 
             // Ambient occlusion setup
             
-            bool  modFragment = false;
-            float depth       = texture(depthtex0, vertexCoords).r;
+            float depth = texture(depthBuffer1, vertexCoords).r;
 
-            mat4 projection         = gbufferProjection;
-            mat4 projectionInverse  = gbufferProjectionInverse;
-            mat4 projectionPrevious = gbufferPreviousProjection;
+            if (depth >= 1.0) { 
+                return;
+            }
 
-            #if defined CHUNK_LOADER_MOD_ENABLED
-
-                if (depth >= 1.0) {
-                    
-                    modFragment = true;
-
-                    #if defined VOXY
-                        depth = texture(modDepthTex0, textureCoords).r;
-                    #else
-                        depth = texture(modDepthTex0, vertexCoords).r;
-                    #endif
-                    
-                    projection         = modProjection;
-                    projectionInverse  = modProjectionInverse;
-                    projectionPrevious = modProjectionPrevious;
-                }
-                
-            #endif
-
-            if (depth == 1.0) { return; }
-
-            uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(vertexCoords * viewSize), 0);
+            uvec4 dataTexture = texelFetch(GBUFFERS_DATA_BUFFER, ivec2(vertexCoords * viewSize), 0);
             vec3  normal      = unpackNormal(dataTexture.w);
 
             if (depth < handDepth) {
@@ -98,47 +76,25 @@
 
             vec3 currFragment = vec3(textureCoords, depth);
 
-            vec3 closestFragment = vec3(0.0);
+            vec3 closestFragment = getClosestFragment(depthBuffer1, currFragment);
 
-            if (modFragment) {
-                closestFragment = getClosestFragment(modDepthTex0, currFragment);
-            } else {
-                closestFragment = getClosestFragment(depthtex0, currFragment);
-            }
+            vec3 viewPosition = screenToView(closestFragment, projectionInverseMatrix, true);
 
-            vec3 viewPosition = screenToView(closestFragment, projectionInverse, true);
-
-            viewPosition += normal * mix(1e-3, 1.0, saturate(length(viewPosition) / farPlane));
+            // Cheap fix for depth precision loss over far distances
+            viewPosition += normal * mix(1e-3, 4.0, saturate(length(viewPosition) / farPlane));
 
             vec3 bentNormal = vec3(0.0);
 
-            if (modFragment) {
+            #if AO == 1
+                ao.b = GTAO(viewPosition, normal, bentNormal);
 
-                #if AO == 1
-                    ao.b = GTAO(modDepthTex0, projectionInverse, viewPosition, normal, bentNormal);
+            #elif AO == 2
+                ao.b = SSAO(viewPosition, normal, bentNormal);
 
-                #elif AO == 2
-                    ao.b = SSAO(modDepthTex0, projection, projectionInverse, viewPosition, normal, bentNormal);
+            #elif AO == 3
+                ao.b = RTAO(viewPosition, normal, bentNormal);
 
-                #elif AO == 3
-                    ao.b = RTAO(modDepthTex0, projection, projectionInverse, viewPosition, normal, bentNormal);
-
-                #endif
-
-            } else {
-
-                #if AO == 1
-                    ao.b = GTAO(depthtex0, projectionInverse, viewPosition, normal, bentNormal);
-
-                #elif AO == 2
-                    ao.b = SSAO(depthtex0, projection, projectionInverse, viewPosition, normal, bentNormal);
-
-                #elif AO == 3
-                    ao.b = RTAO(depthtex0, projection, projectionInverse, viewPosition, normal, bentNormal);
-                    
-                #endif  
-
-            }
+            #endif
 
             bentNormal = normalize(bentNormal);
 
@@ -146,7 +102,8 @@
 
             #if AO_FILTER == 1
 
-                vec2 prevCoords = vertexCoords + getVelocity(closestFragment, projectionInverse, projectionPrevious).xy * RENDER_SCALE;
+                vec2 velocity   = getVelocity(closestFragment, projectionInverseMatrix, gbufferPreviousProjection).xy;
+                vec2 prevCoords = vertexCoords + velocity * RENDER_SCALE;
 
                 if (insideScreenBounds(prevCoords, RENDER_SCALE)) {
 

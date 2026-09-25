@@ -3,4 +3,4 @@
 #define STAGE_VERTEX
 #define WORLD_OVERWORLD
 
-#include "/programs/deferred/clouds_write.glsl"
+#include "/programs/deferred/atmosphere_write.glsl"

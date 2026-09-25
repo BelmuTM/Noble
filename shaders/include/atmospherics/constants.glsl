@@ -64,24 +64,24 @@ const vec3 rayleighExtinctionCoefficientsEnd = rayleighScatteringCoefficientsEnd
 const vec3 mieExtinctionCoefficientsEnd      = mieScatteringCoefficientsEnd / mieScatteringAlbedo;
 
 mat2x3 atmosphereScatteringCoefficients = mat2x3(
-    SRGB_TO_WORKING_SPACE_ALBEDO(rayleighScatteringCoefficients),
-    SRGB_TO_WORKING_SPACE_ALBEDO(mieScatteringCoefficients)
+    SRGB_TO_WORKING_SPACE_COEFFICIENTS(rayleighScatteringCoefficients),
+    SRGB_TO_WORKING_SPACE_COEFFICIENTS(mieScatteringCoefficients)
 );
 
 mat3x3 atmosphereAttenuationCoefficients = mat3x3(
-    SRGB_TO_WORKING_SPACE_ALBEDO(rayleighScatteringCoefficients),
-    SRGB_TO_WORKING_SPACE_ALBEDO(mieScatteringCoefficients / mieScatteringAlbedo),
-    SRGB_TO_WORKING_SPACE_ALBEDO(ozoneExtinctionCoefficients)
+    SRGB_TO_WORKING_SPACE_COEFFICIENTS(rayleighScatteringCoefficients),
+    SRGB_TO_WORKING_SPACE_COEFFICIENTS(mieScatteringCoefficients / mieScatteringAlbedo),
+    SRGB_TO_WORKING_SPACE_COEFFICIENTS(ozoneExtinctionCoefficients)
 );
 
 const mat2x3 atmosphereScatteringCoefficientsEnd = mat2x3(
-    SRGB_TO_WORKING_SPACE_ALBEDO(rayleighScatteringCoefficientsEnd),
-    SRGB_TO_WORKING_SPACE_ALBEDO(mieScatteringCoefficientsEnd)
+    SRGB_TO_WORKING_SPACE_COEFFICIENTS(rayleighScatteringCoefficientsEnd),
+    SRGB_TO_WORKING_SPACE_COEFFICIENTS(mieScatteringCoefficientsEnd)
 );
 
 const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(
-    SRGB_TO_WORKING_SPACE_ALBEDO(rayleighExtinctionCoefficientsEnd),
-    SRGB_TO_WORKING_SPACE_ALBEDO(mieExtinctionCoefficientsEnd),
+    SRGB_TO_WORKING_SPACE_COEFFICIENTS(rayleighExtinctionCoefficientsEnd),
+    SRGB_TO_WORKING_SPACE_COEFFICIENTS(mieExtinctionCoefficientsEnd),
     vec3(0.0)
 );
 
@@ -183,7 +183,7 @@ float lambertPhase() {
 }
 
 // Brightness of light reaching the Earth (~126'000 lux)
-const vec3 sunIlluminance = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(SUN_COLOR_R, SUN_COLOR_G, SUN_COLOR_B) * 0.01) * 126e3;
+const vec3 sunIlluminance = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(SUN_COLOR_R, SUN_COLOR_G, SUN_COLOR_B) * 0.01) * 126e3;
 const vec3 sunLuminance   = sunIlluminance / coneAngleToSolidAngle(sunAngularRadius / CELESTIAL_SIZE_MULTIPLIER);
 
 vec3 moonLuminance   = moonAlbedo * sunIlluminance * lambertPhase();

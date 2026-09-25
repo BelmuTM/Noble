@@ -27,9 +27,6 @@ uniform sampler2D vxDepthTexTrans;
 
 uniform int vxRenderDistance;
 
-#define modDepthTex0 vxDepthTexTrans
-#define modDepthTex1 vxDepthTexOpaque
-
 #define nearPlane near
 
 float farPlane = float(vxRenderDistance * 16);

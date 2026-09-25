@@ -28,7 +28,7 @@ const float airIOR = 1.00029;
 
 const vec3 labPBRData0Range = vec3(1.0, 8191.0, 4095.0);
 
-const vec3 blockLightColor = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(BLOCKLIGHT_R, BLOCKLIGHT_G, BLOCKLIGHT_B) * 0.01);
+const vec3 blockLightColor = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(BLOCKLIGHT_R, BLOCKLIGHT_G, BLOCKLIGHT_B) * 0.01);
 const vec3 blockLightValue = blockLightColor * EMISSIVE_INTENSITY * BLOCKLIGHT_STRENGTH;
 
 struct Material {
@@ -74,8 +74,8 @@ const float waterF0 = 0.02;
 
 const float waterAnisotropyFactor = 0.85;
 
-const vec3 waterAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01);
-const vec3 waterScatteringCoefficients = SRGB_TO_WORKING_SPACE_ALBEDO(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01);
+const vec3 waterAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01);
+const vec3 waterScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01);
 
 const vec3 waterExtinctionCoefficients = max(waterScatteringCoefficients + waterAbsorptionCoefficients, vec3(EPS));
 
@@ -151,7 +151,7 @@ uvec4 storeMaterial(
 // LabPBR material decoding
 
 Material getMaterial(vec2 coords) {
-    uvec4 dataTexture = texelFetch(GBUFFERS_DATA, ivec2(coords * viewSize), 0);
+    uvec4 dataTexture = texelFetch(GBUFFERS_DATA_BUFFER, ivec2(coords * viewSize), 0);
 
     vec4 data0 = unpackUnorm4x8(dataTexture.y);
     vec4 data1 = unpackUnorm4x8(dataTexture.z);
@@ -168,7 +168,7 @@ Material getMaterial(vec2 coords) {
         material.ao = 1.0;
     #endif
 
-    material.albedo = SRGB_TO_WORKING_SPACE(data1.rgb);
+    material.albedo = SRGB_TO_WORKING_SPACE_ALBEDO(data1.rgb);
 
     if (material.F0 * maxFloat8 > labPBRMetals) {
         mat2x3 hcm = getHardcodedMetal(material.albedo, material.F0);
@@ -189,7 +189,7 @@ Material getMaterial(vec2 coords) {
 }
 
 vec3 unpackAlbedo(uint packedData) {
-    return SRGB_TO_WORKING_SPACE(unpackUnorm4x8(packedData).rgb);
+    return SRGB_TO_WORKING_SPACE_ALBEDO(unpackUnorm4x8(packedData).rgb);
 }
 
 vec3 unpackNormal(uint packedData) {

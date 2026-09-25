@@ -286,7 +286,7 @@
 
             if (!isMetal && shadeTranslucents) {
 
-                material.albedo = SRGB_TO_WORKING_SPACE(material.albedo);
+                material.albedo = SRGB_TO_WORKING_SPACE_ALBEDO(material.albedo);
 
                 material.N = vec3(f0ToIOR(material.F0));
                 material.K = vec3(0.0);

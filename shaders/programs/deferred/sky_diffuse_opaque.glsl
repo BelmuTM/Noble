@@ -87,33 +87,9 @@
 
         // Diffuse setup
 
-        bool  modFragment = false;
-        float depth       = texture(depthtex0, vertexCoords).r;
+        float depth = texture(depthBuffer1, vertexCoords).r;
 
-        mat4 projection         = gbufferProjection;
-        mat4 projectionInverse  = gbufferProjectionInverse;
-        mat4 projectionPrevious = gbufferPreviousProjection;
-
-        #if defined CHUNK_LOADER_MOD_ENABLED
-
-            if (depth >= 1.0) {
-
-                modFragment = true;
-
-                #if defined VOXY
-                    depth = texture(modDepthTex0, textureCoords).r;
-                #else
-                    depth = texture(modDepthTex0, vertexCoords).r;
-                #endif
-
-                projection         = modProjection;
-                projectionInverse  = modProjectionInverse;
-                projectionPrevious = modProjectionPrevious;
-            }
-            
-        #endif
-
-        vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverse, true);
+        vec3 viewPosition = screenToView(vec3(textureCoords, depth), projectionInverseMatrix, true);
 
         // Exposure to pre-apply and store values in smaller range buffer
 
@@ -121,7 +97,7 @@
 
         // Atmosphere rendering
 
-        if (depth == 1.0) {
+        if (depth >= 1.0) {
 
             #if defined OVERWORLD_OR_END
 
@@ -138,7 +114,7 @@
 
         // Temporal reprojection
 
-        vec3 velocity     = getVelocity(vec3(textureCoords, depth), projectionInverse, projectionPrevious);
+        vec3 velocity     = getVelocity(vec3(textureCoords, depth), projectionInverseMatrix, gbufferPreviousProjection);
         vec3 prevPosition = vec3(vertexCoords, depth) + velocity * RENDER_SCALE;
 
         // Previous depth decoding / encoding
@@ -150,7 +126,7 @@
 
         // Temporal accumulation weight computation
 
-        vec3 prevScenePosition = viewToWorld(screenToView(prevPosition, projectionInverse, false));
+        vec3 prevScenePosition = viewToWorld(screenToView(prevPosition, projectionInverseMatrix, false));
         bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
 
         float depthWeight = pow(exp(-abs(linearizeDepth(prevPosition.z) - linearizeDepth(prevDepth))), 2.0);

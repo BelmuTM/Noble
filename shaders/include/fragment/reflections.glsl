@@ -73,9 +73,6 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
     //////////////////////////////////////////////////////////
 
     vec3 computeRoughReflections(
-        bool modFragment,
-        mat4 projection,
-        mat4 projectionInverse,
         vec3 viewPosition,
         vec3 normal,
         vec3 N,
@@ -112,43 +109,22 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
             vec3  rayDirection     = viewDirection + 2.0 * MdotV * microfacetNormal;	
             float NdotL            = abs(dot(normal, rayDirection));
 
-            float hit = 0.0;
-
             vec3 hitPosition = vec3(0.0);
 
             float sampleRayLength = 0.0;
 
-            if (modFragment) {
-
-                hit = float(raytrace(
-                    modDepthTex0,
-                    projection,
-                    projectionInverse,
-                    viewPosition,
-                    rayDirection,
-                    float(REFLECTIONS_STRIDE),
-                    jitter,
-                    RENDER_SCALE,
-                    hitPosition,
-                    sampleRayLength
-                ));
-
-            } else {
-
-                hit = float(raytrace(
-                    depthtex0,
-                    projection,
-                    projectionInverse,
-                    viewPosition,
-                    rayDirection,
-                    float(REFLECTIONS_STRIDE),
-                    jitter,
-                    RENDER_SCALE,
-                    hitPosition,
-                    sampleRayLength
-                ));
-
-            }
+            float hit = float(raytrace(
+                depthBuffer0,
+                projectionMatrix,
+                projectionInverseMatrix,
+                viewPosition,
+                rayDirection,
+                float(REFLECTIONS_STRIDE),
+                jitter,
+                RENDER_SCALE,
+                hitPosition,
+                sampleRayLength
+            ));
 
             vec3 hitColor = sampleHitColor(hitPosition.xy, invExposure);
 
@@ -190,9 +166,6 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
     //////////////////////////////////////////////////////////
 
     vec3 computeSmoothReflections(
-        bool modFragment,
-        mat4 projection,
-        mat4 projectionInverse,
         vec3 viewPosition,
         vec3 normal,
         vec3 N,
@@ -223,37 +196,19 @@ float jitter = temporalBlueNoise(SCREEN_COORDS);
 
         if (NdotL > 0.0) {
             
-            if (modFragment) {
-                
-                hit = float(raytrace(
-                    modDepthTex0,
-                    projection,
-                    projectionInverse,
-                    viewPosition,
-                    rayDirection,
-                    float(REFLECTIONS_STRIDE),
-                    jitter,
-                    RENDER_SCALE,
-                    hitPosition,
-                    rayLength
-                ));
-
-            } else {
-
-                hit = float(raytrace(
-                    depthtex0,
-                    projection,
-                    projectionInverse,
-                    viewPosition,
-                    rayDirection,
-                    float(REFLECTIONS_STRIDE),
-                    jitter,
-                    RENDER_SCALE,
-                    hitPosition,
-                    rayLength
-                ));
-                
-            }
+            hit = float(raytrace(
+                depthBuffer0,
+                projectionMatrix,
+                projectionInverseMatrix,
+                viewPosition,
+                rayDirection,
+                float(REFLECTIONS_STRIDE),
+                jitter,
+                RENDER_SCALE,
+                hitPosition,
+                rayLength
+            ));
+        
         }
 
         vec3 hitColor = sampleHitColor(hitPosition.xy, invExposure);

@@ -54,27 +54,7 @@
 
             // Depth of field setup
 
-            bool  modFragment = false;
-            float depth       = texture(depthtex0, vertexCoords).r;
-
-            mat4 projectionInverse = gbufferProjectionInverse;
-
-            #if defined CHUNK_LOADER_MOD_ENABLED
-
-                if (depth >= 1.0) {
-                    
-                    modFragment = true;
-
-                    #if defined VOXY
-                        depth = texture(modDepthTex0, textureCoords).r;
-                    #else
-                        depth = texture(modDepthTex0, vertexCoords).r;
-                    #endif
-
-                    projectionInverse = modProjectionInverse;
-                }
-
-            #endif
+            float depth = texture(depthBuffer0, vertexCoords).r;
 
             if (depth < handDepth) {
                 colorOut = texture(MAIN_BUFFER, vertexCoords).rgb;
@@ -83,26 +63,16 @@
 
             //depth = textureBicubic(DEPTH_MIPMAP_BUFFER, getDepthMip(textureCoords, 4)).r;
 
-            depth = linearizeDepthFromInverseProjection(depth, projectionInverse);
+            depth = screenToViewDepth(depth, projectionInverseMatrix);
 
             // Target depth computation
 
             #if DOF_DEPTH == 0
 
                 vec2  centerCoords = vec2(RENDER_SCALE * 0.5);
-                float centerDepth  = texture(depthtex0, centerCoords).r;
+                float centerDepth  = texture(depthBuffer0, centerCoords).r;
 
-                #if defined CHUNK_LOADER_MOD_ENABLED
-
-                    if (modFragment) {
-                        projectionInverse = gbufferProjectionInverse;
-                    }
-                    
-                #endif
-
-                centerDepth = linearizeDepthFromInverseProjection(centerDepth, projectionInverse);
-
-                float targetDepth  = centerDepth;
+                float targetDepth  = screenToViewDepth(centerDepth, projectionInverseMatrix);
 
             #else
 

@@ -1,6 +1,5 @@
 #version 430 compatibility
 
 #define STAGE_VERTEX
-#define WORLD_END
 
-#include "/programs/deferred/shadows_skylight_write.glsl"
+#include "/programs/deferred/ambient_occlusion_write.glsl"

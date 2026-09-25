@@ -30,9 +30,6 @@ uniform sampler2D vxDepthTexTrans;
 
 uniform int vxRenderDistance;
 
-#define modDepthTex0 vxDepthTexTrans
-#define modDepthTex1 vxDepthTexOpaque
-
 #define nearPlane near
 
 float farPlane = float(vxRenderDistance * 16);
@@ -121,7 +118,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
             material.albedo = vec3(1.0);
         #endif
 
-        material.albedo = SRGB_TO_WORKING_SPACE(material.albedo);
+        material.albedo = SRGB_TO_WORKING_SPACE_ALBEDO(material.albedo);
 
         material.N = vec3(f0ToIOR(material.F0));
         material.K = vec3(0.0);

@@ -146,16 +146,24 @@ in vec2 textureCoords;
 #endif
 
 void debugOutput(inout vec3 color) {
+
     #if DEBUG_ALBEDO == 1
-        color = unpackUnorm4x8(texture(GBUFFERS_DATA, textureCoords * RENDER_SCALE).z).rgb;
+
+        color = unpackUnorm4x8(texture(GBUFFERS_DATA_BUFFER, textureCoords * RENDER_SCALE).z).rgb;
 
     #elif DEBUG_NORMALS == 1
-        color = decodeUnitVector(unpackUnorm2x16(texture(GBUFFERS_DATA, textureCoords * RENDER_SCALE).w)) * 0.5 + 0.5;
+
+        color = decodeUnitVector(unpackUnorm2x16(texture(GBUFFERS_DATA_BUFFER, textureCoords * RENDER_SCALE).w)) * 0.5 + 0.5;
 
     #elif DEBUG_DEPTH == 1
-        color = vec3(linearizeDepth(texture(depthtex0, textureCoords * RENDER_SCALE).r) / farPlane);
+
+        color = vec3(
+            screenToViewDepth(texture(COMBINED_DEPTH0_BUFFER, textureCoords * RENDER_SCALE).r, combinedProjectionInverse)
+            / farPlane
+        );
 
     #elif DEBUG_AO == 1
+
         color = vec3(texture(AO_BUFFER, textureCoords * RENDER_SCALE).b);
 
     #endif

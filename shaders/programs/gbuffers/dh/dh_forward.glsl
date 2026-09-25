@@ -113,7 +113,10 @@
         float depth       = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
         float linearDepth = linearizeDepth(depth);
     
-        if (depth < 1.0) { return; }
+        if (depth < 1.0) {
+            discard;
+            return;
+        }
 
         Material material;
 
@@ -151,7 +154,7 @@
                 material.albedo = vec3(1.0);
             #endif
 
-            material.albedo = SRGB_TO_WORKING_SPACE(material.albedo);
+            material.albedo = SRGB_TO_WORKING_SPACE_ALBEDO(material.albedo);
 
             material.N = vec3(f0ToIOR(material.F0));
             material.K = vec3(0.0);

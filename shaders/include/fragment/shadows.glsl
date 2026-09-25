@@ -35,29 +35,22 @@ float jitter1 = interleavedGradientNoise(SCREEN_COORDS.yx * 0.9 + vec2(viewSize 
         coords = coords - texelCoords; // Fractional part
 
         // Linearizing 4 depth neighbour samples
-        vec4 samples = linearizeDepth(textureGather(depthTexture, texelCoords * texelSize) * 2.0 - 1.0, projectionInverse);
+        vec4 samples = screenToViewDepth(textureGather(depthTexture, texelCoords * texelSize), projectionInverse);
 
         // Interpolation
         samples.xy = mix(samples.wx, samples.zy, coords.x);
 
-        return mix(samples.x,  samples.y,  coords.y) * gbufferProjectionInverse[3].z; // Scaling result to projection
+        return mix(samples.x,  samples.y,  coords.y);
     }
 
-    float traceContactShadows(
-        sampler2D depthTexture,
-        mat4 projection,
-        mat4 projectionInverse,
-        vec3 screenPosition,
-        vec3 viewPosition,
-        float scale,
-        inout float subsurfaceDepth
-    ) {
+    float traceContactShadows(vec3 screenPosition, vec3 viewPosition, float scale, inout float subsurfaceDepth) {
+
         // DDA setup (McGuire & Mara, 2014)
         vec3 rayPosition = screenPosition;
 
         vec3 rayDirection;
         rayDirection  = viewPosition + abs(viewPosition.z) * normalize(shadowLightVectorView);
-        rayDirection  = viewToScreen(rayDirection, projection, true) - rayPosition;
+        rayDirection  = viewToScreen(rayDirection, projectionMatrix, true) - rayPosition;
         rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);
 
         vec2 resolution = viewSize * scale;
@@ -91,13 +84,13 @@ float jitter1 = interleavedGradientNoise(SCREEN_COORDS.yx * 0.9 + vec2(viewSize 
             float maxZ  = rayPosition.z;
             float minZ  = rayPosition.z - float(CONTACT_SHADOWS_STRIDE) * abs(rayDirection.z);
 
-            float depth      = texelFetch(depthTexture, ivec2(rayPosition.xy), 0).r;
-            float thickDepth = thickenDepth(depth, zThickness, projection);
+            float depth      = texelFetch(depthBuffer1, ivec2(rayPosition.xy), 0).r;
+            float thickDepth = thickenDepth(depth, zThickness, projectionMatrix);
 
-            float interpDepth = getInterpolatedLinearDepth(depthTexture, projectionInverse, rayPosition.xy);
-                  interpDepth = viewToScreen(interpDepth, projection);
+            float interpDepth = getInterpolatedLinearDepth(depthBuffer1, projectionInverseMatrix, rayPosition.xy);
+                  interpDepth = viewToScreenDepth(interpDepth, projectionMatrix);
 
-            float thickInterpDepth = thickenDepth(interpDepth, zThickness, projection);
+            float thickInterpDepth = thickenDepth(interpDepth, zThickness, projectionMatrix);
 
             /*
                 Intersection check, take account of the depth sample's thickness,
@@ -137,7 +130,7 @@ vec3 getShadowColor(vec3 samplePosition) {
 
     vec4 shadowColor = texelFetch(shadowcolor0, ivec2(samplePosition.xy * shadowMapResolution), 0);
 
-    shadowColor.rgb = SRGB_TO_WORKING_SPACE(shadowColor.rgb);
+    shadowColor.rgb = SRGB_TO_WORKING_SPACE_ALBEDO(shadowColor.rgb);
 
     return mix(vec3(shadowDepth0), shadowColor.rgb * (1.0 - shadowColor.a), saturate(shadowDepth1 - shadowDepth0));
 }
