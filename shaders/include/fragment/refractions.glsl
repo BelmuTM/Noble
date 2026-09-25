@@ -91,7 +91,7 @@ vec3 computeRefractions(
     float emission,
     vec3 N,
     uint id,
-    float exposure,
+    float invExposure,
     inout vec3 refractedPosition
 ) {
     vec3 n1 = vec3(airIOR), n2 = N;
@@ -148,7 +148,7 @@ vec3 computeRefractions(
 
     vec3 fresnel = fresnelDielectricDielectric_T(abs(dot(normal, -viewDirection)), n1, n2);
 
-    vec3 refractedColor = texture(MAIN_BUFFER, refractedPosition.xy).rgb / exposure;
+    vec3 refractedColor = texture(MAIN_BUFFER, refractedPosition.xy).rgb * invExposure;
 
     // Water absorption is handled individually
     if (isWater(id)) {

@@ -136,7 +136,7 @@
                         material.emission,
                         material.N,
                         material.id,
-                        exposure,
+                        invExposure,
                         screenPosition1
                     );
 
@@ -148,7 +148,7 @@
             /*---------------- FRONT TO BACK FOG -------------------*/
             //////////////////////////////////////////////////////////
 
-            bool skyTranslucents = depth1 >= 1.0;
+            bool skyTranslucents = screenPosition1.z >= 1.0;
 
             float skyLight = getSkylightFalloff(material.lightmap.y);
 
