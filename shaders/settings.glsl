@@ -177,7 +177,7 @@ const float RCP_BLOCKER_SEARCH_SAMPLES = 1.0 / BLOCKER_SEARCH_SAMPLES;
 
 // Distant Horizons Shadows
 
-#define DH_SHADOWS 1 // [0 1]
+#define DH_SHADOWS 0 // [0 1]
 
 #define DH_SHADOWS_CLIP_DISTANCE 0.85
 
