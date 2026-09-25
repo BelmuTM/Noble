@@ -668,6 +668,11 @@ option.END_FOG.comment = Fog in the End dimension.
 value.END_FOG.0 = §cOFF
 value.END_FOG.1 = §aON
 
+option.END_FOG_SHADOW_RAY = End Fog Shadows
+option.END_FOG_SHADOW_RAY.comment = Applies shadows to the End fog to make its shading look more detailed.
+value.END_FOG_SHADOW_RAY.0 = §cOFF
+value.END_FOG_SHADOW_RAY.1 = §aON
+
 option.END_ABSORPTION_R = Absorb §cRed
 option.END_ABSORPTION_R.comment = Adjusts how End fog absorbs light. Higher value means that §cred§r will be absorbed more.
 suffix.END_ABSORPTION_R = %

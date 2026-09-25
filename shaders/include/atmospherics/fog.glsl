@@ -69,7 +69,7 @@ float jitter = interleavedGradientNoise(SCREEN_COORDS);
     const vec3 endFogAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(END_ABSORPTION_R, END_ABSORPTION_G, END_ABSORPTION_B) * 0.01);
     const vec3 endFogScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(END_SCATTERING_R, END_SCATTERING_G, END_SCATTERING_B) * 0.01);
 
-    const vec3 endFogFlashAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(0.10, 0.05, 0.10));
+    const vec3 endFogFlashAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(0.16, 0.20, 0.14));
     const vec3 endFogFlashScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(1.00, 1.00, 1.00));
 
     float airFogTransitionFactor = sin(frameTimeCounter * 2.0);
@@ -235,6 +235,23 @@ float calculateAirFogPhase(float cosTheta) {
         return vec2(max0(volumeStart), volumeEnd);
     }
 
+    vec3 evaluateFogTransmittance(vec3 origin, vec3 lightDirection, int stepCount) {
+
+        float stepSize    = 10.0;
+        vec3  increment   = lightDirection * stepSize;
+        vec3  rayPosition = origin + increment * randF();
+
+        vec3 accumAirmass = vec3(0.0);
+
+        // Transmittance evaluation
+        
+        for (int i = 0; i < stepCount; i++, rayPosition += increment) {
+            accumAirmass += getAirFogDensity(rayPosition) * stepSize;
+        }
+
+        return exp(-airFogAbsorptionCoefficients * accumAirmass);
+    }
+
     void computeVolumetricAirFog(
         inout vec3 scatteringOut,
         inout vec3 transmittanceOut,
@@ -333,6 +350,13 @@ float calculateAirFogPhase(float cosTheta) {
 
                     vec3 stepTransmittanceFog = exp(-opticalDepthFog);
                     vec3 visibleScatteringFog = transmittanceGround * saturate((stepTransmittanceFog - 1.0) / -opticalDepthFog);
+
+                    #if defined WORLD_END && END_FOG_SHADOW_RAY == 1
+
+                        // Direct transmittance to light source (shadow ray)
+                        shadow *= evaluateFogTransmittance(fogRayPosition, lightVectorWorld, 4);
+
+                    #endif
 
                     scatteringSunGround += airFogScatteringCoefficients * airmassFog * phaseFog       * visibleScatteringFog * shadow;
                     scatteringSkyGround += airFogScatteringCoefficients * airmassFog * isotropicPhase * visibleScatteringFog;
