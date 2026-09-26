@@ -163,7 +163,7 @@ void debugOutput(inout vec3 color) {
     #elif DEBUG_GEOMETRY == 3
 
         color = vec3(
-            screenToViewDepth(texture(COMBINED_DEPTH0_BUFFER, textureCoords * RENDER_SCALE).r, projectionInverseMatrix)
+            screenToViewDepth(texture(depthBuffer0, textureCoords * RENDER_SCALE).r, projectionInverseMatrix)
             / farPlane
         );
 
