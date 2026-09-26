@@ -134,7 +134,10 @@
 
         vec4 albedoTexture = texture(gtexture, textureCoords);
         
-        if (albedoTexture.a < alphaTestThreshold) { discard; return; }
+        if (albedoTexture.a < alphaTestThreshold) {
+            discard;
+            return;
+        }
 
         vec4 normalTexture   = vec4(0.0);
         vec4 specularTexture = vec4(0.0);

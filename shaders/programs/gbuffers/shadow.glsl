@@ -104,7 +104,10 @@
         
         albedoTexture.rgb *= vertexColor.rgb;
 
-        if (albedoTexture.a < alphaTestThreshold) { discard; return; }
+        if (albedoTexture.a < alphaTestThreshold) {
+            discard;
+            return;
+        }
 
         #if WHITE_WORLD == 1
             albedoTexture.rgb = vec3(1.0);

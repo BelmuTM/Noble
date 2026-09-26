@@ -80,12 +80,13 @@
 
             vec3 viewPosition = screenToView(closestFragment, projectionInverseMatrix, true);
 
-            // Cheap fix for depth precision loss over far distances
-            viewPosition += normal * mix(1e-3, 4.0, saturate(length(viewPosition) / farPlane));
-
             vec3 bentNormal = vec3(0.0);
 
             #if AO == 1
+
+                // Cheap fix for depth precision loss over far distances
+                viewPosition += normal * mix(1e-3, 4.0, saturate(length(viewPosition) / farPlane));
+
                 ao.b = GTAO(viewPosition, normal, bentNormal);
 
             #elif AO == 2

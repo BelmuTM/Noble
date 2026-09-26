@@ -38,6 +38,7 @@
         vec3 normal,
         vec3 viewSliceDirection
     ) {
+        
         float horizonCosTheta = -1.0;
 
         float stepSize = GTAO_RADIUS * RCP_GTAO_HORIZON_STEPS;
@@ -167,8 +168,8 @@
 
         float visibility = 1.0;
 
-        vec3 hitPosition = vec3(0.0);
-        float rayLength;
+        vec3  hitPosition = vec3(0.0);
+        float rayLength   = 0.0;
 
         for (int i = 0; i < RTAO_SAMPLES; i++) {
 

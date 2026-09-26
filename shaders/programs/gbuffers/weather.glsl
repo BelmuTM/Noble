@@ -95,7 +95,10 @@
 
             vec4 albedo = texture(gtexture, textureCoords);
 
-            if (albedo.a < alphaTestThreshold) { discard; return; }
+            if (albedo.a < alphaTestThreshold) {
+                discard;
+                return;
+            }
 
             bool isRain = abs(albedo.r - albedo.b) > EPS;
 

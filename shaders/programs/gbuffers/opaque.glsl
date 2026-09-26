@@ -52,8 +52,6 @@
 
     #include "/include/vertex/animation.glsl"
 
-    #include "/include/atmospherics/constants.glsl"
-
     void main() {
         textureCoords  = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         lightmapCoords = gl_MultiTexCoord1.xy * rcp240;
@@ -128,11 +126,16 @@
     #if defined PROGRAM_TERRAIN
 
         #if POM > 0
+
+            #include "/include/atmospherics/constants.glsl"
             #include "/include/fragment/parallax.glsl"
+
         #endif
 
         #if RAIN_PUDDLES == 1
+
             #include "/include/material/rain_puddles.glsl"
+
         #endif
         
     #endif
@@ -197,12 +200,16 @@
                 vec2  shadowCoords = vec2(0.0);
 
                 if (texture(normals, textureCoords).a < EPS || texture(gtexture, textureCoords).a < alphaTestThreshold) {
+                    discard;
                     return;
                 }
 
                 coords = parallaxMapping(viewPosition, texDeriv, height, shadowCoords, traceDistance);
 
-                if (saturate(coords) != coords) return;
+                if (saturate(coords) != coords) {
+                    discard;
+                    return;
+                }
 
                 #if POM_SHADOWING == 1
 
@@ -221,7 +228,10 @@
 
         vec4 albedoTexture = texture(gtexture, coords) * vertexColor;
 
-        if (albedoTexture.a < alphaTestThreshold) { discard; return; }
+        if (albedoTexture.a < alphaTestThreshold) { 
+            discard;
+            return;
+        }
 
         // LabPBR data decoding
 
