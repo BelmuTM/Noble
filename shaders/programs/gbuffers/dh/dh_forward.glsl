@@ -120,8 +120,6 @@
 
         Material material;
 
-        material.albedo = vertexColor.rgb;
-
         material.lightmap = lightmapCoords;
         material.normal   = vertexNormal;
 
@@ -151,7 +149,28 @@
             }
 
             #if WHITE_WORLD == 1
+
                 material.albedo = vec3(1.0);
+
+            #else
+
+                material.albedo = vertexColor.rgb;
+
+                #if DH_TEXTURES == 1
+
+                    if (dh_hasTexture()) {
+
+                        vec4 albedoTexture = dh_sampleTexture();
+
+                        // From DH's developer, needed to decode LOD textures
+                        vec3 clampedColor = saturate(vertexColor.rgb * albedoTexture.rgb * 2.0);
+
+                        material.albedo = mix(vertexColor.rgb, clampedColor, albedoTexture.a);
+
+                    }
+
+                #endif
+
             #endif
 
             material.albedo = SRGB_TO_WORKING_SPACE_ALBEDO(material.albedo);

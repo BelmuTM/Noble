@@ -82,6 +82,7 @@ screen.FILM_GRAIN              = Film Grain
 screen.CEL_SHADING             = Cel Shading
 screen.MISC                    = 8-Bit Filter | Color Palettes
 screen.DEBUG                   = Misc.
+screen.DISTANT_HORIZONS        = Distant Horizons
 
 #////////////////////////////////////////////////////////#
 #------------------------ SHADOWS -----------------------#
@@ -140,12 +141,6 @@ value.CONTACT_SHADOWS_STEPS.4 = §24
 value.CONTACT_SHADOWS_STEPS.8 = §a8
 value.CONTACT_SHADOWS_STEPS.16 = §e16
 value.CONTACT_SHADOWS_STEPS.32 = §632
-
-# Distant Horizons Shadows
-option.DH_SHADOWS = Distant Horizons Shadows
-option.DH_SHADOWS.comment = Enables shadows for §bDistant Horizons§r chunk LODs.
-value.DH_SHADOWS.0 = §cOFF
-value.DH_SHADOWS.1 = §aON
 
 #////////////////////////////////////////////////////////#
 #------------------- AMBIENT LIGHTING -------------------#
@@ -1201,7 +1196,7 @@ value.PALETTE.9 = §6Halloween §5Candy
 value.PALETTE.10 = §bBerry §dNebula
 
 #////////////////////////////////////////////////////////#
-#------------------------- DEBUG ------------------------#
+#------------------------- MISC. ------------------------#
 #////////////////////////////////////////////////////////#
 
 option.DEBUG_GEOMETRY = Debug Geometry
@@ -1225,3 +1220,17 @@ option.FREEZE_TIME = Freeze Time
 option.FREEZE_TIME.comment = Makes all time-dependent effects static, as if time was frozen.
 value.FREEZE_TIME.0 = §cOFF
 value.FREEZE_TIME.1 = §aON
+
+#////////////////////////////////////////////////////////#
+#------------------- DISTANT HORIZONS -------------------#
+#////////////////////////////////////////////////////////#
+
+option.DH_TEXTURES = DH Textures
+option.DH_TEXTURES.comment = Enables textures for §bDistant Horizons§r chunk LODs.
+value.DH_TEXTURES.0 = §cOFF
+value.DH_TEXTURES.1 = §aON
+
+option.DH_SHADOWS = DH Shadows
+option.DH_SHADOWS.comment = Enables shadows for §bDistant Horizons§r chunk LODs.
+value.DH_SHADOWS.0 = §cOFF
+value.DH_SHADOWS.1 = §aON

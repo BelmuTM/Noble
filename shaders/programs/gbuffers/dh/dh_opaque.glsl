@@ -87,10 +87,29 @@
             return;
         }
 
-        vec3 albedo = vertexColor.rgb;
-
         #if WHITE_WORLD == 1
-            albedo = vec3(1.0);
+
+            vec3 albedo = vec3(1.0);
+
+        #else
+
+            vec3 albedo = vertexColor.rgb;
+
+            #if DH_TEXTURES == 1
+
+                if (dh_hasTexture()) {
+
+                    vec4 albedoTexture = dh_sampleTexture();
+
+                    // From DH's developer, needed to decode LOD textures
+                    vec3 clampedColor = saturate(vertexColor.rgb * albedoTexture.rgb * 2.0);
+
+                    albedo = mix(vertexColor.rgb, clampedColor, albedoTexture.a);
+
+                }
+
+            #endif
+
         #endif
 
         vec3 normal = vertexNormal;
