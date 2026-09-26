@@ -37,7 +37,7 @@
 
     #endif
 
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+    #if DEBUG_POST == 1 && EXPOSURE == 2
 
         flat out vec4[HISTOGRAM_BINS / 4] luminanceHistogram;
 
@@ -138,7 +138,7 @@
 
                 float[HISTOGRAM_BINS] pdf = buildLuminanceHistogram(invPreviousExposure);
 
-                #if DEBUG_HISTOGRAM == 1
+                #if DEBUG_POST == 1
 
                     for (int i = 0; i < HISTOGRAM_BINS; i++) {
                         // Normalizing the PDF
@@ -164,7 +164,7 @@
 
 #elif defined STAGE_FRAGMENT
 
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+    #if DEBUG_POST == 1 && EXPOSURE == 2
 
         /* RENDERTARGETS: 8 */
 
@@ -198,7 +198,7 @@
 
             historyOut.a = avgLuminance;
 
-            #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+            #if DEBUG_POST == 1 && EXPOSURE == 2
 
                 if (all(lessThan(gl_FragCoord.xy, debugHistogramSize))) {
                     

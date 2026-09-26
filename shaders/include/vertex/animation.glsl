@@ -19,7 +19,7 @@
 /********************************************************************************/
 
 float windSpeed     = WAVING_PLANTS_SPEED + (1.75 * wetness);
-vec3  windDirection = windSpeed * frameTimeCounter * vec3(-0.2, 0.35, -1.0);
+vec3  windDirection = windSpeed * TIME * vec3(-0.2, 0.35, -1.0);
 
 void wavingLeaves(inout vec3 worldPosition, float skyFalloff) {
     #if WAVING_PLANTS == 1
@@ -66,7 +66,7 @@ void swingingLanterns(inout vec3 worldPosition, bool isBottomVertex) {
             FBM(floor(worldPosition.xz), 1, 10.0, 2.0, 0.5)
         ) * 2.0 - 1.0;
 
-        vec2 rotation = sincos(frameTimeCounter * SWINGING_LANTERNS_SPEED * 1.5) 
+        vec2 rotation = sincos(TIME * SWINGING_LANTERNS_SPEED * 1.5) 
                       * vec2(7.0 * (rng.y * 2.0 + rng.x * 4.0), 10.0 * (rng.y * 6.0)) * SWINGING_LANTERNS_INTENSITY * 0.1;
 
         worldPosition -= localOrigin;

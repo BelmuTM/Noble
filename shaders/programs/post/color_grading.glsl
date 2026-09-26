@@ -64,7 +64,7 @@ void main() {
     
     colorOut = texture(MAIN_BUFFER, textureCoords).rgb;
 
-    #if DEBUG_HISTOGRAM == 1 && EXPOSURE == 2
+    #if DEBUG_POST == 1 && EXPOSURE == 2
 
         if (all(lessThan(gl_FragCoord.xy, debugHistogramSize)))
             return;
@@ -76,11 +76,13 @@ void main() {
 
     colorOut *= invExposure;
 
+    vec3 downsampledColor = texture(ILLUMINANCE_BUFFER, textureCoords * 0.5).rgb * invExposure;
+
     // Bloom
 
     #if BLOOM == 1
 
-        vec3  bloom         = texture(ILLUMINANCE_BUFFER, textureCoords * 0.5).rgb * invExposure;
+        vec3  bloom         = downsampledColor;
         float bloomStrength = exp2(exposure + BLOOM_STRENGTH - 3.0);
 
         if (isEyeInWater == 1) {
@@ -115,7 +117,18 @@ void main() {
 
     // Exposure
 
-    colorOut *= exposure;
+    float localLuminance  = luminanceAP1(downsampledColor);
+    float globalLuminance = texelFetch(HISTORY_BUFFER, ivec2(0, 0), 0).a;
+
+    // Blending between global and local exposures
+    
+    colorOut *= computeExposure(exp(
+        mix(
+            log(globalLuminance),
+            log(localLuminance),
+            LOCAL_EXPOSURE_FACTOR * 0.01
+        )
+    ));
     
     // Tonemapping
 

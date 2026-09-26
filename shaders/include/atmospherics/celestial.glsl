@@ -31,7 +31,7 @@ float starfield(vec3 viewPosition, vec3 lightVector) {
 
     #elif defined WORLD_END
 
-        sceneDirection = rotate(sceneDirection, lightVector, frameTimeCounter * END_STARS_ROTATION_SPEED);
+        sceneDirection = rotate(sceneDirection, lightVector, TIME * END_STARS_ROTATION_SPEED);
 
     #endif
 

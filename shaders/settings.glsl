@@ -635,6 +635,8 @@ const float RCP_CLOUDS_SHADOWS_STEPS = 1.0 / CLOUDS_SHADOWS_STEPS;
 
 #define EXPOSURE 2 // [0 1 2]
 
+#define LOCAL_EXPOSURE_FACTOR 0 // [0 10 20 30 40 50 60 70 80 90 100]
+
 #define EXPOSURE_GROWTH 1.50
 #define EXPOSURE_DECAY  0.50
 
@@ -687,13 +689,20 @@ const float RCP_CLOUDS_SHADOWS_STEPS = 1.0 / CLOUDS_SHADOWS_STEPS;
 /*----------------------- DEBUG ------------------------*/
 //////////////////////////////////////////////////////////
 
-#define DEBUG_ALBEDO  0 // [0 1]
-#define DEBUG_NORMALS 0 // [0 1]
-#define DEBUG_DEPTH   0 // [0 1]
+#define DEBUG_GEOMETRY 0 // [0 1 2 3 4]
+
+#define DEBUG_POST 0 // [0 1 2]
 
 #define WHITE_WORLD 0 // [0 1]
 
-#define DEBUG_AO 0 // [0 1]
+#define FREEZE_TIME 0 // [0 1]
 
-#define DEBUG_HISTOGRAM 0 // [0 1]
-#define DEBUG_LUT       0 // [0 1]
+#if FREEZE_TIME == 1
+
+    #define TIME 0.0
+
+#else
+
+    #define TIME frameTimeCounter
+
+#endif

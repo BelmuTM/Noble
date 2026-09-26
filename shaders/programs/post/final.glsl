@@ -37,7 +37,7 @@ in vec2 textureCoords;
 #if UNDERWATER_DISTORTION == 1
 
     void underwaterDistortion(inout vec2 coords) {
-        float speed   = frameTimeCounter * UNDERWATER_DISTORTION_SPEED;
+        float speed   = TIME * UNDERWATER_DISTORTION_SPEED;
         float offsetX = coords.x * 25.0 + speed;
         float offsetY = coords.y * 25.0 + speed;
 
@@ -59,19 +59,24 @@ in vec2 textureCoords;
 
     const int lutTileSize = 8;
     const int lutSize     = lutTileSize  * lutTileSize;
-    const vec2 lutRes     = vec2(lutSize * lutTileSize);
+
+    const vec2 lutResolution = vec2(lutSize * lutTileSize);
 
     const float rcpLutTileSize = 1.0 / lutTileSize;
-    const vec2  rcpLutTexSize  = 1.0 / lutRes;
+    const vec2  rcpLutTexSize  = 1.0 / lutResolution;
 
     // https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-24-using-lookup-tables-accelerate-color
+
     void applyLUT(inout vec3 color) {
+
         color = clamp(color, vec3(0.02745098039), vec3(0.96862745098));
 
-        #if DEBUG_LUT == 1
+        #if DEBUG_POST == 2
+
+            const float debugLUTSize = 0.5;
         
-            if (all(lessThan(gl_FragCoord.xy, ivec2(256)))) {
-                color = texture(LUT_BUFFER, gl_FragCoord.xy * rcpLutTexSize * 2.0).rgb;
+            if (all(lessThan(gl_FragCoord.xy, ivec2(lutResolution * debugLUTSize)))) {
+                color = texture(LUT_BUFFER, gl_FragCoord.xy * rcpLutTexSize / debugLUTSize).rgb;
                 return;
             }
 
@@ -86,8 +91,8 @@ in vec2 textureCoords;
         vec2 offHi = vec2(bH % lutTileSize, bH / lutTileSize) * rcpLutTileSize;
 
         color = mix(
-            textureLodLinearRGB(LUT_BUFFER, offLo + color.rg * rcpLutTileSize, lutRes, 0).rgb,
-            textureLodLinearRGB(LUT_BUFFER, offHi + color.rg * rcpLutTileSize, lutRes, 0).rgb,
+            textureLodLinearRGB(LUT_BUFFER, offLo + color.rg * rcpLutTileSize, lutResolution, 0).rgb,
+            textureLodLinearRGB(LUT_BUFFER, offHi + color.rg * rcpLutTileSize, lutResolution, 0).rgb,
             color.b - bL
         );
     }
@@ -147,22 +152,22 @@ in vec2 textureCoords;
 
 void debugOutput(inout vec3 color) {
 
-    #if DEBUG_ALBEDO == 1
+    #if DEBUG_GEOMETRY == 1
 
         color = unpackUnorm4x8(texture(GBUFFERS_DATA_BUFFER, textureCoords * RENDER_SCALE).z).rgb;
 
-    #elif DEBUG_NORMALS == 1
+    #elif DEBUG_GEOMETRY == 2
 
         color = decodeUnitVector(unpackUnorm2x16(texture(GBUFFERS_DATA_BUFFER, textureCoords * RENDER_SCALE).w)) * 0.5 + 0.5;
 
-    #elif DEBUG_DEPTH == 1
+    #elif DEBUG_GEOMETRY == 3
 
         color = vec3(
-            screenToViewDepth(texture(COMBINED_DEPTH0_BUFFER, textureCoords * RENDER_SCALE).r, combinedProjectionInverse)
+            screenToViewDepth(texture(COMBINED_DEPTH0_BUFFER, textureCoords * RENDER_SCALE).r, projectionInverseMatrix)
             / farPlane
         );
 
-    #elif DEBUG_AO == 1
+    #elif DEBUG_GEOMETRY == 4
 
         color = vec3(texture(AO_BUFFER, textureCoords * RENDER_SCALE).b);
 

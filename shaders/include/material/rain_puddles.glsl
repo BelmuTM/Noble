@@ -21,7 +21,7 @@
 float calculatePuddleRipples(vec2 position) {
     const mat4x2 rippleOffsets = mat4x2(vec2(0.08, 0.13), vec2(0.1, -0.2), vec2(-0.25, 0.12), vec2(-0.13, -0.23));
 
-    float time = frameTimeCounter * 1.1;
+    float time = TIME * 1.1;
 
     float ripple  = texture(noisetex, position + time * rippleOffsets[0]).a * 0.25;
           ripple += texture(noisetex, position + time * rippleOffsets[1]).a * 0.25;

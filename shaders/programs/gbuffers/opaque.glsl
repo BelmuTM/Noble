@@ -324,7 +324,7 @@
 
         if (blockId >= FIRE_ID && blockId <= HANGING_LANTERN_ID) {
             
-            float time = frameTimeCounter * FLICKERING_LIGHTS_SPEED;
+            float time = TIME * FLICKERING_LIGHTS_SPEED;
 
             float rng = FBM(ceil(scenePosition + cameraPosition) + time * 0.1, 1, 0.5, 2.0, 0.5);
 

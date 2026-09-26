@@ -180,7 +180,7 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
     // The ray's height relative to the clouds thickness
     float heightPercentage = (position.y - (planetRadius + layer.altitude)) / layer.thickness;
 
-    position += wind * frameTimeCounter;
+    position += wind * TIME;
 
     vec2 scaledCoords = position.xz * layer.scale;
 

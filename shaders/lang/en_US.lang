@@ -81,7 +81,7 @@ screen.VIGNETTE                = Vignette
 screen.FILM_GRAIN              = Film Grain
 screen.CEL_SHADING             = Cel Shading
 screen.MISC                    = 8-Bit Filter | Color Palettes
-screen.DEBUG                   = Debug
+screen.DEBUG                   = Misc.
 
 #////////////////////////////////////////////////////////#
 #------------------------ SHADOWS -----------------------#
@@ -911,6 +911,10 @@ value.EXPOSURE.0 = §e§lManual
 value.EXPOSURE.1 = §e§lAverage (Auto.)
 value.EXPOSURE.2 = §e§lHistogram (Auto.)
 
+option.LOCAL_EXPOSURE_FACTOR = Local Exposure Percentage
+option.LOCAL_EXPOSURE_FACTOR.comment = Adjusts how much the camera's exposure should adapt to the local brightness of areas on the screen.
+suffix.LOCAL_EXPOSURE_FACTOR = %
+
 # https://www.nikonusa.com/en/learn-and-explore/a/tips-and-techniques/understanding-focal-length.html#:~:text=Focal%20length%2C%20usually%20represented%20in,description%20of%20a%20photographic%20lens.&text=The%20longer%20the%20focal%20length,and%20the%20lower%20the%20magnification.
 option.FOCAL = Focal Length
 option.FOCAL.comment = Usually represented in millimeters, the focal length is the basic description of a photographic lens. The longer the focal length, the narrower the angle of view. It influences §bDepth of Field.
@@ -1200,31 +1204,24 @@ value.PALETTE.10 = §bBerry §dNebula
 #------------------------- DEBUG ------------------------#
 #////////////////////////////////////////////////////////#
 
-option.DEBUG_ALBEDO = Display Albedo
-value.DEBUG_ALBEDO.0 = §cOFF
-value.DEBUG_ALBEDO.1 = §aON
+option.DEBUG_GEOMETRY = Debug Geometry
+value.DEBUG_GEOMETRY.0 = §cOFF
+value.DEBUG_GEOMETRY.1 = Albedo
+value.DEBUG_GEOMETRY.2 = Normals
+value.DEBUG_GEOMETRY.3 = Depth
+value.DEBUG_GEOMETRY.4 = Ambient Occlusion
 
-option.DEBUG_NORMALS = Display Normals
-value.DEBUG_NORMALS.0 = §cOFF
-value.DEBUG_NORMALS.1 = §aON
-
-option.DEBUG_DEPTH = Display Depth
-value.DEBUG_DEPTH.0 = §cOFF
-value.DEBUG_DEPTH.1 = §aON
+option.DEBUG_POST = Debug Post-FX
+value.DEBUG_POST.0 = §cOFF
+value.DEBUG_POST.1 = Exposure Histogram
+value.DEBUG_POST.2 = Color Grading LUT
 
 option.WHITE_WORLD = White World
 option.WHITE_WORLD.comment = Makes the textures fully white, only leaving the lighting visible.
 value.WHITE_WORLD.0 = §cOFF
 value.WHITE_WORLD.1 = §aON
 
-option.DEBUG_AO = Display Ambient Occlusion
-value.DEBUG_AO.0 = §cOFF
-value.DEBUG_AO.1 = §aON
-
-option.DEBUG_HISTOGRAM = Display Histogram
-value.DEBUG_HISTOGRAM.0 = §cOFF
-value.DEBUG_HISTOGRAM.1 = §aON
-
-option.DEBUG_LUT = Display LUT
-value.DEBUG_LUT.0 = §cOFF
-value.DEBUG_LUT.1 = §aON
+option.FREEZE_TIME = Freeze Time
+option.FREEZE_TIME.comment = Makes all time-dependent effects static, as if time was frozen.
+value.FREEZE_TIME.0 = §cOFF
+value.FREEZE_TIME.1 = §aON

@@ -72,7 +72,7 @@ float jitter = interleavedGradientNoise(SCREEN_COORDS);
     const vec3 endFogFlashAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(0.16, 0.20, 0.14));
     const vec3 endFogFlashScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(1.00, 1.00, 1.00));
 
-    float airFogTransitionFactor = sin(frameTimeCounter * 2.0);
+    float airFogTransitionFactor = sin(TIME * 2.0);
 
     vec3 airFogAbsorptionCoefficients = mix(endFogAbsorptionCoefficients, endFogFlashAbsorptionCoefficients, airFogTransitionFactor);
     vec3 airFogScatteringCoefficients = mix(endFogScatteringCoefficients, endFogFlashScatteringCoefficients, airFogTransitionFactor);
@@ -166,7 +166,7 @@ float calculateAirFogPhase(float cosTheta) {
 
             // Rotating cloud centered at the origin (0,0,0)
         
-            float movementSpeed = frameTimeCounter * 10.0;
+            float movementSpeed = TIME * 10.0;
 
             position.y -= 60.0;
             position.xz = -position.xz;

@@ -24,7 +24,7 @@
     float steepness  = WAVE_STEEPNESS;                          \
     float amplitude  = WAVE_AMPLITUDE;                          \
     float wavelength = WAVE_LENGTH * 1.0;                       \
-    float time       = frameTimeCounter * speed * 0.1;          \
+    float time       = TIME * speed * 0.1;                      \
                                                                 \
     float noise = textureBicubic(noisetex, position * 5e-3).a;  \
                                                                 \
