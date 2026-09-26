@@ -45,31 +45,31 @@ uniform sampler3D depthtex2;
 struct CloudLayer {
     int8_t stepCount;
 
-    float16_t scale;
-    float16_t detailScale;
-    float16_t frequency;
+    float scale;
+    float detailScale;
+    float frequency;
 
-    float16_t density;
+    float density;
 
-    float16_t altitude;
-    float16_t thickness;
-    float16_t coverage;
-    float16_t swirl;
+    float altitude;
+    float thickness;
+    float coverage;
+    float swirl;
 };
 
 #define PARSE_CLOUD_LAYER_SETTINGS( \
     SCATTERING_STEPS, SCALE, DETAILSCALE, FREQUENCY, DENSITY, ALTITUDE, THICKNESS, COVERAGE, SWIRL \
 ) \
     CloudLayer(                      \
-        int8_t(SCATTERING_STEPS              ), \
-        float16_t(1e-5 + SCALE       * 9.9e-6), \
-        float16_t(1e-5 + DETAILSCALE * 9.9e-6), \
-        float16_t(FREQUENCY                  ), \
-        float16_t(DENSITY            * 0.01  ), \
-        float16_t(ALTITUDE                   ), \
-        float16_t(THICKNESS                  ), \
-        float16_t(COVERAGE           * 0.01  ), \
-        float16_t(SWIRL              * 0.01  )  \
+        int8_t(SCATTERING_STEPS),    \
+        1e-5 + SCALE       * 9.9e-6, \
+        1e-5 + DETAILSCALE * 9.9e-6, \
+        FREQUENCY                  , \
+        DENSITY            * 0.01  , \
+        ALTITUDE                   , \
+        THICKNESS                  , \
+        COVERAGE           * 0.01  , \
+        SWIRL              * 0.01    \
     )
 
 #if defined WORLD_OVERWORLD
@@ -198,21 +198,33 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
               worleyNoise = remap(worleyNoise * worleyNoise, 0.1, 1.0, 0.0, 1.0);
 
         float bakedNoise = (
-            remap(texture(noisetex, scaledCoords * layer.frequency * mix(0.07, 0.01, wetness)).g * 1.5 - 0.25, saturate(0.4 - globalCoverage * 0.5), 1.0, 0.0, 1.0)
+            remap(
+                texture(noisetex, scaledCoords * layer.frequency * mix(0.07, 0.01, wetness)).g * 1.5 - 0.25,
+                saturate(0.4 - globalCoverage * 0.5), 
+                1.0, 
+                0.0, 
+                1.0
+            )
         );
 
         const float weatherMapCutoff = 0.4;
 
-        weatherMap = remap(1.6 * (bakedNoise + worleyNoise * 0.3), saturate(weatherMapCutoff - globalCoverage * 0.5), 1.0, 0.0, 1.0) * 0.8 + 0.1;
+        weatherMap = remap(
+            1.6 * (bakedNoise + worleyNoise * 0.3),
+            saturate(weatherMapCutoff - globalCoverage * 0.5),
+            1.0,
+            0.0,
+            1.0
+        ) * 0.8 + 0.1;
 
     } else {
 
         // Upper layer
 
-        weatherMap  = FBM(scaledCoords, 1, layer.frequency, 2.0, 0.5);
-        weatherMap *= saturate(texture(noisetex, position.xz * 2e-4).b * 0.8 + 0.5);
+        weatherMap  = texture(noisetex, scaledCoords * 0.01).a;
+        weatherMap *= saturate(texture(noisetex, scaledCoords * 1.0).b);
 
-        weatherMap = weatherMap * (1.0 - layer.coverage) + layer.coverage;
+        weatherMap = remap(weatherMap, 0.0, 1.0, layer.coverage, 1.0);
 
     }
 
@@ -237,8 +249,10 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
 
     vec4 shapeTex = texture(SHAPE_NOISE_TEXTURE, position * shapeNoiseScale);
 
-    float shapeNoise = remap(shapeTex.r, (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125) - 1.0, 1.0, 0.0, 1.0); // Combine noise channels with FBM
-          shapeNoise = remap(shapeNoise * shapeAlter(heightPercentage, weatherMap), 1.0 - 0.75 * weatherMap, 1.0, 0.0, 1.0);  // Height-dependent shape altering
+    // Combine noise channels with FBM
+    float shapeNoise = remap(shapeTex.r, (shapeTex.g * 0.625 + shapeTex.b * 0.25 + shapeTex.a * 0.125) - 1.0, 1.0, 0.0, 1.0);
+    // Height-dependent shape altering
+          shapeNoise = remap(shapeNoise * shapeAlter(heightPercentage, weatherMap), 1.0 - 0.75 * weatherMap, 1.0, 0.0, 1.0);
     
     // Detail noise
 
@@ -248,7 +262,9 @@ float calculateCloudsDensity(vec3 position, CloudLayer layer, bool isLowerLayer)
     vec3 detailTex = texture(DETAIL_NOISE_TEXTURE, position * detailNoiseScale).rgb;
 
     float detailNoise = detailTex.r * 0.625 + detailTex.g * 0.25 + detailTex.b * 0.125;
-          detailNoise = detailNoiseIntensity * exp(-layer.coverage * 0.75) * mix(detailNoise, 1.0 - detailNoise, saturate(heightPercentage * 5.0));
+          detailNoise = detailNoiseIntensity 
+                      * exp(-layer.coverage * 0.75) 
+                      * mix(detailNoise, 1.0 - detailNoise, saturate(heightPercentage * 5.0));
 
     return saturate(remap(shapeNoise, detailNoise, 1.0, 0.0, 1.0)) * densityAlter(heightPercentage, weatherMap) * layer.density;
 }
@@ -307,7 +323,11 @@ vec4 estimateCloudsScattering(CloudLayer layer, vec3 rayDirection, bool isLowerL
 
     // Adaptive steps
     
-    int stepCount = int(mix(layer.stepCount * 0.25, float(layer.stepCount), saturate(length(rayPosition) / length(atmosphereRayPosition + rayDirection * distsToVolume.y))));
+    int stepCount = int(mix(
+        layer.stepCount * 0.25,
+        float(layer.stepCount),
+        saturate(length(rayPosition) / length(atmosphereRayPosition + rayDirection * distsToVolume.y))
+    ));
     
     for (int i = 0; i < stepCount && transmittance > cloudsTransmitThreshold; i++, rayPosition += increment) {
 

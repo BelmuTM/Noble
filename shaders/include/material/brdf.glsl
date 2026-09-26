@@ -169,7 +169,7 @@ vec3 computeDiffuse(
 
     vec3 viewDirection = normalize(-fragPosition);
 
-    setBillboardNormal(material.normal, material.id);
+    setBillboardNormal(material.normal, lightDirection, material.id);
 
     vec3 diffuse = vec3(0.0);
 

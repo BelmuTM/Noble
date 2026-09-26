@@ -175,7 +175,7 @@
 
             vec3 normal = decodeUnitVector(unpackUnorm2x16(dataTexture.w));
 
-            setBillboardNormal(normal, unpackId(dataTexture.x));
+            setBillboardNormal(normal, lightVectorWorld, unpackId(dataTexture.x));
 
             vec3 screenPosition = vec3(textureCoords, depth);
             vec3 viewPosition   = screenToView(screenPosition, projectionInverseMatrix, true);
