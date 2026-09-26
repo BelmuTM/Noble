@@ -301,8 +301,9 @@ float calculateAirFogPhase(float cosTheta) {
             float fogRayLength = sky ? distsToVolume.y : rayLength;
                   fogRayLength = clamp(fogRayLength - distsToVolume.x, 0.0, farPlane);
 
-            int fogStepCount = int(floor(float(AIR_FOG_MIN_SCATTERING_STEPS) + AIR_FOG_SCATTERING_STEPS_GROWTH * fogRayLength));
-                fogStepCount = min(fogStepCount, AIR_FOG_MAX_SCATTERING_STEPS);
+            float fogStepGrowth = exp(fogRayLength * km_to_m * AIR_FOG_SCATTERING_STEPS_GROWTH);
+
+            int fogStepCount = min(int(floor(float(AIR_FOG_MIN_SCATTERING_STEPS) + fogStepGrowth)), AIR_FOG_MAX_SCATTERING_STEPS);
 
             float fogStepSize = 1.0 / float(fogStepCount);
 
