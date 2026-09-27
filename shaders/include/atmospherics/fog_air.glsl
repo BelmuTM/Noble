@@ -472,13 +472,14 @@ float calculateAirFogPhase(float cosTheta) {
 
         }
 
+        scatteringSky += multipleScatteringAerial * isotropicPhase;
+
         #if defined WORLD_OVERWORLD
-            scatteringSky *= eyeBrightness.y * rcp240;
+            scatteringSky *= eyeBrightnessSmooth.y * rcp240;
         #endif
 
-        scatteringOut += scatteringSun            * directIlluminance
-                       + scatteringSky            * skyIlluminance
-                       + multipleScatteringAerial * skyIlluminance * isotropicPhase;
+        scatteringOut += scatteringSun * directIlluminance
+                       + scatteringSky * skyIlluminance;
         
         transmittanceOut = transmittanceGround * transmittanceAerial;
     }
