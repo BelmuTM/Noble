@@ -169,6 +169,10 @@ void debugOutput(inout vec3 color) {
 
     #elif DEBUG_GEOMETRY == 4
 
+        color = vec3(texture(shadowtex0, textureCoords).r);
+
+    #elif DEBUG_GEOMETRY == 5
+
         color = vec3(texture(AO_BUFFER, textureCoords * RENDER_SCALE).b);
 
     #endif
@@ -269,6 +273,4 @@ void main() {
     #endif
 
     debugOutput(colorOut);
-
-    //colorOut = vec3(texture(shadowtex0, textureCoords).r);
 }

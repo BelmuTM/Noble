@@ -129,7 +129,10 @@
         vec3 prevScenePosition = viewToWorld(screenToView(prevPosition, projectionInverseMatrix, false));
         bool closeToCamera     = distance(gbufferModelViewInverse[3].xyz, prevScenePosition) > 1.1;
 
-        float depthWeight = pow(exp(-abs(linearizeDepth(prevPosition.z) - linearizeDepth(prevDepth))), 2.0);
+        float depthWeight = pow(exp(-abs(
+            screenToViewDepth(prevPosition.z, projectionInverseMatrix)
+          - screenToViewDepth(prevDepth, projectionInverseMatrix)
+        )), 2.0);
 
         temporalDataOut.g *= float(insideScreenBounds(prevPosition.xy, RENDER_SCALE));
         temporalDataOut.g *= float(depth >= handDepth);

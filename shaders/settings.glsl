@@ -683,7 +683,7 @@ const float RCP_CLOUDS_SHADOWS_STEPS = 1.0 / CLOUDS_SHADOWS_STEPS;
 /*----------------------- DEBUG ------------------------*/
 //////////////////////////////////////////////////////////
 
-#define DEBUG_GEOMETRY 0 // [0 1 2 3 4]
+#define DEBUG_GEOMETRY 0 // [0 1 2 3 4 5]
 
 #define DEBUG_POST 0 // [0 1 2]
 

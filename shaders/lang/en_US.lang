@@ -1204,7 +1204,8 @@ value.DEBUG_GEOMETRY.0 = §cOFF
 value.DEBUG_GEOMETRY.1 = Albedo
 value.DEBUG_GEOMETRY.2 = Normals
 value.DEBUG_GEOMETRY.3 = Depth
-value.DEBUG_GEOMETRY.4 = Ambient Occlusion
+value.DEBUG_GEOMETRY.4 = Shadow Map
+value.DEBUG_GEOMETRY.5 = Ambient Occlusion
 
 option.DEBUG_POST = Debug Post-FX
 value.DEBUG_POST.0 = §cOFF
