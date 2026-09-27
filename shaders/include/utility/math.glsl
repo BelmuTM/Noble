@@ -54,6 +54,8 @@ const float degrees_to_radians = 0.01745329251994;
 //////////////////////////////////////////////////////////
 
 float maxEps(float x) { return max(EPS, x);       }
+vec3  maxEps(vec3 x)  { return max(vec3(EPS), x); }
+
 float max0(float x)   { return max(0.0, x);       }
 vec2  max0(vec2 x)    { return max(vec2(0.0), x); }
 vec3  max0(vec3 x)    { return max(vec3(0.0), x); }

@@ -435,7 +435,7 @@ float calculateAirFogPhase(float cosTheta) {
                 scatteringSkyAerial += atmosphereScatteringCoefficients * vec2(airmassAerial.xy * isotropicPhase) * visibleScatteringAerial;
 
                 vec3 stepScattering       = atmosphereScatteringCoefficients * airmassAerial.xy;
-                vec3 stepScatteringAlbedo = stepScattering / opticalDepthAerial;
+                vec3 stepScatteringAlbedo = stepScattering / maxEps(opticalDepthAerial);
 
                 vec3 multScatteringFactorAerial = stepScatteringAlbedo * 0.84;
                 vec3 multScatteringEnergyAerial = multScatteringFactorAerial / (1.0 - multScatteringFactorAerial);

@@ -77,7 +77,7 @@ const float waterAnisotropyFactor = 0.85;
 const vec3 waterAbsorptionCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(WATER_ABSORPTION_R, WATER_ABSORPTION_G, WATER_ABSORPTION_B) * 0.01);
 const vec3 waterScatteringCoefficients = SRGB_TO_WORKING_SPACE_COEFFICIENTS(vec3(WATER_SCATTERING_R, WATER_SCATTERING_G, WATER_SCATTERING_B) * 0.01);
 
-const vec3 waterExtinctionCoefficients = max(waterScatteringCoefficients + waterAbsorptionCoefficients, vec3(EPS));
+const vec3 waterExtinctionCoefficients = maxEps(waterScatteringCoefficients + waterAbsorptionCoefficients);
 
 bool isWater(uint materialID) {
     #if defined DISTANT_HORIZONS

@@ -89,13 +89,7 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
         material.alpha    = 0.0;
         material.emission = 0.0;
         material.albedo   = vec3(1.0);
-
-        const mat3 tbn = mat3(
-            vec3(1.0, 0.0, 0.0),
-            vec3(0.0, 0.0, 1.0),
-            vec3(0.0, 1.0, 0.0)
-        );
-
+        
         material.normal = getWaterNormal(scenePosition + cameraPosition, material.normal, WATER_OCTAVES);
 
     } else {
