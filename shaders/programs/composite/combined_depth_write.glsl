@@ -64,14 +64,27 @@
 
         void main() {
 
-            #if defined VOXY
-                vec2 modDepthCoords = textureCoords;
-            #else
-                vec2 modDepthCoords = vertexCoords;
-            #endif
+            float depth = texture(depthtex0, vertexCoords).r;
 
-            float depth    = texture(depthtex0, vertexCoords).r;
-            float depthLod = texture(modDepthTex0, modDepthCoords).r;
+            #if defined VOXY
+
+                // Required because Voxy's translucent program runs before deferred (wtf???)
+
+                #if defined WRITE_DEPTH_0
+
+                    float depthLod = texture(modDepthTex0, textureCoords).r;
+
+                #elif defined WRITE_DEPTH_1
+
+                    float depthLod = texture(modDepthTex1, textureCoords).r;
+
+                #endif
+
+            #else
+
+                float depthLod = texture(modDepthTex0, vertexCoords).r;
+
+            #endif
 
             float linearDepth    = screenToViewDepth(depth, gbufferProjectionInverse);
             float linearDepthLod = screenToViewDepth(depthLod, modProjectionInverse);
