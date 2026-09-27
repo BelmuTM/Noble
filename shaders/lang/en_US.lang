@@ -23,11 +23,11 @@ option.ABOUT.comment = §r§lTwitter: §r§7@belmu_. §r§lDiscord: §r§7belmu.
 value.ABOUT.0 = §f§lby §6§lBelmu
 value.ABOUT.1 = §b§lBoop!
 
-profile.ULTRA  = §d§lUltra
-profile.HIGH   = §c§lHigh
-profile.MEDIUM = §e§lMedium
-profile.LIGHT  = §a§lLight
-profile.POTATO = §b§lPotato
+profile.ULTRA  = §dUltra
+profile.HIGH   = §cHigh
+profile.MEDIUM = §eMedium
+profile.LIGHT  = §aLight
+profile.POTATO = §bPotato
 
 option.RENDER_SCALE_OPTION = Render Scale
 option.RENDER_SCALE_OPTION.comment = Adjusts the overall rendering scale of Noble. §cHigher value gives better results, but reduces §cperformance.

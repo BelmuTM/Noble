@@ -420,7 +420,7 @@ float calculateAirFogPhase(float cosTheta) {
 
                 // Aerial perspective
 
-                float centerDistance = planetRadius + max(aerialRayPosition.y - SEA_LEVEL, 0.0);
+                float centerDistance = planetRadius + max0(aerialRayPosition.y - SEA_LEVEL);
 
                 vec3 airmassAerial      = getAtmosphereDensities(centerDistance) * AERIAL_PERSPECTIVE_DENSITY * aerialRayLength;
                 vec3 opticalDepthAerial = atmosphereAttenuationCoefficients * airmassAerial;

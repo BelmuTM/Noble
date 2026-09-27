@@ -72,18 +72,15 @@
 
             // Ambient occlusion tracing
 
-            vec3 currFragment = vec3(textureCoords, depth);
-
-            vec3 closestFragment = getClosestFragment(depthBuffer1, currFragment);
-
-            vec3 viewPosition = screenToView(closestFragment, projectionInverseMatrix, true);
+            vec3 screenPosition = vec3(textureCoords, depth);
+            vec3 viewPosition   = screenToView(screenPosition, projectionInverseMatrix, true);
 
             vec3 bentNormal = vec3(0.0);
 
             #if AO == 1
 
                 // Cheap fix for depth precision loss over far distances
-                viewPosition += normal * mix(1e-3, 4.0, saturate(length(viewPosition) / farPlane));
+                viewPosition += normal * mix(1e-2, 4.0, saturate(length(viewPosition) / 1024.0));
 
                 ao.b = GTAO(viewPosition, normal, bentNormal);
 
@@ -100,6 +97,8 @@
             // Ambient occlusion filtering
 
             #if AO_FILTER == 1
+
+                vec3 closestFragment = getClosestFragment(depthBuffer1, screenPosition);
 
                 vec2 velocity   = getVelocity(closestFragment, projectionInverseMatrix, gbufferPreviousProjection).xy;
                 vec2 prevCoords = vertexCoords + velocity * RENDER_SCALE;
