@@ -53,7 +53,6 @@
 
         #include "/include/common.glsl"
 
-        #include "/include/utility/rng.glsl"
         #include "/include/utility/phase.glsl"
         
         #include "/include/atmospherics/constants.glsl"

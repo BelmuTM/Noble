@@ -213,7 +213,7 @@ vec3 computeDiffuse(
 
     #endif
 
-    diffuse *= directIlluminance * SUNLIGHT_STRENGTH;
+    diffuse *= directIlluminance * SUN_LIGHT_STRENGTH;
 
     #if SUNLIGHT_AO == 1 || defined WORLD_END
 
@@ -221,7 +221,7 @@ vec3 computeDiffuse(
 
     #endif
 
-    vec3 skyLight = skyIlluminance * SKYLIGHT_STRENGTH;
+    vec3 skyLight = skyIlluminance * SKY_LIGHT_STRENGTH;
 
     #if defined WORLD_OVERWORLD
 

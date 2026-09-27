@@ -36,8 +36,8 @@
         It reduces error of the Riemann sum from ~O(h) for endpoint sampling to ~O(h²) (more accurate).
 */
 
-vec3 getAtmosphereDensities(float centerDist) {
-    float altitudeKm = (centerDist - planetRadius) * m_to_km;
+vec3 getAtmosphereDensities(float centerDistance) {
+    float altitudeKm = (centerDistance - planetRadius) * m_to_km;
 
     vec2 rayleighMie = exp(altitudeKm * -invScaleHeights * km_to_m);
 
@@ -60,8 +60,8 @@ vec3 getAtmosphereDensities(float centerDist) {
 
 vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 attenuationCoefficients) {
 
-    float stepSize    = intersectSphere(origin, lightDirection, atmosphereUpperRadius).y * RCP_ATMOSPHERE_TRANSMITTANCE_STEPS;
-    vec3  increment   = lightDirection * stepSize;
+    float rayLength   = intersectSphere(origin, lightDirection, atmosphereUpperRadius).y * RCP_ATMOSPHERE_TRANSMITTANCE_STEPS;
+    vec3  increment   = lightDirection * rayLength;
     vec3  rayPosition = origin + increment * 0.5;
 
     vec3 accumAirmass = vec3(0.0);
@@ -69,7 +69,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
     // Transmittance evaluation
     
     for (int i = 0; i < ATMOSPHERE_TRANSMITTANCE_STEPS; i++, rayPosition += increment) {
-        accumAirmass += getAtmosphereDensities(length(rayPosition)) * stepSize;
+        accumAirmass += getAtmosphereDensities(length(rayPosition)) * rayLength;
     }
 
     return exp(-attenuationCoefficients * accumAirmass);
@@ -85,9 +85,9 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
 
         if (distsToVolume.y < 0.0) { return vec3(0.0); }
 
-        float stepSize   = (distsToVolume.y - distsToVolume.x) * RCP_ATMOSPHERE_SCATTERING_STEPS;
-        vec3 increment   = rayDirection * stepSize;
-        vec3 rayPosition = atmosphereRayPosition + increment * 0.5;
+        float rayLength   = (distsToVolume.y - distsToVolume.x) * RCP_ATMOSPHERE_SCATTERING_STEPS;
+        vec3  increment   = rayDirection * rayLength;
+        vec3  rayPosition = atmosphereRayPosition + increment * 0.5;
 
         // Phases
 
@@ -124,7 +124,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
 
             // Density function
 
-            vec3 airmass = getAtmosphereDensities(length(rayPosition)) * stepSize;
+            vec3 airmass = getAtmosphereDensities(length(rayPosition)) * rayLength;
 
             // Scattering evaluation
 
@@ -216,12 +216,16 @@ vec3 evaluateDirectIlluminance() {
 }
 
 vec3 sampleAtmosphereTexture(vec2 coords, bool monochrome) {
+
     vec3 radiance = texture(ATMOSPHERE_BUFFER, coords).rgb;
 
-    return monochrome ? vec3(luminanceAP1(radiance)) : radiance;
+    return monochrome 
+         ? mix(vec3(luminanceAP1(radiance)), radiance, SKY_LIGHT_SATURATION * 0.01)
+         : radiance;
 }
 
 vec3 evaluateUniformSkyIlluminanceApproximation() {
+
     vec3 skyIlluminance = vec3(0.0);
 
     const ivec2 samples        = ivec2(16, 8);

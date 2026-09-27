@@ -60,8 +60,6 @@
     flat in vec3 directIlluminance;
     flat in vec3 uniformSkyIlluminance;
 
-    #include "/include/utility/rng.glsl"
-
     #include "/include/atmospherics/atmosphere_header.glsl"
 
     #include "/include/utility/sampling.glsl"

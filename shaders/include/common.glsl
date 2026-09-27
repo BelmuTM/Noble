@@ -26,6 +26,7 @@
 #include "/include/uniforms_lod_mods.glsl"
 
 #include "/include/utility/math.glsl"
+#include "/include/utility/rng.glsl"
 #include "/include/utility/color.glsl"
 
 #include "/include/utility/transforms.glsl"

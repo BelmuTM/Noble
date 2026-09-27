@@ -325,13 +325,17 @@ option.SUN_COLOR_B = §9Blue
 option.SUN_COLOR_B.comment = Adjusts how §9blue§r the Sun and its light are.
 suffix.SUN_COLOR_B = %
 
-option.SUNLIGHT_STRENGTH = Sun Light Strength
-option.SUNLIGHT_STRENGTH.comment = Adjusts the strength of Sun light.
-suffix.SUNLIGHT_STRENGTH = x
+option.SUN_LIGHT_STRENGTH = Sun Light Strength
+option.SUN_LIGHT_STRENGTH.comment = Adjusts the strength of Sun light.
+suffix.SUN_LIGHT_STRENGTH = x
 
-option.SKYLIGHT_STRENGTH = Sky Light Strength
-option.SKYLIGHT_STRENGTH.comment = Adjusts the strength of sky light.
-suffix.SKYLIGHT_STRENGTH = x
+option.SKY_LIGHT_STRENGTH = Sky Light Strength
+option.SKY_LIGHT_STRENGTH.comment = Adjusts the strength of sky light.
+suffix.SKY_LIGHT_STRENGTH = x
+
+option.SKY_LIGHT_SATURATION = Sky Light Saturation
+option.SKY_LIGHT_SATURATION.comment = Adjusts how saturated the color of sky light is.
+suffix.SKY_LIGHT_SATURATION = %
 
 #////////////////////////////////////////////////////////#
 #-------------------- LABPBR SUPPORT --------------------#
@@ -983,7 +987,7 @@ option.VIBRANCE = Vibrance
 option.VIBRANCE.comment = Refers to bright and strong colors, adds saturation to bland colors.
 
 option.SATURATION = Saturation
-option.SATURATION.comment = Saturation refers to the level of colour saturation within the image or the amount of chrominance information.
+option.SATURATION.comment = Saturation refers to the level of color saturation within the image or the amount of chrominance information.
 
 option.CONTRAST = Contrast
 option.CONTRAST.comment = Difference in luminance or color that makes an object.

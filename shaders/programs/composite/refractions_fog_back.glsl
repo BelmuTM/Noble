@@ -59,13 +59,9 @@
     flat in vec3 directIlluminance;
     flat in vec3 skyIlluminance;
 
-    #include "/include/utility/rng.glsl"
-
     #include "/include/atmospherics/atmosphere_header.glsl"
 
     #include "/include/fragment/shadows.glsl"
-    
-    #include "/include/atmospherics/fog.glsl"
 
     #if REFRACTIONS > 0
 
@@ -74,6 +70,9 @@
         #include "/include/fragment/refractions.glsl"
 
     #endif
+
+    #include "/include/atmospherics/fog_air.glsl"
+    #include "/include/atmospherics/fog_water.glsl"
 
     #include "/include/post/exposure.glsl"
 

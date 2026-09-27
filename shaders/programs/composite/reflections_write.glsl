@@ -39,8 +39,6 @@
 
     #include "/include/common.glsl"
 
-    #include "/include/utility/rng.glsl"
-
     #include "/include/atmospherics/illuminance_fetch.glsl"
     #include "/include/atmospherics/atmosphere_header.glsl"
 

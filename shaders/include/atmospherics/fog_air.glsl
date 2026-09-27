@@ -20,7 +20,7 @@
 
 /*
     [References]:
-        Kutz et al. (2017). Spectral and Decomposition Tracking for Rendering HeterogeneousVolumes. https://media.disneyanimation.com/uploads/production/publication_asset/158/asset/SpectralAndDecompositionTracking.pdf
+        Kutz et al. (2017). Spectral and Decomposition Tracking for Rendering Heterogeneous Volumes. https://media.disneyanimation.com/uploads/production/publication_asset/158/asset/SpectralAndDecompositionTracking.pdf
 */
 
 uniform ivec2 eyeBrightness;
@@ -28,6 +28,10 @@ uniform ivec2 eyeBrightnessSmooth;
 uniform float rcp240;
 
 float jitter = interleavedGradientNoise(SCREEN_COORDS);
+
+//////////////////////////////////////////////////////////
+/*----------------- AIR FOG PARAMETERS -----------------*/
+//////////////////////////////////////////////////////////
 
 #if defined WORLD_OVERWORLD
 
@@ -375,22 +379,21 @@ float calculateAirFogPhase(float cosTheta) {
         vec3 scatteringSunAerial = vec3(0.0);
         vec3 scatteringSkyAerial = vec3(0.0);
 
+        vec3 multipleScatteringAerial = vec3(0.0);
+
         vec3 transmittanceAerial = vec3(1.0);
 
         #if defined WORLD_OVERWORLD && AERIAL_PERSPECTIVE == 1
 
-            const float aerialStepSize = 1.0 / AERIAL_PERSPECTIVE_SCATTERING_STEPS;
-
-            float aerialRayLength  = mix(rayLength, rayLength * AERIAL_PERSPECTIVE_DISTANCE_MULTIPLIER, saturate(rayLength / farPlane) * float(!sky));
-                  aerialRayLength *= aerialStepSize;
+            float aerialRayLength = rayLength * AERIAL_PERSPECTIVE_DISTANCE_MULTIPLIER;
             
-            #if defined VOXY
+            float aerialStepGrowth = exp(aerialRayLength * km_to_m * AERIAL_PERSPECTIVE_SCATTERING_STEPS_GROWTH);
 
-                if (sky) {
-                    aerialRayLength *= 0.25; // Required because Voxy is a pain in the ass
-                }
+            int aerialStepCount = min(int(floor(float(AERIAL_PERSPECTIVE_MIN_SCATTERING_STEPS) + aerialStepGrowth)), AERIAL_PERSPECTIVE_MAX_SCATTERING_STEPS);
 
-            #endif
+            float aerialStepSize = 1.0 / float(aerialStepCount);
+
+            aerialRayLength *= aerialStepSize;
 
             vec3 aerialIncrement = rayDirection * aerialRayLength;
 
@@ -403,14 +406,7 @@ float calculateAirFogPhase(float cosTheta) {
             // Aerial perspective phase
             vec2 phaseAerial = vec2(rayleighPhase(VdotL), kleinNishinaPhase(VdotL, mieAnisotropyFactor));
 
-            float airmassAerial      = aerialRayLength * AERIAL_PERSPECTIVE_DENSITY;
-            vec3  opticalDepthAerial = atmosphereAttenuationCoefficients * vec3(airmassAerial);
-
-            vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
-
-            vec3 integratedStepTransmittanceAerial = saturate((stepTransmittanceAerial - 1.0) / -opticalDepthAerial);
-
-            for (int i = 0; i < AERIAL_PERSPECTIVE_SCATTERING_STEPS && maxOf(transmittanceAerial) > EPS; i++) {
+            for (int i = 0; i < aerialStepCount && maxOf(transmittanceAerial) > EPS; i++) {
 
                 // Shadows sampling
 
@@ -424,10 +420,26 @@ float calculateAirFogPhase(float cosTheta) {
 
                 // Aerial perspective
 
+                float centerDistance = planetRadius + max(aerialRayPosition.y - SEA_LEVEL, 0.0);
+
+                vec3 airmassAerial      = getAtmosphereDensities(centerDistance) * AERIAL_PERSPECTIVE_DENSITY * aerialRayLength;
+                vec3 opticalDepthAerial = atmosphereAttenuationCoefficients * airmassAerial;
+
+                vec3 stepTransmittanceAerial = exp(-opticalDepthAerial);
+
+                vec3 integratedStepTransmittanceAerial = saturate((stepTransmittanceAerial - 1.0) / -opticalDepthAerial);
+
                 vec3 visibleScatteringAerial = transmittanceAerial * integratedStepTransmittanceAerial;
 
-                scatteringSunAerial += atmosphereScatteringCoefficients * vec2(phaseAerial    * airmassAerial) * visibleScatteringAerial * shadow;
-                scatteringSkyAerial += atmosphereScatteringCoefficients * vec2(isotropicPhase * airmassAerial) * visibleScatteringAerial;
+                scatteringSunAerial += atmosphereScatteringCoefficients * vec2(airmassAerial.xy * phaseAerial   ) * visibleScatteringAerial * shadow;
+                scatteringSkyAerial += atmosphereScatteringCoefficients * vec2(airmassAerial.xy * isotropicPhase) * visibleScatteringAerial;
+
+                vec3 stepScattering       = atmosphereScatteringCoefficients * airmassAerial.xy;
+                vec3 stepScatteringAlbedo = stepScattering / opticalDepthAerial;
+
+                vec3 multScatteringFactorAerial = stepScatteringAlbedo * 0.84;
+                vec3 multScatteringEnergyAerial = multScatteringFactorAerial / (1.0 - multScatteringFactorAerial);
+                     multipleScatteringAerial  += multScatteringEnergyAerial * visibleScatteringAerial * stepScattering;
 
                 transmittanceAerial *= stepTransmittanceAerial;
 
@@ -464,142 +476,11 @@ float calculateAirFogPhase(float cosTheta) {
             scatteringSky *= eyeBrightness.y * rcp240;
         #endif
 
-        scatteringOut += scatteringSun * directIlluminance
-                       + scatteringSky * skyIlluminance;
+        scatteringOut += scatteringSun            * directIlluminance
+                       + scatteringSky            * skyIlluminance
+                       + multipleScatteringAerial * skyIlluminance * isotropicPhase;
         
         transmittanceOut = transmittanceGround * transmittanceAerial;
-    }
-
-#endif
-
-#if WATER_FOG == 1
-
-    //////////////////////////////////////////////////////////
-    /*-------------- WATER FOG APPROXIMATION ---------------*/
-    //////////////////////////////////////////////////////////
-
-    void computeWaterFogApproximation(
-        out vec3 scatteringOut,
-        out vec3 transmittanceOut,
-        vec3 startPosition,
-        vec3 endPosition,
-        float VdotL,
-        vec3 directIlluminance,
-        vec3 skyIlluminance,
-        float skyLight
-    ) {
-        transmittanceOut = exp(-waterAbsorptionCoefficients * distance(startPosition, endPosition));
-
-        scatteringOut  = skyIlluminance    * isotropicPhase * skyLight;
-        scatteringOut += directIlluminance * cornetteShanksPhase(VdotL, waterAnisotropyFactor);
-        scatteringOut *= waterScatteringCoefficients * (1.0 - transmittanceOut) / waterAbsorptionCoefficients;
-    }
-
-#else
-
-    //////////////////////////////////////////////////////////
-    /*---------------- WATER FOG RAYMARCHED ----------------*/
-    //////////////////////////////////////////////////////////
-
-    void computeVolumetricWaterFog(
-        out vec3 scatteringOut,
-        out vec3 transmittanceOut,
-        vec3 startPosition,
-        vec3 endPosition,
-        float VdotL,
-        vec3 directIlluminance,
-        vec3 skyIlluminance,
-        float skyLight
-    ) {
-        // Ray marching setup
-
-        const float rcpSteps = 1.0 / WATER_FOG_STEPS;
-
-        vec3  rayVector = endPosition - startPosition;
-        float rayLength = length(rayVector);
-
-        if (rayLength < EPS) { return; }
-
-        vec3 worldDirection = rayVector / rayLength;
-
-        vec3 shadowStartPosition = worldToShadowClip(startPosition);
-        vec3 shadowDirection     = mat3(shadowModelView) * worldDirection * diagonal3(shadowProjection);
-
-        // Analytical transmittance evaluation (water is a homogeneous medium)
-        vec3 transmittance = exp(-waterExtinctionCoefficients * rayLength);
-
-        // CDF over the ray's length for interaction with a water particle (CDF(rayLength) = 1.0 - transmittance)
-        vec3  interactionProbability    = 1.0 - transmittance;
-	    float minInteractionProbability = minOf(interactionProbability);
-
-        float dominantExtinction = minOf(waterExtinctionCoefficients);
-
-        vec3 scatteringSun = vec3(0.0);
-        vec3 scatteringSky = vec3(0.0); 
-
-        for (int i = 0; i < WATER_FOG_STEPS; i++) {
-
-            float rng = (i + jitter) * rcpSteps;
-
-            // Inverting the CDF into a distance value for this iteration/step
-            float stepSize = -log(1.0 - minInteractionProbability * rng) / dominantExtinction;
-
-            // Spectral MIS weighting to correct for sampling the step size from a scalar distribution to integrate for three RGB channels
-            float sampledPDF = dominantExtinction          * exp(-dominantExtinction          * stepSize) / minInteractionProbability;
-            vec3  desiredPDF = waterExtinctionCoefficients * exp(-waterExtinctionCoefficients * stepSize) / interactionProbability;
-
-            vec3 misWeight = desiredPDF / sampledPDF;
-
-            // Shadows sampling
-
-            vec3 shadowScreenPosition = shadowClipToShadowScreen(shadowStartPosition + shadowDirection * stepSize);
-
-            float shadowDepth0 = texture(shadowtex0, shadowScreenPosition.xy).r;
-            vec3  shadow       = getShadowColor(shadowScreenPosition)
-                               + getShadowCaustics(shadowScreenPosition);
-
-            #if defined WORLD_OVERWORLD && CLOUDS_SHADOWS == 1 && CLOUDS_LAYER0_ENABLED == 1
-
-                shadow *= getCloudsShadows(startPosition + worldDirection * stepSize - cameraPosition);
-
-            #endif
-
-            // Linearized distance travelled through water
-            float distanceThroughWater = max0(shadowScreenPosition.z - shadowDepth0) * -shadowProjectionInverse[2].z * RCP_SHADOWS_DEPTH_STRETCH * 2.0;
-
-            scatteringSun += misWeight * shadow * exp(-waterExtinctionCoefficients * distanceThroughWater);
-            scatteringSky += misWeight;
-        }
-
-        vec3 scatteringAlbedo = saturate(waterScatteringCoefficients / waterExtinctionCoefficients);
-
-        // Multiple scattering approximation provided by Jessie
-        vec3 multipleScatteringFactor = scatteringAlbedo * 0.84;
-
-        const int phaseSampleCount = 4;
-
-        float phaseMultiple = 0.0;
-        float anisotropy    = waterAnisotropyFactor;
-
-        // Fake multi-lobe scattering by averaging multiple phase terms
-        for (int i = 0; i < phaseSampleCount; i++) {
-            phaseMultiple += cornetteShanksPhase(VdotL, anisotropy);
-            anisotropy    *= 0.5;
-        }
-        
-        phaseMultiple /= phaseSampleCount;
-
-        float eyeSkylight      = pow2(saturate(eyeBrightnessSmooth.y * rcp240));
-        float adaptiveSkylight = mix(eyeSkylight, skyLight, isEyeInWater == 1 ? maxOf(transmittance) : 1.0);
-
-        // Integral evaluation
-        scatteringOut  = scatteringSun * directIlluminance * phaseMultiple
-                       + scatteringSky * skyIlluminance    * isotropicPhase * adaptiveSkylight;
-
-        scatteringOut *= waterScatteringCoefficients * (1.0 - transmittance) * rcpSteps;
-        scatteringOut *= multipleScatteringFactor / (1.0 - multipleScatteringFactor);
-
-        transmittanceOut = transmittance;
     }
 
 #endif

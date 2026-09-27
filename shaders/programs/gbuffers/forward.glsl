@@ -97,8 +97,6 @@
 
     flat in vec3 directIlluminance;
     flat in vec3 skyIlluminance;
-
-    #include "/include/utility/rng.glsl"
     
     #include "/include/material/brdf.glsl"
 
