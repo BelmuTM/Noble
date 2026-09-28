@@ -22,20 +22,18 @@
 
 #if REFLECTIONS > 0
 
-    #include "/include/taau_scale.glsl"
-
-    const float renderScaleFinal = RENDER_SCALE * reflectionsScale;
-
     layout (rgba16f) uniform image2D colorimg2;
 
     layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-    const vec2 workGroupsRender = vec2(renderScaleFinal, renderScaleFinal);
+    const vec2 workGroupsRender = vec2(1.0, 1.0);
 
     shared vec3 directIlluminance;
     shared vec3 skyIlluminance;
 
     shared float exposure;
+
+    #include "/include/taau_scale.glsl"
 
     #include "/include/common.glsl"
 
@@ -65,6 +63,9 @@
     #endif
 
     void main() {
+
+        const float renderScaleFinal = RENDER_SCALE * reflectionsScale;
+
         ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 
         #if DOWNSCALED_RENDERING == 1

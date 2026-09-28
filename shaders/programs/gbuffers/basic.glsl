@@ -70,7 +70,7 @@
 
             color = vec4(albedoTexture.rgb, 0.0);
 
-            if (gl_FragDepth < handDepth) {
+            if (gl_FragCoord.z < handDepth) {
                 color.a = 0.01;
             }
             

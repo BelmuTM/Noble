@@ -24,8 +24,8 @@
         Inigo Quilez - palette function for thin film (https://iquilezles.org/articles/palettes/)
 
     [References]:
+        Lindbloom, B. (2013). Useful Color Equations. http://brucelindbloom.com/index.html?Math.html
         Uchimura, H. (2017). HDR Theory and practice. https://www.slideshare.net/nikuque/hdr-theory-and-practicce-jp
-        Uchimura, H. (2017). GT Tonemap. https://www.desmos.com/calculator/gslcdxvipg?lang=fr
         Hable, J. (2017). Minimal Color Grading Tools. http://filmicworlds.com/blog/minimal-color-grading-tools/
         Taylor, M. (2019). Tone Mapping. https://64.github.io/tonemapping/
         Wikipedia. (2022). YCoCg. https://en.wikipedia.org/wiki/YCoCg
@@ -40,161 +40,208 @@
 /*------------- COLOR CONVERSION MATRICES --------------*/
 //////////////////////////////////////////////////////////
 
-const mat3 SRGB_2_XYZ_MAT = mat3(
-    0.4124564, 0.3575761, 0.1804375,
-    0.2126729, 0.7151522, 0.0721750,
-    0.0193339, 0.1191920, 0.9503041
+const mat3 BT709_TO_XYZ_MAT = mat3(
+     0.4124564,  0.3575761,  0.1804375,
+     0.2126729,  0.7151522,  0.0721750,
+     0.0193339,  0.1191920,  0.9503041
 );
 
-const mat3 XYZ_2_SRGB_MAT = mat3(
-     3.2409699419,-1.5373831776,-0.4986107603,
-    -0.9692436363, 1.8759675015, 0.0415550574,
-     0.0556300797,-0.2039769589, 1.0569715142
+const mat3 XYZ_TO_BT709_MAT = mat3(
+     3.2409699419, -1.5373831776, -0.4986107603,
+    -0.9692436363,  1.8759675015,  0.0415550574,
+     0.0556300797, -0.2039769589,  1.0569715142
 );
 
-const mat3 XYZ_2_AP0_MAT = mat3(
-     1.0498110175, 0.0000000000,-0.0000974845,
-    -0.4959030231, 1.3733130458, 0.0982400361,
-     0.0000000000, 0.0000000000, 0.9912520182
+const mat3 XYZ_TO_AP0_MAT = mat3(
+     1.0498110175,  0.0000000000, -0.0000974845,
+    -0.4959030231,  1.3733130458,  0.0982400361,
+     0.0000000000,  0.0000000000,  0.9912520182
 );
 
-const mat3 XYZ_2_AP1_MAT = mat3(
-     1.6410233797,-0.3248032942,-0.2364246952,
-    -0.6636628587, 1.6153315917, 0.0167563477,
-     0.0117218943,-0.0082844420, 0.9883948585
+const mat3 XYZ_TO_AP1_MAT = mat3(
+     1.6410233797, -0.3248032942, -0.2364246952,
+    -0.6636628587,  1.6153315917,  0.0167563477,
+     0.0117218943, -0.0082844420,  0.9883948585
 );
 
-const mat3 AP0_2_XYZ_MAT = mat3(
-    0.9525523959, 0.0000000000, 0.0000936786,
-    0.3439664498, 0.7281660966,-0.0721325464,
-    0.0000000000, 0.0000000000, 1.0088251844
+const mat3 AP0_TO_XYZ_MAT = mat3(
+    0.9525523959,  0.0000000000,  0.0000936786,
+    0.3439664498,  0.7281660966, -0.0721325464,
+    0.0000000000,  0.0000000000,  1.0088251844
 );
 
-const mat3 AP1_2_XYZ_MAT = mat3(
-     0.6624541811, 0.1340042065, 0.1561876870,
-     0.2722287168, 0.6740817658, 0.0536895174,
-    -0.0055746495, 0.0040607335, 1.0103391003
+const mat3 AP1_TO_XYZ_MAT = mat3(
+     0.6624541811,  0.1340042065,  0.1561876870,
+     0.2722287168,  0.6740817658,  0.0536895174,
+    -0.0055746495,  0.0040607335,  1.0103391003
 );
 
-const mat3 AP0_2_AP1_MAT = mat3(
-     1.4514393161,-0.2365107469,-0.2149285693,
-    -0.0765537734, 1.1762296998,-0.0996759264,
-     0.0083161484,-0.0060324498, 0.9977163014
+const mat3 AP0_TO_AP1_MAT = mat3(
+     1.4514393161, -0.2365107469, -0.2149285693,
+    -0.0765537734,  1.1762296998, -0.0996759264,
+     0.0083161484, -0.0060324498,  0.9977163014
 );
 
-const mat3 AP1_2_AP0_MAT = mat3(
-     0.6954522414, 0.1406786965, 0.1638690622,
-     0.0447945634, 0.8596711185, 0.0955343182,
-    -0.0055258826, 0.0040252103, 1.0015006723
+const mat3 AP1_TO_AP0_MAT = mat3(
+     0.6954522414,  0.1406786965,  0.1638690622,
+     0.0447945634,  0.8596711185,  0.0955343182,
+    -0.0055258826,  0.0040252103,  1.0015006723
 );
 
-const mat3 SRGB_2_AP1_MAT = mat3(
-     0.6131324224, 0.3411640858, 0.0455034919,
-     0.0701312622, 0.9226919042, 0.0127738147,
-     0.0206155517, 0.1225777335, 0.9407840895
+const mat3 BT709_TO_AP1_MAT = mat3(
+     0.6131324224,  0.3411640858,  0.0455034919,
+     0.0701312622,  0.9226919042,  0.0127738147,
+     0.0206155517,  0.1225777335,  0.9407840895
 );
 
-const mat3 D60_2_D65_CAT = mat3(
-     0.98722400,-0.00611327, 0.01595330,
-    -0.00759836, 1.00186000, 0.00533002,
-     0.00307257,-0.00509595, 1.08168000
+const mat3 AP1_TO_BT709_MAT = mat3(
+     1.7044171550, -0.6203731627, -0.0740152827,
+    -0.1292641391,  1.1327933530, -0.0091286861,
+    -0.0205069314, -0.1340008915,  1.0657544600
 );
 
-const mat3 D65_2_D60_CAT = mat3(
-     1.01303000, 0.00610531,-0.01497100,
-     0.00769823, 0.99816500,-0.00503203,
-    -0.00284131, 0.00468516, 0.92450700
+const mat3 D60_TO_D65_CAT = mat3(
+     0.98722400, -0.00611327,  0.01595330,
+    -0.00759836,  1.00186000,  0.00533002,
+     0.00307257, -0.00509595,  1.08168000
 );
+
+const mat3 D65_TO_D60_CAT = mat3(
+     1.01303000,  0.00610531, -0.01497100,
+     0.00769823,  0.99816500, -0.00503203,
+    -0.00284131,  0.00468516,  0.92450700
+);
+
+// Cone response coefficients matrices to convert from XYZ -> LMS (see references)
+// Cat02 and Bradford are different methods of accomplishing that
 
 const mat3 CONE_RESP_CAT02 = mat3(
-    vec3( 0.7328, 0.4296,-0.1624),
-    vec3(-0.7036, 1.6975, 0.0061),
-    vec3( 0.0030, 0.0136, 0.9834)
+     0.7328,  0.4296, -0.1624,
+    -0.7036,  1.6975,  0.0061,
+     0.0030,  0.0136,  0.9834
 );
 
-const mat3 CONE_RESP_CAT02_INV = inverse(CONE_RESP_CAT02);
+const mat3 CONE_RESP_CAT02_INV = mat3(
+     1.09612382, -0.27886900,  0.18274518,
+     0.45436904,  0.47353315,  0.07209780,
+    -0.00962761, -0.00569803,  1.01532564
+);
 
 const mat3 CONE_RESP_BRADFORD = mat3(
-    vec3( 0.8951, 0.2664,-0.1614),
-    vec3(-0.7502, 1.7135, 0.0367),
-    vec3( 0.0389,-0.0685, 1.0296)
+     0.8951,  0.2664, -0.1614,
+    -0.7502,  1.7135,  0.0367,
+     0.0389, -0.0685,  1.0296
+);
+
+const mat3 CONE_RESP_BRADFORD_INV = mat3(
+     0.9869929055, -0.1470542564,  0.1599626517,
+     0.4323052697,  0.5183602715,  0.0492912282,
+    -0.0085286646,  0.0400428217,  0.9684866958
 );
 
 const vec3 AP1_RGB2Y = vec3(0.2722287168, 0.6740817658, 0.0536895174); // Desaturation Coefficients
 
-const mat3 SRGB_2_AP1_ADAPTATION_MAT = SRGB_2_XYZ_MAT * D65_2_D60_CAT * XYZ_2_AP1_MAT;
-const mat3 AP1_2_SRGB_ADAPTATION_MAT = AP1_2_XYZ_MAT * D60_2_D65_CAT * XYZ_2_SRGB_MAT;
+// Linear BT.709 <-> AP1 conversions with the D65 <-> D60 white point adaptation
+// The white point adaptation is done separately so that the raw conversion matrices can
+// be used for values that do not require the adaptation
+const mat3 BT709_TO_AP1_ADAPTATION_MAT = BT709_TO_XYZ_MAT * D65_TO_D60_CAT * XYZ_TO_AP1_MAT;
+const mat3 AP1_TO_BT709_ADAPTATION_MAT = AP1_TO_XYZ_MAT * D60_TO_D65_CAT * XYZ_TO_BT709_MAT;
 
 //////////////////////////////////////////////////////////
 /*----------------- COLOR CONVERSIONS ------------------*/
 //////////////////////////////////////////////////////////
 
+// Luminance functions (see references)
+
 float luminanceAP1(vec3 color) {
-    return dot(color, AP1_2_XYZ_MAT[1]);
+    return dot(color, AP1_TO_XYZ_MAT[1]);
 }
 
 float luminanceBT709(vec3 color) {
-    return dot(color, SRGB_2_XYZ_MAT[1]);
+    return dot(color, BT709_TO_XYZ_MAT[1]);
 }
 
 vec3 linearToSrgb(vec3 linear) {
+    // Linear BT.709 -> sRGB (Non-Linear BT.709)
+    // What differentiates sRGB from Linear BT.709 is the gamma curve
+    // It's supposed to represent how monitors display colors
+
+    // Piecewise approximation of the gamma curve that linearizes sRGB
+    // (EOTF, electro-optical transfer function)
+
     vec3 higher = (pow(abs(linear), vec3(0.41666666)) * 1.055) - 0.055;
     vec3 lower  = linear * 12.92;
+
     return mix(higher, lower, step(linear, vec3(0.0031308)));
 }
 
 vec3 srgbToLinear(vec3 srgb) {
+    // sRGB (Non-Linear BT.709) -> Linear BT.709
+
+    // Piecewise approximation of the inverse gamma curve that linearizes sRGB
+    // (inverse EOTF)
+
     vec3 higher = pow((srgb + 0.055) * 0.94786729, vec3(2.4));
     vec3 lower  = srgb * 0.07739938;
+
     return mix(higher, lower, step(srgb, vec3(0.04045)));
 }
 
 vec3 linearToAP1(vec3 color) {
-    return color * SRGB_2_AP1_ADAPTATION_MAT;
+    // Linear BT.709 -> AP1
+    // Used on lighting values
+    return color * BT709_TO_AP1_ADAPTATION_MAT;
 }
 
 vec3 ap1ToLinear(vec3 color) {
-    return color * AP1_2_SRGB_ADAPTATION_MAT;
+    // AP1 -> Linear BT.709
+    // Used on lighting values
+    return color * AP1_TO_BT709_ADAPTATION_MAT;
 }
 
-vec3 srgbToLinearAlbedoAP1(vec3 color) {
-    return srgbToLinear(color) * SRGB_2_AP1_MAT;
+vec3 srgbToAlbedoAP1(vec3 color) {
+    // sRGB -> Linear BT.709 -> AP1 (needed for albedo values)
+    // Albedo values do not need the D65 -> D60 white point conversion
+
+    // NOTE: For raw coefficients that were picked arbitrarily, you do NOT
+    // need the sRGB -> Linear BT.709 conversion here, as the coefficients are
+    // already linear
+
+    return srgbToLinear(color) * BT709_TO_AP1_MAT;
 }
 
 #define SRGB_TO_WORKING_SPACE_ALBEDO(SRGB_ALBEDO) \
-    srgbToLinearAlbedoAP1(SRGB_ALBEDO)
+    srgbToAlbedoAP1(SRGB_ALBEDO)
 
 #define SRGB_TO_WORKING_SPACE_COEFFICIENTS(LINEAR_COEFFICIENTS) \
-    (LINEAR_COEFFICIENTS) * SRGB_2_AP1_MAT
+    (LINEAR_COEFFICIENTS) * BT709_TO_AP1_MAT
 
 vec3 fromYCoCg(vec3 color) {
+    // YCoCg -> Any Linear RGB Space
+    
     float r = color.x + color.y - color.z;
     float g = color.x + color.z;
     float b = color.x - color.y - color.z;
+
     return vec3(r, g, b);
 }
 
 vec3 toYCoCg(vec3 color) {
+    // Any Linear RGB Space -> YCoCg
+
     float y  =  0.25 * color.r + 0.5 * color.g + 0.25 * color.b;
     float co =  0.5  * color.r - 0.5 * color.b;
     float cg = -0.25 * color.r + 0.5 * color.g - 0.25 * color.b;
+
     return vec3(y, co, cg);
 }
 
 vec3 fromXYZ(vec3 color) {
-    return color * XYZ_2_AP1_MAT;
+    return color * XYZ_TO_AP1_MAT;
 }
 
 vec3 toXYZ(vec3 color) {
-    return color * AP1_2_XYZ_MAT;
-}
-
-mat3 fromXYZ(mat3 mat) {
-    return mat * XYZ_2_AP1_MAT;
-}
-
-mat3 toXYZ(mat3 mat) {
-    return mat * AP1_2_XYZ_MAT;
+    return color * AP1_TO_XYZ_MAT;
 }
 
 vec3 paletteFunction(float x) {

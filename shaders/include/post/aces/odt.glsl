@@ -60,9 +60,9 @@ float YTolinearCV(float y, float maxY, float minY) {
 }
 
 vec3 darkSurroundToDimSurround(vec3 linearCV) {
-    vec3 xyY = xyzToXyV(linearCV * AP1_2_XYZ_MAT);
+    vec3 xyY = xyzToXyV(linearCV * AP1_TO_XYZ_MAT);
     xyY.b    = pow(saturate(xyY.b), DIM_SURROUND_GAMMA);
-    return xyYToXYZ(xyY) * XYZ_2_AP1_MAT;
+    return xyYToXYZ(xyY) * XYZ_TO_AP1_MAT;
 }
 
 // Gamma curves
@@ -96,11 +96,11 @@ void odt(inout vec3 color) {
     color  = darkSurroundToDimSurround(color);               // Apply gamma adjustment to compensate for dim surround
     color *= calcSatAdjustMatrix(ODT_SAT_FACTOR, AP1_RGB2Y); // Apply desaturation to compensate for luminance difference
 
-    color *= AP1_2_XYZ_MAT; // Rendering space RGB to XYZ
-    color *= D60_2_D65_CAT; // Apply CAT from ACES white point to assumed observer adapted white point
+    color *= AP1_TO_XYZ_MAT; // Rendering space RGB to XYZ
+    color *= D60_TO_D65_CAT; // Apply CAT from ACES white point to assumed observer adapted white point
 
     // CIE XYZ to display primaries and handling out-of-gamut values
-    color = saturate(color * XYZ_2_SRGB_MAT);
+    color = saturate(color * XYZ_TO_BT709_MAT);
 
     // Gamma curve to convert back to monitor RGB
     color.r = bt1886_r(color.r, ODT_DISPGAMMA, 1.0, 0.0);

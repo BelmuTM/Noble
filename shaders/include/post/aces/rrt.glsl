@@ -68,7 +68,7 @@ float centerHue(float hue, float centerHue) {
 
 void rrt(inout vec3 color) {
     // Convert to ACES2065-1
-    color *= AP1_2_AP0_MAT;
+    color *= AP1_TO_AP0_MAT;
 
     // --- Glow module --- //
     float saturation = rgbToSaturation(color);
@@ -85,7 +85,7 @@ void rrt(inout vec3 color) {
 
     color.r += hueWeight * saturation * (RRT_RED_PIVOT - color.r) * (1.0 - RRT_RED_SCALE);
 
-    color  = max0(color) * AP0_2_AP1_MAT;                       // ACES to RGB rendering space
+    color  = max0(color) * AP0_TO_AP1_MAT;                       // ACES to RGB rendering space
     color *= calcSatAdjustMatrix(RRT_SAT_FACTOR, AP1_RGB2Y);    // Global desaturation
 
     // --- Apply the tonescale independently in rendering-space RGB --- //
