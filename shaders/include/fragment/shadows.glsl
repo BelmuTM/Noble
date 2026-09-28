@@ -171,7 +171,8 @@ float getShadowCaustics(vec3 samplePosition) {
         }
         
         // Linearized distance travelled through the block
-        subsurfaceDepth = max0(subsurfaceDepthSum) * RCP_BLOCKER_SEARCH_SAMPLES * -shadowProjectionInverse[2].z * RCP_SHADOWS_DEPTH_STRETCH;
+        // It's missing a x2.0 factor to be correct, but I intentionally left it out for stylization
+        subsurfaceDepth = subsurfaceDepthSum * RCP_BLOCKER_SEARCH_SAMPLES * -shadowProjectionInverse[2].z * RCP_SHADOWS_DEPTH_STRETCH;
 
         return weightSum == 0.0 ? -1.0 : blockerDepthSum / weightSum;
     }

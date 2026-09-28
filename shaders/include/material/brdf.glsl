@@ -84,7 +84,15 @@ vec3 sampleGGXVNDF(vec3 viewDirection, vec2 xi, float alpha) {
 /*----------------------- DIFFUSE ----------------------*/
 //////////////////////////////////////////////////////////
 
-vec3 hammonDiffuse(vec3 viewDirection, vec3 lightDirection, vec3 albedo, vec3 normal, vec3 N, float F0, float alpha) {
+vec3 hammonDiffuse(
+    vec3 viewDirection,
+    vec3 lightDirection,
+    vec3 albedo,
+    vec3 normal,
+    vec3 N,
+    float F0,
+    float alpha
+) {
 
     float NdotL = dot(normal, lightDirection);
     if (NdotL <= 0.0) return vec3(0.0);
@@ -130,13 +138,22 @@ vec3 hammonDiffuseUniform(vec3 viewDirection, vec3 albedo, vec3 normal, vec3 N, 
 }
 */
 
-vec3 subsurfaceScatteringApprox(vec3 viewDirection, vec3 lightDirection, vec3 albedo, float subsurface, float distThroughMedium, uint id) {
+vec3 subsurfaceScatteringApprox(
+    vec3 viewDirection,
+    vec3 lightDirection,
+    vec3 albedo,
+    float subsurface,
+    float distanceThroughMedium,
+    uint id
+) {
 
     if (subsurface < EPS) {
         return vec3(0.0);
     }
 
-    vec3  beer     = saturate(exp((albedo * 0.5 - 1.0) * distThroughMedium / subsurface));
+    // Stylization choice, a more correct formula would be pow(albedo, distanceThroughMedium / subsurface)
+    vec3 beer = saturate(exp((albedo * 0.5 - 1.0) * distanceThroughMedium / subsurface));
+
     float cosTheta = -dot(lightDirection, viewDirection);
 
     // Phase function specifically made for leaves
@@ -243,7 +260,14 @@ vec3 computeDiffuse(
 //////////////////////////////////////////////////////////
 
 // This function assumes the light source is a sphere
-float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, out float newNdotL, out float newVdotL) {
+float NdotHSquared(
+    float angularRadius,
+    float NdotL,
+    float NdotV,
+    float VdotL,
+    out float newNdotL,
+    out float newVdotL
+) {
     
     float radiusCos = cos(angularRadius), radiusTan = tan(angularRadius);
         
@@ -282,7 +306,14 @@ float NdotHSquared(float angularRadius, float NdotL, float NdotV, float VdotL, o
     return saturate(NdotH * NdotH / HdotH);
 }
 
-vec3 computeSpecular(vec3 viewDirection, vec3 lightDirection, vec3 normal, vec3 N, vec3 K, float alpha) {
+vec3 computeSpecular(
+    vec3 viewDirection,
+    vec3 lightDirection,
+    vec3 normal,
+    vec3 N,
+    vec3 K,
+    float alpha
+) {
     
     float NdotL = dot(normal, lightDirection);
     
