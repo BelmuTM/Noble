@@ -188,7 +188,6 @@
                 scenePosition,
                 lightVectorWorld,
                 material,
-                false,
                 shadowmap,
                 directIlluminance,
                 skyIlluminance,

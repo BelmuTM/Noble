@@ -155,7 +155,6 @@ vec3 computeDiffuse(
     vec3 fragPosition,
     vec3 lightDirection,
     Material material,
-    bool isMetal,
     vec4 shadowmap,
     vec3 directIlluminance,
     vec3 skyIlluminance,
@@ -169,7 +168,9 @@ vec3 computeDiffuse(
 
     vec3 viewDirection = normalize(-fragPosition);
 
-    setBillboardNormal(material.normal, lightDirection, material.id);
+    setBillboardNormal(material.normal, vec3(0.0, 1.0, 0.0), material.id);
+
+    bool isMetal = material.F0 * maxFloat8 > labPBRMetals;
 
     vec3 diffuse = vec3(0.0);
 

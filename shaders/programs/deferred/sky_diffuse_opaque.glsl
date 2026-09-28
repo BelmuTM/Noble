@@ -173,7 +173,6 @@
             viewPosition,
             lightVectorView,
             material,
-            material.F0 * maxFloat8 > labPBRMetals,
             shadowmap,
             directIlluminance,
             skyIlluminance,

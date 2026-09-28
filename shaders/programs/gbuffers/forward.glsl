@@ -283,9 +283,7 @@
                 bool shadeTranslucents = material.F0 < minRefractionsF0;
             #endif
 
-            bool isMetal = material.F0 * maxFloat8 > labPBRMetals;
-
-            if (!isMetal && shadeTranslucents) {
+            if (shadeTranslucents) {
 
                 material.albedo = SRGB_TO_WORKING_SPACE_ALBEDO(material.albedo);
 
@@ -298,7 +296,6 @@
                         scenePosition,
                         lightVectorWorld,
                         material,
-                        isMetal,
                         shadowmap,
                         directIlluminance,
                         skyIlluminance,

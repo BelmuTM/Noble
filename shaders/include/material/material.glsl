@@ -244,10 +244,11 @@ vec3 getK(vec3 albedo, float F0) {
     }
 }
 
-#define setBillboardNormal(normal, replacementNormal, blockId) \
-    if (blockId == PLANTS_ID || blockId == DOUBLE_PLANTS_LOWER_ID || blockId == DOUBLE_PLANTS_UPPER_ID) { \
-        normal = replacementNormal; \
+void setBillboardNormal(inout vec3 normal, vec3 replacementNormal, uint blockId) {
+    if (blockId == PLANTS_ID || blockId == DOUBLE_PLANTS_LOWER_ID || blockId == DOUBLE_PLANTS_UPPER_ID) {
+        normal = replacementNormal;
     }
+}
 
 // Lightmap handling
 

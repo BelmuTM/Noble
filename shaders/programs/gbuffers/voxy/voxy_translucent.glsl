@@ -133,7 +133,6 @@ void voxy_emitFragment(VoxyFragmentParameters voxyParameters) {
             scenePosition,
             lightVectorWorld,
             material,
-            false,
             shadowmap,
             directIlluminance,
             skyIlluminance,
