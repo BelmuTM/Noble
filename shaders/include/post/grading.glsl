@@ -128,19 +128,20 @@ const mat3 agxTransformInverse = mat3(
     -0.09895303435966087, -0.09895303435966087,  1.15104696564033900
 );
 
-vec3 agxDefaultContrastApproximation(vec3 x) {
-    vec3 x2 = x * x;
-    vec3 x4 = x2 * x2;
-    vec3 x6 = x4 * x2;
+// Analytical solution from GeForceLegend (https://github.com/GeForceLegend)
+vec3 agxDefaultContrastAnalytical(vec3 x) {
+    const float scale0 = 59.507875;
+    const float scale1 = 69.862789;
 
-    return - 17.86     * x6 * x
-           + 78.01     * x6
-           - 126.7     * x4 * x
-           + 92.06     * x4
-           - 28.72     * x2 * x
-           + 4.361     * x2
-           - 0.1718    * x
-           + 0.002857;
+    x -= 20.0 / 33.0;
+    vec3 type = vec3(floatBitsToUint(x) >> 31);
+
+    vec3 scale = scale1 + (scale0 - scale1) * type;
+    vec3 power0 = 13.0 / 4.0 - 0.25 * type;
+    vec3 power1 = -4.0 / 13.0 + (4.0 / 13.0 - 1.0 / 3.0) * type;
+
+    x = 2.0 * x * pow(1.0 + scale * pow(abs(x), power0), power1) + 0.5;
+    return x;
 }
 
 void agx(inout vec3 color) {
@@ -155,7 +156,7 @@ void agx(inout vec3 color) {
     color = (color - minEv) / (maxEv - minEv);
 
     // Apply sigmoid function approximation
-    color = agxDefaultContrastApproximation(color);
+    color = agxDefaultContrastAnalytical(color);
 }
 
 void agxEotf(inout vec3 color) {
@@ -213,11 +214,10 @@ mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
 }
 
 void whiteBalance(inout vec3 color) {
-    vec3 source           = toXYZ(blackbody(WHITE_BALANCE));
-    vec3 destination      = toXYZ(blackbody(WHITE_POINT  ));
-    mat3 chromaAdaptation = chromaticAdaptationMatrix(source, destination);
+    vec3 source      = toXYZ(blackbody(WHITE_BALANCE));
+    vec3 destination = toXYZ(blackbody(WHITE_POINT  ));
 
-    color *= chromaAdaptation;
+    color *= chromaticAdaptationMatrix(source, destination);
 }
 
 void vibrance(inout vec3 color, float intensity) {

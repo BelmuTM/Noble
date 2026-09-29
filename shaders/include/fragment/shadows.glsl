@@ -49,7 +49,7 @@ float jitter1 = interleavedGradientNoise(SCREEN_COORDS.yx * 0.9 + vec2(viewSize 
         vec3 rayPosition = screenPosition;
 
         vec3 rayDirection;
-        rayDirection  = viewPosition + abs(viewPosition.z) * normalize(shadowLightVectorView);
+        rayDirection  = viewPosition + abs(viewPosition.z) * shadowLightVectorView;
         rayDirection  = viewToScreen(rayDirection, projectionMatrix, true) - rayPosition;
         rayDirection *= minOf((step(0.0, rayDirection) - rayPosition) / rayDirection);
 

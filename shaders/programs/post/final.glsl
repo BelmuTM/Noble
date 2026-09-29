@@ -100,6 +100,7 @@ in vec2 textureCoords;
 #if SHARPEN == 1
 
     void sharpeningFilter(inout vec3 color, vec2 coords) {
+
         float avgLuma = 0.0, weight = 0.0;
 
         for (int x = -1; x <= 1; x++) {
@@ -107,6 +108,7 @@ in vec2 textureCoords;
                 avgLuma += luminanceBT709(texture(MAIN_BUFFER, coords + vec2(x, y) * texelSize).rgb);
             }
         }
+
         avgLuma /= weight;
 
         float centerLuma = luminanceBT709(color);
@@ -178,9 +180,9 @@ void debugOutput(inout vec3 color) {
 
 void main() {
 
-    vec2 distortCoords = textureCoords;
-
     // Underwater distortion
+
+    vec2 distortCoords = textureCoords;
 
     #if UNDERWATER_DISTORTION == 1
 
