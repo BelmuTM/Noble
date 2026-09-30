@@ -114,7 +114,7 @@
         vec3 scatteringBack    = vec3(0.0);
         vec3 transmittanceBack = vec3(1.0);
 
-        if (viewPosition0.z != viewPosition1.z) {
+        if (viewPosition0.z != viewPosition1.z && alphaBlendedLighting.a < 0.99) {
 
             Material material = getMaterial(vertexCoords);
 

@@ -117,8 +117,10 @@
     uniform sampler2D specular;
 
     #if defined PROGRAM_ENTITY || defined PROGRAM_LIGHTNING
+
         uniform int entityId;
         uniform vec4 entityColor;
+        
     #endif
 
     void main() {
