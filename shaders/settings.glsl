@@ -647,7 +647,7 @@ const float RCP_CLOUDS_SHADOWS_STEPS = 1.0 / CLOUDS_SHADOWS_STEPS;
     #define HISTOGRAM_BINS 80
 
     // Logarithmic scale
-    const float minLogLuminance      = -6.0;
+    const float minLogLuminance      = 1.0;
     const float maxLogLuminance      = 16.0;
     const float logLuminanceRange    = maxLogLuminance - minLogLuminance;
     const float rcpLogLuminanceRange = 1.0 / logLuminanceRange;

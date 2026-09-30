@@ -35,6 +35,7 @@ in vec2 textureCoords;
 #if UNDERWATER_DISTORTION == 1
 
     void underwaterDistortion(inout vec2 coords) {
+        
         float speed   = TIME * UNDERWATER_DISTORTION_SPEED;
         float offsetX = coords.x * 25.0 + speed;
         float offsetY = coords.y * 25.0 + speed;

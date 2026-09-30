@@ -20,8 +20,8 @@
 
 const float exposureBias = 1.0;
 
-const float minExposure = exposureBias * 2.0e-5;
-const float maxExposure = exposureBias * 1.5e-1;
+const float minExposure = exposureBias * 1e-6;
+const float maxExposure = exposureBias * 1e3;
 
 const float calibration       = 12.5;  // Light meter calibration
 const float sensorSensitivity = 100.0; // Sensor sensitivity
@@ -35,6 +35,7 @@ float computeExposureFromEV100(float ev100) {
 }
 
 float computeExposure(float averageLuminance) {
+
     #if EXPOSURE == 0
 
         float ev100    = log2((F_STOPS * F_STOPS) / (1.0 / SHUTTER_SPEED) * sensorSensitivity / ISO);
@@ -47,7 +48,7 @@ float computeExposure(float averageLuminance) {
 
     #endif
 
-    return clamp(exposure, minExposure, maxExposure);
+    return exposure;
 }
 
 float fetchCurrentExposure() {
