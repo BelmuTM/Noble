@@ -322,6 +322,16 @@
 
         #endif
 
+        #if defined IRIS_INLINE_GLINT
+
+            if (mc_hasGlint()) {
+
+                vec3 glint = mc_sampleGlint();
+                albedoTexture.rgb += glint * glint;
+            }
+
+        #endif
+
         // Hand light
 
         float handLight = computeHandLight(distanceFromPosition);

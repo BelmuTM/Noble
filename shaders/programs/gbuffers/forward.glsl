@@ -265,6 +265,16 @@
                 material.albedo = vec3(1.0);
             #endif
 
+            #if defined IRIS_INLINE_GLINT
+
+                if (mc_hasGlint()) {
+
+                    vec3 glint = mc_sampleGlint();
+                    material.albedo += glint * glint;
+                }
+
+            #endif
+
             material.normal = tbn[2];
 
             // Normal map decoding
