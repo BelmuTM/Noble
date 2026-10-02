@@ -57,6 +57,7 @@ void lottes(inout vec3 color) {
     const vec3 b =
         (-pow(midIn, a) + pow(hdrMax, a) * midOut) /
         ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+
     const vec3 c =
         (pow(hdrMax, a * d) * pow(midIn, a) - pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
         ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
@@ -202,7 +203,8 @@ void agxLook(inout vec3 color) {
 mat3 chromaticAdaptationMatrix(vec3 source, vec3 destination) {
     vec3 sourceLMS      = source * CONE_RESP_CAT02;
     vec3 destinationLMS = destination * CONE_RESP_CAT02;
-    vec3 tmp            = destinationLMS / sourceLMS;
+
+    vec3 tmp = destinationLMS / sourceLMS;
 
     mat3 vonKries = mat3(
         tmp.x, 0.0, 0.0,
@@ -221,8 +223,9 @@ void whiteBalance(inout vec3 color) {
 }
 
 void vibrance(inout vec3 color, float intensity) {
-    float minimum    = minOf(color);
-    float maximum    = maxOf(color);
+    float minimum = minOf(color);
+    float maximum = maxOf(color);
+
     float saturation = (1.0 - saturate(maximum - minimum)) * saturate(1.0 - maximum) * luminanceBT709(color) * 5.0;
     vec3  lightness  = vec3((minimum + maximum) * 0.5);
 

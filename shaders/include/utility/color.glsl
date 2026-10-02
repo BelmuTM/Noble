@@ -265,35 +265,31 @@ vec3 blackbody(float temperature) {
     return rgb;
 }
 
-#if PURKINJE == 1
+void scotopicVisionApproximation(inout vec3 color) {
+    const float bias    = 1.0;
+    const float rcpBias = 1.0 / bias;
+    const vec2  xy_b    = vec2(0.26);
 
-    void scotopicVisionApproximation(inout vec3 color) {
-        const float bias    = 1.0;
-        const float rcpBias = 1.0 / bias;
-        const vec2  xy_b    = vec2(0.26);
+    vec3 xyz = toXYZ(color * rcpBias);
 
-        vec3 xyz = toXYZ(color * rcpBias);
-
-        float s;
-        if (log10(xyz.y) < -2.0) {
-            s = 0.0;
-        } else if (log10(xyz.y) < 0.6) {
-            s = 3.0 * pow2((log10(xyz.y) + 2.0) / 2.6) - 2.0 * pow3((log10(xyz.y) + 2.0) / 2.6);
-        } else {
-            s = 1.0;
-        }
-
-        float W = xyz.x + xyz.y + xyz.z;
-        float x = xyz.x / W;
-        float y = xyz.y / W;
-              x = (1.0 - s) * xy_b.x + s * x;
-              y = (1.0 - s) * xy_b.y + s * y;
-
-        color.g = 0.4468 * (1.0 - s) * xyz.y + s * xyz.y;
-        color.r = (x * color.g) / y;
-        color.b = (color.r / x) - color.r - color.g;
-
-        color = fromXYZ(color) * bias;
+    float s;
+    if (log10(xyz.y) < -2.0) {
+        s = 0.0;
+    } else if (log10(xyz.y) < 0.6) {
+        s = 3.0 * pow2((log10(xyz.y) + 2.0) / 2.6) - 2.0 * pow3((log10(xyz.y) + 2.0) / 2.6);
+    } else {
+        s = 1.0;
     }
-    
-#endif
+
+    float W = xyz.x + xyz.y + xyz.z;
+    float x = xyz.x / W;
+    float y = xyz.y / W;
+            x = (1.0 - s) * xy_b.x + s * x;
+            y = (1.0 - s) * xy_b.y + s * y;
+
+    color.g = 0.4468 * (1.0 - s) * xyz.y + s * xyz.y;
+    color.r = (x * color.g) / y;
+    color.b = (color.r / x) - color.r - color.g;
+
+    color = fromXYZ(color) * bias;
+}
