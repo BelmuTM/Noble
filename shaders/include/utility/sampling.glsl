@@ -19,6 +19,7 @@
 /********************************************************************************/
 
 vec4 cubicWeight(float v) {
+
     vec4 s = pow3(vec4(1.0, 2.0, 3.0, 4.0) - v);
 
     vec4 weight;
@@ -31,6 +32,7 @@ vec4 cubicWeight(float v) {
 }
  
 vec4 textureBicubic(sampler2D tex, vec2 coords) {
+
     vec2 texSize    = textureSize(tex, 0);
     vec2 invTexSize = 1.0 / texSize;
  
@@ -43,8 +45,9 @@ vec4 textureBicubic(sampler2D tex, vec2 coords) {
     vec4 xcubic = cubicWeight(fxy.x);
     vec4 ycubic = cubicWeight(fxy.y);
  
-    vec4 c      = coords.xxyy + vec2(-0.5, 1.5).xyxy;
-    vec4 s      = vec4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
+    vec4 c = coords.xxyy + vec2(-0.5, 1.5).xyxy;
+    vec4 s = vec4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
+    
     vec4 offset = c + vec4(xcubic.yw, ycubic.yw) / s;
  
     offset *= invTexSize.xxyy;
@@ -60,15 +63,6 @@ vec4 textureBicubic(sampler2D tex, vec2 coords) {
     return mix(mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
 }
 
-// https://iquilezles.org/articles/texture/
-vec4 textureCubic(sampler2D tex, vec2 coords) {
-    coords = coords * viewSize + 0.5;
-    vec2 fcoords = fract(coords);
-    coords = floor(coords) + fcoords * fcoords * (3.0 - 2.0 * fcoords);
-    coords = (coords - 0.5) * texelSize;
-    return texture(tex, coords);
-}
-
 /*
     Texture CatmullRom taken from TheRealMJP (https://github.com/TheRealMJP)
     SOURCE: https://gist.github.com/TheRealMJP/c83b8c0f46b63f3a88a5986f4fa982b1
@@ -77,8 +71,9 @@ vec4 textureCubic(sampler2D tex, vec2 coords) {
 // Samples a texture with Catmull-Rom filtering, using 9 texture fetches instead of 16.
 // See http://vec3.ca/bicubic-filtering-in-fewer-taps/ for more details
 vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
+
     vec2 texSize    = textureSize(tex, 0);
-    vec2 rcpTexSize = 1.0 / texSize;
+    vec2 invTexSize = 1.0 / texSize;
 
     vec2 samplePos = coords * texSize;
     vec2 texPos1   = floor(samplePos - 0.5) + 0.5;
@@ -97,9 +92,9 @@ vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
     vec2 texPos3  = texPos1 + 2.0;
     vec2 texPos12 = texPos1 + offset12;
 
-    texPos0  *= rcpTexSize;
-    texPos3  *= rcpTexSize;
-    texPos12 *= rcpTexSize;
+    texPos0  *= invTexSize;
+    texPos3  *= invTexSize;
+    texPos12 *= invTexSize;
 
     vec4 result = vec4(0.0);
 
@@ -123,6 +118,7 @@ vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
     SOURCE: https://github.com/null511/MC-Arc-Shader/blob/main/shaders/lib/sampling/linear.glsl
 */
 vec2 getLinearCoords(const in vec2 coords, const in vec2 texSize, out vec2 uv[4]) {
+    
     vec2 f         = fract(coords * texSize);
     vec2 texelSize = rcp(texSize);
 
