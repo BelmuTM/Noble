@@ -120,9 +120,9 @@
 
                 vec2 jitteredCoords = vertexCoords + taaOffsets[framemod] * texelSize;
 
-                vec3 currColor = max0(textureCatmullRom(MAIN_BUFFER, jitteredCoords).rgb);
+                vec3 currColor = textureCatmullRom(MAIN_BUFFER, jitteredCoords).rgb;
 
-                vec3 history = max0(textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb);
+                vec3 history = textureCatmullRom(HISTORY_BUFFER, prevCoords).rgb;
                      history = neighbourhoodClipping(MAIN_BUFFER, currColor, history);
 
                 float velocityWeight = saturate(length(velocity * viewSize));

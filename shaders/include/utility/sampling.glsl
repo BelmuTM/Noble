@@ -98,19 +98,29 @@ vec4 textureCatmullRom(in sampler2D tex, in vec2 coords) {
 
     vec4 result = vec4(0.0);
 
-    result += texture(tex, vec2(texPos0.x , texPos0.y)) * w0.x  * w0.y;
-    result += texture(tex, vec2(texPos12.x, texPos0.y)) * w12.x * w0.y;
-    result += texture(tex, vec2(texPos3.x , texPos0.y)) * w3.x  * w0.y;
+    vec4 sampleColor = vec4(0.0);
 
-    result += texture(tex, vec2(texPos0.x , texPos12.y)) * w0.x  * w12.y;
-    result += texture(tex, vec2(texPos12.x, texPos12.y)) * w12.x * w12.y;
-    result += texture(tex, vec2(texPos3.x , texPos12.y)) * w3.x  * w12.y;
+    vec4 minColor = vec4(1e30), maxColor = vec4(-1e30);
 
-    result += texture(tex, vec2(texPos0.x , texPos3.y)) * w0.x  * w3.y;
-    result += texture(tex, vec2(texPos12.x, texPos3.y)) * w12.x * w3.y;
-    result += texture(tex, vec2(texPos3.x , texPos3.y)) * w3.x  * w3.y;
+    #define CATMULL_ROM_SAMPLE(COORDS, WEIGHT)    \
+        sampleColor = texture(tex, COORDS);       \
+        minColor    = min(minColor, sampleColor); \
+        maxColor    = max(maxColor, sampleColor); \
+        result     += sampleColor * WEIGHT;
 
-    return result;
+    CATMULL_ROM_SAMPLE(vec2(texPos0.x , texPos0.y), w0.x  * w0.y);
+    CATMULL_ROM_SAMPLE(vec2(texPos12.x, texPos0.y), w12.x * w0.y);
+    CATMULL_ROM_SAMPLE(vec2(texPos3.x , texPos0.y), w3.x  * w0.y);
+
+    CATMULL_ROM_SAMPLE(vec2(texPos0.x , texPos12.y), w0.x  * w12.y);
+    CATMULL_ROM_SAMPLE(vec2(texPos12.x, texPos12.y), w12.x * w12.y);
+    CATMULL_ROM_SAMPLE(vec2(texPos3.x , texPos12.y), w3.x  * w12.y);
+
+    CATMULL_ROM_SAMPLE(vec2(texPos0.x , texPos3.y), w0.x  * w3.y);
+    CATMULL_ROM_SAMPLE(vec2(texPos12.x, texPos3.y), w12.x * w3.y);
+    CATMULL_ROM_SAMPLE(vec2(texPos3.x , texPos3.y), w3.x  * w3.y);
+
+    return clamp(result, minColor, maxColor);
 }
 
 /*

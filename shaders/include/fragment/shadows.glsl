@@ -149,6 +149,7 @@ float getShadowCaustics(vec3 samplePosition) {
 #if SHADOWS > 0
 
     float findBlockerDepth(vec2 shadowCoords, float shadowDepth, out float subsurfaceDepth) {
+        
         float blockerDepthSum    = 0.0;
         float subsurfaceDepthSum = 0.0;
 
@@ -178,6 +179,7 @@ float getShadowCaustics(vec3 samplePosition) {
     }
 
     vec3 PCF(vec3 shadowPosition, float penumbraSize, vec3 selfIntersectionBias) {
+
         if (penumbraSize < EPS) {
             return getShadowColor(shadowClipToShadowScreen(shadowPosition) - selfIntersectionBias);
         }
@@ -200,6 +202,7 @@ float getShadowCaustics(vec3 samplePosition) {
     }
 
     vec4 calculateShadowMapping(vec3 scenePosition, vec3 geometricNormal, float depth) {
+
         vec3 shadowPositionClip = worldToShadowClip(scenePosition);
 
         float NdotL = dot(geometricNormal, shadowLightVectorWorld);
