@@ -50,11 +50,15 @@ in vec2 textureCoords;
 #endif
 
 #if LENS_FLARES == 1
+
     #include "/include/post/lens_flares.glsl"
+
 #endif
 
 #if GLARE == 1
+
     #include "/include/post/glare.glsl"
+
 #endif
 
 #include "/include/post/exposure.glsl"
@@ -135,35 +139,42 @@ void main() {
     #if TONEMAP != ACES
         colorOut = ap1ToLinear(colorOut);
     #endif
-    
-    #if TONEMAP == 0           // AgX
+
+    #if TONEMAP == AGX                // AgX
+
         agx(colorOut);
         agxLook(colorOut);
         agxEotf(colorOut);
-        
-    #elif TONEMAP == ACES      // ACES
+
+    #elif TONEMAP == ACES             // ACES
+
         compressionLMT(colorOut);
         rrt(colorOut);
         odt(colorOut);
 
-    #elif TONEMAP == 2         // Burgess
-        burgess(colorOut);
+    #elif TONEMAP == UCHIMURA         // Uchimura
 
-    #elif TONEMAP == 3         // Reinhard-Jodie
-        reinhardJodie(colorOut);
-
-    #elif TONEMAP == 4         // Lottes
-        lottes(colorOut);
-
-    #elif TONEMAP == 5         // Uchimura
         uchimura(colorOut);
 
-    #elif TONEMAP == 6         // Uncharted 2
+    #elif TONEMAP == LOTTES           // Lottes
+
+        lottes(colorOut);
+
+    #elif TONEMAP == BURGESS          // Burgess
+
+        burgess(colorOut);
+
+    #elif TONEMAP == REINHARD         // Reinhard-Jodie
+
+        reinhardJodie(colorOut);
+
+    #elif TONEMAP == UNCHARTED2       // Uncharted 2
+
         uncharted2(colorOut);
 
     #endif
 
-    #if TONEMAP != ACES && TONEMAP != 0
+    #if TONEMAP != AGX && TONEMAP != ACES
         colorOut = linearToSrgb(colorOut);
     #endif
 

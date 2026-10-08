@@ -943,10 +943,10 @@ option.TONEMAP.comment = Applies a color correction filter for HDR lighting.
 value.TONEMAP.-1 = §cOFF
 value.TONEMAP.0 = AgX
 value.TONEMAP.1 = ACES
-value.TONEMAP.2 = Burgess
-value.TONEMAP.3 = Reinhard
-value.TONEMAP.4 = Lottes
-value.TONEMAP.5 = Uchimura
+value.TONEMAP.2 = Uchimura
+value.TONEMAP.3 = Lottes
+value.TONEMAP.4 = Burgess
+value.TONEMAP.5 = Reinhard
 value.TONEMAP.6 = Uncharted 2
 
 option.LUT = LUT

@@ -196,7 +196,21 @@ vec3 linearToAP1(vec3 color) {
 vec3 ap1ToLinear(vec3 color) {
     // AP1 -> Linear BT.709
     // Used on lighting values
-    return color * AP1_TO_BT709_ADAPTATION_MAT;
+
+    vec3 bt709 = color * AP1_TO_BT709_ADAPTATION_MAT;
+
+    // Gamut mapping to prevent out-of-bounds colors as much as possible
+
+    float luma = max0(luminanceBT709(bt709));
+
+    float minChannel = minOf(bt709);
+
+    if (minChannel < 0.0) {
+        // Desaturate until min channel = 0
+        bt709 = mix(bt709, vec3(luma), -minChannel / (luma - minChannel));
+    }
+
+    return max0(bt709);
 }
 
 vec3 srgbToAlbedoAP1(vec3 color) {
