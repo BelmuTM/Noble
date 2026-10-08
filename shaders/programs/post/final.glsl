@@ -114,7 +114,7 @@ in vec2 textureCoords;
 
         float centerLuma = luminanceBT709(color);
 
-        color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / centerLuma;
+        color *= (centerLuma + (centerLuma - avgLuma) * SHARPEN_STRENGTH) / maxEps(centerLuma);
     }
     
 #endif

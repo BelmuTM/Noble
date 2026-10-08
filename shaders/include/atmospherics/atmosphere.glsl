@@ -81,7 +81,12 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
 
         // Ray marching setup, the ray starts at the volume's bounds
 
-        vec2 distsToVolume = intersectSphericalShell(atmosphereRayPosition, rayDirection, atmosphereLowerRadius, atmosphereUpperRadius);
+        vec2 distsToVolume = intersectSphericalShell(
+            atmosphereRayPosition,
+            rayDirection,
+            atmosphereLowerRadius,
+            atmosphereUpperRadius
+        );
 
         if (distsToVolume.y < 0.0) { return vec3(0.0); }
 
@@ -179,6 +184,7 @@ vec3 evaluateAtmosphereTransmittance(vec3 origin, vec3 lightDirection, mat3x3 at
 #endif
 
 vec3 evaluateDirectIlluminance() {
+
     vec3 directIlluminance = vec3(0.0);
 
     #if defined WORLD_OVERWORLD

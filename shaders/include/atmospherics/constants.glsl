@@ -32,7 +32,7 @@ const float planetRadius          = 6371e3;                               // Met
 const float atmosphereLowerRadius = planetRadius + atmosphereLowerOffset; // Meters (m)
 const float atmosphereUpperRadius = planetRadius + 110e3;                 // Meters (m)
 
-const vec2 scaleHeights    = vec2(8.40e3, 1.25e3); // Meters (m)
+const vec2 scaleHeights    = vec2(8.40, 1.25) * km_to_m; // Meters (m)
 const vec2 invScaleHeights = 1.0 / scaleHeights;
 
 const float mieScatteringAlbedo = 0.9;
@@ -85,7 +85,20 @@ const mat3x3 atmosphereAttenuationCoefficientsEnd = mat3x3(
     vec3(0.0)
 );
 
-vec3 atmosphereRayPosition = vec3(0.0, planetRadius, 0.0) + cameraPosition;
+vec3 getAtmosphereRayPosition() {
+
+    vec3 atmosphereRayPosition = cameraPosition + vec3(0.0, planetRadius, 0.0);
+
+    float dist = length(atmosphereRayPosition);
+    
+    if (dist < atmosphereLowerRadius + 1.0) {
+        atmosphereRayPosition *= (atmosphereLowerRadius + 1.0) / dist;
+    }
+
+    return atmosphereRayPosition;
+}
+
+vec3 atmosphereRayPosition = getAtmosphereRayPosition();
 
 /* CLOUDS CONSTANTS */
 
